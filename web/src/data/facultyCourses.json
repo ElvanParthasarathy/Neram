@@ -1,0 +1,62 @@
+[
+  {
+    "code": "22EC601",
+    "name": "Digital Signal Processing (Lab Integrated)",
+    "faculty": "Thiru.J.Jagan Babu",
+    "periods": 6
+  },
+  {
+    "code": "22EC602",
+    "name": "Advanced Embedded Systems (Lab Integrated)",
+    "faculty": "Dr.C.Shobana Nageswari",
+    "periods": 6
+  },
+  {
+    "code": "22EC981",
+    "name": "Principles of Management (Management Elective)",
+    "faculty": "Dr.P.Usha Rani",
+    "periods": 3
+  },
+  {
+    "code": "22EC913",
+    "name": "Artificial Intelligence and Machine Learning",
+    "faculty": "Dr.K.K.Thyagarajan",
+    "periods": 4
+  },
+  {
+    "code": "22EC919",
+    "name": "Application of IoT in Robotics (Lab Integrated)",
+    "faculty": "Thiru.M.Jyothi Prasad",
+    "periods": 6
+  },
+  {
+    "code": "22CB003",
+    "name": "Design Thinking",
+    "faculty": "Tmt.L.Devi Priya",
+    "periods": 3
+  },
+  {
+    "code": "Placement",
+    "name": "Placement",
+    "faculty": "Thiru.J.Jagan Babu & Thiru.S.Balasubramani",
+    "periods": 3
+  },
+  {
+    "code": "22EC611",
+    "name": "Mini Project",
+    "faculty": "DR.S.G.Hymlin Rose",
+    "periods": 2
+  },
+  {
+    "code": "Library",
+    "name": "Library",
+    "faculty": "Tmt.L.Devi Priya",
+    "periods": 1
+  },
+  {
+    "code": "Sports",
+    "name": "Sports",
+    "faculty": "Thiru.J.Jagan Babu & Tmt.L.Devi Priya",
+    "periods": 1
+  }
+]
