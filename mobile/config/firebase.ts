@@ -1,7 +1,12 @@
 import { initializeApp } from "firebase/app";
+// @ts-ignore: TS sometimes incorrectly resolves the web types instead of React Native types
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import { getDatabase } from "firebase/database";
-import { getFirestore } from "firebase/firestore";
+import { 
+  initializeFirestore, 
+  persistentLocalCache, 
+  persistentMultipleTabManager 
+} from "firebase/firestore";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 
 // Your specific configuration
@@ -19,13 +24,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Auth with Persistence (Keeps user logged in offline)
-// 'as any' is used here to prevent TypeScript version mismatch errors with AsyncStorage
 const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(ReactNativeAsyncStorage as any)
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
-// Initialize Database & Firestore
+// Initialize Database (Realtime DB)
 const db = getDatabase(app);
-const firestore = getFirestore(app);
+
+// Initialize Firestore with Offline Persistence
+const firestore = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
 
 export { auth, db, firestore };

@@ -1,45 +1,67 @@
 import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, off } from 'firebase/database';
 import { db } from '../config/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 
-export const useSyncData = (path: string, storageKey: string) => {
+export function useSyncData(dbPath: string, cacheKey: string) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-
-    const sync = async () => {
-      // 1. LOAD FROM CACHE IMMEDIATELY (Offline support)
+    let isMounted = true;
+    
+    const loadData = async () => {
       try {
-        const cached = await AsyncStorage.getItem(storageKey);
-        if (cached && mounted) {
+        // 1. Load from Offline Cache IMMEDIATELY
+        const cached = await AsyncStorage.getItem(cacheKey);
+        if (cached && isMounted) {
+          console.log(`[Offline] Loaded ${cacheKey} from cache`);
           setData(JSON.parse(cached));
-          setLoading(false); // Show content immediately
+          setLoading(false); // Show data instantly
         }
+
+        // 2. Check Internet Connection
+        const netState = await NetInfo.fetch();
+        if (!netState.isConnected) {
+          setIsOffline(true);
+          setLoading(false);
+          return; // Stop here if offline
+        }
+
+        // 3. Sync with Firebase (Realtime)
+        const dbRef = ref(db, dbPath);
+        onValue(dbRef, async (snapshot) => {
+          if (isMounted) {
+            const val = snapshot.val();
+            if (val) {
+              console.log(`[Online] Synced ${dbPath}`);
+              setData(val);
+              // 4. Save new data to Cache silently
+              await AsyncStorage.setItem(cacheKey, JSON.stringify(val));
+            }
+            setLoading(false);
+          }
+        }, (error) => {
+          console.warn("Firebase Error:", error);
+          setLoading(false);
+        });
+
       } catch (e) {
-        console.log("Cache miss");
-      }
-
-      // 2. LISTEN FOR LIVE UPDATES (Background Sync)
-      const dbRef = ref(db, path);
-      const unsubscribe = onValue(dbRef, (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          if (mounted) setData(val);
-          // 3. UPDATE CACHE
-          AsyncStorage.setItem(storageKey, JSON.stringify(val));
-        }
+        console.error("Sync Error:", e);
         setLoading(false);
-      });
-
-      return () => unsubscribe();
+      }
     };
 
-    sync();
-    return () => { mounted = false; };
-  }, [path, storageKey]);
+    loadData();
 
-  return { data, loading };
-};
+    return () => {
+      isMounted = false;
+      const dbRef = ref(db, dbPath);
+      off(dbRef); // Cleanup listener
+    };
+  }, [dbPath, cacheKey]);
+
+  return { data, loading, isOffline };
+}
