@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { 
-  View, Text, ScrollView, StyleSheet, TouchableOpacity, 
-  ActivityIndicator, TextInput, Alert, Platform, Modal, RefreshControl 
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  View, Text, ScrollView, StyleSheet, TouchableOpacity,
+  ActivityIndicator, TextInput, Platform, Modal, RefreshControl, Alert
 } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { useSyncData } from '../../hooks/useSyncData';
@@ -23,12 +23,12 @@ const getPeriodDetails = (cellContent: string, courses: any[]) => {
   if (!courses) return { name: "Loading...", faculty: "", code: cellContent };
 
   if (cellContent.includes("/")) {
-    const parts = cellContent.split("/"); 
+    const parts = cellContent.split("/");
     const results = parts.map(part => {
       const trimmedPart = part.trim();
-      const pureCode = trimmedPart.split(" ")[0]; 
+      const pureCode = trimmedPart.split(" ")[0];
       const course = courses.find(c => c.code === pureCode);
-      return course 
+      return course
         ? { name: course.name, faculty: course.faculty }
         : { name: trimmedPart, faculty: "" };
     });
@@ -36,32 +36,32 @@ const getPeriodDetails = (cellContent: string, courses: any[]) => {
     return {
       name: results.map(r => r.name).join(" / "),
       faculty: results.map(r => r.faculty).join(" / "),
-      code: cellContent 
+      code: cellContent
     };
   }
 
   const pureCode = cellContent.split(" ")[0].trim();
   const course = courses.find((c: any) => c.code === pureCode);
-  return course 
-    ? { ...course, code: cellContent } 
+  return course
+    ? { ...course, code: cellContent }
     : { name: cellContent, faculty: "", code: cellContent };
 };
 
 export default function HomeScreen() {
   const { user, loading: authLoading } = useAuth();
-  
+
   // --- STATE ---
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const [dayOrder, setDayOrder] = useState("");
-  const [scheduleStatus, setScheduleStatus] = useState(""); 
-  
+  const [scheduleStatus, setScheduleStatus] = useState("");
+
   const [globalEvents, setGlobalEvents] = useState<any[]>([]);
   const [sectionEvents, setSectionEvents] = useState<any[]>([]);
   const [areEventsLoading, setAreEventsLoading] = useState(true);
-  
+
   const [activeExamPeriod, setActiveExamPeriod] = useState<any>(null);
   const [activeExamToday, setActiveExamToday] = useState<any>(null);
 
@@ -78,20 +78,29 @@ export default function HomeScreen() {
   const sec = user?.section || "A";
 
   const { data: masterData, loading: masterLoading } = useSyncData(
-    `schedules/${batch}/${dept}/${sec}`, 
+    `schedules/${batch}/${dept}/${sec}`,
     `CACHE_MASTER_${batch}_${dept}_${sec}`
   );
-  
+
+  // Note: sectionUpdates is usually a larger object containing live_daily and general
   const { data: sectionUpdates } = useSyncData(
-    `updates/${batch}/${dept}/${sec}`, 
+    `updates/${batch}/${dept}/${sec}`,
     `CACHE_UPDATES_${batch}_${dept}_${sec}`
   );
 
   const { data: allCalendar } = useSyncData(`calendars/${batch}/events`, `CACHE_CALENDAR_${batch}`);
 
-  const todayStr = currentDate.toISOString().split('T')[0];
+  // Helpers for date string logic
+  const formatDate = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
 
-  // --- FETCH LOGIC ---
+  const todayStr = formatDate(currentDate);
+
+  // --- FETCH SECTION EVENTS LOGIC ---
   useEffect(() => {
     if (batch && dept && sec) {
       setAreEventsLoading(true);
@@ -110,14 +119,15 @@ export default function HomeScreen() {
     }
   }, [batch, dept, sec, todayStr]);
 
+  // --- MAIN LOGIC ---
   useEffect(() => {
     if (!masterData || !allCalendar) return;
 
-    // Global Events
+    // 1. Global Events
     const gEvents = Array.isArray(allCalendar) ? allCalendar.filter((event: any) => event.date === todayStr) : [];
     setGlobalEvents(gEvents);
 
-    // Exam Logic
+    // 2. Exam Logic
     const currentPeriod = masterData.exams?.find((ex: any) => todayStr >= ex.startDate && todayStr <= ex.endDate);
     setActiveExamPeriod(currentPeriod || null);
 
@@ -128,13 +138,13 @@ export default function HomeScreen() {
       setActiveExamToday(null);
     }
 
-    // Day Order Logic
+    // 3. Day Order Logic
     const weekdayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
     const holidayEvent = gEvents.find((e: any) => e.title.toLowerCase().includes("holiday"));
     const manualOrderEvent = gEvents.find((e: any) => e.title.toLowerCase().includes("order"));
-    
+
     if (holidayEvent) {
-      setDayOrder(""); 
+      setDayOrder("");
       setScheduleStatus(`Holiday: ${holidayEvent.title}`);
     } else if (manualOrderEvent) {
       const foundDay = ["Monday", ...daysOrder].find(day => manualOrderEvent.title.includes(day));
@@ -156,6 +166,7 @@ export default function HomeScreen() {
     }
   }, [currentDate, masterData, allCalendar]);
 
+  // Merge Events
   const todayEvents = useMemo(() => {
     const combined = [...globalEvents, ...sectionEvents];
     return Array.from(new Map(combined.map(item => [item.id || item.title, item])).values());
@@ -164,13 +175,16 @@ export default function HomeScreen() {
   const fullDayEvent = todayEvents.find((e: any) => e.type === "FullDay");
   const halfDayEvent = todayEvents.find((e: any) => e.type === "HalfDay");
 
+  // Retrieve Update Texts
   const liveNote = sectionUpdates?.live_daily?.[todayStr]?.note || "No special updates for today.";
   const liveAuthor = sectionUpdates?.live_daily?.[todayStr]?.author || "";
   const generalText = sectionUpdates?.general_text || "No general notices.";
   const generalAuthor = sectionUpdates?.general_author || "";
 
+  // Admin Check
   const isAdmin = user?.email?.includes('admin') || user?.role === 'admin';
 
+  // --- HANDLERS ---
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => setRefreshing(false), 1500);
@@ -184,46 +198,47 @@ export default function HomeScreen() {
   const handleSaveNote = async () => {
     setIsSaving(true);
     try {
-      await update(ref(db, `updates/${batch}/${dept}/${sec}/live_daily/${todayStr}`), { 
-        note: tempNote, author: user?.displayName || "Admin" 
+      await update(ref(db, `updates/${batch}/${dept}/${sec}/live_daily/${todayStr}`), {
+        note: tempNote, author: user?.displayName || "Admin"
       });
       setIsEditingNote(false);
-    } catch (error) { Alert.alert("Error", "Failed to save"); } 
+    } catch (error) { Alert.alert("Error", "Failed to save"); }
     finally { setIsSaving(false); }
   };
 
   const handleSaveGeneral = async () => {
     setIsSaving(true);
     try {
-      await update(ref(db, `updates/${batch}/${dept}/${sec}`), { 
+      await update(ref(db, `updates/${batch}/${dept}/${sec}`), {
         general_text: tempGeneral, general_author: user?.displayName || "Admin"
       });
       setIsEditingGeneral(false);
-    } catch (error) { Alert.alert("Error", "Failed to save"); } 
+    } catch (error) { Alert.alert("Error", "Failed to save"); }
     finally { setIsSaving(false); }
   };
 
-  if (authLoading || masterLoading) return <View style={styles.center}><ActivityIndicator size="large" color="#007AFF" /></View>;
+  // --- RENDER ---
+  // Note: Only show loader if CRITICAL data is missing.
+  if ((authLoading || masterLoading) && !masterData) {
+    return <View style={styles.center}><ActivityIndicator size="large" color="#007AFF" /></View>;
+  }
 
   return (
     <View style={styles.screen}>
-      
+
       {/* HEADER */}
       <View style={styles.header}>
         <View style={styles.headerMain}>
           <Text style={styles.pageTitle}>Home Dashboard</Text>
           {isAdmin && <View style={styles.adminBadge}><Text style={styles.adminBadgeText}>Admin Mode</Text></View>}
         </View>
-        
-        {/* Preview Tag Logic - assuming userProfile available in context, simplified here */}
-        {/* If user.section !== sec logic needed, add here */}
       </View>
 
-      {/* DATE PICKER SECTION */}
+      {/* DATE PICKER */}
       <View style={styles.dateSection}>
         <Text style={styles.inputLabel}>Select date</Text>
         <View style={styles.dateInputGroup}>
-          <TextInput 
+          <TextInput
             style={styles.dateDisplay}
             editable={false}
             value={currentDate.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -234,14 +249,14 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* DATE PICKER MODAL */}
+      {/* DATE PICKER MODAL (IOS) */}
       {showPicker && (
         Platform.OS === 'ios' ? (
           <Modal transparent={true} animationType="fade">
             <View style={styles.modalParams}>
               <View style={styles.modalContent}>
                 <DateTimePicker value={currentDate} mode="date" display="inline" onChange={onDateChange} />
-                <TouchableOpacity style={styles.closeBtn} onPress={() => setShowPicker(false)}><Text style={{color:'#fff'}}>Done</Text></TouchableOpacity>
+                <TouchableOpacity style={styles.closeBtn} onPress={() => setShowPicker(false)}><Text style={{ color: '#fff' }}>Done</Text></TouchableOpacity>
               </View>
             </View>
           </Modal>
@@ -251,7 +266,7 @@ export default function HomeScreen() {
       )}
 
       <ScrollView contentContainerStyle={styles.scrollContent} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#007AFF" />}>
-        
+
         {/* ACADEMIC CALENDAR */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Academic Calendar</Text>
@@ -284,7 +299,7 @@ export default function HomeScreen() {
                     <View style={styles.examTag}><Text style={styles.examTagText}>TODAY'S EVENT</Text></View>
                     <View style={styles.cardContentFlex}>
                       <Ionicons name="calendar" size={32} color="#007AFF" />
-                      <View style={{flex: 1, marginLeft: 12}}>
+                      <View style={{ flex: 1, marginLeft: 12 }}>
                         <Text style={styles.cardTitle}>{fullDayEvent.title}</Text>
                         <Text style={styles.cardDesc}>{fullDayEvent.description || "Full Day Event"}</Text>
                         <View style={styles.metaRow}>
@@ -296,7 +311,7 @@ export default function HomeScreen() {
                   </View>
                   <View style={styles.noticeBox}>
                     <Ionicons name="information-circle" size={20} color="#007AFF" />
-                    <View style={{marginLeft: 10}}>
+                    <View style={{ marginLeft: 10 }}>
                       <Text style={styles.noticeTitle}>Classes Suspended</Text>
                       <Text style={styles.noticeSub}>Day reserved for {fullDayEvent.title}.</Text>
                     </View>
@@ -307,13 +322,13 @@ export default function HomeScreen() {
                   {/* 2. TODAY'S EXAM */}
                   {activeExamToday && (
                     <View style={[styles.card, styles.examCard]}>
-                      <View style={styles.examTag}><Text style={[styles.examTagText, {color: '#FF9500'}]}>TODAY'S EXAM</Text></View>
+                      <View style={styles.examTag}><Text style={[styles.examTagText, { color: '#FF9500' }]}>TODAY'S EXAM</Text></View>
                       <View style={styles.cardContentFlex}>
                         <Ionicons name="trophy-outline" size={32} color="#FF9500" />
-                        <View style={{flex: 1, marginLeft: 12}}>
+                        <View style={{ flex: 1, marginLeft: 12 }}>
                           <Text style={styles.cardTitle}>{activeExamToday.title}</Text>
                           <Text style={styles.cardDesc}>
-                            <Text style={{fontWeight: 'bold'}}>{activeExamToday.todaySub.code}</Text>: {getSubjectName(activeExamToday.todaySub.code, masterData?.courses)}
+                            <Text style={{ fontWeight: 'bold' }}>{activeExamToday.todaySub.code}</Text>: {getSubjectName(activeExamToday.todaySub.code, masterData?.courses)}
                           </Text>
                           <View style={styles.metaRow}>
                             <Text style={styles.metaText}><Ionicons name="time-outline" /> {activeExamToday.todaySub.startTime} - {activeExamToday.todaySub.endTime}</Text>
@@ -327,10 +342,10 @@ export default function HomeScreen() {
                   {/* 3. HALF DAY EVENT */}
                   {halfDayEvent && !activeExamToday && (
                     <View style={[styles.card, styles.specialEventCard]}>
-                      <View style={styles.examTag}><Text style={[styles.examTagText, {color: '#007AFF'}]}>SPECIAL EVENT</Text></View>
+                      <View style={styles.examTag}><Text style={[styles.examTagText, { color: '#007AFF' }]}>SPECIAL EVENT</Text></View>
                       <View style={styles.cardContentFlex}>
                         <Ionicons name="calendar-outline" size={32} color="#007AFF" />
-                        <View style={{flex: 1, marginLeft: 12}}>
+                        <View style={{ flex: 1, marginLeft: 12 }}>
                           <Text style={styles.cardTitle}>{halfDayEvent.title}</Text>
                           <Text style={styles.cardDesc}>{halfDayEvent.description || "Special Session"}</Text>
                           <View style={styles.metaRow}>
@@ -347,20 +362,20 @@ export default function HomeScreen() {
                     dayOrder && masterData?.timetable?.[dayOrder] ? (
                       <View style={styles.tableCard}>
                         <View style={styles.tableHeader}>
-                          <Text style={[styles.th, {flex: 0.5}]}>#</Text>
-                          <Text style={[styles.th, {flex: 2}]}>Course Details</Text>
-                          <Text style={[styles.th, {flex: 1}]}>Faculty</Text>
+                          <Text style={[styles.th, { flex: 0.5 }]}>#</Text>
+                          <Text style={[styles.th, { flex: 2 }]}>Course Details</Text>
+                          <Text style={[styles.th, { flex: 1 }]}>Faculty</Text>
                         </View>
                         {masterData.timetable[dayOrder].map((code: string, index: number) => {
                           const { name, faculty } = getPeriodDetails(code, masterData?.courses);
                           return (
                             <View key={index} style={[styles.tableRow, index % 2 === 0 && styles.rowAlt]}>
-                              <Text style={[styles.td, {flex: 0.5, fontWeight: 'bold', color: '#007AFF'}]}>{index + 1}</Text>
-                              <View style={{flex: 2, paddingRight: 5}}>
-                                <Text style={{fontWeight: '700', fontSize: 13}}>{code.split('/')[0]}</Text>
-                                <Text style={{fontSize: 12, color: '#555', marginTop: 2}}>{name}</Text>
+                              <Text style={[styles.td, { flex: 0.5, fontWeight: 'bold', color: '#007AFF' }]}>{index + 1}</Text>
+                              <View style={{ flex: 2, paddingRight: 5 }}>
+                                <Text style={{ fontWeight: '700', fontSize: 13 }}>{code.split('/')[0]}</Text>
+                                <Text style={{ fontSize: 12, color: '#555', marginTop: 2 }}>{name}</Text>
                               </View>
-                              <Text style={[styles.td, {flex: 1, fontSize: 11, fontStyle: 'italic', color: '#666'}]}>{faculty}</Text>
+                              <Text style={[styles.td, { flex: 1, fontSize: 11, fontStyle: 'italic', color: '#666' }]}>{faculty}</Text>
                             </View>
                           );
                         })}
@@ -368,15 +383,15 @@ export default function HomeScreen() {
                     ) : (
                       <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>No classes scheduled.</Text>
-                        <Text style={{fontSize: 12, color: '#999'}}>({scheduleStatus})</Text>
+                        <Text style={{ fontSize: 12, color: '#999' }}>({scheduleStatus})</Text>
                       </View>
                     )
                   ) : (
                     <View style={styles.noticeBox}>
                       <Ionicons name="information-circle" size={24} color="#FF3B30" />
-                      <View style={{marginLeft: 10}}>
-                        <Text style={[styles.noticeTitle, {color: '#FF3B30'}]}>Classes Suspended</Text>
-                        <Text style={[styles.noticeSub, {color: '#FF3B30'}]}>Suspended for {activeExamPeriod.title}.</Text>
+                      <View style={{ marginLeft: 10 }}>
+                        <Text style={[styles.noticeTitle, { color: '#FF3B30' }]}>Classes Suspended</Text>
+                        <Text style={[styles.noticeSub, { color: '#FF3B30' }]}>Suspended for {activeExamPeriod.title}.</Text>
                       </View>
                     </View>
                   )}
@@ -401,8 +416,8 @@ export default function HomeScreen() {
             <View style={styles.editForm}>
               <TextInput style={styles.editTextarea} multiline value={tempNote} onChangeText={setTempNote} />
               <View style={styles.formButtons}>
-                <TouchableOpacity onPress={handleSaveNote} style={styles.saveBtn}><Text style={{color:'#fff'}}>Save</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsEditingNote(false)} style={styles.cancelBtn}><Text style={{color:'#666'}}>Cancel</Text></TouchableOpacity>
+                <TouchableOpacity onPress={handleSaveNote} style={styles.saveBtn}><Text style={{ color: '#fff' }}>Save</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setIsEditingNote(false)} style={styles.cancelBtn}><Text style={{ color: '#666' }}>Cancel</Text></TouchableOpacity>
               </View>
             </View>
           ) : (
@@ -428,8 +443,8 @@ export default function HomeScreen() {
             <View style={styles.editForm}>
               <TextInput style={styles.editTextarea} multiline value={tempGeneral} onChangeText={setTempGeneral} />
               <View style={styles.formButtons}>
-                <TouchableOpacity onPress={handleSaveGeneral} style={styles.saveBtn}><Text style={{color:'#fff'}}>Save</Text></TouchableOpacity>
-                <TouchableOpacity onPress={() => setIsEditingGeneral(false)} style={styles.cancelBtn}><Text style={{color:'#666'}}>Cancel</Text></TouchableOpacity>
+                <TouchableOpacity onPress={handleSaveGeneral} style={styles.saveBtn}><Text style={{ color: '#fff' }}>Save</Text></TouchableOpacity>
+                <TouchableOpacity onPress={() => setIsEditingGeneral(false)} style={styles.cancelBtn}><Text style={{ color: '#666' }}>Cancel</Text></TouchableOpacity>
               </View>
             </View>
           ) : (
@@ -440,7 +455,7 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* ACADEMIC CONTEXT DETAILS */}
+        {/* DETAILS GRID */}
         <View style={styles.detailsGrid}>
           <View style={styles.detailItem}>
             <Text style={styles.detailLabel}>Batch</Text>
@@ -465,7 +480,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#F5F7FA' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   scrollContent: { paddingBottom: 100 },
-  
+
   header: { padding: 20, paddingTop: 60, backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#E5E5EA' },
   headerMain: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   pageTitle: { fontSize: 24, fontWeight: '800', color: '#1A1A1A' },
@@ -497,7 +512,7 @@ const styles = StyleSheet.create({
   majorEventCard: { borderLeftWidth: 4, borderLeftColor: '#EF4444' }, // Red
   examCard: { borderLeftWidth: 4, borderLeftColor: '#F59E0B' }, // Orange
   specialEventCard: { borderLeftWidth: 4, borderLeftColor: '#3B82F6' }, // Blue
-  
+
   examTag: { marginBottom: 10 },
   examTagText: { fontSize: 10, fontWeight: '800', color: '#EF4444', letterSpacing: 0.5 },
   cardContentFlex: { flexDirection: 'row', alignItems: 'flex-start' },
@@ -531,7 +546,7 @@ const styles = StyleSheet.create({
   formButtons: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 10 },
   saveBtn: { backgroundColor: '#10B981', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, marginLeft: 10 },
   cancelBtn: { backgroundColor: '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, marginLeft: 10 },
-  
+
   messageContainer: { backgroundColor: '#fff', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#E5E5EA' },
   messageBody: { fontSize: 14, color: '#374151', lineHeight: 20 },
   authorTag: { fontSize: 11, color: '#9CA3AF', marginTop: 6, textAlign: 'right', fontStyle: 'italic' },

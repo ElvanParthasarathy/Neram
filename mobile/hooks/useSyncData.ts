@@ -4,64 +4,67 @@ import { db } from '../config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 
-export function useSyncData(dbPath: string, cacheKey: string) {
+export function useSyncData(dbPath: string, storageKey: string) {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isOffline, setIsOffline] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-    
-    const loadData = async () => {
+
+    const synchronizeData = async () => {
       try {
-        // 1. Load from Offline Cache IMMEDIATELY
-        const cached = await AsyncStorage.getItem(cacheKey);
-        if (cached && isMounted) {
-          console.log(`[Offline] Loaded ${cacheKey} from cache`);
-          setData(JSON.parse(cached));
-          setLoading(false); // Show data instantly
+        // 1. READ FROM PHONE STORAGE (Instant Offline Access)
+        const storedData = await AsyncStorage.getItem(storageKey);
+        
+        if (storedData && isMounted) {
+          console.log(`[Disk] Loaded ${storageKey} from device storage`);
+          setData(JSON.parse(storedData));
+          setLoading(false); // <--- SHOW APP IMMEDIATELY
         }
 
-        // 2. Check Internet Connection
+        // 2. CHECK NETWORK
         const netState = await NetInfo.fetch();
         if (!netState.isConnected) {
-          setIsOffline(true);
-          setLoading(false);
-          return; // Stop here if offline
+          console.log(`[Offline] Using stored data for ${storageKey}`);
+          setLoading(false); 
+          return; // Stop here if no internet
         }
 
-        // 3. Sync with Firebase (Realtime)
+        // 3. BACKGROUND SYNC (Download & Save to Disk)
         const dbRef = ref(db, dbPath);
         onValue(dbRef, async (snapshot) => {
           if (isMounted) {
             const val = snapshot.val();
             if (val) {
-              console.log(`[Online] Synced ${dbPath}`);
+              console.log(`[Cloud] New data found for ${storageKey}`);
+              
+              // A. Update the Screen (Live)
               setData(val);
-              // 4. Save new data to Cache silently
-              await AsyncStorage.setItem(cacheKey, JSON.stringify(val));
+              
+              // B. Write to Phone Storage (Persistent)
+              await AsyncStorage.setItem(storageKey, JSON.stringify(val));
             }
             setLoading(false);
           }
         }, (error) => {
-          console.warn("Firebase Error:", error);
+          console.warn("[Sync Error]", error);
           setLoading(false);
         });
 
       } catch (e) {
-        console.error("Sync Error:", e);
+        console.error("Storage Error:", e);
         setLoading(false);
       }
     };
 
-    loadData();
+    synchronizeData();
 
     return () => {
       isMounted = false;
       const dbRef = ref(db, dbPath);
-      off(dbRef); // Cleanup listener
+      off(dbRef);
     };
-  }, [dbPath, cacheKey]);
+  }, [dbPath, storageKey]);
 
-  return { data, loading, isOffline };
+  return { data, loading };
 }
