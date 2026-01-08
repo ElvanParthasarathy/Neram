@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, SplashScreen } from 'expo-router';
 import { AuthProvider, useAuth } from '../context/AuthContext';
 import { ThemeProvider, DefaultTheme, DarkTheme } from '@react-navigation/native';
-import { useColorScheme } from 'react-native';
+import { useColorScheme, View, ActivityIndicator } from 'react-native';
 
-// This component handles the redirection logic based on login state
+// 1. Prevent the splash screen from auto-hiding
+// This keeps the native logo visible while we check if the user is logged in.
+SplashScreen.preventAutoHideAsync();
+
 function RootLayoutNav() {
   const { user, loading } = useAuth();
   const segments = useSegments();
@@ -12,10 +15,14 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
+    // 2. Wait until Auth loading is finished
     if (loading) return;
 
+    // 3. Hide the splash screen now that we know the login state
+    SplashScreen.hideAsync();
+
     const inAuthGroup = segments[0] === '(tabs)';
-    
+
     if (!user && inAuthGroup) {
       // If not logged in and trying to access tabs, go to login
       router.replace('/login');
@@ -24,6 +31,15 @@ function RootLayoutNav() {
       router.replace('/(tabs)');
     }
   }, [user, loading, segments]);
+
+  // 4. Render a loading spinner while we wait (Safety fallback)
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -35,44 +51,44 @@ function RootLayoutNav() {
         <Stack.Screen name="login" options={{ gestureEnabled: false }} />
 
         {/* The 3-Dot Menu (Opens as a Modal) */}
-        <Stack.Screen 
-          name="menu" 
-          options={{ 
-            presentation: 'modal', 
+        <Stack.Screen
+          name="menu"
+          options={{
+            presentation: 'modal',
             headerShown: false,
-            animation: 'slide_from_bottom' 
-          }} 
+            animation: 'slide_from_bottom'
+          }}
         />
 
         {/* --- Sub-Pages linked from the Menu --- */}
-        <Stack.Screen 
-          name="college-sites" 
-          options={{ 
-            presentation: 'card', 
-            title: 'College Sites', 
+        <Stack.Screen
+          name="college-sites"
+          options={{
+            presentation: 'card',
+            title: 'College Sites',
             headerShown: true,
-            headerBackTitle: 'Back' 
-          }} 
+            headerBackTitle: 'Back'
+          }}
         />
-        
-        <Stack.Screen 
-          name="contact" 
-          options={{ 
-            presentation: 'card', 
-            title: 'Contact Support', 
+
+        <Stack.Screen
+          name="contact"
+          options={{
+            presentation: 'card',
+            title: 'Contact Support',
             headerShown: true,
-            headerBackTitle: 'Back' 
-          }} 
+            headerBackTitle: 'Back'
+          }}
         />
-        
-        <Stack.Screen 
-          name="admin" 
-          options={{ 
-            presentation: 'card', 
-            title: 'Admin Panel', 
+
+        <Stack.Screen
+          name="admin"
+          options={{
+            presentation: 'card',
+            title: 'Admin Panel',
             headerShown: true,
-            headerBackTitle: 'Back' 
-          }} 
+            headerBackTitle: 'Back'
+          }}
         />
 
         {/* Generic Modal (Optional) */}
