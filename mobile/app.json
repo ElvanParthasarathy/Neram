@@ -1,17 +1,20 @@
 {
   "expo": {
-    "name": "mobile",
+    "name": "Neram",
     "slug": "mobile",
-    "version": "1.0.0",
+    "version": "1.0.0-beta.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "neram",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.elvanparthasarathy.neram"
     },
     "android": {
+      "package": "com.elvanparthasarathy.neram",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -44,6 +47,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "aaf1e338-216a-40c4-ba9a-574bfa32321e"
+      }
     }
   }
 }
