@@ -1,0 +1,196 @@
+﻿> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin FAILED
+.\gradlew : e: file:///D:/Projects/React/Neram/mobile/app/src/main/java
+/com/elvan/rmdneram/ui/screens/admin/AdminEventManagerScreen.kt:161:31 
+Argument type mismatch: actual type is 'kotlin.collections.List<com.elv
+an.rmdneram.data.model.CalendarEvent>', but 'kotlin.Int' was expected.
+At line:1 char:1
++ .\gradlew assembleDebug > build_log_3.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///D:/P...' was e 
+   xpected.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminEventManagerScreen.kt:162:29 @Composable 
+invocations can only happen from the context of a @Composable function
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminEventManagerScreen.kt:162:44 Argument 
+type mismatch: actual type is 'kotlin.Int', but 
+'com.elvan.rmdneram.data.model.CalendarEvent' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminEventManagerScreen.kt:163:59 Assignment 
+type mismatch: actual type is 'kotlin.Int', but 
+'com.elvan.rmdneram.data.model.CalendarEvent?' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminEventManagerScreen.kt:165:114 Unresolved 
+reference 'id'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminEventManagerScreen.kt:167:85 Unresolved 
+reference 'id'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:192:31 Argument 
+type mismatch: actual type is 
+'kotlin.collections.List<com.elvan.rmdneram.data.model.ExamSchedule>', 
+but 'kotlin.Int' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:193:29 @Composable 
+invocations can only happen from the context of a @Composable function
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:193:43 Argument 
+type mismatch: actual type is 'kotlin.Int', but 
+'com.elvan.rmdneram.data.model.ExamSchedule' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:194:58 Assignment 
+type mismatch: actual type is 'kotlin.Int', but 
+'com.elvan.rmdneram.data.model.ExamSchedule?' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:196:80 Unresolved 
+reference 'id'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:474:31 Argument 
+type mismatch: actual type is 
+'kotlin.collections.List<com.elvan.rmdneram.data.model.Course>', but 
+'kotlin.Int' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:475:29 @Composable 
+invocations can only happen from the context of a @Composable function
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:478:113 Unresolved 
+reference 'code'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:482:45 Unresolved 
+reference 'code'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminExamManagerScreen.kt:484:45 Unresolved 
+reference 'name'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:189:39 Argument 
+type mismatch: actual type is 
+'kotlin.collections.List<com.elvan.rmdneram.data.model.Course>', but 
+'kotlin.Int' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:190:37 
+@Composable invocations can only happen from the context of a 
+@Composable function
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:190:48 Argument 
+type mismatch: actual type is 'kotlin.Int', but 
+'com.elvan.rmdneram.data.model.Course' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:190:91 
+Assignment type mismatch: actual type is 'kotlin.Int', but 
+'com.elvan.rmdneram.data.model.Course?' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:191:90 
+Unresolved reference 'code'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:336:19 Argument 
+type mismatch: actual type is 
+'kotlin.collections.List<kotlin.String>', but 'kotlin.Int' was 
+expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:337:17 
+@Composable invocations can only happen from the context of a 
+@Composable function
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:338:21 None of 
+the following candidates is applicable:
+fun Text(text: AnnotatedString, modifier: Modifier = ..., color: Color 
+= ..., fontSize: TextUnit = ..., fontStyle: FontStyle? = ..., 
+fontWeight: FontWeight? = ..., fontFamily: FontFamily? = ..., 
+letterSpacing: TextUnit = ..., textDecoration: TextDecoration? = ..., 
+textAlign: TextAlign? = ..., lineHeight: TextUnit = ..., overflow: 
+TextOverflow = ..., softWrap: Boolean = ..., maxLines: Int = ..., 
+minLines: Int = ..., inlineContent: Map<String, InlineTextContent> = 
+..., onTextLayout: (TextLayoutResult) -> Unit = ..., style: TextStyle 
+= ...): Unit
+fun Text(text: String, modifier: Modifier = ..., color: Color = ..., 
+fontSize: TextUnit = ..., fontStyle: FontStyle? = ..., fontWeight: 
+FontWeight? = ..., fontFamily: FontFamily? = ..., letterSpacing: 
+TextUnit = ..., textDecoration: TextDecoration? = ..., textAlign: 
+TextAlign? = ..., lineHeight: TextUnit = ..., overflow: TextOverflow = 
+..., softWrap: Boolean = ..., maxLines: Int = ..., minLines: Int = 
+..., onTextLayout: ((TextLayoutResult) -> Unit)? = ..., style: 
+TextStyle = ...): Unit
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:341:39 Type 
+inference failed. The value of the type parameter 'K' should be 
+mentioned in input types (argument types, receiver type, or expected 
+type). Try to specify it explicitly.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:343:334 
+Argument type mismatch: actual type is 'kotlin.Int', but 
+'kotlin.String' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:431:27 Argument 
+type mismatch: actual type is 
+'kotlin.collections.List<com.elvan.rmdneram.data.model.Course>', but 
+'kotlin.Int' was expected.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:432:25 
+@Composable invocations can only happen from the context of a 
+@Composable function
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:432:262 
+Unresolved reference 'code'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:433:41 
+Unresolved reference 'code'.
+e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
+mdneram/ui/screens/admin/AdminScheduleManagerScreen.kt:435:41 
+Unresolved reference 'name'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunne
+r.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 6s
+32 actionable tasks: 2 executed, 30 up-to-date

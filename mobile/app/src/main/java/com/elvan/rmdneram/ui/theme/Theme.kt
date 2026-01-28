@@ -9,12 +9,22 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    // Pure black for AMOLED displays - true black pixels are turned off
+    background = Color.Black,
+    surface = Color.Black,
+    surfaceVariant = Color(0xFF1C1C1C),
+    surfaceContainer = Color.Black,
+    surfaceContainerLow = Color.Black,
+    surfaceContainerLowest = Color.Black,
+    surfaceContainerHigh = Color(0xFF1C1C1C),
+    surfaceContainerHighest = Color(0xFF2C2C2C)
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -43,7 +53,21 @@ fun NeramTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) {
+                // Use dynamic colors but override with pure black for AMOLED
+                dynamicDarkColorScheme(context).copy(
+                    background = Color.Black,
+                    surface = Color.Black,
+                    surfaceVariant = Color(0xFF1C1C1C),
+                    surfaceContainer = Color.Black,
+                    surfaceContainerLow = Color.Black,
+                    surfaceContainerLowest = Color.Black,
+                    surfaceContainerHigh = Color(0xFF1C1C1C),
+                    surfaceContainerHighest = Color(0xFF2C2C2C)
+                )
+            } else {
+                dynamicLightColorScheme(context)
+            }
         }
 
         darkTheme -> DarkColorScheme

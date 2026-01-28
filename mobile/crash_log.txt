@@ -1,0 +1,1313 @@
+﻿--------- beginning of crash
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: FATAL EXCEPTION: main
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: Process: com.neramapp, PID: 4542
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.neramapp/com.neramapp.MainActivity}: androidx.fragment.app.Fragment$InstantiationException: Unable to instantiate fragment com.swmansion.rnscreens.ScreenStackFragment: calling Fragment constructor caused an exception
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4710)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4941)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:222)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:133)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:103)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:80)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3150)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: Caused by: androidx.fragment.app.Fragment$InstantiationException: Unable to instantiate fragment com.swmansion.rnscreens.ScreenStackFragment: calling Fragment constructor caused an exception
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.Fragment.instantiate(Fragment.java:690)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentContainer.instantiate(FragmentContainer.java:57)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager$3.instantiate(FragmentManager.java:525)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentState.instantiate(FragmentState.java:84)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentStateManager.<init>(FragmentStateManager.java:91)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager.restoreSaveStateInternal(FragmentManager.java:2562)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager.attachController(FragmentManager.java:2722)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentController.attachHost(FragmentController.java:117)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity.lambda$init$3$androidx-fragment-app-FragmentActivity(FragmentActivity.java:139)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity$$ExternalSyntheticLambda3.onContextAvailable(D8$$SyntheticClass:0)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.activity.contextaware.ContextAwareHelper.dispatchOnContextAvailable(ContextAwareHelper.kt:84)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.activity.ComponentActivity.onCreate(ComponentActivity.java:358)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity.onCreate(FragmentActivity.java:216)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at com.facebook.react.ReactActivity.onCreate(ReactActivity.java:60)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:9519)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:9488)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1524)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4692)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	... 13 more
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: Caused by: java.lang.reflect.InvocationTargetException
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance0(Native Method)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance(Constructor.java:343)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at androidx.fragment.app.Fragment.instantiate(Fragment.java:672)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	... 30 more
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: Caused by: java.lang.IllegalStateException: Screen fragments should never be restored. Follow instructions from https://github.com/software-mansion/react-native-screens/issues/17#issuecomment-424704067 to properly configure your main activity.
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at com.swmansion.rnscreens.ScreenFragment.<init>(ScreenFragment.kt:66)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	at com.swmansion.rnscreens.ScreenStackFragment.<init>(ScreenStackFragment.kt:87)
+01-20 08:22:36.531  4542  4542 E AndroidRuntime: 	... 33 more
+01-21 15:15:52.897   981  1086 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-21 15:15:52.897   981  1086 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-21 15:15:52.897   981  1086 F DEBUG   : Revision: '7'
+01-21 15:15:52.897   981  1086 F DEBUG   : ABI: 'arm64'
+01-21 15:15:52.897   981  1086 F DEBUG   : Processor: '-1'
+01-21 15:15:52.897   981  1086 F DEBUG   : Timestamp: 2026-01-21 15:15:42.396825792+0530
+01-21 15:15:52.897   981  1086 F DEBUG   : Process uptime: 257966s
+01-21 15:15:52.897   981  1086 F DEBUG   : Cmdline: kumiho.decoder ihodecoder
+01-21 15:15:52.897   981  1086 F DEBUG   : pid: 981, tid: 1086, name: binder:981_1  >>> kumiho.decoder <<<
+01-21 15:15:52.897   981  1086 F DEBUG   : uid: 6030
+01-21 15:15:52.897   981  1086 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-21 15:15:52.897   981  1086 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr --------
+01-21 15:15:52.898   981  1086 F DEBUG   :     x0  b40000742ae29c97  x1  b40000761488dff8  x2  0000000000000000  x3  00000075fbf19000
+01-21 15:15:52.898   981  1086 F DEBUG   :     x4  0000000000000090  x5  0000000000000004  x6  b4000073dadeedf8  x7  b4000073dadeedf8
+01-21 15:15:52.898   981  1086 F DEBUG   :     x8  000075fbf3b52800  x9  b40000742ae29c70  x10 0000000000000028  x11 00000000026ae8c4
+01-21 15:15:52.898   981  1086 F DEBUG   :     x12 0000000000090008  x13 b40000752adf3c70  x14 0000000000000000  x15 000000734addfd90
+01-21 15:15:52.898   981  1086 F DEBUG   :     x16 0000000000000001  x17 00000075e7058350  x18 000000734a428000  x19 b40000753ae040d0
+01-21 15:15:52.898   981  1086 F DEBUG   :     x20 b40000761488dff8  x21 b40000742ae29c98  x22 00000076122d31b0  x23 b40000738ae06150
+01-21 15:15:52.898   981  1086 F DEBUG   :     x24 000000000000000f  x25 000000734ade0c40  x26 0000000000000001  x27 8000000000000000
+01-21 15:15:52.898   981  1086 F DEBUG   :     x28 0000000005f5e101  x29 000000734ade0570
+01-21 15:15:52.898   981  1086 F DEBUG   :     lr  00000075e7058378  sp  000000734ade0570  pc  00000075e70583d0  pst 0000000060001000
+01-21 15:15:52.898   981  1086 F DEBUG   : 16 total frames
+01-21 15:15:52.898   981  1086 F DEBUG   : backtrace:
+01-21 15:15:52.898   981  1086 F DEBUG   :       #00 pc 00000000000113d0  /system/lib64/libutils.so (android::RefBase::decStrong(void const*) const+128) (BuildId: 6fa0dfe7de5dd0fb7d207f728dd4cd95)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #01 pc 00000000001d9ff8  /system/lib64/libskstream.so (android::CallbackSkStream::~CallbackSkStream()+108) (BuildId: cb54ca8f42d856e483e981ed41883632)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #02 pc 00000000001d9744  /system/lib64/libskstream.so (android::CallbackSkStream::~CallbackSkStream()+16) (BuildId: cb54ca8f42d856e483e981ed41883632)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #03 pc 00000000001b71fc  /system/lib64/libkumihodecoderservice.so (SkCodec::~SkCodec()+56) (BuildId: bedf5075121738611a906a8b6f65eb65)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #04 pc 00000000001c9cb8  /system/lib64/libkumihodecoderservice.so (SkPngNormalDecoder::~SkPngNormalDecoder()+16) (BuildId: bedf5075121738611a906a8b6f65eb65)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #05 pc 00000000001aa8d4  /system/lib64/libkumihodecoderservice.so (SkAndroidCodec::~SkAndroidCodec()+52) (BuildId: bedf5075121738611a906a8b6f65eb65)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #06 pc 00000000001b5ea4  /system/lib64/libkumihodecoderservice.so (SkSampledCodec::~SkSampledCodec()+16) (BuildId: bedf5075121738611a906a8b6f65eb65)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #07 pc 00000000001cf884  /system/lib64/libskandroidcodec.so (android::RemoteSkAndroidCodec::~RemoteSkAndroidCodec()+180) (BuildId: 9cad78cd1e997deed9beb545aeb4ac61)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #08 pc 00000000001cf7b0  /system/lib64/libskandroidcodec.so (virtual thunk to android::RemoteSkAndroidCodec::~RemoteSkAndroidCodec()+36) (BuildId: 9cad78cd1e997deed9beb545aeb4ac61)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #09 pc 00000000000113ec  /system/lib64/libutils.so (android::RefBase::decStrong(void const*) const+156) (BuildId: 6fa0dfe7de5dd0fb7d207f728dd4cd95)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #10 pc 000000000005137c  /system/lib64/libbinder.so (android::IPCThreadState::joinThreadPool(bool)+572) (BuildId: 0ca6a05641d41b3585d09f36f3e3f755)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #11 pc 0000000000080dc8  /system/lib64/libbinder.so (android::PoolThread::threadLoop()+116) (BuildId: 0ca6a05641d41b3585d09f36f3e3f755)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #12 pc 0000000000017060  /system/lib64/libutils.so (android::Thread::_threadLoop(void*)+248) (BuildId: 6fa0dfe7de5dd0fb7d207f728dd4cd95)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #13 pc 000000000001966c  /system/lib64/libutils.so (libutil_thread_trampoline(void*) (.__uniq.226528677032898775202282855395389835431)+20) (BuildId: 6fa0dfe7de5dd0fb7d207f728dd4cd95)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #14 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 15:15:52.898   981  1086 F DEBUG   :       #15 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:14:59.357 25529 25710 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 25710 (bt_stack_manage), pid 25529 (droid.bluetooth)
+01-21 18:15:01.121 25813 25813 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-21 18:15:01.121 25813 25813 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-21 18:15:01.121 25813 25813 F DEBUG   : Revision: '7'
+01-21 18:15:01.121 25813 25813 F DEBUG   : ABI: 'arm64'
+01-21 18:15:01.121 25813 25813 F DEBUG   : Processor: '3'
+01-21 18:15:01.121 25813 25813 F DEBUG   : Timestamp: 2026-01-21 18:14:59.498231728+0530
+01-21 18:15:01.121 25813 25813 F DEBUG   : Process uptime: 0s
+01-21 18:15:01.121 25813 25813 F DEBUG   : Cmdline: com.android.bluetooth
+01-21 18:15:01.121 25813 25813 F DEBUG   : pid: 25529, tid: 25710, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-21 18:15:01.121 25813 25813 F DEBUG   : uid: 1002
+01-21 18:15:01.121 25813 25813 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-21 18:15:01.122 25813 25813 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-21 18:15:01.122 25813 25813 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-21 18:15:01.122 25813 25813 F DEBUG   :     x0  0000000000000000  x1  000000000000646e  x2  0000000000000006  x3  0000006c94d1c370
+01-21 18:15:01.122 25813 25813 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-21 18:15:01.122 25813 25813 F DEBUG   :     x8  00000000000000f0  x9  c94843d418bc1bd6  x10 000000ff00000020  x11 00000000949207df
+01-21 18:15:01.122 25813 25813 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 00000004e96c88e2
+01-21 18:15:01.122 25813 25813 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8b408038  x19 00000000000063b9
+01-21 18:15:01.122 25813 25813 F DEBUG   :     x20 000000000000646e  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-21 18:15:01.122 25813 25813 F DEBUG   :     x24 0000006c94d1c950  x25 0000006c94d1ca90  x26 0000006c95a015c0  x27 0000006c94d1c990
+01-21 18:15:01.122 25813 25813 F DEBUG   :     x28 0000006c94d1ca98  x29 0000006c94d1c3f0
+01-21 18:15:01.122 25813 25813 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c94d1c370  pc  0000006fd273dc48  pst 0000000000001000
+01-21 18:15:01.122 25813 25813 F DEBUG   : 12 total frames
+01-21 18:15:01.122 25813 25813 F DEBUG   : backtrace:
+01-21 18:15:01.122 25813 25813 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:01.122 25813 25813 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-21 18:15:01.122 25813 25813 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-21 18:15:01.122 25813 25813 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:01.123 25813 25813 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:01.123 25813 25813 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:01.123 25813 25813 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:01.123 25813 25813 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:01.123 25813 25813 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:01.123 25813 25813 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:01.123 25813 25813 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:01.123 25813 25813 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:02.985 26014 26058 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 26058 (bt_stack_manage), pid 26014 (droid.bluetooth)
+01-21 18:15:04.294 26065 26065 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-21 18:15:04.294 26065 26065 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-21 18:15:04.294 26065 26065 F DEBUG   : Revision: '7'
+01-21 18:15:04.295 26065 26065 F DEBUG   : ABI: 'arm64'
+01-21 18:15:04.295 26065 26065 F DEBUG   : Processor: '4'
+01-21 18:15:04.295 26065 26065 F DEBUG   : Timestamp: 2026-01-21 18:15:03.252102033+0530
+01-21 18:15:04.295 26065 26065 F DEBUG   : Process uptime: 0s
+01-21 18:15:04.295 26065 26065 F DEBUG   : Cmdline: com.android.bluetooth
+01-21 18:15:04.295 26065 26065 F DEBUG   : pid: 26014, tid: 26058, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-21 18:15:04.295 26065 26065 F DEBUG   : uid: 1002
+01-21 18:15:04.295 26065 26065 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-21 18:15:04.295 26065 26065 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-21 18:15:04.295 26065 26065 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-21 18:15:04.295 26065 26065 F DEBUG   :     x0  0000000000000000  x1  00000000000065ca  x2  0000000000000006  x3  0000006c9dcbb370
+01-21 18:15:04.295 26065 26065 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-21 18:15:04.295 26065 26065 F DEBUG   :     x8  00000000000000f0  x9  410e5de4119e1ac1  x10 000000ff00000020  x11 00000000dfc8760e
+01-21 18:15:04.295 26065 26065 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 00000004ef11aa2b
+01-21 18:15:04.295 26065 26065 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8d93c038  x19 000000000000659e
+01-21 18:15:04.295 26065 26065 F DEBUG   :     x20 00000000000065ca  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-21 18:15:04.295 26065 26065 F DEBUG   :     x24 0000006c9dcbb950  x25 0000006c9dcbba90  x26 0000006c94a625c0  x27 0000006c9dcbb990
+01-21 18:15:04.295 26065 26065 F DEBUG   :     x28 0000006c9dcbba98  x29 0000006c9dcbb3f0
+01-21 18:15:04.296 26065 26065 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c9dcbb370  pc  0000006fd273dc48  pst 0000000000001000
+01-21 18:15:04.296 26065 26065 F DEBUG   : 12 total frames
+01-21 18:15:04.296 26065 26065 F DEBUG   : backtrace:
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:04.296 26065 26065 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:04.297 26065 26065 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:06.311 26166 26207 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 26207 (bt_stack_manage), pid 26166 (droid.bluetooth)
+01-21 18:15:07.454 26216 26216 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-21 18:15:07.454 26216 26216 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-21 18:15:07.454 26216 26216 F DEBUG   : Revision: '7'
+01-21 18:15:07.454 26216 26216 F DEBUG   : ABI: 'arm64'
+01-21 18:15:07.454 26216 26216 F DEBUG   : Processor: '3'
+01-21 18:15:07.454 26216 26216 F DEBUG   : Timestamp: 2026-01-21 18:15:06.738500069+0530
+01-21 18:15:07.454 26216 26216 F DEBUG   : Process uptime: 0s
+01-21 18:15:07.454 26216 26216 F DEBUG   : Cmdline: com.android.bluetooth
+01-21 18:15:07.454 26216 26216 F DEBUG   : pid: 26166, tid: 26207, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-21 18:15:07.454 26216 26216 F DEBUG   : uid: 1002
+01-21 18:15:07.454 26216 26216 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-21 18:15:07.454 26216 26216 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-21 18:15:07.454 26216 26216 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-21 18:15:07.454 26216 26216 F DEBUG   :     x0  0000000000000000  x1  000000000000665f  x2  0000000000000006  x3  0000006c9c485370
+01-21 18:15:07.454 26216 26216 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-21 18:15:07.454 26216 26216 F DEBUG   :     x8  00000000000000f0  x9  3e389c44c896fc8c  x10 000000ff00000020  x11 00000000949207df
+01-21 18:15:07.454 26216 26216 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 00000004f4395e06
+01-21 18:15:07.454 26216 26216 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c91460038  x19 0000000000006636
+01-21 18:15:07.454 26216 26216 F DEBUG   :     x20 000000000000665f  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-21 18:15:07.454 26216 26216 F DEBUG   :     x24 0000006c9c485950  x25 0000006c9c485a90  x26 0000006c984645c0  x27 0000006c9c485990
+01-21 18:15:07.454 26216 26216 F DEBUG   :     x28 0000006c9c485a98  x29 0000006c9c4853f0
+01-21 18:15:07.454 26216 26216 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c9c485370  pc  0000006fd273dc48  pst 0000000000001000
+01-21 18:15:07.454 26216 26216 F DEBUG   : 12 total frames
+01-21 18:15:07.454 26216 26216 F DEBUG   : backtrace:
+01-21 18:15:07.454 26216 26216 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:07.454 26216 26216 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-21 18:15:07.454 26216 26216 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:07.455 26216 26216 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:09.528 26379 26409 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 26409 (bt_stack_manage), pid 26379 (droid.bluetooth)
+01-21 18:15:10.406 26432 26432 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-21 18:15:10.406 26432 26432 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-21 18:15:10.406 26432 26432 F DEBUG   : Revision: '7'
+01-21 18:15:10.406 26432 26432 F DEBUG   : ABI: 'arm64'
+01-21 18:15:10.406 26432 26432 F DEBUG   : Processor: '4'
+01-21 18:15:10.406 26432 26432 F DEBUG   : Timestamp: 2026-01-21 18:15:09.664526490+0530
+01-21 18:15:10.406 26432 26432 F DEBUG   : Process uptime: 0s
+01-21 18:15:10.406 26432 26432 F DEBUG   : Cmdline: com.android.bluetooth
+01-21 18:15:10.406 26432 26432 F DEBUG   : pid: 26379, tid: 26409, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-21 18:15:10.407 26432 26432 F DEBUG   : uid: 1002
+01-21 18:15:10.407 26432 26432 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-21 18:15:10.407 26432 26432 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-21 18:15:10.407 26432 26432 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-21 18:15:10.407 26432 26432 F DEBUG   :     x0  0000000000000000  x1  0000000000006729  x2  0000000000000006  x3  0000006c9a7a1370
+01-21 18:15:10.407 26432 26432 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-21 18:15:10.407 26432 26432 F DEBUG   :     x8  00000000000000f0  x9  86a151cc3b7ed289  x10 000000ff00000020  x11 00000000dfc8760e
+01-21 18:15:10.407 26432 26432 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 00000004f9357b82
+01-21 18:15:10.407 26432 26432 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8c734038  x19 000000000000670b
+01-21 18:15:10.407 26432 26432 F DEBUG   :     x20 0000000000006729  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-21 18:15:10.407 26432 26432 F DEBUG   :     x24 0000006c9a7a1950  x25 0000006c9a7a1a90  x26 0000006c95c705c0  x27 0000006c9a7a1990
+01-21 18:15:10.407 26432 26432 F DEBUG   :     x28 0000006c9a7a1a98  x29 0000006c9a7a13f0
+01-21 18:15:10.407 26432 26432 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c9a7a1370  pc  0000006fd273dc48  pst 0000000000001000
+01-21 18:15:10.407 26432 26432 F DEBUG   : 12 total frames
+01-21 18:15:10.408 26432 26432 F DEBUG   : backtrace:
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:10.408 26432 26432 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:12.961 26474 26502 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 26502 (bt_stack_manage), pid 26474 (droid.bluetooth)
+01-21 18:15:13.866 26510 26510 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-21 18:15:13.866 26510 26510 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-21 18:15:13.866 26510 26510 F DEBUG   : Revision: '7'
+01-21 18:15:13.867 26510 26510 F DEBUG   : ABI: 'arm64'
+01-21 18:15:13.867 26510 26510 F DEBUG   : Processor: '4'
+01-21 18:15:13.867 26510 26510 F DEBUG   : Timestamp: 2026-01-21 18:15:13.132702064+0530
+01-21 18:15:13.867 26510 26510 F DEBUG   : Process uptime: 0s
+01-21 18:15:13.867 26510 26510 F DEBUG   : Cmdline: com.android.bluetooth
+01-21 18:15:13.867 26510 26510 F DEBUG   : pid: 26474, tid: 26502, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-21 18:15:13.867 26510 26510 F DEBUG   : uid: 1002
+01-21 18:15:13.867 26510 26510 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-21 18:15:13.867 26510 26510 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-21 18:15:13.867 26510 26510 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-21 18:15:13.867 26510 26510 F DEBUG   :     x0  0000000000000000  x1  0000000000006786  x2  0000000000000006  x3  0000006c8f651370
+01-21 18:15:13.867 26510 26510 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-21 18:15:13.867 26510 26510 F DEBUG   :     x8  00000000000000f0  x9  a2ea132f54d90650  x10 000000ff00000020  x11 00000000146681b9
+01-21 18:15:13.868 26510 26510 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 00000004fe87c909
+01-21 18:15:13.868 26510 26510 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8e76c038  x19 000000000000676a
+01-21 18:15:13.868 26510 26510 F DEBUG   :     x20 0000000000006786  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-21 18:15:13.868 26510 26510 F DEBUG   :     x24 0000006c8f651950  x25 0000006c8f651a90  x26 0000006c955325c0  x27 0000006c8f651990
+01-21 18:15:13.868 26510 26510 F DEBUG   :     x28 0000006c8f651a98  x29 0000006c8f6513f0
+01-21 18:15:13.868 26510 26510 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c8f651370  pc  0000006fd273dc48  pst 0000000000001000
+01-21 18:15:13.868 26510 26510 F DEBUG   : 12 total frames
+01-21 18:15:13.868 26510 26510 F DEBUG   : backtrace:
+01-21 18:15:13.868 26510 26510 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:13.868 26510 26510 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-21 18:15:13.868 26510 26510 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-21 18:15:13.868 26510 26510 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:13.868 26510 26510 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:13.869 26510 26510 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:13.869 26510 26510 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:13.869 26510 26510 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:13.869 26510 26510 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:13.869 26510 26510 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:13.869 26510 26510 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:13.869 26510 26510 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:16.752 26638 26668 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 26668 (bt_stack_manage), pid 26638 (droid.bluetooth)
+01-21 18:15:17.675 26682 26682 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-21 18:15:17.675 26682 26682 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-21 18:15:17.675 26682 26682 F DEBUG   : Revision: '7'
+01-21 18:15:17.675 26682 26682 F DEBUG   : ABI: 'arm64'
+01-21 18:15:17.675 26682 26682 F DEBUG   : Processor: '3'
+01-21 18:15:17.675 26682 26682 F DEBUG   : Timestamp: 2026-01-21 18:15:16.949142369+0530
+01-21 18:15:17.675 26682 26682 F DEBUG   : Process uptime: 0s
+01-21 18:15:17.675 26682 26682 F DEBUG   : Cmdline: com.android.bluetooth
+01-21 18:15:17.675 26682 26682 F DEBUG   : pid: 26638, tid: 26668, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-21 18:15:17.676 26682 26682 F DEBUG   : uid: 1002
+01-21 18:15:17.676 26682 26682 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-21 18:15:17.676 26682 26682 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-21 18:15:17.676 26682 26682 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-21 18:15:17.676 26682 26682 F DEBUG   :     x0  0000000000000000  x1  000000000000682c  x2  0000000000000006  x3  0000006c9af88370
+01-21 18:15:17.676 26682 26682 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-21 18:15:17.676 26682 26682 F DEBUG   :     x8  00000000000000f0  x9  9fa45287ba87cada  x10 000000ff00000020  x11 00000000581fbc93
+01-21 18:15:17.676 26682 26682 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 00000005046776e2
+01-21 18:15:17.676 26682 26682 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8d6b4038  x19 000000000000680e
+01-21 18:15:17.676 26682 26682 F DEBUG   :     x20 000000000000682c  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-21 18:15:17.676 26682 26682 F DEBUG   :     x24 0000006c9af88950  x25 0000006c9af88a90  x26 0000006c95db95c0  x27 0000006c9af88990
+01-21 18:15:17.676 26682 26682 F DEBUG   :     x28 0000006c9af88a98  x29 0000006c9af883f0
+01-21 18:15:17.676 26682 26682 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c9af88370  pc  0000006fd273dc48  pst 0000000000001000
+01-21 18:15:17.676 26682 26682 F DEBUG   : 12 total frames
+01-21 18:15:17.677 26682 26682 F DEBUG   : backtrace:
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:17.677 26682 26682 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:17.678 26682 26682 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:17.678 26682 26682 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:23.629 26734 26768 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 26768 (bt_stack_manage), pid 26734 (droid.bluetooth)
+01-21 18:15:24.054 26773 26773 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-21 18:15:24.054 26773 26773 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-21 18:15:24.054 26773 26773 F DEBUG   : Revision: '7'
+01-21 18:15:24.054 26773 26773 F DEBUG   : ABI: 'arm64'
+01-21 18:15:24.054 26773 26773 F DEBUG   : Processor: '6'
+01-21 18:15:24.054 26773 26773 F DEBUG   : Timestamp: 2026-01-21 18:15:23.736498480+0530
+01-21 18:15:24.054 26773 26773 F DEBUG   : Process uptime: 0s
+01-21 18:15:24.054 26773 26773 F DEBUG   : Cmdline: com.android.bluetooth
+01-21 18:15:24.054 26773 26773 F DEBUG   : pid: 26734, tid: 26768, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-21 18:15:24.055 26773 26773 F DEBUG   : uid: 1002
+01-21 18:15:24.055 26773 26773 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-21 18:15:24.055 26773 26773 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-21 18:15:24.055 26773 26773 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:45 initializationComplete: status == HidlStatus::SUCCESS'
+01-21 18:15:24.055 26773 26773 F DEBUG   :     x0  0000000000000000  x1  0000000000006890  x2  0000000000000006  x3  0000006c922fe900
+01-21 18:15:24.055 26773 26773 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-21 18:15:24.055 26773 26773 F DEBUG   :     x8  00000000000000f0  x9  f06867c61929eb35  x10 000000ff00000020  x11 000000005500f575
+01-21 18:15:24.055 26773 26773 F DEBUG   :     x12 0000000000060006  x13 000000007fffffff  x14 00000000045c127e  x15 000000050f102f50
+01-21 18:15:24.055 26773 26773 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c91c980a0  x19 000000000000686e
+01-21 18:15:24.055 26773 26773 F DEBUG   :     x20 0000000000006890  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-21 18:15:24.055 26773 26773 F DEBUG   :     x24 0000006c922feee0  x25 0000006c922ff020  x26 0000006c990e25c0  x27 0000006c922fef20
+01-21 18:15:24.055 26773 26773 F DEBUG   :     x28 0000006c922ff028  x29 0000006c922fe980
+01-21 18:15:24.055 26773 26773 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c922fe900  pc  0000006fd273dc48  pst 0000000000001000
+01-21 18:15:24.055 26773 26773 F DEBUG   : 25 total frames
+01-21 18:15:24.055 26773 26773 F DEBUG   : backtrace:
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #04 pc 0000000000b6fb44  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::hal::HidlHciCallbacks::initializationComplete(android::hardware::bluetooth::V1_0::Status)+112) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #05 pc 0000000000b791d0  /apex/com.android.bt/lib64/libbluetooth_jni.so (android::hardware::bluetooth::V1_0::BnHwBluetoothHciCallbacks::_hidl_initializationComplete(android::hidl::base::V1_0::BnHwBase*, android::hardware::Parcel const&, android::hardware::Parcel*, std::__1::function<void (android::hardware::Parcel&)>)+164) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #06 pc 0000000000b7c85c  /apex/com.android.bt/lib64/libbluetooth_jni.so (android::hardware::bluetooth::V1_1::BnHwBluetoothHciCallbacks::onTransact(unsigned int, android::hardware::Parcel const&, android::hardware::Parcel*, unsigned int, std::__1::function<void (android::hardware::Parcel&)>)+568) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #07 pc 0000000000bef030  /apex/com.android.bt/lib64/libbluetooth_jni.so (android::hardware::BHwBinder::transact(unsigned int, android::hardware::Parcel const&, android::hardware::Parcel*, unsigned int, std::__1::function<void (android::hardware::Parcel&)>)+164) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #08 pc 0000000000bf1670  /apex/com.android.bt/lib64/libbluetooth_jni.so (android::hardware::IPCThreadState::executeCommand(int)+1104) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #09 pc 0000000000bf231c  /apex/com.android.bt/lib64/libbluetooth_jni.so (android::hardware::IPCThreadState::waitForResponse(android::hardware::Parcel*, int*)+520) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #10 pc 0000000000bf1ec8  /apex/com.android.bt/lib64/libbluetooth_jni.so (android::hardware::IPCThreadState::transact(int, unsigned int, android::hardware::Parcel const&, android::hardware::Parcel*, unsigned int)+260) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #11 pc 0000000000befbe8  /apex/com.android.bt/lib64/libbluetooth_jni.so (android::hardware::BpHwBinder::transact(unsigned int, android::hardware::Parcel const&, android::hardware::Parcel*, unsigned int, std::__1::function<void (android::hardware::Parcel&)>)+80) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #12 pc 0000000000b74bf8  /apex/com.android.bt/lib64/libbluetooth_jni.so (android::hardware::bluetooth::V1_0::BpHwBluetoothHci::_hidl_initialize(android::hardware::IInterface*, android::hardware::details::HidlInstrumentor*, android::sp<android::hardware::bluetooth::V1_0::IBluetoothHciCallbacks> const&)+352) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #13 pc 0000000000b6ef64  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::hal::HidlHci::initialize(std::__1::shared_ptr<bluetooth::hal::HciBackendCallbacks>)+388) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #14 pc 0000000000b69454  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::hal::HciHalImpl::Start()+788) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #15 pc 0000000000b57174  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::ModuleRegistry::Start(bluetooth::ModuleFactory const*, bluetooth::os::Thread*, bluetooth::os::Handler*)+736) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #16 pc 0000000000b56e70  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::ModuleRegistry::Start(bluetooth::ModuleList*, bluetooth::os::Thread*, bluetooth::os::Handler*)+56) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #17 pc 00000000003e58c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::shim::Stack::handle_start_up(bluetooth::ModuleList*, std::__1::promise<void>)+104) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #18 pc 00000000003e6880  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<void (bluetooth::shim::Stack::*)(bluetooth::ModuleList*, std::__1::promise<void>), base::internal::UnretainedWrapper<bluetooth::shim::Stack>, bluetooth::ModuleList*, std::__1::promise<void>>, void ()>::RunOnce(base::internal::BindStateBase*)+76) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #19 pc 0000000000b57af4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Handler::handle_next_event()+312) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #20 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #21 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #22 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #23 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-21 18:15:24.055 26773 26773 F DEBUG   :       #24 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:42.219 16494 16582 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 16582 (bt_stack_manage), pid 16494 (droid.bluetooth)
+01-23 09:57:45.931 16659 16689 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 16689 (bt_stack_manage), pid 16659 (droid.bluetooth)
+01-23 09:57:46.869 16697 16697 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-23 09:57:46.869 16697 16697 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-23 09:57:46.869 16697 16697 F DEBUG   : Revision: '7'
+01-23 09:57:46.869 16697 16697 F DEBUG   : ABI: 'arm64'
+01-23 09:57:46.869 16697 16697 F DEBUG   : Processor: '2'
+01-23 09:57:46.869 16697 16697 F DEBUG   : Timestamp: 2026-01-23 09:57:46.139278293+0530
+01-23 09:57:46.869 16697 16697 F DEBUG   : Process uptime: 0s
+01-23 09:57:46.869 16697 16697 F DEBUG   : Cmdline: com.android.bluetooth
+01-23 09:57:46.869 16697 16697 F DEBUG   : pid: 16659, tid: 16689, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-23 09:57:46.869 16697 16697 F DEBUG   : uid: 1002
+01-23 09:57:46.869 16697 16697 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-23 09:57:46.869 16697 16697 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-23 09:57:46.870 16697 16697 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-23 09:57:46.870 16697 16697 F DEBUG   :     x0  0000000000000000  x1  0000000000004131  x2  0000000000000006  x3  0000006c9a7a1370
+01-23 09:57:46.870 16697 16697 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-23 09:57:46.870 16697 16697 F DEBUG   :     x8  00000000000000f0  x9  4159915a408872af  x10 000000ff00000020  x11 00000000dfc8760e
+01-23 09:57:46.870 16697 16697 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 0000000072a58310
+01-23 09:57:46.870 16697 16697 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8db8c038  x19 0000000000004113
+01-23 09:57:46.870 16697 16697 F DEBUG   :     x20 0000000000004131  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-23 09:57:46.870 16697 16697 F DEBUG   :     x24 0000006c9a7a1950  x25 0000006c9a7a1a90  x26 0000006c9675f5c0  x27 0000006c9a7a1990
+01-23 09:57:46.870 16697 16697 F DEBUG   :     x28 0000006c9a7a1a98  x29 0000006c9a7a13f0
+01-23 09:57:46.870 16697 16697 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c9a7a1370  pc  0000006fd273dc48  pst 0000000000001000
+01-23 09:57:46.870 16697 16697 F DEBUG   : 12 total frames
+01-23 09:57:46.870 16697 16697 F DEBUG   : backtrace:
+01-23 09:57:46.870 16697 16697 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:46.871 16697 16697 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:48.569 16750 16778 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 16778 (bt_stack_manage), pid 16750 (droid.bluetooth)
+01-23 09:57:49.489 16786 16786 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-23 09:57:49.489 16786 16786 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-23 09:57:49.490 16786 16786 F DEBUG   : Revision: '7'
+01-23 09:57:49.490 16786 16786 F DEBUG   : ABI: 'arm64'
+01-23 09:57:49.490 16786 16786 F DEBUG   : Processor: '1'
+01-23 09:57:49.490 16786 16786 F DEBUG   : Timestamp: 2026-01-23 09:57:48.758851906+0530
+01-23 09:57:49.490 16786 16786 F DEBUG   : Process uptime: 0s
+01-23 09:57:49.490 16786 16786 F DEBUG   : Cmdline: com.android.bluetooth
+01-23 09:57:49.490 16786 16786 F DEBUG   : pid: 16750, tid: 16778, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-23 09:57:49.490 16786 16786 F DEBUG   : uid: 1002
+01-23 09:57:49.490 16786 16786 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-23 09:57:49.490 16786 16786 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-23 09:57:49.490 16786 16786 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-23 09:57:49.490 16786 16786 F DEBUG   :     x0  0000000000000000  x1  000000000000418a  x2  0000000000000006  x3  0000006c8f87b370
+01-23 09:57:49.491 16786 16786 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-23 09:57:49.491 16786 16786 F DEBUG   :     x8  00000000000000f0  x9  a9c1524e51f8e96d  x10 000000ff00000020  x11 00000000949207df
+01-23 09:57:49.491 16786 16786 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 0000000076bc1634
+01-23 09:57:49.491 16786 16786 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8ea7c038  x19 000000000000416e
+01-23 09:57:49.491 16786 16786 F DEBUG   :     x20 000000000000418a  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-23 09:57:49.491 16786 16786 F DEBUG   :     x24 0000006c8f87b950  x25 0000006c8f87ba90  x26 0000006c9565e5c0  x27 0000006c8f87b990
+01-23 09:57:49.491 16786 16786 F DEBUG   :     x28 0000006c8f87ba98  x29 0000006c8f87b3f0
+01-23 09:57:49.491 16786 16786 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c8f87b370  pc  0000006fd273dc48  pst 0000000000001000
+01-23 09:57:49.491 16786 16786 F DEBUG   : 12 total frames
+01-23 09:57:49.491 16786 16786 F DEBUG   : backtrace:
+01-23 09:57:49.491 16786 16786 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:49.491 16786 16786 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:49.492 16786 16786 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:51.649 16797 16825 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 16825 (bt_stack_manage), pid 16797 (droid.bluetooth)
+01-23 09:57:52.605 16832 16832 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-23 09:57:52.605 16832 16832 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-23 09:57:52.605 16832 16832 F DEBUG   : Revision: '7'
+01-23 09:57:52.605 16832 16832 F DEBUG   : ABI: 'arm64'
+01-23 09:57:52.605 16832 16832 F DEBUG   : Processor: '3'
+01-23 09:57:52.605 16832 16832 F DEBUG   : Timestamp: 2026-01-23 09:57:51.873656289+0530
+01-23 09:57:52.605 16832 16832 F DEBUG   : Process uptime: 0s
+01-23 09:57:52.605 16832 16832 F DEBUG   : Cmdline: com.android.bluetooth
+01-23 09:57:52.606 16832 16832 F DEBUG   : pid: 16797, tid: 16825, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-23 09:57:52.606 16832 16832 F DEBUG   : uid: 1002
+01-23 09:57:52.606 16832 16832 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-23 09:57:52.606 16832 16832 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-23 09:57:52.606 16832 16832 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-23 09:57:52.606 16832 16832 F DEBUG   :     x0  0000000000000000  x1  00000000000041b9  x2  0000000000000006  x3  0000006c9052f370
+01-23 09:57:52.606 16832 16832 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-23 09:57:52.606 16832 16832 F DEBUG   :     x8  00000000000000f0  x9  fe8e497d0f6b3f5c  x10 000000ff00000020  x11 00000000dfc8760e
+01-23 09:57:52.606 16832 16832 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 000000007b81e576
+01-23 09:57:52.606 16832 16832 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8fa40038  x19 000000000000419d
+01-23 09:57:52.606 16832 16832 F DEBUG   :     x20 00000000000041b9  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-23 09:57:52.606 16832 16832 F DEBUG   :     x24 0000006c9052f950  x25 0000006c9052fa90  x26 0000006c99e415c0  x27 0000006c9052f990
+01-23 09:57:52.606 16832 16832 F DEBUG   :     x28 0000006c9052fa98  x29 0000006c9052f3f0
+01-23 09:57:52.607 16832 16832 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c9052f370  pc  0000006fd273dc48  pst 0000000000001000
+01-23 09:57:52.607 16832 16832 F DEBUG   : 12 total frames
+01-23 09:57:52.607 16832 16832 F DEBUG   : backtrace:
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:52.607 16832 16832 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:52.608 16832 16832 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:52.608 16832 16832 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:55.132 16850 16879 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 16879 (bt_stack_manage), pid 16850 (droid.bluetooth)
+01-23 09:57:56.158 16894 16894 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-23 09:57:56.158 16894 16894 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-23 09:57:56.158 16894 16894 F DEBUG   : Revision: '7'
+01-23 09:57:56.158 16894 16894 F DEBUG   : ABI: 'arm64'
+01-23 09:57:56.158 16894 16894 F DEBUG   : Processor: '1'
+01-23 09:57:56.158 16894 16894 F DEBUG   : Timestamp: 2026-01-23 09:57:55.433917132+0530
+01-23 09:57:56.158 16894 16894 F DEBUG   : Process uptime: 0s
+01-23 09:57:56.158 16894 16894 F DEBUG   : Cmdline: com.android.bluetooth
+01-23 09:57:56.158 16894 16894 F DEBUG   : pid: 16850, tid: 16879, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-23 09:57:56.158 16894 16894 F DEBUG   : uid: 1002
+01-23 09:57:56.158 16894 16894 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-23 09:57:56.159 16894 16894 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-23 09:57:56.159 16894 16894 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-23 09:57:56.159 16894 16894 F DEBUG   :     x0  0000000000000000  x1  00000000000041ef  x2  0000000000000006  x3  0000006c9c969370
+01-23 09:57:56.159 16894 16894 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-23 09:57:56.159 16894 16894 F DEBUG   :     x8  00000000000000f0  x9  64ef55260b9011a6  x10 000000ff00000020  x11 00000000949207df
+01-23 09:57:56.159 16894 16894 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 0000000080e7f415
+01-23 09:57:56.159 16894 16894 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c92a00038  x19 00000000000041d2
+01-23 09:57:56.159 16894 16894 F DEBUG   :     x20 00000000000041ef  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-23 09:57:56.159 16894 16894 F DEBUG   :     x24 0000006c9c969950  x25 0000006c9c969a90  x26 0000006c99e0c5c0  x27 0000006c9c969990
+01-23 09:57:56.159 16894 16894 F DEBUG   :     x28 0000006c9c969a98  x29 0000006c9c9693f0
+01-23 09:57:56.159 16894 16894 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c9c969370  pc  0000006fd273dc48  pst 0000000000001000
+01-23 09:57:56.159 16894 16894 F DEBUG   : 12 total frames
+01-23 09:57:56.159 16894 16894 F DEBUG   : backtrace:
+01-23 09:57:56.159 16894 16894 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:56.159 16894 16894 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-23 09:57:56.159 16894 16894 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-23 09:57:56.159 16894 16894 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:56.160 16894 16894 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:56.160 16894 16894 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:56.160 16894 16894 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:56.160 16894 16894 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:56.160 16894 16894 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:56.160 16894 16894 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:56.160 16894 16894 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:56.160 16894 16894 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:59.094 16927 16957 F libc    : Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 16957 (bt_stack_manage), pid 16927 (droid.bluetooth)
+01-23 09:57:59.938 16966 16966 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+01-23 09:57:59.938 16966 16966 F DEBUG   : Build fingerprint: 'samsung/a53xnsxx/a53x:16/BP2A.250605.031.A3/A536EXXSIGYL3:user/release-keys'
+01-23 09:57:59.938 16966 16966 F DEBUG   : Revision: '7'
+01-23 09:57:59.938 16966 16966 F DEBUG   : ABI: 'arm64'
+01-23 09:57:59.938 16966 16966 F DEBUG   : Processor: '3'
+01-23 09:57:59.938 16966 16966 F DEBUG   : Timestamp: 2026-01-23 09:57:59.340572283+0530
+01-23 09:57:59.938 16966 16966 F DEBUG   : Process uptime: 0s
+01-23 09:57:59.938 16966 16966 F DEBUG   : Cmdline: com.android.bluetooth
+01-23 09:57:59.938 16966 16966 F DEBUG   : pid: 16927, tid: 16957, name: bt_stack_manage  >>> com.android.bluetooth <<<
+01-23 09:57:59.938 16966 16966 F DEBUG   : uid: 1002
+01-23 09:57:59.938 16966 16966 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+01-23 09:57:59.938 16966 16966 F DEBUG   : signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+01-23 09:57:59.938 16966 16966 F DEBUG   : Abort message: 'system/gd/hal/hci_backend_hidl.cc:121 operator(): Unable to get a Bluetooth service after 500ms, start the HAL before starting Bluetooth'
+01-23 09:57:59.938 16966 16966 F DEBUG   :     x0  0000000000000000  x1  000000000000423d  x2  0000000000000006  x3  0000006c8b617370
+01-23 09:57:59.938 16966 16966 F DEBUG   :     x4  622d6b6368675e63  x5  622d6b6368675e63  x6  622d6b6368675e63  x7  7f7f7f7f7f7f7f7f
+01-23 09:57:59.938 16966 16966 F DEBUG   :     x8  00000000000000f0  x9  d30599166fca51ef  x10 000000ff00000020  x11 00000000949207df
+01-23 09:57:59.938 16966 16966 F DEBUG   :     x12 0000000000090008  x13 000000007fffffff  x14 0000000000000000  x15 00000000870bb062
+01-23 09:57:59.938 16966 16966 F DEBUG   :     x16 0000006fd27b60d8  x17 0000006fd279ec40  x18 0000006c8afa4038  x19 000000000000421f
+01-23 09:57:59.938 16966 16966 F DEBUG   :     x20 000000000000423d  x21 00000000ffffffff  x22 0000006d41761000  x23 0000006d41762e20
+01-23 09:57:59.938 16966 16966 F DEBUG   :     x24 0000006c8b617950  x25 0000006c8b617a90  x26 0000006c978ea5c0  x27 0000006c8b617990
+01-23 09:57:59.938 16966 16966 F DEBUG   :     x28 0000006c8b617a98  x29 0000006c8b6173f0
+01-23 09:57:59.938 16966 16966 F DEBUG   :     lr  0000006fd273dc24  sp  0000006c8b617370  pc  0000006fd273dc48  pst 0000000000001000
+01-23 09:57:59.938 16966 16966 F DEBUG   : 12 total frames
+01-23 09:57:59.938 16966 16966 F DEBUG   : backtrace:
+01-23 09:57:59.938 16966 16966 F DEBUG   :       #00 pc 000000000006ec48  /apex/com.android.runtime/lib64/bionic/libc.so (abort+156) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:59.938 16966 16966 F DEBUG   :       #01 pc 00000000008a0f94  /apex/com.android.art/lib64/libart.so (art::Runtime::Abort(char const*)+620) (BuildId: eb4ec0f1d1c7267591d83fa87cb36390)
+01-23 09:57:59.938 16966 16966 F DEBUG   :       #02 pc 0000000000016188  /apex/com.android.art/lib64/libbase.so (android::base::SetAborter(std::__1::function<void (char const*)>&&)::$_0::__invoke(char const*)+80) (BuildId: 8aca1185566f3990ce9d6c61841c18af)
+01-23 09:57:59.938 16966 16966 F DEBUG   :       #03 pc 0000000000cdf584  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::log_internal::vlog(bluetooth::log_internal::Level, char const*, bluetooth::log_internal::source_location, std::__1::basic_string_view<char, std::__1::char_traits<char>>, std::__1::basic_format_args<std::__1::basic_format_context<std::__1::back_insert_iterator<std::__1::__format::__output_buffer<char>>, char>>)+1216) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:59.939 16966 16966 F DEBUG   :       #04 pc 0000000000b6f95c  /apex/com.android.bt/lib64/libbluetooth_jni.so (void bluetooth::log::fatal<unsigned int&>(std::__1::basic_format_string<char, std::__1::type_identity<unsigned int&>::type>, unsigned int&, bluetooth::log_internal::source_location)+96) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:59.939 16966 16966 F DEBUG   :       #05 pc 0000000000b6f8f4  /apex/com.android.bt/lib64/libbluetooth_jni.so (base::internal::Invoker<base::internal::BindState<bluetooth::hal::HidlHci::HidlHci(bluetooth::os::Handler*)::'lambda'(unsigned int), int>, void ()>::RunOnce(base::internal::BindStateBase*)+808) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:59.939 16966 16966 F DEBUG   :       #06 pc 0000000000b647c4  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Alarm::on_fire()+504) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:59.939 16966 16966 F DEBUG   :       #07 pc 0000000000b66e0c  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Reactor::Run()+780) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:59.939 16966 16966 F DEBUG   :       #08 pc 0000000000b67e08  /apex/com.android.bt/lib64/libbluetooth_jni.so (bluetooth::os::Thread::run(bluetooth::os::Thread::Priority)+244) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:59.939 16966 16966 F DEBUG   :       #09 pc 0000000000b67fac  /apex/com.android.bt/lib64/libbluetooth_jni.so (void* std::__1::__thread_proxy[abi:nn200000]<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct>>, void (bluetooth::os::Thread::*)(bluetooth::os::Thread::Priority), bluetooth::os::Thread*, bluetooth::os::Thread::Priority>>(void*)+68) (BuildId: 165617482ec8d8f23482237ce2d4e401)
+01-23 09:57:59.939 16966 16966 F DEBUG   :       #10 pc 000000000007e8ac  /apex/com.android.runtime/lib64/bionic/libc.so (__pthread_start(void*)+232) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 09:57:59.939 16966 16966 F DEBUG   :       #11 pc 0000000000071bdc  /apex/com.android.runtime/lib64/bionic/libc.so (__start_thread+64) (BuildId: fa6ae44f4b2b6a34abebf1b3983cbf88)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: FATAL EXCEPTION: main
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: Process: com.neramapp, PID: 27439
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.neramapp/com.neramapp.MainActivity}: androidx.fragment.app.Fragment$InstantiationException: Unable to instantiate fragment com.swmansion.rnscreens.ScreenStackFragment: calling Fragment constructor caused an exception
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4710)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4941)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:222)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:133)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:103)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:80)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3150)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: Caused by: androidx.fragment.app.Fragment$InstantiationException: Unable to instantiate fragment com.swmansion.rnscreens.ScreenStackFragment: calling Fragment constructor caused an exception
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.Fragment.instantiate(Fragment.java:690)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentContainer.instantiate(FragmentContainer.java:57)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager$3.instantiate(FragmentManager.java:525)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentState.instantiate(FragmentState.java:84)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentStateManager.<init>(FragmentStateManager.java:91)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager.restoreSaveStateInternal(FragmentManager.java:2562)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager.attachController(FragmentManager.java:2722)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentController.attachHost(FragmentController.java:117)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity.lambda$init$3$androidx-fragment-app-FragmentActivity(FragmentActivity.java:139)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity$$ExternalSyntheticLambda3.onContextAvailable(D8$$SyntheticClass:0)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.activity.contextaware.ContextAwareHelper.dispatchOnContextAvailable(ContextAwareHelper.kt:84)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.activity.ComponentActivity.onCreate(ComponentActivity.java:358)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity.onCreate(FragmentActivity.java:216)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at com.facebook.react.ReactActivity.onCreate(ReactActivity.java:60)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:9519)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:9488)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1524)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4692)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	... 13 more
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: Caused by: java.lang.reflect.InvocationTargetException
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance0(Native Method)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance(Constructor.java:343)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at androidx.fragment.app.Fragment.instantiate(Fragment.java:672)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	... 30 more
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: Caused by: java.lang.IllegalStateException: Screen fragments should never be restored. Follow instructions from https://github.com/software-mansion/react-native-screens/issues/17#issuecomment-424704067 to properly configure your main activity.
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at com.swmansion.rnscreens.ScreenFragment.<init>(ScreenFragment.kt:66)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	at com.swmansion.rnscreens.ScreenStackFragment.<init>(ScreenStackFragment.kt:87)
+01-23 14:45:32.837 27439 27439 E AndroidRuntime: 	... 33 more
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: FATAL EXCEPTION: main
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: Process: com.elvan.rmdneram, PID: 14700
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: java.lang.ClassCastException: kotlinx.coroutines.flow.ReadonlyStateFlow cannot be cast to kotlinx.coroutines.flow.MutableStateFlow
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at com.elvan.rmdneram.data.local.CalendarPreferences.setShowDeclinedEvents(CalendarPreferences.kt:39)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.invoke$lambda$7$lambda$6(CalendarSettingsScreen.kt:148)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.$r8$lambda$LbmFuda85bEMr7e3mz4LEr_wspw(Unknown Source:0)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1$$ExternalSyntheticLambda2.invoke(D8$$SyntheticClass:0)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.SettingsToggleItem$lambda$13$lambda$12$lambda$11(CalendarSettingsScreen.kt:223)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.$r8$lambda$xi4RAk6_HStDNlrkcqnLns5y_K4(Unknown Source:0)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$_onClick$1.invoke(Toggleable.kt:237)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$_onClick$1.invoke(Toggleable.kt:237)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke-k-4lQ0M(Clickable.kt:639)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke(Clickable.kt:633)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.foundation.gestures.TapGestureDetectorKt$detectTapAndPress$2$1.invokeSuspend(TapGestureDetector.kt:255)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:175)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:164)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:466)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl(CancellableContinuationImpl.kt:500)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$default(CancellableContinuationImpl.kt:489)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:364)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl$PointerEventHandlerCoroutine.offerPointerEvent(SuspendingPointerInputFilter.kt:719)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.dispatchPointerEvent(SuspendingPointerInputFilter.kt:598)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.onPointerEvent-H0pRuoY(SuspendingPointerInputFilter.kt:620)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.foundation.AbstractClickableNode.onPointerEvent-H0pRuoY(Clickable.kt:1044)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:387)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.NodeParent.dispatchMainEventPass(HitPathTracker.kt:229)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.HitPathTracker.dispatchChanges(HitPathTracker.kt:144)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.PointerInputEventProcessor.process-BIzXfog(PointerInputEventProcessor.kt:120)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.sendMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1994)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.handleMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1945)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.dispatchTouchEvent(AndroidComposeView.android.kt:1829)
+01-23 23:22:56.478 14700 14700 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at com.android.internal.policy.DecorView.superDispatchTouchEvent(DecorView.java:770)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.superDispatchTouchEvent(PhoneWindow.java:2118)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.app.Activity.dispatchTouchEvent(Activity.java:4776)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at com.android.internal.policy.DecorView.dispatchTouchEvent(DecorView.java:728)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.View.dispatchPointerEvent(View.java:17527)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.processPointerEvent(ViewRootImpl.java:9847)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:9563)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8901)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:9124)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:9181)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl.deliverInputEvent(ViewRootImpl.java:12785)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl.doProcessInputEvents(ViewRootImpl.java:12673)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl.enqueueInputEvent(ViewRootImpl.java:12628)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl.processRawInputEvent(ViewRootImpl.java:13165)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.ViewRootImpl$WindowInputEventReceiver.onInputEvent(ViewRootImpl.java:12915)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.view.InputEventReceiver.dispatchInputEvent(InputEventReceiver.java:392)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.os.MessageQueue.nextLegacy(MessageQueue.java:950)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.os.MessageQueue.next(MessageQueue.java:1062)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:221)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-23 23:22:56.479 14700 14700 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.ui.platform.MotionDurationScaleImpl@746e3cb, androidx.compose.runtime.BroadcastFrameClock@c9907a8, StandaloneCoroutine{Cancelling}@16da2c1, AndroidUiDispatcher@58b4a66]
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: FATAL EXCEPTION: main
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: Process: com.elvan.rmdneram, PID: 15195
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: java.lang.ClassCastException: kotlinx.coroutines.flow.ReadonlyStateFlow cannot be cast to kotlinx.coroutines.flow.MutableStateFlow
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at com.elvan.rmdneram.data.local.CalendarPreferences.setShowDeclinedEvents(CalendarPreferences.kt:39)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.invoke$lambda$7$lambda$6(CalendarSettingsScreen.kt:148)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.$r8$lambda$LbmFuda85bEMr7e3mz4LEr_wspw(Unknown Source:0)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1$$ExternalSyntheticLambda2.invoke(D8$$SyntheticClass:0)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.SettingsToggleItem$lambda$13$lambda$12$lambda$11(CalendarSettingsScreen.kt:223)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.$r8$lambda$xi4RAk6_HStDNlrkcqnLns5y_K4(Unknown Source:0)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$_onClick$1.invoke(Toggleable.kt:237)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$_onClick$1.invoke(Toggleable.kt:237)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke-k-4lQ0M(Clickable.kt:639)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke(Clickable.kt:633)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.foundation.gestures.TapGestureDetectorKt$detectTapAndPress$2$1.invokeSuspend(TapGestureDetector.kt:255)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:175)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:164)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:466)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl(CancellableContinuationImpl.kt:500)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$default(CancellableContinuationImpl.kt:489)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:364)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl$PointerEventHandlerCoroutine.offerPointerEvent(SuspendingPointerInputFilter.kt:719)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.dispatchPointerEvent(SuspendingPointerInputFilter.kt:598)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.onPointerEvent-H0pRuoY(SuspendingPointerInputFilter.kt:620)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.foundation.AbstractClickableNode.onPointerEvent-H0pRuoY(Clickable.kt:1044)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:387)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.NodeParent.dispatchMainEventPass(HitPathTracker.kt:229)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.HitPathTracker.dispatchChanges(HitPathTracker.kt:144)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.PointerInputEventProcessor.process-BIzXfog(PointerInputEventProcessor.kt:120)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.sendMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1994)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.handleMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1945)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.dispatchTouchEvent(AndroidComposeView.android.kt:1829)
+01-23 23:23:11.673 15195 15195 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at com.android.internal.policy.DecorView.superDispatchTouchEvent(DecorView.java:770)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.superDispatchTouchEvent(PhoneWindow.java:2118)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.app.Activity.dispatchTouchEvent(Activity.java:4776)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at com.android.internal.policy.DecorView.dispatchTouchEvent(DecorView.java:728)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.View.dispatchPointerEvent(View.java:17527)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.processPointerEvent(ViewRootImpl.java:9847)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:9563)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8901)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:9124)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:9181)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl.deliverInputEvent(ViewRootImpl.java:12785)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl.doProcessInputEvents(ViewRootImpl.java:12673)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl.enqueueInputEvent(ViewRootImpl.java:12628)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl.processRawInputEvent(ViewRootImpl.java:13165)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.ViewRootImpl$WindowInputEventReceiver.onInputEvent(ViewRootImpl.java:12915)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.view.InputEventReceiver.dispatchInputEvent(InputEventReceiver.java:392)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.os.MessageQueue.nextLegacy(MessageQueue.java:950)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.os.MessageQueue.next(MessageQueue.java:1062)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:221)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-23 23:23:11.675 15195 15195 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.ui.platform.MotionDurationScaleImpl@139ea7d, androidx.compose.runtime.BroadcastFrameClock@4c91d72, StandaloneCoroutine{Cancelling}@8c675c3, AndroidUiDispatcher@c33be40]
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: FATAL EXCEPTION: main
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: Process: com.elvan.rmdneram, PID: 31358
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: java.lang.ClassCastException: kotlinx.coroutines.flow.ReadonlyStateFlow cannot be cast to kotlinx.coroutines.flow.MutableStateFlow
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at com.elvan.rmdneram.data.local.CalendarPreferences.setShowDeclinedEvents(CalendarPreferences.kt:39)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.invoke$lambda$7$lambda$6(CalendarSettingsScreen.kt:148)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.$r8$lambda$LbmFuda85bEMr7e3mz4LEr_wspw(Unknown Source:0)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1$$ExternalSyntheticLambda2.invoke(D8$$SyntheticClass:0)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.SettingsToggleItem$lambda$13$lambda$12$lambda$11(CalendarSettingsScreen.kt:223)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.$r8$lambda$xi4RAk6_HStDNlrkcqnLns5y_K4(Unknown Source:0)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$1.invoke(Toggleable.kt:229)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$1.invoke(Toggleable.kt:229)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke-k-4lQ0M(Clickable.kt:639)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke(Clickable.kt:633)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.foundation.gestures.TapGestureDetectorKt$detectTapAndPress$2$1.invokeSuspend(TapGestureDetector.kt:255)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:175)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:164)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:466)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl(CancellableContinuationImpl.kt:500)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$default(CancellableContinuationImpl.kt:489)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:364)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl$PointerEventHandlerCoroutine.offerPointerEvent(SuspendingPointerInputFilter.kt:719)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.dispatchPointerEvent(SuspendingPointerInputFilter.kt:598)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.onPointerEvent-H0pRuoY(SuspendingPointerInputFilter.kt:620)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.foundation.AbstractClickableNode.onPointerEvent-H0pRuoY(Clickable.kt:1044)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:387)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.NodeParent.dispatchMainEventPass(HitPathTracker.kt:229)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.HitPathTracker.dispatchChanges(HitPathTracker.kt:144)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.PointerInputEventProcessor.process-BIzXfog(PointerInputEventProcessor.kt:120)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.sendMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1994)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.handleMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1945)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.dispatchTouchEvent(AndroidComposeView.android.kt:1829)
+01-23 23:42:32.908 31358 31358 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at com.android.internal.policy.DecorView.superDispatchTouchEvent(DecorView.java:770)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.superDispatchTouchEvent(PhoneWindow.java:2118)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.app.Activity.dispatchTouchEvent(Activity.java:4776)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at com.android.internal.policy.DecorView.dispatchTouchEvent(DecorView.java:728)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.View.dispatchPointerEvent(View.java:17527)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.processPointerEvent(ViewRootImpl.java:9847)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:9563)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8901)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:9124)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:9181)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl.deliverInputEvent(ViewRootImpl.java:12785)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl.doProcessInputEvents(ViewRootImpl.java:12673)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl.enqueueInputEvent(ViewRootImpl.java:12628)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl.processRawInputEvent(ViewRootImpl.java:13165)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.ViewRootImpl$WindowInputEventReceiver.onInputEvent(ViewRootImpl.java:12915)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.view.InputEventReceiver.dispatchInputEvent(InputEventReceiver.java:392)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.os.MessageQueue.nextLegacy(MessageQueue.java:950)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.os.MessageQueue.next(MessageQueue.java:1062)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:221)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-23 23:42:32.909 31358 31358 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.ui.platform.MotionDurationScaleImpl@e322435, androidx.compose.runtime.BroadcastFrameClock@85fc0ca, StandaloneCoroutine{Cancelling}@3bed23b, AndroidUiDispatcher@efad58]
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: FATAL EXCEPTION: main
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: Process: com.elvan.rmdneram, PID: 15049
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: java.lang.ClassCastException: kotlinx.coroutines.flow.ReadonlyStateFlow cannot be cast to kotlinx.coroutines.flow.MutableStateFlow
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at com.elvan.rmdneram.data.local.CalendarPreferences.setShowWeekNumbers(CalendarPreferences.kt:33)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.invoke$lambda$4$lambda$3(CalendarSettingsScreen.kt:139)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.$r8$lambda$-zz4um-ETkVib_j9x2FEtCqczXg(Unknown Source:0)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.SettingsToggleItem$lambda$13$lambda$12$lambda$11(CalendarSettingsScreen.kt:223)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.$r8$lambda$xi4RAk6_HStDNlrkcqnLns5y_K4(Unknown Source:0)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$1.invoke(Toggleable.kt:229)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$1.invoke(Toggleable.kt:229)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke-k-4lQ0M(Clickable.kt:639)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke(Clickable.kt:633)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.foundation.gestures.TapGestureDetectorKt$detectTapAndPress$2$1.invokeSuspend(TapGestureDetector.kt:255)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:175)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:164)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:466)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl(CancellableContinuationImpl.kt:500)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$default(CancellableContinuationImpl.kt:489)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:364)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl$PointerEventHandlerCoroutine.offerPointerEvent(SuspendingPointerInputFilter.kt:719)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.dispatchPointerEvent(SuspendingPointerInputFilter.kt:598)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.onPointerEvent-H0pRuoY(SuspendingPointerInputFilter.kt:620)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.foundation.AbstractClickableNode.onPointerEvent-H0pRuoY(Clickable.kt:1044)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:387)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.NodeParent.dispatchMainEventPass(HitPathTracker.kt:229)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.HitPathTracker.dispatchChanges(HitPathTracker.kt:144)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.PointerInputEventProcessor.process-BIzXfog(PointerInputEventProcessor.kt:120)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.sendMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1994)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.handleMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1945)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.dispatchTouchEvent(AndroidComposeView.android.kt:1829)
+01-23 23:52:35.782 15049 15049 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at com.android.internal.policy.DecorView.superDispatchTouchEvent(DecorView.java:770)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.superDispatchTouchEvent(PhoneWindow.java:2118)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.app.Activity.dispatchTouchEvent(Activity.java:4776)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at com.android.internal.policy.DecorView.dispatchTouchEvent(DecorView.java:728)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.View.dispatchPointerEvent(View.java:17527)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.processPointerEvent(ViewRootImpl.java:9847)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:9563)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8901)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:9124)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:9181)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl.deliverInputEvent(ViewRootImpl.java:12785)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl.doProcessInputEvents(ViewRootImpl.java:12673)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl.enqueueInputEvent(ViewRootImpl.java:12628)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl.processRawInputEvent(ViewRootImpl.java:13165)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.ViewRootImpl$WindowInputEventReceiver.onInputEvent(ViewRootImpl.java:12915)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.view.InputEventReceiver.dispatchInputEvent(InputEventReceiver.java:392)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.os.MessageQueue.nextLegacy(MessageQueue.java:950)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.os.MessageQueue.next(MessageQueue.java:1062)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:221)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-23 23:52:35.784 15049 15049 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.ui.platform.MotionDurationScaleImpl@8abbc2b, androidx.compose.runtime.BroadcastFrameClock@8b66888, StandaloneCoroutine{Cancelling}@ab42221, AndroidUiDispatcher@79ec646]
+01-24 00:16:15.055   463   463 E AndroidRuntime: FATAL EXCEPTION: main
+01-24 00:16:15.055   463   463 E AndroidRuntime: Process: com.elvan.rmdneram, PID: 463
+01-24 00:16:15.055   463   463 E AndroidRuntime: java.lang.ClassCastException: kotlinx.coroutines.flow.ReadonlyStateFlow cannot be cast to kotlinx.coroutines.flow.MutableStateFlow
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at com.elvan.rmdneram.data.local.CalendarPreferences.setShowDeclinedEvents(CalendarPreferences.kt:39)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.invoke$lambda$7$lambda$6(CalendarSettingsScreen.kt:148)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.$r8$lambda$LbmFuda85bEMr7e3mz4LEr_wspw(Unknown Source:0)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1$$ExternalSyntheticLambda2.invoke(D8$$SyntheticClass:0)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.SettingsToggleItem$lambda$13$lambda$12$lambda$11(CalendarSettingsScreen.kt:223)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.$r8$lambda$xi4RAk6_HStDNlrkcqnLns5y_K4(Unknown Source:0)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$_onClick$1.invoke(Toggleable.kt:237)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$_onClick$1.invoke(Toggleable.kt:237)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke-k-4lQ0M(Clickable.kt:639)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke(Clickable.kt:633)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.foundation.gestures.TapGestureDetectorKt$detectTapAndPress$2$1.invokeSuspend(TapGestureDetector.kt:255)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:175)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:164)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:466)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl(CancellableContinuationImpl.kt:500)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$default(CancellableContinuationImpl.kt:489)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:364)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl$PointerEventHandlerCoroutine.offerPointerEvent(SuspendingPointerInputFilter.kt:719)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.dispatchPointerEvent(SuspendingPointerInputFilter.kt:598)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.onPointerEvent-H0pRuoY(SuspendingPointerInputFilter.kt:620)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.foundation.AbstractClickableNode.onPointerEvent-H0pRuoY(Clickable.kt:1044)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:387)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.NodeParent.dispatchMainEventPass(HitPathTracker.kt:229)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.HitPathTracker.dispatchChanges(HitPathTracker.kt:144)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.PointerInputEventProcessor.process-BIzXfog(PointerInputEventProcessor.kt:120)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.sendMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1994)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.handleMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1945)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.dispatchTouchEvent(AndroidComposeView.android.kt:1829)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-24 00:16:15.055   463   463 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at com.android.internal.policy.DecorView.superDispatchTouchEvent(DecorView.java:770)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.superDispatchTouchEvent(PhoneWindow.java:2118)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.app.Dialog.dispatchTouchEvent(Dialog.java:1402)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at com.android.internal.policy.DecorView.dispatchTouchEvent(DecorView.java:728)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.View.dispatchPointerEvent(View.java:17527)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.processPointerEvent(ViewRootImpl.java:9847)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:9563)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8901)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:9124)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:9181)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl.deliverInputEvent(ViewRootImpl.java:12785)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl.doProcessInputEvents(ViewRootImpl.java:12673)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl.enqueueInputEvent(ViewRootImpl.java:12628)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl.processRawInputEvent(ViewRootImpl.java:13165)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.ViewRootImpl$WindowInputEventReceiver.onInputEvent(ViewRootImpl.java:12915)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.view.InputEventReceiver.dispatchInputEvent(InputEventReceiver.java:392)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.os.MessageQueue.nextLegacy(MessageQueue.java:950)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.os.MessageQueue.next(MessageQueue.java:1062)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:221)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-24 00:16:15.056   463   463 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.ui.platform.MotionDurationScaleImpl@e2ef69e, androidx.compose.runtime.BroadcastFrameClock@557557f, StandaloneCoroutine{Cancelling}@176494c, AndroidUiDispatcher@67a8d95]
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: FATAL EXCEPTION: main
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: Process: com.elvan.rmdneram, PID: 24894
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: java.lang.ClassCastException: kotlinx.coroutines.flow.ReadonlyStateFlow cannot be cast to kotlinx.coroutines.flow.MutableStateFlow
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at com.elvan.rmdneram.data.local.CalendarPreferences.setShowWeekNumbers(CalendarPreferences.kt:33)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.invoke$lambda$4$lambda$3(CalendarSettingsScreen.kt:139)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1.$r8$lambda$-zz4um-ETkVib_j9x2FEtCqczXg(Unknown Source:0)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$CalendarSettingsScreen$3$1$1$1$1$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.SettingsToggleItem$lambda$13$lambda$12$lambda$11(CalendarSettingsScreen.kt:223)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt.$r8$lambda$xi4RAk6_HStDNlrkcqnLns5y_K4(Unknown Source:0)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at com.elvan.rmdneram.ui.screens.CalendarSettingsScreenKt$$ExternalSyntheticLambda1.invoke(D8$$SyntheticClass:0)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$1.invoke(Toggleable.kt:229)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.foundation.selection.ToggleableNode$1.invoke(Toggleable.kt:229)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke-k-4lQ0M(Clickable.kt:639)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.foundation.ClickableNode$clickPointerInput$3.invoke(Clickable.kt:633)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.foundation.gestures.TapGestureDetectorKt$detectTapAndPress$2$1.invokeSuspend(TapGestureDetector.kt:255)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.resume(DispatchedTask.kt:175)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at kotlinx.coroutines.DispatchedTaskKt.dispatch(DispatchedTask.kt:164)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.dispatchResume(CancellableContinuationImpl.kt:466)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl(CancellableContinuationImpl.kt:500)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeImpl$default(CancellableContinuationImpl.kt:489)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at kotlinx.coroutines.CancellableContinuationImpl.resumeWith(CancellableContinuationImpl.kt:364)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl$PointerEventHandlerCoroutine.offerPointerEvent(SuspendingPointerInputFilter.kt:719)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.dispatchPointerEvent(SuspendingPointerInputFilter.kt:598)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNodeImpl.onPointerEvent-H0pRuoY(SuspendingPointerInputFilter.kt:620)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.foundation.AbstractClickableNode.onPointerEvent-H0pRuoY(Clickable.kt:1044)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:387)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.Node.dispatchMainEventPass(HitPathTracker.kt:373)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.NodeParent.dispatchMainEventPass(HitPathTracker.kt:229)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.HitPathTracker.dispatchChanges(HitPathTracker.kt:144)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.input.pointer.PointerInputEventProcessor.process-BIzXfog(PointerInputEventProcessor.kt:120)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.sendMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1994)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.handleMotionEvent-8iAsVTc(AndroidComposeView.android.kt:1945)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidComposeView.dispatchTouchEvent(AndroidComposeView.android.kt:1829)
+01-24 01:08:23.077 24894 24894 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTransformedTouchEvent(ViewGroup.java:3371)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewGroup.dispatchTouchEvent(ViewGroup.java:3047)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at com.android.internal.policy.DecorView.superDispatchTouchEvent(DecorView.java:770)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at com.android.internal.policy.PhoneWindow.superDispatchTouchEvent(PhoneWindow.java:2118)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.app.Activity.dispatchTouchEvent(Activity.java:4776)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at com.android.internal.policy.DecorView.dispatchTouchEvent(DecorView.java:728)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.View.dispatchPointerEvent(View.java:17527)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.processPointerEvent(ViewRootImpl.java:9847)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$ViewPostImeInputStage.onProcess(ViewRootImpl.java:9563)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8901)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.forward(ViewRootImpl.java:9124)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$AsyncInputStage.apply(ViewRootImpl.java:9181)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.onDeliverToNext(ViewRootImpl.java:8958)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.forward(ViewRootImpl.java:8924)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.apply(ViewRootImpl.java:8932)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$InputStage.deliver(ViewRootImpl.java:8905)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl.deliverInputEvent(ViewRootImpl.java:12785)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl.doProcessInputEvents(ViewRootImpl.java:12673)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl.enqueueInputEvent(ViewRootImpl.java:12628)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl.processRawInputEvent(ViewRootImpl.java:13165)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.ViewRootImpl$WindowInputEventReceiver.onInputEvent(ViewRootImpl.java:12915)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.view.InputEventReceiver.dispatchInputEvent(InputEventReceiver.java:392)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.os.MessageQueue.nativePollOnce(Native Method)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.os.MessageQueue.nextLegacy(MessageQueue.java:950)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.os.MessageQueue.next(MessageQueue.java:1062)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:221)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-24 01:08:23.078 24894 24894 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [androidx.compose.ui.platform.MotionDurationScaleImpl@739f662, androidx.compose.runtime.BroadcastFrameClock@e8bf3f3, StandaloneCoroutine{Cancelling}@6dd18b0, AndroidUiDispatcher@1c95329]
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: FATAL EXCEPTION: main
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: Process: com.neramapp, PID: 9840
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: java.lang.RuntimeException: Unable to start activity ComponentInfo{com.neramapp/com.neramapp.MainActivity}: androidx.fragment.app.Fragment$InstantiationException: Unable to instantiate fragment com.swmansion.rnscreens.ScreenStackFragment: calling Fragment constructor caused an exception
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4710)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:4941)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.servertransaction.LaunchActivityItem.execute(LaunchActivityItem.java:222)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeNonLifecycleItem(TransactionExecutor.java:133)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.executeTransactionItems(TransactionExecutor.java:103)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.servertransaction.TransactionExecutor.execute(TransactionExecutor.java:80)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:3150)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:110)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: Caused by: androidx.fragment.app.Fragment$InstantiationException: Unable to instantiate fragment com.swmansion.rnscreens.ScreenStackFragment: calling Fragment constructor caused an exception
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.Fragment.instantiate(Fragment.java:690)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentContainer.instantiate(FragmentContainer.java:57)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager$3.instantiate(FragmentManager.java:525)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentState.instantiate(FragmentState.java:84)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentStateManager.<init>(FragmentStateManager.java:91)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager.restoreSaveStateInternal(FragmentManager.java:2562)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentManager.attachController(FragmentManager.java:2722)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentController.attachHost(FragmentController.java:117)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity.lambda$init$3$androidx-fragment-app-FragmentActivity(FragmentActivity.java:139)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity$$ExternalSyntheticLambda3.onContextAvailable(D8$$SyntheticClass:0)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.activity.contextaware.ContextAwareHelper.dispatchOnContextAvailable(ContextAwareHelper.kt:84)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.activity.ComponentActivity.onCreate(ComponentActivity.java:358)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.FragmentActivity.onCreate(FragmentActivity.java:216)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at com.facebook.react.ReactActivity.onCreate(ReactActivity.java:60)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:9519)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.Activity.performCreate(Activity.java:9488)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1524)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:4692)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	... 13 more
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: Caused by: java.lang.reflect.InvocationTargetException
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance0(Native Method)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance(Constructor.java:343)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at androidx.fragment.app.Fragment.instantiate(Fragment.java:672)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	... 30 more
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: Caused by: java.lang.IllegalStateException: Screen fragments should never be restored. Follow instructions from https://github.com/software-mansion/react-native-screens/issues/17#issuecomment-424704067 to properly configure your main activity.
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at com.swmansion.rnscreens.ScreenFragment.<init>(ScreenFragment.kt:66)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	at com.swmansion.rnscreens.ScreenStackFragment.<init>(ScreenStackFragment.kt:87)
+01-24 11:22:30.005  9840  9840 E AndroidRuntime: 	... 33 more
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: FATAL EXCEPTION: main
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: Process: com.elvan.rmdneram, PID: 16678
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: java.lang.NullPointerException
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel.loadCalendarsAndEvents(XCalendarViewModel.kt:136)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel.access$loadCalendarsAndEvents(XCalendarViewModel.kt:89)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel$refreshData$1.invokeSuspend(XCalendarViewModel.kt:115)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:359)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:124)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:52)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlinx.coroutines.BuildersKt.launch(Unknown Source:1)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:43)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at kotlinx.coroutines.BuildersKt.launch$default(Unknown Source:1)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel.refreshData(XCalendarViewModel.kt:106)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel.<init>(XCalendarViewModel.kt:102)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance0(Native Method)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance(Constructor.java:343)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.ViewModelProvider$AndroidViewModelFactory.create(ViewModelProvider.android.kt:295)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.ViewModelProvider$AndroidViewModelFactory.create(ViewModelProvider.android.kt:287)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.ViewModelProvider$AndroidViewModelFactory.create(ViewModelProvider.android.kt:261)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.SavedStateViewModelFactory.create(SavedStateViewModelFactory.android.kt:142)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.SavedStateViewModelFactory.create(SavedStateViewModelFactory.android.kt:112)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.internal.ViewModelProviderImpl_androidKt.createViewModel(ViewModelProviderImpl.android.kt:35)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.internal.ViewModelProviderImpl.getViewModel$lifecycle_viewmodel(ViewModelProviderImpl.kt:59)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.internal.ViewModelProviderImpl.getViewModel$lifecycle_viewmodel$default(ViewModelProviderImpl.kt:43)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.ViewModelProvider.get(ViewModelProvider.android.kt:90)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.compose.ViewModelKt__ViewModelKt.get(ViewModel.kt:172)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.compose.ViewModelKt.get(Unknown Source:1)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.compose.ViewModelKt__ViewModelKt.viewModel(ViewModel.kt:106)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.compose.ViewModelKt.viewModel(Unknown Source:1)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarScreenKt.XCalendarScreen(XCalendarScreen.kt:456)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen$lambda$24$0$1$1(MainScreen.kt:158)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.$r8$lambda$Nx98Rdlw-ijw30s2ravPnFkD4Go(Unknown Source:0)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:142)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:51)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt$AnimatedContent$6$1$5.invoke(AnimatedContent.kt:863)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt$AnimatedContent$6$1$5.invoke(AnimatedContent.kt:853)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:130)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:51)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.compose.animation.AnimatedVisibilityKt.AnimatedEnterExitImpl(AnimatedVisibility.kt:752)
+01-25 00:38:35.845 16678 16678 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt$AnimatedContent$6$1.invoke(AnimatedContent.kt:835)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt$AnimatedContent$6$1.invoke(AnimatedContent.kt:818)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:121)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:51)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt.AnimatedContent(AnimatedContent.kt:873)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt.AnimatedContent(AnimatedContent.kt:143)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen$lambda$24$0$1(MainScreen.kt:146)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.$r8$lambda$RqFNSNX0HDLDOlu9sJM_klGMPRM(Unknown Source:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt$$ExternalSyntheticLambda26.invoke(D8$$SyntheticClass:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:142)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke$lambda$1(ComposableLambda.kt:144)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.$r8$lambda$iiyIPmvajS9jKwPHLwEvJlclFt4(Unknown Source:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl$$ExternalSyntheticLambda12.invoke(D8$$SyntheticClass:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recomposeToGroupEnd(Composer.kt:2895)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.skipToGroupEnd(Composer.kt:3289)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt.AnimatedContent(AnimatedContent.kt:128)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen$lambda$24(MainScreen.kt:124)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.$r8$lambda$_8baM74QQFN2KD-prRrl8riRkws(Unknown Source:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt$$ExternalSyntheticLambda23.invoke(D8$$SyntheticClass:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:121)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:51)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.CompositionLocalKt.CompositionLocalProvider(CompositionLocal.kt:390)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen(MainScreen.kt:116)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen$lambda$25(Unknown Source:11)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.$r8$lambda$St37XgSfjO_0jCvIRkRj-oBDvU8(Unknown Source:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt$$ExternalSyntheticLambda24.invoke(D8$$SyntheticClass:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recomposeToGroupEnd(Composer.kt:2895)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.skipCurrentGroup(Composer.kt:3231)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.doCompose-aFTiNEg(Composer.kt:3855)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recompose-aFTiNEg$runtime(Composer.kt:3779)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1075)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1373)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer.access$performRecompose(Recomposer.kt:156)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.invokeSuspend$lambda$22(Recomposer.kt:627)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.$r8$lambda$OqADLCDYmRw1RgNUvn1CR0kX32M(Unknown Source:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiFrameClock$withFrameNanos$2$callback$1.doFrame(AndroidUiFrameClock.android.kt:39)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.performFrameDispatch(AndroidUiDispatcher.android.kt:108)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.access$performFrameDispatch(AndroidUiDispatcher.android.kt:41)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher$dispatchCallback$1.doFrame(AndroidUiDispatcher.android.kt:69)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1899)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1910)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.view.Choreographer.doCallbacks(Choreographer.java:1367)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.view.Choreographer.doFrame(Choreographer.java:1282)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1870)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:995)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:103)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-25 00:38:35.846 16678 16678 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@2974a89, Dispatchers.Main.immediate]
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: FATAL EXCEPTION: main
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: Process: com.elvan.rmdneram, PID: 17074
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: java.lang.NullPointerException
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel.loadCalendarsAndEvents(XCalendarViewModel.kt:136)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel.access$loadCalendarsAndEvents(XCalendarViewModel.kt:89)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel$refreshData$1.invokeSuspend(XCalendarViewModel.kt:115)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlinx.coroutines.internal.DispatchedContinuationKt.resumeCancellableWith(DispatchedContinuation.kt:359)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlinx.coroutines.intrinsics.CancellableKt.startCoroutineCancellable(Cancellable.kt:26)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlinx.coroutines.CoroutineStart.invoke(CoroutineStart.kt:358)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlinx.coroutines.AbstractCoroutine.start(AbstractCoroutine.kt:124)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch(Builders.common.kt:52)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlinx.coroutines.BuildersKt.launch(Unknown Source:1)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlinx.coroutines.BuildersKt__Builders_commonKt.launch$default(Builders.common.kt:43)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at kotlinx.coroutines.BuildersKt.launch$default(Unknown Source:1)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel.refreshData(XCalendarViewModel.kt:106)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarViewModel.<init>(XCalendarViewModel.kt:102)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance0(Native Method)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at java.lang.reflect.Constructor.newInstance(Constructor.java:343)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.ViewModelProvider$AndroidViewModelFactory.create(ViewModelProvider.android.kt:295)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.ViewModelProvider$AndroidViewModelFactory.create(ViewModelProvider.android.kt:287)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.ViewModelProvider$AndroidViewModelFactory.create(ViewModelProvider.android.kt:261)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.SavedStateViewModelFactory.create(SavedStateViewModelFactory.android.kt:142)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.SavedStateViewModelFactory.create(SavedStateViewModelFactory.android.kt:112)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.internal.ViewModelProviderImpl_androidKt.createViewModel(ViewModelProviderImpl.android.kt:35)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.internal.ViewModelProviderImpl.getViewModel$lifecycle_viewmodel(ViewModelProviderImpl.kt:59)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.internal.ViewModelProviderImpl.getViewModel$lifecycle_viewmodel$default(ViewModelProviderImpl.kt:43)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.ViewModelProvider.get(ViewModelProvider.android.kt:90)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.compose.ViewModelKt__ViewModelKt.get(ViewModel.kt:172)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.compose.ViewModelKt.get(Unknown Source:1)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.compose.ViewModelKt__ViewModelKt.viewModel(ViewModel.kt:106)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.lifecycle.viewmodel.compose.ViewModelKt.viewModel(Unknown Source:1)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.xcalendar.XCalendarScreenKt.XCalendarScreen(XCalendarScreen.kt:456)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen$lambda$24$0$1$1(MainScreen.kt:158)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.$r8$lambda$Nx98Rdlw-ijw30s2ravPnFkD4Go(Unknown Source:0)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt$$ExternalSyntheticLambda4.invoke(D8$$SyntheticClass:0)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:142)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:51)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt$AnimatedContent$6$1$5.invoke(AnimatedContent.kt:863)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt$AnimatedContent$6$1$5.invoke(AnimatedContent.kt:853)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:130)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:51)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.compose.animation.AnimatedVisibilityKt.AnimatedEnterExitImpl(AnimatedVisibility.kt:752)
+01-25 00:38:39.955 17074 17074 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt$AnimatedContent$6$1.invoke(AnimatedContent.kt:835)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt$AnimatedContent$6$1.invoke(AnimatedContent.kt:818)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:121)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:51)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt.AnimatedContent(AnimatedContent.kt:873)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt.AnimatedContent(AnimatedContent.kt:143)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen$lambda$24$0$1(MainScreen.kt:146)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.$r8$lambda$RqFNSNX0HDLDOlu9sJM_klGMPRM(Unknown Source:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt$$ExternalSyntheticLambda26.invoke(D8$$SyntheticClass:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:142)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke$lambda$1(ComposableLambda.kt:144)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.$r8$lambda$iiyIPmvajS9jKwPHLwEvJlclFt4(Unknown Source:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl$$ExternalSyntheticLambda12.invoke(D8$$SyntheticClass:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recomposeToGroupEnd(Composer.kt:2895)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.skipToGroupEnd(Composer.kt:3289)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.animation.AnimatedContentKt.AnimatedContent(AnimatedContent.kt:128)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen$lambda$24(MainScreen.kt:124)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.$r8$lambda$_8baM74QQFN2KD-prRrl8riRkws(Unknown Source:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt$$ExternalSyntheticLambda23.invoke(D8$$SyntheticClass:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:121)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.internal.ComposableLambdaImpl.invoke(ComposableLambda.kt:51)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.CompositionLocalKt.CompositionLocalProvider(CompositionLocal.kt:390)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen(MainScreen.kt:116)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.MainScreen$lambda$25(Unknown Source:11)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt.$r8$lambda$St37XgSfjO_0jCvIRkRj-oBDvU8(Unknown Source:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at com.elvan.rmdneram.ui.MainScreenKt$$ExternalSyntheticLambda24.invoke(D8$$SyntheticClass:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.RecomposeScopeImpl.compose(RecomposeScopeImpl.kt:196)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recomposeToGroupEnd(Composer.kt:2895)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.skipCurrentGroup(Composer.kt:3231)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.doCompose-aFTiNEg(Composer.kt:3855)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.ComposerImpl.recompose-aFTiNEg$runtime(Composer.kt:3779)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1075)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1373)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer.access$performRecompose(Recomposer.kt:156)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.invokeSuspend$lambda$22(Recomposer.kt:627)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2.$r8$lambda$OqADLCDYmRw1RgNUvn1CR0kX32M(Unknown Source:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.runtime.Recomposer$runRecomposeAndApplyChanges$2$$ExternalSyntheticLambda0.invoke(D8$$SyntheticClass:0)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiFrameClock$withFrameNanos$2$callback$1.doFrame(AndroidUiFrameClock.android.kt:39)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.performFrameDispatch(AndroidUiDispatcher.android.kt:108)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher.access$performFrameDispatch(AndroidUiDispatcher.android.kt:41)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at androidx.compose.ui.platform.AndroidUiDispatcher$dispatchCallback$1.doFrame(AndroidUiDispatcher.android.kt:69)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1899)
+01-25 00:38:39.956 17074 17074 E AndroidRuntime: 	at android.view.Choreographer$CallbackRecord.run(Choreographer.java:1910)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at android.view.Choreographer.doCallbacks(Choreographer.java:1367)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at android.view.Choreographer.doFrame(Choreographer.java:1282)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at android.view.Choreographer$FrameDisplayEventReceiver.run(Choreographer.java:1870)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at android.os.Handler.handleCallback(Handler.java:995)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at android.os.Handler.dispatchMessage(Handler.java:103)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at android.os.Looper.loopOnce(Looper.java:273)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at android.os.Looper.loop(Looper.java:363)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at android.app.ActivityThread.main(ActivityThread.java:10060)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at java.lang.reflect.Method.invoke(Native Method)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:632)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:975)
+01-25 00:38:39.957 17074 17074 E AndroidRuntime: 	Suppressed: kotlinx.coroutines.internal.DiagnosticCoroutineContextException: [StandaloneCoroutine{Cancelling}@eab4600, Dispatchers.Main.immediate]

@@ -1,0 +1,1059 @@
+﻿
+01-12 21:50:01.967  1356  3923 V WindowManager: addWindow: 
+ActivityRecord{239427120 u0 com.elvan.rmdneram/.MainActivity t1631} 
+startingWindow=Window{951a24 u0 Splash Screen com.elvan.rmdneram}
+01-12 21:50:01.968  1356  1389 D SGM:GameManager: 
+identifyForegroundApp. com.elvan.rmdneram, mCurrentUserId: 0, 
+callerUserId: 0
+01-12 21:50:01.968  1788  2010 I InsetsController: onStateChanged: 
+host=Splash Screen com.elvan.rmdneram, 
+from=android.view.ViewRootImpl.onInsetsStateChanged:3026, 
+state=InsetsState: {mDisplayFrame=Rect(0, 0 - 1080, 2400), 
+mDisplayCutout=DisplayCutout{insets=Rect(0, 88 - 0, 0) 
+waterfall=Insets{left=0, top=0, right=0, bottom=0} 
+boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(512, 0 - 568, 88), 
+Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} 
+cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1080 
+displayHeight=2400 physicalDisplayWidth=1080 
+physicalDisplayHeight=2400 density={2.8125} cutoutSpec={M 0,0 M 
+0,11.43427858034597 a 9.899054752987353,9.899054752987353 0 1,0 
+0,19.79810950597471 a 9.899054752987353,9.899054752987353 0 1,0 
+0,-19.79810950597471 Z @dp} rotation={0} scale={1.0} 
+physicalPixelDisplaySizeRatio={1.0}}} sideOverrides={}}, 
+mRoundedCorners=RoundedCorners{[RoundedCorner{position=TopLeft, 
+radius=79, center=Point(79, 79)}, RoundedCorner{position=TopRight, 
+radius=79, center=Point(1001, 79)}, 
+RoundedCorner{position=BottomRight, radius=79, center=Point(1001, 
+2321)}, RoundedCorner{position=BottomLeft, radius=79, center=Point(79, 
+2321)}]}  mRoundedCornerFrame=Rect(0, 0 - 1080, 2400), 
+mPrivacyIndicatorBounds=PrivacyIndicatorBounds {static 
+bounds=Rect(956, 0 - 1080, 88) rotation=0}, 
+mDisplayShape=DisplayShape{ spec=-311912193 displayWidth=1080 
+displayHeight=2400 physicalPixelDisplaySizeRatio=1.0 rotation=0 
+offsetX=0 offsetY=0 scale=1.0}, mSources= { InsetsSource: {80f90001 
+mType=navigationBars mFrame=[0,2358][1080,2400] mVisible=true 
+mFlags=SUPPRESS_SCRIM mSideHint=BOTTOM mBoundingRects=null}, 
+InsetsSource: {80f90004 mType=systemGestures mFrame=[0,0][84,2400] 
+mVisible=true mFlags= mSideHint=LEFT mBoundingRects=null}, 
+InsetsSource: {80f90005 mType=mandatorySystemGestures 
+mFrame=[0,2310][1080,2400] mVisible=true mFlags= mSideHint=BOTTOM 
+mBoundingRects=null}, InsetsSource: {80f90006 mType=tappableElement 
+mFrame=[0,0][0,0] mVisible=true mFlags= mSideHint=NONE 
+mBoundingRects=null}, InsetsSource: {80f90024 mType=systemGestures 
+mFrame=[996,0][1080,2400] mVisible=true mFlags= mSideHint=RIGHT 
+mBoundingRects=null}, InsetsSource: {a5360000 mType=statusBars 
+mFrame=[0,0][1080,88] mVisible=true mFlags= mSideHint=TOP 
+mBoundingRects=null}, InsetsSource: {a5360005 
+mType=mandatorySystemGestures mFrame=[0,0][1080,122] mVisible=true 
+mFlags= mSideHint=TOP mBoundingRects=null}, InsetsSource: {a5360006 
+mType=tappableElement mFrame=[0,0][1080,88] mVisible=true mFlags= 
+mSideHint=TOP mBoundingRects=null}, InsetsSource: {3 mType=ime 
+mFrame=[0,0][0,0] mVisible=false mFlags= mSideHint=NONE 
+mBoundingRects=null}, InsetsSource: {27 mType=displayCutout 
+mFrame=[0,0][1080,88] mVisible=true mFlags= mSideHint=TOP 
+mBoundingRects=null} }
+01-12 21:50:01.974  1356  1948 I WindowManager: Relayout Window{951a24 
+u0 Splash Screen com.elvan.rmdneram}: viewVisibility=0 req=1080x2400 
+ty=3 d0
+01-12 21:50:01.974  1028  2343 I SurfaceFlinger: id=144243 createSurf, 
+flag=44004, Splash Screen com.elvan.rmdneram$_1788#144243
+01-12 21:50:01.976  1356  1948 D WindowManager: makeSurface duration=2 
+name=Splash Screen com.elvan.rmdneram$_1788
+01-12 21:50:01.976  1356  1948 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:01.976  1356  1948 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:01.977  1356  1948 D BLASTSyncEngine: SyncGroup 10535:  
+Unfinished container: ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631} mSyncState=2
+01-12 21:50:01.982  1356  1389 D SGM:GameManager: 
+identifyForegroundApp. com.elvan.rmdneram, mCurrentUserId: 0, 
+callerUserId: 0
+01-12 21:50:01.983  1028  1028 I SurfaceFlinger: [Splash Screen 
+com.elvan.rmdneram$_1788#144243] attach to parent 
+LayerHierarchy{RequestedLayerState{951a24 Splash Screen 
+com.elvan.rmdneram#144242 parentId=144241} 1 children}
+01-12 21:50:01.990  1028  1067 I SurfaceFlinger: [Splash Screen 
+com.elvan.rmdneram$_1788#144243] setTransactionState with the first 
+frame. bufferData(ID: 7679401586371, frameNumber: 1)
+01-12 21:50:01.991  1356  3912 D WindowManager: finishDrawingWindow: 
+Window{951a24 u0 Splash Screen com.elvan.rmdneram} 
+mDrawState=DRAW_PENDING seqId=0
+01-12 21:50:01.991  1356  3912 V WindowManager: Finishing drawing 
+window Window{951a24 u0 Splash Screen com.elvan.rmdneram}: 
+mDrawState=DRAW_PENDING
+01-12 21:50:01.991  1356  3912 V WindowManager: Draw state now 
+committed in Window{951a24 u0 Splash Screen com.elvan.rmdneram}
+01-12 21:50:01.993  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:01.993  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:01.994  1356  1392 V WindowManager: performShowLocked: 
+mDrawState=HAS_DRAWN in Window{951a24 u0 Splash Screen 
+com.elvan.rmdneram}
+01-12 21:50:01.994  1356  1392 D ChangeTransitionController:    
+ChangeInfo{44545e1 container=Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram} flags=0x0}
+01-12 21:50:01.994  1356  1392 D ChangeTransitionController:    
+ChangeInfo{9cf7f06 container=ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631} flags=0x0}
+01-12 21:50:01.994  1356  1392 V WindowManager: Start calculating 
+TransitionInfo based on participants: {WallpaperWindowToken{8dfc71 
+showWhenLocked=false}_<system>, ActivityRecord{30185892 u0 
+com.sec.android.app.launcher/.activities.LauncherActivity t502}, 
+Task{358982e #1631 type=standard A=10533:com.elvan.rmdneram}, 
+WallpaperWindowToken{3cc8ec6 showWhenLocked=true}_<lock>, 
+ActivityRecord{239427120 u0 com.elvan.rmdneram/.MainActivity t1631}}
+01-12 21:50:01.994  1356  1392 V WindowManager:   Final targets: 
+[ChangeInfo{44545e1 container=Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram} flags=0x10}, ChangeInfo{85b704a 
+container=Task{1199ab3 #1 type=home} flags=0x10}, ChangeInfo{a18e1b5 
+container=WallpaperWindowToken{8dfc71 showWhenLocked=false}_<system> 
+flags=0x0}]
+01-12 21:50:01.996  4223  4248 I SDHMS:k : handleResumeComponent : put 
+= com.elvan.rmdneram, userid = 0 instanceid =212533199
+01-12 21:50:01.997  1356  1392 I SurfaceControlRegistry: show, 
+t=StartTransaction_SyncId<10535> sc=ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631}, 
+caller=android.view.SurfaceControl$Transaction.show:3557 
+com.android.server.wm.Transition.onTransactionReady:2048 
+com.android.server.wm.BLASTSyncEngine$SyncGroup.finishNow:240 
+com.android.server.wm.BLASTSyncEngine.onSurfacePlacement:263 com.androi
+d.server.wm.RootWindowContainer.performSurfacePlacementNoTrace:1083 
+com.android.server.wm.WindowSurfacePlacer.performSurfacePlacement:166 
+01-12 21:50:01.998  1356  1392 V WindowManager:         
+{WCT{RemoteToken{d99bea2 Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram}}} m=OPEN f=NONE 
+leash=Surface(name=Task=1631)/@0x3d07a84 sb=Rect(0, 0 - 1080, 2400) 
+eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 
+inset=Rect(0, 88 - 0, 42) dim=true},
+01-12 21:50:01.998  1356  1948 D SGM:GameManager: 
+identifyForegroundApp. com.elvan.rmdneram, mCurrentUserId: 0, 
+callerUserId: 0
+01-12 21:50:02.001  2346  2346 I 
+HoneySpace.EdgePanel.EdgePanelContainerViewModel: 
+cocktailHostRepository.edgePanelOperation NoteResumeComponent(component
+Name=ComponentInfo{com.elvan.rmdneram/com.elvan.rmdneram.MainActivity})
+01-12 21:50:02.001  2346  2346 I HoneySpace.EdgePanel.ActivityUtils: 
+HomePackage : com.sec.android.app.launcher, resumePackageName : 
+com.elvan.rmdneram, className : com.elvan.rmdneram.MainActivity
+01-12 21:50:02.002  1356  1388 V WindowManager: Sent Transition 
+(#10535) createdAt=01-12 21:50:01.897 via 
+request=TransitionRequestInfo { type = OPEN, triggerTask = 
+TaskInfo{userId=0 taskId=1631 effectiveUid=10533 displayId=0 
+isRunning=true baseIntent=Intent { act=android.intent.action.MAIN 
+cat=[android.intent.category.LAUNCHER] flg=0x10200000 
+cmp=com.elvan.rmdneram/.MainActivity } baseActivity=ComponentInfo{com.e
+lvan.rmdneram/com.elvan.rmdneram.MainActivity} topActivity=ComponentInf
+o{com.elvan.rmdneram/com.elvan.rmdneram.MainActivity} 
+origActivity=null realActivity=ComponentInfo{com.elvan.rmdneram/com.elv
+an.rmdneram.MainActivity} numActivities=1 lastActiveTime=609762441 
+supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 
+minHeight=-1 maxWidth=-1 maxHeight=-1 defaultMinSize=220 
+desktopDefaultMinSize=304 token=WCT{RemoteToken{d99bea2 Task{358982e 
+#1631 type=standard A=10533:com.elvan.rmdneram}}} topActivityType=1 
+pictureInPictureParams=null shouldDockBigOverlays=false 
+launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 
+displayCutoutSafeInsets=Rect(0, 88 - 0, 0) 
+topActivityInfo=ActivityInfo{6f922ee com.elvan.rmdneram.MainActivity} 
+launchCookies=[android.os.BinderProxy@2cc938f] 
+positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false 
+isVisible=false isVisibleRequested=false isTopActivityNoDisplay=false 
+isSleeping=false locusId=null displayAreaFeatureId=1 
+isTopActivityTransparent=false isActivityStackTransparent=false 
+lastNonFullscreenBounds=Rect(81, 623 - 999, 1823) capturedLink=null 
+capturedLinkTimestamp=0 requestedVisibleTypes=-9 
+topActivityRequestOpenInBrowserEducationTimestamp=0 
+appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false 
+eligibleForLetterboxEducation= false isLetterboxEducationEnabled= 
+false isLetterboxDoubleTapEnabled= false 
+eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= 
+false isFromLetterboxDoubleTap= false 
+topActivityLetterboxVerticalPosition= -1 
+topActivityLetterboxHorizontalPosition= -1 
+topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 
+topActivityAppBounds=Rect(0, 0 - 1080, 2400) 
+isUserFullscreenOverrideEnabled=false 
+isSystemFullscreenOverrideEnabled=false 
+hasMinAspectRatioOverride=false topActivityLetterboxBounds=null 
+cameraCompatTaskInfo=CameraCompatTaskInfo { 
+freeformCameraCompatMode=inactive} topActivityBounds=null 
+topActivityInDisplayCompat=false singleTapFromLetterbox=false} 
+topActivityMainWindowFrame=null originallySupportedMultiWindow=true 
+hasWallpaper=false rootAffinity=10533:com.elvan.rmdneram 
+isTopTaskInStage=false CoverLauncherWidgetTask=false 
+LaunchedFromAppsCoverLauncherTask=false 
+LaunchedFromMultistarCoverLauncherTask=false 
+isAllowedSeamlessRotation=false isTopTransparentActivity=false 
+isAliasManaged=false hasConfigChanged=false snappingGuideBounds=null 
+isAiKeyRemoveAppTask=false lastDesktopWindowingBounds=null 
+lastExternalDesktopWindowingBounds=null safeCutoutInsets=null}, 
+pipChange = null, remoteTransition = RemoteTransition { 
+remoteTransition = 
+android.window.IRemoteTransition$Stub$Proxy@5aa961c, appThread = 
+android.app.IApplicationThread$Stub$Proxy@906a225, debugName = 
+QuickstepLaunchflags =NONE }, displayChange = null, flags = 0, debugId 
+= 10535 }
+01-12 21:50:02.003  1356  1388 V WindowManager:         
+{WCT{RemoteToken{d99bea2 Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram}}} m=OPEN f=NONE 
+leash=Surface(name=Task=1631)/@0x3d07a84 sb=Rect(0, 0 - 1080, 2400) 
+eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 
+inset=Rect(0, 88 - 0, 42) dim=true},
+01-12 21:50:02.005  1028  1190 I SurfaceFlinger: id=144246 createSurf, 
+flag=84000, 1105fe2 ActivityRecordInputSink 
+com.elvan.rmdneram/.MainActivity#144246
+01-12 21:50:02.009  4789  4810 W .elvan.rmdneram: ClassLoaderContext 
+classpath element checksum mismatch. expected=940910263, 
+found=1942261120 (DLC[];PCL[base.apk*940910263]{PCL[/system/framework/o
+rg.apache.http.legacy.jar*2001478317]#PCL[/system/framework/com.android
+.media.remotedisplay.jar*487574312]#PCL[/system/framework/com.android.l
+ocation.provider.jar*1570284764]#PCL[/system_ext/framework/androidx.win
+dow.extensions.jar*3210150721]#PCL[/system_ext/framework/androidx.windo
+w.sidecar.jar*3925677193]} | DLC[];PCL[/data/app/~~ZHp-KdtiR7BatdP_MiHw
+Mw==/com.elvan.rmdneram-eeviGvkbhalOmLtH5wS9ZA==/base.apk*1942261120])
+01-12 21:50:02.013  1356  1391 D SGM:FgCheckThread: 
+noteResumeComponent(), received pkgName: com.elvan.rmdneram, userId: 0
+01-12 21:50:02.015  1356  1540 D SGM:FgCheckThread: 
+onLooperPrepared(), msg: MSG_APP_RESUME, pkgName: com.elvan.rmdneram, 
+userid: 0
+01-12 21:50:02.016  1356  1540 D SGM:FgCheckThread:   handleResume(). 
+pkgName: com.elvan.rmdneram, userId: 0, category: non-game
+01-12 21:50:02.016  1356  1540 D SGM:FgCheckThread: 
+notifyFocusInOut(). of pkg: com.elvan.rmdneram, type: 4, 
+isSecGameFamily: false, userId: 0
+01-12 21:50:02.017  1028  1028 I SurfaceFlinger: RequestedLayer 
+[951a24 Splash Screen com.elvan.rmdneram#144242] hidden!! flag  
+from(1) --> to(0)
+01-12 21:50:02.017  1028  1028 I SurfaceFlinger: RequestedLayer 
+[Splash Screen com.elvan.rmdneram$_1788#144243] hidden!! flag  from(1) 
+--> to(0)
+01-12 21:50:02.017  1028  1028 I SurfaceFlinger: RequestedLayer 
+[ActivityRecord{239427120 u0 com.elvan.rmdneram/.MainActivity 
+t1631}#144241] hidden!! flag  from(1) --> to(0)
+01-12 21:50:02.017  1028  1028 I SurfaceFlinger: [1105fe2 
+ActivityRecordInputSink com.elvan.rmdneram/.MainActivity#144246] 
+attach to parent 
+LayerHierarchy{RequestedLayerState{ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631}#144241 parentId=144240} 2 
+children}
+01-12 21:50:02.019  1356  3925 D SGM:GameManager: identifyGamePackage. 
+com.elvan.rmdneram, mCurrentUserId: 0, callingMethodInfo: com.samsung.a
+ndroid.game.IGameManagerService$Stub.onTransact(IGameManagerService.jav
+a:247)
+01-12 21:50:02.026  1356  1391 D SGM:GameManager: identifyGamePackage. 
+com.elvan.rmdneram, mCurrentUserId: 0, callingMethodInfo: com.samsung.a
+ndroid.game.SemGameManager.isGamePackage(SemGameManager.java:106)
+01-12 21:50:02.026  1356  1391 D SGM:SemGameManager: isGamePackage(), 
+pkgName=com.elvan.rmdneram, ret=false
+01-12 21:50:02.064  1028  2342 I SurfaceFlinger: id=144249 createSurf, 
+flag=84004, e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249
+01-12 21:50:02.067  1028  1028 I SurfaceFlinger: [e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249] attach to 
+parent LayerHierarchy{RequestedLayerState{ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631}#144241 parentId=144240} 3 
+children}
+01-12 21:50:02.068  4789  4789 I InsetsController: onStateChanged: 
+host=com.elvan.rmdneram/com.elvan.rmdneram.MainActivity, 
+from=android.view.ViewRootImpl.onInsetsStateChanged:3026, 
+state=InsetsState: {mDisplayFrame=Rect(0, 0 - 1080, 2400), 
+mDisplayCutout=DisplayCutout{insets=Rect(0, 88 - 0, 0) 
+waterfall=Insets{left=0, top=0, right=0, bottom=0} 
+boundingRect={Bounds=[Rect(0, 0 - 0, 0), Rect(512, 0 - 568, 88), 
+Rect(0, 0 - 0, 0), Rect(0, 0 - 0, 0)]} 
+cutoutPathParserInfo={CutoutPathParserInfo{displayWidth=1080 
+displayHeight=2400 physicalDisplayWidth=1080 
+physicalDisplayHeight=2400 density={2.8125} cutoutSpec={M 0,0 M 
+0,11.43427858034597 a 9.899054752987353,9.899054752987353 0 1,0 
+0,19.79810950597471 a 9.899054752987353,9.899054752987353 0 1,0 
+0,-19.79810950597471 Z @dp} rotation={0} scale={1.0} 
+physicalPixelDisplaySizeRatio={1.0}}} sideOverrides={}}, 
+mRoundedCorners=RoundedCorners{[RoundedCorner{position=TopLeft, 
+radius=79, center=Point(79, 79)}, RoundedCorner{position=TopRight, 
+radius=79, center=Point(1001, 79)}, 
+RoundedCorner{position=BottomRight, radius=79, center=Point(1001, 
+2321)}, RoundedCorner{position=BottomLeft, radius=79, center=Point(79, 
+2321)}]}  mRoundedCornerFrame=Rect(0, 0 - 1080, 2400), 
+mPrivacyIndicatorBounds=PrivacyIndicatorBounds {static 
+bounds=Rect(956, 0 - 1080, 88) rotation=0}, 
+mDisplayShape=DisplayShape{ spec=-311912193 displayWidth=1080 
+displayHeight=2400 physicalPixelDisplaySizeRatio=1.0 rotation=0 
+offsetX=0 offsetY=0 scale=1.0}, mSources= { InsetsSource: {80f90001 
+mType=navigationBars mFrame=[0,2358][1080,2400] mVisible=true 
+mFlags=SUPPRESS_SCRIM mSideHint=BOTTOM mBoundingRects=null}, 
+InsetsSource: {80f90004 mType=systemGestures mFrame=[0,0][84,2400] 
+mVisible=true mFlags= mSideHint=LEFT mBoundingRects=null}, 
+InsetsSource: {80f90005 mType=mandatorySystemGestures 
+mFrame=[0,2310][1080,2400] mVisible=true mFlags= mSideHint=BOTTOM 
+mBoundingRects=null}, InsetsSource: {80f90006 mType=tappableElement 
+mFrame=[0,0][0,0] mVisible=true mFlags= mSideHint=NONE 
+mBoundingRects=null}, InsetsSource: {80f90024 mType=systemGestures 
+mFrame=[996,0][1080,2400] mVisible=true mFlags= mSideHint=RIGHT 
+mBoundingRects=null}, InsetsSource: {a5360000 mType=statusBars 
+mFrame=[0,0][1080,88] mVisible=true mFlags= mSideHint=TOP 
+mBoundingRects=null}, InsetsSource: {a5360005 
+mType=mandatorySystemGestures mFrame=[0,0][1080,122] mVisible=true 
+mFlags= mSideHint=TOP mBoundingRects=null}, InsetsSource: {a5360006 
+mType=tappableElement mFrame=[0,0][1080,88] mVisible=true mFlags= 
+mSideHint=TOP mBoundingRects=null}, InsetsSource: {3 mType=ime 
+mFrame=[0,0][0,0] mVisible=false mFlags= mSideHint=NONE 
+mBoundingRects=null}, InsetsSource: {27 mType=displayCutout 
+mFrame=[0,0][1080,88] mVisible=true mFlags= mSideHint=TOP 
+mBoundingRects=null} }
+01-12 21:50:02.082  1356  1948 D CoreBackPreview: Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}: Setting back 
+callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvo
+kedCallback$Stub$Proxy@4b90876, mPriority=-1, 
+mIsAnimationCallback=false, mOverrideBehavior=0}
+01-12 21:50:02.083  1028  1028 I SurfaceFlinger: RequestedLayer 
+[e4dbe4c com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249] 
+hidden!! flag  from(1) --> to(0)
+01-12 21:50:02.090 30948  4566 I PhenotypeResourceReader: unable to 
+find any Phenotype resource metadata for com.elvan.rmdneram
+01-12 21:50:02.096  1028  1028 D SurfaceFlinger:        CLIENT |       
+     7679401586371 | 00002100 | RGBA_8888    |    0.0   30.0 1080.0 
+2326.0 |  178  103  949 1742 | Splash Screen 
+com.elvan.rmdneram$_1788#144243 (1)
+01-12 21:50:02.114  1356  1595 D MdnieScenarioControlService:  
+packageName : com.elvan.rmdneram    className : 
+com.elvan.rmdneram.MainActivity
+01-12 21:50:02.119  4789  4829 I FA      :   adb shell setprop 
+debug.firebase.analytics.app com.elvan.rmdneram
+01-12 21:50:02.176  1356  3924 I WindowManager: Relayout 
+Window{e4dbe4c u0 com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}: 
+viewVisibility=0 req=1080x2400 ty=1 d0
+01-12 21:50:02.177  1028  2343 I SurfaceFlinger: id=144250 createSurf, 
+flag=44004, 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250
+01-12 21:50:02.178  1356  3924 D WindowManager: makeSurface duration=1 
+name=com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789
+01-12 21:50:02.178  1356  3924 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:02.178  1356  3924 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.180  1356  3924 D InsetsSourceProvider: 
+updateControlForTarget: control=InsetsSourceControl: {a5360000 
+mType=statusBars initiallyVisible mSurfacePosition=Point(0, 0) 
+mInsetsHint=Insets{left=0, top=88, right=0, bottom=0}}, 
+target=Window{951a24 u0 Splash Screen com.elvan.rmdneram}, from=com.and
+roid.server.wm.InsetsStateController.onControlTargetChanged:83 
+com.android.server.wm.InsetsPolicy.updateBarControlTarget:212 
+com.android.server.wm.DisplayPolicy.updateSystemBarAttributes:262 
+com.android.server.wm.DisplayPolicy.finishPostLayoutPolicyLw:17 com.and
+roid.server.wm.RootWindowContainer.applySurfaceChangesTransaction$1:195
+ 
+01-12 21:50:02.182  1356  3924 D InsetsSourceProvider: 
+updateControlForTarget: control=InsetsSourceControl: {80f90001 
+mType=navigationBars initiallyVisible mSurfacePosition=Point(0, 2265) 
+mInsetsHint=Insets{left=0, top=0, right=0, bottom=42}}, 
+target=Window{951a24 u0 Splash Screen com.elvan.rmdneram}, from=com.and
+roid.server.wm.InsetsStateController.onControlTargetChanged:83 
+com.android.server.wm.InsetsPolicy.updateBarControlTarget:225 
+com.android.server.wm.DisplayPolicy.updateSystemBarAttributes:262 
+com.android.server.wm.DisplayPolicy.finishPostLayoutPolicyLw:17 com.and
+roid.server.wm.RootWindowContainer.applySurfaceChangesTransaction$1:195
+ 
+01-12 21:50:02.182  1356  3924 D WindowManager: 
+updateSystemBarAttributes: displayId=0, focusedCanBeNavColorWin=false, 
+win=Window{951a24 u0 Splash Screen com.elvan.rmdneram}, 
+navColorWin=Window{951a24 u0 Splash Screen com.elvan.rmdneram}, 
+caller=com.android.server.wm.DisplayPolicy.finishPostLayoutPolicyLw:17 
+com.android.server.wm.RootWindowContainer.applySurfaceChangesTransactio
+n$1:195 com.android.server.wm.RootWindowContainer.performSurfacePlaceme
+ntNoTrace:59 
+01-12 21:50:02.183  1356  3924 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:02.183  1356  3924 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.183  1028  1028 I SurfaceFlinger: 
+[com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250] 
+attach to parent LayerHierarchy{RequestedLayerState{e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+parentId=144241} 1 children}
+01-12 21:50:02.183  1356  3924 D WindowManager: Changing focus from 
+null to Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity} displayId=0 
+Callers=com.android.server.wm.WindowManagerService.relayoutWindow:1350 
+com.android.server.wm.Session.relayout:27 
+android.view.IWindowSession$Stub.onTransact:829 
+com.android.server.wm.Session.onTransact:1 
+01-12 21:50:02.186  1356  3924 D InsetsSourceProvider: 
+updateControlForTarget: control=InsetsSourceControl: {a5360000 
+mType=statusBars initiallyVisible mSurfacePosition=Point(0, 0) 
+mInsetsHint=Insets{left=0, top=88, right=0, bottom=0}}, 
+target=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, from=com.android.s
+erver.wm.InsetsStateController.onControlTargetChanged:83 
+com.android.server.wm.InsetsPolicy.updateBarControlTarget:212 
+com.android.server.wm.DisplayPolicy.updateSystemBarAttributes:262 com.a
+ndroid.server.wm.WindowManagerService.updateFocusedWindowLocked:372 
+com.android.server.wm.WindowManagerService.relayoutWindow:1350 
+01-12 21:50:02.187  1356  3924 D InsetsSourceProvider: 
+updateControlForTarget: control=InsetsSourceControl: {80f90001 
+mType=navigationBars initiallyVisible mSurfacePosition=Point(0, 2265) 
+mInsetsHint=Insets{left=0, top=0, right=0, bottom=42}}, 
+target=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, from=com.android.s
+erver.wm.InsetsStateController.onControlTargetChanged:83 
+com.android.server.wm.InsetsPolicy.updateBarControlTarget:225 
+com.android.server.wm.DisplayPolicy.updateSystemBarAttributes:262 com.a
+ndroid.server.wm.WindowManagerService.updateFocusedWindowLocked:372 
+com.android.server.wm.WindowManagerService.relayoutWindow:1350 
+01-12 21:50:02.188  1356  3924 D WindowManager: 
+updateSystemBarAttributes: displayId=0, focusedCanBeNavColorWin=false, 
+win=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, 
+navColorWin=Window{951a24 u0 Splash Screen com.elvan.rmdneram}, caller=
+com.android.server.wm.WindowManagerService.updateFocusedWindowLocked:37
+2 com.android.server.wm.WindowManagerService.relayoutWindow:1350 
+com.android.server.wm.Session.relayout:27 
+01-12 21:50:02.188  1356  3924 V SystemKeyManager: 
+updateFocusedWindow() is called, 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:02.188  1356  3924 I SystemKeyManager: requested 
+systemKeyInfo size=1 
+focusedWindow=com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:02.188  1356  3924 I SystemKeyManager: requested 
+systemKeyInfo size=1 
+focusedWindow=com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:02.188  1788  1788 D NavigationBar: 
+onSystemBarAttributesChanged() -  displayId:0, appearance:16, 
+packageName: com.elvan.rmdneram (APPEARANCE_LIGHT_NAVIGATION_BARS ), 
+navbarColorManagedByIme:false
+01-12 21:50:02.206  1356  1392 I WindowManager: 
+notifyInsetsControlChanged, removed=false, win=Window{951a24 u0 Splash 
+Screen com.elvan.rmdneram}, caller=com.android.server.wm.InsetsStateCon
+troller$$ExternalSyntheticLambda1.run:137 com.android.server.wm.WindowA
+nimator$$ExternalSyntheticLambda2.onTransactionCommitted:26 android.vie
+w.SurfaceControl$Transaction$$ExternalSyntheticLambda4.run:0 
+android.os.Handler.handleCallback:995 
+android.os.Handler.dispatchMessage:103 android.os.Looper.loopOnce:273 
+01-12 21:50:02.212  1028  1104 D SurfaceFlinger: [input] 
+setFocusedWindow: e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:02.213  1356  2643 D InputDispatcher: Once focus requested 
+(0): e4dbe4c com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:02.213  1356  2643 D InputDispatcher: Focus request (0): 
+e4dbe4c com.elvan.rmdneram/com.elvan.rmdneram.MainActivity but waiting 
+because NOT_VISIBLE
+01-12 21:50:02.226  1028  2343 I SurfaceFlinger: 
+[com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250] 
+setTransactionState with the first frame. bufferData(ID: 
+20568598380544, frameNumber: 1)
+01-12 21:50:02.226  1356  1948 D WindowManager: finishDrawingWindow: 
+Window{e4dbe4c u0 com.elvan.rmdneram/com.elvan.rmdneram.MainActivity} 
+mDrawState=DRAW_PENDING seqId=0
+01-12 21:50:02.227  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:02.227  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.227  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:02.228  1356  1392 V WindowManager: Finish starting 
+ActivityRecord{239427120 u0 com.elvan.rmdneram/.MainActivity t1631}: 
+first real window is shown, no animation
+01-12 21:50:02.228  1356  1392 V WindowManager: Schedule remove 
+starting ActivityRecord{239427120 u0 com.elvan.rmdneram/.MainActivity 
+t1631} startingWindow=Window{951a24 u0 Splash Screen 
+com.elvan.rmdneram} animate=true 
+Callers=com.android.server.wm.ActivityRecord.removeStartingWindow:178 
+com.android.server.wm.WindowState.performShowLocked:155 
+com.android.server.wm.WindowStateAnimator.commitFinishDrawingLocked:73 
+com.android.server.wm.DisplayContent$$ExternalSyntheticLambda1.accept$c
+om$android$server$wm$DisplayContent$$ExternalSyntheticLambda37:23 com.a
+ndroid.server.wm.DisplayContent$$ExternalSyntheticLambda1.accept:143 
+01-12 21:50:02.228  1356  1392 D TaskOrganizerController: 
+applyStartingWindowAnimation, window=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, caller=com.android
+.server.wm.TaskOrganizerController.removeStartingWindow:132 com.android
+.server.wm.StartingSurfaceController$StartingSurface.remove:23 
+com.android.server.wm.ActivityRecord.removeStartingWindowAnimation:171 
+01-12 21:50:02.228  1356  1392 I WindowManager: Reparenting to leash, 
+surface=Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2, 
+leashParent=Surface(name=ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631})/@0x5a9f03
+01-12 21:50:02.228  1028  2343 I SurfaceFlinger: id=144255 createSurf, 
+flag=24000, Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2 - 
+animation-leash of starting_reveal#144255
+01-12 21:50:02.229  1356  1392 D WindowManager: makeSurface duration=2 
+leash=Surface(name=Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2 - 
+animation-leash of starting_reveal)/@0x25ace80
+01-12 21:50:02.230  1356  1392 I ActivityTaskManager: done 
+cause=notifyWindowsDrawn timestamp=410437285757236 
+info=TransitionInfo{2951cb9 a=ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631} d=true}
+01-12 21:50:02.230  1356  1392 V WindowManager: performShowLocked: 
+mDrawState=HAS_DRAWN in Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}
+01-12 21:50:02.231  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.232  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:02.232  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.232  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:02.232  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.234  1028  1028 I SurfaceFlinger: [Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2 - 
+animation-leash of starting_reveal#144255] attach to parent 
+LayerHierarchy{RequestedLayerState{ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631}#144241 parentId=144240} 4 
+children}
+01-12 21:50:02.237  4789  4789 I InsetsSourceConsumer: 
+applyRequestedVisibilityToControl: visible=true, type=statusBars, 
+host=com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:02.237  4789  4789 I InsetsSourceConsumer: 
+applyRequestedVisibilityToControl: visible=true, type=navigationBars, 
+host=com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:02.241  1356  1388 I 
+PkgPredictorService-SecIpmManagerServiceImpl: reportToNAP uid:10533 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity thisTime:339
+01-12 21:50:02.244  1356  1388 I ActivityTaskManager: Displayed 
+com.elvan.rmdneram/.MainActivity for user 0: +339ms
+01-12 21:50:02.244  1356  1388 I Pageboost: Launch time gathered : pid 
+4789 com.elvan.rmdneram 339
+01-12 21:50:02.250  1028  1028 I SurfaceFlinger: RequestedLayer 
+[com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250] 
+hidden!! flag  from(1) --> to(0)
+01-12 21:50:02.250  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+parentId=144255} 1 children}] reparent to 
+LayerHierarchy{RequestedLayerState{Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2 - 
+animation-leash of starting_reveal#144255 parentId=144241} 1 children}
+01-12 21:50:02.265  1028  1028 D SurfaceFlinger:        CLIENT |       
+    20568598380547 | 00002102 | RGBA_8888    |    0.0    0.0 1080.0 
+2344.0 |    1   56 1079 2397 | 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250 (2)
+01-12 21:50:02.265  1028  1028 D SurfaceFlinger:        CLIENT |       
+     7679401586374 | 00002100 | RGBA_8888    |    0.0    0.0 1080.0 
+2400.0 |    1    0 1079 2397 | Splash Screen 
+com.elvan.rmdneram$_1788#144243 (2)
+01-12 21:50:02.266  1356  1948 D InputDispatcher: Focus entered window 
+(0): e4dbe4c com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:02.270  1356  1533 I ImeTracker: 
+com.elvan.rmdneram:2946fb4a: onRequestHide at ORIGIN_SERVER reason 
+HIDE_UNSPECIFIED_WINDOW fromUser false
+01-12 21:50:02.273  1356  1720 D NetdEventListenerService: DNS 
+Requested by 207, 10533(com.elvan.rmdneram), SUCCESS, 19ms
+01-12 21:50:02.279  1356  3920 V WindowManager:    ChangeInfo{44545e1 
+container=Task{358982e #1631 type=standard A=10533:com.elvan.rmdneram} 
+flags=0x10}
+01-12 21:50:02.279  1356  3920 V WindowManager:    ChangeInfo{9cf7f06 
+container=ActivityRecord{239427120 u0 com.elvan.rmdneram/.MainActivity 
+t1631} flags=0x0}
+01-12 21:50:02.280  1356  3920 D PersonaActivityHelper: 
+token.toString()  Token{caaffcf ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631}}
+01-12 21:50:02.281  1356  3920 D ChangeTransitionController:    
+ChangeInfo{44545e1 container=Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram} flags=0x10}
+01-12 21:50:02.281  1356  3920 D ChangeTransitionController:    
+ChangeInfo{9cf7f06 container=ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631} flags=0x0}
+01-12 21:50:02.282  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:02.283  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.289  4789  4789 I ImeTracker: 
+com.elvan.rmdneram:2946fb4a: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+01-12 21:50:02.295  1356  2847 I WindowManager: Relayout Window{951a24 
+u0 Splash Screen com.elvan.rmdneram}: viewVisibility=8 req=1080x2400 
+ty=3 d0
+01-12 21:50:02.295  1356  2847 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.296  1356  2847 D WindowManager: 
+updateSystemBarAttributes: displayId=0, focusedCanBeNavColorWin=false, 
+win=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, 
+navColorWin=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, 
+caller=com.android.server.wm.DisplayPolicy.finishPostLayoutPolicyLw:17 
+com.android.server.wm.RootWindowContainer.applySurfaceChangesTransactio
+n$1:195 com.android.server.wm.RootWindowContainer.performSurfacePlaceme
+ntNoTrace:59 
+01-12 21:50:02.297  1356  2847 D SurfaceComposerClient: 
+setCornerRadius ## 951a24 Splash Screen com.elvan.rmdneram#144242 
+cornerRadius=0.000000
+01-12 21:50:02.297  1356  2847 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.297  1028  1028 D SurfaceFlinger:        DEVICE |       
+    20568598380547 | 00002102 | RGBA_8888    |    0.0    0.0 1080.0 
+2397.0 |    0    3 1080 2400 | 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250 (2)
+01-12 21:50:02.297  1028  1028 D SurfaceFlinger:        DEVICE |       
+     7679401586372 | 00002100 | RGBA_8888    |    0.0    0.0 1080.0 
+2400.0 |    0    0 1080 2400 | Splash Screen 
+com.elvan.rmdneram$_1788#144243 (4)
+01-12 21:50:02.302  1788  1788 D NavigationBar: 
+onSystemBarAttributesChanged() -  displayId:0, appearance:0, 
+packageName: com.elvan.rmdneram, navbarColorManagedByIme:false
+01-12 21:50:02.308  1356  3924 D WindowManager: Starting window 
+removed Window{951a24 u0 Splash Screen com.elvan.rmdneram}
+01-12 21:50:02.308  1356  3924 I WindowManager: Cancelling animation 
+restarting=false, leash=Surface(name=Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2 - 
+animation-leash of starting_reveal)/@0x25ace80
+01-12 21:50:02.308  1356  3924 I WindowManager: Reparenting to 
+original parent: Surface(name=ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631})/@0x5a9f03, destroy=false, 
+surface=Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2
+01-12 21:50:02.309  1356  3924 V WindowManager: Remove Window{951a24 
+u0 Splash Screen com.elvan.rmdneram}: 
+mSurfaceControl=Surface(name=Splash Screen 
+com.elvan.rmdneram$_1788)/@0x290970c mAnimatingExit=false 
+mRemoveOnExit=false mHasSurface=true surfaceShowing=false 
+animating=false app-animation=false 
+callers=com.android.server.wm.Session.remove:16 
+android.view.IWindowSession$Stub.onTransact:804 
+com.android.server.wm.Session.onTransact:1 
+android.os.Binder.execTransactInternal:1462 
+android.os.Binder.execTransact:1401 <bottom of call stack> 
+01-12 21:50:02.309  1356  3924 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.310  1356  3924 D WindowManager: 
+updateSystemBarAttributes: displayId=0, focusedCanBeNavColorWin=false, 
+win=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, 
+navColorWin=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, 
+caller=com.android.server.wm.DisplayPolicy.finishPostLayoutPolicyLw:17 
+com.android.server.wm.RootWindowContainer.applySurfaceChangesTransactio
+n$1:195 com.android.server.wm.RootWindowContainer.performSurfacePlaceme
+ntNoTrace:59 
+01-12 21:50:02.310  1356  3924 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.315  6805  6805 I HBD     : b [AiWriter] setContact : 
+com.elvan.rmdneram
+01-12 21:50:02.315  6805  6805 I HBD     : a [AiWriter] setContact : 
+com.elvan.rmdneram
+01-12 21:50:02.317  1028  1028 I SurfaceFlinger: RequestedLayer 
+[Splash Screen com.elvan.rmdneram$_1788#144243] hidden!! flag  from(0) 
+--> to(1)
+01-12 21:50:02.317  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2 - 
+animation-leash of starting_reveal#144255} 1 children}] reparent to 
+OffscreenRoot
+01-12 21:50:02.317  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{Surface(name=e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity)/@0x35b23b2 - 
+animation-leash of starting_reveal#144255} 1 children}] RelativeParent 
+to null
+01-12 21:50:02.317  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{951a24 Splash Screen 
+com.elvan.rmdneram#144242 z=2147483647} 1 children}] reparent to 
+OffscreenRoot
+01-12 21:50:02.317  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{951a24 Splash Screen 
+com.elvan.rmdneram#144242 z=2147483647} 1 children}] RelativeParent to 
+null
+01-12 21:50:02.318  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{Splash Screen 
+com.elvan.rmdneram$_1788#144243} no children}] reparent to 
+OffscreenRoot
+01-12 21:50:02.318  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{Splash Screen 
+com.elvan.rmdneram$_1788#144243} no children}] RelativeParent to null
+01-12 21:50:02.318  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+parentId=144241} 1 children}] reparent to 
+LayerHierarchy{RequestedLayerState{ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631}#144241 parentId=144240} 2 
+children}
+01-12 21:50:02.318  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.320  1356  1378 D InsetsSourceProvider: 
+updateControlForTarget: control=InsetsSourceControl: {3 mType=ime 
+mSurfacePosition=Point(0, 88) mInsetsHint=Insets{left=0, top=0, 
+right=0, bottom=940}}, target=Window{e4dbe4c u0 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}, from=com.android.s
+erver.wm.ImeInsetsSourceProvider.updateControlForTarget:17 
+com.android.server.wm.InsetsStateController.onControlTargetChanged:83 
+com.android.server.wm.DisplayContent.updateImeControlTarget:21 com.andr
+oid.server.wm.DisplayContent.updateImeInputAndControlTarget:156 com.and
+roid.server.wm.WindowManagerService$LocalService.updateInputMethodTarge
+tWindow:64 
+01-12 21:50:02.322  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.322  1028  1028 I SurfaceFlinger: id=144242 Removed 
+951a24 Splash Screen com.elvan.rmdneram#144242 (270)
+01-12 21:50:02.322  1028  1028 I SurfaceFlinger: id=144243 Removed 
+Splash Screen com.elvan.rmdneram$_1788#144243 (270)
+01-12 21:50:02.329  1028  1028 D SurfaceFlinger:        DEVICE |       
+    20568598380546 | 00002102 | RGBA_8888    |    0.0    0.0 1080.0 
+2400.0 |    0    0 1080 2400 | 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250 (3)
+01-12 21:50:02.333  1028  1028 I SurfaceFlinger: destroyed 951a24 
+Splash Screen com.elvan.rmdneram#144242
+01-12 21:50:02.333  1028  1028 I SurfaceFlinger: destroyed Splash 
+Screen com.elvan.rmdneram$_1788#144243
+01-12 21:50:02.336  1028  1028 I Layer   : id=144242 Destroyed 951a24 
+Splash Screen com.elvan.rmdneram#144242
+01-12 21:50:02.337  1028  1028 I Layer   : id=144243 Destroyed Splash 
+Screen com.elvan.rmdneram$_1788#144243
+01-12 21:50:02.350  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{ImeContainer#15 parentId=144241 
+relativeParentId=144249 z=1} 1 children}] reparent to 
+LayerHierarchy{RequestedLayerState{ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631}#144241 parentId=144240} 3 
+children}
+01-12 21:50:02.350  1028  1028 I SurfaceFlinger: 
+[LayerHierarchy{RequestedLayerState{ImeContainer#15 parentId=144241 
+relativeParentId=144249 z=1} 1 children}] RelativeParent to 
+LayerHierarchy{RequestedLayerState{e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+parentId=144241} 2 children}
+01-12 21:50:02.364  1356  1378 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.365  1356  1378 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.388  1356  1392 D SurfaceComposerClient: 
+setCornerRadius ## e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity#144249 
+cornerRadius=0.000000
+01-12 21:50:02.391  1356  1391 D SGM:FgCheckThread: 
+getForegroundApp(), foregroundPkgName=com.elvan.rmdneram
+01-12 21:50:02.395  1356  1391 D SGM:FgCheckThread: 
+noteStopComponent(), received pkgName: com.sec.android.app.launcher, 
+focusedPkgName: com.elvan.rmdneram, userId: 0
+01-12 21:50:02.397  1356  1389 D SGM:GameManager: 
+identifyForegroundApp. com.elvan.rmdneram, mCurrentUserId: 0, 
+callerUserId: 0
+01-12 21:50:02.399  1356  1389 D SGM:GameManager: 
+identifyForegroundApp. com.elvan.rmdneram, mCurrentUserId: 0, 
+callerUserId: 0
+01-12 21:50:02.532  1356  1595 D MdnieScenarioControlService:  
+packageName : com.elvan.rmdneram    className : 
+com.elvan.rmdneram.MainActivity
+01-12 21:50:02.821  1356  1391 D SGM:GameManager: 
+identifyForegroundApp. com.elvan.rmdneram, mCurrentUserId: 0, 
+callerUserId: 0
+01-12 21:50:02.830  6805  9784 I HBD     : a [SKE_SPECIFIC] specific 
+model[com.elvan.rmdneram] loaded, 497228154 ns
+01-12 21:50:03.205  4789  4789 E AndroidRuntime: Process: 
+com.elvan.rmdneram, PID: 4789
+01-12 21:50:03.205  4789  4789 E AndroidRuntime: 	at com.elvan.rmdneram
+.data.repository.FirebaseRepository$getAcademicHierarchy$1$listener$1.o
+nCancelled(FirebaseRepository.kt:256)
+01-12 21:50:03.207  1356  1824 W ActivityTaskManager:   Force 
+finishing activity com.elvan.rmdneram/.MainActivity
+01-12 21:50:03.207  1356  4878 W ActivityManager: crash : 
+com.elvan.rmdneram,10533
+01-12 21:50:03.208  1356  1824 V WindowManager: Collecting in 
+transition 10536: Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram}, 
+caller=com.android.server.wm.Transition.collectExistenceChange:40 
+com.android.server.wm.Transition.collectClose:7 
+com.android.server.wm.ActivityRecord.finishIfPossible:50 
+com.android.server.wm.ActivityRecord.finishIfPossible:1 com.android.ser
+ver.wm.RootWindowContainer$$ExternalSyntheticLambda34.accept:179 
+01-12 21:50:03.208  1356  1824 D WindowManager: prepareSync 
+<SYNC_STATE_WAITING_FOR_DRAW>, mPrepareSyncSeqId=0, win=Window{e4dbe4c 
+u0 com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}
+01-12 21:50:03.209  1356  1824 D ActivityTaskManager: 
+scheduleTopResumedActivityChanged, onTop=false, 
+r=ActivityRecord{239427120 u0 com.elvan.rmdneram/.MainActivity t1631 
+f}}, caller=com.android.server.wm.ActivityTaskSupervisor.scheduleTopRes
+umedActivityStateLossIfNeeded:19 com.android.server.wm.ActivityTaskSupe
+rvisor.updateTopResumedActivityIfNeeded:20 
+com.android.server.wm.TaskDisplayArea.positionChildAt:252 
+com.android.server.wm.WindowContainer.positionChildAt:84 
+com.android.server.wm.Task.positionChildAt:19 
+com.android.server.wm.Task.moveToFront:40 
+01-12 21:50:03.209  1356  1824 V WindowManager: Collecting in 
+transition 10536: ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631 f}}, 
+caller=com.android.server.wm.TransitionController.collect:7 
+com.android.server.wm.ActivityRecord.setVisibility:132 
+com.android.server.wm.ActivityRecord.finishIfPossible:87 
+com.android.server.wm.ActivityRecord.finishIfPossible:1 com.android.ser
+ver.wm.RootWindowContainer$$ExternalSyntheticLambda34.accept:179 
+01-12 21:50:03.209  1788  1951 V WindowManagerShell: Transition 
+requested (#10536): android.os.BinderProxy@7f56928 
+TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 
+taskId=1631 effectiveUid=10533 displayId=0 isRunning=true 
+baseIntent=Intent { act=android.intent.action.MAIN 
+cat=[android.intent.category.LAUNCHER] flg=0x10200000 
+cmp=com.elvan.rmdneram/.MainActivity } baseActivity=ComponentInfo{com.e
+lvan.rmdneram/com.elvan.rmdneram.MainActivity} topActivity=ComponentInf
+o{com.elvan.rmdneram/com.elvan.rmdneram.MainActivity} 
+origActivity=null realActivity=ComponentInfo{com.elvan.rmdneram/com.elv
+an.rmdneram.MainActivity} numActivities=1 lastActiveTime=609762469 
+supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 
+minHeight=-1 maxWidth=-1 maxHeight=-1 defaultMinSize=220 
+desktopDefaultMinSize=304 
+token=WCT{android.window.IWindowContainerToken$Stub$Proxy@6782641} 
+topActivityType=1 pictureInPictureParams=null 
+shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 
+lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=Rect(0, 0 - 0, 0) 
+topActivityInfo=ActivityInfo{41647e6 com.elvan.rmdneram.MainActivity} 
+launchCookies=[android.os.BinderProxy@6bae10a] 
+positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true 
+isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false 
+isSleeping=false locusId=null displayAreaFeatureId=1 
+isTopActivityTransparent=false isActivityStackTransparent=false 
+lastNonFullscreenBounds=Rect(81, 623 - 999, 1823) capturedLink=null 
+capturedLinkTimestamp=0 requestedVisibleTypes=-9 
+topActivityRequestOpenInBrowserEducationTimestamp=0 
+appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false 
+eligibleForLetterboxEducation= false isLetterboxEducationEnabled= 
+false isLetterboxDoubleTapEnabled= false 
+eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= 
+false isFromLetterboxDoubleTap= false 
+topActivityLetterboxVerticalPosition= -1 
+topActivityLetterboxHorizontalPosition= -1 
+topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 
+topActivityAppBounds=Rect(0, 0 - 1080, 2400) 
+isUserFullscreenOverrideEnabled=false 
+isSystemFullscreenOverrideEnabled=false 
+hasMinAspectRatioOverride=false topActivityLetterboxBounds=null 
+cameraCompatTaskInfo=CameraCompatTaskInfo { 
+freeformCameraCompatMode=inactive} topActivityBounds=null 
+topActivityInDisplayCompat=false singleTapFromLetterbox=false} 
+topActivityMainWindowFrame=null originallySupportedMultiWindow=true 
+hasWallpaper=false rootAffinity=10533:com.elvan.rmdneram 
+isTopTaskInStage=false CoverLauncherWidgetTask=false 
+LaunchedFromAppsCoverLauncherTask=false 
+LaunchedFromMultistarCoverLauncherTask=false 
+isAllowedSeamlessRotation=false isTopTransparentActivity=false 
+isAliasManaged=false hasConfigChanged=false snappingGuideBounds=null 
+isAiKeyRemoveAppTask=false lastDesktopWindowingBounds=null 
+lastExternalDesktopWindowingBounds=null safeCutoutInsets=null}, 
+pipChange = null, remoteTransition = null, displayChange = null, flags 
+= 16, debugId = 10536 }
+01-12 21:50:03.230  4223  4223 I SDHMS:PowerAnomaly:Gatherer:AppError: 
+update AppError : uid=10533, pkg=com.elvan.rmdneram, errorType=crash
+01-12 21:50:03.236  1356  1517 W InputDispatcher: channel 'e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity' ~ Consumer closed 
+input channel or an error occurred.  events=0x9
+01-12 21:50:03.236  1356  1517 E InputDispatcher: channel 'e4dbe4c 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity' ~ Channel is 
+unrecoverably broken and will be disposed!
+01-12 21:50:03.236  1356  1517 I WindowManager: WINDOW DIED 
+Window{e4dbe4c u0 com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}
+01-12 21:50:03.237  1356  1517 V WindowManager: Remove Window{e4dbe4c 
+u0 com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}: mSurfaceControl
+=Surface(name=com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789)
+/@0x97c394b mAnimatingExit=false mRemoveOnExit=false mHasSurface=true 
+surfaceShowing=true animating=false app-animation=false callers=com.and
+roid.server.input.InputManagerService.notifyInputChannelBroken:72 
+<bottom of call stack> <bottom of call stack> <bottom of call stack> 
+<bottom of call stack> <bottom of call stack> 
+01-12 21:50:03.238  1356  1517 D WindowManager: Changing focus from 
+Window{e4dbe4c u0 com.elvan.rmdneram/com.elvan.rmdneram.MainActivity 
+EXITING} to null displayId=0 
+Callers=com.android.server.wm.WindowState.removeIfPossible:602 com.andr
+oid.server.input.InputManagerService.notifyInputChannelBroken:72 
+<bottom of call stack> <bottom of call stack> 
+01-12 21:50:03.242  1356  3923 I ActivityManager: Process 
+com.elvan.rmdneram (pid 4789) has died: fg  TOP (508,2523)
+01-12 21:50:03.242  1356  3917 I ImeTracker: 
+com.elvan.rmdneram:7b4c3d9: onRequestHide at ORIGIN_SERVER reason 
+HIDE_REMOVE_CLIENT fromUser false
+01-12 21:50:03.242  1356  3917 I ImeTracker: 
+com.elvan.rmdneram:7b4c3d9: onCancelled at PHASE_SERVER_SHOULD_HIDE
+01-12 21:50:03.244  1356  3923 V WindowManager: Collecting in 
+transition 10536: Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram}, 
+caller=com.android.server.wm.Transition.collectClose:12 
+com.android.server.wm.WindowProcessController.handleAppDied$1:465 
+com.android.server.am.ActivityManagerService.handleAppDiedLocked:248 
+com.android.server.am.ActivityManagerService.appDiedLocked:570 com.andr
+oid.server.am.ActivityManagerService$AppDeathRecipient.binderDied:17 
+01-12 21:50:03.244  1356  3915 D InputDispatcher: Focus left window 
+(0): e4dbe4c com.elvan.rmdneram/com.elvan.rmdneram.MainActivity
+01-12 21:50:03.245  1356  3923 V WindowManager: Collecting in 
+transition 10536: ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631 f}}, 
+caller=com.android.server.wm.TransitionController.collect:7 
+com.android.server.wm.ActivityRecord.onRemovedFromDisplay:258 
+com.android.server.wm.ActivityRecord.removeFromHistory:173 
+com.android.server.wm.WindowProcessController.handleAppDied$1:507 
+com.android.server.am.ActivityManagerService.handleAppDiedLocked:248 
+01-12 21:50:03.250  1356  1391 D SGM:FgCheckThread: pkgName: 
+com.elvan.rmdneram is not in foreground
+01-12 21:50:03.250  1356  1391 D SGM:FgCheckThread: 
+noteStopComponent(), received pkgName: com.elvan.rmdneram, 
+focusedPkgName: com.sec.android.app.launcher, userId: 0
+01-12 21:50:03.271  1356  2643 I WindowManager: WIN DEATH: 
+Window{e4dbe4c u0 com.elvan.rmdneram/com.elvan.rmdneram.MainActivity 
+EXITING}
+01-12 21:50:03.272  1356  2643 V WindowManager: Remove Window{e4dbe4c 
+u0 com.elvan.rmdneram/com.elvan.rmdneram.MainActivity EXITING}: mSurfac
+eControl=Surface(name=com.elvan.rmdneram/com.elvan.rmdneram.MainActivit
+y$_4789)/@0x97c394b mAnimatingExit=true mRemoveOnExit=true 
+mHasSurface=true surfaceShowing=true animating=false 
+app-animation=false 
+callers=com.android.server.wm.Session.binderDied:85 
+android.os.IBinder$DeathRecipient.binderDied:346 
+android.os.BinderProxy.sendDeathNotice:848 <bottom of call stack> 
+<bottom of call stack> <bottom of call stack> 
+01-12 21:50:03.282  4223  4223 I SDHMS:PowerAnomaly:Analyzer:AppError: 
+analyze app error : uid=10533, pkg=com.elvan.rmdneram, appErrorCount=9
+01-12 21:50:03.459  1356  1392 D ChangeTransitionController:    
+ChangeInfo{f9cfb0f container=Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram} flags=0x0}
+01-12 21:50:03.459  1356  1392 D ChangeTransitionController:    
+ChangeInfo{7c415a5 container=ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631 f} isExiting} flags=0x0}
+01-12 21:50:03.459  1356  1392 V WindowManager: Start calculating 
+TransitionInfo based on participants: {WallpaperWindowToken{8dfc71 
+showWhenLocked=false}_<system>, Task{1199ab3 #1 type=home}, 
+ActivityRecord{30185892 u0 
+com.sec.android.app.launcher/.activities.LauncherActivity t502}, 
+Task{2c55309 #502 type=home 
+I=com.sec.android.app.launcher/.activities.LauncherActivity}, 
+Task{358982e #1631 type=standard A=10533:com.elvan.rmdneram}, 
+ActivityRecord{239427120 u0 com.elvan.rmdneram/.MainActivity t1631 f} 
+isExiting}}
+01-12 21:50:03.459  1356  1392 V WindowManager:   Final targets: 
+[ChangeInfo{cabb470 container=Task{1199ab3 #1 type=home} flags=0x30}, 
+ChangeInfo{f9cfb0f container=Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram} flags=0x10}, ChangeInfo{fc8a6b3 
+container=WallpaperWindowToken{8dfc71 showWhenLocked=false}_<system> 
+flags=0x0}]
+01-12 21:50:03.462  1356  1392 V WindowManager:         
+{WCT{RemoteToken{d99bea2 Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram}}} m=CLOSE f=NONE 
+leash=Surface(name=Task=1631)/@0x3d07a84 sb=Rect(0, 0 - 1080, 2400) 
+eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 
+inset=Rect(0, 0 - 0, 0) dim=true},
+01-12 21:50:03.471  1028  1066 I SurfaceFlinger: Capture layer list: 	 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250(seamles
+sTransition:0)
+01-12 21:50:03.477  2346  2346 I HoneySpace.AppCloseAnimationDelegate: 
+findTargetValue [cookie-97275, pkgName-com.elvan.rmdneram]
+01-12 21:50:03.478  2346  2346 I 
+HoneySpace.FreeGridFastRecyclerViewAdapter: findCloseTarget : 97275, 
+ComponentInfo{com.elvan.rmdneram/com.elvan.rmdneram.MainActivity}
+01-12 21:50:03.478  2346  2346 I HoneySpace.AppCloseAnimationDelegate: 
+findTargetView found:Value(view=com.honeyspace.ui.common.iconview.IconV
+iewImpl{f1f85ce VFED..CL. ........ 478,168-655,385 #7f0a02ed 
+app:id/icon aid=1073744190} - Neram, visibility:0, alpha:1.0, badge:0, 
+icon:163x163, iconAlpha:255, iconState:NONE, iconSize:177, 
+forceHideBadge:false, isTransparent:false, component=ComponentInfo{com.
+elvan.rmdneram/com.elvan.rmdneram.MainActivity}, 
+isTargetShortcut=false), 
+com.honeyspace.ui.common.iconview.IconViewImpl{f1f85ce VFED..CL. 
+........ 478,168-655,385 #7f0a02ed app:id/icon aid=1073744190} - 
+Neram, visibility:0, alpha:1.0, badge:0, icon:163x163, iconAlpha:255, 
+iconState:NONE, iconSize:177, forceHideBadge:false, isTransparent:false
+01-12 21:50:03.511  1356  1388 V WindowManager: Sent Transition 
+(#10536) createdAt=01-12 21:50:03.207 via 
+request=TransitionRequestInfo { type = CLOSE, triggerTask = 
+TaskInfo{userId=0 taskId=1631 effectiveUid=10533 displayId=0 
+isRunning=true baseIntent=Intent { act=android.intent.action.MAIN 
+cat=[android.intent.category.LAUNCHER] flg=0x10200000 
+cmp=com.elvan.rmdneram/.MainActivity } baseActivity=ComponentInfo{com.e
+lvan.rmdneram/com.elvan.rmdneram.MainActivity} topActivity=ComponentInf
+o{com.elvan.rmdneram/com.elvan.rmdneram.MainActivity} 
+origActivity=null realActivity=ComponentInfo{com.elvan.rmdneram/com.elv
+an.rmdneram.MainActivity} numActivities=1 lastActiveTime=609762469 
+supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 
+minHeight=-1 maxWidth=-1 maxHeight=-1 defaultMinSize=220 
+desktopDefaultMinSize=304 token=WCT{RemoteToken{d99bea2 Task{358982e 
+#1631 type=standard A=10533:com.elvan.rmdneram}}} topActivityType=1 
+pictureInPictureParams=null shouldDockBigOverlays=false 
+launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 
+displayCutoutSafeInsets=Rect(0, 0 - 0, 0) 
+topActivityInfo=ActivityInfo{6f922ee com.elvan.rmdneram.MainActivity} 
+launchCookies=[android.os.BinderProxy@2cc938f] 
+positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true 
+isVisible=true isVisibleRequested=true isTopActivityNoDisplay=false 
+isSleeping=false locusId=null displayAreaFeatureId=1 
+isTopActivityTransparent=false isActivityStackTransparent=false 
+lastNonFullscreenBounds=Rect(81, 623 - 999, 1823) capturedLink=null 
+capturedLinkTimestamp=0 requestedVisibleTypes=-9 
+topActivityRequestOpenInBrowserEducationTimestamp=0 
+appCompatTaskInfo=AppCompatTaskInfo { topActivityInSizeCompat=false 
+eligibleForLetterboxEducation= false isLetterboxEducationEnabled= 
+false isLetterboxDoubleTapEnabled= false 
+eligibleForUserAspectRatioButton= false topActivityBoundsLetterboxed= 
+false isFromLetterboxDoubleTap= false 
+topActivityLetterboxVerticalPosition= -1 
+topActivityLetterboxHorizontalPosition= -1 
+topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 
+topActivityAppBounds=Rect(0, 0 - 1080, 2400) 
+isUserFullscreenOverrideEnabled=false 
+isSystemFullscreenOverrideEnabled=false 
+hasMinAspectRatioOverride=false topActivityLetterboxBounds=null 
+cameraCompatTaskInfo=CameraCompatTaskInfo { 
+freeformCameraCompatMode=inactive} topActivityBounds=null 
+topActivityInDisplayCompat=false singleTapFromLetterbox=false} 
+topActivityMainWindowFrame=null originallySupportedMultiWindow=true 
+hasWallpaper=false rootAffinity=10533:com.elvan.rmdneram 
+isTopTaskInStage=false CoverLauncherWidgetTask=false 
+LaunchedFromAppsCoverLauncherTask=false 
+LaunchedFromMultistarCoverLauncherTask=false 
+isAllowedSeamlessRotation=false isTopTransparentActivity=false 
+isAliasManaged=false hasConfigChanged=false snappingGuideBounds=null 
+isAiKeyRemoveAppTask=false lastDesktopWindowingBounds=null 
+lastExternalDesktopWindowingBounds=null safeCutoutInsets=null}, 
+pipChange = null, remoteTransition = null, displayChange = null, flags 
+= 16, debugId = 10536 }
+01-12 21:50:03.512  1356  1388 V WindowManager:         
+{WCT{RemoteToken{d99bea2 Task{358982e #1631 type=standard 
+A=10533:com.elvan.rmdneram}}} m=CLOSE f=NONE 
+leash=Surface(name=Task=1631)/@0x3d07a84 sb=Rect(0, 0 - 1080, 2400) 
+eb=Rect(0, 0 - 1080, 2400) epz=Point(1080, 2400) d=0 taskParent=-1 
+inset=Rect(0, 0 - 0, 0) dim=true},
+01-12 21:50:03.532  1028  1028 D SurfaceFlinger:        CLIENT |       
+    20568598380544 | 00002102 | RGBA_8888    |    0.0    0.0 1080.0 
+2400.0 |    0    0 1080 2400 | 
+com.elvan.rmdneram/com.elvan.rmdneram.MainActivity$_4789#144250 (5)
+01-12 21:50:03.709  1356  1391 W ActivityTaskManager: Activity top 
+resumed state loss timeout for ActivityRecord{239427120 u0 
+com.elvan.rmdneram/.MainActivity t1631 f} isExiting}
+
+

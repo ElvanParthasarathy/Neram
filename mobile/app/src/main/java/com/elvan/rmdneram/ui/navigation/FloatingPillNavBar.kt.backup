@@ -1,0 +1,273 @@
+package com.elvan.rmdneram.ui.navigation
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
+import com.elvan.rmdneram.ui.home.rememberHomeColors
+import com.elvan.rmdneram.ui.home.HomeShapes
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.gestures.*
+import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.runtime.*
+import androidx.compose.ui.zIndex
+import androidx.compose.ui.draw.scale
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.max
+
+import androidx.compose.ui.draw.shadow
+import android.graphics.RenderEffect
+import android.graphics.Shader
+import android.os.Build
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.asComposeRenderEffect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+
+/**
+ * Bottom Navigation Bar - Exact match to mobile.css
+ */
+@Composable
+fun BottomNavBar(
+    selectedTab: NavTab?,
+    onTabSelected: (NavTab, Boolean) -> Unit,
+    onInteraction: (Boolean) -> Unit = {},
+    onDragProgress: (Float) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    // Use consistent Home Colors
+    val colors = rememberHomeColors()
+    val scope = rememberCoroutineScope()
+    val tabs = NavTab.entries
+    val lang = LocalAppLanguage.current
+    
+
+    
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 24.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Container surface - Clean glass look (95% opacity hides content behind)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    // Shadow for depth
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = HomeShapes.Pill,
+                        ambientColor = Color.Black,
+                        spotColor = Color.Transparent
+                    )
+                    // Subtle border for edge definition (theme-adaptive)
+                    .border(
+                        width = 0.5.dp,
+                        color = if (!isSystemInDarkTheme()) 
+                            Color.Black.copy(alpha = 0.09f)
+                        else 
+                            Color.White.copy(alpha = 0.08f),
+                        shape = HomeShapes.Pill
+                    ),
+                shape = HomeShapes.Pill,
+                // High opacity hides content behind while maintaining subtle translucency
+                color = colors.surface.copy(alpha = 0.95f),
+            ) {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(6.dp)
+                ) {
+                    val width = maxWidth
+                    val itemWidth = width / tabs.size
+                    val selectedIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
+
+                    // Dynamic Scale to prevent clipping
+                    val maxScale = (1f + (12.dp / itemWidth)).coerceAtMost(1.15f)
+
+                    // Interaction State
+                    var isInteracting by remember { mutableStateOf(false) }
+                    var currentDragOffset by remember { mutableStateOf<Float?>(null) }
+                    
+                    val scale by animateFloatAsState(
+                        targetValue = if (isInteracting) maxScale else 1.0f,
+                        label = "zoom",
+                         // Use stiff spring for zoom to match touch responsiveness
+                        animationSpec = spring(stiffness = Spring.StiffnessMedium)
+                    )
+
+                    // Unified Interaction Handler
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .zIndex(2f)
+                            .pointerInput(itemWidth) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        val down = awaitFirstDown()
+                                        // Delay interaction signal until drag confirmed
+                                        // isInteracting = true 
+                                        // onInteraction(true)
+                                        currentDragOffset = null // Snap on tap
+                                        
+                                        // Initial Tracking
+                                        var currentIndex = (down.position.x / itemWidth.toPx()).toInt().coerceIn(0, tabs.size - 1)
+                                        var isDrag = false
+                                        val dragThreshold = 10f // Simple pixel threshold
+
+                                        // Long Press Job
+                                        val longPressJob = scope.launch {
+                                            delay(300)
+                                            if (!isDrag) {
+                                                isDrag = true // Treat as drag for overlay purposes
+                                                isInteracting = true
+                                                onInteraction(true)
+                                            }
+                                        }
+
+                                        var pointerId = down.id
+                                        while (true) {
+                                            val event = awaitPointerEvent()
+                                            val pointerChange = event.changes.firstOrNull { it.id == pointerId }
+                                            
+                                            if (pointerChange == null || pointerChange.changedToUp() || pointerChange.isConsumed) {
+                                                break
+                                            }
+
+                                            // Check if drag exceeded threshold
+                                            val dragDistance = (pointerChange.position - down.position).getDistance()
+                                            if (dragDistance > dragThreshold) {
+                                                longPressJob.cancel() // Cancel timer if dragged (handover to drag logic)
+                                                if (!isDrag) {
+                                                    isDrag = true
+                                                    isInteracting = true
+                                                    onInteraction(true)
+                                                }
+                                                
+                                                // Drag Logic - Updates Pill but DEFERS Selection
+                                                currentDragOffset = pointerChange.position.x
+                                                val exactIndex = pointerChange.position.x / itemWidth.toPx()
+                                                onDragProgress(exactIndex.coerceIn(0f, (tabs.size - 1).toFloat()))
+                                                
+                                                currentIndex = exactIndex.toInt().coerceIn(0, tabs.size - 1)
+                                                
+                                                pointerChange.consume()
+                                            }
+                                        }
+                                            
+
+
+                                        // Release Logic - Commit Selection
+                                        longPressJob.cancel() // Cancel trigger if released early
+                                        onTabSelected(tabs[currentIndex], isDrag)
+                                        isInteracting = false
+                                        onInteraction(false)
+                                        currentDragOffset = null
+                                    }
+                                }
+                            }
+                    )
+
+                    // Animated Selection Pill (The "Flyer")
+                    val targetOffset = if (isInteracting && currentDragOffset != null) {
+                        // Center the pill on the finger
+                        with(LocalDensity.current) { (currentDragOffset!! - itemWidth.toPx() / 2).toDp() }
+                    } else {
+                        itemWidth * selectedIndex
+                    }
+                    
+                    val constrainedTarget = targetOffset.coerceIn(0.dp, width - itemWidth)
+
+                    val indicatorOffset by animateDpAsState(
+                        targetValue = constrainedTarget,
+                        // Snap if dragging, Spring if tapping/releasing
+                        animationSpec = if (isInteracting && currentDragOffset != null) snap() else spring(stiffness = Spring.StiffnessMediumLow),
+                        label = "offset"
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .offset(x = indicatorOffset)
+                            .width(itemWidth)
+                            .fillMaxHeight()
+                            .scale(scale)
+                            .clip(HomeShapes.Pill) // Inner pill shape
+                            // Subtle neutral selection - theme matching
+                            .background(colors.textSecondary.copy(alpha = 0.15f))
+                    )
+
+                    // Foreground Items (Icons + Text)
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        tabs.forEachIndexed { index, tab ->
+                            // Lerp Color Logic
+                            val distance = androidx.compose.ui.unit.max(0.dp, (indicatorOffset - (itemWidth * index)).let { if (it < 0.dp) -it else it })
+                            // We can't use abs directly on Dp easily without converting, so manual abs:
+                            // Or better:
+                            // val distancePx = abs(indicatorOffset.toPx() - (itemWidth.toPx() * index))
+                             // Rely on BoxWithConstraints density context? No.
+                             // Simple ratio logic:
+                            val fraction = 1f - (distance / itemWidth).coerceIn(0f, 1f)
+                            
+                            val contentColor = lerp(colors.textSecondary, colors.textPrimary, fraction)
+
+                            Column(
+                                modifier = Modifier
+                                    .width(itemWidth)
+                                    .fillMaxHeight(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = tab.icon,
+                                    contentDescription = tab.label,
+                                    tint = contentColor,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Text(
+                                    text = when(tab) {
+                                        NavTab.Home -> AppStrings.Nav.home(lang)
+                                        NavTab.Schedule -> AppStrings.Nav.schedule(lang)
+                                        NavTab.Calendar -> AppStrings.Nav.calendar(lang)
+                                        NavTab.Notes -> AppStrings.Nav.notes(lang)
+                                    },
+                                    color = contentColor,
+                                    fontSize = 10.sp,
+                                    lineHeight = 12.sp,
+                                    fontWeight = if (fraction > 0.5f) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Medium,
+                                    fontFamily = if (lang == AppStrings.TAMIL) MuktaMalarFontFamily else null
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

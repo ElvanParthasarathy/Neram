@@ -1,0 +1,43 @@
+﻿
+01-12 21:49:56.463  4423  4519 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:49:56.465  4423  4423 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:49:58.813  4585  4640 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:49:58.815  4585  4585 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:50:00.542  4689  4743 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:50:00.544  4689  4689 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:50:03.200  4789  4839 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:50:03.205  4789  4789 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:50:13.513  4997  5064 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:50:13.515  4997  4997 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:50:20.141  5404  5451 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:50:20.144  5404  5404 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:50:22.373  5731  5789 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:50:22.377  5731  5731 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:50:24.395  5975  6032 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:50:24.397  5975  5975 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:50:26.887  6131  6189 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:50:26.889  6131  6131 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+01-12 21:50:28.696  6251  6303 W SyncTree: Listen at 
+/academic_hierarchy failed: DatabaseError: Permission denied
+01-12 21:50:28.699  6251  6251 E AndroidRuntime: 	at com.google.firebas
+e.database.DatabaseError.toException(DatabaseError.java:230)
+
+

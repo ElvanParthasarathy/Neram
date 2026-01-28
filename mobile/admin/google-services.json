@@ -1,0 +1,71 @@
+{
+    "project_info": {
+        "project_number": "85578742222",
+        "firebase_url": "https://rmdneramportal-default-rtdb.firebaseio.com",
+        "project_id": "rmdneramportal",
+        "storage_bucket": "rmdneramportal.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:85578742222:android:d6834cbfe096af9e2c139f",
+                "android_client_info": {
+                    "package_name": "com.elvan.rmdneram"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "85578742222-l6vecsvqj2lrcgftbs0m41sgo8j26evk.apps.googleusercontent.com",
+                    "client_type": 1,
+                    "android_info": {
+                        "package_name": "com.elvan.rmdneram",
+                        "certificate_hash": "a3b68b181d6267591aa005075ff0d31698eb3589"
+                    }
+                },
+                {
+                    "client_id": "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyDeNc6YjwyPIYCWC7c3nzWUSBZLbMquqs4"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:85578742222:android:d6834cbfe096af9e2c139f",
+                "android_client_info": {
+                    "package_name": "com.elvan.rmdneram.admin"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "85578742222-l6vecsvqj2lrcgftbs0m41sgo8j26evk.apps.googleusercontent.com",
+                    "client_type": 1,
+                    "android_info": {
+                        "package_name": "com.elvan.rmdneram.admin",
+                        "certificate_hash": "a3b68b181d6267591aa005075ff0d31698eb3589"
+                    }
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyDeNc6YjwyPIYCWC7c3nzWUSBZLbMquqs4"
+                }
+            ]
+        }
+    ],
+    "configuration_version": "1"
+}
