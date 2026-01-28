@@ -1,12 +1,12 @@
 import React, { useState, useEffect, forwardRef, useMemo } from "react";
-import { db } from "../firebase"; 
+import { db } from "../firebase";
 import { ref, update, onValue } from "firebase/database";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { 
-  RiTrophyLine, 
-  RiTimeLine, 
-  RiFilePaperLine, 
+import {
+  RiTrophyLine,
+  RiTimeLine,
+  RiFilePaperLine,
   RiInformationLine,
   RiEditLine,
   RiCalendarEventLine,
@@ -27,10 +27,10 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
   const { masterData = {}, allCalendar = [], sectionUpdates = {}, isSyncing } = globalData || {};
 
   const [currentDate, setCurrentDate] = useState(new Date());
-  
+
   // SCHEDULE STATE
   const [dayOrder, setDayOrder] = useState("");
-  const [scheduleStatus, setScheduleStatus] = useState(""); 
+  const [scheduleStatus, setScheduleStatus] = useState("");
 
   // --- 1. SPLIT STATE (Prevents Race Conditions) ---
   const [globalEvents, setGlobalEvents] = useState([]);   // Events from Academic Calendar
@@ -100,12 +100,12 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
     const weekdayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
     const holidayEvent = events.find(e => e.title.toLowerCase().includes("holiday"));
     const manualOrderEvent = events.find(e => e.title.toLowerCase().includes("order"));
-    
+
     let resolvedOrder = "";
     let resolvedStatus = "";
 
     if (holidayEvent) {
-      resolvedOrder = ""; 
+      resolvedOrder = "";
       resolvedStatus = `Holiday: ${holidayEvent.title}`;
     } else if (manualOrderEvent) {
       const foundDay = ["Monday", ...daysOrder].find(day => manualOrderEvent.title.includes(day));
@@ -135,20 +135,20 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
   useEffect(() => {
     // Only run if we have a valid section and date
     if (activeProfile?.section && todayStr) {
-      setAreEventsLoading(true); 
-      
+      setAreEventsLoading(true);
+
       const { batch, department, section } = activeProfile;
       const sectionEventsRef = ref(db, `events/${batch}/${department}/${section}`);
-      
+
       const unsub = onValue(sectionEventsRef, (snap) => {
         const data = snap.val() || [];
         const sectionEvents = Array.isArray(data) ? data : Object.values(data);
-        
+
         // Filter for TODAY's events
         const todaysSpecialEvents = sectionEvents.filter(e => e.date === todayStr);
-        
+
         setSectionEvents(todaysSpecialEvents); // <--- FIX 2: Use setSectionEvents (Simple Set)
-        setAreEventsLoading(false); 
+        setAreEventsLoading(false);
       });
 
       return () => unsub();
@@ -157,7 +157,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
       setAreEventsLoading(false);
     }
   }, [activeProfile, todayStr]);
-  
+
   // --- DETECT SPECIAL EVENTS ---
   const fullDayEvent = todayEvents.find(e => e.type === "FullDay");
   const halfDayEvent = todayEvents.find(e => e.type === "HalfDay");
@@ -168,12 +168,12 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
     const { batch, department, section } = activeProfile;
     setIsSaving(true);
     try {
-      await update(ref(db, `updates/${batch}/${department}/${section}/live_daily/${todayStr}`), { 
+      await update(ref(db, `updates/${batch}/${department}/${section}/live_daily/${todayStr}`), {
         note: tempNote,
-        author: userProfile?.displayName || "Admin" 
+        author: userProfile?.displayName || "Admin"
       });
       setIsEditingNote(false);
-    } catch (error) { console.error(error); } 
+    } catch (error) { console.error(error); }
     finally { setIsSaving(false); }
   };
 
@@ -182,12 +182,12 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
     const { batch, department, section } = activeProfile;
     setIsSaving(true);
     try {
-      await update(ref(db, `updates/${batch}/${department}/${section}`), { 
+      await update(ref(db, `updates/${batch}/${department}/${section}`), {
         general_text: tempGeneral,
         general_author: userProfile?.displayName || "Admin"
       });
       setIsEditingGeneral(false);
-    } catch (error) { console.error(error); } 
+    } catch (error) { console.error(error); }
     finally { setIsSaving(false); }
   };
 
@@ -196,14 +196,14 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
     if (!cellContent || !masterData.courses) return { name: cellContent, faculty: "", code: cellContent };
 
     if (cellContent.includes("/")) {
-      const parts = cellContent.split("/"); 
-      
+      const parts = cellContent.split("/");
+
       const results = parts.map(part => {
         const trimmedPart = part.trim();
-        const pureCode = trimmedPart.split(" ")[0]; 
+        const pureCode = trimmedPart.split(" ")[0];
         const course = masterData.courses.find(c => c.code === pureCode);
-        
-        return course 
+
+        return course
           ? { name: course.name, faculty: course.faculty }
           : { name: trimmedPart, faculty: "" };
       });
@@ -211,21 +211,21 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
       return {
         name: results.map(r => r.name).join(" / "),
         faculty: results.map(r => r.faculty).join(" / "),
-        code: cellContent 
+        code: cellContent
       };
     }
 
     const pureCode = cellContent.split(" ")[0].trim();
     const course = masterData.courses.find((c) => c.code === pureCode);
-    return course 
-      ? { ...course, code: cellContent } 
+    return course
+      ? { ...course, code: cellContent }
       : { name: cellContent, faculty: "", code: cellContent };
   };
 
   return (
     <div className="home-view">
       <div className="home-container">
-        
+
         <header className="page-header">
           <div className="header-main">
             <h1 className="page-title">Home Dashboard</h1>
@@ -236,7 +236,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
 
           {activeProfile?.section !== userProfile?.section && (
             <div className="global-preview-tag animate-slide-down">
-              <RiInformationLine /> 
+              <RiInformationLine />
               <span>Viewing Preview: <strong>{activeProfile?.department}-{activeProfile?.section}</strong></span>
             </div>
           )}
@@ -245,11 +245,11 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
         <section className="date-section">
           <label className="input-label">Select date</label>
           <div className="date-input-group">
-            <input 
-              type="text" 
-              className="date-display" 
-              readOnly 
-              value={currentDate.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' })} 
+            <input
+              type="text"
+              className="date-display"
+              readOnly
+              value={currentDate.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' })}
             />
             <div className="date-picker-trigger">
               <DatePicker selected={currentDate} onChange={(date) => setCurrentDate(date)} customInput={<CustomCalendarButton />} popperPlacement="bottom-end" />
@@ -275,9 +275,9 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
 
         {/* Dynamic Schedule Section */}
         <section className="timetable-section">
-          <div className="section-header-row" style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
-             <h2 className="section-title" style={{marginBottom:0}}>Schedule</h2>
-             <span className="status-badge-small">{scheduleStatus}</span>
+          <div className="section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <h2 className="section-title" style={{ marginBottom: 0 }}>Schedule</h2>
+            <span className="status-badge-small">{scheduleStatus}</span>
           </div>
 
           {(isSyncing || areEventsLoading) ? <div className="loading-shimmer">Checking Schedule...</div> : (
@@ -285,7 +285,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
               {/* --- 1. FULL DAY EVENT (Highest Priority) --- */}
               {fullDayEvent ? (
                 <>
-                  <div className="exam-mini-card major"> 
+                  <div className="exam-mini-card major">
                     <div className="exam-tag">TODAY'S EVENT</div>
                     <div className="exam-content-flex">
                       <RiCalendarEventLine className="exam-icon-large" />
@@ -372,8 +372,8 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
                       </div>
                     ) : (
                       <div className="no-classes-msg">
-                        No classes scheduled.<br/>
-                        <span style={{fontSize:'0.9em', opacity:0.8}}>({scheduleStatus})</span>
+                        No classes scheduled.<br />
+                        <span style={{ fontSize: '0.9em', opacity: 0.8 }}>({scheduleStatus})</span>
                       </div>
                     )
                   ) : (

@@ -393,14 +393,25 @@ function App() {
     const unsubCal = onValue(ref(db, `calendars/${batch}/events`), (snap) => {
       const data = snap.val();
       setGlobalData(prev => ({ ...prev, allCalendar: Array.isArray(data) ? data : Object.values(data || {}) }));
+    }, (error) => {
+      console.error("Calendar sync error:", error);
+      // Even if calendar fails, we might still want to show other data, 
+      // but we shouldn't block the UI if this was the only thing pending?
+      // Actually globalData.isSyncing is shared. We should disable it on error too.
+      // But typically we wait for MasterData.
     });
+
     const unsubSched = onValue(ref(db, `schedules/${batch}/${department}/${section}`), (snap) => {
       setGlobalData(prev => ({ 
         ...prev, 
         masterData: snap.exists() ? snap.val() : { courses: [], timetable: {}, exams: [], counseling: { counselors: [], coordinators: {} } },
         isSyncing: false 
       }));
+    }, (error) => {
+       console.error("Schedule sync error:", error);
+       setGlobalData(prev => ({ ...prev, isSyncing: false }));
     });
+
     const unsubUpdates = onValue(ref(db, `updates/${batch}/${department}/${section}`), (snap) => {
       const data = snap.val() || {};
       setGlobalData(prev => ({ 
@@ -410,7 +421,10 @@ function App() {
           general: { text: data.general_text || "", author: data.general_author || "" } 
         } 
       }));
+    }, (error) => {
+       console.error("Updates sync error:", error);
     });
+
     runGlobalCalendarSync(batch);
     return () => { unsubCal(); unsubSched(); unsubUpdates(); };
   }, [activeProfile, runGlobalCalendarSync]);

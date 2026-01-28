@@ -1,14 +1,14 @@
 import React, { useState, useEffect, forwardRef, useMemo } from "react";
-import { db } from "../firebase"; 
+import { db } from "../firebase";
 import { ref, onValue } from "firebase/database";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 // Icons
-import { 
-  RiCalendarEventLine, 
-  RiTrophyLine, 
-  RiTimeLine, 
+import {
+  RiCalendarEventLine,
+  RiTrophyLine,
+  RiTimeLine,
   RiFilePaperLine,
   RiInformationLine,
   RiUserVoiceLine,
@@ -31,15 +31,15 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dayOrder, setDayOrder] = useState("");
   const [todayNote, setTodayNote] = useState("");
-  const [activeTab, setActiveTab] = useState("class"); 
+  const [activeTab, setActiveTab] = useState("class");
 
   // --- 2. SPLIT STATE FOR EVENTS ---
-  const [globalEvents, setGlobalEvents] = useState([]);   
-  const [sectionEvents, setSectionEvents] = useState([]); 
+  const [globalEvents, setGlobalEvents] = useState([]);
+  const [sectionEvents, setSectionEvents] = useState([]);
   const [areEventsLoading, setAreEventsLoading] = useState(true);
 
-  const [activeExamPeriod, setActiveExamPeriod] = useState(null); 
-  const [activeExamToday, setActiveExamToday] = useState(null);   
+  const [activeExamPeriod, setActiveExamPeriod] = useState(null);
+  const [activeExamToday, setActiveExamToday] = useState(null);
   const [activeExamTomorrow, setActiveExamTomorrow] = useState(null);
 
   const getSubjectName = (code) => {
@@ -67,13 +67,16 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
       setAreEventsLoading(true);
       const { batch, department, section } = activeProfile;
       const sectionEventsRef = ref(db, `events/${batch}/${department}/${section}`);
-      
+
       const unsub = onValue(sectionEventsRef, (snap) => {
         const data = snap.val() || [];
         const rawEvents = Array.isArray(data) ? data : Object.values(data);
         const todaysSpecialEvents = rawEvents.filter(e => e.date === todayStr);
-        
+
         setSectionEvents(todaysSpecialEvents);
+        setAreEventsLoading(false);
+      }, (error) => {
+        console.error("Section events sync error:", error);
         setAreEventsLoading(false);
       });
       return () => unsub();
@@ -103,7 +106,7 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
     if (currentPeriod) {
       const subToday = currentPeriod.subjects?.find(s => s.date === todayStr);
       setActiveExamToday(subToday ? { ...currentPeriod, todaySub: subToday } : null);
-      
+
       // Calculate Tomorrow
       const tomorrowDate = new Date(currentDate);
       tomorrowDate.setDate(tomorrowDate.getDate() + 1);
@@ -146,28 +149,28 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
     if (!cellContent || !masterData.courses) return { name: "", faculty: "", code: "" };
 
     if (cellContent.includes("/")) {
-      const parts = cellContent.split("/"); 
-      
+      const parts = cellContent.split("/");
+
       const results = parts.map(part => {
         const trimmedPart = part.trim();
-        const pureCode = trimmedPart.split(" ")[0]; 
+        const pureCode = trimmedPart.split(" ")[0];
         const course = masterData.courses.find(c => c.code === pureCode);
-        return course 
+        return course
           ? { name: course.name, faculty: course.faculty }
-          : { name: trimmedPart, faculty: "" }; 
+          : { name: trimmedPart, faculty: "" };
       });
 
       return {
         name: results.map(r => r.name).join(" / "),
         faculty: results.map(r => r.faculty).join(" / "),
-        code: cellContent 
+        code: cellContent
       };
     }
 
     const pureCode = cellContent.split(" ")[0].trim();
     const course = masterData.courses.find((c) => c.code === pureCode);
-    return course 
-      ? { ...course, code: cellContent } 
+    return course
+      ? { ...course, code: cellContent }
       : { name: cellContent, faculty: "", code: cellContent };
   };
 
@@ -180,12 +183,12 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
   return (
     <div className="schedule-view">
       <div className="schedule-container">
-        
+
         <header className="page-header">
           <h1 className="page-title">Academic Portal</h1>
           {activeProfile && userProfile && activeProfile.section !== userProfile.section && (
             <div className="global-preview-tag">
-              <RiInformationLine /> 
+              <RiInformationLine />
               <span>Previewing Schedule: <strong>{activeProfile.department}-{activeProfile.section}</strong></span>
             </div>
           )}
@@ -204,24 +207,24 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
 
           <div className="date-controls-group">
             <div className="date-picker-wrapper">
-              <DatePicker 
-                selected={currentDate} 
-                onChange={(date) => setCurrentDate(date)} 
+              <DatePicker
+                selected={currentDate}
+                onChange={(date) => setCurrentDate(date)}
                 customInput={
                   <div className="date-display-pill">
-                    {currentDate.toLocaleDateString('en-GB', { 
-                      weekday: 'short', 
-                      day: 'numeric', 
-                      month: 'short' 
+                    {currentDate.toLocaleDateString('en-GB', {
+                      weekday: 'short',
+                      day: 'numeric',
+                      month: 'short'
                     })}
                   </div>
-                } 
-                popperPlacement="bottom-end" 
+                }
+                popperPlacement="bottom-end"
               />
             </div>
 
-            <button 
-              className="round-calendar-btn" 
+            <button
+              className="round-calendar-btn"
               onClick={() => document.querySelector('.date-display-pill').click()}
               type="button"
             >
@@ -233,114 +236,114 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
         {activeTab === 'class' ? (
           <>
             {/* LOGIC: Check Full Day Event -> Check Exam -> Check Schedule */}
-            {isLoading ? <div className="loading-shimmer" style={{margin:'20px 0'}}>Loading Schedule...</div> : (
-               <>
-                 {/* 1. FULL DAY EVENT (Highest Priority) */}
-                 {fullDayEvent ? (
-                    <section className="today-schedule-section">
-                      <div className="exam-mini-card major"> 
-                        <div className="exam-tag">TODAY'S EVENT</div>
-                        <div className="exam-content-flex">
-                          <RiCalendarEventLine className="exam-icon-large" />
-                          <div className="exam-info">
-                            <h3>{fullDayEvent.title}</h3>
-                            <p>{fullDayEvent.description || "Full Day Event"}</p>
-                            <div className="exam-meta">
-                              <span><RiTimeLine /> Full Day</span>
-                              <span className="portion-tag"><RiInformationLine /> No Classes</span>
-                            </div>
+            {isLoading ? <div className="loading-shimmer" style={{ margin: '20px 0' }}>Loading Schedule...</div> : (
+              <>
+                {/* 1. FULL DAY EVENT (Highest Priority) */}
+                {fullDayEvent ? (
+                  <section className="today-schedule-section">
+                    <div className="exam-mini-card major">
+                      <div className="exam-tag">TODAY'S EVENT</div>
+                      <div className="exam-content-flex">
+                        <RiCalendarEventLine className="exam-icon-large" />
+                        <div className="exam-info">
+                          <h3>{fullDayEvent.title}</h3>
+                          <p>{fullDayEvent.description || "Full Day Event"}</p>
+                          <div className="exam-meta">
+                            <span><RiTimeLine /> Full Day</span>
+                            <span className="portion-tag"><RiInformationLine /> No Classes</span>
                           </div>
                         </div>
                       </div>
-                      <div className="major-exam-notice">
-                        <RiInformationLine />
-                         <div>
-                           <h4 className="notice-bold">Classes Suspended</h4>
-                           <p className="notice-sub">Day reserved for <strong>{fullDayEvent.title}</strong>.</p>
-                         </div>
+                    </div>
+                    <div className="major-exam-notice">
+                      <RiInformationLine />
+                      <div>
+                        <h4 className="notice-bold">Classes Suspended</h4>
+                        <p className="notice-sub">Day reserved for <strong>{fullDayEvent.title}</strong>.</p>
                       </div>
+                    </div>
+                  </section>
+                ) : (
+                  /* 2. REGULAR / EXAM VIEW */
+                  (activeExamToday || (dayOrder && masterData.timetable?.[dayOrder]) || (activeExamPeriod && !activeExamPeriod.type.includes('CT'))) && (
+                    <section className="today-schedule-section">
+
+                      {/* A. TODAY'S EXAM */}
+                      {activeExamToday && (
+                        <div className={`exam-mini-card ${activeExamToday.type.includes('CT') ? 'cycle' : 'major'}`}>
+                          <div className="exam-tag">TODAY'S EXAM</div>
+                          <div className="exam-content-flex">
+                            <RiTrophyLine className="exam-icon-large" />
+                            <div className="exam-info">
+                              <h3>{activeExamToday.title}</h3>
+                              <p><strong>{activeExamToday.todaySub.code}</strong>: {getSubjectName(activeExamToday.todaySub.code)}</p>
+                              <div className="exam-meta">
+                                <span><RiTimeLine /> {activeExamToday.todaySub.startTime} - {activeExamToday.todaySub.endTime}</span>
+                                <span className="portion-tag"><RiFilePaperLine /> {activeExamToday.todaySub.portion}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* B. HALF DAY EVENT */}
+                      {halfDayEvent && !activeExamToday && (
+                        <div className="exam-mini-card cycle" style={{ marginBottom: '15px' }}>
+                          <div className="exam-tag">SPECIAL EVENT</div>
+                          <div className="exam-content-flex">
+                            <RiCalendarEventLine className="exam-icon-large" />
+                            <div className="exam-info">
+                              <h3>{halfDayEvent.title}</h3>
+                              <p>{halfDayEvent.description || "Special Session"}</p>
+                              <div className="exam-meta">
+                                <span><RiTimeLine /> {halfDayEvent.startTime || "09:00"} - {halfDayEvent.endTime || "12:00"}</span>
+                                <span className="portion-tag"><RiInformationLine /> Event</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* C. TIMETABLE vs SUSPENSION */}
+                      {(!activeExamPeriod || activeExamPeriod.type.includes('CT')) ? (
+                        dayOrder && masterData.timetable?.[dayOrder] && (
+                          <>
+                            <h2 className="section-title">Timetable for {activeProfile?.section} ({dayOrder})</h2>
+                            <div className="table-overflow">
+                              <table className="schedule-table">
+                                <thead><tr><th>#</th><th>Course Details</th><th>Faculty</th></tr></thead>
+                                <tbody>
+                                  {masterData.timetable[dayOrder].map((code, index) => {
+                                    const { name, faculty } = getPeriodDetails(code);
+                                    return (
+                                      <tr key={index}>
+                                        <td className="cell-hour">{index + 1}</td>
+                                        <td className="cell-course">
+                                          <div className="course-code">{code}</div>
+                                          <div className="course-name">{name}</div>
+                                        </td>
+                                        <td className="cell-faculty">{faculty}</td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </>
+                        )
+                      ) : (
+                        <div className="major-exam-notice">
+                          <RiInformationLine />
+                          <div>
+                            <h4 className="notice-bold">Classes Suspended</h4>
+                            <p className="notice-sub">Regular classes are suspended during the <strong>{activeExamPeriod.title}</strong> period.</p>
+                          </div>
+                        </div>
+                      )}
                     </section>
-                 ) : (
-                    /* 2. REGULAR / EXAM VIEW */
-                    (activeExamToday || (dayOrder && masterData.timetable?.[dayOrder]) || (activeExamPeriod && !activeExamPeriod.type.includes('CT'))) && (
-                      <section className="today-schedule-section">
-                        
-                        {/* A. TODAY'S EXAM */}
-                        {activeExamToday && (
-                          <div className={`exam-mini-card ${activeExamToday.type.includes('CT') ? 'cycle' : 'major'}`}>
-                            <div className="exam-tag">TODAY'S EXAM</div>
-                            <div className="exam-content-flex">
-                              <RiTrophyLine className="exam-icon-large" />
-                              <div className="exam-info">
-                                <h3>{activeExamToday.title}</h3>
-                                <p><strong>{activeExamToday.todaySub.code}</strong>: {getSubjectName(activeExamToday.todaySub.code)}</p>
-                                <div className="exam-meta">
-                                  <span><RiTimeLine /> {activeExamToday.todaySub.startTime} - {activeExamToday.todaySub.endTime}</span>
-                                  <span className="portion-tag"><RiFilePaperLine /> {activeExamToday.todaySub.portion}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* B. HALF DAY EVENT */}
-                        {halfDayEvent && !activeExamToday && (
-                          <div className="exam-mini-card cycle" style={{marginBottom:'15px'}}>
-                            <div className="exam-tag">SPECIAL EVENT</div>
-                            <div className="exam-content-flex">
-                              <RiCalendarEventLine className="exam-icon-large" />
-                              <div className="exam-info">
-                                <h3>{halfDayEvent.title}</h3>
-                                <p>{halfDayEvent.description || "Special Session"}</p>
-                                <div className="exam-meta">
-                                  <span><RiTimeLine /> {halfDayEvent.startTime || "09:00"} - {halfDayEvent.endTime || "12:00"}</span>
-                                  <span className="portion-tag"><RiInformationLine /> Event</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* C. TIMETABLE vs SUSPENSION */}
-                        {(!activeExamPeriod || activeExamPeriod.type.includes('CT')) ? (
-                          dayOrder && masterData.timetable?.[dayOrder] && (
-                            <>
-                              <h2 className="section-title">Timetable for {activeProfile?.section} ({dayOrder})</h2>
-                              <div className="table-overflow">
-                                <table className="schedule-table">
-                                  <thead><tr><th>#</th><th>Course Details</th><th>Faculty</th></tr></thead>
-                                  <tbody>
-                                    {masterData.timetable[dayOrder].map((code, index) => {
-                                      const { name, faculty } = getPeriodDetails(code);
-                                      return (
-                                        <tr key={index}>
-                                          <td className="cell-hour">{index + 1}</td>
-                                          <td className="cell-course">
-                                            <div className="course-code">{code}</div>
-                                            <div className="course-name">{name}</div>
-                                          </td>
-                                          <td className="cell-faculty">{faculty}</td>
-                                        </tr>
-                                      );
-                                    })}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </>
-                          )
-                        ) : (
-                          <div className="major-exam-notice">
-                            <RiInformationLine />
-                            <div>
-                              <h4 className="notice-bold">Classes Suspended</h4>
-                              <p className="notice-sub">Regular classes are suspended during the <strong>{activeExamPeriod.title}</strong> period.</p>
-                            </div>
-                          </div>
-                        )}
-                      </section>
-                    )
-                 )}
-               </>
+                  )
+                )}
+              </>
             )}
 
             <section className="weekly-overview-section">
@@ -424,31 +427,31 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
         )}
 
         <section className="courses-directory-section">
-            <h2 className="section-title">Academic Courses ({activeProfile?.department})</h2>
-            <div className="table-overflow">
-              <table className="schedule-table courses-list-stacked">
-                <thead>
-                  <tr>
-                    <th>Course Details</th>
-                    <th>Faculty & Load</th>
+          <h2 className="section-title">Academic Courses ({activeProfile?.department})</h2>
+          <div className="table-overflow">
+            <table className="schedule-table courses-list-stacked">
+              <thead>
+                <tr>
+                  <th>Course Details</th>
+                  <th>Faculty & Load</th>
+                </tr>
+              </thead>
+              <tbody>
+                {masterData.courses?.length > 0 ? masterData.courses.map((course, idx) => (
+                  <tr key={idx}>
+                    <td className="cell-stacked-main">
+                      <div className="stacked-primary-text">{course.name}</div>
+                      <div className="stacked-secondary-text"><RiHashtag /> {course.code}</div>
+                    </td>
+                    <td className="cell-stacked-sub">
+                      <div className="stacked-primary-text">{course.faculty}</div>
+                      <div className="stacked-secondary-text"><RiTimeLine /> {course.periods} Periods Total</div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {masterData.courses?.length > 0 ? masterData.courses.map((course, idx) => (
-                    <tr key={idx}>
-                      <td className="cell-stacked-main">
-                        <div className="stacked-primary-text">{course.name}</div>
-                        <div className="stacked-secondary-text"><RiHashtag /> {course.code}</div>
-                      </td>
-                      <td className="cell-stacked-sub">
-                        <div className="stacked-primary-text">{course.faculty}</div>
-                        <div className="stacked-secondary-text"><RiTimeLine /> {course.periods} Periods Total</div>
-                      </td>
-                    </tr>
-                  ) ) : <tr><td colSpan="2" className="no-data-text">No course data available.</td></tr>}
-                </tbody>
-              </table>
-            </div>
+                )) : <tr><td colSpan="2" className="no-data-text">No course data available.</td></tr>}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section className="staff-info-section">
