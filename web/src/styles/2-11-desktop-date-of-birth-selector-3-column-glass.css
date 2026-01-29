@@ -1,0 +1,112 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   2.11 DESKTOP DATE OF BIRTH SELECTOR (3-COLUMN GLASS)
+   ========================================================================== */
+
+/* 1. The Label (Aligned with input style) */
+  .dob-group-label {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    margin-left: 4px;
+    /* Aligns with the curve of the inputs */
+    opacity: 0.7;
+  }
+
+  /* 2. Container (Flex Layout for Desktop) */
+  .dob-pill-container {
+    display: flex;
+    gap: 12px;
+    /* Wider gap for desktop screens */
+    width: 100%;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+  }
+
+  /* 3. Wrappers (Sizing Logic) */
+  .select-wrapper {
+    position: relative;
+    height: 50px;
+    /* Matches .glass-input height */
+  }
+
+  /* Balanced Desktop Ratios */
+  .select-wrapper.day {
+    flex: 1;
+  }
+
+  .select-wrapper.month {
+    flex: 1.5;
+  }
+
+  /* Month gets more space */
+  .select-wrapper.year {
+    flex: 1;
+  }
+
+  /* 4. The Select Input (Matches .glass-input Desktop Style) */
+  .glass-select-pill {
+    width: 100%;
+    height: 100%;
+
+    /* Desktop Appearance */
+    appearance: none;
+    -webkit-appearance: none;
+
+    /* MATCHING DESKTOP THEME (12px Radius) */
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    /* Semi-transparent Glass */
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    color: var(--mac-text);
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+
+    /* Centering Text */
+    text-align: center;
+    text-align-last: center;
+    padding: 0 16px;
+    padding-right: 32px;
+    /* Space for arrow */
+
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    /* Custom Mac Chevron */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233C3C43'%3E%3Cpath stroke-width='2.5' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
+  }
+
+  /* 5. Focus State (Mac Blue Glow) */
+  .glass-select-pill:focus {
+    background: #FFFFFF;
+    border-color: var(--mac-blue);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+  }
+
+  /* 6. Hover State */
+  .glass-select-pill:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
+
+  /* 7. Placeholder Color (When "Day/Month/Year" is selected) */
+  .glass-select-pill:invalid,
+  .glass-select-pill option[value=""][disabled] {
+    color: var(--mac-text-secondary);
+    opacity: 0.6;
+  }
+
+}

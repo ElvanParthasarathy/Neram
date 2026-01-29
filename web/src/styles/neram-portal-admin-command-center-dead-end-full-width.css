@@ -1,0 +1,123 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   NERAM PORTAL: ADMIN COMMAND CENTER (DEAD-END FULL WIDTH)
+   ========================================================================== */
+
+.admin-view-dead-end {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  /* --- 1. EDGE-LOCKED HEADER --- */
+  .admin-top-nav-bar {
+    width: 100%;
+    padding: 20px 0px 25px 0px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    border-bottom: 1px solid var(--mac-divider);
+    box-sizing: border-box;
+  }
+
+  .admin-label-main {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--mac-text);
+    letter-spacing: -0.8px;
+    margin: 0;
+  }
+
+  /* --- 2. THE DUAL SHIFTER GROUPS --- */
+  .admin-nav-sections {
+    display: flex;
+    gap: 30px;
+    /* Space between Academic and Planning groups */
+    flex-wrap: wrap;
+  }
+
+  .shifter-category {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .category-tag {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--mac-text-secondary);
+    letter-spacing: 0.5px;
+    opacity: 0.5;
+  }
+
+  .shifter-group-left {
+    display: flex;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.04);
+    padding: 4px;
+    border-radius: 10px;
+  }
+
+  .shifter-item {
+    padding: 6px 14px;
+    border: none;
+    background: transparent;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .shifter-item svg {
+    font-size: 16px;
+  }
+
+  /* ACTIVE STATE */
+  .shifter-item.active {
+    background: var(--mac-card-bg) !important;
+    color: var(--mac-blue) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    font-weight: 700;
+  }
+
+  .shifter-item:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--mac-text);
+  }
+
+  /* --- 3. FULL BREADTH CONTENT FLOW --- */
+  .admin-content-flow {
+    width: 100% !important;
+    padding: 30px 0px;
+    box-sizing: border-box;
+  }
+
+  /* Force sub-components to use dead-end breadth */
+  .admin-content-flow>div {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  @media (max-width: 900px) {
+    .admin-nav-sections {
+      flex-direction: column;
+      gap: 15px;
+    }
+  }
+
+}

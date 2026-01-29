@@ -1,0 +1,412 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   FIX: OFFICIAL DOCUMENTS - COMPACT PILL BUTTON
+   ========================================================================== */
+
+.calendar-view .download-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* Keeps the button from stretching to 100% width */
+  }
+
+  .calendar-view .download-btn {
+    display: inline-flex !important;
+    /* Overrides block-level stretching */
+    align-items: center;
+    justify-content: center;
+
+    /* Standardizing to match Sequoia Pill style */
+    background: var(--mac-blue) !important;
+    color: #FFFFFF !important;
+    padding: 12px 32px !important;
+    /* Balanced padding for the pill look */
+    border-radius: 100px !important;
+    /* Perfect Pill Shape */
+
+    /* Width Control */
+    width: fit-content !important;
+    min-width: 160px;
+    /* Ensures it feels substantial but not oversized */
+
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    margin-top: 12px;
+
+    /* Shadow & Interaction matching Sequoia Button */
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .calendar-view .download-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    background: var(--mac-blue-hover) !important;
+    box-shadow: 0 6px 16px rgba(0, 122, 255, 0.35);
+  }
+
+  .calendar-view .download-btn:active {
+    transform: scale(0.96);
+    /* Clean press-in effect */
+  }
+
+}
+
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   16. BUTTON MICRO-INTERACTIONS (DARKER HOVER + CLICK SQUISH)
+   ========================================================================== */
+
+/* 1. Setup Smooth Transitions */
+  .btn-save-master,
+  .btn-cancel,
+  .btn-danger-outline,
+  .admin-btn-outline,
+  .explorer-back-btn {
+    /* Fast transition for color, smooth for transform */
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    will-change: transform, filter, background-color;
+  }
+
+  /* 2. HOVER STATE: Darken Only (No Shadow, No Movement) */
+
+  /* Blue Primary Button */
+  .btn-save-master:hover {
+    filter: brightness(0.85);
+    /* Makes the blue darker */
+    transform: none;
+    /* Stops it from floating up */
+    box-shadow: none;
+    /* No shadow */
+  }
+
+  /* Gray/Light Secondary Buttons */
+  .btn-cancel:hover,
+  .admin-btn-outline:hover,
+  .explorer-back-btn:hover {
+    /* Turns the light gray background darker */
+    background-color: rgba(0, 0, 0, 0.15) !important;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Danger Button (Red) */
+  .btn-danger-outline:hover {
+    background-color: #ff3b30 !important;
+    /* Fills with red */
+    color: white !important;
+    filter: brightness(0.9);
+    /* Slight darken */
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* 3. CLICK STATE: The "Move In" Squish Effect */
+  .btn-save-master:active,
+  .btn-cancel:active,
+  .btn-danger-outline:active,
+  .admin-btn-outline:active,
+  .explorer-back-btn:active {
+    transform: scale(0.94);
+    /* Shrinks inward */
+    filter: brightness(0.75);
+    /* Gets even darker when pressed */
+  }
+
+}
+
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   NERAM PORTAL: SEQUOIA SILK BUTTON FEEDBACK (FULLY CONSOLIDATED)
+   ========================================================================== */
+
+/* 1. UNIVERSAL BUTTON & ICON TRANSITION SETUP */
+  .btn-save-master,
+  .btn-cancel,
+  .btn-add,
+  .btn-edit-mode,
+  .btn-grant-admin,
+  .btn-remove-admin,
+  .back-btn-minimal,
+  .btn-save-mini,
+  .btn-cancel-mini,
+  .admin-btn-outline,
+  .add-counselor-box button,
+  .pill-action-icon {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    will-change: transform, filter, background-color;
+    cursor: pointer;
+  }
+
+  /* 2. HOVER STATE: SYSTEM DARKENING (NO FLOATING) */
+
+  /* Blue Primary Surfaces */
+  .btn-save-master:hover,
+  .btn-add:hover,
+  .btn-grant-admin:hover,
+  .btn-save-mini:hover,
+  .add-counselor-box button:hover {
+    filter: brightness(0.88);
+    transform: none !important;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15) !important;
+  }
+
+  /* Gray/Secondary Surfaces */
+  .btn-cancel:hover,
+  .btn-edit-mode:hover,
+  .back-btn-minimal:hover,
+  .btn-cancel-mini:hover,
+  .admin-btn-outline:hover,
+  .pill-action-icon:hover {
+    background-color: rgba(0, 0, 0, 0.12) !important;
+    transform: none !important;
+  }
+
+  /* Red / Danger Surfaces */
+  .btn-remove-admin:hover,
+  .pill-action-icon.del:hover {
+    background-color: #ff3b30 !important;
+    color: #ffffff !important;
+    filter: brightness(0.9);
+  }
+
+  /* 3. ACTIVE STATE: PHYSICAL "IN-OUT" SQUISH */
+  .btn-save-master:active,
+  .btn-cancel:active,
+  .btn-add:active,
+  .btn-edit-mode:active,
+  .btn-grant-admin:active,
+  .btn-remove-admin:active,
+  .back-btn-minimal:active,
+  .btn-save-mini:active,
+  .btn-cancel-mini:active,
+  .add-counselor-box button:active,
+  .pill-action-icon:active {
+    transform: scale(0.92) !important;
+    filter: brightness(0.8);
+    transition-duration: 0.1s !important;
+  }
+
+  /* 4. COUNSELOR PILL ICON SPECIFIC TWEAK */
+  .pill-action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50% !important;
+    width: 22px;
+    height: 22px;
+    padding: 4px;
+  }
+
+  /* 5. DISABLED STATE REPAIR */
+  button:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    filter: grayscale(1) !important;
+    transform: none !important;
+  }
+
+  /* Inline Edit Styling for Counselor Pills */
+  .counselor-pill.editing {
+    background: #ffffff !important;
+    border: 1.5px solid var(--mac-blue);
+    padding: 4px 10px;
+  }
+
+  .inline-pill-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mac-text);
+    width: 120px;
+    /* Width to accommodate names */
+  }
+
+  .pill-action-icon.save {
+    color: var(--mac-blue);
+    margin-left: 5px;
+  }
+
+}
+
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   FINAL FIX: BUTTONS & EDIT LAYOUT (HIGHEST PRIORITY)
+   ========================================================================== */
+
+/* 1. Force the Header to align properly */
+  .exam-manager-container .published-exam-card.editing-active .published-header {
+    display: flex !important;
+    flex-direction: row !important;
+    /* Force row, never column */
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 15px !important;
+    padding-bottom: 15px !important;
+    border-bottom: 1px solid #eee !important;
+    height: auto !important;
+  }
+
+  /* 2. Reset the container holding the buttons */
+  .exam-manager-container .published-exam-card.editing-active .header-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+
+  /* 3. FIX THE 'SAVE' BUTTON (Blue Pill) */
+  .exam-manager-container .published-exam-card.editing-active .btn-save-mini {
+    /* Resetting all inherited styles that might break it */
+    all: unset !important;
+
+    /* The Look */
+    background-color: #007AFF !important;
+    color: #ffffff !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+    font-size: 13px !important;
+    /* Fixed small size */
+    font-weight: 600 !important;
+    line-height: 1 !important;
+
+    /* The Shape */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 32px !important;
+    padding: 0 20px !important;
+    border-radius: 50px !important;
+    /* Pill shape */
+
+    cursor: pointer !important;
+    box-shadow: 0 2px 5px rgba(0, 122, 255, 0.3) !important;
+    white-space: nowrap !important;
+    gap: 6px !important;
+  }
+
+  .exam-manager-container .published-exam-card.editing-active .btn-save-mini:hover {
+    background-color: #0062cc !important;
+    transform: translateY(-1px);
+  }
+
+  /* 4. FIX THE 'CANCEL' BUTTON (Gray Pill) */
+  .exam-manager-container .published-exam-card.editing-active .btn-cancel-mini {
+    /* Resetting all inherited styles */
+    all: unset !important;
+
+    /* The Look */
+    background-color: var(--mac-selection-bg) !important;
+    color: var(--mac-text) !important;
+    border: 1px solid var(--mac-border) !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+    font-size: 13px !important;
+    /* Fixed small size */
+    font-weight: 500 !important;
+    line-height: 1 !important;
+
+    /* The Shape */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 32px !important;
+    padding: 0 16px !important;
+    border-radius: 50px !important;
+    /* Pill shape */
+
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  .exam-manager-container .published-exam-card.editing-active .btn-cancel-mini:hover {
+    background-color: var(--mac-selection-bg) !important;
+    color: var(--mac-text) !important;
+  }
+
+  /* 5. Fix Icons inside the buttons (if any) */
+  .exam-manager-container .published-exam-card.editing-active button svg {
+    font-size: 14px !important;
+    margin: 0 !important;
+    display: block !important;
+  }
+
+}
+
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   OVERRIDE: VIEW MODE BUTTONS (Edit & Delete) -> PILL SHAPE
+   ========================================================================== */
+
+/* 1. Style the EDIT Button (Blue Tint Pill) */
+  .exam-manager-container .btn-edit-mini {
+    border-radius: 50px !important;
+    /* Force Pill Shape */
+    padding: 6px 18px !important;
+    /* Compact Padding */
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    background: rgba(0, 122, 255, 0.1) !important;
+    color: #007AFF !important;
+
+    /* Ensure alignment */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    height: 32px !important;
+    /* Smaller Height */
+    width: auto !important;
+  }
+
+  .exam-manager-container .btn-edit-mini:hover {
+    background: rgba(0, 122, 255, 0.15) !important;
+  }
+
+  /* 2. Style the DELETE Button (Red Tint Pill) */
+  .exam-manager-container .btn-del-mini {
+    /* RESET existing Circle styles */
+    width: auto !important;
+    height: 32px !important;
+    aspect-ratio: auto !important;
+
+    /* Apply Pill Styles */
+    border-radius: 50px !important;
+    padding: 6px 18px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+
+    /* Red Theme */
+    background: rgba(255, 59, 48, 0.1) !important;
+    color: #FF3B30 !important;
+
+    /* Alignment */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    margin: 0 !important;
+    /* Reset any margins */
+  }
+
+  .exam-manager-container .btn-del-mini:hover {
+    background: #FF3B30 !important;
+    color: white !important;
+  }
+
+  /* 3. Ensure icons inside don't mess up layout */
+  .exam-manager-container .btn-edit-mini svg,
+  .exam-manager-container .btn-del-mini svg {
+    font-size: 14px !important;
+    margin-bottom: 0 !important;
+  }
+
+}
