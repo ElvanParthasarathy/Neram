@@ -21,7 +21,18 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     /* --- LAYOUT DIMENSIONS --- */
     --dock-height: 56px;
     --dock-radius: 28px;
+    --dock-radius: 28px;
     --item-radius: 24px;
+
+    /* --- UNIFIED MOBILE PADDING (App.jsx Pages) --- */
+    /* Forces all main views to respect the 12px edge */
+    .schedule-view,
+    .calendar-view,
+    .notes-view,
+    .home-view {
+      padding-left: var(--screen-edge-spacing) !important;
+      padding-right: var(--screen-edge-spacing) !important;
+    }
 
     --top-btn-size: 44px;
     --safe-area-bottom: env(safe-area-inset-bottom, 20px);
