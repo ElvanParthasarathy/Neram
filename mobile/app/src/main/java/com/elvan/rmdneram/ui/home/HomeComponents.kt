@@ -5,6 +5,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -303,7 +304,7 @@ internal fun DateSection(
         )
         
         // Date Input Group - matches .date-input-group
-        // Date Input Group - matches .date-input-group
+        // Button is a SEPARATE overlay on top of the pill for proper press behavior
         // Track swipe offset for visual feedback
         var offsetX by remember { mutableStateOf(0f) }
         val animatedOffset by animateFloatAsState(
@@ -312,84 +313,110 @@ internal fun DateSection(
             label = "swipeOffset"
         )
         
-        Surface(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(HomeDimens.DatePillHeight)
-                .clip(HomeShapes.Pill)
-                .pointerInput(Unit) {
-                    var totalDrag = 0f
-                    detectHorizontalDragGestures(
-                        onDragStart = { totalDrag = 0f },
-                        onDragEnd = {
-                            if (totalDrag < -swipeThreshold) {
-                                onSwipeRight() // Swipe left = next day
-                            } else if (totalDrag > swipeThreshold) {
-                                onSwipeLeft() // Swipe right = previous day
-                            }
-                            offsetX = 0f
-                        },
-                        onDragCancel = {
-                            offsetX = 0f
-                        },
-                        onHorizontalDrag = { _, dragAmount ->
-                            totalDrag += dragAmount
-                            // Limit visual feedback offset
-                            offsetX = (totalDrag * 0.3f).coerceIn(-30f, 30f)
-                        }
-                    )
-                }
-                ,
-            shape = HomeShapes.Pill,
-            color = colors.surface
         ) {
-            Row(
+            // Layer 1: The pill background with date text
+            Surface(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(start = HomeDimens.SpacingXxxl, end = HomeDimens.SpacingSm),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .clip(HomeShapes.Pill)
+                    .pointerInput(Unit) {
+                        var totalDrag = 0f
+                        detectHorizontalDragGestures(
+                            onDragStart = { totalDrag = 0f },
+                            onDragEnd = {
+                                if (totalDrag < -swipeThreshold) {
+                                    onSwipeRight() // Swipe left = next day
+                                } else if (totalDrag > swipeThreshold) {
+                                    onSwipeLeft() // Swipe right = previous day
+                                }
+                                offsetX = 0f
+                            },
+                            onDragCancel = {
+                                offsetX = 0f
+                            },
+                            onHorizontalDrag = { _, dragAmount ->
+                                totalDrag += dragAmount
+                                // Limit visual feedback offset
+                                offsetX = (totalDrag * 0.3f).coerceIn(-30f, 30f)
+                            }
+                        )
+                    },
+                shape = HomeShapes.Pill,
+                color = colors.surface
             ) {
-                Text(
-                    text = formattedDate,
-                    style = HomeTypography.DateText,
-                    color = colors.textPrimary,
-                    modifier = Modifier.offset { androidx.compose.ui.unit.IntOffset(animatedOffset.toInt(), 0) }
-                )
-                
-                // Round Calendar Button - matches .round-calendar-btn
-                // Clickable & Animated
-                val interactionSource = remember { MutableInteractionSource() }
-                val isPressed by interactionSource.collectIsPressedAsState()
-                
-                val scale by animateFloatAsState(
-                    targetValue = if (isPressed) 0.9f else 1f,
-                    label = "buttonScale"
-                )
-                
                 Box(
                     modifier = Modifier
-                        .scale(scale)
-                        .size(HomeDimens.CalendarIconSize)
-                        .clip(CircleShape)
-                        .background(colors.accent)
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = null, // Custom scale animation replaces ripple if desired, or use LocalIndication.current
-                            onClick = onClick
-                        ),
-                    contentAlignment = Alignment.Center
+                        .fillMaxSize()
+                        .padding(start = HomeDimens.SpacingXxxl, end = HomeDimens.SpacingSm),
+                    contentAlignment = Alignment.CenterStart
                 ) {
-                    Icon(
-                        imageVector = CustomIcons.Calendar,
-                        contentDescription = "Select date",
-                        tint = Color.White,
-                        modifier = Modifier.size(HomeDimens.IconSizeSm)
+                    Text(
+                        text = formattedDate,
+                        style = HomeTypography.DateText,
+                        color = colors.textPrimary,
+                        modifier = Modifier.offset { androidx.compose.ui.unit.IntOffset(animatedOffset.toInt(), 0) }
                     )
                 }
+            }
+            
+            // Layer 2: Calendar button as SEPARATE overlay on top
+            // "Physical" Button Feel: Scale + Elevation Drop (No Vibration)
+            var isPressed by remember { mutableStateOf(false) }
+            
+            val scale by animateFloatAsState(
+                targetValue = if (isPressed) 0.9f else 1f,
+                animationSpec = if (isPressed) {
+                   spring(dampingRatio = 0.55f, stiffness = 800f) // Fast, Snappy Press
+                } else {
+                   spring(dampingRatio = 0.6f, stiffness = 150f) // Slow, Smooth Release (Heavy feel)
+                },
+                label = "scale"
+            )
+            
+            val elevation by animateDpAsState(
+                targetValue = if (isPressed) 2.dp else 6.dp, 
+                animationSpec = if (isPressed) {
+                    tween(50) // Instant actuation
+                } else {
+                    tween(300, easing = FastOutSlowInEasing) // Smooth shadow return
+                },
+                label = "elevation"
+            )
+
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = HomeDimens.SpacingSm)
+                    .size(HomeDimens.CalendarIconSize)
+                    .scale(scale)
+                    .shadow(elevation, CircleShape)
+                    .background(colors.accent, CircleShape)
+                    .clip(CircleShape)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onPress = {
+                                isPressed = true
+                                tryAwaitRelease()
+                                isPressed = false
+                            },
+                            onTap = { onClick() }
+                        )
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = CustomIcons.Calendar,
+                    contentDescription = "Select date",
+                    tint = Color.White,
+                    modifier = Modifier.size(HomeDimens.IconSizeSm)
+                )
+            }
         }
     }
-}
 }
 
 /**

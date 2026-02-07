@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.NightsStay
 import androidx.compose.material.icons.filled.BrightnessMedium
@@ -48,7 +49,8 @@ import com.elvan.rmdneram.ui.home.rememberHomeColors
 @Composable
 fun TopMenuBar(
     title: String,
-    onLogout: () -> Unit,
+    subtitle: String? = null, // Added subtitle support
+    onLogout: () -> Unit = {},
     userRole: String? = null,
     themeMode: String = "auto",
     onThemeModeChange: (String) -> Unit = {},
@@ -56,6 +58,7 @@ fun TopMenuBar(
     onNavigateToSites: (() -> Unit)? = null,
     isOffline: Boolean = false,
     showMenu: Boolean = true,
+    onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -74,18 +77,51 @@ fun TopMenuBar(
                 .windowInsetsPadding(WindowInsets.statusBars)
                 .fillMaxWidth()
                 .height(64.dp) // Standard TopAppBar height
-                .height(64.dp) // Standard TopAppBar height
-                .padding(start = 24.dp, end = 12.dp), // Title at 24dp, Button at 12dp (aligned with margin)
+                .padding(start = if (onBack != null) 20.dp else 24.dp, end = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Left: Screen Title
-            Text(
-                text = title,
-                style = HomeTypography.PageTitle.copy(fontSize = 28.sp), // Match Settings 28sp
-                color = colors.textPrimary,
-                modifier = Modifier.padding(top = 8.dp) // Match Settings padding
-            )
+            // Left: Back Button + Screen Title
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (onBack != null) {
+                    Surface(
+                        modifier = Modifier.size(40.dp),
+                        shape = CircleShape,
+                        color = colors.surface, // Match card color
+                        onClick = onBack
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ChevronLeft,
+                                contentDescription = "Back",
+                                tint = colors.textPrimary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+                
+                Column {
+                    Text(
+                        text = title,
+                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp), // Match Settings 28sp
+                        color = colors.textPrimary,
+                        modifier = Modifier.padding(top = if (subtitle == null) 8.dp else 0.dp) // Adjust padding if subtitle exists
+                    )
+                    if (subtitle != null) {
+                        Text(
+                            text = subtitle,
+                            style = HomeTypography.FacultyName,
+                            color = colors.textSecondary,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
             
             // Right: Actions
             Row(
@@ -99,8 +135,8 @@ fun TopMenuBar(
                 // Offline Badge
                 androidx.compose.animation.AnimatedVisibility(
                     visible = isOffline,
-                    enter = fadeIn() + expandHorizontally(),
-                    exit = fadeOut() + shrinkHorizontally()
+                    enter = fadeIn(),
+                    exit = fadeOut()
                 ) {
                     Surface(
                         color = colors.danger.copy(alpha = 0.1f),
@@ -136,57 +172,60 @@ fun TopMenuBar(
                 // 3-Dot Menu Button (Filled Circle, Horizontal Dots)
                 if (showMenu) {
                     Box {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(colors.surface) // Surface Color
-                                .clickable { 
-                                    menuView = "main"
-                                    isMenuOpen = true 
-                                },
-                            contentAlignment = Alignment.Center
+                        // Simple fixed-size circular button
+                        Surface(
+                            modifier = Modifier.size(40.dp),
+                            shape = CircleShape,
+                            color = colors.surface, // Match card color
+                            onClick = {
+                                menuView = "main"
+                                isMenuOpen = true
+                            }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.MoreHoriz,
-                                contentDescription = "Menu",
-                                tint = colors.textPrimary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                }
-
-                    DropdownMenu(
-                        expanded = isMenuOpen,
-                        onDismissRequest = { isMenuOpen = false },
-                        offset = androidx.compose.ui.unit.DpOffset(0.dp, 8.dp),
-                        shape = HomeShapes.Item, // 24dp curved
-                        containerColor = colors.surface,
-                        tonalElevation = 0.dp,
-                        shadowElevation = 4.dp // Shadows restored for floating effect
-                    ) {
-                        // Crossfade between views inside the DropdownMenu
-                        // DropdownMenu is a ColumnScope, but Crossfade works fine inside
-                        androidx.compose.animation.Crossfade(targetState = menuView, label = "menuNav") { view ->
-                            when (view) {
-                                "main" -> MainMenuView(
-                                    colors = colors,
-                                    userRole = userRole,
-                                    onImportantSites = { isMenuOpen = false; onNavigateToSites?.invoke() },
-                                    onContact = { isMenuOpen = false },
-                                    onSettings = { isMenuOpen = false; onNavigateToSettings?.invoke() },
-                                    onLogout = { isMenuOpen = false; onLogout() }
-                                )
-                                "appearance" -> AppearanceMenuView(
-                                    colors = colors,
-                                    selectedTheme = themeMode,
-                                    onThemeChange = onThemeModeChange,
-                                    onBack = { menuView = "main" }
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreHoriz,
+                                    contentDescription = "Menu",
+                                    tint = colors.textPrimary,
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                         }
+
+                        // DropdownMenu MUST be inside the same Box as the anchor
+                        DropdownMenu(
+                            expanded = isMenuOpen,
+                            onDismissRequest = { isMenuOpen = false },
+                            offset = androidx.compose.ui.unit.DpOffset(0.dp, 8.dp),
+                            shape = HomeShapes.Item,
+                            containerColor = colors.surface,
+                            tonalElevation = 0.dp,
+                            shadowElevation = 4.dp
+                        ) {
+                            androidx.compose.animation.Crossfade(targetState = menuView, label = "menuNav") { view ->
+                                when (view) {
+                                    "main" -> MainMenuView(
+                                        colors = colors,
+                                        userRole = userRole,
+                                        onImportantSites = { isMenuOpen = false; onNavigateToSites?.invoke() },
+                                        onContact = { isMenuOpen = false },
+                                        onSettings = { isMenuOpen = false; onNavigateToSettings?.invoke() },
+                                        onLogout = { isMenuOpen = false; onLogout() }
+                                    )
+                                    "appearance" -> AppearanceMenuView(
+                                        colors = colors,
+                                        selectedTheme = themeMode,
+                                        onThemeChange = onThemeModeChange,
+                                        onBack = { menuView = "main" }
+                                    )
+                                }
+                            }
+                        }
                     }
+                }
             }
         }
     }

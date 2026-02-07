@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInAnonymously } from "firebase/auth";
 import { getDatabase } from "firebase/database"; // For Realtime DB (Calendar)
 import { getFirestore } from "firebase/firestore"; // For Firestore (Contact Form)
+import { getStorage } from "firebase/storage"; // For PDF Storage
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,6 +21,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getDatabase(app);         // Used by Calendar.jsx and CalendarManager.jsx
 export const firestore = getFirestore(app); // Used by ContactForm.jsx
+export const storage = getStorage(app);     // Used by ResourceManager.jsx
 export const googleProvider = new GoogleAuthProvider();
 
 // Guest login for students to see live updates without an account

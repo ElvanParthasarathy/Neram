@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RMD CSBS – Digital Course Materials</title>
+
+<style>
+body {
+  font-family: system-ui, -apple-system;
+  background: #0b1220;
+  color: #e5e7eb;
+  padding: 20px;
+}
+h2 {
+  margin-top: 40px;
+  color: #38bdf8;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #020617;
+  border-radius: 10px;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #1e293b;
+  text-align: center;
+}
+a { color: #22c55e; text-decoration: none; }
+.empty { color: #64748b; }
+</style>
+</head>
+
+<body>
+
+<h1>📘 RMD – CSBS Digital Course Materials</h1>
+<div id="content"></div>
+
+<script>
+const PROXY = "https://api.allorigins.win/raw?url=";
+const URL = "https://rmd.ac.in/dept/csbs/notes.html";
+
+fetch(PROXY + encodeURIComponent(URL))
+  .then(res => res.text())
+  .then(html => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const container = document.getElementById("content");
+
+    // Only real content tables
+    const tables = doc.querySelectorAll(".styled_table table.table");
+
+    tables.forEach(table => {
+      const title = table.querySelector("thead th")?.innerText.trim();
+      if (!title || !title.includes("Semester")) return;
+
+      const out = document.createElement("table");
+      out.innerHTML = `
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Unit 1</th>
+            <th>Unit 2</th>
+            <th>Unit 3</th>
+            <th>Unit 4</th>
+            <th>Unit 5</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tbody = out.querySelector("tbody");
+
+      table.querySelectorAll("tbody tr").forEach(row => {
+        const tds = row.querySelectorAll("td");
+        if (tds.length < 4) return;
+
+        const subject = tds[1]?.innerText.trim();
+        if (!subject) return;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${subject}</td>`;
+
+        // Units start at td[3]
+        for (let i = 3; i <= 7; i++) {
+          const td = tds[i];
+          const a = td?.querySelector("a");
+          const href = a?.getAttribute("href");
+
+          if (href && href !== "" && href !== "#") {
+            tr.innerHTML += `<td><a href="${href}" target="_blank">Open</a></td>`;
+          } else {
+            tr.innerHTML += `<td class="empty">-</td>`;
+          }
+        }
+
+        tbody.appendChild(tr);
+      });
+
+      container.innerHTML += `<h2>${title}</h2>`;
+      container.appendChild(out);
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    document.body.innerHTML = "<h2>Failed to load CSBS notes</h2>";
+  });
+</script>
+
+</body>
+</html>

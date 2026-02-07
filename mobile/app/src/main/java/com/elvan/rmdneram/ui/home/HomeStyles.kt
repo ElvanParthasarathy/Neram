@@ -510,7 +510,7 @@ fun rememberHomeColors(): HomeColors {
                 textPrimary = CssColors.Light.TextPrimary,
                 textSecondary = CssColors.Light.TextSecondary,
                 calendarBackground = CssColors.Light.BgBody, // Was CalendarBg (White)
-                calendarBottomBackground = CssColors.Light.BgCard, // Was CalendarBottomBg (Light Gray)
+                calendarBottomBackground = CssColors.Light.BgBody, // Unified with top section (was BgCard)
                 border = CssColors.Light.GlassBorder,
                 glassBorder = CssColors.Light.GlassBorder,
                 inputBackground = CssColors.Light.BgButtonSecondary,

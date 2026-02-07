@@ -223,7 +223,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
   };
 
   return (
-    <div className="home-view">
+    <div className="home-view" style={window.innerWidth <= 768 ? { padding: '0 16px', marginTop: 0 } : {}}>
       <div className="home-container">
 
         <header className="page-header">

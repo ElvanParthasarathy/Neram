@@ -706,14 +706,20 @@ private fun LinkedAccountsView(
     }
 
     val handleGoogleLink: () -> Unit = {
-        isLinking = true
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(WEB_CLIENT_ID)
-            .requestEmail()
-            .build()
-        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-        googleSignInClient.signOut() // Force account picker
-        googleLinkLauncher.launch(googleSignInClient.signInIntent)
+        try {
+            isLinking = true
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(WEB_CLIENT_ID)
+                .requestEmail()
+                .build()
+            val googleSignInClient = GoogleSignIn.getClient(context, gso)
+            googleSignInClient.signOut() // Force account picker
+            googleLinkLauncher.launch(googleSignInClient.signInIntent)
+        } catch (e: Exception) {
+            isLinking = false
+            e.printStackTrace()
+            Toast.makeText(context, "Could not launch Google Sign-In: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // Unlink Confirmation Dialog
@@ -911,7 +917,7 @@ private fun LinkedAccountsView(
                 
                 // Action Button
                 if (isGoogleLinked) {
-                    HorizontalDivider(color = colors.glassBorder)
+                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 76.dp, end = 20.dp))
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -922,7 +928,7 @@ private fun LinkedAccountsView(
                         Text("Unlink Google Account", color = colors.danger, fontWeight = FontWeight.Medium)
                     }
                 } else {
-                    HorizontalDivider(color = colors.glassBorder)
+                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 76.dp, end = 20.dp))
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -983,7 +989,7 @@ private fun LinkedAccountsView(
                     Icon(Icons.Outlined.CheckCircle, null, tint = colors.success, modifier = Modifier.size(20.dp))
                 }
                 
-                HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 76.dp, end = 20.dp))
                 
                 // Password Row
                 Row(
@@ -1160,7 +1166,6 @@ private fun DeleteAccountFlow(
                             .fillMaxWidth()
                             .clip(HomeShapes.Item)
                             .background(colors.surface)
-                            .border(1.dp, colors.glassBorder, HomeShapes.Item)
                             .clickable { understood = !understood }
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically

@@ -261,7 +261,7 @@ fun MainScreen(
                                     currentScreen = "pdf_viewer"
                                 }
                             )
-                            NavTab.Notes -> com.elvan.rmdneram.ui.notes.NotesScreen(onBack = { }) 
+                            NavTab.Notes -> com.elvan.rmdneram.ui.notes.NotesScreen(onBack = { selectedTab = NavTab.Home }) 
                         }
                     }
                 }
@@ -339,7 +339,7 @@ fun MainScreen(
         val density = androidx.compose.ui.platform.LocalDensity.current
         val bottomMargin = with(density) {
             val navBarHeight = WindowInsets.navigationBars.getBottom(this).toFloat()
-            if (currentScreen == "tabs") (80.dp.toPx() + navBarHeight) else 12.dp.toPx()
+            if (currentScreen == "tabs") (80.dp.toPx() + navBarHeight) else (12.dp.toPx() + navBarHeight)
         }
         
         // Canvas now applies to ALL screens including settings
@@ -457,6 +457,7 @@ fun MainScreen(
                                     .clip(RoundedCornerShape(6.dp))
                                     .border(1.5.dp, colors.textPrimary, RoundedCornerShape(6.dp)) // Monochrome Border
                                     .clickable { 
+                                         homeViewModel.triggerCalendarJump(today)
                                          homeViewModel.updateSelectedDate(today)
                                          homeViewModel.updateCurrentMonth(java.time.YearMonth.now())
                                     },

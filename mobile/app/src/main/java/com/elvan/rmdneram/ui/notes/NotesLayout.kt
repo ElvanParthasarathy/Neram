@@ -1,17 +1,24 @@
 package com.elvan.rmdneram.ui.notes
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.HomeColors
+import com.elvan.rmdneram.ui.home.HomeDimens
+import com.elvan.rmdneram.ui.home.rememberStatusBarHeight
 
 /**
  * Notes Layout - Structural component for the Notes Screen.
@@ -27,55 +34,59 @@ fun NotesMainLayout(
     onFileClick: (String) -> Unit,
     onRetry: () -> Unit
 ) {
-    Scaffold(
-        containerColor = colors.background,
-        topBar = {
-            Column(
+    val statusBarHeight = rememberStatusBarHeight()
+    val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.background)
+    ) {
+        // Back button row - only visible when inside folders (path not empty)
+        if (path.isNotEmpty()) {
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(colors.background)
-                    .statusBarsPadding()
+                    // Use exact top padding as base and add just a bit for spacing
+                    .padding(start = 24.dp, end = 12.dp, top = topPadding, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
+                // Circle Back Button (matching Calendar style)
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(colors.surface)
+                        .clickable { onBackClick() },
+                    contentAlignment = Alignment.Center
                 ) {
-                    // Back Button if path is not empty
-                    if (path.isNotEmpty()) {
-                        IconButton(
-                            onClick = onBackClick,
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colors.accent
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-
-                    // Title: Current Folder Name or "Browse"
-                    val title = if (path.isEmpty()) "Browse" else path.last()
-                    
-                    Text(
-                        text = title,
-                        color = colors.textPrimary,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        modifier = Modifier.weight(1f)
+                    Icon(
+                        Icons.Filled.KeyboardArrowLeft,
+                        contentDescription = "Back",
+                        tint = colors.textPrimary,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
+                
+                Spacer(modifier = Modifier.width(12.dp))
+                
+                // Current folder name
+                Text(
+                    text = path.last(),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp
+                    ),
+                    color = colors.textPrimary
+                )
             }
         }
-    ) { padding ->
+
+        // Content
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(top = if (path.isEmpty()) topPadding else 0.dp)
         ) {
             if (path.isEmpty()) {
                 // ROOT: Main Dept List
@@ -97,7 +108,6 @@ fun NotesMainLayout(
                         }
                     }
                     is NotesUiState.Empty -> {
-                        // Should handle or default to empty view
                         NotesEmptyView(colors)
                     }
                 }

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RMD AIML – Digital Course Materials</title>
+
+<style>
+body {
+  font-family: system-ui, -apple-system;
+  background: #0b1220;
+  color: #e5e7eb;
+  padding: 20px;
+}
+h2 {
+  margin-top: 40px;
+  color: #38bdf8;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #020617;
+  border-radius: 10px;
+}
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #1e293b;
+  text-align: center;
+}
+a { color: #22c55e; text-decoration: none; }
+.empty { color: #64748b; }
+</style>
+</head>
+
+<body>
+
+<h1>📘 RMD – AIML Digital Course Materials</h1>
+<div id="content"></div>
+
+<script>
+const PROXY = "https://api.allorigins.win/raw?url=";
+const URL = "https://rmd.ac.in/dept/aiml/notes.html";
+
+fetch(PROXY + encodeURIComponent(URL))
+  .then(res => res.text())
+  .then(html => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const container = document.getElementById("content");
+
+    // Find ALL tables that mention "Semester"
+    const tables = [...doc.querySelectorAll("table")].filter(t =>
+      t.innerText.includes("Semester")
+    );
+
+    tables.forEach(table => {
+      const semesterTitle = table.querySelector("th")?.innerText;
+      if (!semesterTitle) return;
+
+      const out = document.createElement("table");
+      out.innerHTML = `
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Unit 1</th>
+            <th>Unit 2</th>
+            <th>Unit 3</th>
+            <th>Unit 4</th>
+            <th>Unit 5</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+      const tbody = out.querySelector("tbody");
+
+      table.querySelectorAll("tr").forEach(row => {
+        const tds = row.querySelectorAll("td");
+        if (tds.length < 3) return;
+
+        // Subject = longest non-unit text
+        let subject = "";
+        tds.forEach(td => {
+          const text = td.innerText.trim();
+          if (
+            text.length > subject.length &&
+            !text.toLowerCase().includes("unit") &&
+            !/^\d+$/.test(text)
+          ) {
+            subject = text;
+          }
+        });
+
+        if (!subject) return;
+
+        const units = {1:"-",2:"-",3:"-",4:"-",5:"-"};
+
+        row.querySelectorAll("a").forEach(a => {
+          const txt = a.innerText.toLowerCase();
+          const href = a.getAttribute("href");
+          if (!href || href === "#" || href === "") return;
+
+          if (txt.includes("unit 1")) units[1] = href;
+          if (txt.includes("unit 2")) units[2] = href;
+          if (txt.includes("unit 3")) units[3] = href;
+          if (txt.includes("unit 4")) units[4] = href;
+          if (txt.includes("unit 5")) units[5] = href;
+        });
+
+        const tr = document.createElement("tr");
+        tr.innerHTML =
+          `<td>${subject}</td>` +
+          [1,2,3,4,5].map(u =>
+            units[u] !== "-"
+              ? `<td><a href="${units[u]}" target="_blank">Open</a></td>`
+              : `<td class="empty">-</td>`
+          ).join("");
+
+        tbody.appendChild(tr);
+      });
+
+      container.innerHTML += `<h2>${semesterTitle}</h2>`;
+      container.appendChild(out);
+    });
+  })
+  .catch(err => {
+    console.error(err);
+    document.body.innerHTML = "<h2>Failed to load AIML notes</h2>";
+  });
+</script>
+
+</body>
+</html>

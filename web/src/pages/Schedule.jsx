@@ -181,7 +181,7 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
   }
 
   return (
-    <div className="schedule-view">
+    <div className="schedule-view" style={window.innerWidth <= 768 ? { padding: '0 16px', marginTop: 0 } : {}}>
       <div className="schedule-container">
 
         <header className="page-header">

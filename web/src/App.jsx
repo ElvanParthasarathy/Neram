@@ -6,25 +6,26 @@ import { onAuthStateChanged } from "firebase/auth";
 import "@fontsource-variable/inter";
 
 // Styles
-import "./App.css"; 
-import "./mobile.css"; 
-import "./mobileapp.css"; 
+import "./App.css";
+import "./mobile.css";
+import "./mobileapp.css";
 
 // Data & Components
 import { adminEmails } from "./data/admins";
 import Navbar from "./components/Navbar";
 import MobileNavbar from "./components/MobileNavbar";
 import Footer from "./components/Footer";
-import SetupModal from "./components/SetupModal"; 
-import Home from "./pages/Home"; 
+import SetupModal from "./components/SetupModal";
+import Home from "./pages/Home";
 import Schedule from "./pages/Schedule";
 import Calendar from "./pages/Calendar";
 import CollegeSites from "./pages/CollegeSites";
 import Contact from "./pages/Contact";
-import LoginPage from "./pages/LoginPage"; 
-import SignupPage from "./pages/SignupPage"; 
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 import Settings from "./pages/Settings";
 import AdminPanel from "./pages/AdminPanel";
+import Notes from "./pages/Notes";
 
 // --- UTILITY HELPERS ---
 const toLocalISO = (date) => {
@@ -49,105 +50,28 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
   const scrollRef = useRef(null);
   const isAnimating = useRef(false);
   const animationFrameId = useRef(null);
-  
-  const tabs = ["/", "/schedule", "/calendar"];
+
+  const tabs = ["/", "/schedule", "/calendar", "/notes"];
   const currentTabIndex = tabs.indexOf(location.pathname);
   const isMainTab = currentTabIndex !== -1;
 
-  // 1. CLICK NAVIGATION (Custom Animation Engine)
+  // 1. CLICK NAVIGATION (Standard Navigation)
   const scrollToTab = (index) => {
-    // Desktop or non-swipe views: just navigate standardly
-    if (!isMobile || !scrollRef.current) {
-        navigate(tabs[index], { replace: true });
-        return;
-    }
-
-    // Prevent overlapping animations
-    if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
-    
-    isAnimating.current = true;
-    
-    // Temporarily disable CSS snap for smooth JS control
-    scrollRef.current.style.scrollSnapType = 'none';
-
-    const start = scrollRef.current.scrollLeft;
-    const target = index * scrollRef.current.offsetWidth;
-    const distance = target - start;
-    const duration = 300; // iOS-like speed
-    let startTime = null;
-
-    const animate = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      
-      // Quartic Out Easing (Native feel)
-      const ease = 1 - Math.pow(1 - progress, 4);
-
-      if (scrollRef.current) {
-        scrollRef.current.scrollLeft = start + (distance * ease);
-      }
-
-      if (progress < 1) {
-        animationFrameId.current = requestAnimationFrame(animate);
-      } else {
-        // Re-enable snapping and cleanup
-        if (scrollRef.current) scrollRef.current.style.scrollSnapType = 'x mandatory';
-        isAnimating.current = false;
-        navigate(tabs[index], { replace: true });
-      }
-    };
-    animationFrameId.current = requestAnimationFrame(animate);
+    navigate(tabs[index], { replace: true });
   };
 
-  // 2. SWIPE TRACKER (Syncs URL when user swipes manually)
-  const handleScroll = () => {
-    if (!isMobile || isAnimating.current || !scrollRef.current) return;
-
-    const scrollLeft = scrollRef.current.scrollLeft;
-    const width = scrollRef.current.offsetWidth;
-    const newIndex = Math.round(scrollLeft / width);
-    
-    // Threshold to prevent URL flickering during mid-swipe
-    const targetPosition = newIndex * width;
-    const delta = Math.abs(scrollLeft - targetPosition);
-
-    if (delta < 5) { 
-      if (newIndex !== currentTabIndex && tabs[newIndex]) {
-         navigate(tabs[newIndex], { replace: true });
-      }
-    }
-  };
-
-  // 3. TOUCH INTERRUPT (Kills animation if user touches the screen)
-const handleTouchStart = (e) => {
-  // ❌ do nothing for vertical touches
-  if (e.touches.length === 1) return;
-
-  if (isMobile && isAnimating.current) {
-    cancelAnimationFrame(animationFrameId.current);
-    isAnimating.current = false;
-    if (scrollRef.current) scrollRef.current.style.scrollSnapType = 'x mandatory';
-  }
-};
 
 
-  // 4. SYNC POSITION (For back buttons or direct URL entry)
-  useEffect(() => {
-    if (isMobile && isMainTab && scrollRef.current && !isAnimating.current) {
-      const targetScroll = currentTabIndex * scrollRef.current.offsetWidth;
-      if (Math.abs(scrollRef.current.scrollLeft - targetScroll) > 10) {
-        scrollRef.current.scrollLeft = targetScroll;
-      }
-    }
-  }, [currentTabIndex, isMobile, isMainTab]);
+
+
 
   // --- BACK BUTTON LOGIC ---
   useEffect(() => {
     if (!user) return;
     const handleBackButton = (event) => {
-      const mainPaths = ["/schedule", "/calendar", "/college-sites", "/contact"];
+      const mainPaths = ["/schedule", "/calendar", "/notes", "/college-sites", "/contact"];
       const isMainPath = mainPaths.includes(location.pathname);
-      if (location.pathname === "/") return; 
+      if (location.pathname === "/") return;
       if (isMainPath) {
         event.preventDefault();
         navigate("/", { replace: true });
@@ -182,40 +106,32 @@ const handleTouchStart = (e) => {
         </Routes>
       ) : (
         <div id="app-shell" className={isMobile ? "mobile-mode-active" : "desktop-mode-active"}>
-          
-          <MobileNavbar 
-            isAdmin={isAdminUser} 
-            activeTab={currentTabIndex} 
-            onTabClick={scrollToTab} 
+
+          <MobileNavbar
+            isAdmin={isAdminUser}
+            activeTab={currentTabIndex}
+            onTabClick={scrollToTab}
           />
-          
-          <Navbar 
-            user={user} 
-            userProfile={dbUserProfile} 
-            isAdmin={isAdminUser} 
-            isSyncing={globalData.isSyncing} 
+
+          <Navbar
+            user={user}
+            userProfile={dbUserProfile}
+            isAdmin={isAdminUser}
+            isSyncing={globalData.isSyncing}
           />
 
           <main id="main-viewport">
-            
-            {/* MOBILE VIEW: Uses Swipe Snap Container */}
-            {isMobile && isMainTab ? (
-              <div 
-                  className="snap-container no-scrollbar"
-                  ref={scrollRef}
-                  onScroll={handleScroll}
-                >
 
-                 <div className="snap-page">
-                    <Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />
-                 </div>
-                 <div className="snap-page">
-                    <Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />
-                 </div>
-                 <div className="snap-page">
-                    <Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />
-                 </div>
-               </div>
+            {/* MOBILE VIEW: No Swipe */}
+            {isMobile && isMainTab ? (
+              <div className="mobile-page-container">
+                <Routes>
+                  <Route path="/" element={<Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                  <Route path="/schedule" element={<Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                  <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                  <Route path="/notes" element={<Notes />} />
+                </Routes>
+              </div>
             ) : (
               /* DESKTOP VIEW: Standard Routing */
               <div className="main-content-area">
@@ -223,6 +139,7 @@ const handleTouchStart = (e) => {
                   <Route path="/" element={<Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
                   <Route path="/schedule" element={<Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
                   <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                  <Route path="/notes" element={<Notes />} />
                   <Route path="/college-sites" element={<CollegeSites />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/settings" element={<Settings />} />
@@ -232,7 +149,7 @@ const handleTouchStart = (e) => {
                 <Footer />
               </div>
             )}
-            
+
           </main>
           {showForcedSetup && <SetupModal uid={user.uid} />}
         </div>
@@ -292,25 +209,25 @@ function App() {
     try {
       const configSnap = await get(ref(db, `calendars/${batchName}`));
       if (!configSnap.exists()) {
-          setGlobalData(prev => ({ ...prev, isSyncing: false }));
-          return;
+        setGlobalData(prev => ({ ...prev, isSyncing: false }));
+        return;
       }
 
       const { config, semConfig, events: firebaseEvents } = configSnap.val();
       if (!config?.apiKey || !config?.calendarId) {
-          setGlobalData(prev => ({ ...prev, isSyncing: false }));
-          return;
+        setGlobalData(prev => ({ ...prev, isSyncing: false }));
+        return;
       }
 
       const timeMin = new Date(semConfig?.start || '2025-12-01').toISOString();
       const timeMax = new Date(semConfig?.end || '2026-05-31').toISOString();
       const url = `https://www.googleapis.com/calendar/v3/calendars/${config.calendarId}/events?key=${config.apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime&maxResults=250`;
-      
+
       const response = await fetch(url);
       const data = await response.json();
       if (data.error) {
-          setGlobalData(prev => ({ ...prev, isSyncing: false }));
-          return;
+        setGlobalData(prev => ({ ...prev, isSyncing: false }));
+        return;
       }
 
       let allExpanded = [];
@@ -346,7 +263,7 @@ function App() {
           setDbUserProfile(userData);
           setIsAdminUser(adminEmails.includes(u.email) || userData?.role === 'admin');
           setShowForcedSetup(!userData?.batch || !userData?.department || !userData?.section);
-          
+
           const savedTemp = sessionStorage.getItem("admin_preview_session");
           if (savedTemp) {
             try {
@@ -358,7 +275,7 @@ function App() {
           } else {
             setActiveProfile(userData);
           }
-          
+
           setLoading(false);
         });
       } else {
@@ -384,7 +301,7 @@ function App() {
       if (userUnsubscribe) userUnsubscribe();
       window.removeEventListener('adminViewChanged', handleViewChange);
     };
-  }, []); 
+  }, []);
 
   useEffect(() => {
     if (!activeProfile?.batch || !activeProfile?.section) return;
@@ -402,27 +319,27 @@ function App() {
     });
 
     const unsubSched = onValue(ref(db, `schedules/${batch}/${department}/${section}`), (snap) => {
-      setGlobalData(prev => ({ 
-        ...prev, 
+      setGlobalData(prev => ({
+        ...prev,
         masterData: snap.exists() ? snap.val() : { courses: [], timetable: {}, exams: [], counseling: { counselors: [], coordinators: {} } },
-        isSyncing: false 
+        isSyncing: false
       }));
     }, (error) => {
-       console.error("Schedule sync error:", error);
-       setGlobalData(prev => ({ ...prev, isSyncing: false }));
+      console.error("Schedule sync error:", error);
+      setGlobalData(prev => ({ ...prev, isSyncing: false }));
     });
 
     const unsubUpdates = onValue(ref(db, `updates/${batch}/${department}/${section}`), (snap) => {
       const data = snap.val() || {};
-      setGlobalData(prev => ({ 
-        ...prev, 
-        sectionUpdates: { 
-          live: data.live_daily || {}, 
-          general: { text: data.general_text || "", author: data.general_author || "" } 
-        } 
+      setGlobalData(prev => ({
+        ...prev,
+        sectionUpdates: {
+          live: data.live_daily || {},
+          general: { text: data.general_text || "", author: data.general_author || "" }
+        }
       }));
     }, (error) => {
-       console.error("Updates sync error:", error);
+      console.error("Updates sync error:", error);
     });
 
     runGlobalCalendarSync(batch);
@@ -431,8 +348,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      <AppContent 
-        user={user} isAdminUser={isAdminUser} isMobile={isMobile} 
+      <AppContent
+        user={user} isAdminUser={isAdminUser} isMobile={isMobile}
         loading={loading} showForcedSetup={showForcedSetup}
         globalData={globalData} dbUserProfile={dbUserProfile} activeProfile={activeProfile}
       />

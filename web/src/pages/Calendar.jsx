@@ -3,6 +3,8 @@ import LiveCalendarEmbed from "../components/LiveCalendarEmbed";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { RiCalendarEventLine } from 'react-icons/ri';
+import { db } from "../firebase";
+import { ref, onValue } from "firebase/database";
 
 const CustomCalendarButton = forwardRef(({ onClick }, ref) => (
   <button className="calendar-trigger-btn" onClick={onClick} ref={ref} type="button">
@@ -12,12 +14,25 @@ const CustomCalendarButton = forwardRef(({ onClick }, ref) => (
 
 function CalendarPage({ globalData, userProfile, activeProfile }) {
   // 1. Instantly use data from props
-  const allCalendar = globalData?.allCalendar || []; 
+  const allCalendar = globalData?.allCalendar || [];
   const isSyncing = globalData?.isSyncing;
 
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [eventResults, setEventResults] = useState([]); 
-  const [viewDate, setViewDate] = useState(new Date()); 
+  const [eventResults, setEventResults] = useState([]);
+  const [viewDate, setViewDate] = useState(new Date());
+  const [officialDocUrl, setOfficialDocUrl] = useState("/pdfs/academic-calendar.pdf");
+
+  // Fetch official doc URL
+  useEffect(() => {
+    const unsub = onValue(ref(db, 'official_docs/academic_calendar'), (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Prefer originalUrl (View Link) for Web, fallback to url (Direct Download)
+        setOfficialDocUrl(data.originalUrl || data.url || "/pdfs/academic-calendar.pdf");
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const toLocalISO = (date) => {
     const y = date.getFullYear();
@@ -53,7 +68,7 @@ function CalendarPage({ globalData, userProfile, activeProfile }) {
   const sortedDates = Object.keys(groupedEvents).sort();
 
   return (
-    <div className="calendar-view">
+    <div className="calendar-view" style={window.innerWidth <= 768 ? { padding: '0 16px', marginTop: 0 } : {}}>
       <div className="calendar-container">
         <header className="page-header">
           <h1 className="page-title">Academic Calendar</h1>
@@ -65,7 +80,7 @@ function CalendarPage({ globalData, userProfile, activeProfile }) {
           <p className="page-subtitle">Academic Events for {activeProfile?.batch}</p>
         </header>
 
-                <section className="calendar-checker-grid">
+        <section className="calendar-checker-grid">
           {/* Left Card: Select Date */}
           <div className="checker-card select-date-card">
             <label className="input-label">VIEW BY DATE</label>
@@ -74,11 +89,11 @@ function CalendarPage({ globalData, userProfile, activeProfile }) {
                 {selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'short' })}
               </div>
               <div className="picker-container">
-                <DatePicker 
-                  selected={selectedDate} 
-                  onChange={(date) => setSelectedDate(date)} 
-                  customInput={<CustomCalendarButton />} 
-                  popperPlacement="bottom-end" 
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={(date) => setSelectedDate(date)}
+                  customInput={<CustomCalendarButton />}
+                  popperPlacement="bottom-end"
                 />
               </div>
             </div>
@@ -111,36 +126,36 @@ function CalendarPage({ globalData, userProfile, activeProfile }) {
 
           <div className="table-wrapper">
             {isSyncing && allCalendar.length === 0 ? (
-                <div className="loading-shimmer">Synchronizing live calendar...</div>
+              <div className="loading-shimmer">Synchronizing live calendar...</div>
             ) : (
-                <table className="calendar-table compact-stack">
-                    <thead><tr><th style={{ width: '80px' }}>Date</th><th>Events & Timing</th></tr></thead>
-                    <tbody>
-                        {sortedDates.length > 0 ? sortedDates.map((dateStr) => {
-                            const [y, m, d] = dateStr.split('-');
-                            const displayDate = `${d}/${m}/${y}`;
-                            const dayName = new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'short' });
-                            return (
-                              <tr key={dateStr} className={dateStr === toLocalISO(new Date()) ? "row-today" : ""}>
-                                <td className="cell-date-stack">
-                                  <div className="day-label">{dayName}</div>
-                                  <div className="date-label">{displayDate}</div>
-                                </td>
-                                <td className="cell-event-stack">
-                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    {groupedEvents[dateStr].map((item, idx) => (
-                                      <div key={idx} className="event-info-group">
-                                        <span className="event-title">{item.title}</span>
-                                        <span className="event-time">{item.fullTime}</span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                        }) : <tr className="empty-row"><td colSpan="2">No academic events for {activeProfile?.batch} this month.</td></tr>}
-                    </tbody>
-                </table>
+              <table className="calendar-table compact-stack">
+                <thead><tr><th style={{ width: '80px' }}>Date</th><th>Events & Timing</th></tr></thead>
+                <tbody>
+                  {sortedDates.length > 0 ? sortedDates.map((dateStr) => {
+                    const [y, m, d] = dateStr.split('-');
+                    const displayDate = `${d}/${m}/${y}`;
+                    const dayName = new Date(y, m - 1, d).toLocaleDateString('en-US', { weekday: 'short' });
+                    return (
+                      <tr key={dateStr} className={dateStr === toLocalISO(new Date()) ? "row-today" : ""}>
+                        <td className="cell-date-stack">
+                          <div className="day-label">{dayName}</div>
+                          <div className="date-label">{displayDate}</div>
+                        </td>
+                        <td className="cell-event-stack">
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {groupedEvents[dateStr].map((item, idx) => (
+                              <div key={idx} className="event-info-group">
+                                <span className="event-title">{item.title}</span>
+                                <span className="event-time">{item.fullTime}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  }) : <tr className="empty-row"><td colSpan="2">No academic events for {activeProfile?.batch} this month.</td></tr>}
+                </tbody>
+              </table>
             )}
           </div>
         </section>
@@ -152,8 +167,8 @@ function CalendarPage({ globalData, userProfile, activeProfile }) {
 
         <section className="download-section">
           <h3 className="section-heading">Official Documents</h3>
-          <p className="download-text">Download the official academic calendar PDF for offline use.</p>
-          <a href="/pdfs/academic-calendar.pdf" target="_blank" rel="noopener noreferrer" className="download-btn">Download PDF</a>
+          <p className="download-text">View or download the official academic calendar PDF.</p>
+          <a href={officialDocUrl} target="_blank" rel="noopener noreferrer" className="download-btn">View / Download PDF</a>
         </section>
       </div>
     </div>

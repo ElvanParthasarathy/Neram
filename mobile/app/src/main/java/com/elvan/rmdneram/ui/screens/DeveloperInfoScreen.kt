@@ -102,7 +102,6 @@ fun DeveloperInfoScreen(
                         )
                     )
                 )
-                .border(1.dp, colors.glassBorder, HomeShapes.Card)
                 .padding(32.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -137,8 +136,13 @@ fun DeveloperInfoScreen(
                 
                 Button(
                     onClick = { 
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://jaiprakashpartha.vercel.app/"))
-                        context.startActivity(intent)
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://jaiprakashpartha.vercel.app/"))
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colors.accent, // Changed from White
@@ -170,8 +174,13 @@ fun DeveloperInfoScreen(
                 label = "+91 93451 28797",
                 color = AppColors.GitHub,
                 onClick = {
-                     val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:+919345128797"))
-                     context.startActivity(intent)
+                    try {
+                         val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:+919345128797"))
+                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                         context.startActivity(intent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             )
             ContactItem(
@@ -179,10 +188,15 @@ fun DeveloperInfoScreen(
                 label = "jaiprakashpartha@gmail.com",
                 color = AppColors.Instagram,
                 onClick = {
-                    val intent = Intent(Intent.ACTION_SENDTO).apply {
-                        data = Uri.parse("mailto:jaiprakashpartha@gmail.com")
+                    try {
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:jaiprakashpartha@gmail.com")
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                    try { context.startActivity(intent) } catch (e: Exception) {}
                 }
             )
             ContactItem(
@@ -190,8 +204,13 @@ fun DeveloperInfoScreen(
                 label = "linkedin.com/in/jaiprakashpartha",
                 color = AppColors.LinkedIn,
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.linkedin.com/in/jaiprakashpartha"))
-                    context.startActivity(intent)
+                     try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.linkedin.com/in/jaiprakashpartha"))
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                     } catch (e: Exception) {
+                         e.printStackTrace()
+                     }
                 }
             )
             ContactItem(
@@ -199,8 +218,13 @@ fun DeveloperInfoScreen(
                 label = "github.com/elvanparthasarathy",
                 color = colors.textPrimary, // Dynamic Black/White
                 onClick = {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/elvanparthasarathy"))
-                    context.startActivity(intent)
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/elvanparthasarathy"))
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        context.startActivity(intent)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             )
             ContactItem(
@@ -233,7 +257,6 @@ private fun ContactItem(
             .padding(bottom = 12.dp)
             .clip(HomeShapes.Item)
             .background(colors.surface)
-            .border(1.dp, colors.glassBorder, HomeShapes.Item)
             .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically

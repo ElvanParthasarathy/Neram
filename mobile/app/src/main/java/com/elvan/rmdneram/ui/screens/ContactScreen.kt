@@ -121,7 +121,6 @@ fun ContactScreen(
                 .padding(horizontal = 24.dp)
                 .clip(HomeShapes.Item)
                 .background(colors.surface)
-                .border(1.dp, colors.glassBorder, HomeShapes.Item)
                 .padding(20.dp)
         ) {
             Text("Hello, I Am", style = HomeTypography.FacultyName, color = colors.textSecondary)
@@ -149,7 +148,7 @@ fun ContactScreen(
             }
             
             Spacer(modifier = Modifier.height(20.dp))
-            HorizontalDivider(color = colors.glassBorder)
+            HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 32.dp))
             Spacer(modifier = Modifier.height(20.dp))
             
             Text("Contact Info", style = HomeTypography.SectionTitle, color = colors.textPrimary)
@@ -180,7 +179,6 @@ fun ContactScreen(
                 .padding(horizontal = 24.dp)
                 .clip(HomeShapes.Item)
                 .background(colors.surface)
-                .border(1.dp, colors.glassBorder, HomeShapes.Item)
                 .padding(20.dp)
         ) {
             Text("Send a Message", style = HomeTypography.SectionTitle, color = colors.textPrimary)

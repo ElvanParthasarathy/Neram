@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { auth, googleProvider, db } from "../firebase"; 
+import { auth, googleProvider, db } from "../firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
-import { ref, onValue } from "firebase/database"; 
-import Logo from "../assets/neramv.svg"; 
+import { ref, onValue } from "firebase/database";
+import Logo from "../assets/neramv.svg";
 import AdminViewSwitcher from "./AdminViewSwitcher";
-import ThemeToggle from "./ThemeToggle"; 
+import ThemeToggle from "./ThemeToggle";
 
 import { RiUser3Fill } from 'react-icons/ri';
 
 // UPDATED: Added 'userProfile' to props
 const Navbar = ({ user, userProfile, isAdmin }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isSwitcherOpen, setIsSwitcherOpen] = useState(false); 
-  const [dbUser, setDbUser] = useState(null); 
+  const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
+  const [dbUser, setDbUser] = useState(null);
   const [isPreviewActive, setIsPreviewActive] = useState(false);
-  
+
   const location = useLocation();
   const navigate = useNavigate();
   const containerRef = useRef(null);
@@ -36,9 +36,9 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
       const saved = sessionStorage.getItem("admin_preview_session");
       if (saved && dbUser) {
         const previewData = JSON.parse(saved);
-        const isDifferent = 
-          previewData.batch !== dbUser.batch || 
-          previewData.department !== dbUser.department || 
+        const isDifferent =
+          previewData.batch !== dbUser.batch ||
+          previewData.department !== dbUser.department ||
           previewData.section !== dbUser.section;
         setIsPreviewActive(isDifferent);
       } else {
@@ -99,11 +99,11 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
 
       {/* 2. MAIN NAVIGATION */}
       <nav className="sidebar-nav">
-        {["/", "/schedule", "/calendar", "/college-sites", "/contact"].map((path) => {
-          const label = path === "/" ? "Home" : 
-                        path === "/college-sites" ? "Sites" : 
-                        path.replace("/", "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-          
+        {["/", "/schedule", "/calendar", "/notes", "/college-sites", "/contact"].map((path) => {
+          const label = path === "/" ? "Home" :
+            path === "/college-sites" ? "Sites" :
+              path.replace("/", "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
           return (
             <Link
               key={path}
@@ -112,7 +112,7 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
                  This prevents building a history stack between main pages.
                  Clicking 'Back' from Schedule will now go straight to Home.
               */
-              replace={path !== "/"} 
+              replace={path !== "/"}
               className={`nav-link ${location.pathname === path ? "active" : ""}`}
             >
               <span>{label}</span>
@@ -130,9 +130,9 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
         ) : (
           <div className="auth-stack">
             <div className="profile-container">
-              
-              <div 
-                className={`profile-trigger ${isPopupOpen ? 'active-trigger' : ''}`} 
+
+              <div
+                className={`profile-trigger ${isPopupOpen ? 'active-trigger' : ''}`}
                 onClick={() => {
                   setIsPopupOpen(!isPopupOpen);
                   if (isSwitcherOpen) setIsSwitcherOpen(false);
@@ -164,23 +164,23 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
                     <div className="dropdown-divider"></div>
 
                     {isAdmin && dbUser && (
-                      <div 
-                        className={`popup-item switcher-trigger ${isSwitcherOpen ? 'active-item' : ''}`} 
+                      <div
+                        className={`popup-item switcher-trigger ${isSwitcherOpen ? 'active-item' : ''}`}
                         onClick={togglePreviewSystem}
                       >
-                          <span>Preview System</span>
+                        <span>Preview System</span>
                       </div>
                     )}
 
                     {/* SETTINGS & ADMIN: No 'replace' attribute here.
                         This allows them to have their own history stack as requested.
                     */}
-                    <Link to="/settings" className="popup-item" onClick={() => {setIsPopupOpen(false); setIsSwitcherOpen(false);}}>
+                    <Link to="/settings" className="popup-item" onClick={() => { setIsPopupOpen(false); setIsSwitcherOpen(false); }}>
                       <span>Settings</span>
                     </Link>
 
                     {isAdmin && (
-                      <Link to="/admin" className="popup-item" onClick={() => {setIsPopupOpen(false); setIsSwitcherOpen(false);}}>
+                      <Link to="/admin" className="popup-item" onClick={() => { setIsPopupOpen(false); setIsSwitcherOpen(false); }}>
                         <span>Admin Panel</span>
                       </Link>
                     )}
@@ -195,9 +195,9 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
               )}
 
               {isSwitcherOpen && isAdmin && dbUser && (
-                <AdminViewSwitcher 
-                  realProfile={dbUser} 
-                  onClose={() => setIsSwitcherOpen(false)} 
+                <AdminViewSwitcher
+                  realProfile={dbUser}
+                  onClose={() => setIsSwitcherOpen(false)}
                 />
               )}
 

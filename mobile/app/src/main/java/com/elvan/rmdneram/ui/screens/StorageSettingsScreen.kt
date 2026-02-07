@@ -125,7 +125,6 @@ fun StorageSettingsScreen(
                     .fillMaxWidth()
                     .clip(HomeShapes.Item)
                     .background(cardColor)
-                    .border(1.dp, colors.glassBorder, HomeShapes.Item)
                     .padding(24.dp)
             ) {
                 Text(
@@ -177,7 +176,7 @@ fun StorageSettingsScreen(
                     }
                 }
 
-                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 56.dp, top = 8.dp, bottom = 8.dp))
 
                 // Option 2: Range Deletion
                 Row(

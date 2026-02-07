@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { signOut, onAuthStateChanged } from "firebase/auth";
-import { auth, db } from "../firebase"; 
-import { ref, onValue } from "firebase/database"; 
+import { auth, db } from "../firebase";
+import { ref, onValue } from "firebase/database";
 
 // --- IMPORT THE SWITCHER ---
 import AdminViewSwitcher from "./AdminViewSwitcher";
@@ -29,11 +29,11 @@ const IconHome = (props) => (
 // 3. CLOCK (Schedule)
 const IconClock = (props) => (
   <svg {...props} viewBox="0 0 24 24" fill="none">
-    <path 
-      fill="currentColor" 
-      fillRule="evenodd" 
-      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12zm11-5a1 1 0 1 0-2 0v3.764a3 3 0 0 0 1.658 2.683l2.895 1.447a1 1 0 1 0 .894-1.788l-2.894-1.448a1 1 0 0 1-.553-.894V7z" 
-      clipRule="evenodd" 
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12zm11-5a1 1 0 1 0-2 0v3.764a3 3 0 0 0 1.658 2.683l2.895 1.447a1 1 0 1 0 .894-1.788l-2.894-1.448a1 1 0 0 1-.553-.894V7z"
+      clipRule="evenodd"
     />
   </svg>
 );
@@ -41,8 +41,8 @@ const IconClock = (props) => (
 // 4. CALENDAR
 const IconCalendar = (props) => (
   <svg {...props} viewBox="0 0 24 24" fill="none">
-    <path d="M22 14V12C22 11.161 22 10.4153 21.9871 9.75H2.0129C2 10.4153 2 11.161 2 12V14C2 17.7712 2 19.6569 3.17157 20.8284C4.34315 22 6.22876 22 10 22H14C17.7712 22 19.6569 22 20.8284 20.8284C22 19.6569 22 17.7712 22 14Z" fill="currentColor"/>
-    <path d="M7.75 2.5C7.75 2.08579 7.41421 1.75 7 1.75C6.58579 1.75 6.25 2.08579 6.25 2.5V4.07926C4.81067 4.19451 3.86577 4.47737 3.17157 5.17157C2.47737 5.86577 2.19451 6.81067 2.07926 8.25H21.9207C21.8055 6.81067 21.5226 5.86577 20.8284 5.17157C20.1342 4.47737 19.1893 4.19451 17.75 4.07926V2.5C17.75 2.08579 17.4142 1.75 17 1.75C16.5858 1.75 16.25 2.08579 16.25 2.5V4.0129C15.5847 4 14.839 4 14 4H10C9.16097 4 8.41527 4 7.75 4.0129V2.5Z" fill="currentColor"/>
+    <path d="M22 14V12C22 11.161 22 10.4153 21.9871 9.75H2.0129C2 10.4153 2 11.161 2 12V14C2 17.7712 2 19.6569 3.17157 20.8284C4.34315 22 6.22876 22 10 22H14C17.7712 22 19.6569 22 20.8284 20.8284C22 19.6569 22 17.7712 22 14Z" fill="currentColor" />
+    <path d="M7.75 2.5C7.75 2.08579 7.41421 1.75 7 1.75C6.58579 1.75 6.25 2.08579 6.25 2.5V4.07926C4.81067 4.19451 3.86577 4.47737 3.17157 5.17157C2.47737 5.86577 2.19451 6.81067 2.07926 8.25H21.9207C21.8055 6.81067 21.5226 5.86577 20.8284 5.17157C20.1342 4.47737 19.1893 4.19451 17.75 4.07926V2.5C17.75 2.08579 17.4142 1.75 17 1.75C16.5858 1.75 16.25 2.08579 16.25 2.5V4.0129C15.5847 4 14.839 4 14 4H10C9.16097 4 8.41527 4 7.75 4.0129V2.5Z" fill="currentColor" />
   </svg>
 );
 
@@ -61,6 +61,13 @@ const IconMail = (props) => (
   </svg>
 );
 
+// 6.5 NOTES (Book)
+const IconBook = (props) => (
+  <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z" />
+  </svg>
+);
+
 // 7. SITES (App Drawer)
 const IconSites = (props) => (
   <svg {...props} viewBox="0 0 24 24" fill="currentColor">
@@ -71,10 +78,10 @@ const IconSites = (props) => (
 // 8. ADMIN (Shield with User)
 const IconAdmin = (props) => (
   <svg {...props} viewBox="0 0 24 24" fill="none">
-    <path 
-      fillRule="evenodd" 
-      clipRule="evenodd" 
-      d="M3 10.4167C3 7.21907 3 5.62028 3.37752 5.08241C3.75503 4.54454 5.25832 4.02996 8.26491 3.00079L8.83772 2.80472C10.405 2.26824 11.1886 2 12 2C12.8114 2 13.595 2.26824 15.1623 2.80472L15.7351 3.00079C18.7417 4.02996 20.245 4.54454 20.6225 5.08241C21 5.62028 21 7.21907 21 10.4167V11.9914C21 17.6294 16.761 20.3655 14.1014 21.5273C13.38 21.8424 13.0193 22 12 22C10.9807 22 10.62 21.8424 9.89856 21.5273C7.23896 20.3655 3 17.6294 3 11.9914V10.4167ZM14 9C14 10.1046 13.1046 11 12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9ZM12 17C16 17 16 16.1046 16 15C16 13.8954 14.2091 13 12 13C9.79086 13 8 13.8954 8 15C8 16.1046 8 17 12 17Z" 
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M3 10.4167C3 7.21907 3 5.62028 3.37752 5.08241C3.75503 4.54454 5.25832 4.02996 8.26491 3.00079L8.83772 2.80472C10.405 2.26824 11.1886 2 12 2C12.8114 2 13.595 2.26824 15.1623 2.80472L15.7351 3.00079C18.7417 4.02996 20.245 4.54454 20.6225 5.08241C21 5.62028 21 7.21907 21 10.4167V11.9914C21 17.6294 16.761 20.3655 14.1014 21.5273C13.38 21.8424 13.0193 22 12 22C10.9807 22 10.62 21.8424 9.89856 21.5273C7.23896 20.3655 3 17.6294 3 11.9914V10.4167ZM14 9C14 10.1046 13.1046 11 12 11C10.8954 11 10 10.1046 10 9C10 7.89543 10.8954 7 12 7C13.1046 7 14 7.89543 14 9ZM12 17C16 17 16 16.1046 16 15C16 13.8954 14.2091 13 12 13C9.79086 13 8 13.8954 8 15C8 16.1046 8 17 12 17Z"
       fill="currentColor"
     />
   </svg>
@@ -99,8 +106,8 @@ const IconMoonSun = (props) => (
 const IconLogOut = (props) => (
   <svg {...props} viewBox="0 0 512 512" fill="#FF3B30">
     <g>
-      <path d="M423.262,91.992c-16.877-15.91-43.434-15.098-59.32,1.778c-15.894,16.877-15.098,43.434,1.779,59.32 c32.082,30.213,49.754,71.238,49.754,115.5c0,87.934-71.541,159.476-159.476,159.476S96.525,356.524,96.525,268.59 c0-44.262,17.668-85.287,49.754-115.5c16.877-15.885,17.672-42.442,1.779-59.32c-15.885-16.885-42.455-17.688-59.32-1.778 C40.344,137.557,12.59,201.926,12.59,268.59C12.59,402.803,121.783,512,256,512c134.213,0,243.41-109.197,243.41-243.41 C499.41,201.926,471.656,137.557,423.262,91.992z"/>
-      <path d="M256,268.59c23.178,0,41.967-15.033,41.967-33.574V33.574C297.967,15.033,279.178,0,256,0 c-23.178,0-41.967,15.033-41.967,33.574v201.443C214.033,253.557,232.822,268.59,256,268.59z"/>
+      <path d="M423.262,91.992c-16.877-15.91-43.434-15.098-59.32,1.778c-15.894,16.877-15.098,43.434,1.779,59.32 c32.082,30.213,49.754,71.238,49.754,115.5c0,87.934-71.541,159.476-159.476,159.476S96.525,356.524,96.525,268.59 c0-44.262,17.668-85.287,49.754-115.5c16.877-15.885,17.672-42.442,1.779-59.32c-15.885-16.885-42.455-17.688-59.32-1.778 C40.344,137.557,12.59,201.926,12.59,268.59C12.59,402.803,121.783,512,256,512c134.213,0,243.41-109.197,243.41-243.41 C499.41,201.926,471.656,137.557,423.262,91.992z" />
+      <path d="M256,268.59c23.178,0,41.967-15.033,41.967-33.574V33.574C297.967,15.033,279.178,0,256,0 c-23.178,0-41.967,15.033-41.967,33.574v201.443C214.033,253.557,232.822,268.59,256,268.59z" />
     </g>
   </svg>
 );
@@ -147,21 +154,21 @@ const IconSettings = (props) => (
     <g id="style=fill">
       <g id="profile">
         {/* CHANGED fill="#000000" TO fill="currentColor" BELOW */}
-        <path 
-          id="vector (Stroke)" 
-          fillRule="evenodd" 
-          clipRule="evenodd" 
-          d="M6.75 6.5C6.75 3.6005 9.1005 1.25 12 1.25C14.8995 1.25 17.25 3.6005 17.25 6.5C17.25 9.3995 14.8995 11.75 12 11.75C9.1005 11.75 6.75 9.3995 6.75 6.5Z" 
+        <path
+          id="vector (Stroke)"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M6.75 6.5C6.75 3.6005 9.1005 1.25 12 1.25C14.8995 1.25 17.25 3.6005 17.25 6.5C17.25 9.3995 14.8995 11.75 12 11.75C9.1005 11.75 6.75 9.3995 6.75 6.5Z"
           fill="currentColor"
         ></path>
-        <path 
-          id="rec (Stroke)" 
-          fillRule="evenodd" 
-          clipRule="evenodd" 
-          d="M4.25 18.5714C4.25 15.6325 6.63249 13.25 9.57143 13.25H14.4286C17.3675 13.25 19.75 15.6325 19.75 18.5714C19.75 20.8792 17.8792 22.75 15.5714 22.75H8.42857C6.12081 22.75 4.25 20.8792 4.25 18.5714Z" 
+        <path
+          id="rec (Stroke)"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M4.25 18.5714C4.25 15.6325 6.63249 13.25 9.57143 13.25H14.4286C17.3675 13.25 19.75 15.6325 19.75 18.5714C19.75 20.8792 17.8792 22.75 15.5714 22.75H8.42857C6.12081 22.75 4.25 20.8792 4.25 18.5714Z"
           fill="currentColor"
-        ></path> 
-      </g> 
+        ></path>
+      </g>
     </g>
   </svg>
 );
@@ -169,11 +176,11 @@ const IconSettings = (props) => (
 const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [user, setUser] = useState(auth.currentUser);
-  const [dbUser, setDbUser] = useState(null); 
+  const [dbUser, setDbUser] = useState(null);
   const [imgError, setImgError] = useState(false);
-  
+
   // State for Menus & Switcher
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuView, setMenuView] = useState('main'); // 'main' or 'appearance'
@@ -248,7 +255,7 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
     if (index !== undefined && onTabClick) {
       onTabClick(index); // Trigger the Smooth Scroll Engine
     } else {
-      setIsMenuOpen(false); 
+      setIsMenuOpen(false);
       if (location.pathname === targetPath) return;
       const shouldReplace = location.pathname !== "/" || targetPath === "/";
       navigate(targetPath, { replace: shouldReplace });
@@ -274,7 +281,7 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
   const handleThemeChange = (theme) => {
     // 1. Update State
     setCurrentTheme(theme);
-    
+
     // 2. Logic
     localStorage.setItem("theme", theme);
     const root = document.documentElement;
@@ -300,10 +307,10 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
       {/* --- 2. LOGOUT CONFIRMATION MODAL --- */}
       {showLogoutConfirm && (
         <>
-          <div 
-            className="switcher-backdrop" 
-            style={{ zIndex: 10002, background: 'rgba(0,0,0,0.6)' }} 
-            onClick={() => setShowLogoutConfirm(false)} 
+          <div
+            className="switcher-backdrop"
+            style={{ zIndex: 10002, background: 'rgba(0,0,0,0.6)' }}
+            onClick={() => setShowLogoutConfirm(false)}
           />
           <div className="logout-confirm-modal">
             <h3 className="confirm-title">Sign Out?</h3>
@@ -321,7 +328,7 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
       )}
 
       {/* --- 3. TOP HEADER --- */}
-      
+
       {/* NEW: GLOBAL BACK BUTTON */}
       {showBackButton && (
         <div className="back-nav-btn" onClick={() => navigate(-1)}>
@@ -333,28 +340,31 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
         <IconDots style={{ width: '22px', height: '22px' }} />
       </div>
 
-{/* --- 4. TOP RIGHT DROPDOWN MENU (SLIDER & INSET DESIGN) --- */}
+      {/* --- 4. TOP RIGHT DROPDOWN MENU (SLIDER & INSET DESIGN) --- */}
       {isMenuOpen && (
         <>
-          <div className="menu-backdrop" onClick={() => setIsMenuOpen(false)} 
-               style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'transparent' }} 
+          <div className="menu-backdrop" onClick={() => setIsMenuOpen(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'transparent' }}
           />
-          
+
           <div className="top-menu-dropdown">
-            <div 
+            <div
               className="menu-slider-track"
               style={{ transform: menuView === 'main' ? 'translateX(0%)' : 'translateX(-50%)' }}
             >
-              
+
               {/* === VIEW 1: MAIN MENU === */}
               <div className="menu-view">
+                <button onClick={() => handleNav('/settings')} className="menu-item">
+                  <IconSettings className="menu-icon" /> Profile
+                </button>
                 <button onClick={() => handleNav('/college-sites')} className="menu-item">
                   <IconSites className="menu-icon" /> College Sites
                 </button>
                 <button onClick={() => handleNav('/contact')} className="menu-item">
                   <IconMail className="menu-icon" /> Contact
                 </button>
-                
+
                 {isAdmin && (
                   <>
                     <div className="menu-divider" />
@@ -368,9 +378,9 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
                 )}
 
                 <div className="menu-divider" />
-                
-                <button 
-                  onClick={() => setMenuView('appearance')} 
+
+                <button
+                  onClick={() => setMenuView('appearance')}
                   className="menu-item space-between"
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -379,7 +389,7 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
                   </div>
                   <IconChevronRight style={{ width: '18px', height: '18px', opacity: 0.4 }} />
                 </button>
-                
+
                 <button onClick={requestLogout} className="menu-item sign-out">
                   <IconLogOut className="menu-icon" style={{ color: '#FF3B30' }} /> Sign Out
                 </button>
@@ -387,31 +397,31 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
 
               {/* === VIEW 2: APPEARANCE SUBMENU === */}
               <div className="menu-view">
-                <button 
-                  onClick={() => setMenuView('main')} 
+                <button
+                  onClick={() => setMenuView('main')}
                   className="menu-item back-btn"
                 >
-                  <IconArrowLeft style={{ width: '20px', height: '20px' }} /> 
+                  <IconArrowLeft style={{ width: '20px', height: '20px' }} />
                   Back
                 </button>
                 <div className="menu-divider" />
-                
-                <button 
-                  onClick={() => handleThemeChange('auto')} 
+
+                <button
+                  onClick={() => handleThemeChange('auto')}
                   className={`menu-item ${currentTheme === 'auto' ? 'selected' : ''}`}
                 >
                   <IconAuto className="menu-icon" /> Auto System
                 </button>
-                
-                <button 
-                  onClick={() => handleThemeChange('light')} 
+
+                <button
+                  onClick={() => handleThemeChange('light')}
                   className={`menu-item ${currentTheme === 'light' ? 'selected' : ''}`}
                 >
                   <IconSun className="menu-icon" /> Light Mode
                 </button>
-                
-                <button 
-                  onClick={() => handleThemeChange('dark')} 
+
+                <button
+                  onClick={() => handleThemeChange('dark')}
                   className={`menu-item ${currentTheme === 'dark' ? 'selected' : ''}`}
                 >
                   <IconMoon className="menu-icon" /> Dark Mode
@@ -423,12 +433,12 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
         </>
       )}
 
-      {/* --- 5. BOTTOM BAR (NAV PILL + PROFILE CIRCLE) --- */}
+      {/* --- 5. BOTTOM BAR (NAV PILL) --- */}
       <div className="mobile-bottom-bar">
         <div className="nav-links">
-          
-          <button 
-            className={`nav-item ${activeTab === 0 ? 'active' : ''}`} 
+
+          <button
+            className={`nav-item ${activeTab === 0 ? 'active' : ''}`}
             onClick={() => handleNav('/', 0)}
           >
             <div className={activeTab === 0 ? 'symbol-bounce' : ''}>
@@ -437,8 +447,8 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
             <span className="nav-label">Home</span>
           </button>
 
-          <button 
-            className={`nav-item ${activeTab === 1 ? 'active' : ''}`} 
+          <button
+            className={`nav-item ${activeTab === 1 ? 'active' : ''}`}
             onClick={() => handleNav('/schedule', 1)}
           >
             <div className={activeTab === 1 ? 'symbol-bounce' : ''}>
@@ -447,8 +457,8 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
             <span className="nav-label">Schedule</span>
           </button>
 
-          <button 
-            className={`nav-item ${activeTab === 2 ? 'active' : ''}`} 
+          <button
+            className={`nav-item ${activeTab === 2 ? 'active' : ''}`}
             onClick={() => handleNav('/calendar', 2)}
           >
             <div className={activeTab === 2 ? 'symbol-bounce' : ''}>
@@ -457,13 +467,16 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
             <span className="nav-label">Calendar</span>
           </button>
 
-        </div>
+          <button
+            className={`nav-item ${activeTab === 3 ? 'active' : ''}`}
+            onClick={() => handleNav('/notes', 3)}
+          >
+            <div className={activeTab === 3 ? 'symbol-bounce' : ''}>
+              <IconBook />
+            </div>
+            <span className="nav-label">Notes</span>
+          </button>
 
-        <div className="profile-circle-btn" onClick={() => navigate('/settings')}>
-          {/* Note: We use inline style instead of 'profile-circle-inner' to bypass the CSS image mask */}
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IconSettings style={{ width: '24px', height: '24px' }} />
-          </div>
         </div>
       </div>
     </>

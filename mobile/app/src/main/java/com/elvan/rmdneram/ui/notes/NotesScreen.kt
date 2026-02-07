@@ -27,7 +27,7 @@ fun NotesScreen(
     val colors = rememberHomeColors()
     val context = LocalContext.current
 
-    val depts = listOf("IT", "CSE", "ECE", "AIML", "CSBS", "SNH")
+    val depts = listOf("ECE", "AIML", "CSBS", "CSE", "IT", "SNH")
 
     // Back logic
     BackHandler(enabled = path.isNotEmpty()) {
@@ -36,10 +36,13 @@ fun NotesScreen(
 
     fun openUrl(url: String) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
             context.startActivity(intent)
         } catch (e: Exception) {
             // Handle error silently or show toast if needed
+            android.util.Log.e("NotesScreen", "Failed to open URL: $url", e)
         }
     }
 
@@ -48,7 +51,9 @@ fun NotesScreen(
         path = path,
         rootFolders = depts,
         colors = colors,
-        onBackClick = { viewModel.navigateUp() },
+        onBackClick = { 
+            if (path.isEmpty()) onBack() else viewModel.navigateUp() 
+        },
         onFolderClick = { viewModel.enterFolder(it) },
         onFileClick = { openUrl(it) },
         onRetry = { viewModel.navigateUp() }

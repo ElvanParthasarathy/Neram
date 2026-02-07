@@ -16,10 +16,14 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
@@ -82,20 +86,35 @@ fun CalendarMainLayout(
     showHeader: Boolean = true,
     topPadding: androidx.compose.ui.unit.Dp? = null,
     viewType: String = "month",
-    onViewTypeChanged: (String) -> Unit = {}
+    onViewTypeChanged: (String) -> Unit = {},
+    scheduleTodayTrigger: Int = 0  // Increment to scroll schedule view to today
 ) {
     // Calendar progress: Fixed at 0f (Standard View) - Collapsing Removed
     val calendarProgress = 0f // Static Month View
     
-    val actualTopPadding = topPadding ?: (rememberStatusBarHeight() + HomeDimens.ContentPaddingTop)
+    // Reduced top padding as per user request
+    val actualTopPadding = topPadding ?: (rememberStatusBarHeight() + HomeDimens.ContentPaddingTop - 20.dp)
     
     // No drag sensitivity needed as collapsing is disabled
+    val scope = rememberCoroutineScope()
+    
+    var showMonthPicker by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.calendarBackground)
     ) {
+        MonthYearPickerDialog(
+            visible = showMonthPicker,
+            currentMonth = currentMonth,
+            onDismissRequest = { showMonthPicker = false },
+            onMonthYearSelected = { newMonth ->
+                onMonthChanged(newMonth)
+            },
+            colors = colors
+        )
+
         // Fixed layout
         Column(
             modifier = Modifier
@@ -105,73 +124,42 @@ fun CalendarMainLayout(
         ) {
             
             // --- Month Title (Centered) with Navigation ---
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                 val currentYear = java.time.LocalDate.now().year
-                 val monthName = currentMonth.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH).uppercase()
-                 
-                 val titleText = if (currentMonth.year == currentYear) {
-                     monthName
-                 } else {
-                     "$monthName ${currentMonth.year}"
-                 }
+            if (viewType == "month") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center // Align title to Center
+                ) {
+                     val currentYear = java.time.LocalDate.now().year
+                     val monthName = currentMonth.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH).uppercase()
+                     
+                     val titleText = if (currentMonth.year == currentYear) {
+                         monthName
+                     } else {
+                         "$monthName ${currentMonth.year}"
+                     }
 
-                 // Previous Month Button
-                 IconButton(
-                     onClick = { onMonthChanged(currentMonth.minusMonths(1)) }
-                 ) {
-                     Icon(
-                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                         contentDescription = "Previous Month",
-                         tint = colors.textPrimary
-                     )
-                 }
-
-                 // Month Title (Clickable)
-                 Box(
-                     modifier = Modifier
-                         .clip(HomeShapes.Pill)
-                         .clickable { 
-                             // TODO: Implement Month Picker Dialog
-                             // For now, simple interaction or placeholder
-                         }
-                         .padding(horizontal = 12.dp, vertical = 8.dp),
-                     contentAlignment = Alignment.Center
-                 ) {
-                     Row(verticalAlignment = Alignment.CenterVertically) {
+                     // Month Title (Clickable but Plain Text Visual)
+                     Box(
+                         modifier = Modifier
+                             .clip(HomeShapes.Pill)
+                             .clickable { 
+                                 showMonthPicker = true
+                             }
+                             .padding(vertical = 8.dp, horizontal = 12.dp),
+                         contentAlignment = Alignment.Center
+                     ) {
                          Text(
                              text = titleText,
                              fontSize = 22.sp,
                              fontWeight = FontWeight.SemiBold,
                              color = colors.textPrimary
                          )
-                         Spacer(modifier = Modifier.width(4.dp))
-                         // Dropdown indicator
-                         Icon(
-                             imageVector = Icons.Default.KeyboardArrowDown, 
-                             contentDescription = null,
-                             tint = colors.textSecondary.copy(alpha = 0.7f),
-                             modifier = Modifier.size(20.dp)
-                         )
                      }
-                 }
-
-                 // Next Month Button
-                 IconButton(
-                     onClick = { onMonthChanged(currentMonth.plusMonths(1)) }
-                 ) {
-                     Icon(
-                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                         contentDescription = "Next Month",
-                         tint = colors.textPrimary
-                     )
-                 }
+                }
             }
 
                 if (viewType == "month") {
@@ -186,7 +174,7 @@ fun CalendarMainLayout(
                     
                     // ... (Animatable remains same) ...
                     val agendaOffsetAnim = remember { Animatable(calendarHeightPx) }
-                    val scope = rememberCoroutineScope()
+                    // scope moved to top level
                     
                     // 3. Draggable Handle Logic (Shutter Mode)
                     // We removed NestedScrollConnection. Dragging is now exclusive to the handle.
@@ -230,7 +218,7 @@ fun CalendarMainLayout(
                                         .fillMaxSize()
                                         .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)) 
                                         .background(colors.calendarBottomBackground)
-                                        .shadow(elevation = 8.dp) 
+                                        // .shadow(elevation = 8.dp) // Removed to eliminate side artifacts 
                                         .verticalScroll(rememberScrollState())
                                         .padding(top = 0.dp) 
                                 ) {
@@ -329,23 +317,107 @@ fun CalendarMainLayout(
                 val initialPage = Int.MAX_VALUE / 2
                 val schedulePagerState = androidx.compose.foundation.pager.rememberPagerState(initialPage = initialPage) { Int.MAX_VALUE }
                 
-                // Sync: Pager -> State
-                LaunchedEffect(schedulePagerState.currentPage) {
-                    val diff = schedulePagerState.currentPage - initialPage
-                    val newMonth = YearMonth.now().plusMonths(diff.toLong())
-                    if (newMonth != currentMonth) {
-                        onMonthChanged(newMonth)
+                // State for Month/Year Picker in Schedule View
+                var showScheduleMonthPicker by remember { mutableStateOf(false) }
+                
+                // Jump to Today when trigger changes (from parent Today button)
+                LaunchedEffect(scheduleTodayTrigger) {
+                    if (scheduleTodayTrigger > 0) { // Skip initial composition
+                        schedulePagerState.animateScrollToPage(initialPage)
                     }
                 }
+                
+                // Sync: Pager -> State REMOVED to decouple
+                // Sync: State -> Pager REMOVED to decouple
 
-                // Sync: State -> Pager
-                LaunchedEffect(currentMonth) {
-                    val diff = java.time.temporal.ChronoUnit.MONTHS.between(YearMonth.now(), currentMonth).toInt()
-                    val targetPage = initialPage + diff
-                    if (schedulePagerState.currentPage != targetPage) {
-                        schedulePagerState.animateScrollToPage(targetPage)
-                    }
+                // Derived State for Header Title
+                val currentSchedulePage = schedulePagerState.currentPage
+                val currentScheduleMonth = remember(currentSchedulePage) {
+                    val diff = currentSchedulePage - initialPage
+                    YearMonth.now().plusMonths(diff.toLong())
                 }
+                
+                // Month/Year Picker Dialog for Schedule View
+                MonthYearPickerDialog(
+                    visible = showScheduleMonthPicker,
+                    currentMonth = currentScheduleMonth,
+                    onDismissRequest = { showScheduleMonthPicker = false },
+                    onMonthYearSelected = { selectedMonth ->
+                        // Calculate page offset from now and scroll
+                        val now = YearMonth.now()
+                        val monthsDiff = java.time.temporal.ChronoUnit.MONTHS.between(now, selectedMonth).toInt()
+                        val targetPage = initialPage + monthsDiff
+                        scope.launch {
+                            schedulePagerState.animateScrollToPage(targetPage)
+                        }
+                    },
+                    colors = colors
+                )
+                
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // Custom Header for Schedule View
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Left: Month Title (Clickable to open Month Picker)
+                        Text(
+                            text = "${currentScheduleMonth.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())} ${currentScheduleMonth.year}",
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                            color = colors.textPrimary,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50)) // Pill shape ripple
+                                .clickable { showScheduleMonthPicker = true }
+                                .padding(horizontal = 8.dp, vertical = 4.dp) // Touch target padding
+                        )
+
+                        // Right: Navigation Buttons
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            // Previous Month
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(colors.surface)
+                                    .clickable {
+                                        scope.launch {
+                                            schedulePagerState.animateScrollToPage(schedulePagerState.currentPage - 1)
+                                        }
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.KeyboardArrowLeft,
+                                    contentDescription = "Previous Month",
+                                    tint = colors.textPrimary
+                                )
+                            }
+
+
+                            // Next Month
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(colors.surface)
+                                    .clickable {
+                                        scope.launch {
+                                            schedulePagerState.animateScrollToPage(schedulePagerState.currentPage + 1)
+                                        }
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.KeyboardArrowRight,
+                                    contentDescription = "Next Month",
+                                    tint = colors.textPrimary
+                                )
+                            }
+                        }
+                    }
                 
                 // The Pager
                 androidx.compose.foundation.pager.HorizontalPager(
@@ -367,6 +439,8 @@ fun CalendarMainLayout(
                 }
             }
         }
+
+    }
     }
 }
 
@@ -376,7 +450,20 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
     var isDocsExpanded by remember { mutableStateOf(false) }
     val context = androidx.compose.ui.platform.LocalContext.current
     val haptics = LocalHapticFeedback.current
-    val pdfUrl = "https://raw.githubusercontent.com/ElvanParthasarathy/RmdNeramPublic/main/Pdfs/academic-calendar.pdf"
+    var pdfUrl by remember { mutableStateOf("https://raw.githubusercontent.com/ElvanParthasarathy/RmdNeramPublic/main/Pdfs/academic-calendar.pdf") }
+
+    LaunchedEffect(Unit) {
+        try {
+            com.google.firebase.database.FirebaseDatabase.getInstance().getReference("official_docs/academic_calendar/url").get().addOnSuccessListener { snapshot ->
+                val url = snapshot.getValue(String::class.java)
+                if (!url.isNullOrEmpty()) {
+                    pdfUrl = url
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
     
     Column(modifier = Modifier.padding(bottom=0.dp)) {
         // Header Pill (Clickable) - FLAT DESIGN
@@ -473,4 +560,3 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
         }
     }
 }
-

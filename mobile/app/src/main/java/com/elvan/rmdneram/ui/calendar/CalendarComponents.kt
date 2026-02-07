@@ -130,8 +130,10 @@ fun CalendarWidget(
     
     // Sync Pager with currentMonth (User Swipes Calendar)
     // When user swipes calendar to a new month, update BOTH the month AND selected date (to day 1)
-    LaunchedEffect(pagerState.currentPage) {
-        val diff = pagerState.currentPage - initialPage
+    // Using settledPage ensures this only fires AFTER the pager has fully settled,
+    // preventing race conditions with user date clicks during animations.
+    LaunchedEffect(pagerState.settledPage) {
+        val diff = pagerState.settledPage - initialPage
         val newMonth = YearMonth.now().plusMonths(diff.toLong())
         if (newMonth != currentMonth) {
             onMonthChanged(newMonth)

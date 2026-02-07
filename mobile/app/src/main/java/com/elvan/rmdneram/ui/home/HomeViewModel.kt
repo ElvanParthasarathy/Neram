@@ -109,6 +109,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         _currentMonth.value = month
     }
     
+    // Explicit Calendar Jump Request (Events)
+    // Allows MainScreen (Today Button) to control CalendarScreen even if they are state-decoupled
+    private val _calendarJumpRequest = MutableSharedFlow<LocalDate>(replay = 0)
+    val calendarJumpRequest = _calendarJumpRequest.asSharedFlow()
+    
+    fun triggerCalendarJump(date: LocalDate) {
+        viewModelScope.launch {
+            _calendarJumpRequest.emit(date)
+        }
+    }
+    
     // Profile loader state - persists across navigation
     // Once set to true, profile photo shows instantly without loader
     private val _profileLoaderCompleted = MutableStateFlow(false)

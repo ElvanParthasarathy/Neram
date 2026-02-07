@@ -1,95 +1,65 @@
 ﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
-> Task :app:checkDebugAarMetadata
-> Task :app:processDebugNavigationResources
-> Task :app:generateDebugResValues
-> Task :app:compileDebugNavigationResources
-> Task :app:processDebugGoogleServices
-> Task :app:mapDebugSourceSetPaths
-> Task :app:generateDebugResources
-> Task :app:packageDebugResources
-> Task :app:createDebugCompatibleScreenManifests
-> Task :app:extractDeepLinksDebug
-> Task :app:parseDebugLocalResources
-> Task :app:mergeDebugResources
-> Task :app:processDebugMainManifest
-> Task :app:processDebugManifest
-> Task :app:processDebugManifestForPackage
-> Task :app:processDebugResources
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
 > Task :app:kspDebugKotlin
 
-> Task :app:compileDebugKotlin FAILED
-./gradlew : e: file:///D:/Projects/React/Neram/mobile/app/src/main/java
-/com/elvan/rmdneram/ui/calendar/CalendarScreen.kt:63:41 Unresolved 
-reference 'ExperimentalMaterial3ExpressiveApi'.
+> Task :app:compileDebugKotlin
+.\gradlew : e: file:///D:/Projects/Neram/mobile/app/src/main/
+java/com/elvan/rmdneram/ui/calendar/CalendarLayout.kt:403:29 
+Unresolved reference 'OfficialDocumentsSection'.
 At line:1 char:1
-+ ./gradlew compileDebugKotlin 2>&1 | Out-File -FilePath 
-build_output3. ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (e: file:///D:/P...Express 
-   iveApi'.:String) [], RemoteException
++ .\gradlew installDebug 2>&1 | Out-File -FilePath 
+build_output3.txt -E ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///D:/P 
+   ...umentsSection'.:String) [], RemoteException
     + FullyQualifiedErrorId : NativeCommandError
  
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/calendar/CalendarScreen.kt:63:41 Annotation argument must 
-be a compile-time constant.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/calendar/CalendarScreen.kt:183:29 Unresolved reference 
-'ContainedLoadingIndicator'.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/calendar/CalendarScreen.kt:189:29 Unresolved reference 
-'ContainedLoadingIndicator'.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/home/HomeComponents.kt:70:17 'fun 
-ColumnScope.AnimatedVisibility(visible: Boolean, modifier: Modifier = 
-..., enter: EnterTransition = ..., exit: ExitTransition = ..., label: 
-String = ..., content: @Composable() 
-ComposableFunction1<AnimatedVisibilityScope, Unit>): Unit' cannot be 
-called in this context with an implicit receiver. Use an explicit 
-receiver if necessary.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/home/HomeComponents.kt:75:21 @Composable invocations can 
-only happen from the context of a @Composable function
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/home/HomeComponents.kt:113:17 'fun 
-ColumnScope.AnimatedVisibility(visible: Boolean, modifier: Modifier = 
-..., enter: EnterTransition = ..., exit: ExitTransition = ..., label: 
-String = ..., content: @Composable() 
-ComposableFunction1<AnimatedVisibilityScope, Unit>): Unit' cannot be 
-called in this context with an implicit receiver. Use an explicit 
-receiver if necessary.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/home/HomeComponents.kt:120:25 @Composable invocations can 
-only happen from the context of a @Composable function
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/home/HomeComponents.kt:189:25 @Composable invocations can 
-only happen from the context of a @Composable function
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/schedule/ScheduleScreen.kt:54:41 Unresolved reference 
-'ExperimentalMaterial3ExpressiveApi'.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/schedule/ScheduleScreen.kt:54:41 Annotation argument must 
-be a compile-time constant.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/schedule/ScheduleScreen.kt:237:29 Unresolved reference 
-'ContainedLoadingIndicator'.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/schedule/ScheduleScreen.kt:243:29 Unresolved reference 
-'ContainedLoadingIndicator'.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/screens/StorageSettingsScreen.kt:24:36 Unresolved reference 
-'ErrorColor'.
-e: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/r
-mdneram/ui/screens/StorageSettingsScreen.kt:407:46 Unresolved 
-reference 'ErrorColor'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elv
+an/rmdneram/ui/calendar/CalendarLayout.kt:515:2 Syntax 
+error: Expecting '}'.
+
+> Task :app:compileDebugKotlin FAILED
 
 FAILURE: Build failed with an exception.
 
 * What went wrong:
 Execution failed for task ':app:compileDebugKotlin'.
-> A failure occurred while executing org.jetbrains.kotlin.compilerRunne
-r.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+> A failure occurred while executing org.jetbrains.kotlin.com
+pilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompi
+lerWorkAction
    > Compilation error. See log for more details
 
 * Try:
@@ -98,5 +68,5 @@ r.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
 
-BUILD FAILED in 54s
-18 actionable tasks: 18 executed
+BUILD FAILED in 31s
+32 actionable tasks: 2 executed, 30 up-to-date

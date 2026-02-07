@@ -1,7 +1,9 @@
 package com.elvan.rmdneram.ui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
@@ -41,26 +43,33 @@ fun SecondaryTopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Back Button
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.padding(top = 8.dp)
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = CircleShape,
+                color = colors.surface, // Match card color
+                onClick = onBack
             ) {
-                Icon(
-                    imageVector = Icons.Default.ChevronLeft,
-                    contentDescription = "Back",
-                    tint = colors.textPrimary,
-                    modifier = Modifier.size(32.dp)
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ChevronLeft,
+                        contentDescription = "Back",
+                        tint = colors.textPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.width(12.dp))
 
             // Title
             Text(
                 text = title,
                 style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
                 color = colors.textPrimary,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 8.dp)
+                modifier = Modifier.weight(1f)
             )
 
             // Actions Slot

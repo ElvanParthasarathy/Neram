@@ -62,6 +62,9 @@ fun SettingsScreen(
     val colors = rememberHomeColors()
     val lang = LocalAppLanguage.current
     
+    val statusBarHeight = rememberStatusBarHeight()
+    val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop
+    
     // Standard Material 3 Scaffold - REMOVED to use MainScreen's global frame/header
     // Scaffold(
     //    topBar = { ... },
@@ -77,7 +80,7 @@ fun SettingsScreen(
             .background(colors.background) // Ensure background is set
             .verticalScroll(scrollState)
             .padding(horizontal = HomeDimens.ContentPadding) // Horizontal padding only
-            .padding(top = 100.dp, bottom = 100.dp) // Top padding matches MainScreen Frame hole (92dp+)
+            .padding(top = topPadding, bottom = 100.dp) // Top padding matches Home Screen
     ) {
             // 1. Profile Card
             OneUIProfileCard(
@@ -93,13 +96,7 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
             
-            // 2. Settings Group: Display
-            Text(
-                text = "DISPLAY",
-                style = HomeTypography.ExamTag,
-                color = colors.textSecondary,
-                modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
-            )
+            // Settings Group: Display
             SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
                 SettingsListItem(
                     icon = Icons.Outlined.Brightness6,
@@ -110,7 +107,7 @@ fun SettingsScreen(
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
                 )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
                 SettingsListItem(
                     icon = Icons.Outlined.Storage,
                     iconBgColor = AppColors.Orange,
@@ -136,7 +133,7 @@ fun SettingsScreen(
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
                 )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
                 SettingsListItem(
                     icon = Icons.Default.Person,
                     iconBgColor = AppColors.Blue,
@@ -176,13 +173,13 @@ fun SettingsScreen(
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
                 )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
 
                 SettingsListItem(
                     icon = Icons.Outlined.Code,
                     iconBgColor = AppColors.Green,
                     title = AppStrings.Settings.aboutDeveloper(lang),
-                    description = "Jaiprakash Parthasarathy",
+                    description = "Elvan Parthasarathy",
                     onClick = onNavigateToDeveloper,
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -291,7 +288,7 @@ fun OneUIProfileCard(
 @Composable
 fun SettingsListGroup(
     cardColor: Color,
-    borderColor: Color,
+    borderColor: Color = Color.Transparent, // Kept for compatibility, but not used
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
@@ -299,7 +296,7 @@ fun SettingsListGroup(
             .fillMaxWidth()
             .clip(HomeShapes.Item) // Match Home Screen Radius
             .background(cardColor)
-            .border(1.dp, borderColor, HomeShapes.Item)
+            // No border - flat design matching Home screen
     ) {
         content()
     }

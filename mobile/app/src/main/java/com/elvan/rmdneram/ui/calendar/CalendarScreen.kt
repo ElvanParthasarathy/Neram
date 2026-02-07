@@ -54,7 +54,7 @@ fun CalendarScreen(
 
     // Isolate Calendar Colors as requested
     // Use isAppDark (from Theme/HomeColors) to respect App Settings, not System Settings directly
-    val calendarTopColor = if (isAppDark) Color.Black else Color.White
+    val calendarTopColor = if (isAppDark) Color.Black else baseColors.background
     // Unified background color as requested
     val calendarBottomColor = calendarTopColor
 
@@ -79,6 +79,25 @@ fun CalendarScreen(
     // val currentMonth by viewModel.currentMonth.collectAsState()
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     val calendarView by viewModel.calendarView.collectAsState()
+    
+    // Trigger for jumping schedule view to today (incremented on Today button press)
+    var scheduleTodayTrigger by remember { mutableIntStateOf(0) }
+    
+    // Listen for external jump requests (e.g. "Today" button from MainScreen header)
+    LaunchedEffect(viewModel) {
+        viewModel.calendarJumpRequest.collect { jumpDate ->
+            // If in schedule view, increment trigger to scroll schedule pager
+            if (calendarView == CalendarViewType.SCHEDULE) {
+                scheduleTodayTrigger++
+            }
+            // Always update selectedDate and month for calendar view
+            selectedDate = jumpDate
+            val newMonth = YearMonth.from(jumpDate)
+            if (newMonth != currentMonth) {
+                currentMonth = newMonth
+            }
+        }
+    }
     
     val dateFormatter = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
     
@@ -304,12 +323,13 @@ fun CalendarScreen(
              val offset = dayPagerState.currentPage - initialDayPage
              val newDate = anchorDate.plusDays(offset.toLong())
              if (newDate != selectedDate) {
-                 // Update ViewModel
-                 viewModel.updateSelectedDate(newDate)
+                 // Update LOCAL state
+                 selectedDate = newDate
+                 
                  // Also ensure currentMonth follows if agenda crosses month boundary
                  val newMonth = YearMonth.from(newDate)
                  if (newMonth != currentMonth) {
-                     viewModel.updateCurrentMonth(newMonth)
+                     currentMonth = newMonth
                  }
              }
         }
@@ -321,22 +341,25 @@ fun CalendarScreen(
         val targetPage = initialDayPage + daysDiff
         
         if (dayPagerState.currentPage != targetPage) {
-            val distance = kotlin.math.abs(dayPagerState.currentPage - targetPage)
-            isProgrammaticScroll = true
-            
-            // Restore "Wipe" Animation for user (Backup Logic)
-            if (distance <= 31) {
-                 dayPagerState.animateScrollToPage(
-                     page = targetPage,
-                     animationSpec = androidx.compose.animation.core.tween(durationMillis = 400, easing = androidx.compose.animation.core.FastOutSlowInEasing)
-                 )
-            } else {
-                dayPagerState.scrollToPage(targetPage)
+            try {
+                isProgrammaticScroll = true
+                val distance = kotlin.math.abs(dayPagerState.currentPage - targetPage)
+                
+                // Restore "Wipe" Animation for user (Backup Logic)
+                if (distance <= 31) {
+                     dayPagerState.animateScrollToPage(
+                         page = targetPage,
+                         animationSpec = androidx.compose.animation.core.tween(durationMillis = 400, easing = androidx.compose.animation.core.FastOutSlowInEasing)
+                     )
+                } else {
+                    dayPagerState.scrollToPage(targetPage)
+                }
+                 
+                 // Small delay to unlock updates
+                 delay(100)
+            } finally {
+                 isProgrammaticScroll = false
             }
-             
-             // Small delay to unlock updates
-             delay(100)
-             isProgrammaticScroll = false
         }
     }
 
@@ -372,11 +395,16 @@ fun CalendarScreen(
             onDateSelected = { date ->
                 // Update LOCAL state only - keeping Home Screen independent
                 selectedDate = date
-                scope.launch {
-                    // Update Pager if needed (Bidirectional Sync)
-                    val diff = java.time.temporal.ChronoUnit.MONTHS.between(java.time.YearMonth.now(), java.time.YearMonth.from(date)).toInt()
-                    // ... Pager logic handled inside CalendarWidget via LaunchedEffect
+                
+                // Logic to switch month
+                val newMonth = YearMonth.from(date)
+                if (newMonth != currentMonth) {
+                    currentMonth = newMonth
                 }
+
+                // scope.launch {
+                //    // Force Pager Update (Bidirectional Sync) - Handled by LaunchedEffect(selectedDate)
+                // }
             },
             onMonthChanged = { month ->
                  // viewModel.updateCurrentMonth(month)
@@ -389,7 +417,8 @@ fun CalendarScreen(
             onViewTypeChanged = { typeStr ->
                 val newType = if (typeStr == "schedule") com.elvan.rmdneram.ui.calendar.CalendarViewType.SCHEDULE else com.elvan.rmdneram.ui.calendar.CalendarViewType.MONTH
                 viewModel.setCalendarView(newType)
-            }
+            },
+            scheduleTodayTrigger = scheduleTodayTrigger
         )
     }
 }

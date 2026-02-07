@@ -91,7 +91,6 @@ fun DisplaySettingsScreen(
                     .fillMaxWidth()
                     .clip(HomeShapes.Item)
                     .background(cardColor)
-                    .border(1.dp, colors.glassBorder, HomeShapes.Item)
                     .padding(24.dp)
             ) {
                 Row(

@@ -88,7 +88,10 @@ fun AboutAppScreen(
 
                 Text(
                     "நேரம்",
-                    style = HomeTypography.PageTitle.copy(fontSize = 48.sp),
+                    style = HomeTypography.PageTitle.copy(
+                        fontSize = 48.sp,
+                        fontFamily = com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+                    ),
                     color = colors.textPrimary
                 )
                 Text(
@@ -106,7 +109,6 @@ fun AboutAppScreen(
                     .fillMaxWidth()
                     .clip(HomeShapes.Item)
                     .background(colors.surface)
-                    .border(1.dp, colors.glassBorder, HomeShapes.Item)
                     .padding(24.dp)
             ) {
                 Text(
@@ -117,7 +119,10 @@ fun AboutAppScreen(
                 )
                 Text(
                     "Neram (நேரம், meaning 'Time') is a sleek, all-in-one campus companion app designed specifically for RMD Engineering College students. It brings together everything you need to stay organized and informed throughout your academic day.",
-                    style = HomeTypography.MessageBody.copy(lineHeight = 26.sp),
+                    style = HomeTypography.MessageBody.copy(
+                        lineHeight = 26.sp,
+                        fontFamily = com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+                    ),
                     color = colors.textSecondary,
                     textAlign = TextAlign.Start
                 )
@@ -138,7 +143,6 @@ fun AboutAppScreen(
                     .fillMaxWidth()
                     .clip(HomeShapes.Item)
                     .background(colors.surface)
-                    .border(1.dp, colors.glassBorder, HomeShapes.Item)
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -148,28 +152,28 @@ fun AboutAppScreen(
                     title = "Smart Timetable",
                     description = "View your daily class schedule with faculty info, room numbers, and real-time updates."
                 )
-                Divider(color = colors.glassBorder, thickness = 1.dp)
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
                 FeatureItem(
                     icon = Icons.Outlined.DateRange,
                     iconColor = AppColors.Purple,
                     title = "Exam Calendar",
                     description = "Track upcoming exams, internals, and important academic events with countdown timers."
                 )
-                Divider(color = colors.glassBorder, thickness = 1.dp)
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
                 FeatureItem(
                     icon = Icons.Outlined.Campaign,
                     iconColor = AppColors.Orange,
                     title = "Campus Announcements",
                     description = "Get instant notifications for news, circulars, and announcements from the college."
                 )
-                Divider(color = colors.glassBorder, thickness = 1.dp)
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
                 FeatureItem(
                     icon = Icons.Outlined.OfflineBolt,
                     iconColor = AppColors.Green,
                     title = "Offline Support",
                     description = "Access your timetable and cached data even without an internet connection."
                 )
-                Divider(color = colors.glassBorder, thickness = 1.dp)
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
                 FeatureItem(
                     icon = Icons.Outlined.Sync,
                     iconColor = AppColors.Red,

@@ -8,12 +8,7 @@ const CollegeSites = () => {
       description: "Official RMD college website.",
       icon: "ri-building-4-fill"
     },
-    {
-      name: "ECE Digital Notes",
-      url: "https://rmd.ac.in/dept/ece/notes.html",
-      description: "Access the ECE department's digital notes.",
-      icon: "ri-book-open-fill"
-    },
+
     {
       name: "RMK Nextgen Student",
       url: "https://nextgen.rmd.ac.in/",
@@ -38,12 +33,7 @@ const CollegeSites = () => {
       description: "Daily coding challenges and problem-solving tasks.",
       icon: "ri-terminal-box-fill"
     },
-    {
-      name: "ChatGPT",
-      url: "https://chatgpt.com/",
-      description: "Access OpenAI's ChatGPT platform for conversational AI.",
-      icon: "ri-openai-fill"
-    },
+
     {
       name: "Code Tantra",
       url: "https://rmd.codetantra.com/",
@@ -55,7 +45,7 @@ const CollegeSites = () => {
   return (
     <div className="sites-view">
       <div className="sites-container">
-        
+
         <header className="page-header">
           <h1 className="page-title">College Sites & Platforms</h1>
           <p className="page-subtitle">Quick access to essential academic resources</p>
@@ -73,10 +63,10 @@ const CollegeSites = () => {
               <div className="site-icon">
                 <i className={site.icon}></i>
               </div>
-              
+
               <h2 className="site-name">{site.name}</h2>
               <p className="site-description">{site.description}</p>
-              
+
               <div className="arrow-indicator">
                 <i className="ri-arrow-right-up-line"></i>
               </div>

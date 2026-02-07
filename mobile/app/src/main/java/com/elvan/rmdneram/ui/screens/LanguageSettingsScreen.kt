@@ -106,7 +106,6 @@ fun LanguageSettingsScreen(
                     .fillMaxWidth()
                     .clip(HomeShapes.Item)
                     .background(cardColor)
-                    .border(1.dp, colors.glassBorder, HomeShapes.Item)
             ) {
                 // Device Language Option
                 LanguageOptionItem(
@@ -121,7 +120,7 @@ fun LanguageSettingsScreen(
                     accentColor = colors.accent
                 )
                 
-                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
+                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
                 
                 // English Option
                 LanguageOptionItem(
@@ -136,7 +135,7 @@ fun LanguageSettingsScreen(
                     accentColor = colors.accent
                 )
                 
-                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 56.dp))
+                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
                 
                 // Tamil Option
                 LanguageOptionItem(

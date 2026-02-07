@@ -32,11 +32,11 @@ fun FolderList(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items) { item ->
             FolderItem(item, colors) { onClick(item) }
-            HorizontalDivider(color = colors.glassBorder, thickness = 0.5.dp)
         }
     }
 }
@@ -47,36 +47,41 @@ fun FolderItem(
     colors: HomeColors,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 16.dp, horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Surface(
+        onClick = onClick,
+        shape = com.elvan.rmdneram.ui.home.HomeShapes.Item,
+        color = colors.surface,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Icon(
-            Icons.Default.Folder,
-            contentDescription = null,
-            tint = colors.accent,
-            modifier = Modifier.size(28.dp)
-        )
-        
-        Spacer(modifier = Modifier.width(16.dp))
-        
-        Text(
-            name,
-            color = colors.textPrimary,
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Normal,
-            modifier = Modifier.weight(1f)
-        )
-        
-        Icon(
-            Icons.Default.ChevronRight,
-            contentDescription = null, // decorative
-            tint = colors.textSecondary.copy(alpha = 0.5f), // subtle arrow
-            modifier = Modifier.size(20.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Folder,
+                contentDescription = null,
+                tint = colors.accent,
+                modifier = Modifier.size(28.dp)
+            )
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Text(
+                text = name,
+                style = com.elvan.rmdneram.ui.home.HomeTypography.PillTitle,
+                color = colors.textPrimary,
+                modifier = Modifier.weight(1f)
+            )
+            
+            Icon(
+                Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = colors.textSecondary.copy(alpha = 0.5f),
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
@@ -88,8 +93,8 @@ fun FilesList(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(subjects) { subject ->
             SubjectItem(subject, colors, onLinkClick)
@@ -97,6 +102,8 @@ fun FilesList(
         item { Spacer(modifier = Modifier.height(80.dp)) }
     }
 }
+
+
 
 @Composable
 fun SubjectItem(
@@ -106,96 +113,123 @@ fun SubjectItem(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(colors.surface)
-            .border(1.dp, colors.glassBorder, RoundedCornerShape(12.dp))
-            .clickable { expanded = !expanded }
-            .padding(16.dp)
-    ) {
-        // Header: Subject Name + Expand Icon
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // Heter: Separate Card for the Dropdown Trigger
+        Surface(
+            shape = com.elvan.rmdneram.ui.home.HomeShapes.Card,
+            color = colors.surface,
+            modifier = Modifier.fillMaxWidth(),
+            shadowElevation = 0.dp
         ) {
-            Text(
-                subject.name,
-                color = colors.textPrimary,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { expanded = !expanded }
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Colored Indicator
+                Box(
+                    modifier = Modifier
+                        .width(4.dp)
+                        .height(24.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(colors.accent)
+                )
+                
+                Spacer(modifier = Modifier.width(12.dp))
 
-            Icon(
-                if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = if (expanded) "Collapse" else "Expand",
-                tint = colors.textSecondary,
-                modifier = Modifier.size(24.dp)
-            )
+                Text(
+                    text = subject.name,
+                    style = com.elvan.rmdneram.ui.home.HomeTypography.PillTitle,
+                    color = colors.textPrimary,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Icon(
+                    if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    tint = colors.textSecondary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
 
-        // Expanded Content: Vertical List of Units
-        if (expanded) {
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(color = colors.glassBorder, thickness = 0.5.dp)
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (subject.units.isNotEmpty()) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    subject.units.forEach { (unitName, url) ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(colors.inputBackground)
-                                .clickable { onLinkClick(url) }
-                                .padding(horizontal = 12.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Description,
-                                contentDescription = null, // decorative
-                                tint = colors.accent,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                unitName,
-                                color = colors.textPrimary,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Icon(
-                                Icons.Default.OpenInNew,
-                                contentDescription = "Open",
-                                tint = colors.textSecondary.copy(alpha = 0.6f),
-                                modifier = Modifier.size(16.dp)
-                            )
+        // Expanded Content: Visible OUTSIDE the header card
+        androidx.compose.animation.AnimatedVisibility(
+            visible = expanded,
+            enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp) // Spacing between header and list
+            ) {
+                if (subject.units.isNotEmpty()) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        subject.units.forEach { (unitName, url) ->
+                            Surface(
+                                shape = RoundedCornerShape(12.dp), // Slightly larger radius for standalone appearance
+                                color = colors.surface, // Match card background for items too
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = { onLinkClick(url) }
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.Description,
+                                        contentDescription = null,
+                                        tint = colors.accent,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = unitName,
+                                        style = com.elvan.rmdneram.ui.home.HomeTypography.StatusBadge.copy(fontSize = 14.sp),
+                                        color = colors.textPrimary
+                                    )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Icon(
+                                        Icons.Default.OpenInNew,
+                                        contentDescription = "Open",
+                                        tint = colors.textSecondary.copy(alpha = 0.6f),
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
                         }
                     }
+                } else {
+                    Text(
+                        "No materials available",
+                        color = colors.textSecondary,
+                        fontSize = 14.sp,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                    )
                 }
-            } else {
-                Text(
-                    "No materials available",
-                    color = colors.textSecondary,
-                    fontSize = 14.sp,
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                    modifier = Modifier.padding(start = 4.dp)
-                )
             }
         }
     }
 }
 
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun NotesLoadingView(colors: HomeColors) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        com.elvan.rmdneram.ui.components.ExpressiveLoadingIndicator(color = colors.accent)
+        ContainedLoadingIndicator(
+            modifier = Modifier.size(com.elvan.rmdneram.ui.home.HomeDimens.RefreshIndicatorSize),
+            containerColor = colors.surface,
+            indicatorColor = colors.textSecondary // Secondary Black
+        )
     }
 }
 

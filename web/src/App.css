@@ -21,3 +21,16 @@
 @import './styles/exam-manager.css';
 @import './styles/forced-setup-modal-premium-sequoia-theme-full-block.css';
 @import './styles/2-11-desktop-date-of-birth-selector-3-column-glass.css';
+@import './styles/notes.css';
+
+/* Mobile Top Padding Standardization */
+@media (max-width: 768px) {
+    .mobile-page-container {
+        padding-top: 100px !important;
+        /* approx 85dp + 20dp margin */
+        padding-bottom: 80px;
+        /* Space for bottom nav */
+        min-height: 100vh;
+        box-sizing: border-box;
+    }
+}
