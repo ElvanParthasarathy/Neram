@@ -202,7 +202,7 @@ const Notes = () => {
 
 
     return (
-        <div className="home-view" style={{ paddingBottom: '40px', ...(isMobile ? { padding: '0 16px', marginTop: 0 } : {}) }}>
+        <div className="home-view" style={{ paddingBottom: '40px', ...(isMobile ? { padding: '0 var(--screen-edge-spacing)', marginTop: 0 } : {}) }}>
 
             <header className="page-header" style={{ display: isMobile ? 'none' : 'block' }}>
                 <div className="header-main">

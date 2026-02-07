@@ -6,6 +6,14 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
 @media (max-width: 768px) {
 
 
+  /* --- 0. MOBILE RESET (CRITICAL FIX) --- */
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    overflow-x: hidden;
+  }
+
   /* ==========================================================================
      2. THEME VARIABLES (GLOBAL CONTROL CENTER)
      ========================================================================== */

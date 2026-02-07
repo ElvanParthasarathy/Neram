@@ -68,7 +68,7 @@ function CalendarPage({ globalData, userProfile, activeProfile }) {
   const sortedDates = Object.keys(groupedEvents).sort();
 
   return (
-    <div className="calendar-view" style={window.innerWidth <= 768 ? { padding: '0 16px', marginTop: 0 } : {}}>
+    <div className="calendar-view" style={window.innerWidth <= 768 ? { padding: '0 var(--screen-edge-spacing)', marginTop: 0 } : {}}>
       <div className="calendar-container">
         <header className="page-header">
           <h1 className="page-title">Academic Calendar</h1>
