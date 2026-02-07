@@ -539,11 +539,12 @@
   }
 
   /* --- 8. UTILITIES --- */
-  @media (max-width: 1024px) {
+  /* NESTED MEDIA QUERY commented out to fix build error */
+  /* @media (max-width: 1024px) {
     .counseling-manager-grid {
       grid-template-columns: 1fr;
     }
-  }
+  } */
 
 }
 
