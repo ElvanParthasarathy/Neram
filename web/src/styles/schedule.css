@@ -1,10 +1,10 @@
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    NERAM PORTAL: UNIFIED SEQUOIA EXAM CARDS (HOME & SCHEDULE)
    ========================================================================== */
 
-/* 1. Base Card - Scoped to both pages to ensure the blue box appears */
+  /* 1. Base Card - Scoped to both pages to ensure the blue box appears */
   .home-view .exam-mini-card,
   .schedule-view .exam-mini-card {
     background: var(--mac-blue) !important;
@@ -96,11 +96,11 @@
 
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    NERAM PORTAL: COMPLETE PREMIUM SCHEDULE STYLES (SEQUOIA GLASS)
    ========================================================================== */
 
-.schedule-view {
+  .schedule-view {
     max-width: 1000px;
     margin: 0 auto;
     margin-bottom: 100px;
@@ -164,11 +164,11 @@
 
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    NERAM PORTAL: SCHEDULE MANAGER (SEQUOIA PRO THEME)
    ========================================================================== */
 
-.admin-subpage {
+  .admin-subpage {
     width: 100%;
     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
     color: var(--mac-text);
@@ -549,11 +549,11 @@
 
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    NERAM PORTAL: SCHEDULE EDITOR INTERNAL FIXES (V3 - FULL FIELD EDITING)
    ========================================================================== */
 
-/* 1. FIXED TAB CONTENT SPACING */
+  /* 1. FIXED TAB CONTENT SPACING */
   .tab-content-area {
     padding: 20px 0;
   }
@@ -734,23 +734,213 @@
     border-radius: 50px !important;
     background: rgba(0, 0, 0, 0.04);
     border: 1px solid rgba(0, 0, 0, 0.02);
-    padding: 0 18px;
-    font-size: 14px;
-    outline: none;
+
+    /* 1. FIXED TAB CONTENT SPACING */
+    .tab-content-area {
+      padding: 20px 0;
+    }
+
+    /* 2. TIMETABLE BUILDER: HORIZONTAL ACTIONS */
+    .timetable-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* 3. COURSE MANAGER: PREMIUM INPUTS */
+    .course-manager .add-item-bar {
+      display: flex;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.02);
+      padding: 16px;
+      border-radius: 16px;
+      border: 1px solid var(--mac-divider);
+      margin-bottom: 24px;
+    }
+
+    .course-manager .add-item-bar input {
+      height: 42px;
+      border-radius: 10px !important;
+      border: 1px solid var(--mac-divider);
+      padding: 0 14px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      flex: 1;
+    }
+
+    .course-manager .add-item-bar input:focus {
+      border-color: var(--mac-blue);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    /* 4. COURSE LIST ITEM CARDS (Visual Refinement) */
+    .list-item-card {
+      background: #ffffff;
+      border: 1px solid var(--mac-divider);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    /* FIX: Subtle Sequoia Lift instead of Slide */
+    .list-item-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 122, 255, 0.3);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .item-main {
+      font-size: 14.5px;
+      color: var(--mac-text);
+    }
+
+    .item-meta-info {
+      margin-left: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mac-text-secondary);
+      opacity: 0.6;
+    }
+
+    /* 5. INLINE EDITING STATE FIX (4-FIELD SUPPORT) */
+    .inline-edit-row.full-fields {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    /* Individual field sizing for balance */
+    .inline-edit-row.full-fields .edit-code {
+      flex: 0 0 100px;
+    }
+
+    .inline-edit-row.full-fields .edit-name {
+      flex: 2;
+    }
+
+    .inline-edit-row.full-fields .edit-faculty {
+      flex: 1.5;
+    }
+
+    .inline-edit-row.full-fields .edit-periods {
+      flex: 0 0 70px;
+    }
+
+    .inline-edit-row input {
+      height: 38px;
+      background: #ffffff;
+      border: 1.5px solid var(--mac-blue);
+      border-radius: 8px !important;
+      padding: 0 10px;
+      font-size: 13px;
+      font-weight: 500;
+      outline: none;
+    }
+
+    .edit-btn-group {
+      display: flex;
+      gap: 8px;
+      padding-left: 10px;
+    }
+
+    .btn-save-mini,
+    .btn-cancel-mini {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .btn-save-mini {
+      background: var(--mac-blue);
+      color: white;
+    }
+
+    .btn-cancel-mini {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--mac-text);
+    }
+
+    /* 6. COUNSELING: COORDINATOR ALIGNMENT */
+    .field-group-horizontal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 12px;
+    }
+
+    .field-group-horizontal .input-group {
+      display: flex;
+      gap: 8px;
+      width: 70%;
+    }
+
+    .field-group-horizontal input {
+      flex: 1;
+      height: 38px;
+      border-radius: 8px !important;
+      border: 1px solid var(--mac-divider);
+      padding: 0 12px;
+    }
+
+    /* 7. COUNSELOR SEARCH BAR FIX */
+    .add-counselor-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .add-counselor-box input {
+      flex: 1;
+      height: 40px;
+      border-radius: 50px !important;
+      background: rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(0, 0, 0, 0.02);
+      padding: 0 18px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .add-counselor-box button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50% !important;
+      background: var(--mac-blue);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+    }
+
   }
 
-  .add-counselor-box button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50% !important;
-    background: var(--mac-blue);
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+  /* --- MOBILE PADDING OVERRIDE --- */
+  @media (max-width: 768px) {
+    .schedule-view {
+      padding-left: var(--screen-edge-spacing) !important;
+      padding-right: var(--screen-edge-spacing) !important;
+    }
   }
-
-}

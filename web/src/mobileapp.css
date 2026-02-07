@@ -14,15 +14,7 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     overflow-x: hidden;
   }
 
-  /* --- UNIFIED MOBILE PADDING (App.jsx Pages) --- */
-  /* Forces all main views to respect the 12px edge */
-  .schedule-view,
-  .calendar-view,
-  .notes-view,
-  .home-view {
-    padding-left: var(--screen-edge-spacing) !important;
-    padding-right: var(--screen-edge-spacing) !important;
-  }
+
 
   /* ==========================================================================
      2. THEME VARIABLES (GLOBAL CONTROL CENTER)
