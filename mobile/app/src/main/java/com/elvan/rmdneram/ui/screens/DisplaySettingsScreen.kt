@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,8 +47,9 @@ fun DisplaySettingsScreen(
         topBar = {
             TopAppBar(
                 title = {
+                    val lang = LocalAppLanguage.current
                     Text(
-                        "Display",
+                        AppStrings.Settings.display(lang),
                         style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 8.dp)
@@ -82,7 +85,10 @@ fun DisplaySettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp)
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            // Top Spacer adjusted to match Home Screen Profile Card alignment
+            // Home Content Top = StatusBar + 85dp
+            // Display Settings Top = StatusBar + 64dp (AppBar) + 21dp (Spacer) = 85dp
+            Spacer(modifier = Modifier.height(21.dp))
 
             // 1. Light / Dark / Auto Mode Selector Card
             // 1. Light / Dark Mode Selector Card (Auto moved below)
@@ -97,9 +103,10 @@ fun DisplaySettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+                    val lang = LocalAppLanguage.current
                     // Light Mode Option
                     ThemeSelectionItem(
-                        label = "Light",
+                        label = AppStrings.Display.lightTheme(lang),
                         isSelected = currentTheme == "light",
                         backgroundBrush = Brush.linearGradient(listOf(Color(0xFFF2F2F2), Color(0xFFE0E0E0))),
                         accent = AppColors.Blue, // Blue accent
@@ -109,7 +116,7 @@ fun DisplaySettingsScreen(
 
                     // Dark Mode Option
                     ThemeSelectionItem(
-                        label = "Dark",
+                        label = AppStrings.Display.darkTheme(lang),
                         isSelected = currentTheme == "dark",
                         backgroundBrush = Brush.linearGradient(listOf(Color(0xFF1C1C1C), Color.Black)),
                         accent = AppColors.Blue,
@@ -134,9 +141,10 @@ fun DisplaySettingsScreen(
                    verticalAlignment = Alignment.CenterVertically,
                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    val lang = LocalAppLanguage.current
                     Column {
-                        Text("System Auto", style = MaterialTheme.typography.bodyLarge, color = colors.textPrimary)
-                        Text("Switch modes with system", style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+                        Text(AppStrings.Display.systemAuto(lang), style = MaterialTheme.typography.bodyLarge, color = colors.textPrimary)
+                        Text(AppStrings.Display.themeDescription(lang), style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
                     }
                     Switch(
                         checked = currentTheme == "auto",

@@ -57,6 +57,7 @@ fun SettingsScreen(
     onNavigateToCalendarSettings: () -> Unit,
     onNavigateToUserDirectory: () -> Unit,
     onNavigateToAboutApp: () -> Unit,
+    onLogout: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()
 ) {
     val colors = rememberHomeColors()
@@ -147,21 +148,6 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Language & Other
-            SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                SettingsListItem(
-                    icon = Icons.Outlined.Language,
-                    iconBgColor = AppColors.Blue,
-                    title = AppStrings.Settings.languageOther(lang),
-                    description = AppStrings.Settings.languageDesc(lang),
-                    onClick = onNavigateToLanguage,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // 3. Settings Group: Support
             SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
                 SettingsListItem(
@@ -190,13 +176,28 @@ fun SettingsScreen(
             
             // 4. Settings Group: About
             SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                 SettingsListItem(
+                SettingsListItem(
                     icon = Icons.Outlined.Info,
                     iconBgColor = AppColors.Blue,
-                    title = "About App",
-                    description = "Neram v1.0.0 (BETA)",
+                    title = AppStrings.Settings.aboutApp(lang),
+                    description = AppStrings.Settings.aboutAppDesc(lang),
                     onClick = onNavigateToAboutApp,
                     textColor = colors.textPrimary,
+                    subTextColor = colors.textSecondary
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 5. Settings Group: Account Session
+            SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
+                SettingsListItem(
+                    icon = Icons.Outlined.Logout,
+                    iconBgColor = AppColors.Red,
+                    title = "Sign Out",
+                    description = "Log out of your Neram account",
+                    onClick = onLogout,
+                    textColor = AppColors.Red, // Explicitly red for destruction
                     subTextColor = colors.textSecondary
                 )
             }

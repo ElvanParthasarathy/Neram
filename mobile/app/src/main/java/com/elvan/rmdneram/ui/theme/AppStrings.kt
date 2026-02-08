@@ -22,18 +22,10 @@ object AppStrings {
     const val TAMIL = "ta"
     
     /**
-     * Get the effective language code based on preference
+     * Get the effective language code - always returns English
      */
     fun getEffectiveLanguage(preference: String, context: Context): String {
-        return when (preference) {
-            SYSTEM -> {
-                val locale = context.resources.configuration.locales[0]
-                val languageCode = locale.language
-                // Check for "ta" (Tamil) including regional variants like "ta-IN"
-                if (languageCode == TAMIL || languageCode.startsWith("ta")) TAMIL else ENGLISH
-            }
-            else -> preference
-        }
+        return ENGLISH
     }
     
     // =========================================================================
@@ -41,7 +33,8 @@ object AppStrings {
     // =========================================================================
     object Nav {
         fun home(lang: String) = if (lang == TAMIL) "முகப்பு" else "Home"
-        fun schedule(lang: String) = if (lang == TAMIL) "அட்டவணை" else "Schedule"
+        fun neram(lang: String) = if (lang == TAMIL) "நேரம்" else "Neram"
+        fun schedule(lang: String) = if (lang == TAMIL) "வகுப்புகள்" else "Schedule"
         fun calendar(lang: String) = if (lang == TAMIL) "நாட்காட்டி" else "Calendar"
         fun notes(lang: String) = if (lang == TAMIL) "குறிப்புகள்" else "Notes"
     }
@@ -54,13 +47,57 @@ object AppStrings {
         fun academicCalendar(lang: String) = if (lang == TAMIL) "கல்வி நாட்காட்டி" else "Academic Calendar"
         fun schedule(lang: String) = if (lang == TAMIL) "அட்டவணை" else "Schedule"
         fun workingDay(lang: String) = if (lang == TAMIL) "வேலை நாள்" else "Working Day"
-        fun regularWorkingDay(lang: String) = if (lang == TAMIL) "வழக்கமான வேலை நாள்" else "Regular Working Day"
+        fun regularWorkingDay(lang: String) = if (lang == TAMIL) "வழக்கமான பணி நாள்" else "Regular Working Day"
         fun noEventsScheduled(lang: String) = if (lang == TAMIL) "நிகழ்வுகள் திட்டமிடப்படவில்லை" else "No events scheduled"
         fun offline(lang: String) = if (lang == TAMIL) "இணைப்பில்லை" else "Offline"
+        fun offlineMessage(lang: String) = if (lang == TAMIL) "தரவை ஏற்ற இணையம் தேவை." else "Internet is not connected. Connect to internet to sync data."
         fun ok(lang: String) = if (lang == TAMIL) "சரி" else "OK"
         fun cancel(lang: String) = if (lang == TAMIL) "ரத்து" else "Cancel"
         fun followingOrder(order: String, lang: String) = if (lang == TAMIL) "$order வரிசை பின்பற்றுகிறது" else "FOLLOWING $order ORDER"
         fun greeting(lang: String) = if (lang == TAMIL) "வணக்கம்!" else "Hello!"
+        fun welcomeToNeram(lang: String) = if (lang == TAMIL) "நேரம் உங்களை வரவேற்கிறது!" else "Welcome to Neram!"
+        fun gladYouAreHere(lang: String) = if (lang == TAMIL) "நீங்கள் இணைந்ததில் மகிழ்ச்சி 😊" else "Glad you're here 😊"
+        fun vanakkam(lang: String) = if (lang == TAMIL) "வணக்கம்!" else "Vanakkam!"
+        fun classesSuspended(lang: String) = if (lang == TAMIL) "வகுப்புகள் ரத்து" else "Classes Suspended"
+        fun system(lang: String) = if (lang == TAMIL) "அமைப்பு" else "System"
+        fun noUpdates(lang: String) = if (lang == TAMIL) "இன்று அறிவிப்புகள் இல்லை." else "No special updates for today."
+        fun todaysEvent(lang: String) = if (lang == TAMIL) "இன்றைய நிகழ்வு" else "TODAY'S EVENT"
+        fun specialEvent(lang: String) = if (lang == TAMIL) "சிறப்பு நிகழ்வு" else "SPECIAL EVENT"
+        fun fullDay(lang: String) = if (lang == TAMIL) "முழு நாள்" else "Full Day"
+        fun noClasses(lang: String) = if (lang == TAMIL) "வகுப்பில்லை" else "No Classes"
+        fun event(lang: String) = if (lang == TAMIL) "நிகழ்வு" else "Event"
+    }
+    
+    // =========================================================================
+    // SCHEDULE SCREEN
+    // =========================================================================
+    object Schedule {
+        fun weeklySchedule(lang: String) = if (lang == TAMIL) "வார அட்டவணை" else "Weekly Schedule"
+        fun noClassesOn(day: String, lang: String) = if (lang == TAMIL) "$day - வகுப்பில்லை" else "No classes on $day"
+        fun ongoingExams(lang: String) = if (lang == TAMIL) "நடைபெறும் தேர்வுகள்" else "Ongoing Exams"
+        fun upcomingExams(lang: String) = if (lang == TAMIL) "எதிர்வரும் தேர்வுகள்" else "Upcoming Exams"
+        fun finishedExams(lang: String) = if (lang == TAMIL) "முடிந்த தேர்வுகள்" else "Finished Exams"
+        fun noOngoingExams(lang: String) = if (lang == TAMIL) "நடைபெறும் தேர்வுகள் இல்லை" else "No Ongoing Exams"
+        fun noExamTimetables(lang: String) = if (lang == TAMIL) "தேர்வு அட்டவணை வெளியிடப்படவில்லை." else "No Exam Timetables published."
+        fun academicCourses(lang: String) = if (lang == TAMIL) "பாடப்பிரிவுகள்" else "Academic Courses"
+        fun classCounselors(lang: String) = if (lang == TAMIL) "வகுப்பு வழிகாட்டிகள்" else "Class Counselors"
+        fun keyCoordinators(lang: String) = if (lang == TAMIL) "ஒருங்கிணைப்பாளர்கள்" else "Key Coordinators"
+        fun periods(lang: String) = if (lang == TAMIL) "பாடவேளை" else "periods"
+        fun noSubjectsScheduled(lang: String) = if (lang == TAMIL) "பாடங்கள் திட்டமிடப்படவில்லை" else "No subjects scheduled"
+        fun noCoursesFound(lang: String) = if (lang == TAMIL) "பாடங்கள் கிடைக்கவில்லை" else "No courses found"
+        fun noInfoAvailable(lang: String) = if (lang == TAMIL) "தகவல் இல்லை" else "No info available"
+        fun collapse(lang: String) = if (lang == TAMIL) "சுருக்கு" else "Collapse"
+        fun expand(lang: String) = if (lang == TAMIL) "விரிவாக்கு" else "Expand"
+    }
+    
+    // =========================================================================
+    // DISPLAY SETTINGS
+    // =========================================================================
+    object Display {
+        fun lightTheme(lang: String) = if (lang == TAMIL) "பகல் முறை" else "Light"
+        fun darkTheme(lang: String) = if (lang == TAMIL) "இரவு முறை" else "Dark"
+        fun systemAuto(lang: String) = if (lang == TAMIL) "தானியங்கி" else "System Auto"
+        fun themeDescription(lang: String) = if (lang == TAMIL) "சிஸ்டம் அமைப்பிற்கேற்ப மாறும்" else "Switch modes with system"
     }
     
     // =========================================================================
@@ -81,6 +118,11 @@ object AppStrings {
         fun signOut(lang: String) = if (lang == TAMIL) "வெளியேறு" else "Sign Out"
         fun signOutConfirm(lang: String) = if (lang == TAMIL) "வெளியேற விரும்புகிறீர்களா?" else "Sign Out?"
         fun signOutMessage(lang: String) = if (lang == TAMIL) "நிச்சயமாக வெளியேற விரும்புகிறீர்களா?" else "Are you sure you want to sign out?"
+        fun changePassword(lang: String) = if (lang == TAMIL) "கடவுச்சொல் மாற்றம்" else "Change Password"
+        fun deleteAccount(lang: String) = if (lang == TAMIL) "கணக்கு நீக்கம்" else "Delete Account"
+        fun userDirectory(lang: String) = if (lang == TAMIL) "பயனர் பட்டியல்" else "User Directory"
+        fun aboutApp(lang: String) = if (lang == TAMIL) "செயலி பற்றி" else "About App"
+        fun aboutAppDesc(lang: String) = if (lang == TAMIL) "நேரம் - கல்வி கட்டுப்பாட்டின் பேரவை" else "Your College Time, Sorted"
         
         // Language Settings
         fun language(lang: String) = if (lang == TAMIL) "மொழி" else "Language"
@@ -89,6 +131,17 @@ object AppStrings {
         fun deviceLanguage(lang: String) = if (lang == TAMIL) "சாதன மொழி" else "Device Language"
         fun english(lang: String) = if (lang == TAMIL) "ஆங்கிலம்" else "English"
         fun tamil(lang: String) = if (lang == TAMIL) "தமிழ்" else "தமிழ்"
+    }
+    
+    // =========================================================================
+    // NOTES
+    // =========================================================================
+    object Notes {
+        fun notUploadedTitle(lang: String) = if (lang == TAMIL) "பதிவேற்றப்படவில்லை" else "Not Uploaded"
+        fun notUploadedMessage(lang: String) = if (lang == TAMIL) 
+            "இந்த பாடகுறிப்புகள் rmd.ac.in-ல் இன்னும் பதிவேற்றப்படவில்லை. அவை பதிவேற்றப்பட்டவுடன் இங்கே கிடைக்கும்." 
+            else "The unit notes not uploaded in rmd.ac.in it will be available here when they upload it."
+        fun unit(number: Int, lang: String) = if (lang == TAMIL) "அலகு $number" else "Unit $number"
     }
     
     // =========================================================================

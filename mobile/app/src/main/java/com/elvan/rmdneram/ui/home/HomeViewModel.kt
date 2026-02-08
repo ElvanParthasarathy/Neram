@@ -38,7 +38,7 @@ data class HomeUiState(
     val isCalendarLoaded: Boolean = false,
     val isSyncing: Boolean = false,
     val isOffline: Boolean = false,
-    val showPlacementModal: Boolean = false,
+
     val academicHierarchy: Map<String, Map<String, List<String>>> = emptyMap(),
     val error: String? = null,
     // Prevent layout shift: don't render until first real data arrives
@@ -134,7 +134,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     
     data class UiFlags(
         val isSyncing: Boolean = false,
-        val showPlacementModal: Boolean = false,
+
         val error: String? = null,
         val showWelcomeMessage: Boolean = true // Start true
     )
@@ -187,7 +187,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     sectionEvents = (cached.sectionEvents ?: emptyList()).toImmutableList(),
                     isLoading = false,
                     isCalendarLoaded = true,
-                    showPlacementModal = cached.userProfile?.hasPlacement() == false,
+
                     isInitialDataReady = true,
                     showWelcomeMessage = true // Always show welcome on startup
                 )
@@ -372,7 +372,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                                 isLoading = false,
                                 isCalendarLoaded = true,
                                 isSyncing = flags.isSyncing,
-                                showPlacementModal = !profile.hasPlacement() || flags.showPlacementModal,
+
                                 academicHierarchy = data.hierarchy,
                                 error = flags.error,
                                 isInitialDataReady = true,
@@ -802,7 +802,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     "department" to dept,
                     "section" to section
                 ))
-                _uiFlags.update { it.copy(showPlacementModal = false) }
+
             } catch (e: Exception) {
                 _uiFlags.update { it.copy(error = "Failed to update placement") }
             } finally {
@@ -811,12 +811,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
     
-    /**
-     * Dismiss placement modal (for testing)
-     */
-    fun dismissPlacementModal() {
-        _uiFlags.update { it.copy(showPlacementModal = false) }
-    }
+
     
     /**
      * Clear error message

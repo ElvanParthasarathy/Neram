@@ -13,9 +13,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elvan.rmdneram.data.model.*
-import com.elvan.rmdneram.ui.home.components.PlacementModal
+
 import com.elvan.rmdneram.ui.common.ScheduleLogic
 import com.elvan.rmdneram.ui.theme.NeramTheme
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -99,10 +101,11 @@ fun HomeScreen(
     
     // Offline Dialog
     if (showOfflineDialog) {
+        val lang = LocalAppLanguage.current
         AlertDialog(
             onDismissRequest = { showOfflineDialog = false },
-            title = { Text("Offline", style = HomeTypography.PillTitle) },
-            text = { Text("Internet is not connected. Connect to internet to sync data.", style = HomeTypography.AuthorBadge) },
+            title = { Text(AppStrings.Home.offline(lang), style = HomeTypography.PillTitle) },
+            text = { Text(AppStrings.Home.offlineMessage(lang), style = HomeTypography.AuthorBadge) },
             confirmButton = {
                 Button(
                     onClick = { showOfflineDialog = false },
@@ -112,7 +115,7 @@ fun HomeScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Text("OK", style = HomeTypography.StatusBadge)
+                    Text(AppStrings.Home.ok(lang), style = HomeTypography.StatusBadge)
                 }
             },
             containerColor = colors.surface,
@@ -262,17 +265,7 @@ fun HomeScreen(
     // =========================================================================
     // PLACEMENT MODAL
     // =========================================================================
-    if (uiState.showPlacementModal) {
-        PlacementModal(
-            hierarchy = uiState.academicHierarchy,
-            isLoading = uiState.isSyncing,
-            isOffline = isOffline,
-            colors = colors,
-            onSave = { batch, dept, section ->
-                viewModel.updatePlacement(batch, dept, section)
-            }
-        )
-    }
+
 }
 
 

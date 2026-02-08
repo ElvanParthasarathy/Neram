@@ -13,7 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
+    primary = NeramBlueDark,
+    onPrimary = Color.White,
     secondary = PurpleGrey80,
     tertiary = Pink80,
     // Pure black for AMOLED displays - true black pixels are turned off
@@ -28,7 +29,8 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
+    primary = NeramBlue,
+    onPrimary = Color.White,
     secondary = PurpleGrey40,
     tertiary = Pink40
 

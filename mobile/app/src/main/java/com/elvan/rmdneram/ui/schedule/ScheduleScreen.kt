@@ -7,6 +7,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.components.ExpressivePullToRefreshBox
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
@@ -50,10 +52,11 @@ fun ScheduleScreen(
 
     // 4. Handle Offline Dialog
     if (showOfflineDialog) {
+        val lang = LocalAppLanguage.current
         AlertDialog(
             onDismissRequest = { showOfflineDialog = false },
-            title = { Text("Offline", style = HomeTypography.PillTitle) },
-            text = { Text("Internet is not connected. Connect to internet to refresh the schedule.", style = HomeTypography.AuthorBadge) },
+            title = { Text(AppStrings.Home.offline(lang), style = HomeTypography.PillTitle) },
+            text = { Text(AppStrings.Home.offlineMessage(lang), style = HomeTypography.AuthorBadge) },
             confirmButton = {
                 Button(
                     onClick = { showOfflineDialog = false },
@@ -63,7 +66,7 @@ fun ScheduleScreen(
                         contentColor = androidx.compose.ui.graphics.Color.White
                     )
                 ) {
-                    Text("OK", style = HomeTypography.PillButton)
+                    Text(AppStrings.Home.ok(lang), style = HomeTypography.PillButton)
                 }
             },
             containerColor = colors.surface,
@@ -104,6 +107,7 @@ fun ScheduleScreen(
                         }
                     },
                     dismissButton = {
+                        val lang = LocalAppLanguage.current
                         Button(
                             onClick = { showDatePicker = false },
                             shape = HomeShapes.Pill,
@@ -112,7 +116,7 @@ fun ScheduleScreen(
                                 contentColor = colors.textSecondary
                             )
                         ) {
-                            Text("Cancel", style = HomeTypography.PillButton)
+                            Text(AppStrings.Home.cancel(lang), style = HomeTypography.PillButton)
                         }
                     },
                     colors = DatePickerDefaults.colors(
@@ -179,6 +183,7 @@ fun ScheduleScreen(
         pullRefreshState = effectivePullRefreshState,
         isRefreshing = uiState.isSyncing || isSimulatingOfflineRefresh,
         onRefresh = onRefresh,
+        selectedDate = selectedDate, // Added this line
         selectedDateFormatted = selectedDate.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")),
 
         onDatePillClick = { showDatePicker = true },

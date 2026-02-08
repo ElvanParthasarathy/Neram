@@ -1,239 +1,237 @@
 package com.elvan.rmdneram.ui.auth
 
-import android.app.Activity
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.elvan.rmdneram.ui.components.CustomTextField
-import com.elvan.rmdneram.ui.theme.NeramTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.delay
 
-// Web Client ID from google-services.json
+// Web Client ID from google-services.json (client_type: 3)
 private const val WEB_CLIENT_ID = "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com"
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onNavigateToSignup: () -> Unit
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var isGoogleLoading by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val auth = FirebaseAuth.getInstance()
+    var error by remember { mutableStateOf<String?>(null) }
 
-    // Google Sign-In launcher
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let { idToken ->
-                    scope.launch {
-                        try {
-                            val credential = GoogleAuthProvider.getCredential(idToken, null)
-                            auth.signInWithCredential(credential).await()
-                            Toast.makeText(context, "Google Sign-In Successful!", Toast.LENGTH_SHORT).show()
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "Firebase Auth Failed: ${e.message}", Toast.LENGTH_LONG).show()
-                        } finally {
-                            isGoogleLoading = false
-                        }
-                    }
-                } ?: run {
-                    isGoogleLoading = false
-                    Toast.makeText(context, "No ID Token received", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: ApiException) {
-                isGoogleLoading = false
-                Toast.makeText(context, "Google Sign-In Failed: ${e.statusCode}", Toast.LENGTH_LONG).show()
-            }
+    // Staggered reveal states
+    var showHeader by remember { mutableStateOf(false) }
+    var showForm by remember { mutableStateOf(false) }
+    var showButtons by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        delay(200)
+        showHeader = true
+        delay(300)
+        showForm = true
+        delay(300)
+        showButtons = true
+    }
+
+    val auth = FirebaseAuth.getInstance()
+    val context = LocalContext.current
+    val scrollState = rememberScrollState()
+
+    val handleLogin = {
+        isLoading = true
+        error = null
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            isLoading = false
+            error = "Invalid email address"
+        } else if (password.isEmpty()) {
+            isLoading = false
+            error = "Please enter your password"
         } else {
-            isGoogleLoading = false
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    isLoading = false
+                    if (task.isSuccessful) {
+                        onLoginSuccess()
+                    } else {
+                        error = task.exception?.message ?: "Login Failed"
+                    }
+                }
         }
     }
 
-    val handleGoogleSignIn: () -> Unit = {
-        isGoogleLoading = true
+    // Google Sign In Launcher
+    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            if (account?.idToken != null) {
+                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
+                auth.signInWithCredential(credential)
+                    .addOnCompleteListener { authTask ->
+                        isLoading = false
+                        if (authTask.isSuccessful) {
+                            onLoginSuccess()
+                        } else {
+                            error = authTask.exception?.message ?: "Google Sign-In Failed"
+                        }
+                    }
+            } else {
+                isLoading = false
+                error = "Google Sign-In Failed: No ID Token"
+            }
+        } catch (e: ApiException) {
+            error = "Google Sign-In Failed: ${e.statusCode}"
+            isLoading = false
+        }
+    }
+
+    val handleGoogleLogin = {
+        isLoading = true
+        error = null
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(WEB_CLIENT_ID)
             .requestEmail()
             .build()
         val googleSignInClient = GoogleSignIn.getClient(context, gso)
-        // Sign out first to force account picker
-        googleSignInClient.signOut()
-        googleSignInLauncher.launch(googleSignInClient.signInIntent)
+        googleSignInClient.signOut().addOnCompleteListener {
+            launcher.launch(googleSignInClient.signInIntent)
+        }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+    AuthGradientBackground {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Spacer(modifier = Modifier.height(60.dp))
+
+            // ===== HEADER =====
+            AnimatedVisibility(
+                visible = showHeader,
+                enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { -30 })
             ) {
-                Text(
-                    text = "Neram",
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                StepHeader(
+                    title = "Welcome Back",
+                    subtitle = "Sign in to continue"
                 )
+            }
 
-                Text(
-                    text = "Department Portal",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 32.dp),
-                    textAlign = TextAlign.Center
-                )
+            Spacer(modifier = Modifier.height(32.dp))
 
-                CustomTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    placeholder = "Email Address",
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+            // ===== FORM FIELDS =====
+            AnimatedVisibility(
+                visible = showForm,
+                enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { 30 })
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Email field
+                    AuthTextField(
+                        value = email,
+                        onValueChange = { email = it; error = null },
+                        label = "Email Address",
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        isError = error?.contains("email") == true,
+                        errorMessage = if (error?.contains("email") == true) error else null
+                    )
 
-                CustomTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    placeholder = "Password",
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.padding(bottom = 24.dp)
-                )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = {
-                        isLoading = true
-                        if (email.isNotEmpty() && password.isNotEmpty()) {
-                            auth.signInWithEmailAndPassword(email, password)
-                                .addOnCompleteListener { task ->
-                                    isLoading = false
-                                    if (task.isSuccessful) {
-                                        Toast.makeText(context, "Login Successful!", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(context, "Login Failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                                    }
-                                }
-                        } else {
-                            isLoading = false
-                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !isLoading && !isGoogleLoading
-                ) {
-                    if (isLoading) {
-                        com.elvan.rmdneram.ui.components.ExpressiveLoadingIndicator(color = MaterialTheme.colorScheme.onPrimary)
-                    } else {
-                        Text("Sign In", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
+                    // Password field
+                    AuthTextField(
+                        value = password,
+                        onValueChange = { password = it; error = null },
+                        label = "Password",
+                        isPassword = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(onDone = { handleLogin() }),
+                        isError = error?.contains("password") == true || error?.contains("Password") == true,
+                        errorMessage = if (error?.contains("password") == true || error?.contains("Password") == true) error else null
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedButton(
-                    onClick = handleGoogleSignIn,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !isLoading && !isGoogleLoading
-                ) {
-                    if (isGoogleLoading) {
-                        com.elvan.rmdneram.ui.components.ExpressiveLoadingIndicator(
-                            modifier = Modifier.height(24.dp),
-                            color = MaterialTheme.colorScheme.primary
+                    // General error
+                    if (error != null && !error!!.contains("email") && !error!!.contains("password") && !error!!.contains("Password")) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            error!!,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
                         )
-                    } else {
-                        Text("Sign in with Google")
                     }
                 }
+            }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // ===== BUTTONS SECTION =====
+            AnimatedVisibility(
+                visible = showButtons,
+                enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { 30 })
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    TextButton(onClick = { /* TODO: Nav to Signup */ }) {
-                        Text("New here? Register", color = MaterialTheme.colorScheme.secondary)
-                    }
-                    TextButton(onClick = { /* TODO: Forgot Pass */ }) {
-                        Text("Forgot Pass?", color = MaterialTheme.colorScheme.secondary)
-                    }
+                    AnimatedAuthButton(
+                        text = "Sign In",
+                        onClick = { handleLogin() },
+                        isLoading = isLoading
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    OrDivider()
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    GoogleAuthButton(
+                        onClick = { handleGoogleLogin() },
+                        isLoading = isLoading
+                    )
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    AuthLinkText(
+                        prefix = "Don't have an account? ",
+                        linkText = "Sign Up",
+                        onClick = onNavigateToSignup
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun LoginPreview() {
-    NeramTheme {
-        LoginScreen()
-    }
-}

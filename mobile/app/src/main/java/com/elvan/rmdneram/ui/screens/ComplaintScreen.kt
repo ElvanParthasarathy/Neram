@@ -277,7 +277,7 @@ private fun ComplaintInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(if (isMultiLine) 150.dp else 56.dp)
-                .background(colors.surface.copy(alpha = 0.5f), HomeShapes.Item),
+                .background(colors.surface, HomeShapes.Item),
             shape = HomeShapes.Item,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = colors.accent,

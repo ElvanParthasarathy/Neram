@@ -29,7 +29,9 @@ data class MainUiState(
     val languageCode: String = "system", // "system", "en", "ta"
     val isOffline: Boolean = false,
     val isLoading: Boolean = true,
-    val isAuthenticated: Boolean = false
+    val isAuthenticated: Boolean = false,
+    val isOnboardingComplete: Boolean = false,
+    val isAuthInitialized: Boolean = false
 )
 
 /**
@@ -45,15 +47,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MainUiState(
             themeMode = runBlocking { themeManager.themeMode.first() },
             languageCode = runBlocking { languageManager.languageCode.first() },
-            isAuthenticated = auth.currentUser != null
+            isAuthenticated = false, // Will be updated by flow
+            isAuthInitialized = false
         )
     )
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
     
     // Reactive Auth State Flow
     private val authStateFlow = callbackFlow {
-        val listener = FirebaseAuth.AuthStateListener { auth ->
-            trySend(auth.currentUser?.uid)
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            trySend(firebaseAuth.currentUser?.uid)
         }
         auth.addAuthStateListener(listener)
         trySend(auth.currentUser?.uid)
@@ -65,16 +68,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             authStateFlow.collectLatest { uid ->
                 if (uid != null) {
-                    _uiState.update { it.copy(isAuthenticated = true) }
+                    _uiState.update { it.copy(isAuthenticated = true, isAuthInitialized = true) }
                     // Sync user profile when auth changes (Login/App Start)
                     repository.getUserProfile(uid)
                         .catch { Log.e("MainViewModel", "Error loading profile", it) }
                         .collect { profile ->
-                            _uiState.update { it.copy(userProfile = profile) }
+                            val isComplete = profile != null && 
+                                             !profile.department.isNullOrEmpty() && 
+                                             !profile.batch.isNullOrEmpty() && 
+                                             !profile.section.isNullOrEmpty()
+                            
+                            _uiState.update { 
+                                it.copy(
+                                    userProfile = profile,
+                                    isOnboardingComplete = isComplete
+                                ) 
+                            }
                         }
                 } else {
                     // Clear profile on logout
-                    _uiState.update { it.copy(userProfile = null, isAuthenticated = false) }
+                    _uiState.update { 
+                        it.copy(
+                            userProfile = null, 
+                            isAuthenticated = false,
+                            isOnboardingComplete = false,
+                            isAuthInitialized = true
+                        ) 
+                    }
                 }
             }
         }
@@ -162,6 +182,47 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setLanguage(code: String) {
         viewModelScope.launch {
             languageManager.setLanguage(code)
+        }
+    }
+
+    fun saveOnboardingData(dept: String, batch: String, section: String) {
+        val uid = auth.currentUser?.uid ?: return
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                // Create map of updates
+                val updates = mapOf(
+                    "department" to dept,
+                    "batch" to batch,
+                    "section" to section,
+                    "isProfileComplete" to true
+                )
+                
+                // Update Firestore
+                repository.updateUserProfile(uid, updates)
+                
+                // Optimistically update local state
+                _uiState.update { 
+                    it.copy(
+                        isLoading = false,
+                        isOnboardingComplete = true,
+                        userProfile = it.userProfile?.copy(
+                            department = dept,
+                            batch = batch,
+                            section = section
+                        ) ?: UserProfile(
+                            uid = uid,
+                            email = auth.currentUser?.email ?: "",
+                            department = dept,
+                            batch = batch,
+                            section = section
+                        )
+                    ) 
+                }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isLoading = false) }
+                Log.e("MainViewModel", "Failed to save onboarding data", e)
+            }
         }
     }
 

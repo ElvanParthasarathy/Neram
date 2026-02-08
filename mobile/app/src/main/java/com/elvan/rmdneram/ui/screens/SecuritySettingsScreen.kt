@@ -54,10 +54,11 @@ private const val WEB_CLIENT_ID = "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.
 
 @Composable
 fun SecuritySettingsScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToLinkedAccounts: () -> Unit = {}
 ) {
     val colors = rememberHomeColors()
-    var currentView by remember { mutableStateOf("hub") } // hub, password, linked, delete
+    var currentView by remember { mutableStateOf("hub") } // hub, password, create_password, delete
     
     BackHandler {
         if (currentView != "hub") {
@@ -81,17 +82,14 @@ fun SecuritySettingsScreen(
             "hub" -> SecurityHub(
                 colors = colors,
                 onBack = onBack,
-                onNavigate = { currentView = it }
+                onNavigate = { currentView = it },
+                onNavigateToLinkedAccounts = onNavigateToLinkedAccounts
             )
             "password" -> ChangePasswordFlow(
                 colors = colors,
                 onBack = { currentView = "hub" }
             )
             "create_password" -> CreatePasswordFlow(
-                colors = colors,
-                onBack = { currentView = "hub" }
-            )
-            "linked" -> LinkedAccountsView(
                 colors = colors,
                 onBack = { currentView = "hub" }
             )
@@ -154,7 +152,8 @@ private fun StandardSettingsHeader(
 private fun SecurityHub(
     colors: HomeColors,
     onBack: () -> Unit,
-    onNavigate: (String) -> Unit
+    onNavigate: (String) -> Unit,
+    onNavigateToLinkedAccounts: () -> Unit
 ) {
     val user = Firebase.auth.currentUser
     val hasPasswordProvider = user?.providerData?.any { it.providerId == "password" } ?: false
@@ -211,12 +210,19 @@ private fun SecurityHub(
                     subTextColor = colors.textSecondary
                 )
             }
+            
+            HorizontalDivider(
+                color = colors.glassBorder, 
+                thickness = 1.dp, 
+                modifier = Modifier.padding(start = 72.dp, end = 20.dp)
+            )
+            
             SettingsListItem(
                 icon = Icons.Outlined.Link,
                 iconBgColor = AppColors.Blue,
                 title = "Linked Accounts",
                 description = "Manage Google sign-in",
-                onClick = { onNavigate("linked") },
+                onClick = { onNavigateToLinkedAccounts() },
                 textColor = colors.textPrimary,
                 subTextColor = colors.textSecondary
             )

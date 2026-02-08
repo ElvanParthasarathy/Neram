@@ -134,21 +134,6 @@ fun LanguageSettingsScreen(
                     subTextColor = colors.textSecondary,
                     accentColor = colors.accent
                 )
-                
-                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                
-                // Tamil Option
-                LanguageOptionItem(
-                    icon = Icons.Outlined.Language,
-                    iconBgColor = AppColors.Orange,
-                    title = AppStrings.Settings.tamil(lang),
-                    subtitle = "Tamil",
-                    isSelected = currentLanguage == AppStrings.TAMIL,
-                    onClick = { onLanguageChange(AppStrings.TAMIL) },
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary,
-                    accentColor = colors.accent
-                )
             }
             
             Spacer(modifier = Modifier.height(16.dp))

@@ -1,0 +1,71 @@
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:kspDebugKotlin
+> Task :app:compileDebugKotlin
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:70:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:119:24 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:160:38 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:209:17 Duplicate branch condition in 'when'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:100:96 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:193:60 Unnecessary safe call on a non-null receiver of type 'UserProfile'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:651:17 Condition is always 'true'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:655:17 Condition is always 'true'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/navigation/TopMenuBar.kt:285:32 'val Icons.Outlined.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.ArrowBack.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:70:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:119:24 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:160:38 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:209:17 Duplicate branch condition in 'when'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:100:96 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeScreen.kt:138:151 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:193:60 Unnecessary safe call on a non-null receiver of type 'UserProfile'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:651:17 Condition is always 'true'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:655:17 Condition is always 'true'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/navigation/TopMenuBar.kt:285:32 'val Icons.Outlined.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.ArrowBack.
+
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+
+> Task :app:installDebug
+Installing APK 'app-debug.apk' on 'SM-A536E - 16' for :app:debug
+Installed on 1 device.
+
+BUILD SUCCESSFUL in 1m 32s
+39 actionable tasks: 6 executed, 33 up-to-date

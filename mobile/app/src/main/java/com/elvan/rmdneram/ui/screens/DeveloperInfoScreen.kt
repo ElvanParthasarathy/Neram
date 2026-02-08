@@ -111,9 +111,9 @@ fun DeveloperInfoScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    "Hello, I Am",
+                    "Hello, I'm",
                     style = HomeTypography.PillTime,
-                    color = colors.textSecondary // Changed from White for flat design
+                    color = Color.White // Fixed for visibility on accent
                 )
                 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -121,14 +121,14 @@ fun DeveloperInfoScreen(
                 Text(
                 text = "Elvan Parthasarathy",
                 style = HomeTypography.PageTitle.copy(fontSize = 28.sp, fontWeight = FontWeight.Bold),
-                color = colors.textPrimary,
+                color = Color.White, // Fixed for visibility on accent
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             Text(
                 text = "Vibe Coder | Prompt Engineer",
                 style = HomeTypography.MessageBody.copy(fontSize = 16.sp),
-                color = colors.textSecondary,
+                color = Color.White.copy(alpha = 0.8f), // Fixed for visibility on accent
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 24.dp)
             )
@@ -203,6 +203,7 @@ fun DeveloperInfoScreen(
                 icon = ImageVector.vectorResource(id = R.drawable.ic_linkedin),
                 label = "linkedin.com/in/jaiprakashpartha",
                 color = AppColors.LinkedIn,
+                iconTint = Color.Unspecified, // Use original colors
                 onClick = {
                      try {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.linkedin.com/in/jaiprakashpartha"))
@@ -247,6 +248,7 @@ private fun ContactItem(
     label: String,
     subLabel: String? = null,
     color: Color,
+    iconTint: Color = color, // Default to using the theme color
     onClick: () -> Unit
 ) {
     val colors = rememberHomeColors()
@@ -268,7 +270,7 @@ private fun ContactItem(
                 .background(color.copy(alpha = 0.15f)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, null, tint = color, modifier = Modifier.size(20.dp))
+            Icon(icon, null, tint = iconTint, modifier = Modifier.size(20.dp))
         }
         
         Spacer(modifier = Modifier.width(16.dp))

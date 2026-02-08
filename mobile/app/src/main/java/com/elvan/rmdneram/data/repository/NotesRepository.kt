@@ -100,39 +100,58 @@ class NotesRepository {
         
         for (row in rows) {
             val tds = row.select("td")
-            if (tds.size < 4) continue // Ensure minimal columns
+            if (tds.size < 2) continue // Need at least subject name
             
-            // Subject Name (usually 2nd column, index 1)
-            // But we need to be careful.
-            // Standard format: S.No | Subject Code | Subject Name | Unit 1 | ...
-            // Index: 0 | 1 | 2 | 3... ??
-            // Let's check based on HTML analysis:
-            // logic in HTML: subject = tds[1].innerText (so 2nd column)
-            // units start at index 3 (4th column)
+            // Subject Name: Try second column first (index 1), then first column (index 0)
+            var subjectName = tds.getOrNull(1)?.text()?.trim() ?: ""
+            if (subjectName.isEmpty() || subjectName.matches(Regex("^\\d+\\.?$"))) {
+                // If second column is empty or just a number, try first
+                subjectName = tds.getOrNull(0)?.text()?.trim() ?: ""
+            }
+            // Skip if still empty or if it's just a serial number
+            if (subjectName.isEmpty() || subjectName.matches(Regex("^\\d+\\.?$"))) {
+                // Try third column as last resort
+                subjectName = tds.getOrNull(2)?.text()?.trim() ?: ""
+            }
             
-            if (tds.size >= 2) {
-                var subjectName = tds[1].text().trim()
+            if (subjectName.isNotEmpty() && !subjectName.matches(Regex("^\\d+\\.?$"))) {
+                val units = mutableMapOf<String, String>()
                 
-                // AIML logic had subject name cleaning
-                if (subjectName.isEmpty() && tds.size > 0) subjectName = tds[0].text()
+                // Scan ALL cells for unit links
+                for (td in tds) {
+                    val links = td.select("a")
+                    for (link in links) {
+                        val href = link.attr("href")
+                        val text = link.text().trim()
+                        
+                        // Skip if href is empty, just "#", or points back to the notes page itself
+                        if (href.isEmpty() || href == "#" || href.endsWith("notes.html")) continue
+                        
+                        // Match Unit 1, Unit 2, etc. or just "Unit" followed by number
+                        val unitMatch = Regex("Unit\\s*(\\d+)", RegexOption.IGNORE_CASE).find(text)
+                        if (unitMatch != null) {
+                            val unitNumber = unitMatch.groupValues[1].toIntOrNull() ?: continue
+                            val unitKey = "Unit $unitNumber"
+                            // Only store if not already present (first occurrence wins)
+                            if (!units.containsKey(unitKey)) {
+                                units[unitKey] = href
+                            }
+                        }
+                    }
+                }
                 
-                if (subjectName.isNotEmpty()) {
-                    val units = mutableMapOf<String, String>()
-                    
-                    // Units usually 3, 4, 5, 6, 7 (indices)
-                    // We'll iterate starting from 2 or 3 depending on structure
-                    // The standard HTML logic says loop i = 3 to 7
-                    for (i in 3 until minOf(tds.size, 8)) {
+                // Also try legacy column-based approach for tables without explicit "Unit X" text
+                if (units.isEmpty()) {
+                    for (i in 2 until minOf(tds.size, 8)) {
                         val link = tds[i].select("a").attr("href")
-                        if (link.isNotEmpty() && link != "#") {
-                            val unitName = "Unit ${i - 2}" // 3->Unit 1, 4->Unit 2...
+                        if (link.isNotEmpty() && link != "#" && !link.endsWith("notes.html")) {
+                            val unitName = "Unit ${i - 1}" // 2->Unit 1, 3->Unit 2...
                             units[unitName] = link
                         }
                     }
-                    
-                    // Add subject if it has at least one unit or just the name
-                    subjects.add(NotesSubject(subjectName, units))
                 }
+                
+                subjects.add(NotesSubject(subjectName, units))
             }
         }
         return subjects

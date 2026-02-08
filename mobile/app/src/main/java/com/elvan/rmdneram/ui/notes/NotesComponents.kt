@@ -89,7 +89,8 @@ fun FolderItem(
 fun FilesList(
     subjects: List<NotesSubject>,
     colors: HomeColors,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    onNotUploaded: () -> Unit = {}
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -97,7 +98,7 @@ fun FilesList(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(subjects) { subject ->
-            SubjectItem(subject, colors, onLinkClick)
+            SubjectItem(subject, colors, onLinkClick, onNotUploaded)
         }
         item { Spacer(modifier = Modifier.height(80.dp)) }
     }
@@ -109,12 +110,13 @@ fun FilesList(
 fun SubjectItem(
     subject: NotesSubject,
     colors: HomeColors,
-    onLinkClick: (String) -> Unit
+    onLinkClick: (String) -> Unit,
+    onNotUploaded: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Heter: Separate Card for the Dropdown Trigger
+        // Header: Separate Card for the Dropdown Trigger
         Surface(
             shape = com.elvan.rmdneram.ui.home.HomeShapes.Card,
             color = colors.surface,
@@ -164,56 +166,55 @@ fun SubjectItem(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp) // Spacing between header and list
+                    .padding(top = 8.dp), // Spacing between header and list
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (subject.units.isNotEmpty()) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        subject.units.forEach { (unitName, url) ->
-                            Surface(
-                                shape = RoundedCornerShape(12.dp), // Slightly larger radius for standalone appearance
-                                color = colors.surface, // Match card background for items too
-                                modifier = Modifier.fillMaxWidth(),
-                                onClick = { onLinkClick(url) }
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        Icons.Default.Description,
-                                        contentDescription = null,
-                                        tint = colors.accent,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text(
-                                        text = unitName,
-                                        style = com.elvan.rmdneram.ui.home.HomeTypography.StatusBadge.copy(fontSize = 14.sp),
-                                        color = colors.textPrimary
-                                    )
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    Icon(
-                                        Icons.Default.OpenInNew,
-                                        contentDescription = "Open",
-                                        tint = colors.textSecondary.copy(alpha = 0.6f),
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
+                // Always show Unit 1 to Unit 5
+                for (unitNumber in 1..5) {
+                    val unitKey = "Unit $unitNumber"
+                    val url = subject.units[unitKey] ?: subject.units["unit $unitNumber"] ?: ""
+                    val isGoogleDrive = url.contains("drive.google.com", ignoreCase = true)
+                    val isAvailable = isGoogleDrive && url.isNotBlank()
+                    
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isAvailable) colors.surface else colors.surface.copy(alpha = 0.6f),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            if (isAvailable) {
+                                onLinkClick(url)
+                            } else {
+                                onNotUploaded()
                             }
                         }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                if (isAvailable) Icons.Default.Description else Icons.Default.CloudOff,
+                                contentDescription = null,
+                                tint = if (isAvailable) colors.accent else colors.textSecondary.copy(alpha = 0.5f),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = unitKey,
+                                style = com.elvan.rmdneram.ui.home.HomeTypography.StatusBadge.copy(fontSize = 14.sp),
+                                color = if (isAvailable) colors.textPrimary else colors.textSecondary
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                if (isAvailable) Icons.Default.OpenInNew else Icons.Default.Lock,
+                                contentDescription = if (isAvailable) "Open" else "Not Available",
+                                tint = colors.textSecondary.copy(alpha = if (isAvailable) 0.6f else 0.4f),
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
-                } else {
-                    Text(
-                        "No materials available",
-                        color = colors.textSecondary,
-                        fontSize = 14.sp,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
-                    )
                 }
             }
         }

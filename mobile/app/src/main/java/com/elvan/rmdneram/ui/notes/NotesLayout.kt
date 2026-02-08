@@ -32,6 +32,7 @@ fun NotesMainLayout(
     onBackClick: () -> Unit,
     onFolderClick: (String) -> Unit,
     onFileClick: (String) -> Unit,
+    onNotUploaded: () -> Unit,
     onRetry: () -> Unit
 ) {
     val statusBarHeight = rememberStatusBarHeight()
@@ -102,7 +103,7 @@ fun NotesMainLayout(
                                 FolderList(content.names, colors, onFolderClick)
                             }
                             is NotesViewContent.Files -> {
-                                FilesList(content.subjects, colors, onFileClick)
+                                FilesList(content.subjects, colors, onFileClick, onNotUploaded)
                             }
                             is NotesViewContent.Empty -> NotesEmptyView(colors)
                         }

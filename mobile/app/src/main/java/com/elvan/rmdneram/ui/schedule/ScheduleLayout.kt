@@ -39,6 +39,8 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.ui.graphics.TransformOrigin
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
 /**
  * ScheduleLayout - The structural skeleton of the Schedule Screen.
@@ -59,12 +61,14 @@ fun ScheduleMainLayout(
     pullRefreshState: PullToRefreshState,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
+    selectedDate: java.time.LocalDate, // Added selectedDate
     selectedDateFormatted: String,
 
     onDatePillClick: () -> Unit,
     onDateSwipePrev: () -> Unit,
     onDateSwipeNext: () -> Unit
 ) {
+    // ... existing state ...
     // Interaction Overlay State for View Type Switcher
     var isViewTypeSwitching by remember { mutableStateOf(false) }
     var viewTypeDragProgress by remember { mutableFloatStateOf(0f) }
@@ -116,8 +120,8 @@ fun ScheduleMainLayout(
                 item {
                      Spacer(modifier = Modifier.height(24.dp))
                 }
-                // --- Controls (Status Pill & Date) - Only for Class Tab ---
-                if (activeTab == "class") {
+                // --- Controls (Status Pill & Date) - Show for BOTH Tabs ---
+                if (activeTab == "class" || activeTab == "exams") {
                     // --- Date Switcher (Home Style) ---
                     item {
                         Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
@@ -144,6 +148,8 @@ fun ScheduleMainLayout(
                          Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
+
+                // ... (rest of "class" tab content remains unchanged) ...
 
                 // --- Today's Schedule (Animated on Date Swipe) - Only for Class Tab ---
                 if (activeTab == "class") {
@@ -208,27 +214,28 @@ fun ScheduleMainLayout(
                             ) {
                                 Column {
                                     // Header Title Row - Toggles Expansion
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable(
-                                                interactionSource = remember { MutableInteractionSource() },
-                                                indication = null
-                                            ) { isExpanded = !isExpanded }
-                                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "Weekly Schedule",
-                                            style = HomeTypography.SectionTitle.copy(color = colors.textSecondary)
-                                        )
-                                        Icon(
-                                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                            contentDescription = if (isExpanded) "Collapse" else "Expand",
-                                            tint = colors.textSecondary
-                                        )
-                                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) { isExpanded = !isExpanded }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val lang = LocalAppLanguage.current
+                        Text(
+                            text = AppStrings.Schedule.weeklySchedule(lang),
+                            style = HomeTypography.SectionTitle.copy(color = colors.textSecondary)
+                        )
+                        Icon(
+                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
+                            tint = colors.textSecondary
+                        )
+                    }
                                     
                                     // Collapsible Content Inside Card (Day Tabs)
                                     androidx.compose.animation.AnimatedVisibility(
@@ -271,8 +278,9 @@ fun ScheduleMainLayout(
                                         }
                                         ScheduleTable(periods = displayPeriods, colors = colors, isMini = false)
                                     } else {
+                                        val lang = LocalAppLanguage.current
                                         EmptyScheduleCard(
-                                            message = "No classes on $selectedDay",
+                                            message = AppStrings.Schedule.noClassesOn(selectedDay, lang),
                                             colors = colors
                                         )
                                     }
@@ -285,21 +293,173 @@ fun ScheduleMainLayout(
                 
                 // --- EXAMS TAB ---
                 if (activeTab == "exams") {
+                // --- EXAMS TAB ---
+                if (activeTab == "exams") {
                     item {
-                        Column {
-                            uiState.masterData.exams.forEach { exam ->
-                                Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
-                                    ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors)
+                        androidx.compose.animation.AnimatedContent(
+                            targetState = selectedDate, // Animate on date change
+                            transitionSpec = {
+                                val directionFactor = swipeDirection
+                                if (directionFactor != 0) {
+                                    (slideInHorizontally { width -> directionFactor * width } + fadeIn()) togetherWith
+                                    (slideOutHorizontally { width -> -directionFactor * width } + fadeOut())
+                                } else {
+                                    // Date Picker Selection: Subtle Scale + Fade
+                                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) + 
+                                     scaleIn(initialScale = 0.95f, animationSpec = tween(220, delayMillis = 90))) togetherWith
+                                    (fadeOut(animationSpec = tween(90)))
+                                }
+                            },
+                            label = "examContentSlide"
+                        ) { targetDate ->
+                            // Partition exams into Ongoing, Upcoming, and Finished
+                            val (ongoingExams, otherExams) = remember(uiState.masterData.exams, targetDate) {
+                                uiState.masterData.exams.partition { exam ->
+                                    try {
+                                        if (exam.startDate.isNotEmpty() && exam.endDate.isNotEmpty()) {
+                                            val start = java.time.LocalDate.parse(exam.startDate)
+                                            val end = java.time.LocalDate.parse(exam.endDate)
+                                            // Ongoing: Start <= Selected <= End
+                                            !targetDate.isBefore(start) && !targetDate.isAfter(end)
+                                        } else {
+                                            false // Invalid dates -> Treat as others (likely finished or error)
+                                        }
+                                    } catch (e: Exception) {
+                                        false
+                                    }
                                 }
                             }
-                            if (uiState.masterData.exams.isEmpty()) {
-                                EmptyScheduleCard(
-                                    message = "No Exam Timetables published.",
-                                    colors = colors
-                                )
+
+                            val (upcomingExams, finishedExams) = remember(otherExams, targetDate) {
+                                otherExams.partition { exam ->
+                                    try {
+                                        if (exam.startDate.isNotEmpty()) {
+                                            val start = java.time.LocalDate.parse(exam.startDate)
+                                            // Upcoming: Selected < Start
+                                            targetDate.isBefore(start)
+                                        } else {
+                                            false
+                                        }
+                                    } catch (e: Exception) {
+                                        false
+                                    }
+                                }
+                            }
+
+                            Column {
+                                val lang = LocalAppLanguage.current
+                                // 1. Ongoing Exams Section
+                                if (ongoingExams.isNotEmpty()) {
+                                    Text(
+                                        text = AppStrings.Schedule.ongoingExams(lang),
+                                        style = HomeTypography.SectionTitle,
+                                        color = colors.textPrimary,
+                                        modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 8.dp)
+                                    )
+                                    ongoingExams.forEach { exam ->
+                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
+                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors)
+                                        }
+                                    }
+                                } else {
+                                    // No Ongoing Exams (but might have others)
+                                    if (upcomingExams.isNotEmpty() || finishedExams.isNotEmpty()) {
+                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
+                                            EmptyScheduleCard(
+                                                message = AppStrings.Schedule.noOngoingExams(lang),
+                                                colors = colors
+                                            )
+                                            Spacer(modifier = Modifier.height(32.dp))
+                                        }
+                                    } else {
+                                        // No exams at all (Empty DB or fetch)
+                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
+                                            EmptyScheduleCard(
+                                                message = AppStrings.Schedule.noExamTimetables(lang),
+                                                colors = colors
+                                            )
+                                             Spacer(modifier = Modifier.height(32.dp))
+                                        }
+                                    }
+                                }
+
+                                // 2. Upcoming Exams Section
+                                if (upcomingExams.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = AppStrings.Schedule.upcomingExams(lang),
+                                        style = HomeTypography.SectionTitle,
+                                        color = colors.textPrimary,
+                                        modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 8.dp)
+                                    )
+                                    upcomingExams.forEach { exam ->
+                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
+                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors)
+                                        }
+                                    }
+                                }
+
+                                // 3. Finished Exams Section (Collapsible)
+                                if (finishedExams.isNotEmpty()) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    
+                                    var isFinishedExpanded by remember { mutableStateOf(false) }
+
+                                    Column {
+                                        // Header Row - Button Style (Pill Container)
+                                        Surface(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = HomeDimens.ContentPadding)
+                                                .padding(bottom = 12.dp),
+                                            shape = HomeShapes.Card,
+                                            color = colors.surface,
+                                            shadowElevation = 0.dp
+                                        ) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clickable(
+                                                        interactionSource = remember { MutableInteractionSource() },
+                                                        indication = null
+                                                    ) { isFinishedExpanded = !isFinishedExpanded }
+                                                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Text(
+                                                    text = AppStrings.Schedule.finishedExams(lang),
+                                                    style = HomeTypography.SectionTitle.copy(color = colors.textSecondary)
+                                                )
+                                                Icon(
+                                                    imageVector = if (isFinishedExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                                    contentDescription = if (isFinishedExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
+                                                    tint = colors.textSecondary
+                                                )
+                                            }
+                                        }
+                                        
+                                        // Collapsible Content
+                                        androidx.compose.animation.AnimatedVisibility(
+                                            visible = isFinishedExpanded,
+                                            enter = expandVertically() + fadeIn(),
+                                            exit = shrinkVertically() + fadeOut()
+                                        ) {
+                                            Column {
+                                                finishedExams.forEach { exam ->
+                                                    Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
+                                                        ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors)
+                                                    }
+                                                }
+                                                Spacer(modifier = Modifier.height(16.dp))
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
+                }
                 }
                 
                 // Small spacer before Course Directory
@@ -326,6 +486,7 @@ fun ScheduleMainLayout(
                                 color = colors.surface,
                                 shadowElevation = 0.dp
                             ) {
+                                val lang = LocalAppLanguage.current
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -338,12 +499,12 @@ fun ScheduleMainLayout(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Academic Courses",
+                                        text = AppStrings.Schedule.academicCourses(lang),
                                         style = HomeTypography.SectionTitle.copy(color = colors.textSecondary)
                                     )
                                     Icon(
                                         imageVector = if (isCoursesExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                        contentDescription = if (isCoursesExpanded) "Collapse" else "Expand",
+                                        contentDescription = if (isCoursesExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
                                         tint = colors.textSecondary
                                     )
                                 }
@@ -370,15 +531,16 @@ fun ScheduleMainLayout(
                     
                     // --- Staff Info ---
                     item {
+                         val lang = LocalAppLanguage.current
                          Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
                              InfoCard(
-                                 title = "Class Counselors",
+                                 title = AppStrings.Schedule.classCounselors(lang),
                                  items = uiState.masterData.counseling.counselors,
                                  colors = colors
                              )
                              Spacer(modifier = Modifier.height(16.dp))
                              InfoCard(
-                                 title = "Key Coordinators",
+                                 title = AppStrings.Schedule.keyCoordinators(lang),
                                  items = uiState.masterData.counseling.coordinators.map { "${it.key}: ${it.value}" },
                                  colors = colors
                              )

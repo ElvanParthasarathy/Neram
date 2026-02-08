@@ -1,0 +1,111 @@
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:processDebugGoogleServices UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin FAILED
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeComponents.kt:783:52 Unresolved reference 'event'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:98:33 Unresolved reference 'error'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:99:91 Unresolved reference 'error'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:128:40 Unresolved reference 'AppStrings'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:155:52 Unresolved reference 'AppStrings'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:197:56 Unresolved reference 'AppStrings'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:198:57 Unresolved reference 'AppStrings'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:212:82 Unresolved reference 'AppStrings'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:181:47 No parameter with name 'isInitialDataReady' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:192:21 No parameter with name 'isInitialDataReady' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:200:17 No parameter with name 'isInitialDataReady' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:210:39 No parameter with name 'isInitialDataReady' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:311:51 No parameter with name 'error' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:320:64 No parameter with name 'isInitialDataReady' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:330:37 No parameter with name 'isInitialDataReady' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:334:68 No parameter with name 'isInitialDataReady' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:385:33 No parameter with name 'error' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:387:33 No parameter with name 'isInitialDataReady' found.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:561:57 Unresolved reference 'Home'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:565:44 Unresolved reference 'Home'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:568:42 Unresolved reference 'Home'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:570:47 Unresolved reference 'Home'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:574:68 Unresolved reference 'Home'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:575:43 Unresolved reference 'Home'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:67:32 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:72:36 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:80:35 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:84:32 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:91:36 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:95:40 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:101:43 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:103:40 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:113:35 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:114:32 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:116:36 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:196:24 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:221:36 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:229:40 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:241:27 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:254:32 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:258:39 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:263:40 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:278:43 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:281:40 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:299:44 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:308:52 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:321:44 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:340:40 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:347:44 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:360:43 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:361:40 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:365:44 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:383:52 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:395:56 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:397:59 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:411:40 Unresolved reference 'Modifier'.
+e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/EditableSection.kt:418:44 Unresolved reference 'Modifier'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 27s
+32 actionable tasks: 2 executed, 30 up-to-date

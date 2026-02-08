@@ -193,13 +193,6 @@ fun AboutAppScreen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "v1.0.0 (BETA)",
-                style = HomeTypography.PillTime.copy(fontSize = 12.sp),
-                color = colors.textSecondary.copy(alpha = 0.5f),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
         }
     }
 }

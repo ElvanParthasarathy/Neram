@@ -14,7 +14,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ChevronRight
+import com.elvan.rmdneram.ui.navigation.SecondaryTopBar
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -45,43 +48,18 @@ import com.google.firebase.ktx.Firebase
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserDirectoryScreen(
-    onBack: () -> Unit
+    directoryPath: List<String>,
+    onDirectoryPathChange: (List<String>) -> Unit
 ) {
     val colors = rememberHomeColors()
-    val user = Firebase.auth.currentUser
-    
-    // State
-    var directoryPath by remember { mutableStateOf(listOf<String>()) }
-    var hierarchy by remember { mutableStateOf<Map<String, Map<String, List<String>>>>(emptyMap()) }
-    var userBatch by remember { mutableStateOf<String?>(null) }
-    
-    // Back Handler
-    BackHandler {
-        if (directoryPath.isNotEmpty()) {
-            directoryPath = directoryPath.dropLast(1)
-        } else {
-            onBack()
-        }
-    }
+    // Removed directoryPath state and BackHandler - hoisted to MainScreen
 
     // Load Data
-    DisposableEffect(user?.uid) {
+    var hierarchy by remember { mutableStateOf<Map<String, Map<String, List<String>>>>(emptyMap()) }
+    
+    DisposableEffect(Unit) { 
         var hierarchyListener: ValueEventListener? = null
-        var userListener: ValueEventListener? = null
         var hierarchyRef: com.google.firebase.database.DatabaseReference? = null
-        var userRef: com.google.firebase.database.DatabaseReference? = null
-
-        // Load User Batch
-        user?.uid?.let { uid ->
-            userRef = Firebase.database.getReference("users/$uid")
-            userListener = object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    userBatch = snapshot.child("batch").value?.toString()
-                }
-                override fun onCancelled(error: DatabaseError) {}
-            }
-            userRef?.addValueEventListener(userListener!!)
-        }
 
         // Load Hierarchy
         hierarchyRef = Firebase.database.getReference("academic_hierarchy")
@@ -110,68 +88,32 @@ fun UserDirectoryScreen(
 
         onDispose {
             hierarchyListener?.let { hierarchyRef?.removeEventListener(it) }
-            userListener?.let { userRef?.removeEventListener(it) }
         }
     }
 
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
-    Scaffold(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
-        containerColor = colors.background,
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    Text(
-                        "User Directory",
-                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
-                        color = colors.textPrimary
-                    )
-                },
-                navigationIcon = {
-                    Box(
-                        modifier = Modifier
-                            .padding(start = 12.dp)
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(colors.surface)
-                            .border(1.dp, colors.glassBorder, CircleShape)
-                            .clickable { 
-                                if (directoryPath.isNotEmpty()) {
-                                    directoryPath = directoryPath.dropLast(1)
-                                } else {
-                                    onBack()
-                                }
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.ChevronLeft, "Back", tint = colors.textPrimary, modifier = Modifier.size(20.dp))
-                    }
-                },
-                colors = TopAppBarDefaults.largeTopAppBarColors(
-                    containerColor = colors.background,
-                    scrolledContainerColor = colors.background,
-                    titleContentColor = colors.textPrimary
-                ),
-                scrollBehavior = scrollBehavior
-            )
-        }
-    ) { paddingValues ->
+            .background(colors.background)
+    ) {
+        // Header is now handled by MainScreen
+        
+        // Content
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(bottom = 100.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = com.elvan.rmdneram.ui.home.HomeDimens.ContentPadding,
+                end = com.elvan.rmdneram.ui.home.HomeDimens.ContentPadding,
+                top = com.elvan.rmdneram.ui.home.rememberStatusBarHeight() + com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingTop,
+                bottom = com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingBottom
+            )
         ) {
             item {
                 UserDirectoryContent(
                     hierarchy = hierarchy,
                     colors = colors,
-                    userBatch = userBatch,
                     path = directoryPath,
-                    onPathChange = { directoryPath = it }
+                    onPathChange = onDirectoryPathChange
                 )
             }
         }
@@ -182,19 +124,13 @@ fun UserDirectoryScreen(
 private fun UserDirectoryContent(
     hierarchy: Map<String, Map<String, List<String>>>,
     colors: HomeColors,
-    userBatch: String?,
     path: List<String>,
     onPathChange: (List<String>) -> Unit
 ) {
     var users by remember { mutableStateOf(listOf<Map<String, String>>()) }
     var usersLoading by remember { mutableStateOf(false) }
     
-    // Auto-set path to user's batch if available
-    LaunchedEffect(userBatch, hierarchy) {
-        if (userBatch != null && hierarchy.containsKey(userBatch) && path.isEmpty()) {
-            onPathChange(listOf(userBatch))
-        }
-    }
+    // Removed auto-set path logic
     
     // Fetch users when at section level
     LaunchedEffect(path) {
@@ -248,9 +184,7 @@ private fun UserDirectoryContent(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
         // CONTENT
         if (path.isEmpty()) {
@@ -258,9 +192,8 @@ private fun UserDirectoryContent(
             Text("Select Batch", style = HomeTypography.SectionTitle, color = colors.textPrimary)
             Spacer(modifier = Modifier.height(16.dp))
             hierarchy.keys.sorted().forEach { batch ->
-                FolderCard(
-                    title = "Batch $batch",
-                    subtitle = "${hierarchy[batch]?.size ?: 0} Departments",
+                DirectoryFolderItem(
+                    name = "Batch $batch",
                     colors = colors,
                     onClick = { onPathChange(path + batch) }
                 )
@@ -271,18 +204,12 @@ private fun UserDirectoryContent(
             val batch = path[0]
             val depts = hierarchy[batch] ?: emptyMap()
             
-            HeaderWithBack(
-                title = "Batch $batch",
-                subtitle = "Select Department",
-                colors = colors,
-                onBack = { onPathChange(path.dropLast(1)) }
-            )
+            // Header removed - using Screen-level header
             
             Spacer(modifier = Modifier.height(16.dp))
             depts.keys.sorted().forEach { dept ->
-                FolderCard(
-                    title = dept,
-                    subtitle = "${depts[dept]?.size ?: 0} Sections",
+                DirectoryFolderItem(
+                    name = dept,
                     colors = colors,
                     onClick = { onPathChange(path + dept) }
                 )
@@ -294,35 +221,24 @@ private fun UserDirectoryContent(
             val dept = path[1]
             val sections = hierarchy[batch]?.get(dept) ?: emptyList()
             
-            HeaderWithBack(
-                title = "$dept",
-                subtitle = "Select Section",
-                colors = colors,
-                onBack = { onPathChange(path.dropLast(1)) }
-            )
+            // Header removed
             
             Spacer(modifier = Modifier.height(16.dp))
             sections.sorted().forEach { section ->
-                FolderCard(
-                    title = "Section $section",
-                    subtitle = "View Students",
+                DirectoryFolderItem(
+                    name = "Section $section",
                     colors = colors,
                     onClick = { onPathChange(path + section) }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
         } else {
-            // User List
+            // User List - Keep existing list style
             val batch = path[0]
             val dept = path[1]
             val section = path[2]
             
-            HeaderWithBack(
-                title = "$dept - $section",
-                subtitle = "Student Directory",
-                colors = colors,
-                onBack = { onPathChange(path.dropLast(1)) }
-            )
+            // Header removed
             
             Spacer(modifier = Modifier.height(16.dp))
             
@@ -355,89 +271,44 @@ private fun UserDirectoryContent(
 }
 
 @Composable
-private fun FolderCard(
-    title: String,
-    subtitle: String,
+private fun DirectoryFolderItem(
+    name: String,
     colors: HomeColors,
-    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(HomeShapes.Item)
-            .background(colors.surface)
-            .border(1.dp, colors.glassBorder, HomeShapes.Item)
-            .clickable { onClick() }
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Surface(
+        onClick = onClick,
+        shape = HomeShapes.Item,
+        color = colors.surface,
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Icon(
-            Icons.Default.Folder,
-            null,
-            tint = Color(0xFFFFCC00), // Folder yellow color
-            modifier = Modifier.size(40.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            title,
-            style = HomeTypography.PillTitle,
-            color = colors.textPrimary,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            subtitle,
-            style = HomeTypography.PillTime,
-            color = colors.textSecondary,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-private fun HeaderWithBack(
-    title: String,
-    subtitle: String,
-    colors: HomeColors,
-    onBack: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
+        Row(
             modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(colors.surface)
-                .border(1.dp, colors.glassBorder, CircleShape)
-                .clickable { onBack() },
-            contentAlignment = Alignment.Center
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                Icons.Default.ChevronLeft,
-                null,
-                tint = colors.textPrimary,
-                modifier = Modifier.size(18.dp)
+                imageVector = Icons.Default.Folder,
+                contentDescription = null,
+                tint = colors.accent,
+                modifier = Modifier.size(28.dp)
             )
-        }
-        
-        Spacer(modifier = Modifier.width(12.dp))
-        
-        Column {
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
             Text(
-                title,
+                text = name,
                 style = HomeTypography.PillTitle,
                 color = colors.textPrimary,
-                fontWeight = FontWeight.SemiBold
+                modifier = Modifier.weight(1f)
             )
-            Text(
-                subtitle,
-                style = HomeTypography.PillTime,
-                color = colors.textSecondary
+            
+            Icon(
+                Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = colors.textSecondary.copy(alpha = 0.5f),
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -453,7 +324,7 @@ private fun UserCard(
             .fillMaxWidth()
             .clip(HomeShapes.Item)
             .background(colors.surface)
-            .border(1.dp, colors.glassBorder, HomeShapes.Item)
+            // Removed border
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

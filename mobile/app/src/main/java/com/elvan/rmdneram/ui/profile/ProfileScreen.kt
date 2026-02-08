@@ -1,7 +1,7 @@
 package com.elvan.rmdneram.ui.profile
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,8 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -28,17 +26,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.elvan.rmdneram.ui.home.HomeViewModel
-import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.rememberHomeColors
-import com.elvan.rmdneram.ui.home.HomeTypography
 import com.elvan.rmdneram.ui.home.HomeShapes
+import com.elvan.rmdneram.ui.home.HomeDimens
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -47,15 +44,31 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
 
-// Country codes for mobile input
-private val COUNTRY_CODES = listOf(
-    "+91" to "India",
-    "+1" to "USA",
-    "+44" to "UK",
-    "+971" to "UAE",
-    "+65" to "Singapore"
-)
+// India-only mobile format
+private fun formatMobileForDisplay(mobile: String?): String? {
+    if (mobile.isNullOrBlank()) return null
+    // Strip any leading "91" country code and spaces
+    val clean = mobile.replace(" ", "").replace("+", "")
+    val number = if (clean.startsWith("91") && clean.length > 10) {
+        clean.substring(2)
+    } else {
+        clean
+    }
+    return if (number.isNotBlank()) "+91 $number" else null
+}
+
+private fun extractMobileNumber(mobile: String?): String {
+    if (mobile.isNullOrBlank()) return ""
+    val clean = mobile.replace(" ", "").replace("+", "")
+    return if (clean.startsWith("91") && clean.length > 10) {
+        clean.substring(2)
+    } else {
+        clean
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,21 +76,14 @@ fun ProfileScreen(
     onBack: () -> Unit = {},
     homeViewModel: HomeViewModel = viewModel()
 ) {
-    val isEditable = true // Always Editable in Settings
-
-    val context = LocalContext.current
-    val colors = rememberHomeColors()
-    val uiState by homeViewModel.uiState.collectAsState()
     val user = Firebase.auth.currentUser
+    val colors = rememberHomeColors()
+    val inputBg = if (colors.isDark) colors.textSecondary.copy(alpha = 0.15f) else colors.background
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     
     // State
-    // State
-    // activeTab and directoryPath removed
-    
-    // Back Handler
-    // Removed directory back handling
     var formData by remember { mutableStateOf(mapOf<String, String>()) }
-    var originalData by remember { mutableStateOf(mapOf<String, String>()) }
     var editingField by remember { mutableStateOf<String?>(null) }
     var hierarchy by remember { mutableStateOf<Map<String, Map<String, List<String>>>>(emptyMap()) }
     
@@ -93,9 +99,10 @@ fun ProfileScreen(
     // Name editing state
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
-    var countryCode by remember { mutableStateOf("+91") }
+    // Mobile editing state (just the 10-digit number)
+    var mobileNumber by remember { mutableStateOf("") }
     
-    // Load user data and hierarchy - Use DisposableEffect to clean up listeners
+    // Load user data
     DisposableEffect(user?.uid) {
         var userListener: ValueEventListener? = null
         var hierarchyListener: ValueEventListener? = null
@@ -103,14 +110,12 @@ fun ProfileScreen(
         var hierarchyRef: com.google.firebase.database.DatabaseReference? = null
         
         user?.uid?.let { uid ->
-            // Load user profile
             userRef = Firebase.database.getReference("users/$uid")
             userListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     try {
                         val data = mutableMapOf<String, String>()
                         snapshot.children.forEach { child ->
-                            // Handle any value type by converting to String
                             val value = child.value?.toString()
                             val key = child.key
                             if (key != null && value != null) {
@@ -118,18 +123,14 @@ fun ProfileScreen(
                             }
                         }
                         formData = data
-                        originalData = data
                     } catch (e: Exception) {
                         android.util.Log.e("ProfileScreen", "Error parsing user data", e)
                     }
                 }
-                override fun onCancelled(error: DatabaseError) {
-                    android.util.Log.e("ProfileScreen", "User data load cancelled", error.toException())
-                }
+                override fun onCancelled(error: DatabaseError) {}
             }
             userRef?.addValueEventListener(userListener!!)
             
-            // Load hierarchy
             hierarchyRef = Firebase.database.getReference("academic_hierarchy")
             hierarchyListener = object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -146,19 +147,14 @@ fun ProfileScreen(
                             result[batch] = depts
                         }
                         hierarchy = result
-                    } catch (e: Exception) {
-                        android.util.Log.e("ProfileScreen", "Error parsing hierarchy", e)
-                    }
+                    } catch (e: Exception) {}
                 }
-                override fun onCancelled(error: DatabaseError) {
-                    android.util.Log.e("ProfileScreen", "Hierarchy load cancelled", error.toException())
-                }
+                override fun onCancelled(error: DatabaseError) {}
             }
             hierarchyRef?.addValueEventListener(hierarchyListener!!)
         }
         
         onDispose {
-            // Clean up listeners when composable leaves composition
             userListener?.let { userRef?.removeEventListener(it) }
             hierarchyListener?.let { hierarchyRef?.removeEventListener(it) }
         }
@@ -200,138 +196,153 @@ fun ProfileScreen(
         homeViewModel.performLogout()
     }
     
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    
-    // Main UI with One UI-style collapsing toolbar
-    // Main UI - Standard Material 3 Design
     Scaffold(
-        modifier = Modifier.fillMaxSize(), // Removed nestedScroll connection
+        modifier = Modifier.fillMaxSize(),
         containerColor = colors.background,
-        topBar = {
-            TopAppBar(
-                title = {
-                     Text(
-                        "Profile",
-                        style = HomeTypography.PageTitle.copy(fontSize = 20.sp),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = MaterialTheme.colorScheme.onSurface)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.background,
-                    scrolledContainerColor = colors.background,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+    ) { _ ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+            
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = HomeDimens.ContentPadding,
+                    end = HomeDimens.ContentPadding,
+                    top = statusBarHeight + HomeDimens.ContentPaddingTop,
+                    bottom = HomeDimens.ContentPaddingBottom
                 ),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(colors.background)
-                .padding(paddingValues),
-            contentPadding = PaddingValues(bottom = 120.dp)
-        ) {
-        
-        // Tab Switcher Removed
-        
-        // Profile Content
-        if (true) {
-            // Avatar Section
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Profile Header Card (Flat design matching other pages)
+                item {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                    shape = HomeShapes.Item,
+                    color = colors.surface,
+                    shadowElevation = 0.dp
                 ) {
-                    // Avatar
-                    val photoUrl = formData["photoURL"]
-                    if (!photoUrl.isNullOrEmpty()) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(photoUrl)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "Profile Photo",
-                            modifier = Modifier
-                                .size(100.dp)
-                                .clip(CircleShape)
-                                .border(2.dp, colors.glassBorder, CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Avatar
+                        val photoUrl = formData["photoURL"]
                         Box(
                             modifier = Modifier
-                                .size(100.dp)
+                                .size(120.dp)
                                 .clip(CircleShape)
-                                .background(colors.subtleBackground),
+                                .background(colors.accent.copy(alpha = 0.15f)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = (formData["displayName"] ?: user?.email ?: "U").take(1).uppercase(),
-                                fontSize = 36.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colors.accent
-                            )
+                            if (!photoUrl.isNullOrEmpty()) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(photoUrl)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = "Profile Photo",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Text(
+                                    text = (formData["displayName"] ?: user?.email ?: "U").take(1).uppercase(),
+                                    style = MaterialTheme.typography.displayMedium,
+                                    color = colors.accent
+                                )
+                            }
                         }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    // Sync Google Photo Button
-                    Row(
-                        modifier = Modifier
-                            .clip(HomeShapes.Pill)
-                            .background(colors.surface)
-                            // .border(1.dp, colors.glassBorder, HomeShapes.Pill) // Removed for Flat Design
-                            .clickable {
-                                // Sync photo from Google
-                                user?.providerData?.find { it.providerId == "google.com" }?.photoUrl?.let { url ->
-                                    user.uid.let { uid ->
-                                        Firebase.database.getReference("users/$uid/photoURL").setValue(url.toString())
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Name
+                        Text(
+                            text = formData["displayName"] ?: "Your Name",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = colors.textPrimary
+                        )
+                        
+                        Spacer(modifier = Modifier.height(4.dp))
+                        
+                        // Email
+                        Text(
+                            text = user?.email ?: "",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colors.textSecondary
+                        )
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Sync Photo Button
+                        FilledTonalButton(
+                            onClick = {
+                                val googleProvider = user?.providerData?.find { it.providerId == "google.com" }
+                                val googlePhotoUrl = googleProvider?.photoUrl
+                                
+                                when {
+                                    googlePhotoUrl != null -> {
+                                        user?.uid?.let { uid ->
+                                            Firebase.database.getReference("users/$uid/photoURL")
+                                                .setValue(googlePhotoUrl.toString())
+                                                .addOnSuccessListener {
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar("Photo synced successfully")
+                                                    }
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar("Sync failed: ${e.message}")
+                                                    }
+                                                }
+                                        }
+                                    }
+                                    googleProvider == null -> {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("No Google account linked")
+                                        }
+                                    }
+                                    else -> {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar("No photo found in Google account")
+                                        }
                                     }
                                 }
-                            }
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Refresh,
-                            null,
-                            tint = colors.textPrimary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            "Sync Google Photo",
-                            style = HomeTypography.PillTime,
-                            color = colors.textPrimary,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                            },
+                            shape = HomeShapes.Pill,
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = colors.accent.copy(alpha = 0.15f),
+                                contentColor = colors.accent
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.Sync,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Sync Google Photo")
+                        }
                     }
                 }
-                
-                Spacer(modifier = Modifier.height(32.dp))
             }
             
-            // Profile Fields
+            // Personal Information Card
             item {
-                Column(modifier = Modifier.padding(horizontal = 24.dp)) {
-                    // Name
-                    ProfileRowCard(
-                        readOnly = !isEditable,
-                        label = "Name",
-                        icon = Icons.Outlined.Person,
+                M3ProfileSection(
+                    title = "Personal Information",
+                    icon = Icons.Outlined.Person
+                ) {
+                    M3ProfileField(
+                        label = "Full Name",
                         value = formData["displayName"],
                         isEditing = editingField == "name",
-                        colors = colors,
                         onEdit = {
                             val full = formData["displayName"] ?: ""
                             val lastSpace = full.lastIndexOf(" ")
@@ -345,406 +356,357 @@ fun ProfileScreen(
                             editingField = "name"
                         },
                         onCancel = { editingField = null },
-                        onSave = { handleSave("name") },
-                        editContent = {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                ProfileTextField(
+                        onSave = { handleSave("name") }
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Column {
+                                Text(
+                                    text = "First Name",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = colors.textSecondary,
+                                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                                )
+                                TextField(
                                     value = firstName,
                                     onValueChange = { firstName = it },
-                                    placeholder = "First Name",
-                                    colors = colors,
-                                    modifier = Modifier.weight(1f)
+                                    placeholder = { Text("Enter first name") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = HomeShapes.Pill,
+                                    singleLine = true,
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = inputBg,
+                                        unfocusedContainerColor = inputBg,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent
+                                    )
                                 )
-                                ProfileTextField(
+                            }
+                            Column {
+                                Text(
+                                    text = "Last Name",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = colors.textSecondary,
+                                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                                )
+                                TextField(
                                     value = lastName,
                                     onValueChange = { lastName = it },
-                                    placeholder = "Last Name",
-                                    colors = colors,
-                                    modifier = Modifier.weight(1f)
+                                    placeholder = { Text("Enter last name") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = HomeShapes.Pill,
+                                    singleLine = true,
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = inputBg,
+                                        unfocusedContainerColor = inputBg,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent
+                                    )
                                 )
                             }
                         }
-                    )
+                    }
                     
-                    // Mobile
-                    ProfileRowCard(
-                        readOnly = !isEditable,
+                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    M3ProfileField(
                         label = "Mobile",
-                        icon = Icons.Outlined.Phone,
-                        value = formData["mobile"]?.let { "$countryCode $it" },
+                        value = formatMobileForDisplay(formData["mobile"]),
                         isEditing = editingField == "mobile",
-                        colors = colors,
-                        onEdit = { editingField = "mobile" },
+                        onEdit = { 
+                            mobileNumber = extractMobileNumber(formData["mobile"])
+                            editingField = "mobile" 
+                        },
                         onCancel = { editingField = null },
-                        onSave = { handleSave("mobile") },
-                        editContent = {
-                            Row(
+                        onSave = { 
+                            // Save only the 10-digit number
+                            formData = formData + ("mobile" to mobileNumber)
+                            handleSave("mobile") 
+                        }
+                    ) {
+                        Column {
+                            Text(
+                                text = "Mobile Number",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = colors.textSecondary,
+                                modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                            )
+                            TextField(
+                                value = mobileNumber,
+                                onValueChange = { 
+                                    val digits = it.filter { c -> c.isDigit() }.take(10)
+                                    mobileNumber = digits
+                                },
+                                placeholder = { Text("10-digit number") },
+                                prefix = { Text("+91 ") },
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                // Country Code Selector
-                                Box(
-                                    modifier = Modifier
-                                        .width(80.dp)
-                                        .height(48.dp)
-                                        .clip(HomeShapes.Item)
-                                        .background(colors.inputBackground)
-                                        // .border(1.dp, colors.glassBorder, RoundedCornerShape(12.dp))
-                                        .clickable {
-                                            openSelector("Select Country", COUNTRY_CODES.map { it.first }) {
-                                                countryCode = it
-                                            }
-                                        },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        Text(countryCode, fontWeight = FontWeight.SemiBold, color = colors.textPrimary)
-                                        Icon(Icons.Default.KeyboardArrowDown, null, Modifier.size(14.dp), tint = colors.textSecondary)
-                                    }
-                                }
-                                
-                                ProfileTextField(
-                                    value = formData["mobile"] ?: "",
-                                    onValueChange = { formData = formData + ("mobile" to it) },
-                                    placeholder = "Mobile Number",
-                                    colors = colors,
-                                    keyboardType = KeyboardType.Phone,
-                                    modifier = Modifier.weight(1f)
+                                shape = HomeShapes.Pill,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = inputBg,
+                                    unfocusedContainerColor = inputBg,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
                                 )
-                            }
-                        }
-                    )
-                    
-                    // Academic Details
-                    ProfileRowCard(
-                        readOnly = !isEditable,
-                        label = "Academic Details",
-                        icon = Icons.Outlined.School,
-                        value = listOfNotNull(
-                            formData["batch"],
-                            formData["department"],
-                            formData["section"]
-                        ).takeIf { it.isNotEmpty() }?.joinToString(" | "),
-                        isEditing = editingField == "academic",
-                        colors = colors,
-                        onEdit = { editingField = "academic" },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("academic") },
-                        editContent = {
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                // Batch
-                                SelectorButton(
-                                    value = formData["batch"],
-                                    placeholder = "Select Batch",
-                                    colors = colors,
-                                    enabled = true,
-                                    onClick = {
-                                        openSelector("Select Batch", getBatches()) { 
-                                            formData = formData + mapOf("batch" to it, "department" to "", "section" to "")
-                                        }
-                                    }
-                                )
-                                
-                                // Department
-                                SelectorButton(
-                                    value = formData["department"],
-                                    placeholder = "Select Department",
-                                    colors = colors,
-                                    enabled = !formData["batch"].isNullOrEmpty(),
-                                    onClick = {
-                                        formData["batch"]?.let { batch ->
-                                            openSelector("Select Department", getDepartments(batch)) {
-                                                formData = formData + mapOf("department" to it, "section" to "")
-                                            }
-                                        }
-                                    }
-                                )
-                                
-                                // Section
-                                SelectorButton(
-                                    value = formData["section"],
-                                    placeholder = "Select Section",
-                                    colors = colors,
-                                    enabled = !formData["department"].isNullOrEmpty(),
-                                    onClick = {
-                                        val batch = formData["batch"] ?: return@SelectorButton
-                                        val dept = formData["department"] ?: return@SelectorButton
-                                        openSelector("Select Section", getSections(batch, dept)) {
-                                            formData = formData + ("section" to it)
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                    )
-                    
-                    // Register Number
-                    ProfileRowCard(
-                        readOnly = !isEditable,
-                        label = "Register No",
-                        icon = Icons.Outlined.Numbers,
-                        value = formData["registerNo"],
-                        isEditing = editingField == "registerNo",
-                        colors = colors,
-                        onEdit = { editingField = "registerNo" },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("registerNo") },
-                        editContent = {
-                            ProfileTextField(
-                                value = formData["registerNo"] ?: "",
-                                onValueChange = { formData = formData + ("registerNo" to it) },
-                                placeholder = "Register Number",
-                                colors = colors
                             )
                         }
-                    )
+                    }
                     
-                    // Date of Birth
-                    ProfileRowCard(
-                        readOnly = !isEditable,
+                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    M3ProfileField(
                         label = "Date of Birth",
-                        icon = Icons.Outlined.CalendarMonth,
                         value = formData["birthday"]?.let { 
-                            try { 
-                                LocalDate.parse(it).format(DateTimeFormatter.ofPattern("dd MMM yyyy")) 
-                            } catch (e: Exception) { it }
+                            try { LocalDate.parse(it).format(DateTimeFormatter.ofPattern("dd MMM yyyy")) } 
+                            catch (e: Exception) { it }
                         },
                         isEditing = editingField == "birthday",
-                        colors = colors,
                         onEdit = { 
                             editingField = "birthday"
                             showDatePicker = true
                         },
                         onCancel = { editingField = null },
-                        onSave = { handleSave("birthday") },
-                        editContent = {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(48.dp)
-                                    .clip(HomeShapes.Item)
-                                    .background(colors.inputBackground)
-                                    .border(1.dp, colors.glassBorder, HomeShapes.Item)
-                                    .clickable { showDatePicker = true },
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                Text(
-                                    text = formData["birthday"]?.let {
-                                        try { LocalDate.parse(it).format(DateTimeFormatter.ofPattern("dd MMM yyyy")) }
-                                        catch (e: Exception) { it }
-                                    } ?: "Select Date",
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    color = if (formData["birthday"] != null) colors.textPrimary else colors.placeholder,
-                                    style = HomeTypography.PillTime
+                        onSave = { handleSave("birthday") }
+                    ) {
+                        Column {
+                            Text(
+                                text = "Date of Birth",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = colors.textSecondary,
+                                modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                            )
+                            TextField(
+                                value = formData["birthday"]?.let {
+                                    try { LocalDate.parse(it).format(DateTimeFormatter.ofPattern("dd MMM yyyy")) }
+                                    catch (e: Exception) { it }
+                                } ?: "",
+                                onValueChange = {},
+                                placeholder = { Text("Select date") },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = HomeShapes.Pill,
+                                readOnly = true,
+                                trailingIcon = {
+                                    IconButton(onClick = { showDatePicker = true }) {
+                                        Icon(Icons.Outlined.CalendarMonth, null, tint = colors.accent)
+                                    }
+                                },
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = inputBg,
+                                    unfocusedContainerColor = inputBg,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
                                 )
-                            }
+                            )
                         }
-                    )
+                    }
                     
-                    // Gender
-                    ProfileRowCard(
-                        readOnly = !isEditable,
+                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    M3ProfileField(
                         label = "Gender",
-                        icon = Icons.Outlined.People,
                         value = formData["gender"],
                         isEditing = editingField == "gender",
-                        colors = colors,
                         onEdit = { editingField = "gender" },
                         onCancel = { editingField = null },
-                        onSave = { handleSave("gender") },
-                        editContent = {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                listOf("Male", "Female", "Other").forEach { option ->
-                                    val isSelected = formData["gender"] == option
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(48.dp)
-                                            .clip(HomeShapes.Item)
-                                            .background(if (isSelected) colors.accent else colors.inputBackground)
-                                            .border(
-                                                1.dp,
-                                                if (isSelected) colors.accent else colors.glassBorder,
-                                                HomeShapes.Item
-                                            )
-                                            .clickable { formData = formData + ("gender" to option) },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            option,
-                                            color = if (isSelected) Color.White else colors.textPrimary,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
+                        onSave = { handleSave("gender") }
+                    ) {
+                        M3DropdownField(
+                            value = formData["gender"],
+                            label = "Gender",
+                            enabled = true,
+                            onClick = {
+                                openSelector("Select Gender", listOf("Male", "Female", "Other")) {
+                                    formData = formData + ("gender" to it)
                                 }
                             }
-                        }
-                    )
-                    
-                    // LinkedIn
-                    ProfileRowCard(
-                        readOnly = !isEditable,
-                        label = "LinkedIn",
-                        icon = Icons.Default.Link,
-                        value = formData["linkedin"],
-                        isEditing = editingField == "linkedin",
-                        colors = colors,
-                        onEdit = { editingField = "linkedin" },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("linkedin") },
-                        editContent = {
-                            ProfileTextField(
-                                value = formData["linkedin"] ?: "",
-                                onValueChange = { formData = formData + ("linkedin" to it) },
-                                placeholder = "https://linkedin.com/in/...",
-                                colors = colors
-                            )
-                        }
-                    )
-                    
-                    // GitHub
-                    ProfileRowCard(
-                        readOnly = !isEditable,
-                        label = "GitHub",
-                        icon = Icons.Default.Code,
-                        value = formData["github"],
-                        isEditing = editingField == "github",
-                        colors = colors,
-                        onEdit = { editingField = "github" },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("github") },
-                        editContent = {
-                            ProfileTextField(
-                                value = formData["github"] ?: "",
-                                onValueChange = { formData = formData + ("github" to it) },
-                                placeholder = "https://github.com/...",
-                                colors = colors
-                            )
-                        }
-                    )
+                        )
+                    }
                 }
             }
             
-            // Go to Settings Button Removed
-
-            // Sign Out Button
+            // Academic Information Card
             item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 24.dp)
-                        .clip(HomeShapes.Item)
-                        .background(colors.danger.copy(alpha = 0.1f))
-                        // .border(1.dp, colors.danger.copy(alpha = 0.2f), HomeShapes.Item) // Removed for Flat Design
-                        .clickable { showLogoutConfirm = true }
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
+                M3ProfileSection(
+                    title = "Academic Details",
+                    icon = Icons.Outlined.School
                 ) {
-                    Text(
-                        "Sign Out",
-                        color = colors.danger,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    M3ProfileField(
+                        label = "Batch, Department & Section",
+                        value = listOfNotNull(
+                            formData["batch"],
+                            formData["department"],
+                            formData["section"]
+                        ).takeIf { it.isNotEmpty() }?.joinToString(" • "),
+                        isEditing = editingField == "academic",
+                        onEdit = { editingField = "academic" },
+                        onCancel = { editingField = null },
+                        onSave = { handleSave("academic") }
+                    ) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            M3DropdownField(
+                                value = formData["batch"],
+                                label = "Batch",
+                                enabled = true,
+                                onClick = {
+                                    openSelector("Select Batch", getBatches()) {
+                                        formData = formData + mapOf("batch" to it, "department" to "", "section" to "")
+                                    }
+                                }
+                            )
+                            M3DropdownField(
+                                value = formData["department"],
+                                label = "Department",
+                                enabled = !formData["batch"].isNullOrEmpty(),
+                                onClick = {
+                                    formData["batch"]?.let { batch ->
+                                        openSelector("Select Department", getDepartments(batch)) {
+                                            formData = formData + mapOf("department" to it, "section" to "")
+                                        }
+                                    }
+                                }
+                            )
+                            M3DropdownField(
+                                value = formData["section"],
+                                label = "Section",
+                                enabled = !formData["department"].isNullOrEmpty(),
+                                onClick = {
+                                    val batch = formData["batch"] ?: return@M3DropdownField
+                                    val dept = formData["department"] ?: return@M3DropdownField
+                                    openSelector("Select Section", getSections(batch, dept)) {
+                                        formData = formData + ("section" to it)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                    
+                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
+                    
+                    M3ProfileField(
+                        label = "Register Number",
+                        value = formData["registerNo"],
+                        isEditing = editingField == "registerNo",
+                        onEdit = { editingField = "registerNo" },
+                        onCancel = { editingField = null },
+                        onSave = { handleSave("registerNo") }
+                    ) {
+                        Column {
+                            Text(
+                                text = "Register Number",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = colors.textSecondary,
+                                modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                            )
+                            TextField(
+                                value = formData["registerNo"] ?: "",
+                                onValueChange = { formData = formData + ("registerNo" to it) },
+                                placeholder = { Text("Enter register number") },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = HomeShapes.Pill,
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = inputBg,
+                                    unfocusedContainerColor = inputBg,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent
+                                )
+                            )
+                        }
+                    }
                 }
             }
             
-            // Version
-            item {
-                Text(
-                    text = "Neram v2.0.0 (Native)",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 40.dp),
-                    textAlign = TextAlign.Center,
-                    color = colors.textSecondary,
-                    fontSize = 12.sp
+        }
+        
+        // Navigation Row (Overlay)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = colors.textPrimary
+                )
+            }
+            
+            IconButton(onClick = { showLogoutConfirm = true }) {
+                Icon(
+                    Icons.Outlined.Logout,
+                    contentDescription = "Sign Out",
+                    tint = colors.danger
                 )
             }
         }
+        
+        // Snackbar Host
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+        ) { data ->
+            Snackbar(
+                snackbarData = data,
+                containerColor = colors.surface,
+                contentColor = colors.textPrimary,
+                shape = HomeShapes.Pill
+            )
         }
-    } // End of Scaffold
+    }
+    }
     
-    // Selector Modal
+    // Selector Bottom Sheet
     if (showSelectorModal) {
-        Dialog(onDismissRequest = { showSelectorModal = false }) {
+        ModalBottomSheet(
+            onDismissRequest = { showSelectorModal = false },
+            shape = MaterialTheme.shapes.extraLarge,
+            containerColor = colors.surface,
+            contentColor = colors.textPrimary,
+            scrimColor = Color.Black.copy(alpha = 0.5f)
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(HomeShapes.Item)
-                    .background(colors.surface)
-                    .padding(vertical = 20.dp)
+                    .padding(bottom = 32.dp)
             ) {
-                // Header
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        selectorTitle,
-                        style = HomeTypography.ExamTitle,
-                        color = colors.textPrimary
-                    )
-                    Text(
-                        "Close",
-                        color = colors.textSecondary,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.clickable { showSelectorModal = false }
-                    )
-                }
+                Text(
+                    text = selectorTitle,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = colors.textPrimary,
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+                )
                 
-                Divider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 12.dp))
+                HorizontalDivider(color = colors.glassBorder)
                 
-                // Options
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 300.dp)
-                ) {
-                    items(selectorOptions) { option ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    onSelectorSelect(option)
-                                    showSelectorModal = false
-                                }
-                                .padding(horizontal = 20.dp, vertical = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                option,
-                                color = colors.textPrimary,
-                                style = HomeTypography.PillTitle
-                            )
-                            Icon(
-                                Icons.Default.ChevronRight,
-                                null,
-                                tint = colors.glassBorder,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        Divider(color = colors.glassBorder.copy(alpha = 0.5f))
-                    }
+                selectorOptions.forEach { option ->
+                    ListItem(
+                        headlineContent = { 
+                            Text(option, color = colors.textPrimary) 
+                        },
+                        modifier = Modifier.clickable {
+                            onSelectorSelect(option)
+                            showSelectorModal = false
+                        },
+                        trailingContent = {
+                            Icon(Icons.Default.ChevronRight, null, tint = colors.accent)
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = Color.Transparent
+                        )
+                    )
                 }
             }
         }
     }
     
-    // Date Picker Dialog
+    // Date Picker
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = formData["birthday"]?.let {
@@ -770,28 +732,36 @@ fun ProfileScreen(
                     },
                     shape = HomeShapes.Pill,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.accent,
-                        contentColor = Color.White
-                    ),
-                    modifier = Modifier.padding(end = 8.dp, bottom = 8.dp)
+                        containerColor = colors.accent
+                    )
                 ) {
-                    Text("OK", style = HomeTypography.StatusBadge)
+                    Text("OK")
                 }
             },
             dismissButton = {
-                TextButton(
+                OutlinedButton(
                     onClick = { showDatePicker = false },
-                    shape = HomeShapes.Pill,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = colors.textSecondary
-                    ),
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    shape = HomeShapes.Pill
                 ) {
-                    Text("Cancel", style = HomeTypography.StatusBadge)
+                    Text("Cancel")
                 }
             },
             colors = DatePickerDefaults.colors(
                 containerColor = colors.surface,
+                titleContentColor = colors.textPrimary,
+                headlineContentColor = colors.textPrimary,
+                weekdayContentColor = colors.textSecondary,
+                subheadContentColor = colors.textSecondary,
+                navigationContentColor = colors.accent,
+                yearContentColor = colors.textPrimary,
+                currentYearContentColor = colors.accent,
+                selectedYearContentColor = colors.textPrimary,
+                selectedYearContainerColor = colors.accent,
+                dayContentColor = colors.textPrimary,
+                selectedDayContentColor = colors.textPrimary,
+                selectedDayContainerColor = colors.accent,
+                todayContentColor = colors.accent,
+                todayDateBorderColor = colors.accent
             )
         ) {
             DatePicker(
@@ -802,13 +772,14 @@ fun ProfileScreen(
                     headlineContentColor = colors.textPrimary,
                     weekdayContentColor = colors.textSecondary,
                     subheadContentColor = colors.textSecondary,
-                    yearContentColor = colors.textSecondary,
+                    navigationContentColor = colors.accent,
+                    yearContentColor = colors.textPrimary,
                     currentYearContentColor = colors.accent,
-                    selectedYearContentColor = Color.White,
+                    selectedYearContentColor = colors.textPrimary,
                     selectedYearContainerColor = colors.accent,
                     dayContentColor = colors.textPrimary,
+                    selectedDayContentColor = colors.textPrimary,
                     selectedDayContainerColor = colors.accent,
-                    selectedDayContentColor = Color.White,
                     todayContentColor = colors.accent,
                     todayDateBorderColor = colors.accent
                 )
@@ -820,134 +791,174 @@ fun ProfileScreen(
     if (showLogoutConfirm) {
         AlertDialog(
             onDismissRequest = { showLogoutConfirm = false },
-            title = { Text("Sign Out", color = colors.textPrimary) },
-            text = { Text("Are you sure you want to sign out?", color = colors.textSecondary) },
-            containerColor = colors.surface,
+            icon = { Icon(Icons.Outlined.Logout, null, tint = MaterialTheme.colorScheme.error) },
+            title = { Text("Sign Out") },
+            text = { Text("Are you sure you want to sign out of your account?") },
             confirmButton = {
-                TextButton(onClick = {
-                    handleLogout()
-                    showLogoutConfirm = false
-                }) {
-                    Text("Sign Out", color = colors.danger, fontWeight = FontWeight.Bold)
+                Button(
+                    onClick = {
+                        handleLogout()
+                        showLogoutConfirm = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Sign Out")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showLogoutConfirm = false }) {
-                    Text("Cancel", color = colors.textSecondary)
+                OutlinedButton(onClick = { showLogoutConfirm = false }) {
+                    Text("Cancel")
                 }
             }
         )
     }
 }
 
-// ==================== HELPER COMPONENTS ====================
+// ==================== M3 COMPONENTS ====================
 
 @Composable
-private fun ProfileRowCard(
-    label: String,
+private fun M3ProfileSection(
+    title: String,
     icon: ImageVector,
-    value: String?,
-    isEditing: Boolean,
-    colors: HomeColors,
-    readOnly: Boolean = false,
-    onEdit: () -> Unit,
-    onCancel: () -> Unit,
-    onSave: () -> Unit,
-    editContent: @Composable () -> Unit
+    colors: com.elvan.rmdneram.ui.home.HomeColors = rememberHomeColors(),
+    content: @Composable ColumnScope.() -> Unit
 ) {
-    Column(
+    Surface(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp)
-            .shadow(2.dp, HomeShapes.Item, spotColor = colors.shadow)
-            .clip(HomeShapes.Item)
-            .background(colors.surface)
-            .border(1.dp, colors.glassBorder, HomeShapes.Item)
-            .padding(20.dp)
+            .fillMaxWidth(),
+        shape = HomeShapes.Item,
+        color = colors.surface,
+        shadowElevation = 0.dp
     ) {
-        // Label Row
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 12.dp)
-        ) {
-            Icon(
-                icon,
-                null,
-                tint = colors.textSecondary,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                label.uppercase(),
-                style = HomeTypography.InfoLabel,
-                color = colors.textSecondary,
-                letterSpacing = 0.5.sp
-            )
-        }
-        
-        if (!isEditing) {
-            // Read View
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 16.dp)
             ) {
-                Text(
-                    value ?: "Not Set",
-                    style = HomeTypography.InfoValue,
-                    color = if (value != null) colors.textPrimary else colors.placeholder,
-                    modifier = Modifier.weight(1f)
-                )
-                
-                if (!readOnly) {
+                // Icon in blue circle
+                Surface(
+                    shape = CircleShape,
+                    color = colors.accent,
+                    modifier = Modifier.size(40.dp)
+                ) {
                     Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(colors.subtleBackground)
-                            .clickable { onEdit() },
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
                     ) {
                         Icon(
-                            Icons.Default.Edit,
-                            null,
-                            tint = colors.textPrimary,
-                            modifier = Modifier.size(14.dp)
+                            icon,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.textPrimary
+                )
             }
-        } else {
-            // Edit View
-            editContent()
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Action Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+            content()
+        }
+    }
+}
+
+@Composable
+private fun M3ProfileField(
+    label: String,
+    value: String?,
+    isEditing: Boolean,
+    onEdit: () -> Unit,
+    onCancel: () -> Unit,
+    onSave: () -> Unit,
+    colors: com.elvan.rmdneram.ui.home.HomeColors = rememberHomeColors(),
+    editContent: @Composable () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        AnimatedVisibility(
+            visible = !isEditing,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = value ?: "Not set",
+                        color = if (value != null) 
+                            MaterialTheme.colorScheme.onSurface 
+                        else 
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                overlineContent = {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                trailingContent = {
+                    FilledTonalIconButton(
+                        onClick = onEdit,
+                        modifier = Modifier.size(40.dp),
+                        colors = IconButtonDefaults.filledTonalIconButtonColors(
+                            containerColor = colors.subtleBackground,
+                            contentColor = colors.textSecondary
+                        )
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                },
+                colors = ListItemDefaults.colors(
+                    containerColor = Color.Transparent
+                )
+            )
+        }
+        
+        AnimatedVisibility(
+            visible = isEditing,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
-                Box(
-                    modifier = Modifier
-                        .clip(HomeShapes.Item)
-                        .background(colors.subtleBackground)
-                        .clickable { onCancel() }
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Text("Cancel", color = colors.textSecondary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
-                }
+                // No title label when editing
                 
-                Spacer(modifier = Modifier.width(10.dp))
+                editContent()
                 
-                Box(
-                    modifier = Modifier
-                        .clip(HomeShapes.Item)
-                        .background(colors.accent)
-                        .clickable { onSave() }
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Text("Save", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                    OutlinedButton(
+                        onClick = onCancel,
+                        shape = HomeShapes.Pill
+                    ) {
+                        Text("Cancel")
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(
+                        onClick = onSave,
+                        shape = HomeShapes.Pill,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colors.accent
+                        )
+                    ) {
+                        Text("Save")
+                    }
                 }
             }
         }
@@ -955,68 +966,44 @@ private fun ProfileRowCard(
 }
 
 @Composable
-private fun ProfileTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    colors: HomeColors,
-    modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = { Text(placeholder, color = colors.placeholder) },
-        modifier = modifier
-            .fillMaxWidth()
-            .height(52.dp),
-        shape = HomeShapes.Item,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = colors.accent,
-            unfocusedBorderColor = colors.glassBorder,
-            focusedContainerColor = colors.inputBackground,
-            unfocusedContainerColor = colors.inputBackground
-        ),
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        textStyle = HomeTypography.PillTime.copy(color = colors.textPrimary)
-    )
-}
-
-@Composable
-private fun SelectorButton(
+private fun M3DropdownField(
     value: String?,
-    placeholder: String,
-    colors: HomeColors,
+    label: String,
     enabled: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    colors: com.elvan.rmdneram.ui.home.HomeColors = rememberHomeColors()
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .alpha(if (enabled) 1f else 0.5f)
-            .clip(HomeShapes.Item)
-            .background(colors.inputBackground)
-            .border(1.dp, colors.glassBorder, HomeShapes.Item)
-            .clickable(enabled = enabled) { onClick() }
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Column {
         Text(
-            value ?: placeholder,
-            color = if (value != null) colors.textPrimary else colors.placeholder,
-            style = HomeTypography.PillTime,
-            fontWeight = if (value != null) FontWeight.Medium else FontWeight.Normal
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = colors.textSecondary,
+            modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
         )
-        Icon(
-            Icons.Default.KeyboardArrowDown,
-            null,
-            tint = colors.textSecondary,
-            modifier = Modifier.size(20.dp)
+        TextField(
+            value = value ?: "",
+            onValueChange = {},
+            placeholder = { Text("Select $label") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled) { onClick() },
+            shape = HomeShapes.Pill,
+            readOnly = true,
+            enabled = enabled,
+            trailingIcon = {
+                IconButton(onClick = onClick, enabled = enabled) {
+                    Icon(Icons.Default.ArrowDropDown, null, tint = if (enabled) colors.accent else colors.textSecondary)
+                }
+            },
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = if (colors.isDark) colors.textSecondary.copy(alpha = 0.15f) else colors.background,
+                unfocusedContainerColor = if (colors.isDark) colors.textSecondary.copy(alpha = 0.15f) else colors.background,
+                disabledContainerColor = (if (colors.isDark) colors.textSecondary.copy(alpha = 0.15f) else colors.background).copy(alpha = 0.5f),
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
         )
     }
 }
-
-

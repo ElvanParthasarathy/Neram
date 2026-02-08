@@ -22,6 +22,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.elvan.rmdneram.data.model.*
 import com.elvan.rmdneram.ui.components.ExpressivePullToRefreshBox
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
 /**
  * HomeMainLayout - The structural skeleton of the Home Screen.
@@ -122,9 +124,10 @@ fun HomeMainLayout(
                 // 3. Academic Calendar Section with slide animation
                 if (showAcademicCalendarSection) {
                     item(key = "calendar_section", contentType = "calendar_section") {
+                        val lang = LocalAppLanguage.current
                         Column {
                             Text(
-                                text = "Academic Calendar",
+                                text = AppStrings.Home.academicCalendar(lang),
                                 style = HomeTypography.SectionTitle,
                                 color = colors.textPrimary,
                                 modifier = Modifier.padding(bottom = HomeDimens.SpacingMd)
@@ -151,7 +154,7 @@ fun HomeMainLayout(
                                         GroupedEventsCard(events = events, colors = colors)
                                     } else {
                                         Text(
-                                            text = "Regular Working Day",
+                                            text = AppStrings.Home.regularWorkingDay(lang),
                                             style = HomeTypography.EmptyState,
                                             color = colors.textSecondary
                                         )

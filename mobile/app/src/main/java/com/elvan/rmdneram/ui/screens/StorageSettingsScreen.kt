@@ -23,7 +23,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.*
+import com.elvan.rmdneram.ui.home.HomeDimens
+import com.elvan.rmdneram.ui.home.HomeShapes
 import com.elvan.rmdneram.ui.theme.AppColors
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +42,9 @@ fun StorageSettingsScreen(
     var showRangePickerDialog by remember { mutableStateOf(false) }
     var showRangeConfirmDialog by remember { mutableStateOf(false) }
     var showOfflineDialog by remember { mutableStateOf(false) }
+    
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     
     val dateRangePickerState = rememberDateRangePickerState()
     
@@ -92,12 +98,12 @@ fun StorageSettingsScreen(
                         onClick = onBack,
                         modifier = Modifier.padding(top = 8.dp)
                     ) {
-                         Icon(
-                             Icons.Default.ChevronLeft, 
-                             "Back", 
-                             tint = MaterialTheme.colorScheme.onSurface,
-                             modifier = Modifier.size(32.dp)
-                         )
+                        Icon(
+                            Icons.Default.ChevronLeft,
+                            "Back",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -108,6 +114,20 @@ fun StorageSettingsScreen(
                 ),
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = colors.surface,
+                    contentColor = colors.textPrimary,
+                    shape = HomeShapes.Pill
+                )
+            }
         }
     ) { paddingValues ->
         Column(
@@ -115,9 +135,17 @@ fun StorageSettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = HomeDimens.ContentPadding)
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Cleanup Label
+            Text(
+                "CLEANUP OPTIONS",
+                style = HomeTypography.ExamTag,
+                color = colors.textSecondary,
+                modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
+            )
 
             // Cleanup Card
             Column(
@@ -125,15 +153,7 @@ fun StorageSettingsScreen(
                     .fillMaxWidth()
                     .clip(HomeShapes.Item)
                     .background(cardColor)
-                    .padding(24.dp)
             ) {
-                Text(
-                    "Cleanup Options",
-                    style = HomeTypography.SectionTitle.copy(fontSize = 14.sp),
-                    color = colors.accent,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
                 // Option 1: 30 Days
                 Row(
                    modifier = Modifier
@@ -142,20 +162,20 @@ fun StorageSettingsScreen(
                            if (isOffline) showOfflineDialog = true 
                            else showConfirmDialog = true 
                        }
-                       .padding(vertical = 12.dp),
+                       .padding(horizontal = 20.dp, vertical = 16.dp),
                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
-                            .background(colors.accent.copy(alpha = 0.1f)),
+                            .background(colors.accent),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.Outlined.Delete,
                             null,
-                            tint = colors.accent,
+                            tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -176,7 +196,7 @@ fun StorageSettingsScreen(
                     }
                 }
 
-                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 56.dp, top = 8.dp, bottom = 8.dp))
+                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
 
                 // Option 2: Range Deletion
                 Row(
@@ -186,20 +206,20 @@ fun StorageSettingsScreen(
                            if (isOffline) showOfflineDialog = true 
                            else showRangePickerDialog = true 
                        }
-                       .padding(vertical = 12.dp),
+                       .padding(horizontal = 20.dp, vertical = 16.dp),
                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
-                            .background(AppColors.Orange.copy(alpha = 0.1f)),
+                            .background(AppColors.Orange),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             Icons.Default.DateRange,
                             null,
-                            tint = AppColors.Orange,
+                            tint = Color.White,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -226,9 +246,9 @@ fun StorageSettingsScreen(
             // Usage Info (Placeholder for future)
             Text(
                 "Optimization helps keep the app responsive and saves local storage by removing old media and text records.",
-                style = MaterialTheme.typography.bodySmall,
+                style = HomeTypography.AuthorBadge,
                 color = colors.textSecondary,
-                modifier = Modifier.padding(horizontal = 12.dp)
+                modifier = Modifier.padding(horizontal = 24.dp)
             )
         }
     }
@@ -265,6 +285,12 @@ fun StorageSettingsScreen(
                         onClick = {
                             onCleanupClick()
                             showConfirmDialog = false
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Cleared updates older than 30 days",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
                         },
                         shape = HomeShapes.Pill,
                         colors = ButtonDefaults.buttonColors(
@@ -402,6 +428,12 @@ fun StorageSettingsScreen(
                         onClick = {
                             onCleanupRangeClick(startDate, endDate)
                             showRangeConfirmDialog = false
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Deleted data from $startDate to $endDate",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
                         },
                         shape = HomeShapes.Pill,
                         colors = ButtonDefaults.buttonColors(

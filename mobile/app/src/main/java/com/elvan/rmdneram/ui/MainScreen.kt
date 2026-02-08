@@ -41,12 +41,13 @@ import com.elvan.rmdneram.ui.navigation.SecondaryTopBar
 import com.elvan.rmdneram.ui.navigation.NavTab
 import com.elvan.rmdneram.ui.schedule.ScheduleScreen
 import com.elvan.rmdneram.ui.profile.ProfileScreen
-import com.elvan.rmdneram.ui.profile.HomeProfileScreen
+
 import com.elvan.rmdneram.ui.screens.CollegeSitesScreen
 import com.elvan.rmdneram.ui.screens.ContactScreen
 import com.elvan.rmdneram.ui.screens.SettingsScreen
 import com.elvan.rmdneram.ui.screens.DisplaySettingsScreen
 import com.elvan.rmdneram.ui.screens.SecuritySettingsScreen
+import com.elvan.rmdneram.ui.screens.LinkedAccountsScreen
 import com.elvan.rmdneram.ui.screens.ComplaintScreen
 import com.elvan.rmdneram.ui.screens.DeveloperInfoScreen
 import com.elvan.rmdneram.ui.screens.AboutAppScreen
@@ -63,7 +64,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ViewAgenda
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import android.widget.Toast
 
+private const val WEB_CLIENT_ID = "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com"
 
 
 /**
@@ -72,6 +84,7 @@ import androidx.compose.material.icons.outlined.ViewAgenda
  */
 @Composable
 fun MainScreen(
+    activity: Activity,
     onLogout: () -> Unit = {},
     mainViewModel: MainViewModel = viewModel(),
     homeViewModel: HomeViewModel = viewModel()
@@ -80,6 +93,9 @@ fun MainScreen(
     var currentScreen by remember { mutableStateOf("tabs") } // "tabs", "profile", "sites", "contact", "settings", "security", "admin", "pdf_viewer"
     var selectedPdfUrl by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    
+    // User Directory State (Hoisted to fix Header Z-Index/Overlay issues)
+    var userDirectoryPath by remember { mutableStateOf(listOf<String>()) }
     
     // Hoist Settings Scroll State to preserve position
     val settingsScrollState = rememberScrollState()
@@ -91,6 +107,65 @@ fun MainScreen(
 
     // Reset settings scroll when entering from tabs (not from sub-settings)
     // Removed LaunchedEffect here - handled imperatively in TopMenuBar callback
+    
+    // Google Link state and launcher - hoisted here where Activity context is GUARANTEED
+    var isGoogleLinking by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    
+    val googleLinkLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                account?.idToken?.let { idToken ->
+                    scope.launch {
+                        try {
+                            val credential = GoogleAuthProvider.getCredential(idToken, null)
+                            Firebase.auth.currentUser?.linkWithCredential(credential)
+                                ?.addOnSuccessListener {
+                                    Toast.makeText(context, "Google account linked!", Toast.LENGTH_SHORT).show()
+                                    isGoogleLinking = false
+                                }
+                                ?.addOnFailureListener { e ->
+                                    Toast.makeText(context, e.message ?: "Link failed", Toast.LENGTH_LONG).show()
+                                    isGoogleLinking = false
+                                }
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Link failed: ${e.message}", Toast.LENGTH_LONG).show()
+                            isGoogleLinking = false
+                        }
+                    }
+                } ?: run {
+                    isGoogleLinking = false
+                    Toast.makeText(context, "No ID Token received", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: ApiException) {
+                isGoogleLinking = false
+                Toast.makeText(context, "Google Sign-In Failed: ${e.statusCode}", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            isGoogleLinking = false
+        }
+    }
+    
+    val handleGoogleLink: () -> Unit = {
+        try {
+            isGoogleLinking = true
+            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(WEB_CLIENT_ID)
+                .requestEmail()
+                .build()
+            val googleSignInClient = GoogleSignIn.getClient(activity, gso)
+            googleSignInClient.signOut()
+            googleLinkLauncher.launch(googleSignInClient.signInIntent)
+        } catch (e: Exception) {
+            isGoogleLinking = false
+            e.printStackTrace()
+            Toast.makeText(context, "Could not launch Google Sign-In: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     
     val uiState by mainViewModel.uiState.collectAsState()
@@ -100,7 +175,7 @@ fun MainScreen(
     val colors = rememberHomeColors()
     
     // Get effective language code
-    val context = androidx.compose.ui.platform.LocalContext.current
+    // val context = androidx.compose.ui.platform.LocalContext.current // Already defined above
     val effectiveLanguage = remember(uiState.languageCode) {
         AppStrings.getEffectiveLanguage(uiState.languageCode, context)
     }
@@ -117,14 +192,21 @@ fun MainScreen(
                 "contact" -> currentScreen = "settings"
                 "complaint" -> currentScreen = "settings"
                 "developer" -> currentScreen = "settings"
-                "developer" -> currentScreen = "settings"
                 "language" -> currentScreen = "settings"
                 "about_app" -> currentScreen = "settings"
                 "calendar_settings" -> currentScreen = "settings"
-                "user_directory" -> currentScreen = "settings"
-                "view_profile" -> currentScreen = "tabs"
+                "linked_accounts" -> currentScreen = "security"
+                "user_directory" -> {
+                     if (userDirectoryPath.isNotEmpty()) {
+                         userDirectoryPath = userDirectoryPath.dropLast(1)
+                     } else {
+                         currentScreen = "settings"
+                     }
+                }
                 "profile" -> currentScreen = "settings"
+
                 "neram_calendar" -> currentScreen = "settings"
+                "linked_accounts" -> currentScreen = "security"
                 else -> currentScreen = "tabs" // sites -> tabs
             }
         } else {
@@ -137,8 +219,9 @@ fun MainScreen(
     fun getScreenLevel(screen: String): Int {
         return when (screen) {
             "tabs" -> 0
-            "view_profile", "sites", "contact", "settings" -> 1
+            "sites", "contact", "settings" -> 1
             "profile" -> 2 // Deep nested from Settings
+            "linked_accounts" -> 3 // Deep nested from Security
             else -> 2 // security, display, storage, complaint, developer, calendar_settings, user_directory, neram_calendar
         }
     }
@@ -147,7 +230,6 @@ fun MainScreen(
     fun getScreenTitle(screen: String): String {
         return when (screen) {
             "settings" -> "Settings"
-            "view_profile" -> "Profile"
             "profile" -> "Edit Profile"
             "sites" -> "Important Sites"
             "contact" -> "Contact"
@@ -158,7 +240,8 @@ fun MainScreen(
             "developer" -> "About Developer"
             "language" -> "Language"
             "calendar_settings" -> "Calendar Settings"
-            "user_directory" -> "User Directory"
+            "user_directory" -> if (userDirectoryPath.isEmpty()) "User Directory" else userDirectoryPath.last()
+            "linked_accounts" -> "Linked Accounts"
             "pdf_viewer" -> "Document"
             else -> ""
         }
@@ -167,13 +250,6 @@ fun MainScreen(
     var isNavInteracting by remember { mutableStateOf(false) }
     var isDragTransition by remember { mutableStateOf(false) }
     var navDragProgress by remember { mutableFloatStateOf(0f) }
-
-    // Sync progress with selection when not interacting
-    LaunchedEffect(selectedTab) {
-        if (!isNavInteracting) navDragProgress = selectedTab.ordinal.toFloat()
-    }
-
-
     // Sync progress with selection when not interacting
     LaunchedEffect(selectedTab) {
         if (!isNavInteracting) navDragProgress = selectedTab.ordinal.toFloat()
@@ -237,7 +313,7 @@ fun MainScreen(
                 .fillMaxSize()
         ) { screen ->
             when (screen) {
-                "tabs" -> {
+           "tabs" -> {
                     // Apply Navigation Bar Padding ONLY to Tabs Screen
                     Box(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars)) {
                         // Standard Tab Navigation (No Slider/Swipe)
@@ -247,7 +323,7 @@ fun MainScreen(
                                 isOffline = uiState.isOffline, 
                                 userProfile = uiState.userProfile,
                                 onProfileClick = {
-                                    currentScreen = "view_profile" // Use Read-Only Screen
+                                    // Profile click disabled
                                 },
                                 pullRefreshState = homePullRefreshState
                             )
@@ -265,10 +341,7 @@ fun MainScreen(
                         }
                     }
                 }
-                "view_profile" -> HomeProfileScreen(
-                    homeViewModel = homeViewModel,
-                    onBack = { currentScreen = "tabs" }
-                )
+
                 "profile" -> ProfileScreen( // Editable Profile from Settings
                     onBack = { currentScreen = "settings" },
                     homeViewModel = homeViewModel
@@ -294,9 +367,13 @@ fun MainScreen(
                     onNavigateToCalendarSettings = { currentScreen = "calendar_settings" },
                     onNavigateToUserDirectory = { currentScreen = "user_directory" },
                     onNavigateToAboutApp = { currentScreen = "about_app" },
+                    onLogout = onLogout,
                     scrollState = settingsScrollState
                 )
-                "security" -> SecuritySettingsScreen(onBack = { currentScreen = "settings" })
+                "security" -> SecuritySettingsScreen(
+                    onBack = { currentScreen = "settings" },
+                    onNavigateToLinkedAccounts = { currentScreen = "linked_accounts" }
+                )
                 "display" -> DisplaySettingsScreen(
                     currentTheme = uiState.themeMode,
                     onThemeChange = { mainViewModel.setThemeMode(it) },
@@ -324,7 +401,13 @@ fun MainScreen(
                     onBack = { currentScreen = "settings" }
                 )
                 "user_directory" -> UserDirectoryScreen(
-                    onBack = { currentScreen = "settings" }
+                    directoryPath = userDirectoryPath,
+                    onDirectoryPathChange = { userDirectoryPath = it }
+                )
+                "linked_accounts" -> LinkedAccountsScreen(
+                    onBack = { currentScreen = "security" },
+                    onGoogleLink = handleGoogleLink,
+                    isLinking = isGoogleLinking
                 )
                 "pdf_viewer" -> com.elvan.rmdneram.ui.screens.PdfViewerScreen(
                     url = selectedPdfUrl,
@@ -532,9 +615,17 @@ fun MainScreen(
                     // Navigate back based on current screen
                     when (currentScreen) {
                         "security", "display", "storage", "complaint", "developer", 
-                        "language", "calendar_settings", "user_directory", "profile" -> currentScreen = "settings"
+                        "language", "calendar_settings", "profile" -> currentScreen = "settings"
+                        "linked_accounts" -> currentScreen = "security"
+                        "user_directory" -> {
+                             if (userDirectoryPath.isNotEmpty()) {
+                                 userDirectoryPath = userDirectoryPath.dropLast(1)
+                             } else {
+                                 currentScreen = "settings"
+                             }
+                        }
                         "settings" -> currentScreen = settingsReferrer
-                        "view_profile", "sites", "contact", "pdf_viewer" -> currentScreen = "tabs"
+                        "sites", "contact", "pdf_viewer" -> currentScreen = "tabs"
                         else -> currentScreen = "tabs"
                     }
                 },

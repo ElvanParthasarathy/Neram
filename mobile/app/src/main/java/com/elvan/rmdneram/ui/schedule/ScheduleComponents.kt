@@ -777,20 +777,22 @@ fun CourseDirectoryTable(courses: List<Course>, colors: HomeColors) {
 
 @Composable
 fun EmptyScheduleCard(message: String, colors: HomeColors) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(HomeShapes.Item)
-            .background(colors.surface)
-            .border(1.dp, colors.glassBorder, HomeShapes.Item)
-            .padding(32.dp),
-        contentAlignment = Alignment.Center
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = HomeShapes.Card, // Changed from Item to Card to match other flat cards
+        color = colors.surface,
+        shadowElevation = 0.dp
     ) {
-        Text(
-            text = message,
-            style = HomeTypography.FacultyName,
-            color = colors.textSecondary
-        )
+        Box(
+            modifier = Modifier.padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = message,
+                style = HomeTypography.AuthorBadge,
+                color = colors.textSecondary
+            )
+        }
     }
 }
 
