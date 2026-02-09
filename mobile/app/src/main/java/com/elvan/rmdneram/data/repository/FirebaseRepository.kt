@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * Repository for accessing Data - React Native Offline Pattern
@@ -55,6 +57,52 @@ class FirebaseRepository(private val context: Context) {
         }
     }
     
+    // Helper to check if date is Today or Tomorrow (YYYY-MM-DD or DD-MM-YYYY)
+    private fun isDateTodayOrTomorrow(dateString: String): Boolean {
+        try {
+            val cleanDate = dateString.trim()
+            if (cleanDate.isBlank()) return false
+            
+            // Handle DD-MM-YYYY format
+            val normalizedDate = if (cleanDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
+                val parts = cleanDate.split("-")
+                "${parts[2]}-${parts[1]}-${parts[0]}"
+            } else {
+                cleanDate
+            }
+            
+            val date = LocalDate.parse(normalizedDate)
+            val today = LocalDate.now()
+            val tomorrow = today.plusDays(1)
+            
+            return date.isEqual(today) || date.isEqual(tomorrow)
+        } catch (e: Exception) {
+            return false 
+        }
+    }
+
+    // Helper to check if date is STRICTLY Today
+    private fun isDateToday(dateString: String): Boolean {
+        try {
+            val cleanDate = dateString.trim()
+            if (cleanDate.isBlank()) return false
+            
+            val normalizedDate = if (cleanDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
+                val parts = cleanDate.split("-")
+                "${parts[2]}-${parts[1]}-${parts[0]}"
+            } else {
+                cleanDate
+            }
+            
+            val date = LocalDate.parse(normalizedDate)
+            val today = LocalDate.now()
+            
+            return date.isEqual(today)
+        } catch (e: Exception) {
+            return false 
+        }
+    }
+
     // ==================== LISTENER TRACKING ====================
     // Like React Native's cleanup in useEffect return () => { unsub() }
     
@@ -203,24 +251,28 @@ class FirebaseRepository(private val context: Context) {
                                 newExamHashes.add(hash)
                                 
                                 if (!lastExamHashes.contains(hash)) {
-                                    // New exam schedule found!
-                                    com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
-                                        context,
-                                        "New Exam Schedule: ${exam.title}",
-                                        "Dates: ${exam.startDate} - ${exam.endDate}",
-                                        com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EXAMS,
-                                        notificationId = hash.hashCode()
-                                    )
-                                    // Store in notification center
-                                    localDb.notificationDao().insertNotification(
-                                        NotificationEntity(
-                                            title = "New Exam: ${exam.title}",
-                                            message = "Dates: ${exam.startDate} - ${exam.endDate}",
-                                            timestamp = System.currentTimeMillis(),
-                                            type = "exam"
+                                    // Only notify if exam is Today/Tomorrow (Immediate relevance)
+                                    val checkDate = if (exam.endDate.isNotBlank()) exam.endDate else exam.startDate
+                                    if (isDateTodayOrTomorrow(checkDate)) {
+                                        // New exam schedule found!
+                                        com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                            context,
+                                            "New Exam Schedule: ${exam.title}",
+                                            "Dates: ${exam.startDate} - ${exam.endDate}",
+                                            com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EXAMS,
+                                            notificationId = hash.hashCode()
                                         )
-                                    )
-                                    Log.d(TAG, "Notification triggered for new exam: ${exam.title}")
+                                        // Store in notification center
+                                        localDb.notificationDao().insertNotification(
+                                            NotificationEntity(
+                                                title = "New Exam: ${exam.title}",
+                                                message = "Dates: ${exam.startDate} - ${exam.endDate}",
+                                                timestamp = System.currentTimeMillis(),
+                                                type = "exam"
+                                            )
+                                        )
+                                        Log.d(TAG, "Notification triggered for new exam: ${exam.title}")
+                                    }
                                 }
                             }
                             // Save new hashes
@@ -379,27 +431,30 @@ class FirebaseRepository(private val context: Context) {
                             newEventHashes.add(hash)
                             
                             if (!lastEventHashes.contains(hash)) {
-                                // New event found!
-                                val title = if (event.type.equals("Holiday", ignoreCase = true)) "New Holiday Added" else "New Event: ${event.title}"
-                                val message = "${event.title} on ${event.date}"
-                                
-                                com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
-                                    context,
-                                    title,
-                                    message,
-                                    com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EVENTS,
-                                    notificationId = hash.hashCode()
-                                )
-                                // Store in notification center
-                                localDb.notificationDao().insertNotification(
-                                    NotificationEntity(
-                                        title = title,
-                                        message = message,
-                                        timestamp = System.currentTimeMillis(),
-                                        type = "alert"
+                                // Only notify if event is Today/Tomorrow
+                                if (isDateTodayOrTomorrow(event.date)) {
+                                    // New event found!
+                                    val title = if (event.type.equals("Holiday", ignoreCase = true)) "New Holiday Added" else "New Event: ${event.title}"
+                                    val message = "${event.title} on ${event.date}"
+                                    
+                                    com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                        context,
+                                        title,
+                                        message,
+                                        com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EVENTS,
+                                        notificationId = hash.hashCode()
                                     )
-                                )
-                                Log.d(TAG, "Notification triggered for new event: ${event.title}")
+                                    // Store in notification center
+                                    localDb.notificationDao().insertNotification(
+                                        NotificationEntity(
+                                            title = title,
+                                            message = message,
+                                            timestamp = System.currentTimeMillis(),
+                                            type = "alert"
+                                        )
+                                    )
+                                    Log.d(TAG, "Notification triggered for new event: ${event.title}")
+                                }
                             }
                         }
                         // Save new hashes
@@ -512,24 +567,27 @@ class FirebaseRepository(private val context: Context) {
                                 newDailyHashes.add(updateHash)
                                 
                                 if (!lastDailyHashes.contains(updateHash)) {
-                                    // New daily update - trigger notification
-                                    com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
-                                        context,
-                                        "Daily Update ($dateKey)",
-                                        "$note" + if (author.isNotEmpty()) " - $author" else "",
-                                        com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_DAILY,
-                                        notificationId = updateHash.hashCode()
-                                    )
-                                    // Store in notification center
-                                    localDb.notificationDao().insertNotification(
-                                        NotificationEntity(
-                                            title = "Daily Update ($dateKey)",
-                                            message = "$note" + if (author.isNotEmpty()) " - $author" else "",
-                                            timestamp = System.currentTimeMillis(),
-                                            type = "update"
+                                    // Only notify if Update is STRICTLY Today
+                                    if (isDateToday(dateKey)) {
+                                        // New daily update - trigger notification
+                                        com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                            context,
+                                            "Daily Update ($dateKey)",
+                                            "$note" + if (author.isNotEmpty()) " - $author" else "",
+                                            com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_DAILY,
+                                            notificationId = updateHash.hashCode()
                                         )
-                                    )
-                                    Log.d(TAG, "Notification triggered for daily update: $dateKey")
+                                        // Store in notification center
+                                        localDb.notificationDao().insertNotification(
+                                            NotificationEntity(
+                                                title = "Daily Update ($dateKey)",
+                                                message = "$note" + if (author.isNotEmpty()) " - $author" else "",
+                                                timestamp = System.currentTimeMillis(),
+                                                type = "update"
+                                            )
+                                        )
+                                        Log.d(TAG, "Notification triggered for daily update: $dateKey")
+                                    }
                                 }
                             }
                         }
@@ -656,24 +714,27 @@ class FirebaseRepository(private val context: Context) {
                             newSectionEventHashes.add(hash)
                             
                             if (!lastSectionEventHashes.contains(hash)) {
-                                // New section event found!
-                                com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
-                                    context,
-                                    "New Class Event: ${event.title}",
-                                    "${event.title} on ${event.date}",
-                                    com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EVENTS,
-                                    notificationId = hash.hashCode()
-                                )
-                                // Store in notification center
-                                localDb.notificationDao().insertNotification(
-                                    NotificationEntity(
-                                        title = "New Class Event: ${event.title}",
-                                        message = "${event.title} on ${event.date}",
-                                        timestamp = System.currentTimeMillis(),
-                                        type = "alert"
+                                // Only notify if event is Today/Tomorrow
+                                if (isDateTodayOrTomorrow(event.date)) {
+                                    // New section event found!
+                                    com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                        context,
+                                        "New Class Event: ${event.title}",
+                                        "${event.title} on ${event.date}",
+                                        com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EVENTS,
+                                        notificationId = hash.hashCode()
                                     )
-                                )
-                                Log.d(TAG, "Notification triggered for new section event: ${event.title}")
+                                    // Store in notification center
+                                    localDb.notificationDao().insertNotification(
+                                        NotificationEntity(
+                                            title = "New Class Event: ${event.title}",
+                                            message = "${event.title} on ${event.date}",
+                                            timestamp = System.currentTimeMillis(),
+                                            type = "alert"
+                                        )
+                                    )
+                                    Log.d(TAG, "Notification triggered for new section event: ${event.title}")
+                                }
                             }
                         }
                         // Save new hashes
