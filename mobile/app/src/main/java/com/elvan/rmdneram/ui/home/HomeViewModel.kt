@@ -139,6 +139,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val showWelcomeMessage: Boolean = true // Start true
     )
     
+    // Notification Count
+    val unreadNotifs: StateFlow<Int> = com.elvan.rmdneram.data.repository.NotificationRepository(application.applicationContext).unreadCount
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+    
     // Date formatter for Firebase keys
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     

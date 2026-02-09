@@ -1,29 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom'; 
+import ReactDOM from 'react-dom';
 import { db } from "../../firebase";
 import { ref, onValue, update, remove } from "firebase/database";
-import { 
-  RiUserSettingsLine, RiArrowLeftLine, RiUserLine, RiPhoneLine, 
-  RiSave3Line, RiCloseLine, RiMailLine, RiGoogleFill, 
-  RiDeleteBin6Line, RiHashtag, RiCake2Line, RiUserSharedLine, 
-  RiRefreshLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine 
+import {
+  RiUserSettingsLine, RiArrowLeftLine, RiUserLine, RiPhoneLine,
+  RiSave3Line, RiCloseLine, RiMailLine, RiGoogleFill,
+  RiDeleteBin6Line, RiHashtag, RiCake2Line, RiUserSharedLine,
+  RiRefreshLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine
 } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 
 const UserManagement = () => {
   const navigate = useNavigate();
-  
+
   // Data States
   const [users, setUsers] = useState({});
   const [hierarchy, setHierarchy] = useState({});
   const [loading, setLoading] = useState(true);
 
   // Hierarchy Navigation States
-  const [viewLevel, setViewLevel] = useState('batches'); 
+  const [viewLevel, setViewLevel] = useState('batches');
   const [currentPath, setCurrentPath] = useState({ batch: '', dept: '', sec: '' });
 
   // UI States
-  const [selectedUser, setSelectedUser] = useState(null); 
+  const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Ref to store scroll position
@@ -63,7 +63,7 @@ const UserManagement = () => {
     } else {
       if (mainViewport) {
         // Unlock and Restore
-        mainViewport.style.overflow = ''; 
+        mainViewport.style.overflow = '';
         mainViewport.scrollTop = scrollPos.current;
       }
     }
@@ -99,38 +99,34 @@ const UserManagement = () => {
 
     // 1. Check for existing separate fields
     if (u.firstName || u.lastName) {
-        firstName = u.firstName || "";
-        lastName = u.lastName || "";
+      firstName = u.firstName || "";
+      lastName = u.lastName || "";
     } else {
-        // 2. Fallback: Use "Last Space" logic
-        const full = u.displayName || "";
-        const lastSpaceIndex = full.lastIndexOf(" ");
-        
-        if (lastSpaceIndex === -1) {
-            firstName = full;
-            lastName = "";
-        } else {
-            firstName = full.substring(0, lastSpaceIndex);
-            lastName = full.substring(lastSpaceIndex + 1);
-        }
+      // 2. Fallback: Use "Last Space" logic
+      const full = u.displayName || "";
+      const lastSpaceIndex = full.lastIndexOf(" ");
+
+      if (lastSpaceIndex === -1) {
+        firstName = full;
+        lastName = "";
+      } else {
+        firstName = full.substring(0, lastSpaceIndex);
+        lastName = full.substring(lastSpaceIndex + 1);
+      }
     }
 
-    let countryCode = "+91";
+    // Extract just the 10-digit phone number (strip any 91 prefix or spaces)
     let phoneNumber = "";
-    if (u.mobile && u.mobile.includes(" ")) {
-      const parts = u.mobile.split(" ");
-      countryCode = parts[0];
-      phoneNumber = parts.slice(1).join("");
-    } else {
-      phoneNumber = u.mobile || "";
+    if (u.mobile) {
+      const clean = u.mobile.replace(/\s/g, '').replace(/\+/g, '');
+      phoneNumber = clean.startsWith('91') && clean.length > 10 ? clean.substring(2) : clean;
     }
 
-    setSelectedUser({ 
-      ...u, 
-      uid, 
-      firstName, 
-      lastName, 
-      countryCode, 
+    setSelectedUser({
+      ...u,
+      uid,
+      firstName,
+      lastName,
       phoneNumber,
       dob: u.dob || "",
       gender: u.gender || ""
@@ -151,17 +147,16 @@ const UserManagement = () => {
     if (!selectedUser) return;
     try {
       const fullDisplayName = `${selectedUser.firstName} ${selectedUser.lastName}`.trim();
-      const fullMobile = `${selectedUser.countryCode} ${selectedUser.phoneNumber}`.trim();
-      
+
       // Extract fields to save, ensuring we don't duplicate local temp vars
-      const { uid, firstName, lastName, countryCode, phoneNumber, ...dataToSave } = selectedUser;
-      
+      const { uid, firstName, lastName, phoneNumber, ...dataToSave } = selectedUser;
+
       const finalPayload = {
         ...dataToSave,
         displayName: fullDisplayName,
-        firstName: selectedUser.firstName, // Save Explicitly
-        lastName: selectedUser.lastName,   // Save Explicitly
-        mobile: fullMobile
+        firstName: selectedUser.firstName,
+        lastName: selectedUser.lastName,
+        mobile: selectedUser.phoneNumber // Save just the 10-digit number
       };
 
       await update(ref(db, `users/${uid}`), finalPayload);
@@ -183,7 +178,7 @@ const UserManagement = () => {
 
   // --- MODAL JSX CONTENT ---
   const modalContent = selectedUser ? (
-    <div className="modal-overlay animate-fade-in" style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999}}>
+    <div className="modal-overlay animate-fade-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
       <div className="user-control-modal full-control animate-pop-in">
         <div className="modal-header">
           <div className="modal-title">
@@ -217,13 +212,24 @@ const UserManagement = () => {
           </div>
 
           <div className="input-row">
-            <div className="field" style={{ flex: '0 0 80px' }}>
-              <label>Code</label>
-              <input type="text" value={selectedUser.countryCode} onChange={e => handleLocalChange('countryCode', e.target.value)} className="modal-input" />
-            </div>
             <div className="field">
               <label><RiPhoneLine /> Mobile Number</label>
-              <input type="tel" value={selectedUser.phoneNumber} onChange={e => handleLocalChange('phoneNumber', e.target.value)} className="modal-input" />
+              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '0 12px' }}>
+                <span style={{ fontWeight: '600', color: 'var(--text-secondary)', marginRight: '8px' }}>+91</span>
+                <input
+                  type="tel"
+                  value={selectedUser.phoneNumber}
+                  onChange={e => {
+                    // STRICT: Allow ONLY digits, max 10
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    handleLocalChange('phoneNumber', digits);
+                  }}
+                  className="modal-input"
+                  style={{ border: 'none', background: 'transparent', paddingLeft: 0, flex: 1 }}
+                  placeholder="10-digit number"
+                  maxLength={10}
+                />
+              </div>
             </div>
           </div>
 
@@ -261,7 +267,7 @@ const UserManagement = () => {
               <label>Dept</label>
               <select disabled={!selectedUser.batch} value={selectedUser.department || ""} onChange={e => handleLocalChange('department', e.target.value)} className="modal-select">
                 <option value="">Select Dept</option>
-                {selectedUser.batch && hierarchy[selectedUser.batch] && 
+                {selectedUser.batch && hierarchy[selectedUser.batch] &&
                   Object.keys(hierarchy[selectedUser.batch]).filter(d => d !== 'initialized').map(d => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
@@ -277,7 +283,7 @@ const UserManagement = () => {
 
         <div className="modal-footer">
           <button className="btn-danger-outline" onClick={() => {
-            if(window.confirm("Delete record?")) {
+            if (window.confirm("Delete record?")) {
               remove(ref(db, `users/${selectedUser.uid}`));
               setSelectedUser(null);
             }
@@ -313,9 +319,9 @@ const UserManagement = () => {
 
       {viewLevel === 'students' && (
         <div className="admin-card search-card">
-          <input 
-            type="text" 
-            placeholder="Search students in this section..." 
+          <input
+            type="text"
+            placeholder="Search students in this section..."
             className="admin-input search-input"
             onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
           />

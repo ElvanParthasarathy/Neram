@@ -59,6 +59,8 @@ fun TopMenuBar(
     isOffline: Boolean = false,
     showMenu: Boolean = true,
     onBack: (() -> Unit)? = null,
+    onNotificationsClick: (() -> Unit)? = null, // Added Notification Action
+    unreadCount: Int = 0,
     actions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -131,6 +133,41 @@ fun TopMenuBar(
             ) {
                 // Injected Actions (Calendar controls etc)
                 actions()
+
+                // Notification Bell
+                if (onNotificationsClick != null) {
+                    Surface(
+                        modifier = Modifier.size(40.dp),
+                        shape = CircleShape,
+                        color = colors.surface, // Match card color
+                        onClick = onNotificationsClick
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Notifications,
+                                contentDescription = "Notifications",
+                                tint = colors.textPrimary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            
+                            // Badge
+                            if (unreadCount > 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(top = 8.dp, end = 8.dp) // Adjust position
+                                        .size(8.dp)
+                                        .background(colors.danger, CircleShape)
+                                        .border(1.dp, colors.surface, CircleShape)
+                                )
+                            }
+                        }
+                    }
+                }
+                 
                 
                 // Offline Badge
                 androidx.compose.animation.AnimatedVisibility(

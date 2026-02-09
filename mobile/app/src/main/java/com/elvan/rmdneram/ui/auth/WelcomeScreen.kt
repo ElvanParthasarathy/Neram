@@ -85,7 +85,7 @@ fun WelcomeScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(140.dp)
+                        .size(200.dp)
                         .graphicsLayer {
                             translationY = -logoOffset
                             scaleX = logoScale
@@ -96,7 +96,7 @@ fun WelcomeScreen(
                     // Glow effect behind logo
                     Box(
                         modifier = Modifier
-                            .size(120.dp)
+                            .size(180.dp)
                             .graphicsLayer {
                                 alpha = 0.3f
                                 scaleX = 1.3f
@@ -105,9 +105,10 @@ fun WelcomeScreen(
                     )
                     
                     Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                        painter = painterResource(id = R.drawable.ic_splash_logo),
                         contentDescription = "Neram Logo",
-                        modifier = Modifier.size(120.dp)
+                        modifier = Modifier.size(180.dp),
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(AuthColors.textPrimary())
                     )
                 }
             }
@@ -159,7 +160,7 @@ fun WelcomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Read our Privacy Policy. Tap \"Agree and Continue\" to accept the Terms of Service.",
+                        text = "Tap \"Agree and Continue\" to get started with Neram.",
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = AuthColors.textMuted(),
                             fontSize = 11.sp,

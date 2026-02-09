@@ -57,11 +57,14 @@ fun SettingsScreen(
     onNavigateToCalendarSettings: () -> Unit,
     onNavigateToUserDirectory: () -> Unit,
     onNavigateToAboutApp: () -> Unit,
+    onNavigateToNotifications: () -> Unit = {},
     onLogout: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()
 ) {
     val colors = rememberHomeColors()
     val lang = LocalAppLanguage.current
+    
+    var showLogoutDialog by remember { mutableStateOf(false) }
     
     val statusBarHeight = rememberStatusBarHeight()
     val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop
@@ -115,6 +118,16 @@ fun SettingsScreen(
                     title = AppStrings.Settings.storageData(lang),
                     description = AppStrings.Settings.storageDesc(lang),
                     onClick = onNavigateToStorage,
+                    textColor = colors.textPrimary,
+                    subTextColor = colors.textSecondary
+                )
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                SettingsListItem(
+                    icon = Icons.Outlined.Notifications,
+                    iconBgColor = AppColors.Purple,
+                    title = "Notifications",
+                    description = "Manage alerts and reminders",
+                    onClick = onNavigateToNotifications,
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
                 )
@@ -196,7 +209,7 @@ fun SettingsScreen(
                     iconBgColor = AppColors.Red,
                     title = "Sign Out",
                     description = "Log out of your Neram account",
-                    onClick = onLogout,
+                    onClick = { showLogoutDialog = true },
                     textColor = AppColors.Red, // Explicitly red for destruction
                     subTextColor = colors.textSecondary
                 )
@@ -204,6 +217,56 @@ fun SettingsScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
         }
+    
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            containerColor = colors.surface,
+            title = {
+                Text(
+                    "Sign Out",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = colors.textPrimary
+                )
+            },
+            text = {
+                Text(
+                    "Are you sure you want to sign out?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.textSecondary
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogout()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AppColors.Red,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(50), // Pill shape
+                    elevation = ButtonDefaults.buttonElevation(0.dp)
+                ) {
+                    Text("Sign Out", fontWeight = FontWeight.SemiBold)
+                }
+            },
+            dismissButton = {
+                 FilledTonalButton(
+                    onClick = { showLogoutDialog = false },
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = colors.subtleBackground,
+                        contentColor = colors.textPrimary
+                    ),
+                    shape = RoundedCornerShape(50), // Pill shape
+                    elevation = ButtonDefaults.buttonElevation(0.dp)
+                ) {
+                    Text("Cancel", fontWeight = FontWeight.SemiBold)
+                }
+            }
+        )
+    }
     // } // Scaffold removed
 }
 

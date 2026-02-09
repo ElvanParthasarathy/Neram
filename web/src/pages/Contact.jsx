@@ -3,13 +3,13 @@ import React, { useState } from "react";
 import { FaPhoneAlt, FaEnvelope, FaLinkedin, FaGithub, FaMapMarkerAlt, FaPaperPlane } from "react-icons/fa";
 
 // 2. Import Firebase functions
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"; 
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 // 3. Import EmailJS
 import emailjs from '@emailjs/browser';
 
 // 4. Import 'firestore' but call it 'db'
-import { firestore as db } from "../firebase"; 
+import { firestore as db } from "../firebase";
 
 const Contact = () => {
   // Form State
@@ -38,7 +38,7 @@ const Contact = () => {
 
     const templateParams = {
       name: formData.name,
-      mobile: formData.mobile, 
+      mobile: formData.mobile,
       email: formData.email,
       message: formData.message,
     };
@@ -53,7 +53,7 @@ const Contact = () => {
       await emailjs.send(serviceID, autoReplyTemplateID, templateParams, publicKey);
 
       alert("Message sent successfully! Please check your email for a confirmation.");
-      setFormData({ name: "", mobile: "", email: "", message: "" }); 
+      setFormData({ name: "", mobile: "", email: "", message: "" });
 
     } catch (error) {
       console.error("FAILED...", error);
@@ -65,7 +65,7 @@ const Contact = () => {
 
   return (
     <div className="contact-view">
-      
+
       {/* 👇 NEW PAGE HEADER (Matches College Sites Style) 👇 */}
       <div className="page-header">
         <h1 className="page-title">Contact & Complaints</h1>
@@ -74,26 +74,26 @@ const Contact = () => {
 
       <div className="contact-container">
         <main className="contact-content">
-          
+
           {/* LEFT SIDE: Profile + Contact Info */}
           <section className="details-section">
-            
+
             {/* Profile Intro (Inside the box as requested previously) */}
             <header className="hero-header profile-intro">
               <p className="greeting">Hello, I Am</p>
               <h1 className="name-primary">Jaiprakash Parthasarathy</h1>
               <p className="name-alias">(Also known as: Elvan Parthasarathy)</p>
-              
-              <a 
-                href="https://jaiprakashpartha.vercel.app/" 
-                target="_blank" 
+
+              <a
+                href="https://jaiprakashpartha.vercel.app/"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="link-portfolio"
               >
                 Visit My Portfolio
               </a>
             </header>
-            
+
             <hr className="divider-line" />
 
             {/* Sub-section Title */}
@@ -135,48 +135,56 @@ const Contact = () => {
 
             <form onSubmit={handleSubmit} className="contact-form">
               <div className="form-group">
-                <input 
-                  type="text" 
-                  name="name" 
-                  placeholder="Your Name" 
-                  value={formData.name} 
-                  onChange={handleChange} 
-                  required 
-                  className="form-input"
-                />
-              </div>
-              
-              <div className="form-group">
-                 <input 
-                  type="tel" 
-                  name="mobile" 
-                  placeholder="Mobile Number" 
-                  value={formData.mobile} 
-                  onChange={handleChange} 
-                  required 
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Your Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
                   className="form-input"
                 />
               </div>
 
               <div className="form-group">
-                <input 
-                  type="email" 
-                  name="email" 
-                  placeholder="Email Address" 
-                  value={formData.email} 
-                  onChange={handleChange} 
-                  required 
+                <div className="phone-input-wrapper" style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '0 12px' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: '600', marginRight: '8px' }}>+91</span>
+                  <input
+                    type="tel"
+                    name="mobile"
+                    placeholder="Mobile Number"
+                    value={formData.mobile}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setFormData({ ...formData, mobile: digits });
+                    }}
+                    required
+                    className="form-input"
+                    style={{ border: 'none', background: 'transparent', paddingLeft: 0, flex: 1 }}
+                    maxLength={10}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   className="form-input"
                 />
               </div>
 
               <div className="form-group">
-                <textarea 
-                  name="message" 
-                  placeholder="Your Message / Review / Query" 
-                  value={formData.message} 
-                  onChange={handleChange} 
-                  required 
+                <textarea
+                  name="message"
+                  placeholder="Your Message / Review / Query"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
                   className="form-input form-textarea"
                 ></textarea>
               </div>

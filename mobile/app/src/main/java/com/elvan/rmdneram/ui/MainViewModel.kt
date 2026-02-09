@@ -72,15 +72,69 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     // Sync user profile when auth changes (Login/App Start)
                     repository.getUserProfile(uid)
                         .catch { Log.e("MainViewModel", "Error loading profile", it) }
-                        .collect { profile ->
-                            val isComplete = profile != null && 
-                                             !profile.department.isNullOrEmpty() && 
-                                             !profile.batch.isNullOrEmpty() && 
-                                             !profile.section.isNullOrEmpty()
+                        .collect { dbProfile ->
+                            var effectiveProfile = dbProfile
+                            val currentUser = auth.currentUser
+
+                            // Fallback to Auth User if DB profile is missing (e.g. new signup)
+                            if (effectiveProfile == null) {
+                                effectiveProfile = currentUser?.let { user ->
+                                    val fallbackName = user.displayName?.takeUnless { it.isBlank() } 
+                                        ?: user.email?.substringBefore("@") 
+                                        ?: "Student"
+                                        
+                                    UserProfile(
+                                        uid = user.uid,
+                                        email = user.email ?: "",
+                                        displayName = fallbackName,
+                                        photoURL = user.photoUrl?.toString(),
+                                        role = "student", // Default role
+                                        batch = "",
+                                        department = "",
+                                        section = ""
+                                    )
+                                }
+                            } else if (currentUser != null) {
+                                // Auto-sync missing data
+                                val updates = mutableMapOf<String, Any>()
+                                var shouldUpdate = false
+                                
+                                // Sync Photo if missing locally but present in Auth
+                                if (currentUser.photoUrl != null && effectiveProfile.photoURL.isNullOrEmpty()) {
+                                    val newPhotoUrl = currentUser.photoUrl.toString()
+                                    effectiveProfile = effectiveProfile.copy(photoURL = newPhotoUrl)
+                                    updates["photoURL"] = newPhotoUrl
+                                    shouldUpdate = true
+                                }
+                                
+                                // Sync Name if missing locally but present in Auth
+                                if (!currentUser.displayName.isNullOrBlank() && effectiveProfile.displayName.isBlank()) {
+                                    val newName = currentUser.displayName!!
+                                    effectiveProfile = effectiveProfile.copy(displayName = newName)
+                                    updates["displayName"] = newName
+                                    shouldUpdate = true
+                                }
+                                
+                                if (shouldUpdate) {
+                                    // Persist to DB in background
+                                    viewModelScope.launch {
+                                        try {
+                                            repository.updateUserProfile(effectiveProfile.uid, updates)
+                                        } catch (e: Exception) {
+                                            Log.e("MainViewModel", "Failed to auto-sync profile data", e)
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            val isComplete = effectiveProfile != null && 
+                                             !effectiveProfile.department.isNullOrEmpty() && 
+                                             !effectiveProfile.batch.isNullOrEmpty() && 
+                                             !effectiveProfile.section.isNullOrEmpty()
                             
                             _uiState.update { 
                                 it.copy(
-                                    userProfile = profile,
+                                    userProfile = effectiveProfile,
                                     isOnboardingComplete = isComplete
                                 ) 
                             }

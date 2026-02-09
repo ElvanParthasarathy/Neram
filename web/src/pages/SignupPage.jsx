@@ -7,9 +7,9 @@ import Logo from "../assets/neramv.svg";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
-    name: "", 
-    email: "", 
-    password: "", 
+    name: "",
+    email: "",
+    password: "",
     phone: "",
     dobDay: "",
     dobMonth: "",
@@ -23,11 +23,11 @@ const SignupPage = () => {
   const splitName = (fullName) => {
     const cleanName = fullName.trim();
     const lastSpaceIndex = cleanName.lastIndexOf(" ");
-    
+
     if (lastSpaceIndex === -1) {
       return { first: cleanName, last: "" };
     }
-    
+
     return {
       first: cleanName.substring(0, lastSpaceIndex),
       last: cleanName.substring(lastSpaceIndex + 1)
@@ -37,7 +37,7 @@ const SignupPage = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
     setIsSigningUp(true);
-    
+
     try {
       // 1. Construct DOB String (YYYY-MM-DD)
       let birthDateString = "";
@@ -61,8 +61,8 @@ const SignupPage = () => {
       await set(ref(db, `users/${user.uid}`), {
         uid: user.uid,
         displayName: formData.name,
-        firstName: first, 
-        lastName: last, 
+        firstName: first,
+        lastName: last,
         email: formData.email,
         mobile: formData.phone,
         birthday: birthDateString,
@@ -76,7 +76,7 @@ const SignupPage = () => {
       });
 
       alert("Registration Successful!");
-      navigate("/"); 
+      navigate("/");
     } catch (error) {
       alert(error.message);
       setIsSigningUp(false);
@@ -94,10 +94,10 @@ const SignupPage = () => {
 
   // --- LOGIC FIX: Generate Years from 1900 to Current Year ---
   const currentYear = new Date().getFullYear();
-  const startYear = 1900; 
+  const startYear = 1900;
   // Creates an array: [2026, 2025, ..., 1901, 1900]
   const years = Array.from(
-    { length: currentYear - startYear + 1 }, 
+    { length: currentYear - startYear + 1 },
     (_, i) => currentYear - i
   );
 
@@ -110,33 +110,45 @@ const SignupPage = () => {
         <p className="brand-subtitle">Create Student Account</p>
 
         <form onSubmit={handleSignup} style={{ width: '100%' }}>
-          
+
           <div className="input-group">
-            <input type="text" className="glass-input" placeholder="Full Name" required 
-              value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
-          </div>
-          
-          <div className="input-group">
-            <input type="email" className="glass-input" placeholder="Email Address" required 
-              value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+            <input type="text" className="glass-input" placeholder="Full Name" required
+              value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
           </div>
 
           <div className="input-group">
-            <input type="tel" className="glass-input" placeholder="Phone Number" required 
-              value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} />
+            <input type="email" className="glass-input" placeholder="Email Address" required
+              value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
           </div>
-          
+
+          <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontWeight: '600', color: 'rgba(255,255,255,0.7)', paddingLeft: '8px' }}>+91</span>
+            <input
+              type="tel"
+              className="glass-input"
+              placeholder="Mobile Number"
+              required
+              value={formData.phone}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setFormData({ ...formData, phone: digits });
+              }}
+              style={{ flex: 1, paddingLeft: '8px' }}
+              maxLength={10}
+            />
+          </div>
+
           {/* --- 3-PILL DOB SELECTOR (NOW WITH ALL YEARS) --- */}
           <div className="dob-group-label">Date of Birth</div>
           <div className="dob-pill-container">
-            
+
             {/* 1. DAY */}
             <div className="select-wrapper day">
-              <select 
+              <select
                 className="glass-select-pill"
                 required
                 value={formData.dobDay}
-                onChange={(e) => setFormData({...formData, dobDay: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, dobDay: e.target.value })}
               >
                 <option value="" disabled>Day</option>
                 {[...Array(31)].map((_, i) => (
@@ -147,11 +159,11 @@ const SignupPage = () => {
 
             {/* 2. MONTH */}
             <div className="select-wrapper month">
-              <select 
-                className="glass-select-pill" 
+              <select
+                className="glass-select-pill"
                 required
                 value={formData.dobMonth}
-                onChange={(e) => setFormData({...formData, dobMonth: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, dobMonth: e.target.value })}
               >
                 <option value="" disabled>Month</option>
                 {months.map((m, i) => (
@@ -162,11 +174,11 @@ const SignupPage = () => {
 
             {/* 3. YEAR (FIXED RANGE) */}
             <div className="select-wrapper year">
-              <select 
-                className="glass-select-pill" 
+              <select
+                className="glass-select-pill"
                 required
                 value={formData.dobYear}
-                onChange={(e) => setFormData({...formData, dobYear: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, dobYear: e.target.value })}
               >
                 <option value="" disabled>Year</option>
                 {years.map((year) => (
@@ -175,20 +187,20 @@ const SignupPage = () => {
               </select>
             </div>
           </div>
-          
+
           <div className="input-group">
-            <input type={showPassword ? "text" : "password"} className="glass-input" placeholder="Password" required 
-              value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
-            
+            <input type={showPassword ? "text" : "password"} className="glass-input" placeholder="Password" required
+              value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+
             <button type="button" className="eye-icon-btn" onClick={() => setShowPassword(!showPassword)}>
               {showPassword ? "Hide" : "Show"}
             </button>
           </div>
-          
+
           <button type="submit" className="signup-btn">Register</button>
-          
+
           <div className="bottom-links">
-            Already have an account? 
+            Already have an account?
             <Link to="/login" className="link-blue">Sign In</Link>
           </div>
 

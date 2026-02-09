@@ -11,6 +11,7 @@
     <color name="bg_dark">#FF121212</color>
 
     <!-- Natkati Colors (Explicit Hex to avoid missing resource errors) -->
+    <color name="splash_logo_color">#FF000000</color>
     <color name="red_text">#EF5350</color> <!-- Red 400 -->
     <color name="default_birthdays_color">#1565C0</color> <!-- Blue 800 -->
     <color name="default_holidays_color">#388E3C</color> <!-- Green 700 -->

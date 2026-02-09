@@ -52,7 +52,7 @@ import com.elvan.rmdneram.ui.screens.ComplaintScreen
 import com.elvan.rmdneram.ui.screens.DeveloperInfoScreen
 import com.elvan.rmdneram.ui.screens.AboutAppScreen
 import com.elvan.rmdneram.ui.screens.StorageSettingsScreen
-import com.elvan.rmdneram.ui.screens.StorageSettingsScreen
+import com.elvan.rmdneram.ui.screens.NotificationSettingsScreen
 import com.elvan.rmdneram.ui.screens.LanguageSettingsScreen
 import com.elvan.rmdneram.ui.screens.UserDirectoryScreen
 import com.elvan.rmdneram.ui.home.HomeViewModel
@@ -172,6 +172,7 @@ fun MainScreen(
     val homeUiState by homeViewModel.uiState.collectAsState()
     val calendarCurrentMonth by homeViewModel.currentMonth.collectAsState()
     val calendarView by homeViewModel.calendarView.collectAsState()
+    val unreadCount by homeViewModel.unreadNotifs.collectAsState()
     val colors = rememberHomeColors()
     
     // Get effective language code
@@ -207,6 +208,8 @@ fun MainScreen(
 
                 "neram_calendar" -> currentScreen = "settings"
                 "linked_accounts" -> currentScreen = "security"
+                "notifications" -> currentScreen = "tabs"
+                "notification_settings" -> currentScreen = "settings"
                 else -> currentScreen = "tabs" // sites -> tabs
             }
         } else {
@@ -222,6 +225,7 @@ fun MainScreen(
             "sites", "contact", "settings" -> 1
             "profile" -> 2 // Deep nested from Settings
             "linked_accounts" -> 3 // Deep nested from Security
+            "notification_settings" -> 2 // Deep nested from Settings
             else -> 2 // security, display, storage, complaint, developer, calendar_settings, user_directory, neram_calendar
         }
     }
@@ -242,6 +246,8 @@ fun MainScreen(
             "calendar_settings" -> "Calendar Settings"
             "user_directory" -> if (userDirectoryPath.isEmpty()) "User Directory" else userDirectoryPath.last()
             "linked_accounts" -> "Linked Accounts"
+            "notifications" -> "Notifications"
+            "notification_settings" -> "Notification Settings"
             "pdf_viewer" -> "Document"
             else -> ""
         }
@@ -367,6 +373,7 @@ fun MainScreen(
                     onNavigateToCalendarSettings = { currentScreen = "calendar_settings" },
                     onNavigateToUserDirectory = { currentScreen = "user_directory" },
                     onNavigateToAboutApp = { currentScreen = "about_app" },
+                    onNavigateToNotifications = { currentScreen = "notification_settings" },
                     onLogout = onLogout,
                     scrollState = settingsScrollState
                 )
@@ -392,6 +399,9 @@ fun MainScreen(
                     isOffline = uiState.isOffline,
                     onBack = { currentScreen = "settings" }
                 )
+                "notification_settings" -> NotificationSettingsScreen(
+                    onBack = { currentScreen = "settings" }
+                )
                 "language" -> LanguageSettingsScreen(
                     currentLanguage = uiState.languageCode,
                     onLanguageChange = { mainViewModel.setLanguage(it) },
@@ -408,6 +418,9 @@ fun MainScreen(
                     onBack = { currentScreen = "security" },
                     onGoogleLink = handleGoogleLink,
                     isLinking = isGoogleLinking
+                )
+                "notifications" -> com.elvan.rmdneram.ui.notifications.NotificationScreen(
+                    onBack = { currentScreen = "tabs" }
                 )
                 "pdf_viewer" -> com.elvan.rmdneram.ui.screens.PdfViewerScreen(
                     url = selectedPdfUrl,
@@ -499,6 +512,8 @@ fun MainScreen(
                 onNavigateToSites = { currentScreen = "sites" },
                 isOffline = uiState.isOffline,
                 showMenu = selectedTab != NavTab.Calendar, // Hide Menu on Calendar Screen
+                onNotificationsClick = if (selectedTab == NavTab.Calendar) null else { { currentScreen = "notifications" } },
+                unreadCount = unreadCount,
                 actions = {
                     if (selectedTab == NavTab.Calendar) {
                         Row(
@@ -615,7 +630,7 @@ fun MainScreen(
                     // Navigate back based on current screen
                     when (currentScreen) {
                         "security", "display", "storage", "complaint", "developer", 
-                        "language", "calendar_settings", "profile" -> currentScreen = "settings"
+                        "language", "calendar_settings", "profile", "notification_settings" -> currentScreen = "settings"
                         "linked_accounts" -> currentScreen = "security"
                         "user_directory" -> {
                              if (userDirectoryPath.isNotEmpty()) {
@@ -625,7 +640,7 @@ fun MainScreen(
                              }
                         }
                         "settings" -> currentScreen = settingsReferrer
-                        "sites", "contact", "pdf_viewer" -> currentScreen = "tabs"
+                        "sites", "contact", "pdf_viewer", "notifications" -> currentScreen = "tabs"
                         else -> currentScreen = "tabs"
                     }
                 },

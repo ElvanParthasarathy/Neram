@@ -66,7 +66,15 @@ fun SignupScreen(
 
     // Helper to split name into first/last (matching web)
     // Helper to write user profile to database (MATCHING WEB IMPLEMENTATION)
-    fun writeUserToDatabase(uid: String, email: String, firstName: String, lastName: String, regNo: String, onComplete: () -> Unit) {
+    fun writeUserToDatabase(
+        uid: String,
+        email: String,
+        firstName: String,
+        lastName: String,
+        regNo: String,
+        photoURL: String = "",
+        onComplete: () -> Unit
+    ) {
         val userRef = database.getReference("users/$uid")
         val displayName = "$firstName $lastName".trim()
         
@@ -77,7 +85,7 @@ fun SignupScreen(
             "lastName" to lastName,
             "email" to email,
             "regNo" to regNo,
-            "photoURL" to "",
+            "photoURL" to photoURL,
             "role" to "student",
             "joinedAt" to ServerValue.TIMESTAMP,
             "lastLogin" to java.time.Instant.now().toString(),
@@ -123,6 +131,7 @@ fun SignupScreen(
                                     firstName = firstName,
                                     lastName = lastName,
                                     regNo = "",
+                                    photoURL = user.photoUrl?.toString() ?: "",
                                     onComplete = {
                                         isLoading = false
                                         onSignupSuccess()

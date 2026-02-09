@@ -11,6 +11,11 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.CompositionLocalProvider
 
 private val DarkColorScheme = darkColorScheme(
     primary = NeramBlueDark,
@@ -76,9 +81,30 @@ fun NeramTheme(
         else -> LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            // ... strict system bar logic could go here if needed
+        }
+    }
+
+    // Fix for Realme/Specific devices with large default font/display scaling
+    // We force the font scale to be at most 1.0f to maintain the intended design
+    val currentDensity = LocalDensity.current
+    val density = if (currentDensity.fontScale > 1.0f) {
+        Density(currentDensity.density, fontScale = 1.0f)
+    } else {
+        currentDensity
+    }
+
+    CompositionLocalProvider(
+        LocalDensity provides density
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }

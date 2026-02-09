@@ -33,7 +33,7 @@ import kotlinx.collections.immutable.toImmutableMap
  * 5. NEVER crash on Firebase errors - just log and continue with cache
  * 6. CLEANUP old listeners when section changes (like React Native's return () => {})
  */
-class FirebaseRepository(context: Context) {
+class FirebaseRepository(private val context: Context) {
     
     companion object {
         private const val TAG = "FirebaseRepository"
@@ -193,6 +193,40 @@ class FirebaseRepository(context: Context) {
                     val data = parseMasterData(snapshot)
                     scope.launch {
                         try {
+                            // 1. Check for New Exams
+                            val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
+                            val lastExamHashes = prefs.getStringSet("last_exam_hashes", emptySet()) ?: emptySet()
+                            val newExamHashes = mutableSetOf<String>()
+                            
+                            data.exams.forEach { exam ->
+                                val hash = "${exam.title}:${exam.startDate}".hashCode().toString()
+                                newExamHashes.add(hash)
+                                
+                                if (!lastExamHashes.contains(hash)) {
+                                    // New exam schedule found!
+                                    com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                        context,
+                                        "New Exam Schedule: ${exam.title}",
+                                        "Dates: ${exam.startDate} - ${exam.endDate}",
+                                        com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EXAMS,
+                                        notificationId = hash.hashCode()
+                                    )
+                                    // Store in notification center
+                                    localDb.notificationDao().insertNotification(
+                                        NotificationEntity(
+                                            title = "New Exam: ${exam.title}",
+                                            message = "Dates: ${exam.startDate} - ${exam.endDate}",
+                                            timestamp = System.currentTimeMillis(),
+                                            type = "exam"
+                                        )
+                                    )
+                                    Log.d(TAG, "Notification triggered for new exam: ${exam.title}")
+                                }
+                            }
+                            // Save new hashes
+                            prefs.edit().putStringSet("last_exam_hashes", newExamHashes).apply()
+                            
+                            // 2. Save to DB
                             localDb.masterDataDao().insertMasterData(MasterDataEntity.fromMasterData(data))
                             Log.d(TAG, "Master data synced to local DB")
                         } catch (e: Exception) {
@@ -335,6 +369,43 @@ class FirebaseRepository(context: Context) {
                 
                 scope.launch {
                     try {
+                        // 1. Check for New Events
+                        val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
+                        val lastEventHashes = prefs.getStringSet("last_event_hashes", emptySet()) ?: emptySet()
+                        val newEventHashes = mutableSetOf<String>()
+                        
+                        events.forEach { event ->
+                            val hash = "${event.title}:${event.date}".hashCode().toString()
+                            newEventHashes.add(hash)
+                            
+                            if (!lastEventHashes.contains(hash)) {
+                                // New event found!
+                                val title = if (event.type.equals("Holiday", ignoreCase = true)) "New Holiday Added" else "New Event: ${event.title}"
+                                val message = "${event.title} on ${event.date}"
+                                
+                                com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                    context,
+                                    title,
+                                    message,
+                                    com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EVENTS,
+                                    notificationId = hash.hashCode()
+                                )
+                                // Store in notification center
+                                localDb.notificationDao().insertNotification(
+                                    NotificationEntity(
+                                        title = title,
+                                        message = message,
+                                        timestamp = System.currentTimeMillis(),
+                                        type = "alert"
+                                    )
+                                )
+                                Log.d(TAG, "Notification triggered for new event: ${event.title}")
+                            }
+                        }
+                        // Save new hashes
+                        prefs.edit().putStringSet("last_event_hashes", newEventHashes).apply()
+                        
+                        // 2. Save to DB
                         val entities = events.map { CalendarEventEntity.fromCalendarEvent(it) }
                         localDb.calendarEventDao().replaceEvents(entities)
                         Log.d(TAG, "Calendar events synced to local DB: ${events.size} events")
@@ -392,8 +463,39 @@ class FirebaseRepository(context: Context) {
                 
                 scope.launch {
                     try {
+                        // Check for new general notice and trigger notification
+                        val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
+                        val lastGeneralHash = prefs.getString("last_general_hash", "")
+                        val currentGeneralHash = generalText.hashCode().toString()
+                        
+                        if (generalText.isNotEmpty() && lastGeneralHash != currentGeneralHash) {
+                            // New notice detected - trigger notification
+                            com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                context,
+                                "New Notice",
+                                "$generalText" + if (generalAuthor.isNotEmpty()) " - $generalAuthor" else "",
+                                com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_INSTANT,
+                                notificationId = generalText.hashCode()
+                            )
+                            // Store in notification center
+                            localDb.notificationDao().insertNotification(
+                                NotificationEntity(
+                                    title = "New Notice",
+                                    message = "$generalText" + if (generalAuthor.isNotEmpty()) " - $generalAuthor" else "",
+                                    timestamp = System.currentTimeMillis(),
+                                    type = "notice"
+                                )
+                            )
+                            prefs.edit().putString("last_general_hash", currentGeneralHash).apply()
+                            Log.d(TAG, "Notification triggered for new notice")
+                        }
+                        
                         // Update Daily Map
                         localDb.updatesDao().clearAllDailyUpdates()
+                        
+                        // Track daily updates for notifications
+                        val lastDailyHashes = prefs.getStringSet("last_daily_hashes", emptySet()) ?: emptySet()
+                        val newDailyHashes = mutableSetOf<String>()
                         
                         dailyNode.children.forEach { dateSnap ->
                             val dateKey = dateSnap.key
@@ -404,8 +506,36 @@ class FirebaseRepository(context: Context) {
                                 localDb.updatesDao().insertDailyUpdate(
                                     DailyUpdateEntity(date = dateKey, note = note, author = author)
                                 )
+                                
+                                // Check if this is a new update
+                                val updateHash = "$dateKey:$note".hashCode().toString()
+                                newDailyHashes.add(updateHash)
+                                
+                                if (!lastDailyHashes.contains(updateHash)) {
+                                    // New daily update - trigger notification
+                                    com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                        context,
+                                        "Daily Update ($dateKey)",
+                                        "$note" + if (author.isNotEmpty()) " - $author" else "",
+                                        com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_DAILY,
+                                        notificationId = updateHash.hashCode()
+                                    )
+                                    // Store in notification center
+                                    localDb.notificationDao().insertNotification(
+                                        NotificationEntity(
+                                            title = "Daily Update ($dateKey)",
+                                            message = "$note" + if (author.isNotEmpty()) " - $author" else "",
+                                            timestamp = System.currentTimeMillis(),
+                                            type = "update"
+                                        )
+                                    )
+                                    Log.d(TAG, "Notification triggered for daily update: $dateKey")
+                                }
                             }
                         }
+                        
+                        // Save new hashes for next comparison
+                        prefs.edit().putStringSet("last_daily_hashes", newDailyHashes).apply()
                         
                         // Update General
                         if (generalText.isNotEmpty()) {
@@ -516,6 +646,40 @@ class FirebaseRepository(context: Context) {
                 
                 scope.launch {
                     try {
+                        // 1. Check for New Section Events
+                        val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
+                        val lastSectionEventHashes = prefs.getStringSet("last_section_event_hashes", emptySet()) ?: emptySet()
+                        val newSectionEventHashes = mutableSetOf<String>()
+                        
+                        events.forEach { event ->
+                            val hash = "${event.title}:${event.date}".hashCode().toString()
+                            newSectionEventHashes.add(hash)
+                            
+                            if (!lastSectionEventHashes.contains(hash)) {
+                                // New section event found!
+                                com.elvan.rmdneram.ui.common.NotificationHelper.showNotification(
+                                    context,
+                                    "New Class Event: ${event.title}",
+                                    "${event.title} on ${event.date}",
+                                    com.elvan.rmdneram.ui.common.NotificationHelper.CHANNEL_ID_EVENTS,
+                                    notificationId = hash.hashCode()
+                                )
+                                // Store in notification center
+                                localDb.notificationDao().insertNotification(
+                                    NotificationEntity(
+                                        title = "New Class Event: ${event.title}",
+                                        message = "${event.title} on ${event.date}",
+                                        timestamp = System.currentTimeMillis(),
+                                        type = "alert"
+                                    )
+                                )
+                                Log.d(TAG, "Notification triggered for new section event: ${event.title}")
+                            }
+                        }
+                        // Save new hashes
+                        prefs.edit().putStringSet("last_section_event_hashes", newSectionEventHashes).apply()
+
+                        // 2. Save to DB
                         val entities = events.map { 
                             CalendarEventEntity.fromCalendarEvent(it, isSection = true) 
                         }

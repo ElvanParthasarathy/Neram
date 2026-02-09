@@ -13,6 +13,8 @@ import com.elvan.rmdneram.data.local.entity.DailyUpdateEntity
 import com.elvan.rmdneram.data.local.entity.GeneralNoticeEntity
 import com.elvan.rmdneram.data.local.entity.MasterDataEntity
 import com.elvan.rmdneram.data.local.entity.UserEntity
+import com.elvan.rmdneram.data.local.entity.NotificationEntity
+import com.elvan.rmdneram.data.local.dao.NotificationDao
 
 @Database(
     entities = [
@@ -20,9 +22,10 @@ import com.elvan.rmdneram.data.local.entity.UserEntity
         MasterDataEntity::class,
         CalendarEventEntity::class,
         DailyUpdateEntity::class,
-        GeneralNoticeEntity::class
+        GeneralNoticeEntity::class,
+        NotificationEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class NeramDatabase : RoomDatabase() {
@@ -30,6 +33,7 @@ abstract class NeramDatabase : RoomDatabase() {
     abstract fun masterDataDao(): MasterDataDao
     abstract fun calendarEventDao(): CalendarEventDao
     abstract fun updatesDao(): UpdatesDao
+    abstract fun notificationDao(): NotificationDao
 
     companion object {
         @Volatile
@@ -42,7 +46,7 @@ abstract class NeramDatabase : RoomDatabase() {
                     NeramDatabase::class.java,
                     "neram_database"
                 )
-                .fallbackToDestructiveMigration() // Reset DB if schema changes
+                .fallbackToDestructiveMigration() // Handle version bump
                 .build()
                 INSTANCE = instance
                 instance

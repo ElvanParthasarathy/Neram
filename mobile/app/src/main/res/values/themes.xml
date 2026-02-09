@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Main app theme - no splash icon, pure black background -->
+    <!-- Main app theme (Light) - no splash icon, clean light background -->
     <style name="Theme.Neram" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@android:color/black</item>
-        <item name="android:statusBarColor">@android:color/black</item>
-        <item name="android:navigationBarColor">@android:color/black</item>
+        <item name="android:windowBackground">#FAFAFA</item>
+        <item name="android:statusBarColor">#FAFAFA</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">#FAFAFA</item>
+        <item name="android:navigationBarColor">#FAFAFA</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
     
     <!-- Splash theme for backwards compatibility (pre-Android 12) -->

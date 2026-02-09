@@ -183,87 +183,106 @@ private fun UserDirectoryContent(
         }
     }
 
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        // CONTENT
-        if (path.isEmpty()) {
-            // Batch Select
-            Text("Select Batch", style = HomeTypography.SectionTitle, color = colors.textPrimary)
-            Spacer(modifier = Modifier.height(16.dp))
-            hierarchy.keys.sorted().forEach { batch ->
-                DirectoryFolderItem(
-                    name = "Batch $batch",
-                    colors = colors,
-                    onClick = { onPathChange(path + batch) }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+    AnimatedContent(
+        targetState = path,
+        transitionSpec = {
+            if (targetState.size > initialState.size) {
+                // Forward: Slide In from Right
+                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) + fadeIn() togetherWith
+                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left) + fadeOut()
+            } else {
+                // Backward: Slide In from Left
+                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) + fadeIn() togetherWith
+                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) + fadeOut()
             }
-        } else if (path.size == 1) {
-            // Dept Select
-            val batch = path[0]
-            val depts = hierarchy[batch] ?: emptyMap()
-            
-            // Header removed - using Screen-level header
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            depts.keys.sorted().forEach { dept ->
-                DirectoryFolderItem(
-                    name = dept,
-                    colors = colors,
-                    onClick = { onPathChange(path + dept) }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-        } else if (path.size == 2) {
-            // Section Select
-            val batch = path[0]
-            val dept = path[1]
-            val sections = hierarchy[batch]?.get(dept) ?: emptyList()
-            
-            // Header removed
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            sections.sorted().forEach { section ->
-                DirectoryFolderItem(
-                    name = "Section $section",
-                    colors = colors,
-                    onClick = { onPathChange(path + section) }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-        } else {
-            // User List - Keep existing list style
-            val batch = path[0]
-            val dept = path[1]
-            val section = path[2]
-            
-            // Header removed
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            if (usersLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    com.elvan.rmdneram.ui.components.ExpressiveLoadingIndicator(color = colors.accent)
+        },
+        label = "DirectoryTransition"
+    ) { currentPath ->
+        val level = currentPath.size
+        
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // CONTENT
+            if (level == 0) {
+                // Batch Select
+                Text("Select Batch", style = HomeTypography.SectionTitle, color = colors.textPrimary)
+                Spacer(modifier = Modifier.height(16.dp))
+                hierarchy.keys.sorted().forEach { batch ->
+                    DirectoryFolderItem(
+                        name = "Batch $batch",
+                        colors = colors,
+                        onClick = { onPathChange(currentPath + batch) }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
-            } else if (users.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No users found in this section.", color = colors.textSecondary)
+            } else if (level == 1) {
+                // Dept Select
+                val batch = currentPath[0]
+                val depts = hierarchy[batch] ?: emptyMap()
+                
+                // Header removed - using Screen-level header
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                depts.keys.sorted().forEach { dept ->
+                    DirectoryFolderItem(
+                        name = dept,
+                        colors = colors,
+                        onClick = { onPathChange(currentPath + dept) }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            } else if (level == 2) {
+                // Section Select
+                val batch = currentPath[0]
+                val dept = currentPath[1]
+                val sections = hierarchy[batch]?.get(dept) ?: emptyList()
+                
+                // Header removed
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                sections.sorted().forEach { section ->
+                    DirectoryFolderItem(
+                        name = "Section $section",
+                        colors = colors,
+                        onClick = { onPathChange(currentPath + section) }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             } else {
-                users.forEach { user ->
-                    UserCard(user = user, colors = colors)
-                    Spacer(modifier = Modifier.height(8.dp))
+                // User List - Keep existing list style
+                // path size >= 3
+                val batch = currentPath.getOrNull(0) ?: ""
+                val dept = currentPath.getOrNull(1) ?: ""
+                val section = currentPath.getOrNull(2) ?: ""
+                
+                // Header removed
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                if (usersLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        com.elvan.rmdneram.ui.components.ExpressiveLoadingIndicator(color = colors.accent)
+                    }
+                } else if (users.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No users found in this section.", color = colors.textSecondary)
+                    }
+                } else {
+                    users.forEach { user ->
+                        UserCard(user = user, colors = colors)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
             }
         }

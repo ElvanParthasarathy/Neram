@@ -45,6 +45,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.delay
@@ -506,6 +507,73 @@ private fun CreatePasswordFlow(
     var confirmPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var isProcessing by remember { mutableStateOf(false) }
+    var showReauthDialog by remember { mutableStateOf(false) }
+    
+    // Re-auth launcher
+    val reauthLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                account?.idToken?.let { idToken ->
+                    val credential = GoogleAuthProvider.getCredential(idToken, null)
+                    user?.reauthenticate(credential)
+                        ?.addOnSuccessListener {
+                            Toast.makeText(context, "Identity verified! Trying again...", Toast.LENGTH_SHORT).show()
+                            // Retry password update automatically
+                            isProcessing = true
+                            user.updatePassword(newPassword)
+                                .addOnSuccessListener {
+                                    isProcessing = false
+                                    step = 2
+                                }
+                                .addOnFailureListener { e ->
+                                    isProcessing = false
+                                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                                }
+                        }
+                        ?.addOnFailureListener { e ->
+                            Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            } catch (e: ApiException) {
+                Toast.makeText(context, "Verification failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    if (showReauthDialog) {
+        AlertDialog(
+            onDismissRequest = { showReauthDialog = false },
+            title = { Text("Verify Custom Identity") },
+            text = { Text("For security, please sign in with Google again to create a password.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showReauthDialog = false
+                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                            .requestIdToken(WEB_CLIENT_ID)
+                            .requestEmail()
+                            .build()
+                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
+                        reauthLauncher.launch(googleSignInClient.signInIntent)
+                    }
+                ) {
+                    Text("Verify")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReauthDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = colors.surface,
+            titleContentColor = colors.textPrimary,
+            textContentColor = colors.textSecondary
+        )
+    }
     
     val passwordsMatch = newPassword == confirmPassword && newPassword.isNotEmpty()
     val passwordValid = newPassword.length >= 6
@@ -609,7 +677,11 @@ private fun CreatePasswordFlow(
                                 }
                                 ?.addOnFailureListener { e ->
                                     isProcessing = false
-                                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                                    if (e is FirebaseAuthRecentLoginRequiredException) {
+                                        showReauthDialog = true
+                                    } else {
+                                        Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                         },
                         modifier = Modifier.fillMaxWidth().height(52.dp),
@@ -1083,8 +1155,75 @@ private fun DeleteAccountFlow(
     var step by remember { mutableIntStateOf(1) } // 1: Warning, 2: Confirm, 3: Password
     var understood by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
     var isProcessing by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showReauthDialog by remember { mutableStateOf(false) }
+
+    // Re-auth launcher for Google users
+    val reauthLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            try {
+                val account = task.getResult(ApiException::class.java)
+                account?.idToken?.let { idToken ->
+                    val credential = GoogleAuthProvider.getCredential(idToken, null)
+                    user?.reauthenticate(credential)
+                        ?.addOnSuccessListener {
+                            Toast.makeText(context, "Identity verified! Deleting account...", Toast.LENGTH_SHORT).show()
+                            // Retry deletion automatically
+                            Firebase.database.getReference("users/${user.uid}").removeValue()
+                            user.delete()
+                                .addOnSuccessListener {
+                                    Toast.makeText(context, "Account deleted", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    isProcessing = false
+                                    errorMessage = e.message ?: "Failed to delete account"
+                                }
+                        }
+                        ?.addOnFailureListener { e ->
+                            Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            } catch (e: ApiException) {
+                Toast.makeText(context, "Verification failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    if (showReauthDialog) {
+        AlertDialog(
+            onDismissRequest = { showReauthDialog = false },
+            title = { Text("Verify Identity for Deletion") },
+            text = { Text("Deleting your account is a sensitive action. Please sign in with Google again to confirm.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showReauthDialog = false
+                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                            .requestIdToken(WEB_CLIENT_ID)
+                            .requestEmail()
+                            .build()
+                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
+                        reauthLauncher.launch(googleSignInClient.signInIntent)
+                    }
+                ) {
+                    Text("Verify")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showReauthDialog = false }) {
+                    Text("Cancel")
+                }
+            },
+            containerColor = colors.surface,
+            titleContentColor = colors.textPrimary,
+            textContentColor = colors.textSecondary
+        )
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -1210,8 +1349,8 @@ private fun DeleteAccountFlow(
                         value = password,
                         onValueChange = { password = it; errorMessage = null },
                         placeholder = "Current Password",
-                        showPassword = false,
-                        onToggleVisibility = {},
+                        showPassword = showPassword,
+                        onToggleVisibility = { showPassword = !showPassword },
                         colors = colors,
                         isError = errorMessage != null
                     )
@@ -1246,7 +1385,12 @@ private fun DeleteAccountFlow(
                                     }
                                     .addOnFailureListener { e ->
                                         isProcessing = false
-                                        errorMessage = "Incorrect password"
+                                        if (e is FirebaseAuthRecentLoginRequiredException) {
+                                            // Handle sensitive action requirement
+                                            showReauthDialog = true
+                                        } else {
+                                            errorMessage = "Incorrect password"
+                                        }
                                     }
                             }
                         },

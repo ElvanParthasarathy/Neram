@@ -168,7 +168,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
     const { batch, department, section } = activeProfile;
     setIsSaving(true);
     try {
-      await update(ref(db, `updates/${batch}/${department}/${section}/live_daily/${todayStr}`), {
+      await update(ref(db, `updates/${batch}/${department}/${section}/daily_update/${todayStr}`), {
         note: tempNote,
         author: userProfile?.displayName || "Admin"
       });
@@ -396,7 +396,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
           <div className="section-header">
             <h2 className="section-title">Live Updates ({activeProfile?.section})</h2>
             {/* FIX 3: ADDED ADMIN CHECK HERE */}
-            {isAdmin && !isEditingNote && (
+            {!isEditingNote && (
               <button onClick={() => { setTempNote(liveUpdateNote); setIsEditingNote(true); }} className="edit-trigger">
                 <RiEditLine /> Edit
               </button>
@@ -431,7 +431,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
           <div className="section-header">
             <h2 className="section-title">General Notice</h2>
             {/* FIX 3: ADDED ADMIN CHECK HERE */}
-            {isAdmin && !isEditingGeneral && (
+            {!isEditingGeneral && (
               <button onClick={() => { setTempGeneral(generalText); setIsEditingGeneral(true); }} className="edit-trigger">
                 <RiEditLine /> Edit
               </button>

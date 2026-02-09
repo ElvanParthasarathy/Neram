@@ -334,7 +334,7 @@ function App() {
       setGlobalData(prev => ({
         ...prev,
         sectionUpdates: {
-          live: data.live_daily || {},
+          live: data.daily_update || {},
           general: { text: data.general_text || "", author: data.general_author || "" }
         }
       }));
