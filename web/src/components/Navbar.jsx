@@ -4,7 +4,7 @@ import { auth, googleProvider, db } from "../firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { ref, onValue } from "firebase/database";
 import Logo from "../assets/neramv.svg";
-import AdminViewSwitcher from "./AdminViewSwitcher";
+// import AdminViewSwitcher from "./AdminViewSwitcher"; // REMOVED
 import ThemeToggle from "./ThemeToggle";
 
 import { RiUser3Fill } from 'react-icons/ri';
@@ -12,9 +12,9 @@ import { RiUser3Fill } from 'react-icons/ri';
 // UPDATED: Added 'userProfile' to props
 const Navbar = ({ user, userProfile, isAdmin }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
+  // const [isSwitcherOpen, setIsSwitcherOpen] = useState(false); // REMOVED
   const [dbUser, setDbUser] = useState(null);
-  const [isPreviewActive, setIsPreviewActive] = useState(false);
+  // const [isPreviewActive, setIsPreviewActive] = useState(false); // REMOVED
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,33 +30,12 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
     return () => unsubscribe();
   }, [user]);
 
-  // 2. Logic to detect if Preview Mode is active
-  useEffect(() => {
-    const checkPreviewStatus = () => {
-      const saved = sessionStorage.getItem("admin_preview_session");
-      if (saved && dbUser) {
-        const previewData = JSON.parse(saved);
-        const isDifferent =
-          previewData.batch !== dbUser.batch ||
-          previewData.department !== dbUser.department ||
-          previewData.section !== dbUser.section;
-        setIsPreviewActive(isDifferent);
-      } else {
-        setIsPreviewActive(false);
-      }
-    };
-
-    checkPreviewStatus();
-    window.addEventListener('adminViewChanged', checkPreviewStatus);
-    return () => window.removeEventListener('adminViewChanged', checkPreviewStatus);
-  }, [dbUser]);
-
   // Handle clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setIsPopupOpen(false);
-        setIsSwitcherOpen(false);
+        // setIsSwitcherOpen(false); // REMOVED
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -68,14 +47,12 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
       sessionStorage.removeItem("admin_preview_session");
       await signOut(auth);
       setIsPopupOpen(false);
-      setIsSwitcherOpen(false);
+      // setIsSwitcherOpen(false); // REMOVED
       navigate("/login");
     } catch (error) { console.error("Logout Error:", error); }
   };
 
-  const togglePreviewSystem = () => {
-    setIsSwitcherOpen(!isSwitcherOpen);
-  };
+  // REMOVED togglePreviewSystem and checkPreviewStatus effect
 
   // --- SMART NAME LOGIC ---
   // Prioritizes the explicit firstName from the prop, then local fetch, then fallback splitting
@@ -89,13 +66,6 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
           <img src={Logo} alt="NERAM Logo" className="sidebar-logo-img" />
         </Link>
       </div>
-
-      {/* PREVIEW MODE BADGE */}
-      {isAdmin && isPreviewActive && (
-        <div className="preview-mode-badge">
-          Preview Mode Active
-        </div>
-      )}
 
       {/* 2. MAIN NAVIGATION */}
       <nav className="sidebar-nav">
@@ -135,7 +105,6 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
                 className={`profile-trigger ${isPopupOpen ? 'active-trigger' : ''}`}
                 onClick={() => {
                   setIsPopupOpen(!isPopupOpen);
-                  if (isSwitcherOpen) setIsSwitcherOpen(false);
                 }}
               >
                 <div className="user-avatar-circle">
@@ -163,24 +132,15 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
                     <ThemeToggle asMenuItem={true} />
                     <div className="dropdown-divider"></div>
 
-                    {isAdmin && dbUser && (
-                      <div
-                        className={`popup-item switcher-trigger ${isSwitcherOpen ? 'active-item' : ''}`}
-                        onClick={togglePreviewSystem}
-                      >
-                        <span>Preview System</span>
-                      </div>
-                    )}
-
                     {/* SETTINGS & ADMIN: No 'replace' attribute here.
                         This allows them to have their own history stack as requested.
                     */}
-                    <Link to="/settings" className="popup-item" onClick={() => { setIsPopupOpen(false); setIsSwitcherOpen(false); }}>
+                    <Link to="/settings" className="popup-item" onClick={() => { setIsPopupOpen(false); }}>
                       <span>Settings</span>
                     </Link>
 
                     {isAdmin && (
-                      <Link to="/admin" className="popup-item" onClick={() => { setIsPopupOpen(false); setIsSwitcherOpen(false); }}>
+                      <Link to="/admin" className="popup-item" onClick={() => { setIsPopupOpen(false); }}>
                         <span>Admin Panel</span>
                       </Link>
                     )}
@@ -192,13 +152,6 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
                     Sign Out
                   </button>
                 </div>
-              )}
-
-              {isSwitcherOpen && isAdmin && dbUser && (
-                <AdminViewSwitcher
-                  realProfile={dbUser}
-                  onClose={() => setIsSwitcherOpen(false)}
-                />
               )}
 
             </div>

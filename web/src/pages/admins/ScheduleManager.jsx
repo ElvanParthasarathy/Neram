@@ -1,18 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom'; // Added for history support
+import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
-import { 
-  RiCalendarScheduleLine, RiArrowRightSLine, RiTeamLine, 
-  RiLayoutGridLine, RiSave3Line, RiBookOpenLine, 
-  RiUserVoiceLine, RiAddLine, RiDeleteBin6Line, RiEditLine, 
-  RiCloseLine, RiCheckLine, RiArrowLeftLine 
+import { getHardcodedRole } from '../../data/admins';
+import {
+  RiCalendarScheduleLine, RiArrowRightSLine, RiTeamLine,
+  RiLayoutGridLine, RiSave3Line, RiBookOpenLine,
+  RiUserVoiceLine, RiAddLine, RiDeleteBin6Line, RiEditLine,
+  RiCloseLine, RiCheckLine, RiArrowLeftLine
 } from 'react-icons/ri';
 
-const ScheduleManager = () => {
-  // --- HISTORY LOGIC: Sync state with URL params ---
+const ScheduleManager = ({ user, userProfile }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+  const hasAutoNavigated = useRef(false);
+
+  // --- ROLE DETECTION ---
+  const emailRole = user?.email ? getHardcodedRole(user.email) : null;
+  const finalRole = emailRole || userProfile?.role || 'student';
+  const isRep = finalRole === 'rep';
+
   // Extract level and path from URL
   const viewLevel = searchParams.get('slvl') || 'batches'; // slvl = schedule level
   const path = {
@@ -69,6 +75,21 @@ const ScheduleManager = () => {
     const unsub = onValue(ref(db, 'academic_hierarchy'), (snap) => setHierarchy(snap.val() || {}));
     return () => unsub();
   }, []);
+
+  // --- AUTO-NAVIGATE FOR REPS: Skip hierarchy, go straight to their section ---
+  useEffect(() => {
+    if (isRep && !hasAutoNavigated.current && userProfile?.batch && userProfile?.department && userProfile?.section) {
+      hasAutoNavigated.current = true;
+      const params = {
+        mod: 'schedules',
+        slvl: 'editor',
+        sb: userProfile.batch,
+        sd: userProfile.department,
+        ss: userProfile.section
+      };
+      setSearchParams(params, { replace: true });
+    }
+  }, [isRep, userProfile]);
 
   // Fetch Schedule data whenever the URL path changes
   useEffect(() => {
@@ -141,9 +162,9 @@ const ScheduleManager = () => {
 
   const addCounselor = () => {
     if (!newCounselor) return;
-    syncToDB({ 
-      ...masterData, 
-      counseling: { ...masterData.counseling, counselors: [...(masterData.counseling.counselors || []), newCounselor] } 
+    syncToDB({
+      ...masterData,
+      counseling: { ...masterData.counseling, counselors: [...(masterData.counseling.counselors || []), newCounselor] }
     });
     setNewCounselor("");
   };
@@ -158,9 +179,9 @@ const ScheduleManager = () => {
     if (!tempCounselor) return;
     const updated = [...masterData.counseling.counselors];
     updated[counselorEditingIdx] = tempCounselor;
-    syncToDB({ 
-      ...masterData, 
-      counseling: { ...masterData.counseling, counselors: updated } 
+    syncToDB({
+      ...masterData,
+      counseling: { ...masterData.counseling, counselors: updated }
     });
     setCounselorEditingIdx(null);
   };
@@ -169,17 +190,32 @@ const ScheduleManager = () => {
     <div className="admin-subpage animate-fade-in">
       <header className="explorer-header">
         <div className="breadcrumb-nav">
-          {/* PHYSICAL BACK BUTTON */}
-          {viewLevel !== 'batches' && (
-            <button className="back-btn-minimal" onClick={handleBack} style={{marginRight: '12px'}}>
+          {/* PHYSICAL BACK BUTTON - HIDDEN FOR REPS */}
+          {!isRep && viewLevel !== 'batches' && (
+            <button className="back-btn-minimal" onClick={handleBack} style={{ marginRight: '12px' }}>
               <RiArrowLeftLine /> Back
             </button>
           )}
-          
-          <span className="crumb-btn" onClick={() => updateLevel('batches', {batch:'', dept:'', sec:''})}>Schedules</span>
-          {path.batch && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => updateLevel('depts', {dept:'', sec:''})}>{path.batch}</span></>}
-          {path.dept && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => updateLevel('secs', {sec:''})}>{path.dept}</span></>}
-          {path.sec && <><RiArrowRightSLine /> <span className="crumb-static">Sec {path.sec}</span></>}
+
+          {isRep ? (
+            /* STATIC HEADER FOR REPS - FULL BLOCKING */
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: 'var(--mac-text)', fontSize: '15px' }}>
+              <RiCalendarScheduleLine style={{ fontSize: '18px', color: 'var(--mac-accent)' }} />
+              <span>{path.batch}</span>
+              <span style={{ color: 'var(--mac-text-secondary)' }}>/</span>
+              <span>{path.dept}</span>
+              <span style={{ color: 'var(--mac-text-secondary)' }}>/</span>
+              <span>Sec {path.sec}</span>
+            </div>
+          ) : (
+            /* INTERACTIVE BREADCRUMBS FOR OTHERS */
+            <>
+              <span className="crumb-btn" onClick={() => updateLevel('batches', { batch: '', dept: '', sec: '' })}>Schedules</span>
+              {path.batch && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
+              {path.dept && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => updateLevel('secs', { sec: '' })}>{path.dept}</span></>}
+              {path.sec && <><RiArrowRightSLine /> <span className="crumb-static">Sec {path.sec}</span></>}
+            </>
+          )}
         </div>
       </header>
 
@@ -188,7 +224,7 @@ const ScheduleManager = () => {
           {viewLevel === 'batches' && (
             <div className="explorer-grid">
               {Object.keys(hierarchy).sort().reverse().map(b => (
-                <div key={b} className="explorer-card" onClick={() => updateLevel('depts', {batch: b})}>
+                <div key={b} className="explorer-card" onClick={() => updateLevel('depts', { batch: b })}>
                   <RiTeamLine className="card-icon" />
                   <div className="card-info"><h3>Batch {b}</h3><p>Manage Schedules</p></div>
                 </div>
@@ -196,23 +232,23 @@ const ScheduleManager = () => {
             </div>
           )}
           {viewLevel === 'depts' && (
-             <div className="explorer-grid">
-                {Object.keys(hierarchy[path.batch] || {}).map(d => (
-                <div key={d} className="explorer-card" onClick={() => updateLevel('secs', {dept: d})}>
-                    <RiLayoutGridLine className="card-icon" />
-                    <div className="card-info"><h3>{d}</h3><p>Select Section</p></div>
+            <div className="explorer-grid">
+              {Object.keys(hierarchy[path.batch] || {}).map(d => (
+                <div key={d} className="explorer-card" onClick={() => updateLevel('secs', { dept: d })}>
+                  <RiLayoutGridLine className="card-icon" />
+                  <div className="card-info"><h3>{d}</h3><p>Select Section</p></div>
                 </div>
-                ))}
+              ))}
             </div>
           )}
           {viewLevel === 'secs' && (
-             <div className="explorer-grid">
-                {(hierarchy[path.batch]?.[path.dept] || []).map(s => (
-                <div key={s} className="explorer-card" onClick={() => updateLevel('editor', {sec: s})}>
-                    <div className="card-initial">{s}</div>
-                    <div className="card-info"><h3>Section {s}</h3><p>Manage Data</p></div>
+            <div className="explorer-grid">
+              {(hierarchy[path.batch]?.[path.dept] || []).map(s => (
+                <div key={s} className="explorer-card" onClick={() => updateLevel('editor', { sec: s })}>
+                  <div className="card-initial">{s}</div>
+                  <div className="card-info"><h3>Section {s}</h3><p>Manage Data</p></div>
                 </div>
-                ))}
+              ))}
             </div>
           )}
         </div>
@@ -238,15 +274,15 @@ const ScheduleManager = () => {
                   )}
                 </div>
                 <datalist id="course-list">
-                    {masterData.courses?.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                  {masterData.courses?.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
                 </datalist>
                 <table className={`admin-timetable ${isEditingTimetable ? 'editing-active' : ''}`}>
-                  <thead><tr><th>Day</th>{[1,2,3,4,5,6,7].map(n => <th key={n}>P{n}</th>)}</tr></thead>
+                  <thead><tr><th>Day</th>{[1, 2, 3, 4, 5, 6, 7].map(n => <th key={n}>P{n}</th>)}</tr></thead>
                   <tbody>
                     {['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => (
                       <tr key={day}>
                         <td className="day-label">{day}</td>
-                        {[0,1,2,3,4,5,6].map(idx => (
+                        {[0, 1, 2, 3, 4, 5, 6].map(idx => (
                           <td key={idx}>
                             {isEditingTimetable ? (
                               <input list="course-list" value={timetableBuffer?.[day]?.[idx] || ""} onChange={(e) => updateBufferCell(day, idx, e.target.value)} className="timetable-combo-input" />
@@ -265,40 +301,40 @@ const ScheduleManager = () => {
             {activeTab === 'courses' && (
               <div className="course-manager">
                 <div className="add-item-bar settings-card">
-                    <input placeholder="Code" value={newCourse.code} onChange={e => setNewCourse({...newCourse, code: e.target.value})} />
-                    <input placeholder="Name" value={newCourse.name} onChange={e => setNewCourse({...newCourse, name: e.target.value})} />
-                    <input placeholder="Faculty" value={newCourse.faculty} onChange={e => setNewCourse({...newCourse, faculty: e.target.value})} />
-                    <input type="number" placeholder="Prds" value={newCourse.periods} onChange={e => setNewCourse({...newCourse, periods: e.target.value})} />
-                    <button className="btn-add" onClick={handleAddCourse}><RiAddLine /> Add</button>
+                  <input placeholder="Code" value={newCourse.code} onChange={e => setNewCourse({ ...newCourse, code: e.target.value })} />
+                  <input placeholder="Name" value={newCourse.name} onChange={e => setNewCourse({ ...newCourse, name: e.target.value })} />
+                  <input placeholder="Faculty" value={newCourse.faculty} onChange={e => setNewCourse({ ...newCourse, faculty: e.target.value })} />
+                  <input type="number" placeholder="Prds" value={newCourse.periods} onChange={e => setNewCourse({ ...newCourse, periods: e.target.value })} />
+                  <button className="btn-add" onClick={handleAddCourse}><RiAddLine /> Add</button>
                 </div>
                 <div className="items-list">
-                    {(masterData.courses || []).map((c, i) => (
-                        <div key={i} className="list-item-card">
-                            {editingCourseIdx === i ? (
-                              <div className="inline-edit-row full-fields">
-                                <input className="edit-code" placeholder="Code" value={tempCourse.code} onChange={e => setTempCourse({...tempCourse, code: e.target.value})} />
-                                <input className="edit-name" placeholder="Name" value={tempCourse.name} onChange={e => setTempCourse({...tempCourse, name: e.target.value})} />
-                                <input className="edit-faculty" placeholder="Faculty" value={tempCourse.faculty} onChange={e => setTempCourse({...tempCourse, faculty: e.target.value})} />
-                                <input className="edit-periods" type="number" placeholder="Prds" value={tempCourse.periods} onChange={e => setTempCourse({...tempCourse, periods: e.target.value})} />
-                                <div className="edit-btn-group">
-                                  <button onClick={handleUpdateCourse} className="btn-save-mini"><RiCheckLine /></button>
-                                  <button onClick={() => setEditingCourseIdx(null)} className="btn-cancel-mini"><RiCloseLine /></button>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="item-main">
-                                  <strong>{c.code}</strong> - {c.name}
-                                  <span className="item-meta-info">({c.faculty || 'No Faculty'} • {c.periods || 0} Periods)</span>
-                                </div>
-                                <div className="item-actions">
-                                  <RiEditLine className="icon-edit" onClick={() => { setEditingCourseIdx(i); setTempCourse(c); }} />
-                                  <RiDeleteBin6Line className="icon-del" onClick={() => syncToDB({...masterData, courses: masterData.courses.filter((_, idx) => idx !== i)})} />
-                                </div>
-                              </>
-                            )}
+                  {(masterData.courses || []).map((c, i) => (
+                    <div key={i} className="list-item-card">
+                      {editingCourseIdx === i ? (
+                        <div className="inline-edit-row full-fields">
+                          <input className="edit-code" placeholder="Code" value={tempCourse.code} onChange={e => setTempCourse({ ...tempCourse, code: e.target.value })} />
+                          <input className="edit-name" placeholder="Name" value={tempCourse.name} onChange={e => setTempCourse({ ...tempCourse, name: e.target.value })} />
+                          <input className="edit-faculty" placeholder="Faculty" value={tempCourse.faculty} onChange={e => setTempCourse({ ...tempCourse, faculty: e.target.value })} />
+                          <input className="edit-periods" type="number" placeholder="Prds" value={tempCourse.periods} onChange={e => setTempCourse({ ...tempCourse, periods: e.target.value })} />
+                          <div className="edit-btn-group">
+                            <button onClick={handleUpdateCourse} className="btn-save-mini"><RiCheckLine /></button>
+                            <button onClick={() => setEditingCourseIdx(null)} className="btn-cancel-mini"><RiCloseLine /></button>
+                          </div>
                         </div>
-                    ))}
+                      ) : (
+                        <>
+                          <div className="item-main">
+                            <strong>{c.code}</strong> - {c.name}
+                            <span className="item-meta-info">({c.faculty || 'No Faculty'} • {c.periods || 0} Periods)</span>
+                          </div>
+                          <div className="item-actions">
+                            <RiEditLine className="icon-edit" onClick={() => { setEditingCourseIdx(i); setTempCourse(c); }} />
+                            <RiDeleteBin6Line className="icon-del" onClick={() => syncToDB({ ...masterData, courses: masterData.courses.filter((_, idx) => idx !== i) })} />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -328,11 +364,11 @@ const ScheduleManager = () => {
                       <div key={i} className={`counselor-pill ${counselorEditingIdx === i ? 'editing' : ''}`}>
                         {counselorEditingIdx === i ? (
                           <>
-                            <input 
+                            <input
                               autoFocus
                               className="inline-pill-input"
-                              value={tempCounselor} 
-                              onChange={(e) => setTempCounselor(e.target.value)} 
+                              value={tempCounselor}
+                              onChange={(e) => setTempCounselor(e.target.value)}
                             />
                             <RiCheckLine className="pill-action-icon save" onClick={handleUpdateCounselor} />
                             <RiCloseLine className="pill-action-icon" onClick={() => setCounselorEditingIdx(null)} />

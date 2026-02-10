@@ -1,0 +1,188 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   6. PROFILE TRIGGER & POPUP (STYLES RESTORED)
+   ========================================================================== */
+
+.user-auth-zone {
+    padding: 16px 16px 32px 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    user-select: none;
+  }
+
+  .profile-trigger {
+    padding: 10px 14px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .profile-trigger:hover {
+    background: var(--mac-selection-hover);
+  }
+
+  .user-avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #E5E5E5;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .user-avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .trigger-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.1;
+  }
+
+  .trigger-text .first-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--mac-text);
+  }
+
+  .role-subtext {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    opacity: 0.6;
+    margin-top: 2px;
+  }
+
+  /* Popup Main Solid */
+  .logout-popup-solid {
+    position: absolute;
+    bottom: 110px;
+    left: 12px;
+    right: 12px;
+    background: var(--mac-popup-bg);
+    backdrop-filter: blur(60px) saturate(210%);
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    z-index: 2000;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    animation: macProfilePopUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @keyframes macProfilePopUp {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateY(15px);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .dropdown-info {
+    padding: 8px 12px 14px 12px;
+    text-align: center;
+  }
+
+  .dropdown-info h3 {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--mac-text);
+  }
+
+  .p-email-small {
+    font-size: 11px;
+    color: var(--mac-text-secondary);
+    opacity: 0.6;
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.08);
+    margin: 8px 0;
+  }
+
+  .popup-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--mac-text);
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 13px;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .popup-item:hover {
+    background: var(--mac-selection-hover);
+  }
+
+  .popup-item::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+  }
+
+  /* Popup Icons Restored */
+  .popup-item[href*="settings"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233C3C43' stroke-width='2'%3E%3Cpath d='M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' /%3E%3Cpath d='M15 12a3 3 0 11-6 0 3 3 0 016 0z' /%3E%3C/svg%3E");
+  }
+
+  .popup-item[href*="admin"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23007AFF' stroke-width='2'%3E%3Cpath d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' /%3E%3C/svg%3E");
+  }
+
+  .switcher-trigger::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233C3C43' stroke-width='2'%3E%3Cpath d='M15 12a3 3 0 11-6 0 3 3 0 016 0z' /%3E%3Cpath d='M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z' /%3E%3C/svg%3E");
+  }
+
+  .popup-logout-btn {
+    width: 100%;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: #FF3B30;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .popup-logout-btn:hover {
+    background: rgba(255, 59, 48, 0.08);
+  }
+
+  .popup-logout-btn::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23FF3B30' stroke-width='2'%3E%3Cpath d='M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1' /%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+}

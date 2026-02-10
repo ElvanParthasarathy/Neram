@@ -1,0 +1,517 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   NERAM PORTAL: FULL HOME DASHBOARD (SOLID SEQUOIA + GRID + FIXES)
+   ========================================================================== */
+
+/* --- UPDATE: REMOVE ANIMATION LINE FROM HERE --- */
+  .home-view {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+    /* animation line cut from here */
+  }
+
+  /* --- 1. DASHBOARD GRID SYSTEM --- */
+  .home-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Side-by-side layout */
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Spanning logic for full-width sections */
+  .page-header,
+  .timetable-section,
+  .user-academic-details {
+    grid-column: 1 / -1;
+
+  }
+
+  /* --- 2. HEADER & STATUS BADGES --- */
+  .page-header {
+    margin-bottom: 8px;
+  }
+
+  .header-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--mac-text);
+    /* */
+    letter-spacing: -0.5px;
+  }
+
+  .admin-status-badge {
+    background: rgba(52, 199, 89, 0.12);
+    color: #34C759;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .global-preview-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 159, 10, 0.12);
+    border: 1px solid rgba(255, 159, 10, 0.2);
+    color: #FF9F0A;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* --- 3. GLASS CARD COMPONENT (SCOPED TO HOME VIEW ONLY) --- */
+  /* By adding .home-view before section, this ONLY affects the Home page */
+  .home-view section {
+    background: var(--mac-card-bg);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: var(--mac-card-border);
+    box-shadow: var(--mac-card-shadow);
+    border-radius: 20px;
+    padding: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+  }
+
+  .home-view section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Scoping the title as well */
+  .home-view .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 18px;
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* --- 4. DATE SELECTION (SCOPED TO HOME ONLY) --- */
+  /* This prevents the Home styles from breaking the Schedule page Pill Bar */
+  .home-view .date-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    z-index: 100;
+    overflow: visible !important;
+  }
+
+  .home-view .date-input-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .home-view .date-display {
+    flex: 1;
+    background: var(--mac-selection-bg);
+    border: 1px solid var(--mac-border);
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--mac-text);
+    outline: none;
+  }
+
+  /* Home-specific Round Button (Won't affect Schedule Page) */
+  .home-view .round-calendar-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--mac-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+    transition: all 0.2s;
+  }
+
+  .home-view .round-calendar-btn:hover {
+    background: var(--mac-blue-hover);
+    transform: scale(1.05);
+  }
+
+  /* --- 5. ACADEMIC CALENDAR (ROW 1 RIGHT) --- */
+  .calendar-section {
+    height: 100%;
+  }
+
+  .home-event-pill {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+  }
+
+  .event-indicator {
+    width: 4px;
+    height: auto;
+    background: var(--mac-blue);
+    border-radius: 4px;
+  }
+
+  .calendar-text {
+    font-size: 14px;
+    color: var(--mac-text);
+  }
+
+  .calendar-subtext {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    opacity: 0.7;
+  }
+
+  .calendar-text-empty {
+    font-size: 14px;
+    font-style: italic;
+    opacity: 0.5;
+  }
+
+  /* --- 6. TIMETABLE (MATCHED TO SCHEDULE PAGE LOOK) --- */
+  .home-view .timetable-section {
+    z-index: 1;
+  }
+
+  /* Glass wrapper for the table radius and border */
+  .home-view .timetable-section .table-overflow {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.01);
+    border: 1px solid var(--mac-divider);
+    margin-top: 8px;
+  }
+
+  .home-view .timetable-data {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Premium Headers matched to Schedule page exactly */
+  .home-view .timetable-data th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1.5px solid var(--mac-divider);
+    background: var(--mac-sidebar-bg);
+  }
+
+  .home-view .timetable-data td {
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    vertical-align: middle;
+    color: var(--mac-text);
+    line-height: 1.5;
+    transition: background 0.2s ease;
+  }
+
+  /* Subtle Row Hover */
+  .home-view .timetable-data tr:hover td {
+    background: rgba(0, 122, 255, 0.03);
+  }
+
+  /* LOCKED COLUMN WIDTHS: Matching Schedule Page strictly */
+  .home-view .timetable-data th:nth-child(1),
+  .home-view .timetable-data td:nth-child(1) {
+    width: 65px;
+    text-align: center;
+    color: var(--mac-blue);
+    font-weight: 700;
+  }
+
+  .home-view .timetable-data th:nth-child(3),
+  .home-view .timetable-data td:nth-child(3) {
+    width: 32%;
+    font-size: 12.5px;
+  }
+
+  /* Typography Utilities inside table */
+  .home-view .hour-val {
+    font-weight: 700;
+    color: var(--mac-blue);
+  }
+
+  .home-view .course-code-label {
+    font-weight: 700;
+    font-size: 13.5px;
+  }
+
+  .home-view .course-name-label {
+    font-size: 11.5px;
+    opacity: 0.65;
+    font-weight: 500;
+  }
+
+  .home-view .faculty-info {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+  }
+
+  /* --- 6.1 SOLID EXAM CARD (TODAY'S VIEW) --- */
+  .home-view .exam-mini-card {
+    background: var(--mac-blue);
+    color: white;
+    padding: 24px;
+    border-radius: 18px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
+    transition: transform 0.2s ease;
+  }
+
+  .home-view .exam-mini-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .home-view .exam-mini-card.major {
+    background: #FF3B30;
+  }
+
+  /* --- 7. REFINED UPDATE SECTIONS (PILL BUTTONS & TINTED BOXES) --- */
+  .updates-live-section,
+  .updates-general-section {
+    height: 100%;
+    min-height: 240px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .edit-trigger {
+    background: var(--mac-blue);
+    color: #FFFFFF;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .edit-trigger:hover {
+    background: var(--mac-blue-hover);
+    transform: translateY(-1px);
+  }
+
+  .message-container {
+    background: rgba(0, 122, 255, 0.03);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 122, 255, 0.1);
+    height: calc(100% - 70px);
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .message-body {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--mac-text);
+    margin: 0;
+  }
+
+  .edit-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--mac-blue);
+    background: var(--mac-bg-content);
+    color: var(--mac-text);
+    font-family: inherit;
+    font-size: 14px;
+    margin-bottom: 12px;
+    outline: none;
+  }
+
+  .form-buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  /* UPDATED SAVE BUTTON STYLES */
+  .save-btn {
+    background: var(--mac-blue);
+    color: #FFF;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 110px;
+    /* Prevents button jumping when loading */
+    transition: all 0.2s;
+  }
+
+  .save-btn:hover:not(:disabled) {
+    background: var(--mac-blue-hover);
+  }
+
+  .save-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* SPINNING ANIMATION */
+  .btn-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: btnSpin 0.6s linear infinite;
+  }
+
+  @keyframes btnSpin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .cancel-btn {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--mac-text);
+    border: none;
+    padding: 8px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* --- 8. ACADEMIC DETAILS FOOTER (WITH SPACING FIX) --- */
+  .user-academic-details {
+    grid-column: 1 / -1;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    margin-top: 24px;
+    /* Adds space between the cards above and this box */
+  }
+
+  .info-grid-small {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .info-item {
+    background: rgba(0, 0, 0, 0.03);
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .info-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .info-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-blue);
+  }
+
+  /* --- 9. FULL EXAM CARDS (MATCHED TO SCHEDULE PAGE LOOK) --- */
+  .home-view .full-exam-schedule-card {
+    background: var(--mac-card-bg);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: var(--mac-card-border);
+    box-shadow: var(--mac-card-shadow);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px !important;
+  }
+
+  .home-view .exam-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed !important;
+  }
+
+  .home-view .exam-table th:nth-child(1),
+  .home-view .exam-table td:nth-child(1) {
+    width: 135px;
+    text-align: left;
+    border-right: 1px solid var(--mac-divider);
+  }
+
+  .home-view .exam-table th:nth-child(3),
+  .home-view .exam-table td:nth-child(3) {
+    width: 140px;
+    text-align: right !important;
+    padding-right: 24px !important;
+  }
+
+  /* --- 10. MOBILE RESPONSIVE --- */
+  @media (max-width: 850px) {
+    .home-container {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .date-section,
+    .calendar-section,
+    .updates-live-section,
+    .updates-general-section {
+      grid-column: 1 / -1;
+    }
+
+    .home-view {
+      margin-bottom: 120px;
+      /* Extra breathing room for mobile devices */
+      padding-bottom: 20px;
+    }
+  }
+
+}

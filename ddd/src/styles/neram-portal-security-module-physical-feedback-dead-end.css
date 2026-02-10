@@ -1,0 +1,429 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   NERAM PORTAL: SECURITY MODULE (PHYSICAL FEEDBACK & DEAD-END)
+   ========================================================================== */
+
+/* --- 1. THE DEAD-END CONTAINER --- */
+  .settings-section-content {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .settings-section-content .settings-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 40px;
+  }
+
+  .security-module {
+    margin-bottom: 45px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--mac-divider);
+    /* Natural section divider */
+  }
+
+  .security-module h3,
+  .settings-card h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--mac-text);
+    margin: 0 0 20px 0;
+    letter-spacing: -0.5px;
+  }
+
+  /* FIX: Pushes "Social Authentication" down */
+  .info-box+h3,
+  .password-stack+h3,
+  .security-module h3:nth-of-type(2) {
+    margin-top: 40px !important;
+  }
+
+  /* --- 2. INPUT STACK (12px SQUIRCLE) --- */
+  .password-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 440px;
+  }
+
+  .input-field label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.8;
+  }
+
+  .input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-with-icon input {
+    width: 100%;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+    padding: 0 44px 0 16px;
+    font-size: 15px;
+    color: var(--mac-text);
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .input-with-icon input:focus {
+    background: var(--mac-card-bg);
+    border-color: var(--mac-blue);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+  }
+
+  .eye-toggle {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    color: var(--mac-text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    padding: 6px;
+    border-radius: 8px;
+  }
+
+  /* --- 3. PILL BUTTONS WITH PHYSICAL FEEDBACK --- */
+  .btn-primary,
+  .btn-outline-primary,
+  .btn-outline-danger,
+  .btn-danger,
+  .btn-final-delete,
+  .btn-cancel {
+    border-radius: 50px !important;
+    /* Perfect Pill */
+    padding: 10px 24px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  /* CLICK ANIMATION: In and Out */
+  .btn-primary:active,
+  .btn-outline-primary:active,
+  .btn-outline-danger:active,
+  .btn-danger:active,
+  .btn-final-delete:active,
+  .btn-cancel:active {
+    transform: scale(0.96);
+    /* Physical press effect */
+  }
+
+  /* PRIMARY BUTTON */
+  .btn-primary {
+    background: var(--mac-blue);
+    color: #ffffff;
+  }
+
+  .btn-primary:hover {
+    background: #0056b3;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+  }
+
+  /* OUTLINE BUTTONS (UNLINK/LINK) */
+  .btn-outline-primary {
+    background: rgba(0, 122, 255, 0.05);
+    border: 1.5px solid rgba(0, 122, 255, 0.2) !important;
+    color: var(--mac-blue);
+  }
+
+  .btn-outline-primary:hover {
+    background: rgba(0, 122, 255, 0.12);
+    /* Subtle hover fade */
+    border-color: rgba(0, 122, 255, 0.4) !important;
+  }
+
+  .btn-outline-danger {
+    background: rgba(255, 59, 48, 0.05);
+    border: 1.5px solid rgba(255, 59, 48, 0.2) !important;
+    color: #ff3b30;
+  }
+
+  .btn-outline-danger:hover {
+    background: rgba(255, 59, 48, 0.12);
+    /* Subtle hover fade */
+    border-color: rgba(255, 59, 48, 0.4) !important;
+  }
+
+  /* DANGER BUTTONS */
+  .btn-danger,
+  .btn-final-delete {
+    background: #ff3b30;
+    color: #ffffff;
+  }
+
+  .btn-danger:hover {
+    background: #e03127;
+  }
+
+  .btn-cancel {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--mac-text);
+  }
+
+  .btn-cancel:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  /* --- 4. ACTION ROW & DANGER ZONE --- */
+  .password-actions-row,
+  .action-btns {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .text-link-btn {
+    background: none;
+    border: none;
+    color: var(--mac-blue);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+  }
+
+  .text-link-btn:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .danger-zone {
+    margin-top: 20px;
+    padding: 24px;
+    background: rgba(255, 59, 48, 0.04);
+    border: 1px solid rgba(255, 59, 48, 0.08);
+    border-radius: 16px;
+    max-width: 600px;
+  }
+
+  /* --- 5. INFO BOX --- */
+  .info-box {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(0, 122, 255, 0.05);
+    border-radius: 12px;
+    margin-top: 25px;
+    max-width: 440px;
+
+    /* NEW: Forces "Social Authentication" (or anything else) away */
+    margin-bottom: 40px !important;
+  }
+
+  .info-box svg {
+    color: var(--mac-blue);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .info-box p {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* --- SOCIAL AUTH HORIZONTAL ALIGNMENT --- */
+
+  .social-auth-row {
+    display: flex;
+    align-items: center;
+    /* Vertically centers the text and the button */
+    gap: 25px;
+    /* Creates natural horizontal spacing */
+    padding: 5px 0;
+  }
+
+  .status-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    color: var(--mac-text);
+  }
+
+  .icon-active {
+    color: #34c759;
+    font-size: 24px;
+  }
+
+  .icon-inactive {
+    color: var(--mac-text-secondary);
+    opacity: 0.4;
+    font-size: 24px;
+  }
+
+  /* --- PILL BUTTONS WITH PHYSICAL FEEDBACK --- */
+
+  .btn-outline-primary,
+  .btn-outline-danger {
+    border-radius: 50px !important;
+    /* Forces Pill Shape */
+    padding: 8px 22px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  /* Click physical feedback (In and Out) */
+  .btn-outline-primary:active,
+  .btn-outline-danger:active {
+    transform: scale(0.96);
+    /* Subtle physical press effect */
+  }
+
+  /* Subtle Hover Fade for Unlink (Red) */
+  .btn-outline-danger {
+    background: rgba(255, 59, 48, 0.05);
+    border: 1.5px solid rgba(255, 59, 48, 0.2) !important;
+    color: #ff3b30;
+  }
+
+  .btn-outline-danger:hover {
+    background: rgba(255, 59, 48, 0.12);
+    /* Subtle hover background fade */
+    border-color: rgba(255, 59, 48, 0.4) !important;
+  }
+
+  /* Subtle Hover Fade for Link (Blue) */
+  .btn-outline-primary {
+    background: rgba(0, 122, 255, 0.05);
+    border: 1.5px solid rgba(0, 122, 255, 0.2) !important;
+    color: var(--mac-blue);
+  }
+
+  .btn-outline-primary:hover {
+    background: rgba(0, 122, 255, 0.12);
+    border-color: rgba(0, 122, 255, 0.4) !important;
+  }
+
+  /* --- DANGER ZONE ALIGNMENT & STYLING --- */
+
+  .danger-zone {
+    margin-top: 50px;
+    padding: 24px;
+    /* Subtle red tint background mirroring image_870009.png */
+    background: rgba(255, 59, 48, 0.04);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 59, 48, 0.1);
+    max-width: 600px;
+  }
+
+  .danger-zone h3 {
+    color: #ff3b30;
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+  }
+
+  .warning-text {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.603);
+    margin-bottom: 15px;
+    font-weight: 500;
+  }
+
+  /* --- HORIZONTAL BUTTON ALIGNMENT --- */
+
+  .danger-action-row,
+  .action-btns {
+    display: flex;
+    align-items: center;
+    /* Centers text and buttons vertically */
+    gap: 16px;
+    /* Horizontal space between buttons */
+    margin-top: 15px;
+  }
+
+  .delete-confirm-box {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    /* Vertical gap between text, input, and buttons */
+  }
+
+  /* --- PILL BUTTONS & CLICK FEEDBACK --- */
+
+  .btn-danger,
+  .btn-final-delete,
+  .btn-cancel {
+    border-radius: 50px !important;
+    /* Perfect Pill Shape */
+    padding: 10px 24px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    white-space: nowrap;
+  }
+
+  /* Physical Press Feedback (In and Out) */
+  .btn-danger:active,
+  .btn-final-delete:active,
+  .btn-cancel:active {
+    transform: scale(0.96);
+    /* Subtle physical click feel */
+  }
+
+  .btn-danger,
+  .btn-final-delete {
+    background: #ff3b30;
+    color: #ffffff;
+  }
+
+  .btn-danger:hover,
+  .btn-final-delete:hover {
+    background: #e03127;
+    /* Subtle hover darken */
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.15);
+  }
+
+  .btn-cancel {
+    background: rgba(0, 0, 0, 0.06);
+    /* Subtle neutral gray */
+    color: var(--mac-text);
+  }
+
+  .btn-cancel:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+
+  /* --- CONFIRM PASSWORD INPUT --- */
+
+  .delete-confirm-box .input-with-icon {
+    max-width: 440px;
+    /* Aligns with Change Password inputs */
+  }
+
+}

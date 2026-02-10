@@ -1,0 +1,61 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   RMD NERAM PORTAL: AUTHENTICATION STYLES (LOGIN, SIGNUP & SETUP)
+   ========================================================================== */
+
+
+
+}
+
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   FIX: HOME SCREEN SIGN-IN BUTTON (PILL SHAPE & POSITIONING)
+   ========================================================================== */
+
+.login-btn,
+  .signup-btn {
+    /* 1. Pill Shape */
+    border-radius: 50px !important;
+
+    /* 2. Increased Vertical Gap (Moved Down) */
+    margin-top: 28px !important;
+
+    /* 3. Solid Color Styling */
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+    border: none !important;
+    width: 100%;
+    height: 50px !important;
+
+    /* 4. Text & Depth */
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    letter-spacing: -0.2px;
+    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.25) !important;
+
+    /* 5. Silky Interaction */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+  }
+
+  /* Hover Physics */
+  .login-btn:hover {
+    background: var(--mac-blue-hover) !important;
+    transform: translateY(-2px);
+    /* Silky lift */
+    box-shadow: 0 12px 28px rgba(0, 122, 255, 0.35) !important;
+  }
+
+  /* Active "Press" effect */
+  .login-btn:active {
+    transform: scale(0.96);
+    /* Premium light click */
+    background: #0056B3 !important;
+  }
+
+}

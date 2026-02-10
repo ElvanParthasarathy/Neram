@@ -1,15 +1,14 @@
-// This file contains the list of email addresses that have Admin access.
-// Add or remove emails here to manage admin permissions.
+// Hardcoded Admin Roles
+export const HARDCODED_ADMINS = {
+  "jaiprakashpartha@gmail.com": "super_admin",
+  "jaiprakashvp2006@gmail.com": "faculty",
+  "23104055@rmd.ac.in": "rep"
+};
 
-export const adminEmails = [
-  "jaiprakashpartha@gmail.com",
-  "23104087@rmd.ac.in", 
-  "23104055@rmd.ac.in", 
-  "23104073@rmd.ac.in",
-  "harishramesh176@gmail.com",
-  "23104053@rmd.ac.in",
-  "23104061@rmd.ac.in",
-  "23104051@rmd.ac.in",
-  "23104080@rmd.ac.in",
-  "ssammuaug@gmail.com"
-];
+// Legacy array for backward compatibility (includes all hardcoded admins)
+export const adminEmails = Object.keys(HARDCODED_ADMINS);
+
+export const getHardcodedRole = (email) => {
+  if (!email) return null;
+  return HARDCODED_ADMINS[email] || HARDCODED_ADMINS[email.toLowerCase()] || null;
+};

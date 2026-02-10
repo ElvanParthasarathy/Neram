@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { auth, googleProvider, db } from "../firebase";
-import { 
-  signInWithPopup, 
-  signInWithEmailAndPassword, 
+import {
+  signInWithPopup,
+  signInWithEmailAndPassword,
   sendPasswordResetEmail,
   signOut
 } from "firebase/auth";
-import { ref, update, get, onValue } from "firebase/database"; 
+import { ref, update, get, onValue } from "firebase/database";
 import { Link, useNavigate } from "react-router-dom";
 import { RiShieldUserLine, RiArrowRightLine, RiCloseLine } from "react-icons/ri";
 
@@ -16,9 +16,9 @@ import Logo from "../assets/neramv.svg";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  
+
   // Profile Setup States
   const [showSetupPopup, setShowSetupPopup] = useState(false);
   const [hierarchy, setHierarchy] = useState({});
@@ -56,14 +56,23 @@ const LoginPage = () => {
     }
     await update(userRef, updatePayload);
 
-    // 2. CRITICAL CHECK: If any academic field is missing, FORCE the Pop-up
+    // 2. CHECK ROLE: BLOCK ADMINS/FACULTY
+    const role = userData?.role || 'student';
+    if (['admin', 'faculty', 'super_admin'].includes(role)) {
+      alert("Faculty & Admins must use the Admin Portal.");
+      await signOut(auth);
+      setIsLoggingIn(false);
+      return;
+    }
+
+    // 3. CRITICAL CHECK: If any academic field is missing, FORCE the Pop-up
     if (!userData?.batch || !userData?.department || !userData?.section) {
       setTempUser(user);
       setShowSetupPopup(true); // This triggers the modal
       setIsLoggingIn(false);
     } else {
       // User is fully registered with all details -> Go to Home
-      navigate("/"); 
+      navigate("/");
     }
   };
 
@@ -97,7 +106,7 @@ const LoginPage = () => {
       alert("Please complete all selections.");
       return;
     }
-    
+
     setIsLoggingIn(true);
     try {
       // Update the missing fields in Firebase
@@ -106,7 +115,7 @@ const LoginPage = () => {
         department: selection.dept,
         section: selection.sec
       });
-      
+
       // Close popup and go home
       setShowSetupPopup(false);
       navigate("/");
@@ -143,11 +152,11 @@ const LoginPage = () => {
     <div className="login-body-wrapper">
       <div className="glass-login-card">
         <img src={Logo} alt="Logo" style={{ height: '60px', margin: '0 auto 10px auto', display: 'block' }} />
-        <p className="brand-subtitle">Department Portal Access</p>
+        <p className="brand-subtitle">Student Portal Access</p>
 
         <button onClick={handleGoogleLogin} className="google-btn">
           <img src="https://www.google.com/favicon.ico" alt="Google" width="18" height="18" />
-          Sign in with Google
+          Student Sign in with Google
         </button>
 
         <div className="divider"><span>Or Manual Login</span></div>
@@ -165,7 +174,7 @@ const LoginPage = () => {
           <button type="submit" className="login-btn">Sign In</button>
           <div className="bottom-links">
             <Link to="/signup" className="link-text link-blue">Register</Link>
-            <span onClick={handleForgotPassword} className="link-text" style={{cursor: 'pointer'}}>Forgot Password?</span>
+            <span onClick={handleForgotPassword} className="link-text" style={{ cursor: 'pointer' }}>Forgot Password?</span>
           </div>
         </form>
       </div>
@@ -175,70 +184,70 @@ const LoginPage = () => {
         <div className="setup-modal-overlay">
           <div className="setup-modal-card animate-pop-in">
             <header className="setup-header">
-                <RiShieldUserLine className="setup-icon" />
-                <h2>Profile Setup</h2>
-                <p>Welcome! Please select your academic details to access your dashboard.</p>
+              <RiShieldUserLine className="setup-icon" />
+              <h2>Profile Setup</h2>
+              <p>Welcome! Please select your academic details to access your dashboard.</p>
             </header>
 
             <div className="setup-body">
-                {/* 1. Batch Selection */}
-                <div className="select-box">
-                    <label>Batch / Year</label>
-                    <select 
-                        value={selection.batch} 
-                        onChange={(e) => setSelection({...selection, batch: e.target.value, dept: "", sec: ""})}
-                    >
-                        <option value="">Select Batch</option>
-                        {Object.keys(hierarchy).sort().reverse().map(b => (
-                            <option key={b} value={b}>{b}</option>
-                        ))}
-                    </select>
+              {/* 1. Batch Selection */}
+              <div className="select-box">
+                <label>Batch / Year</label>
+                <select
+                  value={selection.batch}
+                  onChange={(e) => setSelection({ ...selection, batch: e.target.value, dept: "", sec: "" })}
+                >
+                  <option value="">Select Batch</option>
+                  {Object.keys(hierarchy).sort().reverse().map(b => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 2. Department Selection (Shows after Batch is chosen) */}
+              {selection.batch && (
+                <div className="select-box animate-fade-in">
+                  <label>Department</label>
+                  <select
+                    value={selection.dept}
+                    onChange={(e) => setSelection({ ...selection, dept: e.target.value, sec: "" })}
+                  >
+                    <option value="">Select Dept</option>
+                    {Object.keys(hierarchy[selection.batch] || {})
+                      .filter(k => k !== 'initialized')
+                      .map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
                 </div>
+              )}
 
-                {/* 2. Department Selection (Shows after Batch is chosen) */}
-                {selection.batch && (
-                    <div className="select-box animate-fade-in">
-                        <label>Department</label>
-                        <select 
-                            value={selection.dept} 
-                            onChange={(e) => setSelection({...selection, dept: e.target.value, sec: ""})}
-                        >
-                            <option value="">Select Dept</option>
-                            {Object.keys(hierarchy[selection.batch] || {})
-                                .filter(k => k !== 'initialized')
-                                .map(d => <option key={d} value={d}>{d}</option>)}
-                        </select>
-                    </div>
-                )}
-
-                {/* 3. Section Selection (Shows after Dept is chosen) */}
-                {selection.dept && (
-                    <div className="select-box animate-fade-in">
-                        <label>Section</label>
-                        <select 
-                            value={selection.sec} 
-                            onChange={(e) => setSelection({...selection, sec: e.target.value})}
-                        >
-                            <option value="">Select Section</option>
-                            {hierarchy[selection.batch][selection.dept]?.map(s => (
-                                <option key={s} value={s}>{s}</option>
-                            ))}
-                        </select>
-                    </div>
-                )}
+              {/* 3. Section Selection (Shows after Dept is chosen) */}
+              {selection.dept && (
+                <div className="select-box animate-fade-in">
+                  <label>Section</label>
+                  <select
+                    value={selection.sec}
+                    onChange={(e) => setSelection({ ...selection, sec: e.target.value })}
+                  >
+                    <option value="">Select Section</option>
+                    {hierarchy[selection.batch][selection.dept]?.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
             <div className="setup-footer">
-                <button 
-                    className="finish-btn" 
-                    disabled={!selection.sec} 
-                    onClick={handleFinishSetup}
-                >
-                    Continue to Dashboard <RiArrowRightLine />
-                </button>
-                <button className="cancel-btn-alt" onClick={() => { signOut(auth); setShowSetupPopup(false); }}>
-                    Sign Out (Switch Account)
-                </button>
+              <button
+                className="finish-btn"
+                disabled={!selection.sec}
+                onClick={handleFinishSetup}
+              >
+                Continue to Dashboard <RiArrowRightLine />
+              </button>
+              <button className="cancel-btn-alt" onClick={() => { signOut(auth); setShowSetupPopup(false); }}>
+                Sign Out (Switch Account)
+              </button>
             </div>
           </div>
         </div>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mukta+Malar:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <meta name="theme-color" content="#0056b3" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <title>Neram</title>
+
+    <script>
+      (function() {
+        try {
+          // 1. Get the user's saved preference
+          const savedTheme = localStorage.getItem('theme') || 'auto';
+          // 2. Check the device's system preference
+          const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+          // 3. Determine if we should force Dark Mode
+          const shouldBeDark = savedTheme === 'dark' || (savedTheme === 'auto' && systemDark);
+
+          // 4. Apply the class to the <html/> tag INSTANTLY
+          const root = document.documentElement;
+          if (shouldBeDark) {
+            root.classList.add('dark');
+            root.classList.remove('light');
+          } else {
+            root.classList.add('light');
+            root.classList.remove('dark');
+          }
+        } catch (e) {
+          // Fail silently if localStorage is blocked
+        }
+      })();
+    </script>
+    </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/admin-main.jsx"></script>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+  </body>
+</html>

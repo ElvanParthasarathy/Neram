@@ -11,7 +11,7 @@ import "./mobile.css";
 import "./mobileapp.css";
 
 // Data & Components
-import { adminEmails } from "./data/admins";
+import { adminEmails, getHardcodedRole } from "./data/admins";
 import Navbar from "./components/Navbar";
 import MobileNavbar from "./components/MobileNavbar";
 import Footer from "./components/Footer";
@@ -26,6 +26,7 @@ import SignupPage from "./pages/SignupPage";
 import Settings from "./pages/Settings";
 import AdminPanel from "./pages/AdminPanel";
 import Notes from "./pages/Notes";
+import SplashScreen from "./components/SplashScreen";
 
 // --- UTILITY HELPERS ---
 const toLocalISO = (date) => {
@@ -46,6 +47,9 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
   const navigate = useNavigate();
   const location = useLocation();
 
+  // DETECT ADMIN ROUTE
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   // --- MOBILE SCROLL ENGINE STATE ---
   const scrollRef = useRef(null);
   const isAnimating = useRef(false);
@@ -59,11 +63,6 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
   const scrollToTab = (index) => {
     navigate(tabs[index], { replace: true });
   };
-
-
-
-
-
 
   // --- BACK BUTTON LOGIC ---
   useEffect(() => {
@@ -85,16 +84,11 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
   }, [location.pathname, user, navigate]);
 
 
-  if (loading) return (
-    <div className="ios-loader-container">
-      <div className="ios-loading-wrapper">
-        <div className="mac-loader-spinner">
-          {[...Array(12)].map((_, i) => <div key={i} className="bar"></div>)}
-        </div>
-        <p className="mac-loader-text">Verifying Access</p>
-      </div>
-    </div>
-  );
+
+
+
+
+  if (loading) return <SplashScreen />;
 
   return (
     <>
@@ -104,56 +98,92 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
           <Route path="/signup" element={<SignupPage />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      ) : (
-        <div id="app-shell" className={isMobile ? "mobile-mode-active" : "desktop-mode-active"}>
+      ) : (() => {
+        // --- BLOCK PURE ADMINS (Super/Faculty) FROM STUDENT PORTAL ---
+        const emailRole = user?.email ? getHardcodedRole(user.email) : null;
+        const userRole = emailRole || dbUserProfile?.role || 'student';
+        const isPureAdmin = (userRole === 'super_admin' || userRole === 'faculty') && (!dbUserProfile?.batch || !dbUserProfile?.section);
 
-          <MobileNavbar
-            isAdmin={isAdminUser}
-            activeTab={currentTabIndex}
-            onTabClick={scrollToTab}
-          />
+        if (isPureAdmin) {
+          return (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              height: '100vh', width: '100vw', background: '#000',
+              fontFamily: "'Inter', system-ui, sans-serif", color: '#fff',
+              flexDirection: 'column', gap: '20px', textAlign: 'center'
+            }}>
+              <h1 style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.5px' }}>Admin Account Detected</h1>
+              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', lineHeight: 1.6 }}>
+                Your account is registered as a <strong style={{ color: '#FF9F0A' }}>{userRole === 'super_admin' ? 'Super Admin' : 'Faculty Admin'}</strong>.
+                The Student Portal requires student data (Batch, Section) which is not available for your role.
+              </p>
+              <a href="/admin.html" style={{
+                background: '#007AFF', color: '#fff', padding: '14px 32px',
+                borderRadius: '50px', textDecoration: 'none', fontWeight: 600,
+                fontSize: '14px', marginTop: '10px'
+              }}>
+                Go to Admin Portal →
+              </a>
+            </div>
+          );
+        }
 
-          <Navbar
-            user={user}
-            userProfile={dbUserProfile}
-            isAdmin={isAdminUser}
-            isSyncing={globalData.isSyncing}
-          />
+        return (
+          <div id="app-shell" className={isMobile ? "mobile-mode-active" : "desktop-mode-active"}>
 
-          <main id="main-viewport">
+            {/* User Mobile Navbar */}
+            <MobileNavbar
+              isAdmin={isAdminUser}
+              activeTab={currentTabIndex}
+              onTabClick={scrollToTab}
+            />
 
-            {/* MOBILE VIEW: No Swipe */}
-            {isMobile && isMainTab ? (
-              <div className="mobile-page-container">
-                <Routes>
-                  <Route path="/" element={<Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
-                  <Route path="/schedule" element={<Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
-                  <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
-                  <Route path="/notes" element={<Notes />} />
-                </Routes>
-              </div>
-            ) : (
-              /* DESKTOP VIEW: Standard Routing */
-              <div className="main-content-area">
-                <Routes>
-                  <Route path="/" element={<Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
-                  <Route path="/schedule" element={<Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
-                  <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
-                  <Route path="/notes" element={<Notes />} />
-                  <Route path="/college-sites" element={<CollegeSites />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/admin" element={isAdminUser ? <AdminPanel /> : <Navigate to="/" replace />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-                <Footer />
-              </div>
-            )}
+            {/* Sidebar Navigation */}
+            <Navbar
+              user={user}
+              userProfile={dbUserProfile}
+              isAdmin={isAdminUser}
+              isSyncing={globalData.isSyncing}
+            />
 
-          </main>
-          {showForcedSetup && <SetupModal uid={user.uid} />}
-        </div>
-      )}
+            <main id="main-viewport">
+
+              {/* MOBILE VIEW: No Swipe */}
+              {isMobile && isMainTab ? (
+                <div className="mobile-page-container">
+                  <Routes>
+                    <Route path="/" element={<Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                    <Route path="/schedule" element={<Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                    <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                    <Route path="/notes" element={<Notes />} />
+                  </Routes>
+                </div>
+              ) : (
+                /* DESKTOP VIEW */
+                <div className="main-content-area">
+                  <Routes>
+                    <Route path="/" element={<Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                    <Route path="/schedule" element={<Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                    <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                    <Route path="/notes" element={<Notes />} />
+                    <Route path="/college-sites" element={<CollegeSites />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/settings" element={<Settings />} />
+
+                    {/* Redirect /admin to the separate admin site */}
+                    <Route path="/admin" element={<div style={{ padding: 50 }}>Please use <a href="/admin.html">/admin.html</a> or the Admin Portal URL.</div>} />
+
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                  <Footer />
+                </div>
+              )}
+
+            </main>
+            {showForcedSetup && <SetupModal uid={user.uid} />}
+          </div>
+        );
+      })()}
     </>
   );
 }
@@ -257,9 +287,34 @@ function App() {
 
       if (u) {
         setUser(u);
+
+        // --- OPTIMISTIC LOAD FROM CACHE ---
+        const cachedProfile = localStorage.getItem(`user_profile_cache_${u.uid}`);
+        if (cachedProfile) {
+          try {
+            const parsed = JSON.parse(cachedProfile);
+            setDbUserProfile(parsed);
+
+            // Re-apply admin/setup logic based on cache
+            setIsAdminUser(adminEmails.includes(u.email) || parsed?.role === 'admin');
+            setShowForcedSetup(!parsed?.batch || !parsed?.department || !parsed?.section);
+
+            const savedTemp = sessionStorage.getItem("admin_preview_session");
+            setActiveProfile(savedTemp ? JSON.parse(savedTemp) : parsed);
+
+            setLoading(false); // <--- UNBLOCK UI IMMEDIATELY
+          } catch (e) {
+            console.warn("Cache parse failed", e);
+          }
+        }
+
         const userRef = ref(db, `users/${u.uid}`);
         userUnsubscribe = onValue(userRef, (snapshot) => {
           const userData = snapshot.val() || {};
+
+          // Update Cache
+          localStorage.setItem(`user_profile_cache_${u.uid}`, JSON.stringify(userData));
+
           setDbUserProfile(userData);
           setIsAdminUser(adminEmails.includes(u.email) || userData?.role === 'admin');
           setShowForcedSetup(!userData?.batch || !userData?.department || !userData?.section);
@@ -312,10 +367,6 @@ function App() {
       setGlobalData(prev => ({ ...prev, allCalendar: Array.isArray(data) ? data : Object.values(data || {}) }));
     }, (error) => {
       console.error("Calendar sync error:", error);
-      // Even if calendar fails, we might still want to show other data, 
-      // but we shouldn't block the UI if this was the only thing pending?
-      // Actually globalData.isSyncing is shared. We should disable it on error too.
-      // But typically we wait for MasterData.
     });
 
     const unsubSched = onValue(ref(db, `schedules/${batch}/${department}/${section}`), (snap) => {

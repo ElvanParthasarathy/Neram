@@ -1,0 +1,1203 @@
+@media (min-width: 769px) {
+
+  /* ==========================================================================
+   Z-INDEX FIX: PREVENT CALENDAR FROM HIDING UNDER TABLE
+   ========================================================================== */
+
+  /* 1. Force the Pill Bar to the top layer */
+  .schedule-view .controls-section.premium-pill-bar {
+    position: relative;
+    z-index: 1000 !important;
+    /* Ensures popover stays above everything */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* ... rest of your existing styles ... */
+  }
+
+  /* 2. Lower the priority of the sections below */
+  .schedule-view .today-schedule-section,
+  .schedule-view .timetable-section,
+  .schedule-view .weekly-overview-section {
+    position: relative;
+    z-index: 1;
+    /* Lower than the pill bar */
+  }
+
+  /* 3. React-DatePicker specific portal fix */
+  .react-datepicker-popper {
+    z-index: 9999 !important;
+    /* Absolute top layer for the actual popup */
+  }
+
+  /* --- 3. GHOST CONTAINERS --- */
+  .weekly-overview-section,
+  .staff-info-section {
+    display: grid;
+    gap: 24px;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 !important;
+    grid-column: 1 / -1;
+  }
+
+  .weekly-overview-section {
+    grid-template-columns: 1fr;
+  }
+
+  .staff-info-section {
+    grid-template-columns: 1fr 1fr;
+    margin-top: 10px;
+  }
+
+  /* --- 4. STANDALONE CARDS & HOVER --- */
+  .controls-section,
+  .today-schedule-section,
+  .day-card,
+  .full-exam-schedule-card,
+  .info-card,
+  .courses-directory-section {
+    background: var(--mac-card-bg);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: var(--mac-card-border);
+    box-shadow: var(--mac-card-shadow);
+    border-radius: 20px;
+    padding: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+  }
+
+  .today-schedule-section:hover,
+  .day-card:hover,
+  .full-exam-schedule-card:hover,
+  .info-card:hover,
+  .courses-directory-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+
+  .schedule-view .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+  }
+
+  /* --- 5. PREMIUM UNIFORM TABLE SYSTEM --- */
+  .table-overflow {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 14px;
+    background: var(--mac-selection-bg);
+    border: 1px solid var(--mac-divider);
+    margin-top: 8px;
+  }
+
+  .schedule-table,
+  .timetable-data {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .schedule-table th,
+  .timetable-data th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1.5px solid var(--mac-divider);
+    background: var(--mac-sidebar-bg);
+  }
+
+  .schedule-table td,
+  .timetable-data td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--mac-divider);
+    vertical-align: middle;
+    color: var(--mac-text);
+    line-height: 1.5;
+    transition: background 0.2s ease;
+  }
+
+  .schedule-table tr:hover td {
+    background: var(--mac-selection-hover);
+  }
+
+  .day-title,
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin-bottom: 20px !important;
+    display: block;
+  }
+
+  .schedule-table:not(.exam-table):not(.courses-list-stacked) th:nth-child(1),
+  .schedule-table:not(.exam-table):not(.courses-list-stacked) td:nth-child(1) {
+    width: 65px;
+    text-align: center;
+    color: var(--mac-blue);
+    font-weight: 700;
+  }
+
+  .schedule-table:not(.exam-table):not(.courses-list-stacked) th:nth-child(3),
+  .schedule-table:not(.exam-table):not(.courses-list-stacked) td:nth-child(3) {
+    width: 32%;
+    font-size: 12.5px;
+  }
+
+  /* --- 6. EXAM TABLE --- */
+  .exam-table th:nth-child(1),
+  .exam-table td:nth-child(1) {
+    width: 140px;
+    border-right: 1px solid var(--mac-divider);
+  }
+
+  .date-primary {
+    display: block;
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--mac-text);
+  }
+
+  .time-subtext {
+    display: block;
+    font-size: 11px;
+    opacity: 0.6;
+    font-weight: 500;
+  }
+
+  .cell-subject-main {
+    padding-left: 20px !important;
+  }
+
+  .cell-portion {
+    width: 130px;
+    text-align: right !important;
+  }
+
+  .portion-badge-pill {
+    display: inline-block;
+    background: var(--mac-selection-bg);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  /* --- 7. COURSES TABLE --- */
+  .courses-list-stacked {
+    table-layout: auto !important;
+  }
+
+  .courses-list-stacked .stacked-primary-text {
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stacked-secondary-text {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  /* --- 8. STAFF INFO --- */
+  .info-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .info-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--mac-text);
+  }
+
+  .info-list li svg {
+    color: var(--mac-blue);
+    font-size: 18px;
+  }
+
+  .info-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    opacity: 0.5;
+    display: block;
+  }
+
+  /* --- 9. EXAM DIRECTORY --- */
+  .full-exam-schedule-card {
+    background: var(--mac-card-bg);
+    backdrop-filter: blur(20px) saturate(160%);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    border: var(--mac-card-border);
+    box-shadow: var(--mac-card-shadow);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .exam-full-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .exam-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed !important;
+  }
+
+  .exam-table th:nth-child(1),
+  .exam-table td:nth-child(1) {
+    width: 135px;
+    text-align: left;
+    border-right: 1px solid var(--mac-divider);
+  }
+
+  .exam-table th:nth-child(3),
+  .exam-table td:nth-child(3) {
+    width: 140px;
+    text-align: right !important;
+    padding-right: 24px !important;
+  }
+
+  .highlight-today {
+    background: var(--mac-selection-bg) !important;
+  }
+
+  .exam-subtitle {
+    font-size: 12px;
+    opacity: 0.5;
+    margin-top: 2px;
+  }
+
+  @media (max-width: 850px) {
+
+    .staff-info-section,
+    .schedule-container {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .exam-table th:nth-child(1),
+    .exam-table td:nth-child(1) {
+      width: 115px;
+    }
+
+    .schedule-view {
+      margin-bottom: 120px;
+    }
+  }
+
+  .course-code {
+    font-weight: 700;
+    font-size: 13.5px;
+  }
+
+  .course-name {
+    font-size: 11.5px;
+    opacity: 0.65;
+    font-weight: 500;
+  }
+
+}
+
+@media (min-width: 769px) {
+
+  /* ==========================================================================
+   NERAM PORTAL: ACADEMIC CALENDAR STYLES (SEQUOIA GLASS SIDE-BY-SIDE)
+   ========================================================================== */
+
+  .calendar-view {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+  }
+
+  /* --- 1. PAGE HEADER --- */
+  .calendar-view .page-header {
+    margin-bottom: 30px;
+  }
+
+  .calendar-view .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--mac-text);
+    letter-spacing: -0.5px;
+  }
+
+  .calendar-view .page-subtitle {
+    font-size: 14px;
+    color: var(--mac-text-secondary);
+    margin-top: 4px;
+  }
+
+  /* --- 2. UNIFIED HOVER CARDS (SIDE-BY-SIDE GRID) --- */
+  .calendar-checker-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Exact side-by-side layout */
+    gap: 20px;
+    margin-bottom: 30px;
+    align-items: stretch;
+  }
+
+  /* Applies hover effect to ALL main containers consistently */
+  .checker-card,
+  .grid-view-section,
+  .live-feed-section,
+  .download-section {
+    background: var(--mac-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: var(--mac-card-border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--mac-card-shadow);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .checker-card:hover,
+  .grid-view-section:hover,
+  .live-feed-section:hover,
+  .download-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    background: var(--mac-card-bg);
+    /* Subtle glass highlight */
+  }
+
+  .input-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--mac-text-secondary);
+    margin-bottom: 16px;
+    letter-spacing: 0.8px;
+    opacity: 0.7;
+  }
+
+  /* --- 3. PILL ELEMENTS & BUTTONS --- */
+
+  /* Date Picker Pill Display */
+  .checker-controls-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .date-display-pill {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 50px;
+    /* Standardized to Pill Shape */
+    height: 44px;
+    padding: 0 22px;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    font-weight: 700;
+    color: var(--mac-text);
+    font-size: 14px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .calendar-trigger-btn {
+    background: var(--mac-blue) !important;
+    color: white !important;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    flex-shrink: 0;
+  }
+
+  .calendar-trigger-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .calendar-trigger-btn:active {
+    transform: scale(0.92);
+  }
+
+  /* Responsive Press Effect */
+
+  /* --- 4. Z-INDEX & RESULTS --- */
+
+  .select-date-card {
+    position: relative;
+    z-index: 100;
+  }
+
+  .grid-view-section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .react-datepicker-popper {
+    z-index: 9999 !important;
+  }
+
+  .result-text-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .checker-event-item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 4px 0;
+  }
+
+  .event-indicator-line {
+    width: 4px;
+    height: 32px;
+    background: var(--mac-blue);
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .event-title-text {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--mac-text);
+    line-height: 1.2;
+  }
+
+  .event-time-text {
+    font-size: 12.5px;
+    color: var(--mac-text-secondary);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .no-event-text {
+    font-size: 14px;
+    color: var(--mac-text-secondary);
+    font-style: italic;
+    opacity: 0.6;
+  }
+
+  /* --- 5. MONTHLY GRID TABLE & NAVIGATION --- */
+
+  .section-heading {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--mac-text);
+  }
+
+  .table-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.03);
+    padding: 8px;
+    border-radius: 100px;
+    /* Navigation Bar Pill */
+  }
+
+  .nav-btn {
+    background: var(--mac-card-bg);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 8px 20px;
+    border-radius: 50px;
+    /* Button Pill */
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mac-text);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  }
+
+  .nav-btn:hover {
+    background: var(--mac-blue);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .nav-btn:active {
+    transform: scale(0.96);
+  }
+
+  .current-month-display {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--mac-blue);
+  }
+
+  /* --- 6. TABLE STYLING --- */
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .calendar-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--mac-text-secondary);
+    border-bottom: 1.5px solid var(--mac-divider);
+  }
+
+  .calendar-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--mac-divider);
+    vertical-align: top;
+  }
+
+  .row-today {
+    background: rgba(0, 122, 255, 0.03);
+  }
+
+  .cell-date-stack .day-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--mac-blue);
+    text-transform: uppercase;
+  }
+
+  .cell-date-stack .date-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    white-space: nowrap;
+  }
+
+  .event-info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 8px;
+  }
+
+  .event-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--mac-text);
+  }
+
+  .event-time {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    opacity: 0.8;
+  }
+
+}
+
+@media (min-width: 769px) {
+
+  /* ==========================================================================
+   NERAM PORTAL: CALENDAR MANAGER (MASTER STYLESHEET)
+   ========================================================================== */
+
+  /* 1. PARENT SCOPE & LAYOUT SAFETY */
+  .calendar-manager-container {
+    width: 100%;
+    max-width: 100%;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    color: var(--mac-text);
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .calendar-manager-container * {
+    box-sizing: border-box;
+  }
+
+  /* 2. EXPLORER NAVIGATION (HORIZONTAL GRID FIX) */
+  .calendar-manager-container .explorer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0 20px 0;
+    border-bottom: 1px solid var(--mac-divider, rgba(0, 0, 0, 0.1));
+    margin-bottom: 30px;
+  }
+
+  .calendar-manager-container .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--mac-text-secondary, #86868b);
+  }
+
+  .calendar-manager-container .explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    width: 100%;
+  }
+
+  .calendar-manager-container .explorer-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+
+  .calendar-manager-container .explorer-card:hover {
+    transform: translateY(-5px);
+    /* Sequoia Lift */
+    border-color: rgba(0, 122, 255, 0.3);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+  }
+
+  .calendar-manager-container .card-icon {
+    font-size: 48px;
+    color: #007AFF;
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+
+  /* 3. WORKSPACE LAYOUT (SIDEBAR + MAIN) */
+  .calendar-manager-container .calendar-admin-workspace {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    height: calc(100vh - 140px);
+  }
+
+  /* 4. SIDEBAR CONFIGURATION PANEL */
+  .calendar-manager-container .admin-sidebar-controls {
+    flex: 0 0 320px;
+    /* Fixed width sidebar */
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .calendar-manager-container .config-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .calendar-manager-container .config-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Inputs & Labels */
+  .calendar-manager-container label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .calendar-manager-container input {
+    width: 100%;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 10px !important;
+    padding: 0 12px;
+    font-size: 13.5px;
+    outline: none;
+    transition: all 0.2s;
+    color: var(--mac-text);
+    margin-bottom: 16px;
+  }
+
+  .calendar-manager-container input:focus {
+    background: #ffffff;
+    border-color: #007AFF;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+  }
+
+  .calendar-manager-container input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  /* 5. MAIN CALENDAR LIST AREA */
+  .calendar-manager-container .calendar-editable-list {
+    flex: 1;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Navigation Pill Header */
+  .calendar-manager-container .table-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+  }
+
+  .calendar-manager-container .current-month-display {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #007AFF;
+  }
+
+  /* 6. TABLE STYLING */
+  .calendar-manager-container .admin-table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .calendar-manager-container .calendar-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .calendar-manager-container .calendar-table th {
+    text-align: left;
+    padding: 12px 24px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.5;
+    background: #fbfbfd;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .calendar-manager-container .calendar-table td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    vertical-align: top;
+  }
+
+  /* 7. EVENT PILLS (OVERRIDE/ENHANCE) */
+  .calendar-manager-container .event-item-pill {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+  }
+
+  .calendar-manager-container .event-item-pill:hover {
+    transform: translateX(4px);
+    background: rgba(0, 122, 255, 0.08) !important;
+    /* Force slight blue tint on hover */
+  }
+
+  /* 8. BUTTONS - SEQUOIA SILK SYSTEM */
+  .calendar-manager-container button {
+    border-radius: 50px !important;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  .calendar-manager-container button:active {
+    transform: scale(0.94);
+    filter: brightness(0.85);
+  }
+
+  /* Back Button */
+  .calendar-manager-container .back-btn-minimal {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--mac-text);
+  }
+
+  /* Config/Settings Button */
+  .calendar-manager-container .btn-modify-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--mac-text);
+    padding: 0;
+  }
+
+  /* Save Settings */
+  .calendar-manager-container .btn-save-settings {
+    background: #34c759;
+    /* Green for success/save */
+    color: white;
+    padding: 10px 20px;
+    width: 100%;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  /* Safety Controls (Sync/Push) */
+  .calendar-manager-container .btn-safety {
+    background: rgba(0, 122, 255, 0.1);
+    color: #007AFF;
+    padding: 12px;
+    width: 100%;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .calendar-manager-container .btn-safety.push {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+  }
+
+  .calendar-manager-container .btn-safety:hover {
+    filter: brightness(0.95);
+  }
+
+  .calendar-manager-container .btn-safety.push:hover {
+    background: #ff3b30;
+    color: white;
+  }
+
+  /* Navigation Buttons */
+  .calendar-manager-container .nav-btn {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--mac-text);
+  }
+
+  /* 9. RESPONSIVE */
+  @media (max-width: 900px) {
+    .calendar-manager-container .calendar-admin-workspace {
+      flex-direction: column;
+    }
+
+    .calendar-manager-container .admin-sidebar-controls {
+      flex: none;
+      width: 100%;
+      height: auto;
+    }
+
+    .calendar-manager-container .explorer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* --- SETTINGS PAGE TOGGLE POSITION FIX --- */
+  /* Ensures the settings container allows absolute positioning inside it */
+  .settings-container,
+  .admin-subpage {
+    position: relative;
+  }
+
+  /* Positions the toggle explicitly in the top-right */
+  .theme-toggle-wrapper {
+    position: absolute;
+    top: 30px;
+    /* Aligns with the header text */
+    right: 30px;
+    /* Spacing from the right edge */
+    z-index: 100;
+    /* Ensures it sits above other elements */
+  }
+
+  /* Optional: Styles the toggle button itself to match Sequoia */
+  .theme-toggle-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--mac-divider);
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Navigation Pill Header */
+  .calendar-manager-container .table-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+  }
+
+  .calendar-manager-container .current-month-display {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #007AFF;
+  }
+
+  /* 6. TABLE STYLING */
+  .calendar-manager-container .admin-table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+  }
+
+  .calendar-manager-container .calendar-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .calendar-manager-container .calendar-table th {
+    text-align: left;
+    padding: 12px 24px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.5;
+    background: #fbfbfd;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .calendar-manager-container .calendar-table td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    vertical-align: top;
+  }
+
+  /* 7. EVENT PILLS (OVERRIDE/ENHANCE) */
+  .calendar-manager-container .event-item-pill {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+  }
+
+  .calendar-manager-container .event-item-pill:hover {
+    transform: translateX(4px);
+    background: rgba(0, 122, 255, 0.08) !important;
+    /* Force slight blue tint on hover */
+  }
+
+  /* 8. BUTTONS - SEQUOIA SILK SYSTEM */
+  .calendar-manager-container button {
+    border-radius: 50px !important;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  .calendar-manager-container button:active {
+    transform: scale(0.94);
+    filter: brightness(0.85);
+  }
+
+  /* Back Button */
+  .calendar-manager-container .back-btn-minimal {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--mac-text);
+  }
+
+  /* Config/Settings Button */
+  .calendar-manager-container .btn-modify-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--mac-text);
+    padding: 0;
+  }
+
+  /* Save Settings */
+  .calendar-manager-container .btn-save-settings {
+    background: #34c759;
+    /* Green for success/save */
+    color: white;
+    padding: 10px 20px;
+    width: 100%;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+
+  /* Safety Controls (Sync/Push) */
+  .calendar-manager-container .btn-safety {
+    background: rgba(0, 122, 255, 0.1);
+    color: #007AFF;
+    padding: 12px;
+    width: 100%;
+    font-size: 13px;
+    margin-bottom: 10px;
+  }
+
+  .calendar-manager-container .btn-safety.push {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+  }
+
+  .calendar-manager-container .btn-safety:hover {
+    filter: brightness(0.95);
+  }
+
+  .calendar-manager-container .btn-safety.push:hover {
+    background: #ff3b30;
+    color: white;
+  }
+
+  /* Navigation Buttons */
+  .calendar-manager-container .nav-btn {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--mac-text);
+  }
+
+  /* 9. RESPONSIVE */
+  @media (max-width: 900px) {
+    .calendar-manager-container .calendar-admin-workspace {
+      flex-direction: column;
+    }
+
+    .calendar-manager-container .admin-sidebar-controls {
+      flex: none;
+      width: 100%;
+      height: auto;
+    }
+
+    .calendar-manager-container .explorer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* --- SETTINGS PAGE TOGGLE POSITION FIX --- */
+  /* Ensures the settings container allows absolute positioning inside it */
+  .settings-container,
+  .admin-subpage {
+    position: relative;
+  }
+
+  /* Positions the toggle explicitly in the top-right */
+  .theme-toggle-wrapper {
+    position: absolute;
+    top: 30px;
+    /* Aligns with the header text */
+    right: 30px;
+    /* Spacing from the right edge */
+    z-index: 100;
+    /* Ensures it sits above other elements */
+  }
+
+  /* Optional: Styles the toggle button itself to match Sequoia */
+  .theme-toggle-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--mac-divider);
+    padding: 8px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: var(--mac-text);
+  }
+
+  .theme-toggle-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+  }
+
+}
+
+/* --- MOBILE PADDING OVERRIDE --- */
+@media (max-width: 768px) {
+  .calendar-view {
+    padding-left: var(--screen-edge-spacing) !important;
+    padding-right: var(--screen-edge-spacing) !important;
+  }
+}

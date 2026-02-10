@@ -9,6 +9,7 @@
 @import './styles/components.css';
 @import './styles/calendar.css';
 @import './styles/fixes.css';
+@import './styles/splash.css';
 @import './styles/buttons.css';
 @import './styles/neram-portal-college-sites-platforms-clean-sequoia-grid.css';
 @import './styles/neram-portal-premium-sequoia-contact-silky-alignment.css';
@@ -34,4 +35,15 @@
         min-height: 100vh;
         box-sizing: border-box;
     }
+}
+
+/* Sidebar Group Labels */
+.nav-group-label {
+    padding: 12px 14px 4px 14px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #888;
+    font-weight: 600;
+    margin-top: 8px;
 }

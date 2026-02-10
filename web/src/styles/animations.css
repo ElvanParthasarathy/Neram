@@ -1,10 +1,10 @@
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    MISSING ADDITIONS: STATUS INDICATORS & ANIMATIONS
    ========================================================================== */
 
-/* --- 1. SCHEDULE PAGE: STATUS DOTS (Pulsing Indicators) --- */
+  /* --- 1. SCHEDULE PAGE: STATUS DOTS (Pulsing Indicators) --- */
   .status-dot {
     width: 8px;
     height: 8px;
@@ -140,11 +140,11 @@
 
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    CANVA-STYLE "RISE" ANIMATION (Final Combined Block)
    ========================================================================== */
 
-@keyframes canvaRise {
+  @keyframes canvaRise {
     0% {
       opacity: 0;
       transform: translateY(25px);
@@ -193,9 +193,11 @@
 
   /* NEW: Animates the Header, Controls, and Tab Content */
     {
-    will-change: transform, opacity;
-    animation: canvaRise 0.6s cubic-bezier(0, 0, 0.2, 1) forwards;
-    opacity: 0;
+    /* will-change: transform, opacity; */
+    /* animation: canvaRise 0.6s cubic-bezier(0, 0, 0.2, 1) forwards; */
+    /* opacity: 0; */
+    opacity: 1;
+    /* Force visible */
   }
 
   /* 3. STAGGER DELAYS (Waterfall Effect) */

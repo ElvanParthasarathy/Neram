@@ -18,19 +18,19 @@ const CustomPicker = ({ label, value, options, onChange, placeholder }) => {
   return (
     <div className="switch-group-mac" ref={pickerRef}>
       <label>{label}</label>
-      <div 
-        className={`mac-custom-picker ${isOpen ? 'active' : ''}`} 
+      <div
+        className={`mac-custom-picker ${isOpen ? 'active' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span>{value || placeholder}</span>
       </div>
-      
+
       {isOpen && (
         <div className="mac-picker-dropdown animate-fade-in">
           {options.length > 0 ? (
             options.map((opt) => (
-              <div 
-                key={opt} 
+              <div
+                key={opt}
                 className={`mac-picker-option ${value === opt ? 'selected' : ''}`}
                 onClick={() => {
                   onChange(opt);
@@ -58,7 +58,20 @@ const AdminViewSwitcher = ({ realProfile, onClose }) => {
       if (snap.exists()) setHierarchy(snap.val());
     });
     const saved = sessionStorage.getItem("admin_preview_session");
-    if (saved) setCurrentView(JSON.parse(saved));
+
+    // LOGIC: If saved session exists, use it.
+    // If not, use realProfile.
+    // IF realProfile has Dept but NO Section (Faculty), ensure Dept is pre-filled but Section is empty.
+    if (saved) {
+      setCurrentView(JSON.parse(saved));
+    } else {
+      // Ensure we don't accidentally set a "null" section as a string "null"
+      setCurrentView({
+        batch: realProfile?.batch || "",
+        department: realProfile?.department || "",
+        section: realProfile?.section || ""
+      });
+    }
   }, [realProfile]);
 
   const updateGlobalView = (newView) => {
@@ -73,7 +86,7 @@ const AdminViewSwitcher = ({ realProfile, onClose }) => {
     if (onClose) onClose();
   };
 
-  const isPreviewing = realProfile && currentView && 
+  const isPreviewing = realProfile && currentView &&
     (currentView.section !== realProfile.section || currentView.batch !== realProfile.batch);
 
   return (
@@ -87,7 +100,7 @@ const AdminViewSwitcher = ({ realProfile, onClose }) => {
         <div className="dropdown-divider"></div>
 
         <div className="switcher-body">
-          <CustomPicker 
+          <CustomPicker
             label="Academic Batch"
             value={currentView.batch}
             placeholder="Select Batch"
@@ -96,7 +109,7 @@ const AdminViewSwitcher = ({ realProfile, onClose }) => {
           />
 
           {currentView.batch && hierarchy[currentView.batch] && (
-            <CustomPicker 
+            <CustomPicker
               label="Department"
               value={currentView.department}
               placeholder="Select Dept"
@@ -106,7 +119,7 @@ const AdminViewSwitcher = ({ realProfile, onClose }) => {
           )}
 
           {currentView.department && hierarchy[currentView.batch]?.[currentView.department] && (
-            <CustomPicker 
+            <CustomPicker
               label="Section"
               value={currentView.section}
               placeholder="Select Sec"

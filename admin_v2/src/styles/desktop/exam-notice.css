@@ -1,0 +1,40 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   MAJOR EXAM NOTICE (CLASSES SUSPENDED)
+   ========================================================================== */
+
+.major-exam-notice {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0, 122, 255, 0.08);
+    border: 1px solid rgba(0, 122, 255, 0.15);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 10px 0;
+    backdrop-filter: blur(10px);
+  }
+
+  .major-exam-notice svg {
+    font-size: 28px;
+    color: var(--mac-blue);
+    flex-shrink: 0;
+  }
+
+  .notice-bold {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin: 0;
+  }
+
+  .notice-sub {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    opacity: 0.8;
+    margin: 0;
+  }
+
+}

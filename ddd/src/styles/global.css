@@ -1,0 +1,55 @@
+@media (min-width: 769px) {
+
+/* ==========================================================================
+   2. GLOBAL SYSTEM & VIEWPORT (ELASTIC BOUNCE ENABLED)
+   ========================================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    /* RESTORED ORIGINAL LIGHT MODE GRADIENT */
+    background-color: #F5F5F7;
+    background: radial-gradient(at 0% 50%, rgba(0, 122, 255, 0.15) 0%, transparent 60%), #F5F5F7;
+    background-attachment: fixed;
+  }
+
+  /* DARK MODE BACKGROUND OVERRIDE */
+  html.dark body {
+    background: var(--mac-bg-primary);
+    /* Uses the Deep Midnight defined in html.dark */
+  }
+
+  #app-shell.desktop-mode-active {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+
+  #main-viewport {
+    flex: 1;
+    height: 100%;
+    overflow-y: overlay;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto;
+    overscroll-behavior-x: none;
+    background: var(--content-bg);
+    padding: 48px 64px;
+    scroll-behavior: smooth;
+    box-shadow: inset 1px 0 0 var(--mac-border);
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+}

@@ -69,28 +69,124 @@ const Notes = () => {
     }, []);
 
     // --- PARSING LOGIC (Ported from Kotlin) ---
+    // --- PARSING LOGIC (Ported from Kotlin - Robust Regex Version) ---
+    // --- PARSING LOGIC (Ported from Kotlin - Robust Hybrid Version) ---
     const parseTable = (table, isSNH = false, deptFilter = "") => {
         const subjects = [];
-        const rows = table.querySelectorAll("tbody tr");
+        const rows = Array.from(table.querySelectorAll("tbody tr"));
+        const headers = Array.from(table.querySelectorAll("thead th"));
+
+        // 1. Column Mapping Strategy (Header-Based)
+        // map: { "Unit 1": 2, "Unit 2": 3, ... }
+        const colMap = {};
+
+        if (headers.length > 0) {
+            headers.forEach((th, index) => {
+                const text = th.innerText.toLowerCase().trim();
+                const match = /unit\s*(\d+)|([ivx]+)/i.exec(text);
+                if (match) {
+                    // Try to convert Roman numerals if present (simple case)
+                    let num = match[1];
+                    if (!num && match[2]) {
+                        const roman = match[2].toLowerCase();
+                        if (roman === 'i') num = 1;
+                        if (roman === 'ii') num = 2;
+                        if (roman === 'iii') num = 3;
+                        if (roman === 'iv') num = 4;
+                        if (roman === 'v') num = 5;
+                    }
+                    if (num) colMap[`Unit ${num}`] = index;
+                }
+            });
+        }
+
+        // Fallback: If no headers found or map is empty, assume standard layout
+        // Standard: Col 0=S.No, Col 1=Code, Col 2=Title, Col 3=Unit 1... OR
+        // Standard: Col 0=Code, Col 1=Title, Col 2=Unit 1...
+        // We will detect "Unit 1" column dynamically in rows if headers failed
+        let fallbackUnit1Index = -1;
 
         rows.forEach((row) => {
-            const tds = row.querySelectorAll("td");
-            if (tds.length < 4) return;
+            const tds = Array.from(row.querySelectorAll("td"));
+            if (tds.length < 2) return;
 
-            let subjectName = tds[1]?.innerText?.trim();
-            if (!subjectName && tds.length > 0) subjectName = tds[0]?.innerText?.trim();
+            // Subject Name Detection (Longest text that isn't a link/unit)
+            // Or typically 2nd or 3rd column
+            let subjectName = "";
+            let subjectIdx = -1;
+
+            // Strategy: Find class with text, not centered/digit
+            const candidates = [tds[1], tds[2], tds[0]].filter(Boolean);
+            for (const td of candidates) {
+                const text = td.innerText.trim();
+                // Exclude mostly digits (Subject Code) or short S.No
+                if (text.length > 3 && !/^\d+$/.test(text) && !/^\w+\d+$/.test(text)) {
+                    subjectName = text;
+                    subjectIdx = tds.indexOf(td);
+                    break;
+                }
+            }
+            // Fallback to Col 1 if detection failed
+            if (!subjectName) subjectName = tds[1]?.innerText?.trim() || tds[0]?.innerText?.trim();
+
 
             if (subjectName) {
                 const units = {};
-                for (let i = 3; i <= 7; i++) {
-                    if (tds[i]) {
-                        const link = tds[i].querySelector("a");
-                        const href = link?.getAttribute("href");
-                        if (href && href !== "" && href !== "#") {
-                            units[`Unit ${i - 2}`] = href;
+
+                // 2. Extract Links
+                // Use Map if available
+                if (Object.keys(colMap).length > 0) {
+                    Object.entries(colMap).forEach(([unitKey, colIdx]) => {
+                        const td = tds[colIdx];
+                        if (td) {
+                            const links = Array.from(td.querySelectorAll("a"));
+                            // Prioritize Drive/Docs links
+                            const driveLink = links.find(l => /drive|docs\.google/i.test(l.href));
+                            const validLink = driveLink || links.find(l => l.href && l.href !== "#" && !l.href.endsWith("notes.html"));
+
+                            if (validLink) {
+                                units[unitKey] = validLink.getAttribute("href");
+                            }
+                        }
+                    });
+                } else {
+                    // Adaptive Scan without headers
+                    if (fallbackUnit1Index === -1) {
+                        // Try to find first "Unit" link in this row
+                        for (let i = 0; i < tds.length; i++) {
+                            if (i === subjectIdx) continue; // Skip subject col
+                            const txt = tds[i].innerText.toLowerCase();
+                            if (txt.includes("unit 1") || txt.includes("i")) {
+                                // Check if it HAS a link
+                                if (tds[i].querySelector("a")) {
+                                    fallbackUnit1Index = i;
+                                    break;
+                                }
+                            }
+                        }
+                        // If still -1, default to subjectIdx + 1 or +2
+                        if (fallbackUnit1Index === -1 && subjectIdx !== -1) fallbackUnit1Index = subjectIdx + 1;
+                        if (fallbackUnit1Index === -1) fallbackUnit1Index = 2; // Hard default
+                    }
+
+                    // Scan from calculated start
+                    for (let i = 0; i < 5; i++) {
+                        const colIdx = fallbackUnit1Index + i;
+                        if (colIdx < tds.length) {
+                            const td = tds[colIdx];
+                            const links = Array.from(td.querySelectorAll("a"));
+                            const unitKey = `Unit ${i + 1}`;
+
+                            const driveLink = links.find(l => /drive|docs\.google/i.test(l.href));
+                            const validLink = driveLink || links.find(l => l.href && l.href !== "#" && !l.href.endsWith("notes.html"));
+
+                            if (validLink) {
+                                units[unitKey] = validLink.getAttribute("href");
+                            }
                         }
                     }
                 }
+
                 if (Object.keys(units).length > 0) {
                     subjects.push({ name: subjectName, units });
                 }
@@ -104,7 +200,11 @@ const Notes = () => {
         setError(null);
         setNotesData([]);
 
-        const cacheKey = `notes_cache_${deptCode}`;
+        const cacheKey = `notes_cache_${deptCode}`; // We still use session cache for the session, but can force refresh
+        // Note: You might want to allow a "Force Refresh" button to clear this and re-fetch.
+        // For now, we'll respect the session cache to save bandwidth, but the INITIAL fetch 
+        // in a new session will always be fresh due to the timestamp below.
+
         const cached = sessionStorage.getItem(cacheKey);
         if (cached) {
             setNotesData(JSON.parse(cached));
@@ -112,14 +212,35 @@ const Notes = () => {
             return;
         }
 
+        const targetUrl = `https://rmd.ac.in/dept/${deptCode}/notes.html?t=${Date.now()}`;
+
+        // List of proxies to try in order
+        const proxyGenerators = [
+            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+            (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+        ];
+
+        let html = null;
+        let lastError = null;
+
+        // Try proxies sequentially
+        for (const generateProxyUrl of proxyGenerators) {
+            try {
+                const proxyUrl = generateProxyUrl(targetUrl);
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error(`Proxy returned ${response.status}`);
+                html = await response.text();
+                if (html && html.length > 100) break; // Success!
+            } catch (err) {
+                console.warn(`Proxy failed: ${err.message}`);
+                lastError = err;
+            }
+        }
+
         try {
-            const PROXY = "https://api.allorigins.win/raw?url=";
-            const URL = `https://rmd.ac.in/dept/${deptCode}/notes.html`;
+            if (!html) throw new Error("Unable to fetch notes. Please check your connection.");
 
-            const response = await fetch(PROXY + encodeURIComponent(URL));
-            if (!response.ok) throw new Error("Failed to fetch notes");
-
-            const html = await response.text();
             const doc = new DOMParser().parseFromString(html, "text/html");
             const tables = doc.querySelectorAll("table");
             const results = [];
@@ -165,7 +286,7 @@ const Notes = () => {
 
         } catch (err) {
             console.error(err);
-            setError(err.message);
+            setError(err.message || lastError?.message || "Failed to load notes");
         } finally {
             setLoading(false);
         }
@@ -258,18 +379,43 @@ const Notes = () => {
                                         <div key={sIndex} className="subject-card-mac">
                                             <h3 className="subject-name-mac">{sub.name}</h3>
                                             <div className="units-list-mac">
-                                                {Object.entries(sub.units).map(([unitName, link]) => (
-                                                    <a
-                                                        key={unitName}
-                                                        href={link}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="unit-chip"
-                                                    >
-                                                        <i className="ri-file-pdf-line"></i>
-                                                        {unitName}
-                                                    </a>
-                                                ))}
+                                                {[1, 2, 3, 4, 5].map((unitNum) => {
+                                                    const unitKey = `Unit ${unitNum}`;
+                                                    const link = sub.units[unitKey] || sub.units[`unit ${unitNum}`] || sub.units[`Unit ${unitNum} `];
+                                                    const isAvailable = !!link;
+
+                                                    if (isAvailable) {
+                                                        return (
+                                                            <a
+                                                                key={unitKey}
+                                                                href={link}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="unit-chip"
+                                                            >
+                                                                <i className="ri-file-pdf-line"></i>
+                                                                {unitKey}
+                                                            </a>
+                                                        );
+                                                    } else {
+                                                        return (
+                                                            <div
+                                                                key={unitKey}
+                                                                className="unit-chip disabled"
+                                                                style={{
+                                                                    opacity: 0.5,
+                                                                    cursor: 'not-allowed',
+                                                                    background: 'rgba(0,0,0,0.05)',
+                                                                    border: '1px solid transparent'
+                                                                }}
+                                                                onClick={() => alert(`${unitKey} is not uploaded yet.`)}
+                                                            >
+                                                                <i className="ri-lock-line"></i>
+                                                                {unitKey}
+                                                            </div>
+                                                        );
+                                                    }
+                                                })}
                                             </div>
                                         </div>
                                     ))}
@@ -373,23 +519,42 @@ const Notes = () => {
                                                 </div>
 
                                                 <div className="subject-accordion-content">
-                                                    {Object.entries(sub.units).map(([unitName, link]) => (
-                                                        <a
-                                                            key={unitName}
-                                                            href={link}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="unit-item-mobile"
-                                                        >
-                                                            <div className="unit-icon">
-                                                                <IconFileText />
+                                                    {[1, 2, 3, 4, 5].map((unitNum) => {
+                                                        const unitKey = `Unit ${unitNum}`;
+                                                        // Case-insensitive check or direct access
+                                                        const link = sub.units[unitKey] || sub.units[`unit ${unitNum}`] || sub.units[`Unit ${unitNum} `];
+                                                        const isAvailable = !!link;
+
+                                                        return (
+                                                            <div
+                                                                key={unitKey}
+                                                                onClick={() => {
+                                                                    if (isAvailable) window.open(link, "_blank");
+                                                                    else alert(`${unitKey} is not uploaded yet.`);
+                                                                }}
+                                                                className={`unit-item-mobile ${!isAvailable ? 'disabled-unit' : ''}`}
+                                                                style={{
+                                                                    opacity: isAvailable ? 1 : 0.6,
+                                                                    cursor: isAvailable ? 'pointer' : 'not-allowed',
+                                                                    backgroundColor: isAvailable ? 'var(--bg-secondary)' : 'transparent'
+                                                                }}
+                                                            >
+                                                                <div className="unit-icon" style={{ color: isAvailable ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                                                                    {isAvailable ? <IconFileText /> : (
+                                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                                                            <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z" clipRule="evenodd" />
+                                                                        </svg>
+                                                                    )}
+                                                                </div>
+                                                                <span className="unit-name" style={{ color: isAvailable ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                                                                    {unitKey}
+                                                                </span>
+                                                                <div className="unit-open-icon" style={{ color: isAvailable ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                                                                    {isAvailable ? <IconOpen /> : null}
+                                                                </div>
                                                             </div>
-                                                            <span className="unit-name">{unitName}</span>
-                                                            <div className="unit-open-icon">
-                                                                <IconOpen />
-                                                            </div>
-                                                        </a>
-                                                    ))}
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         );

@@ -1,0 +1,12 @@
+/* Refactored index.css */
+@import './styles/tokens.css';
+
+@import './styles/theme-dark.css';
+@import './styles/responsive.css';
+@import './styles/global.css';
+@import './styles/scrollbar.css';
+@import './styles/sidebar.css';
+@import './styles/preview-badge.css';
+@import './styles/profile.css';
+@import './styles/preview-system.css';
+@import './styles/10-premium-mac-system-initial-loader-verifying-access-account.css';

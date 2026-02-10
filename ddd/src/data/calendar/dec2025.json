@@ -1,0 +1,19 @@
+[
+  { "date": "2025-12-15", "title": "Commencement of Even Sem – Thursday Order", "type": "Event" },
+  { "date": "2025-12-16", "title": "Working Day", "type": "Event" },
+  { "date": "2025-12-17", "title": "Regular Working Day", "type": "Event" },
+  { "date": "2025-12-18", "title": "Regular Working Day", "type": "Event" },
+  { "date": "2025-12-19", "title": "Regular Working Day", "type": "Event" },
+  { "date": "2025-12-20", "title": "Regular Working Day", "type": "Event" },
+  { "date": "2025-12-21", "title": "Holiday", "type": "Event" },
+  { "date": "2025-12-22", "title": "Working Day – Wednesday Order", "type": "Event" },
+  { "date": "2025-12-23", "title": "Working Day", "type": "Event" },
+  { "date": "2025-12-24", "title": "Regular Working Day", "type": "Event" },
+  { "date": "2025-12-25", "title": "Kiristhumas – Holiday", "type": "Event" },
+  { "date": "2025-12-26", "title": "Working Day", "type": "Event" },
+  { "date": "2025-12-27", "title": "Regular Working Day", "type": "Event" },
+  { "date": "2025-12-28", "title": "Holiday", "type": "Event" },
+  { "date": "2025-12-29", "title": "Working Day – Friday Order", "type": "Event" },
+  { "date": "2025-12-30", "title": "Working Day", "type": "Event" },
+  { "date": "2025-12-31", "title": "Holiday", "type": "Event" }
+]

@@ -1,0 +1,150 @@
+/* ==========================================================================
+   GLOBAL SPLASH SCREEN (Theme-Aware)
+   ========================================================================== */
+
+:root {
+    /* LIGHT MODE (Default) - Matches Android Theme.Neram */
+    --splash-bg: #FAFAFA;
+    --splash-spinner-color: #000000;
+    --splash-logo-filter: none;
+    /* Logo is naturally black */
+}
+
+/* DARK MODE - Matches Android Theme.Neram (Dark) */
+html.dark {
+    --splash-bg: #0A0A0A;
+    --splash-spinner-color: #FFFFFF;
+    --splash-logo-filter: invert(1) brightness(100%);
+    /* Turns black logo to white */
+}
+
+.splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--splash-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    transition: background-color 0.4s ease, opacity 0.4s ease;
+    gap: 32px;
+}
+
+/* Logo Animation */
+.splash-logo {
+    width: 120px;
+    height: auto;
+    filter: var(--splash-logo-filter);
+    transition: filter 0.4s ease;
+    animation: logoFadeIn 0.8s ease-out;
+}
+
+@keyframes logoFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 
+   iOS SPINNER (12 BARS) 
+*/
+.splash-spinner {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    opacity: 0.6;
+}
+
+.splash-spinner .bar {
+    width: 3px;
+    height: 9px;
+    background: var(--splash-spinner-color);
+    opacity: 0.2;
+    position: absolute;
+    left: 46%;
+    top: 25%;
+    border-radius: 2px;
+    transform-origin: 50% 160%;
+    animation: iosSpinnerFade 1s linear infinite;
+}
+
+/* Rotation Mathematics (30 degrees per bar) */
+.splash-spinner .bar:nth-child(1) {
+    transform: rotate(0deg);
+    animation-delay: -1s;
+}
+
+.splash-spinner .bar:nth-child(2) {
+    transform: rotate(30deg);
+    animation-delay: -0.916s;
+}
+
+.splash-spinner .bar:nth-child(3) {
+    transform: rotate(60deg);
+    animation-delay: -0.833s;
+}
+
+.splash-spinner .bar:nth-child(4) {
+    transform: rotate(90deg);
+    animation-delay: -0.75s;
+}
+
+.splash-spinner .bar:nth-child(5) {
+    transform: rotate(120deg);
+    animation-delay: -0.666s;
+}
+
+.splash-spinner .bar:nth-child(6) {
+    transform: rotate(150deg);
+    animation-delay: -0.583s;
+}
+
+.splash-spinner .bar:nth-child(7) {
+    transform: rotate(180deg);
+    animation-delay: -0.5s;
+}
+
+.splash-spinner .bar:nth-child(8) {
+    transform: rotate(210deg);
+    animation-delay: -0.416s;
+}
+
+.splash-spinner .bar:nth-child(9) {
+    transform: rotate(240deg);
+    animation-delay: -0.333s;
+}
+
+.splash-spinner .bar:nth-child(10) {
+    transform: rotate(270deg);
+    animation-delay: -0.25s;
+}
+
+.splash-spinner .bar:nth-child(11) {
+    transform: rotate(300deg);
+    animation-delay: -0.166s;
+}
+
+.splash-spinner .bar:nth-child(12) {
+    transform: rotate(330deg);
+    animation-delay: -0.083s;
+}
+
+@keyframes iosSpinnerFade {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.1;
+    }
+}

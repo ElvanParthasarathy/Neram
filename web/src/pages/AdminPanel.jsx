@@ -13,7 +13,9 @@ import {
   RiFlagLine,
   RiFilePdfLine // <--- ADD THIS HERE
 } from 'react-icons/ri';
+import { getHardcodedRole } from '../data/admins';
 
+// Import sub-components
 // Import sub-components
 import StructureManager from './admins/StructureManager';
 import UserManagement from './admins/UserManagement';
@@ -22,12 +24,15 @@ import CalendarManager from './admins/CalendarManager';
 import ExamManager from './admins/ExamManager';
 import AdminRoleManager from './admins/AdminRoleManager';
 import EventManager from './admins/EventManager';
-import ResourceManager from './admins/ResourceManager'; // Add this line
+import ResourceManager from './admins/ResourceManager';
+import AdminDashboard from './admins/AdminDashboard';
+// import AdminHomeWrapper from './admins/AdminHomeWrapper';
+import PendingRequests from './admins/PendingRequests';
 
-const AdminPanel = () => {
+const AdminPanel = ({ user, userProfile }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const activeModule = searchParams.get('mod') || 'structure';
+  const activeModule = searchParams.get('mod') || 'home';
 
   // --- 1. INTERNAL MOBILE CHECK ---
   // We check window width immediately on mount
@@ -42,6 +47,37 @@ const AdminPanel = () => {
   const handleModuleChange = (newMod) => {
     setSearchParams({ mod: newMod });
   };
+
+  // --- ROLE CHECK FOR ACCESS CONTROL ---
+  const emailRole = user?.email ? getHardcodedRole(user.email) : null;
+  const dbRole = userProfile?.role;
+  const finalRole = emailRole || dbRole || 'student';
+  const isSuper = finalRole === 'super_admin';
+  const isFaculty = finalRole === 'faculty';
+  const isRep = finalRole === 'rep';
+
+  // --- ACCESS CONTROL LIST ---
+  // Super Admin: Has access to EVERYTHING.
+  // Faculty: users, roles, schedules, exams, events. (Block: structure, calendar, resources)
+  // Rep: roles, schedules, exams, events. (Block: users, structure, calendar, resources)
+
+  useEffect(() => {
+    let unauthorized = false;
+
+    if (isFaculty) {
+      if (['structure', 'calendar', 'resources'].includes(activeModule)) unauthorized = true;
+    }
+    else if (isRep) {
+      // Reps can see 'roles' (Admins) as per request, but not 'users'.
+      if (['structure', 'calendar', 'resources', 'users'].includes(activeModule)) unauthorized = true;
+    }
+
+    if (unauthorized) {
+      // Force redirect to home
+      setSearchParams({ mod: 'home' });
+      // alert("Access Denied: You do not have permission to view this module."); // Optional: verify if alert is annoying
+    }
+  }, [activeModule, isFaculty, isRep]);
 
   // --- 2. MOBILE BLOCKER UI ---
   // If user is on mobile, we return this VIEW instead of the Admin Panel
@@ -74,84 +110,33 @@ const AdminPanel = () => {
   return (
     <div className="admin-view-dead-end">
       {/* HEADER: LOCKED TO TOP-LEFT EDGE */}
-      <header className="admin-top-nav-bar">
-        <h1 className="admin-label-main">Admin Panel</h1>
-
-        <div className="admin-nav-sections">
-          {/* GROUP 1: ACADEMIC SETUP */}
-          <div className="shifter-category">
-            <span className="category-tag">Academic</span>
-            <nav className="shifter-group-left">
-              <button
-                className={`shifter-item ${activeModule === 'structure' ? 'active' : ''}`}
-                onClick={() => handleModuleChange('structure')}
-              >
-                <RiListCheck /> Structure
-              </button>
-              <button
-                className={`shifter-item ${activeModule === 'users' ? 'active' : ''}`}
-                onClick={() => handleModuleChange('users')}
-              >
-                <RiUserSettingsLine /> Users
-              </button>
-              <button
-                className={`shifter-item ${activeModule === 'roles' ? 'active' : ''}`}
-                onClick={() => handleModuleChange('roles')}
-              >
-                <RiShieldUserLine /> Admins
-              </button>
-            </nav>
-          </div>
-
-          {/* GROUP 2: PLANNING & SYNC */}
-          <div className="shifter-category">
-            <span className="category-tag">Planning</span>
-            <nav className="shifter-group-left">
-              <button
-                className={`shifter-item ${activeModule === 'schedules' ? 'active' : ''}`}
-                onClick={() => handleModuleChange('schedules')}
-              >
-                <RiCalendarScheduleLine /> Schedule
-              </button>
-              <button
-                className={`shifter-item ${activeModule === 'exams' ? 'active' : ''}`}
-                onClick={() => handleModuleChange('exams')}
-              >
-                <RiTrophyLine /> Exams
-              </button>
-              <button
-                className={`shifter-item ${activeModule === 'events' ? 'active' : ''}`}
-                onClick={() => handleModuleChange('events')}
-              >
-                <RiFlagLine /> Events
-              </button>
-              <button
-                className={`shifter-item ${activeModule === 'calendar' ? 'active' : ''}`}
-                onClick={() => handleModuleChange('calendar')}
-              >
-                <RiCalendarEventLine /> Calendar
-              </button>
-              <button
-                className={`shifter-item ${activeModule === 'resources' ? 'active' : ''}`}
-                onClick={() => handleModuleChange('resources')}
-              >
-                <RiFilePdfLine /> Resources
-              </button>
-            </nav>
-          </div>
-        </div>
-      </header>
-
       {/* MAIN CONTENT: EXPANDS TO FULL BREADTH */}
-      <main className="admin-content-flow">
+      <main className="admin-content-flow" style={{ paddingTop: '0' }}>
+        {activeModule !== 'home' && (
+          <header className="page-header">
+            <h1 className="page-title">
+              {activeModule === 'users' && 'Users'}
+              {activeModule === 'roles' && 'Admins'}
+              {activeModule === 'schedules' && 'Schedule'}
+              {activeModule === 'exams' && 'Exams'}
+              {activeModule === 'events' && 'Events'}
+              {activeModule === 'calendar' && 'Calendar'}
+              {activeModule === 'resources' && 'Resources'}
+              {activeModule === 'pending' && 'Pending Requests'}
+              {activeModule === 'structure' && 'Structure'}
+            </h1>
+          </header>
+        )}
+        {activeModule === 'home' && <AdminDashboard user={user} userProfile={userProfile} />}
         {activeModule === 'structure' && <StructureManager />}
         {activeModule === 'users' && <UserManagement />}
         {activeModule === 'roles' && <AdminRoleManager />}
-        {activeModule === 'schedules' && <ScheduleManager />}
-        {activeModule === 'exams' && <ExamManager />}
-        {activeModule === 'events' && <EventManager />}
+        {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} />}
+        {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} />}
+        {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} />}
         {activeModule === 'calendar' && <CalendarManager />}
         {activeModule === 'resources' && <ResourceManager />}
+        {activeModule === 'pending' && <PendingRequests />}
       </main>
     </div>
   );
