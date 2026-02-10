@@ -53,6 +53,13 @@
       --nav-radius: 10px;
       --nav-item-gap: 8px;
       --content-bg: #FFFFFF;
+
+      /* New Semantic Variables for Refactoring */
+      --mac-bg-secondary: #FAFAFA;
+      --mac-table-header: #FAFAFA;
+      --mac-input-bg: #FFFFFF;
+      --mac-button-bg: rgba(0, 0, 0, 0.05);
+      --mac-icon-color: #3C3C43;
    }
 
 }

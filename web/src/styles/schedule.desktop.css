@@ -210,7 +210,7 @@
     }
 
     .back-btn-minimal:hover {
-        background: rgba(0, 0, 0, 0.04);
+        background: var(--mac-button-bg);
     }
 
     .crumb-btn {
@@ -221,7 +221,7 @@
     }
 
     .crumb-btn:hover {
-        background: rgba(0, 0, 0, 0.04);
+        background: var(--mac-button-bg);
         color: var(--mac-blue);
     }
 
@@ -239,7 +239,7 @@
     }
 
     .explorer-card {
-        background: #ffffff;
+        background: var(--mac-card-bg);
         border: 1px solid var(--mac-divider);
         border-radius: 14px;
         padding: 24px;
@@ -294,7 +294,7 @@
     .editor-tabs {
         display: flex;
         gap: 8px;
-        background: rgba(0, 0, 0, 0.04);
+        background: var(--mac-button-bg);
         padding: 5px;
         border-radius: 12px;
         margin-bottom: 25px;
@@ -317,7 +317,7 @@
     }
 
     .editor-tabs button.active {
-        background: #ffffff;
+        background: var(--mac-card-bg);
         color: var(--mac-blue);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
@@ -332,7 +332,7 @@
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        background: #ffffff;
+        background: var(--mac-bg-content);
         border: 1px solid var(--mac-divider);
         border-radius: 16px;
         overflow: hidden;
@@ -347,7 +347,7 @@
     }
 
     .admin-timetable th {
-        background: #fafafa;
+        background: var(--mac-table-header);
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.05em;
@@ -355,7 +355,7 @@
     }
 
     .day-label {
-        background: #fafafa;
+        background: var(--mac-table-header);
         font-weight: 700;
         font-size: 13px;
         min-width: 120px;
@@ -385,7 +385,7 @@
     }
 
     .add-item-bar input {
-        background: #ffffff;
+        background: var(--mac-input-bg);
         border: 1px solid var(--mac-divider);
         border-radius: 8px;
         padding: 10px 14px;
@@ -434,7 +434,7 @@
     }
 
     .settings-card {
-        background: #ffffff;
+        background: var(--mac-card-bg);
         border: 1px solid var(--mac-divider);
         border-radius: 16px;
         padding: 24px;
@@ -530,7 +530,7 @@
     }
 
     .btn-cancel {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--mac-button-bg);
         color: var(--mac-text);
         padding: 10px 24px;
         border-radius: 50px;
@@ -572,7 +572,7 @@
     .course-manager .add-item-bar {
         display: flex;
         gap: 12px;
-        background: rgba(0, 0, 0, 0.02);
+        background: var(--mac-button-bg);
         padding: 16px;
         border-radius: 16px;
         border: 1px solid var(--mac-divider);
@@ -591,13 +591,13 @@
 
     .course-manager .add-item-bar input:focus {
         border-color: var(--mac-blue);
-        background: #ffffff;
+        background: var(--mac-input-bg);
         box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
     }
 
     /* 4. COURSE LIST ITEM CARDS (Visual Refinement) */
     .list-item-card {
-        background: #ffffff;
+        background: var(--mac-card-bg);
         border: 1px solid var(--mac-divider);
         border-radius: 14px;
         padding: 16px 20px;
@@ -655,7 +655,7 @@
 
     .inline-edit-row input {
         height: 38px;
-        background: #ffffff;
+        background: var(--mac-input-bg);
         border: 1.5px solid var(--mac-blue);
         border-radius: 8px !important;
         padding: 0 10px;
@@ -689,7 +689,7 @@
     }
 
     .btn-cancel-mini {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--mac-button-bg);
         color: var(--mac-text);
     }
 
@@ -700,7 +700,7 @@
         justify-content: space-between;
         margin-bottom: 20px;
         padding: 10px;
-        background: rgba(0, 0, 0, 0.02);
+        background: var(--mac-button-bg);
         border-radius: 12px;
     }
 
@@ -729,7 +729,7 @@
         flex: 1;
         height: 40px;
         border-radius: 50px !important;
-        background: rgba(0, 0, 0, 0.04);
+        background: var(--mac-button-bg);
         border: 1px solid rgba(0, 0, 0, 0.02);
         padding: 0 18px;
         font-size: 14px;

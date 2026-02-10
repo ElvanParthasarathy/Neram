@@ -1,10 +1,10 @@
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    NERAM PORTAL: FULL HOME DASHBOARD (SOLID SEQUOIA + GRID + FIXES)
    ========================================================================== */
 
-/* --- UPDATE: REMOVE ANIMATION LINE FROM HERE --- */
+  /* --- UPDATE: REMOVE ANIMATION LINE FROM HERE --- */
   .home-view {
     max-width: 1000px;
     margin: 0 auto;
@@ -229,7 +229,7 @@
 
   .home-view .timetable-data td {
     padding: 14px 16px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid var(--mac-border);
     vertical-align: middle;
     color: var(--mac-text);
     line-height: 1.5;
@@ -415,7 +415,7 @@
   }
 
   .cancel-btn {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--mac-button-bg);
     color: var(--mac-text);
     border: none;
     padding: 8px 18px;
@@ -440,7 +440,7 @@
   }
 
   .info-item {
-    background: rgba(0, 0, 0, 0.03);
+    background: var(--mac-button-bg);
     padding: 12px;
     border-radius: 12px;
     text-align: center;

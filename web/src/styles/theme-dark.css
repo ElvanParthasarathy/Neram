@@ -1,6 +1,6 @@
 @media (min-width: 769px) {
 
-/* ==========================================================================
+   /* ==========================================================================
    DARK MODE OVERRIDES
    ========================================================================== */
 
@@ -10,9 +10,47 @@
 
 @media (min-width: 769px) {
 
-/* ==========================================================================
-   DARK MODE OVERRIDES (PREMIUM MIDNIGHT)
-   ========================================================================== */
+   /* ==========================================================================
+   /* DARK MODE OVERRIDES (PREMIUM MIDNIGHT) */
+   html.dark {
+      --mac-blue: #0A84FF;
+      --mac-blue-hover: #0077ED;
+
+      --mac-bg-primary: #000000;
+      --mac-bg-content: #1C1C1E;
+      --mac-bg-secondary: #2C2C2E;
+
+      --mac-text: #FFFFFF;
+      --mac-text-secondary: #8E8E93;
+      --mac-text-tertiary: rgba(235, 235, 245, 0.3);
+
+      --mac-divider: rgba(84, 84, 88, 0.65);
+      --mac-border: rgba(84, 84, 88, 0.65);
+
+      --mac-card-bg: #1C1C1E;
+      --mac-card-border: 1px solid rgba(84, 84, 88, 0.65);
+      --mac-card-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+
+      --mac-sidebar-bg: rgba(28, 28, 30, 0.75);
+      --mac-popup-bg: #1C1C1E;
+
+      --mac-selection-bg: rgba(255, 255, 255, 0.1);
+      --mac-selection-hover: rgba(255, 255, 255, 0.15);
+
+      --mac-table-header: #2C2C2E;
+      --mac-input-bg: #1C1C1E;
+      --mac-button-bg: rgba(255, 255, 255, 0.1);
+      --mac-icon-color: #EBEBF5;
+
+      /* Shadow adjustments */
+      --mac-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+   }
+
+   /* Invert Sidebar Icons for Dark Mode */
+   html.dark .nav-link::before {
+      filter: invert(1) brightness(2);
+      opacity: 0.9;
+   }
 
 
 
