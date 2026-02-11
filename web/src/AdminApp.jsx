@@ -66,7 +66,12 @@ function AdminApp() {
     const [dbUserProfile, setDbUserProfile] = useState({ batch: "", department: "", section: "" });
 
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        const handleResize = () => {
+            const mobile = window.innerWidth <= 768;
+            setIsMobile(mobile);
+            if (!mobile) document.documentElement.classList.remove("dark");
+        };
+        handleResize(); // Initial check
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);

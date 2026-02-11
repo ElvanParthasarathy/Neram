@@ -64,7 +64,7 @@
   /* --- DARK MODE DEFINITIONS --- */
 
   /* 1. Force Dark Mode (Manual Toggle) */
-  html.dark :root {
+  html.dark {
     --bg-body: #121212;
     --bg-card: rgba(28, 28, 30, 0.8);
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
@@ -87,7 +87,7 @@
 
   /* 2. System Dark Mode (Auto - respecting overrides) */
   @media (prefers-color-scheme: dark) {
-    :root:not(.light) {
+    html:not(.light) {
       --bg-body: #121212;
       --bg-card: rgba(28, 28, 30, 0.8);
       --glass-border: 1px solid rgba(255, 255, 255, 0.1);

@@ -170,13 +170,13 @@ const AdminLoginPage = () => {
     }
 
     return (
-        <div className="login-body-wrapper" style={{ background: '#F5F5F7' }}>
+        <div className="login-body-wrapper">
             <div className="glass-login-card admin-login-card">
                 <div className="admin-badge-top">
                     <RiShieldKeyholeLine /> Admin Portal
                 </div>
 
-                <img src={Logo} alt="Logo" style={{ height: '50px', margin: '0 auto 10px auto', display: 'block', opacity: 0.8 }} />
+                <img src={Logo} alt="Logo" className="admin-login-logo" />
 
                 {errorMsg && (
                     <div className="error-banner animate-fade-in">

@@ -179,6 +179,8 @@
   }
 
   /* Dark Mode Support */
+  /* Dark Mode Support (DISABLED FOR DESKTOP) */
+  /*
   html.dark .last-edited-badge {
     background-color: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.1);
@@ -188,6 +190,7 @@
   html.dark .last-edited-badge:hover {
     background-color: rgba(255, 255, 255, 0.08);
   }
+  */
 
   /* CSS BLOKER KLOSING */
 

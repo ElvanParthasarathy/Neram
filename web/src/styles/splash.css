@@ -10,12 +10,14 @@
     /* Logo is naturally black */
 }
 
-/* DARK MODE - Matches Android Theme.Neram (Dark) */
-html.dark {
-    --splash-bg: #0A0A0A;
-    --splash-spinner-color: #FFFFFF;
-    --splash-logo-filter: invert(1) brightness(100%);
-    /* Turns black logo to white */
+/* DARK MODE - Matches Android Theme.Neram (Dark) - MOBILE ONLY */
+@media (max-width: 768px) {
+    html.dark {
+        --splash-bg: #0A0A0A;
+        --splash-spinner-color: #FFFFFF;
+        --splash-logo-filter: invert(1) brightness(100%);
+        /* Turns black logo to white */
+    }
 }
 
 .splash-container {

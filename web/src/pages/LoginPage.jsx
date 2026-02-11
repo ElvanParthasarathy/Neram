@@ -151,7 +151,7 @@ const LoginPage = () => {
   return (
     <div className="login-body-wrapper">
       <div className="glass-login-card">
-        <img src={Logo} alt="Logo" style={{ height: '60px', margin: '0 auto 10px auto', display: 'block' }} />
+        <img src={Logo} alt="Logo" className="signup-logo" />
         <p className="brand-subtitle">Student Portal Access</p>
 
         <button onClick={handleGoogleLogin} className="google-btn">

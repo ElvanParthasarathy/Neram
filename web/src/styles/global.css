@@ -1,10 +1,10 @@
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    2. GLOBAL SYSTEM & VIEWPORT (ELASTIC BOUNCE ENABLED)
    ========================================================================== */
 
-* {
+  * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -23,10 +23,12 @@
     background-attachment: fixed;
   }
 
-  /* DARK MODE BACKGROUND OVERRIDE */
-  html.dark body {
-    background: var(--mac-bg-primary);
-    /* Uses the Deep Midnight defined in html.dark */
+  /* DARK MODE BACKGROUND OVERRIDE (MOBILE ONLY) */
+  @media (max-width: 768px) {
+    html.dark body {
+      background: var(--mac-bg-primary);
+      /* Uses the Deep Midnight defined in html.dark */
+    }
   }
 
   #app-shell.desktop-mode-active {

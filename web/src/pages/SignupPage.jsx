@@ -106,7 +106,7 @@ const SignupPage = () => {
   return (
     <div className="signup-body-wrapper">
       <div className="glass-signup-card">
-        <img src={Logo} alt="RMD Neram Logo" />
+        <img src={Logo} alt="RMD Neram Logo" className="signup-logo" />
         <p className="brand-subtitle">Create Student Account</p>
 
         <form onSubmit={handleSignup} style={{ width: '100%' }}>
@@ -122,7 +122,7 @@ const SignupPage = () => {
           </div>
 
           <div className="input-group" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontWeight: '600', color: 'rgba(255,255,255,0.7)', paddingLeft: '8px' }}>+91</span>
+            <span className="phone-prefix">+91</span>
             <input
               type="tel"
               className="glass-input"

@@ -71,7 +71,7 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
 
   /* 1. Force Dark Mode (Manual Toggle) - SCOPED TO MOBILE */
   @media (max-width: 768px) {
-    html.dark :root {
+    html.dark {
       --bg-body: #121212;
       --bg-card: rgba(28, 28, 30, 0.8);
       --glass-border: 1px solid rgba(255, 255, 255, 0.1);
@@ -94,7 +94,7 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
 
     /* 2. System Dark Mode (Auto - respecting overrides) */
     @media (prefers-color-scheme: dark) {
-      :root:not(.light) {
+      html:not(.light) {
         --bg-body: #121212;
         --bg-card: rgba(28, 28, 30, 0.8);
         --glass-border: 1px solid rgba(255, 255, 255, 0.1);
@@ -200,7 +200,6 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
   /* ==========================================================================
    2. AUTH PAGES (FINAL VERSION - ICON FIXED)
    ========================================================================== */
-
   /* --- 2.1 Viewport & Font --- */
   .login-body-wrapper,
   .signup-body-wrapper {
@@ -211,6 +210,8 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     justify-content: center;
     padding: 40px 24px;
     box-sizing: border-box;
+    background-color: var(--bg-body) !important;
+    transition: background-color 0.4s ease;
   }
 
   /* --- 2.2 Glass Card --- */
@@ -236,6 +237,21 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     animation: macFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
+  .admin-login-logo {
+    height: 50px !important;
+    margin: 0 auto 10px auto !important;
+    display: block;
+    opacity: 0.8;
+    transition: filter 0.3s ease;
+  }
+
+  .signup-logo {
+    height: 60px !important;
+    margin: 0 auto 10px auto !important;
+    display: block;
+    transition: filter 0.3s ease;
+  }
+
   /* --- 2.3 Logo --- */
   .glass-login-card>img,
   .glass-signup-card>img {
@@ -245,16 +261,16 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     display: block;
     object-fit: contain;
     flex-shrink: 0;
-
     /* Smoothly transition the color flip */
     transition: filter 0.3s ease;
   }
 
   /* DARK MODE FIX: Invert Logo Color (Black -> White) */
-
   /* 1. Manual Dark Mode Toggle */
   html.dark .glass-login-card>img,
-  html.dark .glass-signup-card>img {
+  html.dark .glass-signup-card>img,
+  html.dark .admin-login-logo,
+  html.dark .signup-logo {
     filter: invert(1) brightness(2);
   }
 
@@ -262,7 +278,9 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
   @media (prefers-color-scheme: dark) {
 
     html:not(.light) .glass-login-card>img,
-    html:not(.light) .glass-signup-card>img {
+    html:not(.light) .glass-signup-card>img,
+    html:not(.light) .admin-login-logo,
+    html:not(.light) .signup-logo {
       filter: invert(1) brightness(2);
     }
   }
@@ -283,13 +301,11 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     font-family: inherit !important;
     width: 100%;
     height: 50px;
-
     /* SECONDARY COLOR + PILL SHAPE */
     background: var(--bg-button-secondary) !important;
     border: 1px solid transparent !important;
     /* Cleaner look without border */
     border-radius: 50px;
-
     color: var(--text-primary) !important;
     font-weight: 600;
     font-size: 15px;
@@ -337,15 +353,12 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     padding: 0 24px;
     /* Increased padding for Pill Shape */
     padding-right: 50px;
-
     /* PILL SHAPE UPDATE */
     border-radius: 50px;
-
     /* Mobile Variables */
-    border: var(--input-border);
-    background: var(--bg-button-secondary);
-    color: var(--text-primary);
-
+    border: var(--input-border) !important;
+    background: var(--bg-button-secondary) !important;
+    color: var(--text-primary) !important;
     font-size: 15px;
     outline: none;
     box-sizing: border-box;
@@ -358,6 +371,71 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     box-shadow: 0 0 0 3px var(--bg-nav-selection);
   }
 
+  .phone-prefix {
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding-left: 8px;
+  }
+
+  /* --- 2.10 IOS LOADER (MOBILE FIX) --- */
+  .ios-loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-body);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+
+  .ios-loading-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .mac-loader-text {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+    text-transform: uppercase;
+  }
+
+  .mac-loader-spinner {
+    position: relative;
+    width: 32px;
+    height: 32px;
+  }
+
+  .mac-loader-spinner .bar {
+    width: 2.5px;
+    height: 8px;
+    background: var(--text-primary);
+    position: absolute;
+    left: 46%;
+    top: 25%;
+    border-radius: 2px;
+    transform-origin: 50% 160%;
+    animation: macSpinnerFade 1.2s linear infinite;
+  }
+
+  @keyframes macSpinnerFade {
+    0% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0.1;
+    }
+  }
+
   /* --- 2.6 Trigger Buttons (Icon & Text) --- */
   .eye-icon-btn,
   .calendar-icon-btn {
@@ -368,10 +446,8 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     transform: translateY(-50%);
     background: transparent !important;
     border: none !important;
-
     /* FIXED: Use mobile accent color */
     color: var(--accent-primary) !important;
-
     cursor: pointer;
     z-index: 60;
     display: flex;
@@ -408,10 +484,8 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     background: var(--accent-primary) !important;
     color: #FFFFFF !important;
     border: none !important;
-
     /* PILL SHAPE UPDATE */
     border-radius: 50px !important;
-
     font-size: 15px;
     font-weight: 600;
     margin-top: 14px;
@@ -436,7 +510,6 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
   /* ==========================================================================
    2.8 Footer (Restored: Corners Layout + Red Forgot Password)
    ========================================================================== */
-
   .divider {
     display: flex;
     align-items: center;
@@ -467,18 +540,14 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     font-family: inherit !important;
     margin-top: 36px;
     width: 100%;
-
     display: flex;
     justify-content: space-between;
     /* FIXED: Pushes items to Left & Right corners */
     align-items: center;
-
     font-size: 13.5px;
     font-weight: 500;
-
     /* FIXED: Makes "Already have an account?" text Grey */
     color: var(--text-secondary) !important;
-
     box-sizing: border-box;
   }
 
@@ -515,7 +584,6 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
   }
 
   /* --- 2.9 DatePicker & Calendar Icon Fix (LOCKED POSITION) --- */
-
   /* 1. Container: Established the boundaries */
   .date-picker-group {
     display: block !important;
@@ -587,30 +655,24 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     width: 100%;
     padding: 14px 24px;
     /* Increased padding */
-
     background: var(--bg-button-secondary);
     border: 1px solid transparent;
     color: var(--text-primary);
-
     /* PILL SHAPE UPDATE */
     border-radius: 50px;
-
     font-size: 15px;
     cursor: pointer;
     outline: none;
     appearance: none;
-
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239CA3AF'%3E%3Cpath stroke-width='2.5' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 20px center;
     background-size: 14px;
   }
 
-
   /* ==========================================================================
    DATEPICKER VISUAL THEME (Theme Adapted)
    ========================================================================== */
-
   /* 1. Main Popup Container */
   .react-datepicker {
     font-family: 'Inter', sans-serif !important;
@@ -722,7 +784,6 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
   /* ==========================================================================
    4. DOB SELECTOR (SYMMETRICAL & CENTERED)
    ========================================================================== */
-
   /* 1. Label - Centered & Clean */
   .dob-group-label {
     width: 100%;
@@ -754,7 +815,7 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
 
   /* Day & Year = 1 (Exact same width for symmetry)
    Month      = 1.5 (Widest, for text)
-*/
+  */
   .select-wrapper.day {
     flex: 1;
   }
@@ -771,21 +832,17 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
   .glass-select-pill {
     width: 100%;
     height: 100%;
-
     border-radius: 50px;
     background-color: var(--bg-button-secondary);
     border: 1px solid transparent;
     color: var(--text-primary);
-
     font-family: inherit;
     font-size: 14px;
     font-weight: 600;
-
     /* FORCE CENTER TEXT */
     text-align: center;
     text-align-last: center;
     padding: 0 4px;
-
     appearance: none;
     -webkit-appearance: none;
     outline: none;
@@ -804,6 +861,7 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     color: var(--text-secondary);
     opacity: 0.6;
   }
+
 
 
 
