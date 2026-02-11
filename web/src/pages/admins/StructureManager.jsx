@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { db } from "../../firebase";
 import { ref, onValue, set, get, update } from "firebase/database";
-import { RiLock2Line, RiLockUnlockLine, RiAddLine, RiDeleteBinLine, RiEditLine, RiSave3Line, RiCloseLine } from 'react-icons/ri';
+import { RiLock2Line, RiLockUnlockLine, RiAddLine, RiDeleteBinLine, RiEditLine, RiSave3Line, RiCloseLine, RiInformationLine } from 'react-icons/ri';
+
+// --- IMPORT STYLES ---
+import "../../styles/structure-manager.css";
 
 const StructureManager = () => {
   const departmentsList = ["ECE", "IT", "CSE", "CSBS", "AIML"];
@@ -163,36 +166,13 @@ const StructureManager = () => {
   return (
     <div className="settings-section-content structure-manager-bounded">
       {/* HEADER BAR */}
-      <div className="structure-header-bar" style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '20px',
-        padding: '10px',
-        background: 'var(--bg-secondary)',
-        borderRadius: '8px',
-        border: '1px solid var(--border-color)'
-      }}>
-        <h3 style={{ margin: 0 }}>Academic Hierarchy</h3>
+      <div className="structure-header-bar">
+        <h3>Academic Hierarchy</h3>
         <button
-          className="btn-toggle-explicit"
+          className={`btn-toggle-explicit ${isEditing ? 'editing' : ''}`}
           onClick={() => setIsEditing(!isEditing)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            backgroundColor: isEditing ? '#dc2626' : '#2563eb', // Explicit Red/Blue
-            color: 'white',
-            border: 'none',
-            padding: '10px 24px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '600',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            transition: 'all 0.2s',
-            zIndex: 100
-          }}
         >
-          {isEditing ? <><RiCloseLine size={18} /> Done Editing</> : <><RiEditLine size={18} /> Edit Structure</>}
+          {isEditing ? <><RiCloseLine /> Done Editing</> : <><RiEditLine /> Edit Structure</>}
         </button>
       </div>
 
@@ -237,9 +217,14 @@ const StructureManager = () => {
         )}
 
         {/* TREE COLUMN - ALWAYS VISIBLE, BUT CONTROLS HIDDEN */}
-        <div className={`admin-tree-column ${isEditing ? '' : 'full-width'}`} style={!isEditing ? { width: '100%', maxWidth: '100%' } : {}}>
+        <div className={`admin-tree-column ${isEditing ? '' : 'full-width'}`}>
           <div className="tree-viewport">
-            {!isEditing && <div className="read-only-banner" style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '6px', marginBottom: '10px', fontSize: '0.9rem', opacity: 0.7 }}>Read-Only View. Enable Edit Mode to make changes.</div>}
+            {!isEditing && (
+              <div className="read-only-banner">
+                <RiInformationLine size={18} />
+                Read-Only View. Enable Edit Mode to make changes.
+              </div>
+            )}
 
             {Object.keys(hierarchy).sort().reverse().map(batch => (
               <div key={batch} className="tree-batch-node">

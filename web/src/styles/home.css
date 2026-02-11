@@ -6,7 +6,7 @@
 
   /* --- UPDATE: REMOVE ANIMATION LINE FROM HERE --- */
   .home-view {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
     padding-bottom: 80px;
     /* animation line cut from here */
@@ -15,18 +15,27 @@
   /* --- 1. DASHBOARD GRID SYSTEM --- */
   .home-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    /* Side-by-side layout */
+    grid-template-columns: repeat(6, 1fr);
+    /* Flexible 6-column grid */
     gap: 24px;
     align-items: start;
   }
 
-  /* Spanning logic for full-width sections */
+  /* Spanning logic for full-width and split sections */
   .page-header,
-  .timetable-section,
-  .user-academic-details {
-    grid-column: 1 / -1;
+  .timetable-section {
+    grid-column: span 6;
+  }
 
+  .date-section,
+  .calendar-section,
+  .updates-live-section,
+  .updates-general-section {
+    grid-column: span 3;
+  }
+
+  .academic-card {
+    grid-column: span 2;
   }
 
   /* --- 2. HEADER & STATUS BADGES --- */
@@ -75,20 +84,19 @@
   /* --- 3. GLASS CARD COMPONENT (SCOPED TO HOME VIEW ONLY) --- */
   /* By adding .home-view before section, this ONLY affects the Home page */
   .home-view section {
-    background: var(--mac-card-bg);
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border: var(--mac-card-border);
-    box-shadow: var(--mac-card-shadow);
-    border-radius: 20px;
+    background: var(--mac-sidebar-bg);
+    border: none;
+    box-shadow: none;
+    border-radius: 32px;
+    /* Match Command Center rounded corners slightly reduced */
     padding: 24px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    cursor: default;
   }
 
   .home-view section:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   }
 
   /* Scoping the title as well */
@@ -125,14 +133,18 @@
 
   .home-view .date-display {
     flex: 1;
-    background: var(--mac-selection-bg);
-    border: 1px solid var(--mac-border);
-    padding: 12px 16px;
-    border-radius: 12px;
+    background: var(--mac-bg-secondary);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 100px;
     font-size: 14.5px;
     font-weight: 600;
     color: var(--mac-text);
     outline: none;
+  }
+
+  html.dark .home-view .date-display {
+    background: #1C1C1E;
   }
 
   /* Home-specific Round Button (Won't affect Schedule Page) */
@@ -175,6 +187,32 @@
     border-radius: 4px;
   }
 
+  /* --- Dynamic Event Coloring (Matches Mobile Kotlin) --- */
+  /* 1. Holiday = Violet (#8B5CF6) */
+  .event-indicator.indicator-holiday {
+    background: #8B5CF6;
+  }
+
+  /* 2. Exam = Green (#22C55E) */
+  .event-indicator.indicator-exam {
+    background: #22C55E;
+  }
+
+  /* 3. Working Day Order = Cyan (#00BCD4) */
+  .event-indicator.indicator-order {
+    background: #00BCD4;
+  }
+
+  /* 4. Special Event = Yellow (#FBC02D) */
+  .event-indicator.indicator-special {
+    background: #FBC02D;
+  }
+
+  /* 5. Default = Blue */
+  .event-indicator.indicator-default {
+    background: var(--mac-blue);
+  }
+
   .calendar-text {
     font-size: 14px;
     color: var(--mac-text);
@@ -193,90 +231,118 @@
   }
 
   /* --- 6. TIMETABLE (MATCHED TO SCHEDULE PAGE LOOK) --- */
+  /* --- 6. TIMETABLE (CARD LAYOUT - KOTLIN MATCH) --- */
   .home-view .timetable-section {
     z-index: 1;
   }
 
-  /* Glass wrapper for the table radius and border */
-  .home-view .timetable-section .table-overflow {
-    width: 100%;
-    overflow-x: auto;
-    border-radius: 14px;
-    background: rgba(0, 0, 0, 0.01);
-    border: 1px solid var(--mac-divider);
+  .home-view .schedule-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
     margin-top: 8px;
   }
 
-  .home-view .timetable-data {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    font-variant-numeric: tabular-nums;
+  .home-view .period-card {
+    background: var(--mac-bg-secondary);
+    border: none;
+    border-radius: 18px;
+    /* Kotlin uses rounded cards */
+    padding: 16px 20px;
+    display: flex;
+    /* Row layout: Circle | Content */
+    align-items: flex-start;
+    gap: 16px;
+    transition: transform 0.2s ease;
   }
 
-  /* Premium Headers matched to Schedule page exactly */
-  .home-view .timetable-data th {
-    text-align: left;
-    padding: 12px 16px;
-    font-size: 10.5px;
+  html.dark .home-view .period-card {
+    background: #1C1C1E;
+  }
+
+  .home-view .period-card:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Left: Period Number Circle */
+  .home-view .period-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--mac-blue);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 2px;
+    /* Visual alignment with first line of text */
+  }
+
+  /* Right: Content Column */
+  .home-view .period-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    /* Spacing between split entries */
+  }
+
+  /* Individual Entry (for split courses) */
+  .home-view .course-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* Code Row: Code + Lab Badge */
+  .home-view .course-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .home-view .course-code {
+    font-size: 14px;
     font-weight: 700;
-    color: var(--mac-text-secondary);
+    color: var(--mac-blue);
+  }
+
+  .home-view .lab-badge {
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--mac-blue);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 100px;
+    /* Pill shape */
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    border-bottom: 1.5px solid var(--mac-divider);
-    background: var(--mac-sidebar-bg);
+    letter-spacing: 0.5px;
   }
 
-  .home-view .timetable-data td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--mac-border);
-    vertical-align: middle;
+  .home-view .course-name {
+    font-size: 15px;
+    font-weight: 600;
     color: var(--mac-text);
-    line-height: 1.5;
-    transition: background 0.2s ease;
+    line-height: 1.4;
   }
 
-  /* Subtle Row Hover */
-  .home-view .timetable-data tr:hover td {
-    background: rgba(0, 122, 255, 0.03);
-  }
-
-  /* LOCKED COLUMN WIDTHS: Matching Schedule Page strictly */
-  .home-view .timetable-data th:nth-child(1),
-  .home-view .timetable-data td:nth-child(1) {
-    width: 65px;
-    text-align: center;
-    color: var(--mac-blue);
-    font-weight: 700;
-  }
-
-  .home-view .timetable-data th:nth-child(3),
-  .home-view .timetable-data td:nth-child(3) {
-    width: 32%;
-    font-size: 12.5px;
-  }
-
-  /* Typography Utilities inside table */
-  .home-view .hour-val {
-    font-weight: 700;
-    color: var(--mac-blue);
-  }
-
-  .home-view .course-code-label {
-    font-weight: 700;
-    font-size: 13.5px;
-  }
-
-  .home-view .course-name-label {
-    font-size: 11.5px;
-    opacity: 0.65;
-    font-weight: 500;
-  }
-
-  .home-view .faculty-info {
-    font-weight: 500;
+  .home-view .course-faculty {
     font-size: 13px;
     color: var(--mac-text-secondary);
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  /* Divider line for split entries */
+  .home-view .entry-divider {
+    height: 1px;
+    background: var(--mac-divider);
+    margin-top: 8px;
+    width: 100%;
+    opacity: 0.6;
   }
 
   /* --- 6.1 SOLID EXAM CARD (TODAY'S VIEW) --- */
@@ -316,8 +382,8 @@
     background: var(--mac-blue);
     color: #FFFFFF;
     border: none;
-    padding: 6px 16px;
-    border-radius: 20px;
+    padding: 6px 14px;
+    border-radius: 100px;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -336,13 +402,17 @@
   }
 
   .message-container {
-    background: rgba(0, 122, 255, 0.03);
+    background: var(--mac-bg-secondary);
     padding: 20px;
     border-radius: 16px;
-    border: 1px solid rgba(0, 122, 255, 0.1);
+    border: none;
     height: calc(100% - 70px);
     display: flex;
     align-items: flex-start;
+  }
+
+  html.dark .message-container {
+    background: #1C1C1E;
   }
 
   .message-body {
@@ -357,13 +427,17 @@
     min-height: 120px;
     padding: 14px;
     border-radius: 14px;
-    border: 1px solid var(--mac-blue);
-    background: var(--mac-bg-content);
+    border: none;
+    background: var(--mac-bg-secondary);
     color: var(--mac-text);
     font-family: inherit;
     font-size: 14px;
     margin-bottom: 12px;
     outline: none;
+  }
+
+  html.dark .edit-textarea {
+    background: #1C1C1E;
   }
 
   .form-buttons {
@@ -415,7 +489,7 @@
   }
 
   .cancel-btn {
-    background: var(--mac-button-bg);
+    background: var(--mac-bg-secondary);
     color: var(--mac-text);
     border: none;
     padding: 8px 18px;
@@ -424,38 +498,35 @@
     cursor: pointer;
   }
 
-  /* --- 8. ACADEMIC DETAILS FOOTER (WITH SPACING FIX) --- */
-  .user-academic-details {
-    grid-column: 1 / -1;
-    margin-top: 24px;
-    margin-bottom: 10px;
-    margin-top: 24px;
-    /* Adds space between the cards above and this box */
+  html.dark .cancel-btn {
+    background: #1C1C1E;
   }
 
-  .info-grid-small {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .info-item {
-    background: var(--mac-button-bg);
-    padding: 12px;
-    border-radius: 12px;
+  /* --- 8. INDIVIDUAL ACADEMIC CARDS --- */
+  .home-view .academic-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 90px;
+    /* Inherits background: var(--mac-sidebar-bg) from section rule */
+    padding: 16px;
+    border: none;
     text-align: center;
+    margin-bottom: 0;
   }
 
-  .info-label {
+  .home-view .info-label {
     font-size: 10px;
     font-weight: 700;
     color: var(--mac-text-secondary);
     text-transform: uppercase;
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
   }
 
-  .info-value {
+  .home-view .info-value {
     font-size: 15px;
     font-weight: 700;
     color: var(--mac-blue);
@@ -467,7 +538,7 @@
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
     border: var(--mac-card-border);
-    box-shadow: var(--mac-card-shadow);
+    box-shadow: none;
     border-radius: 20px;
     padding: 24px;
     margin-bottom: 24px !important;
@@ -490,28 +561,69 @@
   .home-view .exam-table td:nth-child(3) {
     width: 140px;
     text-align: right !important;
-    padding-right: 24px !important;
-  }
-
-  /* --- 10. MOBILE RESPONSIVE --- */
-  @media (max-width: 850px) {
-    .home-container {
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    .date-section,
-    .calendar-section,
-    .updates-live-section,
-    .updates-general-section {
-      grid-column: 1 / -1;
-    }
 
     .home-view {
       margin-bottom: 120px;
       /* Extra breathing room for mobile devices */
       padding-bottom: 20px;
     }
+  }
+
+  /* --- 10. LOADING & EMPTY STATES --- */
+  .home-loading-card,
+  .no-classes-card {
+    background: var(--mac-bg-secondary);
+    border-radius: 32px;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    text-align: center;
+    margin: 20px 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+    color: var(--mac-text);
+  }
+
+  html.dark .home-loading-card,
+  html.dark .no-classes-card {
+    background: #1C1C1E;
+    /* Synced Dark Card Color */
+  }
+
+  .home-loading-card:hover,
+  .no-classes-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-spinner.grey {
+    border-color: var(--mac-border);
+    border-top-color: var(--mac-blue);
+    width: 24px;
+    height: 24px;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    color: var(--mac-text-secondary);
+    opacity: 0.4;
+    margin-bottom: 8px;
+  }
+
+  .empty-text .main-msg {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--mac-text);
+    margin: 0 0 6px 0;
+  }
+
+  .empty-text .sub-msg {
+    font-size: 14px;
+    color: var(--mac-text-secondary);
+    margin: 0;
+    opacity: 0.8;
   }
 
 }

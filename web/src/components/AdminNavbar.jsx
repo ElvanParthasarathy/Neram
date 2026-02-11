@@ -92,8 +92,8 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
   const firstName = userProfile?.firstName || (user?.displayName || "").split(' ')[0] || "User";
 
   return (
-    <div className="admin-sidebar" style={{ width: '250px' }}> {/* Manually setting width as fallback or if var is missing */}
-      {/* 1. BRANDING */}
+    <div className="admin-sidebar">
+      {/* 1. BRANDING / LOGO */}
       <div className="admin-sidebar-branding">
         <Link to="/" className="logo-link">
           <img src={Logo} alt="NERAM Logo" className="admin-sidebar-logo-img" />
@@ -173,6 +173,9 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
           </Link>
         )}
 
+        {/* Spacer to maintain gap without using container padding (which clips scroller) */}
+        <div className="nav-spacer" style={{ height: '20px' }}></div>
+
       </nav>
 
       {/* 3. AUTH & ACTION ZONE */}
@@ -213,8 +216,7 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
                   <div className="dropdown-divider"></div>
 
                   <div className="popup-actions">
-                    {/* <ThemeToggle asMenuItem={true} /> */}
-                    <div className="dropdown-divider"></div>
+                    <ThemeToggle asMenuItem={true} />
 
                     {/* SETTINGS & ADMIN: No 'replace' attribute here.
                         This allows them to have their own history stack as requested.

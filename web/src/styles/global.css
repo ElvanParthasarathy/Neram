@@ -17,10 +17,10 @@
     height: 100%;
     width: 100%;
     overflow: auto;
-    /* RESTORED ORIGINAL LIGHT MODE GRADIENT */
-    background-color: #F5F5F7;
-    background: radial-gradient(at 0% 50%, rgba(0, 122, 255, 0.15) 0%, transparent 60%), #F5F5F7;
+    /* REMOVED RADIAL GRADIENT TO PREVENT SIDBAR BLEED */
+    background-color: var(--mac-bg-primary);
     background-attachment: fixed;
+    scroll-behavior: smooth;
   }
 
   /* DARK MODE BACKGROUND OVERRIDE (MOBILE ONLY) */
@@ -36,22 +36,32 @@
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    background: var(--content-bg);
+    /* Match content area background always */
+    transition: background 0.3s ease;
   }
+
+
 
   #main-viewport {
     flex: 1;
     height: 100%;
-    overflow-y: overlay;
+    overflow-y: auto;
+    /* Standard scroll for best compatibility */
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
+    /* Momentum scrolling for iOS */
     overscroll-behavior-y: auto;
     overscroll-behavior-x: none;
     background: var(--content-bg);
     padding: 48px 64px;
     scroll-behavior: smooth;
-    box-shadow: inset 1px 0 0 var(--mac-border);
-    will-change: transform;
+    /* "Butter smooth" behavior */
+    box-shadow: none;
+    will-change: transform, scroll-position;
+    /* Hint browser for scrolling optimization */
     transform: translateZ(0);
+    /* Force GPU layer */
   }
 
 }

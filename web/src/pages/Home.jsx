@@ -10,7 +10,8 @@ import {
   RiInformationLine,
   RiEditLine,
   RiCalendarEventLine,
-  RiUserVoiceLine
+  RiUserVoiceLine,
+  RiCalendarLine
 } from 'react-icons/ri';
 
 const daysOrder = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -21,12 +22,12 @@ const CustomCalendarButton = forwardRef(({ onClick }, ref) => (
   </button>
 ));
 
-const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
+const Home = ({ isAdmin = false, globalData, userProfile, activeProfile, hideHeader = false }) => {
+  // --- STATE ---
+  const [currentDate, setCurrentDate] = useState(new Date());
   // --- DESTRUCTURE CENTRALIZED DATA ---
   // Fix: Default to empty object if globalData is null to prevent crash
   const { masterData = {}, allCalendar = [], sectionUpdates = {}, isSyncing } = globalData || {};
-
-  const [currentDate, setCurrentDate] = useState(new Date());
 
   // SCHEDULE STATE
   const [dayOrder, setDayOrder] = useState("");
@@ -62,12 +63,22 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
     return `${y}-${m}-${d}`;
   };
 
+  const convertTo12Hour = (time24) => {
+    if (!time24) return "";
+    const [hours, minutes] = time24.split(':');
+    let h = parseInt(hours, 10);
+    const m = minutes || "00";
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    h = h ? h : 12; // the hour '0' should be '12'
+    return `${String(h).padStart(2, '0')}:${m} ${ampm}`;
+  };
+
   const todayStr = formatDate(currentDate);
 
   // --- Retrieve Note & Author ---
-  // Fix: Use ?. to safely access nested properties
   const liveUpdateData = sectionUpdates?.live?.[todayStr] || {};
-  const liveUpdateNote = liveUpdateData.note || "No special updates for today.";
+  let liveUpdateNote = liveUpdateData.note || "";
   const liveUpdateAuthor = liveUpdateData.author || "";
 
   // --- Retrieve General & Author ---
@@ -75,7 +86,79 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
   const generalText = generalData.text || "";
   const generalAuthor = generalData.author || "";
 
+  // --- AUTOMATED NOTICES LOGIC (Matching Kotlin HomeViewModel) ---
   const getSubjectName = (code) => masterData.courses?.find(c => c.code === code)?.name || "General Subject";
+
+  // Helper to check if a code is a Lab (Simplified Version of resolvePeriod)
+  const isLabCourse = (code) => {
+    if (!code || !masterData.courses) return false;
+
+    // Check if code contains "/" (split course)
+    if (code.includes("/")) {
+      return code.split("/").some(part => isLabCourse(part.trim()));
+    }
+
+    const trimmed = code.trim();
+    // 1. Check exact match properties
+    const course = masterData.courses.find(c => c.code === trimmed.split(" ")[0]);
+    if (course) {
+      if (course.name.toLowerCase().includes("lab") || course.type?.toLowerCase().includes("lab")) return true;
+    }
+
+    // 2. Check Batch Pattern (A1, B2)
+    const parts = trimmed.split(" ");
+    if (parts.length > 1 && /^[A-Za-z]\d+$/.test(parts[1])) return true; // Batch detected -> likely lab
+
+    // 3. Fallback text check
+    return trimmed.toLowerCase().includes("lab");
+  };
+
+  // Determine today's context for automated messages
+  const currentExamPeriod = masterData.exams?.find(ex => todayStr >= ex.startDate && todayStr <= ex.endDate);
+  const isExamToday = currentExamPeriod?.subjects?.some(s => s.date === todayStr);
+  const examTitle = currentExamPeriod?.title?.toLowerCase() || "";
+  const isCycleTest = examTitle.includes("cycle test");
+  const isMajorExam = isExamToday && !isCycleTest; // FIA, SIA, Final, etc.
+
+  // Check Schedule for Labs
+  let hasLabToday = false;
+  const eventsForDay = allCalendar?.filter((e) => e.date === todayStr) || [];
+  const holidayEvent = eventsForDay.find(e => e.title.toLowerCase().includes("holiday"));
+
+  if (!holidayEvent && !isMajorExam) { // Allow for regular days and Cycle Tests
+    // We need to know the Day Order to check the timetable
+    let tempOrder = "";
+    const manualOrderEvent = eventsForDay.find(e => e.title.toLowerCase().includes("order"));
+    const weekdayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+    if (manualOrderEvent) {
+      const foundDay = ["Monday", ...daysOrder].find(day => manualOrderEvent.title.includes(day));
+      tempOrder = foundDay || (weekdayName === "Sunday" ? "" : weekdayName);
+    } else {
+      tempOrder = weekdayName === "Sunday" ? "" : weekdayName;
+    }
+
+    if (tempOrder && masterData.timetable?.[tempOrder]) {
+      hasLabToday = masterData.timetable[tempOrder].some(code => isLabCourse(code));
+    }
+  }
+
+  // Append Automated Messages
+  const automatedNotices = [];
+  if (hasLabToday) {
+    automatedNotices.push("📚 Bring Labcoats, Laptops & Lab Essentials");
+  }
+  if (isExamToday) {
+    automatedNotices.push("📖 Study well for the test! Score well and get full marks! All the best! 🎯");
+  }
+
+  if (automatedNotices.length > 0) {
+    const comboNotice = automatedNotices.join("\n\n");
+    liveUpdateNote = liveUpdateNote ? `${liveUpdateNote}\n\n${comboNotice}` : comboNotice;
+  }
+
+  // If no note exists at all, provide default
+  if (!liveUpdateNote) liveUpdateNote = "No special updates for today.";
 
   // --- LOGIC RESOLUTION (Prop-Driven) ---
   useEffect(() => {
@@ -106,7 +189,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
 
     if (holidayEvent) {
       resolvedOrder = "";
-      resolvedStatus = `Holiday: ${holidayEvent.title}`;
+      resolvedStatus = "Holiday";
     } else if (manualOrderEvent) {
       const foundDay = ["Monday", ...daysOrder].find(day => manualOrderEvent.title.includes(day));
       if (foundDay) {
@@ -119,7 +202,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
     } else {
       if (weekdayName === "Sunday") {
         resolvedOrder = "";
-        resolvedStatus = "Sunday (Holiday)";
+        resolvedStatus = "Holiday";
       } else {
         resolvedOrder = weekdayName;
         resolvedStatus = `Regular ${weekdayName}`;
@@ -191,56 +274,124 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
     finally { setIsSaving(false); }
   };
 
-  // --- UPDATED: SMART COURSE RESOLVER ---
-  const getPeriodDetails = (cellContent) => {
-    if (!cellContent || !masterData.courses) return { name: cellContent, faculty: "", code: cellContent };
+  // --- REPLACED: KOTLIN-PARITY COURSE RESOLVER ---
+  const resolvePeriod = (cellContent) => {
+    if (!cellContent || !masterData.courses) {
+      return { entries: [{ code: cellContent, name: cellContent, faculty: "" }], isLab: false };
+    }
 
-    if (cellContent.includes("/")) {
-      const parts = cellContent.split("/");
+    // Helper to process a single entry
+    const processEntry = (entryStr) => {
+      const trimmed = entryStr.trim();
 
-      const results = parts.map(part => {
-        const trimmedPart = part.trim();
-        const pureCode = trimmedPart.split(" ")[0];
-        const course = masterData.courses.find(c => c.code === pureCode);
+      // 1. Try exact match first
+      let course = masterData.courses.find(c => c.code === trimmed);
+      let batch = null;
 
-        return course
-          ? { name: course.name, faculty: course.faculty }
-          : { name: trimmedPart, faculty: "" };
+      // 2. If no exact match, try First Word match (e.g. "22EC602 A1")
+      if (!course) {
+        const parts = trimmed.split(" ");
+        const pureCode = parts[0];
+        course = masterData.courses.find(c => c.code === pureCode);
+
+        // Check if suffix looks like a batch (A1, B2, etc.)
+        if (course && parts.length > 1) {
+          const suffix = parts[1];
+          // Kotlin Regex: ^[A-Za-z]\d+$ matches A1, B2, etc.
+          if (/^[A-Za-z]\d+$/.test(suffix)) {
+            batch = suffix;
+          }
+        }
+      }
+
+      if (!course) {
+        return { code: trimmed, name: trimmed, faculty: "", isLab: false };
+      }
+
+      // 3. Clean Course Name (Remove "Lab Integrated", "Integrated Lab", etc.)
+      let cleanName = course.name;
+      const patterns = [
+        /\s*\(Lab Integrated\)/i,
+        /\s*\(Integrated Lab\)/i,
+        /\s*Lab Integrated/i,
+        /\s*Integrated Lab/i,
+        /\s*\(Integrated\)/i,
+        /\s*\(Lab\)/i,
+        /\s*Integrated/i,
+        /\s*Lab/i
+      ];
+
+      patterns.forEach(p => {
+        cleanName = cleanName.replace(p, "").trim();
       });
 
+      // Remove trailing chars
+      cleanName = cleanName.replace(/[-/]+$/, "").trim();
+
+      // If batch exists, remove it from end of name if present
+      if (batch) {
+        const batchRegex = new RegExp(`\\s+${batch}$`, 'i');
+        cleanName = cleanName.replace(batchRegex, "").trim();
+      }
+
+      // 4. Resolve Faculty (Handle "Faculty (A1) / Faculty (B2)")
+      let faculty = course.faculty;
+      if (batch && faculty.includes(`(${batch})`)) {
+        const parts = faculty.split("/").map(f => f.trim());
+        const match = parts.find(f => f.includes(`(${batch})`));
+        if (match) {
+          faculty = match.replace(`(${batch})`, "").trim();
+        }
+      }
+
       return {
-        name: results.map(r => r.name).join(" / "),
-        faculty: results.map(r => r.faculty).join(" / "),
-        code: cellContent
+        code: batch ? `${course.code} ${batch}` : course.code, // Keep batch in code display
+        name: cleanName,
+        faculty: faculty,
+        isLab: !!batch // It's a lab if a batch was detected
+      };
+    };
+
+    // Handle Split Courses (e.g. "22EC919 A1 / 22EC611 A2")
+    if (cellContent.includes("/")) {
+      const parts = cellContent.split("/").map(p => p.trim());
+      const entries = parts.map(processEntry);
+
+      return {
+        entries: entries,
+        isLab: entries.some(e => e.isLab)
       };
     }
 
-    const pureCode = cellContent.split(" ")[0].trim();
-    const course = masterData.courses.find((c) => c.code === pureCode);
-    return course
-      ? { ...course, code: cellContent }
-      : { name: cellContent, faculty: "", code: cellContent };
+    // Single Course
+    const entry = processEntry(cellContent);
+    return {
+      entries: [entry],
+      isLab: entry.isLab
+    };
   };
 
   return (
     <div className="home-view" style={window.innerWidth <= 768 ? { padding: '0 16px', marginTop: 0 } : {}}>
       <div className="home-container">
 
-        <header className="page-header">
-          <div className="header-main">
-            <h1 className="page-title">Home Dashboard</h1>
-            {isAdmin && activeProfile?.section === userProfile?.section && (
-              <span className="admin-status-badge">Admin Mode</span>
-            )}
-          </div>
-
-          {activeProfile?.section !== userProfile?.section && (
-            <div className="global-preview-tag animate-slide-down">
-              <RiInformationLine />
-              <span>Viewing Preview: <strong>{activeProfile?.department}-{activeProfile?.section}</strong></span>
+        {!hideHeader && (
+          <header className="page-header">
+            <div className="header-main">
+              <h1 className="page-title">Home Dashboard</h1>
+              {isAdmin && activeProfile?.section === userProfile?.section && (
+                <span className="admin-status-badge">Admin Mode</span>
+              )}
             </div>
-          )}
-        </header>
+
+            {activeProfile?.section !== userProfile?.section && (
+              <div className="global-preview-tag animate-slide-down">
+                <RiInformationLine />
+                <span>Viewing Preview: <strong>{activeProfile?.department}-{activeProfile?.section}</strong></span>
+              </div>
+            )}
+          </header>
+        )}
 
         <section className="date-section">
           <label className="input-label">Select date</label>
@@ -249,10 +400,16 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
               type="text"
               className="date-display"
               readOnly
-              value={currentDate.toLocaleDateString('en-GB', { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' })}
+              value={currentDate.toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             />
             <div className="date-picker-trigger">
-              <DatePicker selected={currentDate} onChange={(date) => setCurrentDate(date)} customInput={<CustomCalendarButton />} popperPlacement="bottom-end" />
+              <DatePicker
+                selected={currentDate}
+                onChange={(date) => setCurrentDate(date)}
+                customInput={<CustomCalendarButton />}
+                popperPlacement="bottom-end"
+                portalId="root"
+              />
             </div>
           </div>
         </section>
@@ -261,15 +418,27 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
         <section className="calendar-section">
           <h2 className="section-title">Academic Calendar</h2>
           <div className="calendar-content">
-            {todayEvents.length > 0 ? todayEvents.map((ev, i) => (
-              <div key={i} className="home-event-pill">
-                <div className="event-indicator"></div>
-                <div className="event-info">
-                  <p className="calendar-text"><strong>{ev.title}</strong></p>
-                  <p className="calendar-subtext">{ev.fullTime}</p>
+            {todayEvents.length > 0 ? todayEvents.map((ev, i) => {
+              // Dynamic Coloring Logic (Matches Mobile)
+              const getEventClass = (event) => {
+                const title = event.title.toLowerCase();
+                if (title.includes("holiday")) return "indicator-holiday";
+                if (title.includes("exam") || title.includes("test") || title.includes("sia") || title.includes("fia")) return "indicator-exam";
+                if (title.includes("working day") && title.includes("order")) return "indicator-order";
+                if (event.type === "FullDay" || event.type === "HalfDay" || event.isSection) return "indicator-special";
+                return "indicator-default";
+              };
+
+              return (
+                <div key={i} className="home-event-pill">
+                  <div className={`event-indicator ${getEventClass(ev)}`}></div>
+                  <div className="event-info">
+                    <p className="calendar-text"><strong>{ev.title}</strong></p>
+                    <p className="calendar-subtext">{ev.fullTime}</p>
+                  </div>
                 </div>
-              </div>
-            )) : <p className="calendar-text-empty">Regular Working Day</p>}
+              );
+            }) : <p className="calendar-text-empty">Regular Working Day</p>}
           </div>
         </section>
 
@@ -280,7 +449,12 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
             <span className="status-badge-small">{scheduleStatus}</span>
           </div>
 
-          {(isSyncing || areEventsLoading) ? <div className="loading-shimmer">Checking Schedule...</div> : (
+          {(isSyncing || areEventsLoading) ? (
+            <div className="home-loading-card">
+              <div className="btn-spinner grey"></div>
+              <span>Checking Schedule...</span>
+            </div>
+          ) : (
             <>
               {/* --- 1. FULL DAY EVENT (Highest Priority) --- */}
               {fullDayEvent ? (
@@ -321,7 +495,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
                           <h3>{activeExamToday.title}</h3>
                           <p><strong>{activeExamToday.todaySub.code}</strong>: {getSubjectName(activeExamToday.todaySub.code)}</p>
                           <div className="exam-meta">
-                            <span><RiTimeLine /> {activeExamToday.todaySub.startTime} - {activeExamToday.todaySub.endTime}</span>
+                            <span><RiTimeLine /> {convertTo12Hour(activeExamToday.todaySub.startTime)} - {convertTo12Hour(activeExamToday.todaySub.endTime)}</span>
                             <span className="portion-tag"><RiFilePaperLine /> {activeExamToday.todaySub.portion}</span>
                           </div>
                         </div>
@@ -339,7 +513,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
                           <h3>{halfDayEvent.title}</h3>
                           <p>{halfDayEvent.description || "Special Session"}</p>
                           <div className="exam-meta">
-                            <span><RiTimeLine /> {halfDayEvent.startTime || "09:00"} - {halfDayEvent.endTime || "12:00"}</span>
+                            <span><RiTimeLine /> {convertTo12Hour(halfDayEvent.startTime || "09:00")} - {convertTo12Hour(halfDayEvent.endTime || "12:00")}</span>
                             <span className="portion-tag"><RiInformationLine /> Event</span>
                           </div>
                         </div>
@@ -350,30 +524,48 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
                   {/* C. TIMETABLE vs MAJOR EXAM SUSPENSION */}
                   {(!activeExamPeriod || activeExamPeriod.type.includes('CT')) ? (
                     dayOrder && masterData.timetable?.[dayOrder] ? (
-                      <div className="table-overflow">
-                        <table className="schedule-table">
-                          <thead><tr><th>#</th><th>Course Details</th><th>Faculty</th></tr></thead>
-                          <tbody>
-                            {masterData.timetable[dayOrder].map((code, index) => {
-                              const { name, faculty } = getPeriodDetails(code);
-                              return (
-                                <tr key={index}>
-                                  <td className="cell-hour">{index + 1}</td>
-                                  <td className="cell-course">
-                                    <div className="course-code">{code}</div>
-                                    <div className="course-name">{name}</div>
-                                  </td>
-                                  <td className="cell-faculty">{faculty}</td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
+                      <div className="schedule-list">
+                        {masterData.timetable[dayOrder].map((rawCode, index) => {
+                          const { entries, isLab } = resolvePeriod(rawCode);
+
+                          return (
+                            <div key={index} className="period-card">
+                              <div className="period-left">
+                                <div className="period-circle">{index + 1}</div>
+                              </div>
+
+                              <div className="period-content">
+                                {entries.map((entry, idx) => (
+                                  <div key={idx} className="course-entry">
+                                    <div className="course-header-row">
+                                      <span className="course-code">{entry.code}</span>
+                                      {entry.isLab && (
+                                        <span className="lab-badge">LAB</span>
+                                      )}
+                                    </div>
+
+                                    <div className="course-name">{entry.name}</div>
+
+                                    {entry.faculty && (
+                                      <div className="course-faculty">{entry.faculty}</div>
+                                    )}
+
+                                    {/* Spacer/Divider for split entries */}
+                                    {idx < entries.length - 1 && <div className="entry-divider"></div>}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     ) : (
-                      <div className="no-classes-msg">
-                        No classes scheduled.<br />
-                        <span style={{ fontSize: '0.9em', opacity: 0.8 }}>({scheduleStatus})</span>
+                      <div className="no-classes-card">
+                        <RiCalendarLine className="empty-icon" />
+                        <div className="empty-text">
+                          <p className="main-msg">No classes scheduled</p>
+                          <p className="sub-msg">Enjoy your {scheduleStatus}</p>
+                        </div>
                       </div>
                     )
                   ) : (
@@ -407,7 +599,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
               <textarea className="edit-textarea" value={tempNote} onChange={(e) => setTempNote(e.target.value)} placeholder="Type update for today..." />
               <div className="form-buttons">
                 <button onClick={handleSaveNote} disabled={isSaving} className="save-btn">
-                  {isSaving ? "Saving..." : "Save Update"}
+                  {isSaving ? <div className="btn-spinner"></div> : "Save Update"}
                 </button>
                 <button onClick={() => setIsEditingNote(false)} disabled={isSaving} className="cancel-btn">Cancel</button>
               </div>
@@ -442,7 +634,7 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
               <textarea className="edit-textarea" value={tempGeneral} onChange={(e) => setTempGeneral(e.target.value)} placeholder="Type general notice..." />
               <div className="form-buttons">
                 <button onClick={handleSaveGeneral} disabled={isSaving} className="save-btn">
-                  {isSaving ? "Saving..." : "Save Notice"}
+                  {isSaving ? <div className="btn-spinner"></div> : "Save Notice"}
                 </button>
                 <button onClick={() => setIsEditingGeneral(false)} disabled={isSaving} className="cancel-btn">Cancel</button>
               </div>
@@ -461,22 +653,18 @@ const Home = ({ isAdmin, globalData, userProfile, activeProfile }) => {
           )}
         </section>
 
-        {/* Academic Context Details */}
-        <section className="user-academic-details">
-          <div className="info-grid-small">
-            <div className="info-item">
-              <span className="info-label">Batch</span>
-              <span className="info-value">{activeProfile?.batch}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Dept</span>
-              <span className="info-value">{activeProfile?.department}</span>
-            </div>
-            <div className="info-item">
-              <span className="info-label">Sec</span>
-              <span className="info-value">{activeProfile?.section}</span>
-            </div>
-          </div>
+        {/* Academic Detail Cards */}
+        <section className="academic-card batch-card">
+          <span className="info-label">Batch</span>
+          <span className="info-value">{activeProfile?.batch}</span>
+        </section>
+        <section className="academic-card dept-card">
+          <span className="info-label">Dept</span>
+          <span className="info-value">{activeProfile?.department}</span>
+        </section>
+        <section className="academic-card sec-card">
+          <span className="info-label">Sec</span>
+          <span className="info-value">{activeProfile?.section}</span>
         </section>
 
       </div>

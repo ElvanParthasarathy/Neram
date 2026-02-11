@@ -1,0 +1,181 @@
+/* ==========================================================================
+   ADMIN DASHBOARD: HOME PREVIEW SCOPED STYLES
+   Ensures the preview matches admin dashboard aesthetics (flat, pill shapes)
+   ========================================================================== */
+
+.admin-home-preview-v2 {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--mac-border);
+    position: relative;
+    z-index: 50;
+}
+
+.admin-home-preview-v2 .page-title {
+    font-size: 11.5px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    color: var(--mac-sidebar-header-text) !important;
+    font-weight: 700 !important;
+    margin-bottom: 20px !important;
+    padding: 0 14px !important;
+    /* Align with Admin labels */
+}
+
+.admin-home-preview-v2 .page-header {
+    margin-bottom: 30px !important;
+}
+
+.admin-home-preview-v2 section {
+    box-shadow: none !important;
+    border: none !important;
+    background: var(--mac-sidebar-bg) !important;
+    border-radius: 32px !important;
+    /* Match Command Center rounded corners slightly reduced */
+    padding: 24px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    /* Disable hover lift in preview removed */
+    margin-bottom: 20px !important;
+}
+
+.admin-home-preview-v2 section:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: none !important;
+}
+
+/* Make inputs pill-shaped in preview */
+.admin-home-preview-v2 .date-display {
+    border-radius: 100px !important;
+    padding-left: 20px !important;
+    background: var(--mac-bg-secondary) !important;
+    border: none !important;
+    font-size: 13px !important;
+}
+
+html.dark .admin-home-preview-v2 .date-display {
+    background: #1C1C1E !important;
+}
+
+/* Round calendar button fixed to circle */
+.admin-home-preview-v2 .round-calendar-btn {
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+
+
+/* Academic Details footer pills */
+.admin-home-preview-v2 .info-item {
+    border-radius: 100px !important;
+    padding: 10px 20px !important;
+    background: var(--mac-bg-secondary) !important;
+}
+
+/* Status Badges */
+.admin-home-preview-v2 .status-badge-small {
+    border-radius: 100px !important;
+    padding: 6px 14px !important;
+    font-size: 11px !important;
+}
+
+/* Section titles in preview */
+.admin-home-preview-v2 .section-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: var(--mac-text) !important;
+    margin-bottom: 12px !important;
+}
+
+/* Table in preview */
+.admin-home-preview-v2 .table-overflow {
+    border-radius: 16px !important;
+}
+
+/* Live Update message box */
+.admin-home-preview-v2 .message-container {
+    border-radius: 16px !important;
+}
+
+/* Preview tag badge */
+.admin-home-preview-v2 .global-preview-tag {
+    border-radius: 100px !important;
+    padding: 6px 16px !important;
+    background: rgba(255, 159, 10, 0.1) !important;
+    color: #FF9F0A !important;
+    display: inline-flex !important;
+    margin-top: 10px !important;
+}
+
+/* --- FORCE GRID LAYOUT FOR DATE & CALENDAR (MATCH DASHBOARD RATIO) --- */
+.admin-home-preview-v2 .home-view {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 24px !important;
+}
+
+.admin-home-preview-v2 .home-container {
+    display: contents !important;
+    /* Let parent grid handle children directly */
+}
+
+/* Row 1: Date & Calendar (Split 3:3) */
+.admin-home-preview-v2 .date-section {
+    grid-column: span 3 !important;
+    grid-row: 1 !important;
+    margin-bottom: 0 !important;
+}
+
+.admin-home-preview-v2 .calendar-section {
+    grid-column: span 3 !important;
+    grid-row: 1 !important;
+    margin-bottom: 0 !important;
+    height: 100% !important;
+}
+
+/* Row 2: Schedule (Full Width 6 cols) */
+.admin-home-preview-v2 .timetable-section {
+    grid-column: span 6 !important;
+    grid-row: 2 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Row 3: Updates (Split 3:3) */
+.admin-home-preview-v2 .updates-live-section {
+    grid-column: span 3 !important;
+    grid-row: 3 !important;
+    margin-bottom: 0 !important;
+}
+
+.admin-home-preview-v2 .updates-general-section {
+    grid-column: span 3 !important;
+    grid-row: 3 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Row 4: Academic Detail Cards (Side-by-Side 2:2:2) */
+.admin-home-preview-v2 .batch-card {
+    grid-column: span 2 !important;
+    grid-row: 4 !important;
+    margin-bottom: 0 !important;
+}
+
+.admin-home-preview-v2 .dept-card {
+    grid-column: span 2 !important;
+    grid-row: 4 !important;
+    margin-bottom: 0 !important;
+}
+
+.admin-home-preview-v2 .sec-card {
+    grid-column: span 2 !important;
+    grid-row: 4 !important;
+    margin-bottom: 0 !important;
+}

@@ -1,563 +1,828 @@
-@media (min-width: 769px) {
-
 /* ==========================================================================
-   NERAM PORTAL: EXAM MANAGER (REMASTERED V7 - COMPACT MODE)
+   NERAM PORTAL: EXAM MANAGER (SEQUOIA PRO THEME)
    ========================================================================== */
 
-/* --- 1. CORE VARIABLES & SCOPE --- */
-  .exam-manager-container {
-    --em-primary: #007AFF;
-    --em-primary-hover: #0062cc;
-    --em-danger: #FF3B30;
-    --em-success: #34C759;
-    --em-bg-subtle: #F5F5F7;
-    --em-border: #E5E5EA;
-    --em-text-main: #1D1D1F;
-    --em-text-sub: #86868B;
-    --em-shadow-card: 0 2px 12px rgba(0, 0, 0, 0.04);
-    --em-radius-card: 16px;
-    /* Reduced Radius */
-    --em-radius-input: 8px;
+.exam-manager-container {
+  width: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: var(--mac-text);
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: 50px;
+}
 
-    width: 100%;
-    max-width: 100%;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    color: var(--em-text-main);
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
+/* --- 1. EXPLORER HEADER & BREADCRUMBS --- */
+.explorer-header.focus-mode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0 20px 0;
+  border-bottom: 1px solid var(--mac-divider);
+  margin: 0 auto 30px auto;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.breadcrumb-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mac-text-secondary);
+}
+
+.crumb-btn {
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.crumb-btn:hover {
+  background: var(--mac-selection-hover);
+  color: var(--mac-blue);
+}
+
+.crumb-sep {
+  font-size: 16px;
+  opacity: 0.5;
+}
+
+.crumb-static {
+  font-weight: 700;
+  color: var(--mac-text);
+  padding: 6px 12px;
+}
+
+.explorer-back-btn {
+  border: 1px solid var(--mac-border);
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mac-text);
+  background: var(--mac-sidebar-bg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.explorer-back-btn:hover {
+  background: var(--mac-selection-hover);
+}
+
+.explorer-back-btn:active {
+  transform: scale(0.96);
+}
+
+/* Rep Static Path Rendering */
+.rep-static-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--mac-text);
+}
+
+.rep-static-path .path-icon {
+  font-size: 20px;
+  color: var(--mac-blue);
+}
+
+.path-sep {
+  color: var(--mac-text-secondary);
+  opacity: 0.5;
+}
+
+.path-final {
+  color: var(--mac-blue);
+}
+
+/* --- 2. EXPLORER GRID --- */
+.explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.explorer-card {
+  background: var(--mac-sidebar-bg);
+  border: none;
+  border-radius: 32px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.explorer-card:hover {
+  transform: translateY(-4px);
+  background: var(--mac-selection-hover);
+}
+
+.card-icon {
+  font-size: 48px;
+  color: var(--mac-blue);
+  margin-bottom: 20px;
+}
+
+.card-initial {
+  width: 60px;
+  height: 60px;
+  background: var(--mac-blue);
+  color: white;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.card-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: var(--mac-text);
+}
+
+.card-info p {
+  font-size: 13px;
+  color: var(--mac-text-secondary);
+  margin: 0;
+}
+
+/* --- 3. EDITOR WORKSPACE --- */
+.exam-editor-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  animation: fadeIn 0.4s ease-out;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Creator Card */
+.exam-creator-card {
+  background: var(--mac-card-bg);
+  border-radius: 32px;
+  padding: 30px;
+  border: 1px solid var(--mac-divider);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+}
+
+.editor-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mac-text);
+  margin: 0 0 24px 0;
+}
+
+.editor-title svg {
+  color: var(--mac-blue);
+}
+
+.exam-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--mac-divider);
+}
+
+/* --- 4. INPUTS & FIELDS --- */
+.exam-manager-container .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exam-manager-container label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mac-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.exam-manager-container input,
+.exam-manager-container select,
+.custom-datepicker-input,
+.table-input {
+  background: var(--mac-input-bg) !important;
+  border: 1px solid var(--mac-divider) !important;
+  border-radius: 12px !important;
+  height: 44px;
+  padding: 0 16px;
+  font-size: 14px;
+  color: var(--mac-text) !important;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.exam-manager-container input:focus,
+.exam-manager-container select:focus,
+.custom-datepicker-input:focus {
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2) !important;
+}
+
+/* Fix Native Date/Time Icons for Dark Mode Balance */
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px;
+  transition: all 0.2s;
+  opacity: 0.6;
+}
+
+html.dark input[type="time"]::-webkit-calendar-picker-indicator,
+html.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5) !important;
+  opacity: 0.9 !important;
+}
+
+/* DatePicker Specifics */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+/* Subject Mapping Row */
+.exam-subject-row.professional {
+  background: var(--mac-bg-secondary);
+  border: 1px solid var(--mac-divider);
+  border-radius: 20px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1.2fr 2.5fr 1fr 1fr auto;
+  gap: 20px;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+  align-items: flex-end;
+}
+
+/* Row 1: Date and Subject */
+.exam-subject-row.professional>div:nth-child(1) {
+  grid-column: span 1;
+}
+
+.exam-subject-row.professional>div:nth-child(2) {
+  grid-column: span 3;
+  /* Subject takes more space on top row */
+}
+
+/* Row 2: Portion, Start, End */
+.exam-subject-row.professional>div:nth-child(3) {
+  grid-row: 2;
+  grid-column: 1 / span 2;
+  /* Portion takes same width as Date + some of subject */
+}
+
+.exam-subject-row.professional>div:nth-child(4) {
+  grid-row: 2;
+  grid-column: 3;
+}
+
+.exam-subject-row.professional>div:nth-child(5) {
+  grid-row: 2;
+  grid-column: 4;
+}
+
+/* Delete Button spanning both rows or on the side */
+.exam-subject-row.professional>.btn-del-mini {
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+/* Removed unwanted hover effect on subject rows */
+
+.input-group-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-group-vertical.variant-code {
+  flex: 2;
+}
+
+.input-group-vertical.variant-portion {
+  flex: 1.5;
+}
+
+/* --- 5. BUTTONS --- */
+.btn-save-master {
+  background: var(--mac-blue) !important;
+  color: white !important;
+  border: none;
+  border-radius: 50px !important;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+}
+
+.btn-save-master.publish-btn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.btn-save-master:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-add-line {
+  background: var(--mac-sidebar-bg) !important;
+  border: 1px solid var(--mac-border) !important;
+  color: var(--mac-text) !important;
+  border-radius: 50px !important;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-add-line:hover {
+  background: var(--mac-selection-hover) !important;
+}
+
+.btn-del-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 59, 48, 0.08) !important;
+  color: #FF3B30 !important;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-del-mini:hover {
+  background: #FF3B30 !important;
+  color: white !important;
+  transform: scale(1.1);
+}
+
+.btn-del-mini:active {
+  transform: scale(0.9);
+}
+
+/* --- 6. PUBLISHED TIMETABLES --- */
+.section-divider-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mac-blue);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-divider-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mac-divider);
+}
+
+.published-exam-card {
+  background: var(--mac-sidebar-bg);
+  border-radius: 32px;
+  padding: 24px;
+  border: 1px solid var(--mac-border);
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.published-exam-card.editing-active {
+  background: var(--mac-bg-secondary);
+  border-color: var(--mac-divider);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+.published-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--mac-divider);
+}
+
+.pub-title-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pub-title-group .icon-main {
+  font-size: 24px;
+  color: var(--mac-blue);
+}
+
+.pub-title-group h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.pub-title-group h3 span {
+  font-weight: 500;
+  color: var(--mac-text-secondary);
+  font-size: 14px;
+}
+
+.pub-title-group p {
+  font-size: 13px;
+  color: var(--mac-text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Tables */
+.preview-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.preview-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--mac-table-header);
+  color: var(--mac-text-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.preview-table th:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.preview-table th:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.preview-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--mac-divider);
+  font-size: 14px;
+  color: var(--mac-text);
+}
+
+.subject-cell {
+  text-align: left !important;
+}
+
+.portion-badge {
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--mac-blue);
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Editing Inputs */
+.edit-title-input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--mac-blue) !important;
+  border-radius: 0 !important;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 0 !important;
+  margin-right: 16px;
+  color: var(--mac-text) !important;
+}
+
+.date-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.inline-datepicker {
+  width: 120px !important;
+  height: 32px !important;
+  font-size: 12px !important;
+}
+
+.time-edit-cell {
+  display: flex;
+  gap: 8px;
+}
+
+.time-edit-cell input {
+  width: 90px !important;
+  height: 32px !important;
+  font-size: 12px !important;
+  text-align: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 
-  .exam-manager-container * {
-    box-sizing: border-box;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 
-  /* --- 2. NAVIGATION HEADER --- */
-  .exam-manager-container .explorer-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0 15px 0;
-    /* Reduced Padding */
-    border-bottom: 1px solid var(--em-border);
-    margin-bottom: 20px;
-  }
-
-  .exam-manager-container .breadcrumb-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    /* Slightly Smaller */
-    font-weight: 600;
-    color: var(--em-text-sub);
-  }
-
-  .exam-manager-container .crumb-btn {
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-
-  .exam-manager-container .crumb-btn:hover {
-    color: var(--em-primary);
-  }
-
-  .exam-manager-container .crumb-static {
-    color: var(--em-text-main);
-    cursor: default;
-  }
-
-  .exam-manager-container .back-btn-minimal {
-    background: white;
-    border: 1px solid var(--em-border);
-    color: var(--em-text-main);
-    padding: 6px 14px;
-    /* Smaller Button */
-    border-radius: 30px;
-    font-size: 12px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
-    cursor: pointer;
-  }
-
-  .exam-manager-container .back-btn-minimal:hover {
-    background: var(--em-bg-subtle);
-    transform: translateX(-2px);
-  }
-
-  /* --- 3. EXPLORER GRID (Batches/Depts) --- */
-  .exam-manager-container .explorer-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    /* Smaller Cards */
-    gap: 16px;
-    width: 100%;
-  }
-
-  .exam-manager-container .explorer-card {
-    background: white;
-    border: 1px solid var(--em-border);
-    border-radius: 12px;
-    padding: 20px 15px;
-    /* Compact Padding */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .exam-manager-container .explorer-card:hover {
-    border-color: var(--em-primary);
-    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.1);
-    transform: translateY(-3px);
-  }
-
-  .exam-manager-container .card-icon {
-    font-size: 32px;
-    color: var(--em-primary);
-    margin-bottom: 10px;
-  }
-
-  .exam-manager-container .card-initial {
-    width: 42px;
-    height: 42px;
-    /* Smaller Circle */
-    background: var(--em-success);
-    color: white;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
-  }
-
-  .exam-manager-container .card-info h3 {
-    margin: 0 0 2px 0;
-    font-size: 15px;
-    font-weight: 700;
-  }
-
-  .exam-manager-container .card-info p {
-    margin: 0;
-    font-size: 12px;
-    color: var(--em-text-sub);
-  }
-
-  /* --- 4. EXAM CREATOR (Layout Stability Fixes) --- */
-  .exam-manager-container .exam-creator-card {
-    background: white;
-    border: 1px solid var(--em-border);
-    border-radius: var(--em-radius-card);
-    padding: 24px;
-    /* Reduced Padding */
-    margin-bottom: 30px;
-    box-shadow: var(--em-shadow-card);
-  }
-
-  .exam-manager-container .editor-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0 0 20px 0;
-    color: var(--em-text-main);
-  }
-
-  /* Top Config Grid */
-  .exam-manager-container .exam-config-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+/* --- Responsive --- */
+@media (max-width: 900px) {
+  .exam-subject-row.professional {
+    grid-template-columns: 1fr;
     gap: 15px;
-    margin-bottom: 25px;
-    padding-bottom: 20px;
-    border-bottom: 1px dashed var(--em-border);
   }
 
-  /* Labels & Inputs Global */
-  .exam-manager-container label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--em-text-sub);
-    margin-bottom: 4px;
-    display: block;
+  .exam-config-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.published-subjects-container {
+  padding-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exam-subject-row.professional.view-mode {
+  padding: 12px 20px;
+  background: var(--mac-bg-secondary);
+  border: 1px solid var(--mac-divider);
+  border-radius: 16px;
+  transition: all 0.2s ease;
+}
+
+html.dark .exam-subject-row.professional {
+  background: #1C1C1E !important;
+  /* Premium Grey for Dark Mode */
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark .exam-subject-row.professional.view-mode {
+  background: #1C1C1E !important;
+}
+
+.view-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.view-cell label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mac-text-secondary);
+  font-weight: 700;
+}
+
+.view-cell span {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mac-text);
+}
+
+.view-cell.subject-cell {
+  min-width: 200px;
+}
+
+.view-cell.time-cell {
+  min-width: 140px;
+}
+
+.view-cell.portion-cell {
+  flex: 1;
+}
+
+.view-cell.portion-cell span {
+  font-size: 13px;
+  background: rgba(0, 122, 255, 0.08);
+  color: var(--mac-blue);
+  padding: 4px 10px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+/* --- 6. REFINED MINI BUTTONS --- */
+.btn-edit-mini,
+.btn-del-mini {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: 36px !important;
+  padding: 0 18px !important;
+  border-radius: 50px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.btn-edit-mini {
+  background: rgba(7, 137, 255, 0.08) !important;
+  color: var(--mac-blue) !important;
+}
+
+.btn-edit-mini:hover {
+  background: var(--mac-blue) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2) !important;
+}
+
+.btn-del-mini {
+  background: rgba(255, 59, 48, 0.08) !important;
+  color: #FF3B30 !important;
+  min-width: 36px;
+  padding: 0 12px !important;
+}
+
+/* If it has text (Delete) */
+.btn-del-mini:not(:empty) {
+  padding: 0 18px !important;
+}
+
+.btn-del-mini:hover {
+  background: #FF3B30 !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.2) !important;
+}
+
+.btn-edit-mini:active,
+.btn-del-mini:active {
+  transform: scale(0.95);
+}
+
+/* --- 7. MODAL STYLES (GLASSMORPHISM) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--mac-card-bg);
+  border: 1px solid var(--mac-divider);
+  border-radius: 28px;
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.modal-icon-danger {
+  font-size: 48px;
+  color: #FF3B30;
+  background: rgba(255, 59, 48, 0.1);
+  padding: 12px;
+  border-radius: 100px;
+}
+
+.modal-content h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--mac-text);
+}
+
+.modal-message {
+  font-size: 15px;
+  color: var(--mac-text-secondary);
+  line-height: 1.5;
+  margin: 0 0 30px 0;
+}
+
+.modal-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-modal-cancel {
+  background: var(--mac-bg-secondary);
+  border: 1px solid var(--mac-border);
+  color: var(--mac-text);
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-modal-cancel:hover {
+  background: var(--mac-selection-hover);
+}
+
+.btn-modal-confirm {
+  background: #FF3B30;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.2);
+}
+
+.btn-modal-confirm:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+/* Animations */
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
   }
 
-  .exam-manager-container input,
-  .exam-manager-container select {
-    width: 100%;
-    height: 36px;
-    /* Reduced Height */
-    background: #FAFAFC;
-    border: 1px solid #D1D1D6;
-    border-radius: var(--em-radius-input);
-    padding: 0 10px;
-    font-size: 13px;
-    /* Slightly Smaller Font */
-    font-weight: 500;
-    color: var(--em-text-main);
-    outline: none;
-    transition: all 0.2s ease;
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
+}
 
-  .exam-manager-container input:focus,
-  .exam-manager-container select:focus {
-    background: white;
-    border-color: var(--em-primary);
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
-  }
-
-  /* --- 5. SUBJECT MAPPING ROW (The Fix for Jumping) --- */
-  .exam-manager-container .exam-subject-row.professional {
-    display: flex;
-    align-items: flex-end;
-    /* Aligns inputs and buttons at the bottom */
-    gap: 12px;
-    /* Tighter Gap */
-    padding: 12px 15px;
-    /* Compact Padding */
-    background: var(--em-bg-subtle);
-    border-radius: 12px;
-    border: 1px solid transparent;
-    margin-bottom: 10px;
-    transition: background 0.2s;
-  }
-
-  .exam-manager-container .exam-subject-row.professional:hover {
-    background: #F0F0F2;
-    border-color: rgba(0, 0, 0, 0.05);
-  }
-
-  /* Critical Layout Columns */
-  .exam-manager-container .input-group-vertical {
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Force specific widths to prevent jumping */
-  .exam-manager-container .input-group-vertical:nth-child(1) {
-    flex: 0 0 130px;
-  }
-
-  /* Date */
-  .exam-manager-container .input-group-vertical:nth-child(2) {
-    flex: 1;
-    min-width: 180px;
-  }
-
-  /* Subject */
-  .exam-manager-container .input-group-vertical:nth-child(3) {
-    flex: 0 0 110px;
-  }
-
-  /* Portion */
-  .exam-manager-container .input-group-vertical:nth-child(4) {
-    flex: 0 0 85px;
-  }
-
-  /* Start */
-  .exam-manager-container .input-group-vertical:nth-child(5) {
-    flex: 0 0 85px;
-  }
-
-  /* End */
-  /* The delete button takes remaining space naturally */
-
-  /* --- 6. BUTTON SYSTEM (Polished) --- */
-  .exam-manager-container button {
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .exam-manager-container button:active {
-    transform: scale(0.96);
-  }
-
-  /* Primary Action: Save Master */
-  .exam-manager-container .btn-save-master {
-    width: 100%;
-    height: 42px;
-    /* Smaller Button */
-    background: var(--em-primary);
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 10px;
-    margin-top: 20px;
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
-  }
-
-  .exam-manager-container .btn-save-master:hover {
-    background: var(--em-primary-hover);
-  }
-
-  /* Secondary Action: Add Line */
-  .exam-manager-container .btn-add-line {
-    background: white;
-    border: 1px solid var(--em-border);
-    color: var(--em-text-main);
-    padding: 8px 16px;
-    border-radius: 30px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 8px;
-  }
-
-  .exam-manager-container .btn-add-line:hover {
-    background: var(--em-bg-subtle);
-    border-color: #C7C7CC;
-  }
-
-  /* Destructive Action: Delete (Circle) */
-  .exam-manager-container .btn-del-mini {
-    width: 36px;
-    /* Smaller Circle */
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 59, 48, 0.1);
-    color: var(--em-danger);
-    flex-shrink: 0;
-    font-size: 16px;
-    margin-bottom: 1px;
-  }
-
-  .exam-manager-container .btn-del-mini:hover {
-    background: var(--em-danger);
-    color: white;
-  }
-
-  /* Edit/Save/Cancel Mini Buttons */
-  .exam-manager-container .btn-edit-mini,
-  .exam-manager-container .btn-save-mini,
-  .exam-manager-container .btn-cancel-mini {
-    padding: 6px 14px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .exam-manager-container .btn-edit-mini {
-    background: rgba(0, 122, 255, 0.1);
-    color: var(--em-primary);
-  }
-
-  .exam-manager-container .btn-edit-mini:hover {
-    background: rgba(0, 122, 255, 0.2);
-  }
-
-  .exam-manager-container .btn-save-mini {
-    background: var(--em-primary);
-    color: white;
-  }
-
-  .exam-manager-container .btn-cancel-mini {
-    background: #E5E5EA;
-    color: var(--em-text-main);
-  }
-
-  /* --- 7. PUBLISHED & TABLES --- */
-  .exam-manager-container .section-divider-title {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--em-text-sub);
-    margin: 40px 0 15px 0;
-    border-left: 3px solid var(--em-primary);
-    padding-left: 10px;
-  }
-
-  .exam-manager-container .published-exam-card {
-    background: white;
-    border: 1px solid var(--em-border);
-    border-radius: var(--em-radius-card);
-    padding: 20px;
-    /* Reduced Padding */
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
-  }
-
-  .exam-manager-container .published-exam-card.editing-active {
-    border-color: var(--em-primary);
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-    /* Thinner Glow */
-    background: #FCFCFE;
-  }
-
-  .exam-manager-container .published-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--em-border);
-  }
-
-  .exam-manager-container .pub-title-group h3 {
-    font-size: 16px;
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .exam-manager-container .pub-title-group p {
-    font-size: 12px;
-    color: var(--em-text-sub);
-    margin-top: 3px;
-  }
-
-  .exam-manager-container .icon-main {
-    font-size: 20px;
-    color: var(--em-primary);
-  }
-
-  .exam-manager-container .header-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  /* Table Styling */
-  .exam-manager-container .preview-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-
-  .exam-manager-container .preview-table th {
-    text-align: left;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--em-text-sub);
-    padding: 8px 12px;
-    background: var(--em-bg-subtle);
-  }
-
-  .exam-manager-container .preview-table th:first-child {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-  }
-
-  .exam-manager-container .preview-table th:last-child {
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-  }
-
-  .exam-manager-container .preview-table td {
-    padding: 10px 12px;
-    /* Reduced Padding */
-    font-size: 13px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
-    vertical-align: middle;
-  }
-
-  .exam-manager-container .portion-badge {
-    background: rgba(0, 122, 255, 0.1);
-    color: var(--em-primary);
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 20px;
-  }
-
-  /* Editing Inputs in Table */
-  .exam-manager-container .table-input {
-    height: 32px;
-    /* Smaller for table */
-    font-size: 12px;
-    background: white;
-    border: 1px solid #D1D1D6;
-  }
-
-  .exam-manager-container .time-edit-cell {
-    display: flex;
-    gap: 8px;
-  }
-
-  .exam-manager-container .time-edit-cell input {
-    width: 115px;
-    text-align: center;
-    padding: 0 5px;
-    /* Ensure text isn't touching borders */
-  }
-
-  /* --- 8. EDITING MODE SPECIFICS --- */
-  .exam-manager-container .edit-title-input {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--em-primary);
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 2px solid var(--em-primary) !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    width: auto;
-  }
-
-  .exam-manager-container .date-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 6px;
-  }
-
-  .exam-manager-container .date-group input {
-    width: 130px;
-    height: 30px;
-    font-size: 12px;
-  }
-
-  /* --- 9. RESPONSIVE MOBILE --- */
-  @media (max-width: 900px) {
-    .exam-manager-container .exam-subject-row.professional {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 10px;
-      background: #FAFAFA;
-      border: 1px solid #EEE;
-    }
-
-    .exam-manager-container .input-group-vertical {
-      flex: auto !important;
-      width: 100%;
-    }
-
-    .exam-manager-container .btn-del-mini {
-      align-self: flex-end;
-      margin-top: -8px;
-      background: #ffe5e5;
-    }
-
-    .exam-manager-container .time-edit-cell {
-      flex-direction: column;
-    }
-
-    .exam-manager-container .time-edit-cell input {
-      width: 100%;
-    }
-
-    /* Make table scrollable on tiny screens */
-    .exam-manager-container .preview-table {
-      display: block;
-      overflow-x: auto;
-      white-space: nowrap;
-    }
-  }
-
+.animate-pop-in {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }

@@ -1,0 +1,376 @@
+/* ==========================================================================
+   CALENDAR MANAGER (MASTER STYLESHEET)
+   ========================================================================== */
+
+.calendar-manager-container {
+    width: 100%;
+    max-width: 100%;
+    padding-bottom: 40px;
+}
+
+/* 1. EXPLORER NAVIGATION */
+.calendar-manager-container .explorer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 20px 0;
+    border-bottom: 1px solid var(--mac-divider);
+    margin-bottom: 30px;
+}
+
+.calendar-manager-container .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+}
+
+.calendar-manager-container .back-btn-minimal {
+    background: transparent;
+    border: 1px solid var(--mac-divider);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mac-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .back-btn-minimal:hover {
+    background: var(--mac-selection-bg);
+}
+
+.calendar-manager-container .crumb-static {
+    color: var(--mac-text);
+    font-weight: 700;
+}
+
+/* 2. EXPLORER GRID (BATCH SELECTION) */
+.calendar-manager-container .explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.calendar-manager-container .explorer-card {
+    background: var(--mac-card-bg);
+    border: var(--mac-card-border);
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.calendar-manager-container .explorer-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    border-color: var(--mac-blue);
+}
+
+.calendar-manager-container .card-icon {
+    font-size: 44px;
+    color: var(--mac-blue);
+    margin-bottom: 16px;
+}
+
+.calendar-manager-container .card-info h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin: 0 0 4px 0;
+}
+
+.calendar-manager-container .card-info p {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    margin: 0;
+}
+
+/* 3. WORKSPACE LAYOUT */
+.calendar-manager-container .calendar-admin-workspace {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+/* 4. SIDEBAR CONFIG PANEL */
+.calendar-manager-container .admin-sidebar-controls {
+    flex: 0 0 320px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+}
+
+.calendar-manager-container .config-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.calendar-manager-container .config-header h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mac-text);
+}
+
+.calendar-manager-container .config-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.calendar-manager-container .config-inputs.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.calendar-manager-container label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--mac-text-secondary);
+    letter-spacing: 0.5px;
+    margin-bottom: -10px;
+}
+
+.calendar-manager-container input {
+    width: 100%;
+    height: 42px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    border-radius: 12px;
+    padding: 0 14px;
+    color: var(--mac-text);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container input:focus {
+    border-color: var(--mac-blue);
+    background: var(--mac-bg-primary);
+    box-shadow: 0 0 0 3px rgba(0, 113, 255, 0.1);
+}
+
+.calendar-manager-container hr {
+    border: none;
+    border-top: 1px solid var(--mac-divider);
+    margin: 10px 0;
+}
+
+/* 5. MAIN CALENDAR LIST */
+.calendar-manager-container .calendar-editable-list {
+    flex: 1;
+    padding: 0;
+    overflow: hidden;
+}
+
+.calendar-manager-container .table-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--mac-divider);
+    background: var(--mac-bg-secondary);
+}
+
+.calendar-manager-container .nav-btn {
+    background: var(--mac-card-bg);
+    border: 1px solid var(--mac-divider);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mac-text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .nav-btn:hover {
+    background: var(--mac-blue);
+    color: #FFFFFF;
+    border-color: var(--mac-blue);
+}
+
+.calendar-manager-container .current-month-display {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mac-blue);
+    margin: 0;
+}
+
+/* 6. TABLE STYLING */
+.calendar-manager-container .admin-table-wrapper {
+    padding: 10px 0;
+}
+
+.calendar-manager-container .calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.calendar-manager-container .calendar-table th {
+    text-align: left;
+    padding: 12px 24px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--mac-text-secondary);
+    letter-spacing: 0.5px;
+    border-bottom: 1.5px solid var(--mac-divider);
+}
+
+.calendar-manager-container .calendar-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--mac-divider);
+    vertical-align: top;
+}
+
+/* 7. EVENT PILLS */
+.calendar-manager-container .event-item-pill {
+    background: var(--mac-bg-secondary);
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--mac-divider);
+    border-left: 4px solid var(--mac-blue);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .event-item-pill:hover {
+    transform: translateX(4px);
+    background: var(--mac-selection-bg);
+    border-color: var(--mac-divider);
+}
+
+/* Dark mode specific tweak for grey aesthetic as requested */
+html.dark .calendar-manager-container .event-item-pill {
+    background: #1C1C1E;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.calendar-manager-container .event-item-pill strong {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--mac-text);
+}
+
+.calendar-manager-container .event-item-pill span {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    font-weight: 600;
+}
+
+/* 8. BUTTONS */
+.calendar-manager-container .btn-modify-mini {
+    width: 34px;
+    height: 34px;
+    border-radius: 50% !important;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    color: var(--mac-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .btn-modify-mini:hover {
+    background: var(--mac-selection-bg);
+}
+
+.calendar-manager-container .btn-save-settings {
+    background: var(--mac-blue);
+    color: #FFFFFF;
+    border: none;
+    padding: 12px;
+    border-radius: 50px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .btn-save-settings:hover {
+    background: var(--mac-blue-hover);
+    transform: translateY(-1px);
+}
+
+.calendar-manager-container .safety-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.calendar-manager-container .safety-controls h4 {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--mac-text-secondary);
+    margin: 0;
+}
+
+.calendar-manager-container .btn-safety {
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    color: var(--mac-text);
+    padding: 12px;
+    border-radius: 50px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .btn-safety:hover {
+    background: var(--mac-selection-bg);
+}
+
+.calendar-manager-container .btn-safety.push {
+    color: #FF3B30;
+    background: rgba(255, 59, 48, 0.05);
+    border-color: rgba(255, 59, 48, 0.1);
+}
+
+.calendar-manager-container .btn-safety.push:hover {
+    background: #FF3B30;
+    color: #FFFFFF;
+}
+
+/* 9. RESPONSIVE */
+@media (max-width: 1024px) {
+    .calendar-manager-container .calendar-admin-workspace {
+        flex-direction: column;
+    }
+
+    .calendar-manager-container .admin-sidebar-controls {
+        flex: none;
+        width: 100%;
+        position: static;
+    }
+}

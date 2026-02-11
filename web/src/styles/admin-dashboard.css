@@ -1,0 +1,490 @@
+/* ==========================================================================
+   ADMIN DASHBOARD: COMMAND CENTER STYLES
+   ========================================================================== */
+
+.admin-dashboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* --- RESTORED STATS & ICON STYLES --- */
+.stat-card-premium {
+    background: var(--mac-sidebar-bg);
+    border: none;
+    border-radius: 100px;
+    /* Pill shape */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+    min-height: 120px;
+}
+
+.stat-card-premium:hover {
+    transform: translateY(-2px);
+}
+
+.stat-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.stat-icon-box.pending {
+    background: rgba(255, 159, 10, 0.08);
+    color: #FF9F0A;
+}
+
+.stat-icon-box.users {
+    background: rgba(10, 132, 255, 0.08);
+    color: #0A84FF;
+}
+
+.stat-icon-box.context {
+    background: rgba(175, 82, 222, 0.08);
+    color: #AF52DE;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--mac-text);
+    margin-bottom: 2px;
+}
+
+.stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--mac-text-secondary);
+    opacity: 0.6;
+}
+
+/* --- NEW LAYOUT: 2-COLUMN SPLIT --- */
+.admin-dashboard-new-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    width: 100%;
+    position: relative;
+}
+
+.admin-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: 100%;
+    /* Ensure it fills the grid cell */
+    position: relative;
+    z-index: 100 !important;
+}
+
+.admin-right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    /* Increased from 16px to match left column */
+    height: 100%;
+    /* Ensure it fills the grid cell */
+    position: relative;
+    z-index: 1 !important;
+}
+
+/* --- SLIM PROFILE CARD --- */
+.admin-profile-slim {
+    background: var(--mac-sidebar-bg);
+    border-radius: 100px;
+    /* Pill shape */
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    overflow: hidden;
+    min-height: 140px;
+    /* Align with stat cards */
+    box-sizing: border-box;
+    flex-shrink: 0;
+    /* Prevent shrinking */
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+}
+
+.admin-profile-slim:hover {
+    transform: translateY(-2px);
+}
+
+.hero-avatar-slim {
+    width: 84px;
+    /* Increased from 64px */
+    height: 84px;
+    /* Increased from 64px */
+    border-radius: 50%;
+    /* Circular */
+    background: var(--mac-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    /* Increased icon size */
+    color: var(--mac-blue);
+    flex-shrink: 0;
+}
+
+.hero-avatar-slim img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    /* Circular */
+}
+
+.hero-text-slim h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: var(--mac-text);
+}
+
+.hero-text-slim p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+}
+
+/* --- CONTEXT BOX --- */
+.admin-context-box {
+    background: var(--mac-sidebar-bg);
+    border-radius: 40px;
+    /* More rounded */
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    /* Fill remaining vertical space */
+    justify-content: center;
+    /* Center content vertically if space is abundant */
+    user-select: none;
+    /* Prevent text selection for app-like feel */
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+}
+
+.admin-context-box:hover {
+    transform: translateY(-2px);
+}
+
+.admin-context-box h3 {
+    margin: 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--mac-text-secondary);
+    font-weight: 700;
+}
+
+
+
+.context-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* Remove gap, use padding/border */
+}
+
+.context-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    /* Reduced padding since trigger has padding */
+    background: transparent;
+    /* Remove background */
+    border-bottom: 1px solid var(--mac-border);
+    /* Separator line */
+    transition: all 0.2s;
+}
+
+.context-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.context-row:first-child {
+    padding-top: 0;
+}
+
+
+
+
+
+.context-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: var(--mac-text-secondary);
+    opacity: 0.8;
+    margin-bottom: 4px;
+}
+
+.context-select-slim {
+    display: none;
+    /* Hide original select if still present */
+}
+
+/* --- CUSTOM DROPDOWN SLYLES --- */
+.custom-dropdown-container {
+    position: relative;
+    width: 100%;
+    margin-top: 0;
+    /* Reset margin */
+}
+
+.custom-dropdown-container.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.dropdown-trigger {
+    background: var(--mac-bg-secondary);
+    /* Container look */
+    padding: 12px 24px;
+    /* Inner spacing */
+    border-radius: 100px;
+    /* Rounded corners */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    width: 100%;
+    /* Ensure click area fills container */
+    height: 100%;
+    /* Match height */
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.dropdown-trigger:hover {
+    filter: brightness(0.95);
+    /* Slightly darker in light mode */
+}
+
+html.dark .dropdown-trigger:hover {
+    filter: brightness(1.2);
+    /* Lighter in dark mode for visibility */
+}
+
+html.dark .dropdown-trigger {
+    background: #1C1C1E;
+    border: none;
+}
+
+.dropdown-trigger-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+    /* Take up all available space */
+}
+
+.dropdown-trigger:hover .stat-value-slim,
+.dropdown-trigger:hover .stat-label {
+    color: var(--mac-blue);
+    transition: color 0.2s;
+}
+
+.dropdown-trigger.active .stat-value-slim,
+.dropdown-trigger.active .stat-label {
+    color: var(--mac-blue);
+}
+
+.dropdown-arrow {
+    font-size: 20px;
+    color: var(--mac-text-secondary);
+    transition: transform 0.2s;
+    margin-left: 8px;
+}
+
+.dropdown-trigger.active .dropdown-arrow {
+    transform: rotate(180deg);
+    color: var(--mac-blue);
+}
+
+.value-text {
+    color: var(--mac-text);
+}
+
+.placeholder-text {
+    color: var(--mac-text-secondary);
+    font-weight: 500;
+}
+
+html.dark .dropdown-menu {
+    background: #1C1C1E;
+    border: none;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    min-width: 200px;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--mac-bg-content);
+    /* Solid background to fix transparency issue */
+    border: 1px solid var(--mac-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    /* Stronger shadow for lift */
+    z-index: 9999;
+    /* Maintain high z-index */
+    margin-top: 4px;
+    /* Reduced from 8px to feel more connected */
+    padding: 6px;
+    animation: fadeIn 0.1s ease-out;
+}
+
+.dropdown-item {
+    padding: 10px 12px;
+    font-size: 14px;
+    color: var(--mac-text);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.dropdown-item:hover {
+    background: var(--mac-hover);
+}
+
+.dropdown-item.selected {
+    background: var(--mac-blue);
+    color: #fff;
+}
+
+.dropdown-item.empty {
+    color: var(--mac-text-secondary);
+    font-style: italic;
+    cursor: default;
+    background: transparent !important;
+}
+
+/* Scrollbar for dropdown */
+.dropdown-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+/* Override overflow for parent containers to allow dropdown to fly out */
+.admin-context-box,
+.context-list,
+.context-row,
+.context-info {
+    overflow: visible !important;
+}
+
+.stat-value-slim {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+/* --- VERTICAL STATS --- */
+.stat-vertical {
+    min-height: 140px !important;
+    /* Fixed height to match profile card */
+    padding: 24px;
+    /* Increased from 20px to match left column */
+    flex-direction: row !important;
+    /* Override column */
+    align-items: center;
+    /* Optional: Add flex grow to fill vertical space equally if needed */
+    flex: 1;
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.stat-vertical .stat-icon-box {
+    margin-bottom: 0;
+    /* Remove bottom margin from generic class */
+    width: 84px;
+    /* Increased to match profile */
+    height: 84px;
+    /* Increased to match profile */
+    border-radius: 50%;
+    /* Circular */
+    font-size: 36px;
+    /* Larger icon */
+}
+
+.stat-vertical .stat-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-vertical .stat-value {
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+/* STUDENT REP LAYOUT OVERRIDES */
+.admin-dashboard-new-layout.rep-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.rep-layout .admin-left-column {
+    width: 100%;
+}
+
+.rep-layout .admin-right-column {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.rep-layout .stat-card-premium {
+    flex: 1;
+    min-width: 250px;
+}
+
+@media (max-width: 900px) {
+    .admin-dashboard-new-layout {
+        grid-template-columns: 1fr;
+    }
+}

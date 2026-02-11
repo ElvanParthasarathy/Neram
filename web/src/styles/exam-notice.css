@@ -1,19 +1,27 @@
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    MAJOR EXAM NOTICE (CLASSES SUSPENDED)
    ========================================================================== */
 
-.major-exam-notice {
+  .major-exam-notice {
     display: flex;
     align-items: center;
     gap: 16px;
-    background: rgba(0, 122, 255, 0.08);
-    border: 1px solid rgba(0, 122, 255, 0.15);
-    border-radius: 16px;
-    padding: 20px;
+    background: var(--mac-bg-secondary);
+    border: none;
+    border-radius: 18px;
+    padding: 24px;
     margin: 10px 0;
-    backdrop-filter: blur(10px);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html.dark .major-exam-notice {
+    background: #1C1C1E;
+  }
+
+  .major-exam-notice:hover {
+    transform: translateY(-2px);
   }
 
   .major-exam-notice svg {

@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import PersonalInfo from './settings/PersonalInfo';
 import Security from './settings/Security';
 import UserDirectory from './settings/UserDirectory';
-import ThemeToggle from '../components/ThemeToggle';
 // MAC-STYLE LINE ICONS
 import { RiUserLine, RiShieldKeyholeLine, RiGroupLine } from 'react-icons/ri';
 
@@ -17,7 +16,6 @@ const Settings = () => {
 
   return (
     <div className="settings-view-dead-end">
-      {/* <ThemeToggle /> */}
 
       {/* HEADER: LOCKED TO TOP-LEFT EDGE */}
       <header className="settings-top-nav-bar">

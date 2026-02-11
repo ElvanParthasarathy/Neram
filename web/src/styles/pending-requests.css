@@ -1,0 +1,192 @@
+/* ==========================================================================
+   NERAM PORTAL: PENDING REQUESTS (ADMIN)
+   ========================================================================== */
+
+.pending-requests-container {
+    width: 100%;
+}
+
+.pending-requests-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+/* 1. REQUEST CARD */
+.request-card {
+    background: var(--mac-card-bg);
+    border: var(--mac-card-border);
+    border-radius: 18px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    backdrop-filter: blur(10px);
+}
+
+.request-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    border-color: var(--mac-blue-alpha);
+}
+
+/* 2. USER INFO SECTION */
+.request-user-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.request-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--mac-divider);
+    background: var(--mac-bg-secondary);
+}
+
+.request-avatar-placeholder {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--mac-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mac-text-secondary);
+    border: 1px solid var(--mac-divider);
+}
+
+.request-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.request-name {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--mac-text);
+}
+
+.request-email {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+}
+
+.request-badge {
+    font-size: 10px;
+    font-weight: 800;
+    color: #FF9F0A;
+    background: rgba(255, 159, 10, 0.12);
+    padding: 3px 12px;
+    border-radius: 50px;
+    display: inline-block;
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    width: fit-content;
+}
+
+/* 3. ACTION BUTTONS */
+.request-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.btn-approve {
+    height: 38px;
+    padding: 0 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    color: white;
+}
+
+.btn-approve.student {
+    background: var(--mac-blue);
+}
+
+.btn-approve.faculty {
+    background: #34C759;
+}
+
+.btn-approve.super {
+    background: #AF52DE;
+}
+
+.btn-approve:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-reject {
+    height: 38px;
+    padding: 0 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    background: rgba(255, 59, 48, 0.08);
+    color: #FF3B30;
+    border: 1px solid rgba(255, 59, 48, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-reject:hover {
+    background: #FF3B30;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* 4. EMPTY STATE */
+.empty-requests {
+    text-align: center;
+    padding: 80px 24px;
+    color: var(--mac-text-secondary);
+    background: var(--mac-bg-secondary);
+    border-radius: 20px;
+    border: 1px dashed var(--mac-divider);
+    margin-top: 20px;
+}
+
+.empty-icon {
+    font-size: 56px;
+    opacity: 0.2;
+    margin-bottom: 20px;
+    color: var(--mac-text);
+}
+
+.empty-title {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--mac-text);
+    margin-bottom: 8px;
+}
+
+.empty-text {
+    font-size: 14px;
+}
+
+/* Dark mode overrides for better depth */
+html.dark .request-card {
+    background: rgba(30, 30, 30, 0.6);
+}
+
+html.dark .empty-requests {
+    background: rgba(255, 255, 255, 0.02);
+}

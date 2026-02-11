@@ -1,7 +1,7 @@
 /* Refactored index.css */
 @import './styles/tokens.css';
 
-/* @import './styles/theme-dark.css'; */
+@import './styles/theme-dark.css';
 @import './styles/responsive.css';
 @import './styles/global.css';
 @import './styles/scrollbar.css';
@@ -10,3 +10,5 @@
 @import './styles/profile.css';
 @import './styles/preview-system.css';
 @import './styles/10-premium-mac-system-initial-loader-verifying-access-account.css';
+@import './styles/admin-dashboard.css';
+@import './styles/neram-portal-admin-command-center-dead-end-full-width.css';

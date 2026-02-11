@@ -69,6 +69,7 @@ const ScheduleManager = ({ user, userProfile }) => {
   // --- NEW: Counselor Editing State ---
   const [counselorEditingIdx, setCounselorEditingIdx] = useState(null);
   const [tempCounselor, setTempCounselor] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState({ type: null, index: null });
 
   // Load Hierarchy once
   useEffect(() => {
@@ -172,6 +173,13 @@ const ScheduleManager = ({ user, userProfile }) => {
   const removeCounselor = (index) => {
     const filtered = masterData.counseling.counselors.filter((_, i) => i !== index);
     syncToDB({ ...masterData, counseling: { ...masterData.counseling, counselors: filtered } });
+    setConfirmDelete({ type: null, index: null });
+  };
+
+  const removeCourse = (index) => {
+    const filtered = masterData.courses.filter((_, i) => i !== index);
+    syncToDB({ ...masterData, courses: filtered });
+    setConfirmDelete({ type: null, index: null });
   };
 
   // --- NEW: Counselor Update Logic ---
@@ -254,7 +262,7 @@ const ScheduleManager = ({ user, userProfile }) => {
         </div>
       ) : (
         <div className="schedule-editor-workspace">
-          <nav className="editor-tabs">
+          <nav className="editor-tabs box-flat">
             <button className={activeTab === 'courses' ? 'active' : ''} onClick={() => setActiveTab('courses')}><RiBookOpenLine /> Courses</button>
             <button className={activeTab === 'timetable' ? 'active' : ''} onClick={() => setActiveTab('timetable')}><RiCalendarScheduleLine /> Timetable</button>
             <button className={activeTab === 'counseling' ? 'active' : ''} onClick={() => setActiveTab('counseling')}><RiUserVoiceLine /> Counseling</button>
@@ -263,7 +271,7 @@ const ScheduleManager = ({ user, userProfile }) => {
           <div className="tab-content-area">
             {activeTab === 'timetable' && (
               <div className="timetable-builder">
-                <div className="timetable-controls settings-card">
+                <div className="timetable-controls">
                   {!isEditingTimetable ? (
                     <button className="btn-edit-mode" onClick={startEditingTimetable}><RiEditLine /> Edit Timetable</button>
                   ) : (
@@ -329,7 +337,14 @@ const ScheduleManager = ({ user, userProfile }) => {
                           </div>
                           <div className="item-actions">
                             <RiEditLine className="icon-edit" onClick={() => { setEditingCourseIdx(i); setTempCourse(c); }} />
-                            <RiDeleteBin6Line className="icon-del" onClick={() => syncToDB({ ...masterData, courses: masterData.courses.filter((_, idx) => idx !== i) })} />
+                            {confirmDelete.type === 'course' && confirmDelete.index === i ? (
+                              <div className="confirm-delete-group">
+                                <button className="btn-confirm-del" onClick={() => removeCourse(i)}>Confirm</button>
+                                <button className="btn-cancel-del" onClick={() => setConfirmDelete({ type: null, index: null })}><RiCloseLine /></button>
+                              </div>
+                            ) : (
+                              <RiDeleteBin6Line className="icon-del" onClick={() => setConfirmDelete({ type: 'course', index: i })} />
+                            )}
                           </div>
                         </>
                       )}
@@ -340,47 +355,98 @@ const ScheduleManager = ({ user, userProfile }) => {
             )}
 
             {activeTab === 'counseling' && (
-              <div className="counseling-manager-grid">
-                <div className="settings-card">
-                  <h3>Coordinators</h3>
-                  {['Class Advisor', 'Year Coordinator', 'Chairperson'].map(role => (
-                    <div className="field-group-horizontal" key={role}>
-                      <label>{role}</label>
-                      <div className="input-group">
-                        <input value={masterData.counseling?.coordinators?.[role] || ""} onChange={(e) => handleCoordUpdate(role, e.target.value)} />
-                        <button className="btn-save-mini" onClick={() => syncToDB(masterData)}><RiCheckLine /></button>
+              <div className="counseling-manager-v2">
+                <div className="counseling-grid-modern">
+                  {/* COORDINATORS SECTION */}
+                  <div className="coordinator-card-v2">
+                    <div className="card-header-modern">
+                      <div className="icon-wrap"><RiTeamLine /></div>
+                      <div className="text-wrap">
+                        <h3>Coordinators</h3>
+                        <p>Manage primary academic contacts</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-                <div className="settings-card">
-                  <h3>Counselors List</h3>
-                  <div className="add-counselor-box">
-                    <input placeholder="Name..." value={newCounselor} onChange={e => setNewCounselor(e.target.value)} />
-                    <button onClick={addCounselor}><RiAddLine /></button>
-                  </div>
-                  <div className="counselor-pills">
-                    {(masterData.counseling?.counselors || []).map((name, i) => (
-                      <div key={i} className={`counselor-pill ${counselorEditingIdx === i ? 'editing' : ''}`}>
-                        {counselorEditingIdx === i ? (
-                          <>
+
+                    <div className="coordinator-fields-list">
+                      {['Class Advisor', 'Year Coordinator', 'Chairperson'].map(role => (
+                        <div className="coordinator-row-v2" key={role}>
+                          <div className="role-info">
+                            <span className="role-tag">{role}</span>
+                          </div>
+                          <div className="input-group-modern">
                             <input
-                              autoFocus
-                              className="inline-pill-input"
-                              value={tempCounselor}
-                              onChange={(e) => setTempCounselor(e.target.value)}
+                              placeholder={`Enter ${role} name`}
+                              value={masterData.counseling?.coordinators?.[role] || ""}
+                              onChange={(e) => handleCoordUpdate(role, e.target.value)}
                             />
-                            <RiCheckLine className="pill-action-icon save" onClick={handleUpdateCounselor} />
-                            <RiCloseLine className="pill-action-icon" onClick={() => setCounselorEditingIdx(null)} />
-                          </>
-                        ) : (
-                          <>
-                            <span onClick={() => { setCounselorEditingIdx(i); setTempCounselor(name); }}>{name}</span>
-                            <RiCloseLine onClick={() => removeCounselor(i)} className="pill-action-icon del" />
-                          </>
-                        )}
+                            <button className="btn-save-mini" onClick={() => syncToDB(masterData)}><RiCheckLine /></button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* COUNSELORS SECTION */}
+                  <div className="counselor-list-card-v2">
+                    <div className="card-header-modern">
+                      <div className="icon-wrap"><RiUserVoiceLine /></div>
+                      <div className="text-wrap">
+                        <h3>Counselors List</h3>
+                        <p>Individual student mentorship</p>
                       </div>
-                    ))}
+                    </div>
+
+                    <div className="add-counselor-v2">
+                      <input
+                        placeholder="Add new counselor name..."
+                        value={newCounselor}
+                        onChange={e => setNewCounselor(e.target.value)}
+                        onKeyDown={e => e.key === 'Enter' && addCounselor()}
+                      />
+                      <button className="btn-add-circle" onClick={addCounselor}><RiAddLine /></button>
+                    </div>
+
+                    <div className="counselor-items-v2">
+                      {(masterData.counseling?.counselors || []).map((name, i) => (
+                        <div key={i} className={`counselor-item-row ${counselorEditingIdx === i ? 'editing' : ''}`}>
+                          {counselorEditingIdx === i ? (
+                            <div className="inline-edit-pill-wrap">
+                              <input
+                                autoFocus
+                                value={tempCounselor}
+                                onChange={(e) => setTempCounselor(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') handleUpdateCounselor();
+                                  if (e.key === 'Escape') setCounselorEditingIdx(null);
+                                }}
+                              />
+                              <div className="edit-pill-actions">
+                                <button className="btn-pill-save" onClick={handleUpdateCounselor}><RiCheckLine /></button>
+                                <button className="btn-pill-cancel" onClick={() => setCounselorEditingIdx(null)}><RiCloseLine /></button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="counselor-name-chip" onClick={() => { setCounselorEditingIdx(i); setTempCounselor(name); }}>
+                                {name}
+                              </div>
+                              <div className="counselor-row-actions">
+                                {confirmDelete.type === 'counselor' && confirmDelete.index === i ? (
+                                  <div className="confirm-delete-inline">
+                                    <button className="btn-confirm-text" onClick={() => removeCounselor(i)}>Confirm Delete?</button>
+                                    <button className="btn-cancel-icon" onClick={() => setConfirmDelete({ type: null, index: null })}><RiCloseLine /></button>
+                                  </div>
+                                ) : (
+                                  <button className="btn-delete-chip" onClick={() => setConfirmDelete({ type: 'counselor', index: i })}>
+                                    <RiDeleteBin6Line />
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

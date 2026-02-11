@@ -1,10 +1,10 @@
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    FIX: PORTAL EXAM TABLE - PORTION COLUMN WRAPPING FIX
    ========================================================================== */
 
-/* 1. Increase the width of the Portion Column to give it breathing room */
+  /* 1. Increase the width of the Portion Column to give it breathing room */
   .schedule-view .exam-table th:nth-child(3),
   .schedule-view .exam-table td:nth-child(3),
   .schedule-view .cell-portion {
@@ -32,11 +32,11 @@
 
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    FIX: SPATIAL SEPARATION - MONTHLY GRID VS LIVE FEED
    ========================================================================== */
 
-.grid-view-section {
+  .grid-view-section {
     /* This ensures the 'Monthly Grid View' card stays separate from the 'Live Feed' card below it */
     margin-bottom: 35px !important;
     /* Increased from 24px for a cleaner look */
@@ -112,955 +112,368 @@
 
 }
 
-@media (min-width: 769px) {
-
-/* ==========================================================================
-   NERAM PORTAL: ACADEMIC STRUCTURE (SPACING & ALIGNMENT FIXED)
-   ========================================================================== */
-
-/* 1. GLOBAL RESET & FONT */
-  .settings-section-content {
-    width: 100% !important;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-    color: var(--mac-text);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* 2. THE COMMAND GRID */
-  .admin-grid-layout {
-    display: grid;
-    grid-template-columns: 420px 1fr;
-    gap: 80px;
-    /* Separates form column from tree column */
-    margin-top: 20px;
-    align-items: flex-start;
-  }
-
-  /* 3. COMMAND COLUMN (LEFT) - SPACING FIX */
-  .admin-forms-column {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-    /* REDUCED GAP: Fixes the large distance between sections */
-  }
-
-  .security-module {
-    border: none;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-  }
-
-  .security-module h3 {
-    font-size: 15px;
-    font-weight: 600;
-    margin: 0 0 20px 0;
-    /* Standardized bottom margin for headers */
-    color: var(--mac-text);
-    letter-spacing: -0.01em;
-  }
 
 
-  .settings-row-vertical {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    width: 100%;
-  }
-
-  .settings-row-vertical label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--mac-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.6;
-  }
-
-  /* --- HORIZONTAL BATCH BOXES --- */
-  .dual-input {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-  }
-
-  .dual-input input {
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* 12px SQUIRCLE INPUT TRACKS */
-  .dual-input input,
-  .input-with-btn input,
-  .settings-row-vertical select {
-    height: 46px;
-    background: rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 12px !important;
-    padding: 0 16px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--mac-text);
-    outline: none;
-    transition: all 0.2s ease;
-  }
-
-  .settings-row-vertical select:focus,
-  .input-with-btn input:focus,
-  .dual-input input:focus {
-    border-color: var(--mac-blue);
-    background: var(--mac-card-bg);
-    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
-  }
-
-  /* 4. PILL BUTTONS (CENTERED & SIZED) */
-  .btn-primary-full {
-    border-radius: 50px !important;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--mac-blue);
-    color: white;
-    margin-top: 6px;
-    /* Balanced spacing from inputs */
-    width: 100%;
-    /* Covers full span of dual inputs */
-    box-sizing: border-box;
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  .btn-success-sq {
-    border-radius: 50px !important;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    height: 46px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #34c759;
-    color: white;
-    padding: 0 24px;
-  }
-
-  .btn-primary-full:active {
-    transform: scale(0.97);
-  }
-
-  /* 5. THE ACADEMIC TREE (VISUAL BRANCHES) */
-  .admin-tree-column {
-    border-left: 1.5px solid var(--mac-divider);
-    padding-left: 50px;
-  }
-
-  .tree-viewport h3 {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 24px;
-    opacity: 0.8;
-  }
-
-  .tree-batch-node {
-    position: relative;
-    margin-bottom: 40px;
-  }
-
-  .tree-dept-list,
-  .tree-section-grid {
-    position: relative;
-    border-left: 1.5px solid var(--mac-divider);
-  }
-
-  .tree-dept-list {
-    margin-left: 15px;
-    padding-left: 25px;
-  }
-
-  .tree-section-grid {
-    margin-left: 25px;
-    padding-left: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-  }
-
-  .tree-dept-node::before,
-  .tree-sec-pill::before {
-    content: "";
-    position: absolute;
-    left: -26.5px;
-    top: 50%;
-    width: 25px;
-    height: 1.5px;
-    background: var(--mac-divider);
-  }
-
-  /* 6. TREE PILLS */
-  .node-label {
-    display: flex;
-    align-items: center;
-    padding: 8px 20px;
-    border-radius: 50px !important;
-    width: fit-content;
-    margin-bottom: 12px;
-  }
-
-  .node-label.batch {
-    background: rgba(0, 122, 255, 0.05);
-    color: var(--mac-blue);
-    font-weight: 600;
-    margin-left: -15px;
-  }
-
-  .node-label.dept {
-    background: #f9f9f9;
-    color: var(--mac-text);
-    font-weight: 600;
-    font-size: 13px;
-  }
-
-  .tree-sec-pill {
-    background: #ffffff;
-    border: 1px solid var(--mac-divider);
-    padding: 6px 16px;
-    border-radius: 50px !important;
-    font-size: 12px;
-    font-weight: 500;
-    width: fit-content;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-  }
-
-  /* 7. TEXT BUTTONS */
-  .pill-btns {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: 15px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  .node-label:hover .pill-btns,
-  .tree-sec-pill:hover .pill-btns {
-    opacity: 1;
-  }
-
-  .text-btn {
-    background: transparent;
-    border: none;
-    font-weight: 600;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 50px;
-    transition: all 0.2s ease;
-  }
-
-  .text-btn.edit {
-    color: var(--mac-blue);
-  }
-
-  .text-btn.delete {
-    color: #ff3b30;
-  }
-
-  .text-btn.save {
-    color: #34c759;
-  }
-
-  .text-btn.cancel {
-    color: var(--mac-text-secondary);
-  }
-
-  .text-btn:hover {
-    background: rgba(0, 0, 0, 0.03);
-  }
-
-  /* 8. EDITING STATE */
-  .pill-edit {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .pill-edit input {
-    background: #ffffff !important;
-    border: 1.5px solid var(--mac-blue) !important;
-    border-radius: 8px !important;
-    padding: 4px 12px;
-    font-size: 13px;
-    font-weight: 500;
-    width: 110px;
-    height: 32px !important;
-  }
-
-  /* --- SECTION NAME HORIZONTAL ALIGNMENT --- */
-
-  .input-with-btn {
-    display: flex;
-    align-items: center;
-    /* Vertically centers the input and button */
-    gap: 12px;
-    /* Standard horizontal spacing used in Batch inputs */
-    width: 100%;
-  }
-
-  .input-with-btn input {
-    flex: 1;
-    /* Allows the input to grow and fill available space */
-    min-width: 0;
-  }
-
-  /* --- ADD BUTTON BLUE STYLING --- */
-
-  .btn-success-sq {
-    background: var(--mac-blue) !important;
-    /* Changes green to portal blue */
-    color: white;
-    height: 46px;
-    /* Standardized hit area height */
-    padding: 0 24px;
-    border-radius: 50px !important;
-    /* Matches Pill geometry of other buttons */
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    white-space: nowrap;
-    /* Prevents text from wrapping */
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  .btn-success-sq:active {
-    transform: scale(0.96);
-    /* Standardized physical click feedback */
-  }
-
-  .btn-success-sq:hover {
-    background: #0056b3 !important;
-    /* Subtle darken for hover state */
-  }
-
-  /* --- ACADEMIC TREE SPACING FIX --- */
-
-  .tree-viewport {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-    /* Increased gap between major Batch nodes */
-    padding: 10px;
-  }
-
-  .tree-batch-node {
-    position: relative;
-    margin-bottom: 20px;
-  }
-
-  /* Vertical Spines */
-  .tree-dept-list,
-  .tree-section-grid {
-    position: relative;
-    border-left: 1.5px solid var(--mac-divider);
-    /* Subtle vertical branch line */
-  }
-
-  .tree-dept-list {
-    margin-left: 15px;
-    padding-left: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    /* Space between different Departments (e.g., CSBS and ECE) */
-  }
-
-  .tree-section-grid {
-    margin-left: 25px;
-    padding-left: 25px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    /* INCREASED GAP: Fixes the close spacing between sections (A, B, C) */
-    margin-top: 12px;
-    padding-bottom: 8px;
-  }
-
-  /* Horizontal Branches */
-  .tree-dept-node::before,
-  .tree-sec-pill::before {
-    content: "";
-    position: absolute;
-    left: -26.5px;
-    top: 50%;
-    width: 25px;
-    height: 1.5px;
-    background: var(--mac-divider);
-  }
-
-  /* PILL STYLING */
-  .node-label {
-    display: flex;
-    align-items: center;
-    padding: 10px 20px;
-    border-radius: 50px !important;
-    /* Standardized Pill geometry */
-    width: fit-content;
-  }
-
-  .tree-sec-pill {
-    background: #ffffff;
-    border: 1px solid var(--mac-divider);
-    padding: 8px 20px;
-    /* Roomier horizontal padding */
-    border-radius: 50px !important;
-    font-size: 13px;
-    font-weight: 500;
-    width: fit-content;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    transition: all 0.2s ease;
-  }
-
-  /* Prevents pills from looking like they are touching when text is edited */
-  .pill-edit input {
-    margin: 0 5px;
-    padding: 4px 8px;
-  }
-
+.user-control-modal.full-control {
+  background: var(--mac-card-bg) !important;
+  width: 100% !important;
+  max-width: 520px !important;
+  max-height: 85vh !important;
+  border-radius: 28px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.2) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  border: 1px solid var(--mac-border) !important;
 }
 
-@media (min-width: 769px) {
+/* 7. MODAL HEADER & ICONS */
+.modal-header {
+  padding: 24px 30px;
+  border-bottom: 1px solid var(--mac-divider);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
 
-/* ==========================================================================
-   NERAM PORTAL: USER MANAGEMENT (FINAL CENTERING & POSITION FIX)
-   ========================================================================== */
+.modal-header .modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-/* 1. GLOBAL RESET & FONT INTERFACE */
-  .admin-subpage {
-    width: 100% !important;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-    color: var(--mac-text);
-    -webkit-font-smoothing: antialiased;
-    padding-bottom: 50px;
+.modal-header .modal-title svg {
+  color: var(--mac-blue);
+  font-size: 20px;
+}
+
+.modal-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--mac-text);
+}
+
+.modal-close-btn {
+  font-size: 22px;
+  opacity: 0.5;
+  color: var(--mac-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* 8. INTERNAL SCROLLABLE BODY */
+.modal-scroll-body {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 30px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+}
+
+/* 9. PHOTO SYNC AREA REPAIR */
+.photo-sync-area {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 10px;
+}
+
+.modal-avatar-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: none;
+  background: var(--mac-bg-secondary);
+}
+
+.sync-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sync-controls label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mac-text);
+}
+
+.admin-btn-outline {
+  background: var(--mac-bg-secondary) !important;
+  color: var(--mac-blue) !important;
+  border: 1px solid var(--mac-divider) !important;
+  padding: 8px 16px;
+  border-radius: 50px !important;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* 10. FIELD ALIGNMENT */
+.input-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+}
+
+.field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mac-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+}
+
+/* 11. 12px SQUIRCLE MODAL INPUTS */
+.modal-input,
+.modal-select {
+  width: 100%;
+  height: 48px;
+  background: var(--mac-bg-secondary) !important;
+  border: 1px solid transparent !important;
+  border-radius: 14px !important;
+  padding: 0 16px;
+  font-size: 15px;
+  font-family: inherit !important;
+  color: var(--mac-text) !important;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.modal-input:focus,
+.modal-select:focus {
+  background: #ffffff !important;
+  border-color: var(--mac-blue) !important;
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1) !important;
+}
+
+/* 11b. PHONE INPUT SPECIFIC */
+.phone-entry-group {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: var(--mac-bg-secondary);
+  border-radius: 14px;
+  padding: 0 16px;
+  height: 48px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.phone-entry-group:focus-within {
+  background: #ffffff;
+  border-color: var(--mac-blue);
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+}
+
+.phone-prefix-label {
+  font-weight: 700;
+  color: var(--mac-text-secondary);
+  font-size: 15px;
+  margin-right: 10px;
+}
+
+.phone-input-clean {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  height: 100% !important;
+  flex: 1;
+  font-size: 15px;
+  color: var(--mac-text);
+  outline: none;
+}
+
+/* --- DARK MODE REFINEMENTS (SEQUOIA MIDNIGHT) --- */
+html.dark .modal-input,
+html.dark .modal-select,
+html.dark .phone-entry-group {
+  background: #1C1C1E !important;
+  /* Lighter grey for visibility */
+  color: #FFFFFF !important;
+}
+
+html.dark .modal-input:focus,
+html.dark .modal-select:focus,
+html.dark .phone-entry-group:focus-within {
+  background: #2C2C2E !important;
+  /* Prevent focus shift to white */
+  border-color: var(--mac-blue) !important;
+}
+
+html.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(1.5) !important;
+  /* Make calendar icon white */
+}
+
+html.dark .btn-cancel {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .modal-footer {
+  background: #121212 !important;
+  /* Consistent with card bg */
+}
+
+html.dark .phone-input-clean {
+  color: #FFFFFF !important;
+}
+
+/* 12. TRIPLE SELECT GRID REPAIR */
+.select-triple-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+/* 13. MODAL FOOTER & ACTION PILLS */
+.modal-footer {
+  padding: 20px 30px;
+  border-top: 1px solid var(--mac-divider);
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-save-master {
+  background: var(--mac-blue) !important;
+  color: white !important;
+  height: 42px;
+  padding: 0 24px;
+  border-radius: 50px !important;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-cancel {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: var(--mac-text) !important;
+  border: none;
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 50px !important;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger-outline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 59, 48, 0.08) !important;
+  color: #ff3b30 !important;
+  border: 1px solid rgba(255, 59, 48, 0.2) !important;
+  padding: 0 18px;
+  height: 42px;
+  border-radius: 50px !important;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger-outline:hover {
+  background: #ff3b30 !important;
+  color: #ffffff !important;
+}
+
+/* 14. DIVIDER STYLING */
+.control-divider {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mac-text-secondary);
+  opacity: 0.5;
+  margin-top: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mac-divider);
+}
+
+/* 15. SCROLL LOCK & ANIMATIONS (STRICT MODE) */
+/* Targets HTML, BODY, and React Root to force scrollbar hidden */
+html.modal-open,
+body.modal-open,
+#root.modal-open {
+  overflow: hidden !important;
+  height: 100vh !important;
+  padding-right: 0 !important;
+  /* Prevents visual jump */
+}
+
+/* Ensure the modal overlay is always on top of the hidden scrollbar */
+.modal-overlay {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2147483647 !important;
+  /* Max Z-Index possible */
+}
+
+.animate-pop-in {
+  animation: modalShow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+@keyframes modalShow {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(20px);
   }
 
-  /* 2. EXPLORER HEADER & BREADCRUMBS */
-  .explorer-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0 20px 0;
-    border-bottom: 1px solid var(--mac-divider);
-    margin-bottom: 30px;
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
+}
 
-  .breadcrumb-nav {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--mac-text-secondary);
-  }
-
-  .crumb-btn {
-    cursor: pointer;
-    padding: 6px 12px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-  }
-
-  .crumb-btn:hover {
-    background: rgba(0, 0, 0, 0.04);
-    color: var(--mac-blue);
-  }
-
-  .crumb-static {
-    font-weight: 700;
-    color: var(--mac-text);
-    padding: 6px 12px;
-  }
-
-  .explorer-back-btn {
-    background: transparent;
-    border: 1px solid var(--mac-divider);
-    padding: 8px 18px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .explorer-back-btn:active {
-    transform: scale(0.96);
-  }
-
-  /* 3. SEARCH PILL */
-  .search-card {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin-bottom: 30px;
-    width: 100%;
-    max-width: 500px;
-  }
-
-  .search-input {
-    width: 100%;
-    height: 48px;
-    background: rgba(0, 0, 0, 0.04);
-    border: 1.5px solid rgba(0, 0, 0, 0.02);
-    border-radius: 50px !important;
-    padding: 0 24px;
-    font-size: 15px;
-    font-weight: 500;
-    outline: none;
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  .search-input:focus {
-    background: #ffffff;
-    border-color: var(--mac-blue);
-    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
-  }
-
-  /* 4. DIRECTORY GRIDS */
-  .explorer-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-  }
-
-  .explorer-card {
-    background: #ffffff;
-    border: 1px solid var(--mac-divider);
-    border-radius: 14px;
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  .explorer-card:hover {
-    border-color: rgba(0, 122, 255, 0.3);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
-    transform: translateY(-5px);
-  }
-
-  .card-icon {
-    font-size: 44px;
-    color: var(--mac-blue);
-    margin-bottom: 16px;
-    opacity: 0.8;
-  }
-
-  .card-initial {
-    width: 50px;
-    height: 50px;
-    background: #34c759;
-    color: white;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 16px;
-  }
-
-  /* 5. STUDENT CARDS */
-  .user-directory-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-  }
-
-  .user-management-card {
-    background: #ffffff;
-    border: 1px solid var(--mac-divider);
-    border-radius: 14px;
-    padding: 16px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  .user-management-card:hover {
-    background: #ffffff;
-    border-color: var(--mac-blue);
-    box-shadow: 0 10px 30px rgba(0, 122, 255, 0.08);
-    transform: translateY(-3px) scale(1.01);
-  }
-
-  /* PHOTO FALLBACK & BROKEN IMAGE FIX */
-  .user-card-avatar {
-    width: 54px;
-    height: 54px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: #f0f0f2;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    text-indent: -9999px;
-  }
-
-  .card-top {
-    position: relative;
-    flex-shrink: 0;
-  }
-
-  .provider-icon {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    font-size: 16px;
-    background: white;
-    border-radius: 50%;
-    padding: 2px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-  .u-name {
-    font-size: 15px;
-    font-weight: 700;
-    margin: 0;
-    letter-spacing: -0.1px;
-  }
-
-  .u-email {
-    font-size: 12px;
-    color: var(--mac-text-secondary);
-    margin: 2px 0 6px 0;
-    opacity: 0.8;
-  }
-
-  .u-tag {
-    font-size: 10px;
-    font-weight: 700;
-    background: rgba(0, 122, 255, 0.06);
-    color: var(--mac-blue);
-    padding: 2px 10px;
-    border-radius: 50px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  /* 6. PROFILE EDIT MODAL (CORRECTED CENTERING) */
-  .modal-overlay {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    /* FIXED: Use left/right anchor instead of 100vw */
-    bottom: 0 !important;
-    background: rgba(0, 0, 0, 0.45) !important;
-    backdrop-filter: blur(8px) !important;
-    z-index: 99999 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 20px !important;
-    overflow: hidden;
-  }
-
+@media (max-width: 1024px) {
   .user-control-modal.full-control {
-    background: #ffffff !important;
-    width: 100% !important;
-    max-width: 520px !important;
-    max-height: 85vh !important;
-    border-radius: 28px !important;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3) !important;
-    position: relative;
-    overflow: hidden;
-
-    /* FIXED: Removed the -250px margin. 
-     Since the overlay covers the whole screen (z-index 99999),
-     Flexbox will center this perfectly without manual margins. */
     margin: 0 !important;
   }
-
-  /* 7. MODAL HEADER & ICONS */
-  .modal-header {
-    padding: 24px 30px;
-    border-bottom: 1px solid var(--mac-divider);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-
-  .modal-header .modal-title {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .modal-header .modal-title svg {
-    color: var(--mac-blue);
-    font-size: 20px;
-  }
-
-  .modal-header h3 {
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0;
-    color: var(--mac-text);
-  }
-
-  .modal-close-btn {
-    font-size: 22px;
-    opacity: 0.5;
-    color: var(--mac-text);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .modal-close-btn:hover {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-
-  /* 8. INTERNAL SCROLLABLE BODY */
-  .modal-scroll-body {
-    flex: 1 !important;
-    overflow-y: auto !important;
-    padding: 30px !important;
-    display: flex;
-    flex-direction: column;
-    gap: 24px !important;
-  }
-
-  /* 9. PHOTO SYNC AREA REPAIR */
-  .photo-sync-area {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding-bottom: 10px;
-  }
-
-  .modal-avatar-preview {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1.5px solid var(--mac-divider);
-    background: #f0f0f2;
-  }
-
-  .sync-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .admin-btn-outline {
-    background: rgba(0, 122, 255, 0.05) !important;
-    color: var(--mac-blue) !important;
-    border: 1px solid rgba(0, 122, 255, 0.2) !important;
-    padding: 8px 18px;
-    border-radius: 50px !important;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* 10. FIELD ALIGNMENT */
-  .input-row {
-    display: flex;
-    gap: 16px;
-    width: 100%;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    flex: 1;
-  }
-
-  .field label {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--mac-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    opacity: 0.6;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  /* 11. 12px SQUIRCLE MODAL INPUTS */
-  .modal-input,
-  .modal-select {
-    width: 100%;
-    height: 46px;
-    background: rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.02);
-    border-radius: 12px !important;
-    padding: 0 16px;
-    font-size: 15px;
-    font-family: 'Inter', sans-serif !important;
-    color: var(--mac-text);
-    outline: none;
-    transition: all 0.2s ease;
-  }
-
-  .modal-input:focus,
-  .modal-select:focus {
-    background: #ffffff;
-    border-color: var(--mac-blue);
-    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
-  }
-
-  /* 12. TRIPLE SELECT GRID REPAIR */
-  .select-triple-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    width: 100%;
-  }
-
-  /* 13. MODAL FOOTER & ACTION PILLS */
-  .modal-footer {
-    padding: 20px 30px;
-    border-top: 1px solid var(--mac-divider);
-    background: #f9f9f9;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-shrink: 0;
-  }
-
-  .footer-actions {
-    display: flex;
-    gap: 12px;
-  }
-
-  .btn-save-master {
-    background: var(--mac-blue) !important;
-    color: white !important;
-    height: 42px;
-    padding: 0 24px;
-    border-radius: 50px !important;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .btn-cancel {
-    background: rgba(0, 0, 0, 0.05) !important;
-    color: var(--mac-text) !important;
-    border: none;
-    height: 42px;
-    padding: 0 20px;
-    border-radius: 50px !important;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .btn-danger-outline {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 59, 48, 0.08) !important;
-    color: #ff3b30 !important;
-    border: 1px solid rgba(255, 59, 48, 0.2) !important;
-    padding: 0 18px;
-    height: 42px;
-    border-radius: 50px !important;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .btn-danger-outline:hover {
-    background: #ff3b30 !important;
-    color: #ffffff !important;
-  }
-
-  /* 14. DIVIDER STYLING */
-  .control-divider {
-    font-size: 10.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--mac-text-secondary);
-    opacity: 0.5;
-    margin-top: 15px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--mac-divider);
-  }
-
-  /* 15. SCROLL LOCK & ANIMATIONS (STRICT MODE) */
-  /* Targets HTML, BODY, and React Root to force scrollbar hidden */
-  html.modal-open,
-  body.modal-open,
-  #root.modal-open {
-    overflow: hidden !important;
-    height: 100vh !important;
-    padding-right: 0 !important;
-    /* Prevents visual jump */
-  }
-
-  /* Ensure the modal overlay is always on top of the hidden scrollbar */
-  .modal-overlay {
-    z-index: 2147483647 !important;
-    /* Max Z-Index possible */
-  }
-
-  .animate-pop-in {
-    animation: modalShow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-  }
-
-  @keyframes modalShow {
-    0% {
-      opacity: 0;
-      transform: scale(0.95) translateY(20px);
-    }
-
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  @media (max-width: 1024px) {
-    .user-control-modal.full-control {
-      margin: 0 !important;
-    }
-  }
-
 }
 
-@media (min-width: 769px) {
+@media (min-width: 769px) {
+
 
 
   /* --- 2.10 Setup Modal --- */
@@ -1112,11 +525,11 @@
 
 @media (min-width: 769px) {
 
-/* ==========================================================================
+  /* ==========================================================================
    DATEPICKER VISUAL THEME (Fonts, Glass, Blue Circles & Fixes)
    ========================================================================== */
 
-/* 1. Main Popup Container (Glass Effect) */
+  /* 1. Main Popup Container (Glass Effect) */
   .react-datepicker {
     font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, sans-serif !important;
     background: var(--mac-popup-bg) !important;

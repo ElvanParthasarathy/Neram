@@ -195,7 +195,6 @@
     }
 
     .back-btn-minimal {
-        background: transparent;
         border: 1px solid var(--mac-divider);
         padding: 6px 14px;
         border-radius: 50px;
@@ -239,10 +238,11 @@
     }
 
     .explorer-card {
-        background: var(--mac-card-bg);
-        border: 1px solid var(--mac-divider);
-        border-radius: 14px;
-        padding: 24px;
+        background: var(--mac-sidebar-bg);
+        border: none;
+        border-radius: 32px;
+        /* Sequoia Standard */
+        padding: 32px 24px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -252,30 +252,30 @@
     }
 
     .explorer-card:hover {
-        border-color: rgba(0, 122, 255, 0.3);
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
-        transform: translateY(-5px);
+        transform: translateY(-2px);
+        background: var(--mac-selection-hover);
+        box-shadow: none;
     }
 
     .card-icon {
         font-size: 48px;
         color: var(--mac-blue);
-        margin-bottom: 16px;
-        opacity: 0.8;
+        margin-bottom: 20px;
+        opacity: 1;
     }
 
     .card-initial {
-        width: 50px;
-        height: 50px;
-        background: #34c759;
+        width: 60px;
+        height: 60px;
+        background: var(--mac-blue);
         color: white;
-        border-radius: 12px;
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 24px;
         font-weight: 800;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
     }
 
     .card-info h3 {
@@ -290,36 +290,65 @@
         opacity: 0.6;
     }
 
-    /* --- 3. EDITOR WORKSPACE & TABS --- */
+    /* --- 3. EDITOR WORKSPACE & TABS (PILL SWITCHER) --- */
     .editor-tabs {
-        display: flex;
-        gap: 8px;
-        background: var(--mac-button-bg);
-        padding: 5px;
-        border-radius: 12px;
-        margin-bottom: 25px;
-        width: fit-content;
+        display: inline-flex;
+        background: #1C1C1E;
+        /* Match Dashboard Pills in Dark Mode */
+        padding: 4px;
+        border-radius: 40px;
+        margin-bottom: 30px;
+        gap: 4px;
+        border: none !important;
+        box-shadow: none !important;
     }
 
     .editor-tabs button {
         border: none;
         background: transparent;
-        padding: 8px 20px;
-        border-radius: 8px;
-        font-size: 13.5px;
-        font-weight: 600;
-        color: var(--mac-text-secondary);
+        padding: 10px 24px;
+        border-radius: 34px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #8E8E93;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 8px;
-        transition: all 0.2s ease;
+        gap: 10px;
+        transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+        letter-spacing: -0.2px;
+    }
+
+    .editor-tabs button svg {
+        font-size: 18px;
+        color: #8E8E93;
     }
 
     .editor-tabs button.active {
-        background: var(--mac-card-bg);
+        background: var(--mac-selection-bg);
+        /* Use Dashboard Selection Color */
         color: var(--mac-blue);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .editor-tabs button.active svg {
+        color: var(--mac-blue);
+    }
+
+    .editor-tabs button:hover:not(.active) {
+        background: var(--mac-selection-hover);
+        color: var(--mac-text);
+    }
+
+    /* Light Mode Adaptation for Pill */
+    html:not(.dark) .editor-tabs {
+        background: var(--mac-bg-secondary);
+        box-shadow: none;
+    }
+
+    html:not(.dark) .editor-tabs button.active {
+        background: var(--mac-card-bg);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        color: var(--mac-blue);
     }
 
     /* --- 4. TIMETABLE BUILDER --- */
@@ -332,10 +361,11 @@
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        background: var(--mac-bg-content);
-        border: 1px solid var(--mac-divider);
-        border-radius: 16px;
+        background: var(--mac-sidebar-bg);
+        border: none;
+        border-radius: 24px;
         overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     }
 
     .admin-timetable th,
@@ -363,51 +393,69 @@
 
     .cell-static-text {
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         color: var(--mac-text);
     }
 
     .timetable-combo-input {
         width: 100%;
-        border: 1px solid var(--mac-blue);
-        border-radius: 6px;
-        padding: 5px;
+        background: var(--mac-bg-secondary);
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 8px;
         font-size: 13px;
         text-align: center;
-    }
-
-    /* --- 5. COURSE MANAGER --- */
-    .add-item-bar {
-        display: flex;
-        gap: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .add-item-bar input {
-        background: var(--mac-input-bg);
-        border: 1px solid var(--mac-divider);
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 14px;
-        flex: 1;
-    }
-
-    .list-item-card {
-        background: #ffffff;
-        border: 1px solid var(--mac-divider);
-        border-radius: 12px;
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
+        color: var(--mac-text);
         transition: all 0.2s ease;
     }
 
-    .list-item-card:hover {
+    .timetable-combo-input:focus {
+        background: var(--mac-card-bg);
         border-color: var(--mac-blue);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .course-manager .add-item-bar {
+        display: flex;
+        gap: 12px;
+        background: var(--mac-bg-secondary);
+        padding: 16px;
+        border-radius: 16px;
+        border: none;
+        margin-bottom: 24px;
+    }
+
+    .add-item-bar input {
+        background: var(--mac-bg-secondary);
+        border: 1px solid transparent;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 14px;
+        flex: 1;
+        color: var(--mac-text);
+        transition: all 0.2s ease;
+    }
+
+    .add-item-bar input:focus {
+        background: var(--mac-card-bg);
+        border-color: var(--mac-blue);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+    .list-item-card {
+        background: var(--mac-sidebar-bg);
+        border: none;
+        border-radius: 20px;
+        padding: 18px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .list-item-card:hover {
+        background: var(--mac-selection-hover);
     }
 
     .item-actions {
@@ -434,10 +482,11 @@
     }
 
     .settings-card {
-        background: var(--mac-card-bg);
-        border: 1px solid var(--mac-divider);
-        border-radius: 16px;
-        padding: 24px;
+        background: var(--mac-sidebar-bg);
+        border: none;
+        border-radius: 32px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
     }
 
     .settings-card h3 {
@@ -469,9 +518,18 @@
 
     .counseling-manager-grid .input-group input {
         flex: 1;
-        border-radius: 8px;
-        border: 1px solid var(--mac-divider);
-        padding: 8px 12px;
+        border-radius: 12px;
+        background: var(--mac-bg-secondary);
+        border: 1px solid transparent;
+        padding: 10px 16px;
+        color: var(--mac-text);
+        transition: all 0.2s ease;
+    }
+
+    .counseling-manager-grid .input-group input:focus {
+        background: var(--mac-card-bg);
+        border-color: var(--mac-blue);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
     }
 
     .counselor-pills {
@@ -482,15 +540,20 @@
     }
 
     .counselor-pill {
-        background: rgba(0, 122, 255, 0.08);
+        background: var(--mac-bg-secondary);
         color: var(--mac-blue);
-        padding: 6px 14px;
+        padding: 10px 20px;
         border-radius: 50px;
-        font-size: 13px;
-        font-weight: 600;
+        font-size: 13.5px;
+        font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        transition: all 0.2s ease;
+    }
+
+    .counselor-pill:hover {
+        background: var(--mac-selection-hover);
     }
 
     /* --- 7. BUTTONS (SEQUOIA PILLS) --- */
@@ -560,7 +623,8 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        margin-bottom: 20px;
+        margin-bottom: 12px;
+        padding: 4px 0;
     }
 
     .edit-actions {
@@ -610,9 +674,7 @@
 
     /* FIX: Subtle Sequoia Lift instead of Slide */
     .list-item-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(0, 122, 255, 0.3);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        background: var(--mac-selection-hover);
     }
 
     .item-main {
@@ -625,7 +687,6 @@
         font-size: 12px;
         font-weight: 500;
         color: var(--mac-text-secondary);
-        opacity: 0.6;
     }
 
     /* 5. INLINE EDITING STATE FIX (4-FIELD SUPPORT) */
@@ -656,12 +717,18 @@
     .inline-edit-row input {
         height: 38px;
         background: var(--mac-input-bg);
-        border: 1.5px solid var(--mac-blue);
+        border: 1px solid var(--mac-border);
         border-radius: 8px !important;
         padding: 0 10px;
         font-size: 13px;
         font-weight: 500;
+        color: var(--mac-text) !important;
         outline: none;
+    }
+
+    .inline-edit-row input:focus {
+        border-color: var(--mac-blue);
+        background: var(--mac-card-bg);
     }
 
     .edit-btn-group {
@@ -718,36 +785,324 @@
         padding: 0 12px;
     }
 
-    /* 7. COUNSELOR SEARCH BAR FIX */
-    .add-counselor-box {
+    /* ==========================================================================
+       COUNSELING MANAGER V2 (SEQUOIA PREMIUM)
+       ========================================================================== */
+
+    .counseling-manager-v2 {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    .counseling-grid-modern {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+        align-items: start;
+    }
+
+    .coordinator-card-v2,
+    .counselor-list-card-v2 {
+        background: var(--mac-sidebar-bg);
+        border: none !important;
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: none !important;
+        transition: transform 0.2s ease;
+    }
+
+    .card-header-modern {
         display: flex;
-        gap: 8px;
-        margin-bottom: 20px;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
     }
 
-    .add-counselor-box input {
-        flex: 1;
-        height: 40px;
-        border-radius: 50px !important;
-        background: var(--mac-button-bg);
-        border: 1px solid rgba(0, 0, 0, 0.02);
-        padding: 0 18px;
-        font-size: 14px;
-        outline: none;
-    }
-
-    .add-counselor-box button {
-        width: 40px;
-        height: 40px;
-        border-radius: 50% !important;
-        background: var(--mac-blue);
-        color: white;
-        border: none;
-        cursor: pointer;
+    .card-header-modern .icon-wrap {
+        width: 44px;
+        height: 44px;
+        background: rgba(0, 122, 255, 0.1);
+        color: var(--mac-blue);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+        font-size: 22px;
+    }
+
+    .card-header-modern h3 {
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .card-header-modern p {
+        font-size: 12.5px;
+        color: var(--mac-text-secondary);
+        margin: 2px 0 0 0;
+        opacity: 0.8;
+    }
+
+    /* Coordinators Styling */
+    .coordinator-fields-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .coordinator-row-v2 {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .role-tag {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--mac-text-secondary);
+        background: var(--mac-bg-secondary);
+        padding: 4px 10px;
+        border-radius: 6px;
+        width: fit-content;
+    }
+
+    .input-group-modern {
+        display: flex;
+        gap: 8px;
+    }
+
+    .input-group-modern input {
+        flex: 1;
+        background: var(--mac-bg-secondary);
+        border: 1px solid var(--mac-divider);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 14px;
+        color: var(--mac-text);
+        transition: all 0.2s ease;
+    }
+
+    .input-group-modern input:focus {
+        border-color: var(--mac-blue);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        background: var(--mac-card-bg);
+    }
+
+    /* Counselors Styling */
+    .add-counselor-v2 {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .add-counselor-v2 input {
+        flex: 1;
+        background: var(--mac-bg-secondary);
+        border: 1px solid var(--mac-divider);
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 14px;
+        color: var(--mac-text);
+    }
+
+    .btn-add-circle {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--mac-blue);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .btn-add-circle:hover {
+        transform: scale(1.05);
+    }
+
+    .counselor-items-v2 {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .counselor-item-row {
+        background: var(--mac-bg-secondary);
+        border-radius: 12px;
+        padding: 4px 4px 4px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 48px;
+        transition: background 0.2s ease;
+    }
+
+    .counselor-item-row:hover {
+        background: var(--mac-divider);
+    }
+
+    .counselor-name-chip {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 8px 0;
+    }
+
+    .counselor-row-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-delete-chip {
+        background: transparent;
+        border: none;
+        color: #ff3b30;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 8px;
+        font-size: 16px;
+        opacity: 0.6;
+        transition: all 0.2s ease;
+    }
+
+    .btn-delete-chip:hover {
+        opacity: 1;
+        background: rgba(255, 59, 48, 0.1);
+    }
+
+    /* Inline Edit Pill */
+    .inline-edit-pill-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding-right: 4px;
+    }
+
+    .inline-edit-pill-wrap input {
+        flex: 1;
+        background: var(--mac-card-bg);
+        border: 1px solid var(--mac-blue);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: var(--mac-text);
+    }
+
+    .edit-pill-actions {
+        display: flex;
+        gap: 4px;
+    }
+
+    .btn-pill-save,
+    .btn-pill-cancel {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .btn-pill-save {
+        background: var(--mac-blue);
+        color: white;
+    }
+
+    .btn-pill-cancel {
+        background: var(--mac-button-bg);
+        color: var(--mac-text);
+    }
+
+    /* Delete Confirmation Group (Courses) */
+    .confirm-delete-group {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 59, 48, 0.05);
+        border: 1px solid rgba(255, 59, 48, 0.2);
+        padding: 4px 8px;
+        border-radius: 10px;
+    }
+
+    .btn-confirm-del {
+        background: #ff3b30;
+        color: white;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .btn-cancel-del {
+        background: transparent;
+        border: none;
+        color: var(--mac-text-secondary);
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 4px;
+    }
+
+    /* Delete Confirmation Inline (Counselors) */
+    .confirm-delete-inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-right: 8px;
+    }
+
+    .btn-confirm-text {
+        background: transparent;
+        border: none;
+        color: #ff3b30;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .btn-cancel-icon {
+        background: var(--mac-button-bg);
+        border: none;
+        color: var(--mac-text-secondary);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    /* Dark Mode Specific Fine-Tuning */
+    html.dark .coordinator-card-v2,
+    html.dark .counselor-list-card-v2 {
+        background: rgba(28, 28, 30, 0.8);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    html.dark .counselor-item-row {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    html.dark .counselor-item-row:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    @media (max-width: 900px) {
+        .counseling-grid-modern {
+            grid-template-columns: 1fr;
+        }
     }
 
 }

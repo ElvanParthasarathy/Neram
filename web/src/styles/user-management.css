@@ -1,0 +1,292 @@
+/* ==========================================================================
+   NERAM PORTAL: USER MANAGEMENT (SEQUOIA PRO THEME)
+   ========================================================================== */
+
+.admin-subpage {
+    width: 100%;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--mac-text);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 50px;
+}
+
+/* --- 1. EXPLORER HEADER & BREADCRUMBS --- */
+.explorer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0 20px 0;
+    border-bottom: 1px solid var(--mac-divider);
+    margin-bottom: 30px;
+}
+
+.breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+}
+
+.crumb-btn {
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.crumb-btn:hover {
+    background: var(--mac-selection-hover);
+    color: var(--mac-blue);
+}
+
+.crumb-static {
+    font-weight: 700;
+    color: var(--mac-text);
+    padding: 6px 12px;
+}
+
+.explorer-back-btn {
+    border: 1px solid var(--mac-border);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--mac-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.explorer-back-btn:hover {
+    background: var(--mac-selection-hover);
+}
+
+.explorer-back-btn:active {
+    transform: scale(0.96);
+}
+
+/* --- 2. SEARCH PILL --- */
+.search-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-input {
+    width: 100%;
+    height: 48px;
+    background: var(--mac-sidebar-bg);
+    border: none;
+    border-radius: 50px !important;
+    padding: 0 24px;
+    font-size: 15px;
+    color: var(--mac-text);
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.search-input:focus {
+    background: var(--mac-bg-secondary);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* --- 3. DIRECTORY GRIDS --- */
+.explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.explorer-card {
+    background: var(--mac-sidebar-bg);
+    border: none;
+    border-radius: 32px;
+    /* Sequoia Standard */
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.explorer-card:hover {
+    transform: translateY(-4px);
+    background: var(--mac-selection-hover);
+}
+
+.card-icon {
+    font-size: 48px;
+    color: var(--mac-blue);
+    margin-bottom: 20px;
+    opacity: 1;
+}
+
+.card-initial {
+    width: 60px;
+    height: 60px;
+    background: var(--mac-blue);
+    color: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.explorer-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: var(--mac-text);
+}
+
+.explorer-card p {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    margin: 0;
+}
+
+/* --- 4. STUDENT CARDS --- */
+.user-directory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.user-management-card {
+    background: var(--mac-sidebar-bg);
+    border: none;
+    border-radius: 32px;
+    /* Sequoia Standard */
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.user-management-card:hover {
+    background: var(--mac-selection-hover);
+    transform: translateY(-2px);
+}
+
+.user-card-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--mac-bg-secondary);
+}
+
+.card-top {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.provider-icon {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: 16px;
+    background: var(--mac-sidebar-bg);
+    border-radius: 50%;
+    padding: 2px;
+}
+
+.card-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.u-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--mac-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.u-email {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    margin: 2px 0 6px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.u-tag {
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(10, 132, 255, 0.1);
+    color: var(--mac-blue);
+    padding: 4px 12px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* --- 5. MODALS (GLASS THEME) --- */
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+}
+
+.user-control-modal.full-control {
+    background: var(--mac-sidebar-bg) !important;
+    border: 1px solid var(--mac-border) !important;
+    border-radius: 32px !important;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4) !important;
+}
+
+.modal-header {
+    background: transparent;
+    border-bottom: 1px solid var(--mac-divider);
+    padding: 24px 30px;
+}
+
+.modal-scroll-body {
+    background: transparent;
+}
+
+.modal-footer {
+    background: rgba(0, 0, 0, 0.1);
+    border-top: 1px solid var(--mac-divider);
+    padding: 20px 30px;
+}
+
+.modal-input,
+.modal-select {
+    background: var(--mac-bg-secondary) !important;
+    border: none !important;
+    color: var(--mac-text) !important;
+}
+
+.modal-input:focus,
+.modal-select:focus {
+    background: var(--mac-bg-secondary) !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2) !important;
+}
+
+.control-divider {
+    color: var(--mac-blue);
+    opacity: 0.8;
+    border-bottom: 1px solid var(--mac-divider);
+}

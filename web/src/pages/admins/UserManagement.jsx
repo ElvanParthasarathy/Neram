@@ -9,6 +9,7 @@ import {
   RiRefreshLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine
 } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
+import "../../styles/user-management.css";
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -214,18 +215,16 @@ const UserManagement = () => {
           <div className="input-row">
             <div className="field">
               <label><RiPhoneLine /> Mobile Number</label>
-              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '0 12px' }}>
-                <span style={{ fontWeight: '600', color: 'var(--text-secondary)', marginRight: '8px' }}>+91</span>
+              <div className="phone-entry-group">
+                <span className="phone-prefix-label">+91</span>
                 <input
                   type="tel"
                   value={selectedUser.phoneNumber}
                   onChange={e => {
-                    // STRICT: Allow ONLY digits, max 10
                     const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                     handleLocalChange('phoneNumber', digits);
                   }}
-                  className="modal-input"
-                  style={{ border: 'none', background: 'transparent', paddingLeft: 0, flex: 1 }}
+                  className="phone-input-clean"
                   placeholder="10-digit number"
                   maxLength={10}
                 />

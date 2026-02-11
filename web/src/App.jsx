@@ -9,9 +9,11 @@ import "@fontsource-variable/inter";
 import "./App.css";
 import "./mobile.css";
 import "./mobileapp.css";
+import "./styles/admin-sidebar.css";
 
 // Data & Components
 import { adminEmails, getHardcodedRole } from "./data/admins";
+import StudentSidebar from "./components/StudentSidebar";
 import Navbar from "./components/Navbar";
 import MobileNavbar from "./components/MobileNavbar";
 import Footer from "./components/Footer";
@@ -139,11 +141,10 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
             />
 
             {/* Sidebar Navigation */}
-            <Navbar
+            <StudentSidebar
               user={user}
               userProfile={dbUserProfile}
               isAdmin={isAdminUser}
-              isSyncing={globalData.isSyncing}
             />
 
             <main id="main-viewport">
@@ -209,10 +210,12 @@ function App() {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
 
-      // SAFETY: Force remove dark mode if on desktop
+      // SAFETY: No longer forcing remove dark mode on desktop
+      /*
       if (!mobile) {
         document.documentElement.classList.remove("dark");
       }
+      */
     };
 
     // Initial Check

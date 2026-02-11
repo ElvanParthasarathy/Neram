@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { db, auth } from "../../firebase"; // Added auth
+import { db, auth } from "../../firebase";
 import { ref, onValue, update } from "firebase/database";
 import { adminEmails, getHardcodedRole } from "../../data/admins";
 import { RiLockLine, RiMore2Fill } from 'react-icons/ri';
+import "../../styles/admin-role-manager.css";
 
 const AdminRoleManager = ({ userProfile }) => {
   const [users, setUsers] = useState({});
@@ -20,12 +21,9 @@ const AdminRoleManager = ({ userProfile }) => {
 
   const iAmSuper = myRole === 'super_admin';
   const iAmFaculty = myRole === 'faculty';
-  const iAmRep = myRole === 'rep';
   const iAmFacultyOrSuper = iAmFaculty || iAmSuper;
 
-
-
-  // 1. Listen for View Changes (Preview Mode Logic)
+  // 1. Listen for View Changes
   useEffect(() => {
     const syncView = () => {
       const saved = sessionStorage.getItem("admin_preview_session");
@@ -70,13 +68,11 @@ const AdminRoleManager = ({ userProfile }) => {
 
     try {
       await update(ref(db, `users/${uid}`), { role: newRole });
-      alert(`Success: User role updated.`);
     } catch (err) {
       alert("Error: " + err.message);
     }
   };
 
-  // Closes menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest('.admin-menu-container')) {
@@ -92,9 +88,6 @@ const AdminRoleManager = ({ userProfile }) => {
   return (
     <div className="admin-container">
       <div className="header-section">
-        {/* <h1 className="admin-main-title">Admin Management</h1> */}
-        {/* <p className="admin-subtitle">Manage System Admins and promote new users from the database.</p> */}
-
         {isPreviewModeActive && (
           <div className="status-banner">
             Viewing as: {currentView.batch} | {currentView.department} | {currentView.section}
@@ -147,15 +140,13 @@ const AdminRoleManager = ({ userProfile }) => {
                         <div className="user-meta-sub">{u.email} • {u.batch}</div>
                       </div>
                     </div>
-                    <div className="action-buttons-row" style={{ display: 'flex', gap: '8px' }}>
+                    <div className="action-buttons-row">
                       {iAmFacultyOrSuper && (
-                        <button className="btn-grant-admin" onClick={() => updateRole(uid, 'faculty')} style={{ background: '#34c759' }}>
+                        <button className="btn-grant-admin faculty-bg" onClick={() => updateRole(uid, 'faculty')}>
                           Grant Faculty
                         </button>
                       )}
-
-                      {/* Everyone (Super, Faculty, Rep) can grant Rep access */}
-                      <button className="btn-grant-admin" onClick={() => updateRole(uid, 'rep')} style={{ background: '#007aff' }}>
+                      <button className="btn-grant-admin primary-bg" onClick={() => updateRole(uid, 'rep')}>
                         Grant Class Rep
                       </button>
                     </div>
@@ -182,22 +173,22 @@ const AdminRoleManager = ({ userProfile }) => {
                 : (u.role === 'rep' ? 'Student Admin' : 'Faculty Admin');
 
               return (
-                <div key={uid} className="admin-card">
+                <div key={uid} className="admin-card" style={{ zIndex: activeMenuId === uid ? 1001 : 1 }}>
                   <div className="admin-info-wrap">
                     <img src={u.photoURL || ""} alt="" className="admin-avatar-main" />
                     <div className="admin-text-content">
                       <h4 className="admin-name-row">
                         {u.displayName}
-                        {/* SYSTEM LOCK ICON - Replaces text badge */}
                         {hardcodedRole && (
                           <RiLockLine className="admin-system-lock-icon" title="Hardcoded System Admin" />
                         )}
                       </h4>
-                      <p className="admin-email-text">{u.email} • <span style={{ color: u.role === 'rep' ? '#007aff' : '#34c759', fontWeight: 600 }}>{displayRole}</span></p>
+                      <p className="admin-email-text">{u.email}</p>
+                      <span className={`role-badge ${u.role === 'rep' ? 'rep' : 'faculty'}`}>{displayRole}</span>
                     </div>
                   </div>
 
-                  <div className="admin-actions-area admin-menu-container" style={{ position: 'relative' }}>
+                  <div className="admin-menu-container" style={{ zIndex: activeMenuId === uid ? 1002 : 1 }}>
                     {!hardcodedRole && (
                       <>
                         <button
@@ -206,109 +197,43 @@ const AdminRoleManager = ({ userProfile }) => {
                             e.stopPropagation();
                             setActiveMenuId(activeMenuId === uid ? null : uid);
                           }}
-                          style={{ padding: '8px', borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer' }}
                         >
-                          <RiMore2Fill style={{ fontSize: '1.2rem', color: '#666' }} />
+                          <RiMore2Fill />
                         </button>
 
                         {activeMenuId === uid && (
-                          <div className="admin-dropdown-menu" style={{
-                            position: 'absolute',
-                            top: '100%',
-                            right: '0',
-                            background: 'white',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            borderRadius: '8px',
-                            zIndex: 10,
-                            minWidth: '160px',
-                            overflow: 'hidden',
-                            border: '1px solid #eee'
-                          }}>
-                            {/* CAN PROMOTE TO FACULTY? Only Super or Faculty */}
+                          <div className="admin-dropdown-menu">
                             {u.role !== 'faculty' && iAmFacultyOrSuper && (
                               <button
                                 className="menu-item"
                                 onClick={() => { updateRole(uid, 'faculty'); setActiveMenuId(null); }}
-                                style={{
-                                  display: 'block',
-                                  width: '100%',
-                                  textAlign: 'left',
-                                  padding: '10px 16px',
-                                  border: 'none',
-                                  background: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '0.9rem',
-                                  color: '#333',
-                                  borderBottom: '1px solid #f5f5f5'
-                                }}
                               >
                                 Make Faculty
                               </button>
                             )}
 
-                            {/* CAN DEMOTE TO REP? Only Super */}
                             {u.role !== 'rep' && iAmSuper && (
                               <button
                                 className="menu-item"
                                 onClick={() => { updateRole(uid, 'rep'); setActiveMenuId(null); }}
-                                style={{
-                                  display: 'block',
-                                  width: '100%',
-                                  textAlign: 'left',
-                                  padding: '10px 16px',
-                                  border: 'none',
-                                  background: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '0.9rem',
-                                  color: '#333',
-                                  borderBottom: '1px solid #f5f5f5'
-                                }}
                               >
                                 Make Student Admin
                               </button>
                             )}
 
-                            {/* CAN PROMOTE TO SUPER? Only Super */}
                             {u.role !== 'super_admin' && iAmSuper && (
                               <button
                                 className="menu-item"
                                 onClick={() => { updateRole(uid, 'super_admin'); setActiveMenuId(null); }}
-                                style={{
-                                  display: 'block',
-                                  width: '100%',
-                                  textAlign: 'left',
-                                  padding: '10px 16px',
-                                  border: 'none',
-                                  background: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '0.9rem',
-                                  color: '#333',
-                                  borderBottom: '1px solid #f5f5f5'
-                                }}
                               >
                                 Make Super Admin
                               </button>
                             )}
 
-                            {/* CAN REMOVE? 
-                                - Super: Removes anyone.
-                                - Faculty/Rep: Can only remove Reps.
-                            */}
                             {(iAmSuper || (u.role === 'rep')) && (
                               <button
                                 className="menu-item text-red"
                                 onClick={() => { updateRole(uid, 'student'); setActiveMenuId(null); }}
-                                style={{
-                                  display: 'block',
-                                  width: '100%',
-                                  textAlign: 'left',
-                                  padding: '10px 16px',
-                                  border: 'none',
-                                  background: 'white',
-                                  cursor: 'pointer',
-                                  fontSize: '0.9rem',
-                                  color: '#ff3b30'
-                                }}
                               >
                                 Remove Admin
                               </button>

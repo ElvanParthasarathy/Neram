@@ -69,7 +69,7 @@ function AdminApp() {
         const handleResize = () => {
             const mobile = window.innerWidth <= 768;
             setIsMobile(mobile);
-            if (!mobile) document.documentElement.classList.remove("dark");
+            // if (!mobile) document.documentElement.classList.remove("dark");
         };
         handleResize(); // Initial check
         window.addEventListener('resize', handleResize);

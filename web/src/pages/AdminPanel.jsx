@@ -34,15 +34,6 @@ const AdminPanel = ({ user, userProfile }) => {
   const navigate = useNavigate();
   const activeModule = searchParams.get('mod') || 'home';
 
-  // --- 1. INTERNAL MOBILE CHECK ---
-  // We check window width immediately on mount
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const handleModuleChange = (newMod) => {
     setSearchParams({ mod: newMod });
@@ -79,32 +70,6 @@ const AdminPanel = ({ user, userProfile }) => {
     }
   }, [activeModule, isFaculty, isRep]);
 
-  // --- 2. MOBILE BLOCKER UI ---
-  // If user is on mobile, we return this VIEW instead of the Admin Panel
-  if (isMobile) {
-    return (
-      <div className="mobile-admin-blocker">
-        <div className="blocker-card">
-          <div className="blocker-icon-circle">
-            <RiComputerLine className="blocker-icon" />
-          </div>
-          <h2 className="blocker-title">Desktop Only</h2>
-          <p className="blocker-msg">
-            The Admin Panel is optimized for desktop usage.<br />
-            Please access this page from a <strong>Laptop</strong> or <strong>PC</strong>.
-          </p>
-          <div className="blocker-actions">
-            <button className="blocker-back-btn" onClick={() => navigate('/')}>
-              <RiArrowLeftLine /> Go Home
-            </button>
-            <button className="blocker-settings-btn" onClick={() => navigate('/settings')}>
-              Go to Settings
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // --- 3. STANDARD DESKTOP ADMIN VIEW ---
   return (

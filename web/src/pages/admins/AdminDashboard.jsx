@@ -3,12 +3,13 @@ import { db } from "../../firebase";
 import { ref, onValue } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
 import {
-    RiUser3Fill, RiLayoutGridLine, RiArrowDownSLine
+    RiUser3Fill, RiLayoutGridLine, RiArrowDownSLine, RiShieldUserLine, RiUserSettingsLine, RiSearchLine, RiInformationLine
 } from 'react-icons/ri';
 
 // IMPORT HOME & DATA HOOK
 import Home from '../Home';
 import { useSectionData } from '../../hooks/useSectionData';
+import '../../styles/admin-home-preview.css';
 
 const AdminDashboard = ({ user, userProfile }) => {
     // --- 1. ROLE & PROFILE LOGIC ---
@@ -26,6 +27,13 @@ const AdminDashboard = ({ user, userProfile }) => {
     const [selectedDept, setSelectedDept] = useState("");
     const [selectedSec, setSelectedSec] = useState("");
 
+    // UI STATE for Custom Dropdowns
+    const [openDropdown, setOpenDropdown] = useState(null); // 'batch', 'dept', 'sec'
+
+    // STATS STATE
+    const [pendingCount, setPendingCount] = useState(0);
+    const [totalUsers, setTotalUsers] = useState(0);
+
     // --- 3. LOAD DATA & INITIALIZE ---
     useEffect(() => {
         const unsub = onValue(ref(db, 'academic_hierarchy'), (snap) => {
@@ -33,8 +41,32 @@ const AdminDashboard = ({ user, userProfile }) => {
             setHierarchy(data);
             setLoading(false);
         });
-        return () => unsub();
+
+        // 3b. Fetch Admin Stats (Pending & Total)
+        const usersRef = ref(db, 'users');
+        const unsubUsers = onValue(usersRef, (snap) => {
+            const data = snap.val() || {};
+            const usersArray = Object.values(data);
+            setPendingCount(usersArray.filter(u => u.role === 'pending').length);
+            setTotalUsers(usersArray.filter(u => u.role !== 'pending').length);
+        });
+
+        // Click outside listener for dropdowns
+        const handleClickOutside = (e) => {
+            if (!e.target.closest('.custom-dropdown-container')) {
+                setOpenDropdown(null);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+
+        return () => {
+            unsub();
+            unsubUsers();
+            document.removeEventListener('click', handleClickOutside);
+        };
     }, []);
+
+    // ... (Context Restoration & Persistence logic remains same - skipped for brevity if unchanged, but included for safety if I replace block) ...
 
     // --- 4. CONTEXT RESTORATION & DEFAULTING ---
     useEffect(() => {
@@ -95,116 +127,194 @@ const AdminDashboard = ({ user, userProfile }) => {
     const getDepts = () => selectedBatch ? Object.keys(hierarchy[selectedBatch] || {}).filter(k => k !== 'initialized') : [];
     const getSections = () => (selectedBatch && selectedDept) ? (hierarchy[selectedBatch]?.[selectedDept] || []) : [];
 
+    // --- HELPER: Render Custom Dropdown ---
+    // --- HELPER: Render Custom Dropdown ---
+    // Refactored to place label OUTSIDE the trigger container
+    const renderCustomDropdown = (key, label, value, options, onSelect, disabled = false) => {
+        const isOpen = openDropdown === key;
+
+        return (
+            <div className={`custom-dropdown-container ${disabled ? 'disabled' : ''}`}>
+                <div className="stat-label" style={{ marginBottom: '8px', marginLeft: '4px' }}>{label}</div>
+                <div
+                    className={`dropdown-trigger full-width ${isOpen ? 'active' : ''}`}
+                    onClick={() => !disabled && setOpenDropdown(isOpen ? null : key)}
+                >
+                    <div className="dropdown-trigger-content">
+                        <div className={value ? 'stat-value-slim' : 'placeholder-text'}>
+                            {value || `Select ${label}`}
+                        </div>
+                    </div>
+                    <RiArrowDownSLine className={`dropdown-arrow ${isOpen ? 'open' : ''}`} />
+                </div>
+
+                {isOpen && !disabled && (
+                    <div className="dropdown-menu">
+                        {options.length > 0 ? options.map((opt, idx) => (
+                            <div
+                                key={idx}
+                                className={`dropdown-item ${value === opt ? 'selected' : ''}`}
+                                onClick={() => {
+                                    onSelect(opt);
+                                    setOpenDropdown(null);
+                                }}
+                            >
+                                {opt}
+                            </div>
+                        )) : <div className="dropdown-item empty">No options</div>}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     // --- PRESENTATION ---
-    const firstName = userProfile?.firstName || (user?.displayName || "").split(' ')[0] || "User";
+    // Full Name Logic
+    const fullName = userProfile?.firstName
+        ? `${userProfile.firstName} ${userProfile.lastName || ''}`.trim()
+        : (user?.displayName || "User");
+
     const photoURL = user?.photoURL || userProfile?.photoURL;
 
     return (
-        <div className="admin-dashboard-container animate-fade-in" style={{ padding: '20px', maxWidth: '100%' }}>
-            {/* WELCOME SECTION - COMPACT */}
-            <div className="welcome-card glass-panel" style={{ padding: '20px', marginBottom: '20px' }}>
-                <div className="profile-section-large" style={{ gap: '15px' }}>
-                    <div className="user-avatar-large" style={{ width: '50px', height: '50px', fontSize: '24px' }}>
-                        {photoURL ? <img src={photoURL} alt="Profile" /> : <RiUser3Fill />}
-                    </div>
-                    <div className="welcome-text">
-                        <h1 style={{ fontSize: '20px' }}>Vanakkam, <span className="highlight-name">{firstName}</span></h1>
-                        <p style={{ fontSize: '13px' }}>Admin Dashboard</p>
-                    </div>
+        <div className="admin-dashboard-container">
+            <header className="page-header">
+                <div className="header-main">
+                    <h1 className="page-title">Admin Panel</h1>
                 </div>
-            </div>
+            </header>
 
-            {/* CONTEXT SWITCHER BAR */}
-            {!isRep && (
-                <div className="dashboard-context-bar glass-panel" style={{ padding: '15px', marginBottom: '20px' }}>
-                    <h3 className="context-label" style={{ marginBottom: '10px' }}><RiLayoutGridLine /> View Context</h3>
-
-                    <div className="context-selectors">
-                        {/* BATCH SELECTOR */}
-                        <div className="context-input-group">
-                            <label>Batch</label>
-                            {isSuper ? (
-                                <div className="custom-select-wrapper">
-                                    <select value={selectedBatch} onChange={e => { setSelectedBatch(e.target.value); setSelectedDept(""); setSelectedSec(""); }}>
-                                        <option value="">Select Batch</option>
-                                        {getBatches().map(b => <option key={b} value={b}>{b}</option>)}
-                                    </select>
-                                    <RiArrowDownSLine className="select-icon" />
-                                </div>
-                            ) : (
-                                <div className="fixed-value">{selectedBatch || "N/A"}</div>
-                            )}
+            {/* NEW LAYOUT: 2 COLUMNS (LEFT: PROFILE+CONTEXT, RIGHT: STATS) */}
+            <div className={`admin-dashboard-new-layout ${isRep ? 'rep-layout' : ''}`}>
+                {/* LEFT COLUMN */}
+                <div className="admin-left-column">
+                    {/* 1. SLIM PROFILE CARD */}
+                    <div className="admin-profile-slim box-flat">
+                        <div className="hero-avatar-slim">
+                            {photoURL ? <img src={photoURL} alt="Profile" /> : <RiUser3Fill />}
                         </div>
-
-                        {/* DEPT SELECTOR */}
-                        <div className="context-input-group">
-                            <label>Department</label>
-                            {isSuper ? (
-                                <div className="custom-select-wrapper">
-                                    <select value={selectedDept} onChange={e => { setSelectedDept(e.target.value); setSelectedSec(""); }} disabled={!selectedBatch}>
-                                        <option value="">Select Dept</option>
-                                        {getDepts().map(d => <option key={d} value={d}>{d}</option>)}
-                                    </select>
-                                    <RiArrowDownSLine className="select-icon" />
-                                </div>
-                            ) : (
-                                <div className="fixed-value">{selectedDept || "N/A"}</div>
-                            )}
+                        <div className="hero-text-slim">
+                            <h1>{fullName}</h1>
+                            <p className="role-subtext">{finalRole === 'super_admin' ? 'Super Administrator' : finalRole === 'faculty' ? 'Faculty Administrator' : 'Student Representative'}</p>
                         </div>
+                    </div>
 
-                        {/* SECTION SELECTOR (Available to Super & Faculty) */}
-                        <div className="context-input-group">
-                            <label>Section</label>
-                            <div className="custom-select-wrapper">
-                                <select value={selectedSec} onChange={e => setSelectedSec(e.target.value)} disabled={!selectedDept}>
-                                    <option value="">Select Section</option>
-                                    {getSections().map(s => <option key={s} value={s}>{s}</option>)}
-                                </select>
-                                <RiArrowDownSLine className="select-icon" />
+                    {/* 2. CONTEXT BOX (Formerly Top Row) */}
+                    {!isRep && (
+                        <div className="admin-context-box box-flat">
+                            <h3>Command Center</h3>
+                            <div className="context-list">
+                                {/* BATCH */}
+                                <div className="context-row">
+
+                                    <div className="context-info">
+                                        {(isSuper || isFaculty) ? (
+                                            renderCustomDropdown(
+                                                'batch',
+                                                'Batch',
+                                                selectedBatch,
+                                                getBatches(),
+                                                (val) => { setSelectedBatch(val); if (isSuper) setSelectedDept(""); setSelectedSec(""); }
+                                            )
+                                        ) : <div className="stat-value-slim">{selectedBatch || "-"}</div>}
+                                    </div>
+                                </div>
+
+                                {/* DEPT */}
+                                <div className="context-row">
+
+                                    <div className="context-info">
+                                        {isSuper ? (
+                                            renderCustomDropdown(
+                                                'dept',
+                                                'Department',
+                                                selectedDept,
+                                                getDepts(),
+                                                (val) => { setSelectedDept(val); setSelectedSec(""); },
+                                                !selectedBatch
+                                            )
+                                        ) : <div className="stat-value-slim">{selectedDept || "-"}</div>}
+                                    </div>
+                                </div>
+
+                                {/* SECTION */}
+                                <div className="context-row">
+
+                                    <div className="context-info">
+                                        {renderCustomDropdown(
+                                            'sec',
+                                            'Section',
+                                            selectedSec,
+                                            getSections(),
+                                            (val) => setSelectedSec(val),
+                                            !selectedDept
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* RIGHT COLUMN: VERTICAL STATS */}
+                <div className="admin-right-column">
+                    <div className="stat-card-premium stat-vertical">
+                        <div className="stat-header">
+                            <div className="stat-icon-box pending"><RiShieldUserLine /></div>
+                            <div className="stat-meta">
+                                <div className="stat-value">{pendingCount}</div>
+                                <div className="stat-label">Pending Approvals</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="stat-card-premium stat-vertical">
+                        <div className="stat-header">
+                            <div className="stat-icon-box users"><RiUserSettingsLine /></div>
+                            <div className="stat-meta">
+                                <div className="stat-value">{totalUsers}</div>
+                                <div className="stat-label">Active Users</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="stat-card-premium stat-vertical">
+                        <div className="stat-header">
+                            <div className="stat-icon-box context"><RiInformationLine /></div>
+                            <div className="stat-meta">
+                                <div className="stat-value">Online</div>
+                                <div className="stat-label">System Status</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
 
-            {/* RENDER STUDENT HOME COMPONENT */}
-            <div className="admin-home-preview" style={{ position: 'relative', zIndex: 1 }}>
+
+            {/* 2.2 HOME DASHBOARD PREVIEW */}
+            <div className="admin-home-preview-v2">
                 {selectedBatch && selectedDept && selectedSec ? (
                     <Home
                         isAdmin={true}
+                        hideHeader={true}
                         globalData={globalData}
-                        userProfile={userProfile} /* The ADMIN'S real profile */
-                        activeProfile={activeProfile} /* The STUDENT view profile (selected context) */
+                        userProfile={userProfile}
+                        activeProfile={activeProfile}
                     />
                 ) : (
-                    <div className="empty-state-message" style={{ textAlign: 'center', padding: '40px', background: 'rgba(255,255,255,0.5)', borderRadius: '16px' }}>
-                        <h3>Please select a Batch, Department, and Section to view the dashboard.</h3>
+                    <div className="empty-state-v2">
+                        <RiLayoutGridLine className="empty-icon" />
+                        <h3>System Idle</h3>
+                        <p>Select a <b>Batch, Department, and Section</b> to load the Command Center view.</p>
                     </div>
                 )}
             </div>
 
+
             <style>{`
-                .admin-dashboard-container { max-width: 1400px; margin: 0 auto; }
-                .welcome-card { display: flex; align-items: center; border-radius: 20px; background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%); border: 1px solid rgba(255,255,255,0.3); }
-                .profile-section-large { display: flex; align-items: center; }
-                .user-avatar-large { background: rgba(0,0,0,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #666; overflow: hidden; }
-                .user-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
-                .welcome-text h1 { margin: 0; font-weight: 700; color: #1d1d1f; }
-                .welcome-text p { margin: 2px 0 0; color: #666; }
-                .highlight-name { background: linear-gradient(90deg, #007AFF, #5856D6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-                
-                .dashboard-context-bar { border-radius: 16px; background: rgba(255,255,255,0.5); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.2); }
-                .context-label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: #86868b; display: flex; align-items: center; gap: 8px; }
-                .context-selectors { display: flex; gap: 20px; flex-wrap: wrap; }
-                .context-input-group { flex: 1; min-width: 200px; }
-                .context-input-group label { display: block; font-size: 12px; font-weight: 600; color: #1d1d1f; margin-bottom: 6px; }
-                
-                .custom-select-wrapper { position: relative; }
-                .custom-select-wrapper select { width: 100%; padding: 10px 14px; font-size: 14px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.8); appearance: none; cursor: pointer; color: #1d1d1f; font-weight: 500; transition: all 0.2s; }
-                .custom-select-wrapper select:hover { background: #fff; border-color: rgba(0,0,0,0.2); }
-                .custom-select-wrapper select:focus { outline: none; border-color: #007AFF; box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
-                .select-icon { position: absolute; right: 12px; top: 12px; pointer-events: none; color: #666; }
-                .fixed-value { padding: 10px 14px; background: rgba(0,0,0,0.03); border-radius: 10px; color: #666; font-weight: 500; border: 1px solid transparent; }
+                .admin-badge-inline { font-size: 10px; background: var(--mac-blue); color: #fff; padding: 2px 8px; border-radius: 6px; vertical-align: middle; margin-left: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+                .role-subtext { margin-top: 4px !important; opacity: 0.7; }
+                .highlight-name { color: var(--mac-blue); }
             `}</style>
         </div>
     );

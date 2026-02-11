@@ -148,20 +148,24 @@
     padding: 4px 10px 4px 8px;
     border-radius: 999px;
 
-    /* Visuals: Subtle Glass Style */
-    background-color: rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+    /* Visuals: Synced Grey Style */
+    background: var(--mac-bg-secondary);
+    border: none;
 
     /* Typography */
     font-size: 0.7rem;
     font-weight: 600;
-    color: var(--text-sub, #64748b);
+    color: var(--mac-text-secondary);
     letter-spacing: 0.01em;
 
     /* Interaction */
     cursor: default;
     user-select: none;
     transition: all 0.2s ease;
+  }
+
+  html.dark .last-edited-badge {
+    background: #1C1C1E;
   }
 
   /* Hover Effect */

@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { db } from "../../firebase";
 import { ref, onValue, set, get } from "firebase/database";
-import { 
-  RiArrowRightSLine, RiTeamLine, RiRefreshLine, RiGoogleFill, 
-  RiSettings4Line, RiCloseLine, RiArrowLeftLine, RiCheckLine, RiSave3Line, RiUploadCloud2Line 
+import {
+  RiArrowRightSLine, RiTeamLine, RiRefreshLine, RiGoogleFill,
+  RiSettings4Line, RiCloseLine, RiArrowLeftLine, RiCheckLine, RiSave3Line, RiUploadCloud2Line
 } from 'react-icons/ri';
+
+// --- IMPORT STYLES ---
+import "../../styles/calendar-manager.css";
 
 const CalendarManager = () => {
   const [hierarchy, setHierarchy] = useState({});
@@ -12,10 +15,10 @@ const CalendarManager = () => {
   const [selectedBatch, setSelectedBatch] = useState(sessionStorage.getItem('cm_batch') || '');
   const [config, setConfig] = useState({ apiKey: '', calendarId: '' });
   const [isEditingConfig, setIsEditingConfig] = useState(false);
-  const [viewDate, setViewDate] = useState(new Date()); 
+  const [viewDate, setViewDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [editableEvents, setEditableEvents] = useState([]);
-  
+
   const lastPublishedHash = useRef("");
 
   const [semConfig, setSemConfig] = useState({
@@ -57,11 +60,11 @@ const CalendarManager = () => {
       if (!isAllDay) {
         timeRange = `${formatTime(startDate)} - ${formatTime(endDate)}`;
       }
-      days.push({ 
-        id: `${event.id}_${dateStr}`, 
-        title: event.summary || "Untitled", 
-        date: dateStr, 
-        fullTime: timeRange 
+      days.push({
+        id: `${event.id}_${dateStr}`,
+        title: event.summary || "Untitled",
+        date: dateStr,
+        fullTime: timeRange
       });
       curr.setDate(curr.getDate() + 1);
     }
@@ -82,7 +85,7 @@ const CalendarManager = () => {
         const data = await (await fetch(url)).json();
         if (data.error) throw new Error(data.error.message);
         allFetched = [...allFetched, ...(data.items || [])];
-        pageToken = data.nextPageToken; 
+        pageToken = data.nextPageToken;
       } while (pageToken);
 
       let allExpanded = [];
@@ -96,8 +99,8 @@ const CalendarManager = () => {
         await set(ref(db, `calendars/${selectedBatch}/events`), allExpanded);
       }
       if (isManual) alert("Manual Sync Complete!");
-    } catch (err) { 
-      console.error("Sync Error:", err.message); 
+    } catch (err) {
+      console.error("Sync Error:", err.message);
       if (isManual) alert("Sync Failed: " + err.message);
     } finally { setLoading(false); }
   }, [config, semConfig, viewLevel, selectedBatch, expandGoogleEvent]);
@@ -157,9 +160,9 @@ const CalendarManager = () => {
       <header className="explorer-header">
         <div className="breadcrumb-nav">
           {viewLevel === 'editor' ? (
-             <button className="back-btn-minimal" onClick={() => setViewLevel('batches')}>
-                <RiArrowLeftLine /> Back
-             </button>
+            <button className="back-btn-minimal" onClick={() => setViewLevel('batches')}>
+              <RiArrowLeftLine /> Back
+            </button>
           ) : <span className="crumb-static">Calendar Manager</span>}
           {selectedBatch && viewLevel === 'editor' && (
             <><RiArrowRightSLine /> <span className="crumb-static">Batch {selectedBatch} (Live Sync)</span></>
@@ -168,7 +171,7 @@ const CalendarManager = () => {
         {loading && <div className="loading-indicator-mini"><RiRefreshLine className="spin" /> Updating...</div>}
       </header>
 
-      <div className="explorer-content" style={{ display: 'block', height: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+      <div className="explorer-content">
         {viewLevel === 'batches' ? (
           <div className="explorer-grid">
             {Object.keys(hierarchy).sort().reverse().map(batch => (
@@ -179,26 +182,26 @@ const CalendarManager = () => {
             ))}
           </div>
         ) : (
-          <div className="calendar-admin-workspace" style={{ display: 'flex', gap: '20px' }}>
-            <aside className="admin-sidebar-controls settings-card" style={{ flex: '0 0 300px' }}>
+          <div className="calendar-admin-workspace">
+            <aside className="admin-sidebar-controls settings-card">
               <div className="config-header">
                 <h3><RiGoogleFill /> API Configuration</h3>
                 <button className="btn-modify-mini" onClick={() => setIsEditingConfig(!isEditingConfig)}>
                   {isEditingConfig ? <RiCloseLine /> : <RiSettings4Line />}
                 </button>
               </div>
-              
+
               <div className={`config-inputs ${isEditingConfig ? 'active' : 'disabled'}`}>
                 <label>API Key</label>
-                <input disabled={!isEditingConfig} value={config.apiKey} onChange={e => setConfig({...config, apiKey: e.target.value})} />
+                <input disabled={!isEditingConfig} value={config.apiKey} onChange={e => setConfig({ ...config, apiKey: e.target.value })} />
                 <label>Calendar ID</label>
-                <input disabled={!isEditingConfig} value={config.calendarId} onChange={e => setConfig({...config, calendarId: e.target.value})} />
+                <input disabled={!isEditingConfig} value={config.calendarId} onChange={e => setConfig({ ...config, calendarId: e.target.value })} />
                 <hr />
                 <label>Fetch Start</label>
-                <input type="date" disabled={!isEditingConfig} value={semConfig.start} onChange={e => setSemConfig({...semConfig, start: e.target.value})} />
+                <input type="date" disabled={!isEditingConfig} value={semConfig.start} onChange={e => setSemConfig({ ...semConfig, start: e.target.value })} />
                 <label>Fetch End</label>
-                <input type="date" disabled={!isEditingConfig} value={semConfig.end} onChange={e => setSemConfig({...semConfig, end: e.target.value})} />
-                
+                <input type="date" disabled={!isEditingConfig} value={semConfig.end} onChange={e => setSemConfig({ ...semConfig, end: e.target.value })} />
+
                 {isEditingConfig && (
                   <button className="btn-save-settings" onClick={saveSettingsToFirebase}>
                     <RiSave3Line /> Save & Lock Range
@@ -218,7 +221,7 @@ const CalendarManager = () => {
               </div>
             </aside>
 
-            <div className="calendar-editable-list settings-card" style={{ flex: '1' }}>
+            <div className="calendar-editable-list settings-card">
               <nav className="table-navigation">
                 <button className="nav-btn" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}>Prev</button>
                 <h4 className="current-month-display">{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h4>
@@ -230,41 +233,23 @@ const CalendarManager = () => {
                   <thead><tr><th>Date</th><th>Day</th><th>Events (Grouped)</th></tr></thead>
                   <tbody>
                     {Object.keys(groupedByDate).sort().map((dateStr) => {
-                      // --- FORMAT DATE HERE: DD/MM/YYYY ---
                       const [year, month, day] = dateStr.split('-');
                       const displayDate = `${day}/${month}/${year}`;
 
                       return (
                         <tr key={dateStr}>
-                          <td style={{ verticalAlign: 'top', whiteSpace: 'nowrap', padding: '12px', fontWeight: '600' }}>
+                          <td className="date-cell">
                             {displayDate}
                           </td>
-                          <td style={{ verticalAlign: 'top', padding: '12px' }}>
+                          <td className="day-cell">
                             {new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' })}
                           </td>
-                          <td style={{ padding: '12px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          <td className="events-cell">
+                            <div className="events-list-vertical">
                               {groupedByDate[dateStr].map((event, i) => (
-                                <div key={i} className="event-item-pill" style={{
-                                  background: 'rgba(var(--accent-rgb), 0.06)',
-                                  padding: '8px 14px',
-                                  borderRadius: '8px',
-                                  borderLeft: '4px solid var(--accent)',
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  gap: '3px'
-                                }}>
-                                  <strong style={{ fontSize: '0.95rem', color: 'var(--text-main)' }}>
-                                    {event.title}
-                                  </strong>
-                                  <span style={{ 
-                                    fontSize: '0.82rem', 
-                                    opacity: 0.6, 
-                                    fontWeight: '500',
-                                    color: 'var(--text-sub)'
-                                  }}>
-                                    {event.fullTime}
-                                  </span>
+                                <div key={i} className="event-item-pill">
+                                  <strong>{event.title}</strong>
+                                  <span>{event.fullTime}</span>
                                 </div>
                               ))}
                             </div>

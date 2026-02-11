@@ -2,7 +2,6 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AdminProfile from './admins/AdminProfile';
 import Security from './settings/Security';
-import ThemeToggle from '../components/ThemeToggle';
 import { RiUserLine, RiShieldKeyholeLine } from 'react-icons/ri';
 
 const AdminSettings = () => {
@@ -15,7 +14,6 @@ const AdminSettings = () => {
 
     return (
         <div className="settings-view-dead-end">
-            {/* <ThemeToggle /> */}
 
             {/* HEADER: LOCKED TO TOP-LEFT EDGE */}
             <header className="settings-top-nav-bar">

@@ -67,7 +67,8 @@ const ResourceManager = () => {
         <div className="admin-subpage animate-fade-in">
             <header className="explorer-header">
                 <div className="breadcrumb-nav">
-                    <span className="crumb-btn">Official Resources</span>
+                    <RiInformationLine className="card-icon-mini" />
+                    <span className="crumb-static">Official Resources</span>
                 </div>
             </header>
 
@@ -86,7 +87,7 @@ const ResourceManager = () => {
                         </div>
                         {currentFile ? (
                             <div className="rm-file-info">
-                                <RiFilePdfLine size={24} color="#dc2626" />
+                                <RiFilePdfLine size={28} className="mac-icon-alt" />
                                 <div className="rm-file-details">
                                     <div className="rm-file-name">{currentFile.name || 'Academic Calendar'}</div>
                                     <div className="rm-file-date">Last Updated: {new Date(currentFile.updatedAt).toLocaleDateString()}</div>
