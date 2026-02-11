@@ -211,8 +211,11 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
     }
   }, [isMenuOpen]);
 
-  // --- NEW: INITIALIZE THEME ON MOUNT ---
+  // --- NEW: INITIALIZE THEME ON MOUNT (MOBILE ONLY) ---
   useEffect(() => {
+    // BLOCK DESKTOP: If width > 768, do nothing (or force light)
+    if (window.innerWidth > 768) return;
+
     const savedTheme = localStorage.getItem("theme") || "auto";
     setCurrentTheme(savedTheme); // Sync State
 

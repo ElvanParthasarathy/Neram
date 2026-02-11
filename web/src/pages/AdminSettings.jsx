@@ -15,7 +15,7 @@ const AdminSettings = () => {
 
     return (
         <div className="settings-view-dead-end">
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
 
             {/* HEADER: LOCKED TO TOP-LEFT EDGE */}
             <header className="settings-top-nav-bar">

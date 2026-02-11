@@ -69,31 +69,9 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
 
   /* --- DARK MODE DEFINITIONS --- */
 
-  /* 1. Force Dark Mode (Manual Toggle) */
-  html.dark :root {
-    --bg-body: #121212;
-    --bg-card: rgba(28, 28, 30, 0.8);
-    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-    --bg-nav-selection: rgba(44, 44, 46, 0.9);
-    --text-primary: #FFFFFF;
-    --text-secondary: #9CA3AF;
-
-    /* FIXED: Changed from pale #60A5FA to Vibrant #0A84FF */
-    --accent-primary: #0A84FF;
-
-    --accent-danger: #FF453A;
-    --icon-fill: #FFFFFF;
-    --input-focus: #fff;
-
-    /* Dark Mode Overrides */
-    --input-border: 2px solid #333;
-    --bg-button-secondary: rgba(255, 255, 255, 0.12);
-    --bg-modal-solid: rgba(30, 30, 30, 0.95);
-  }
-
-  /* 2. System Dark Mode (Auto - respecting overrides) */
-  @media (prefers-color-scheme: dark) {
-    :root:not(.light) {
+  /* 1. Force Dark Mode (Manual Toggle) - SCOPED TO MOBILE */
+  @media (max-width: 768px) {
+    html.dark :root {
       --bg-body: #121212;
       --bg-card: rgba(28, 28, 30, 0.8);
       --glass-border: 1px solid rgba(255, 255, 255, 0.1);
@@ -108,9 +86,33 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
       --icon-fill: #FFFFFF;
       --input-focus: #fff;
 
+      /* Dark Mode Overrides */
       --input-border: 2px solid #333;
       --bg-button-secondary: rgba(255, 255, 255, 0.12);
       --bg-modal-solid: rgba(30, 30, 30, 0.95);
+    }
+
+    /* 2. System Dark Mode (Auto - respecting overrides) */
+    @media (prefers-color-scheme: dark) {
+      :root:not(.light) {
+        --bg-body: #121212;
+        --bg-card: rgba(28, 28, 30, 0.8);
+        --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        --bg-nav-selection: rgba(44, 44, 46, 0.9);
+        --text-primary: #FFFFFF;
+        --text-secondary: #9CA3AF;
+
+        /* FIXED: Changed from pale #60A5FA to Vibrant #0A84FF */
+        --accent-primary: #0A84FF;
+
+        --accent-danger: #FF453A;
+        --icon-fill: #FFFFFF;
+        --input-focus: #fff;
+
+        --input-border: 2px solid #333;
+        --bg-button-secondary: rgba(255, 255, 255, 0.12);
+        --bg-modal-solid: rgba(30, 30, 30, 0.95);
+      }
     }
   }
 

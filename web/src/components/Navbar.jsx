@@ -129,7 +129,7 @@ const Navbar = ({ user, userProfile, isAdmin }) => {
 
                   <div className="popup-actions">
                     {/* Theme Toggle Integration */}
-                    <ThemeToggle asMenuItem={true} />
+                    {/* <ThemeToggle asMenuItem={true} /> */}
                     <div className="dropdown-divider"></div>
 
                     {/* SETTINGS & ADMIN: No 'replace' attribute here.
