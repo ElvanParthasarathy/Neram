@@ -129,14 +129,18 @@
   border: 1px solid var(--mac-border) !important;
 }
 
-/* 7. MODAL HEADER & ICONS */
-.modal-header {
+/* 7. MODAL HEADER & ICONS (SCOPED TO PREVENT EXAM-MANAGER OVERRIDES) */
+.user-control-modal .modal-header {
   padding: 24px 30px;
   border-bottom: 1px solid var(--mac-divider);
   display: flex;
+  flex-direction: row !important;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  /* Title to the left corner */
   flex-shrink: 0;
+  position: relative;
+  /* Base for absolute close button if needed */
 }
 
 .modal-header .modal-title {
@@ -157,9 +161,20 @@
   color: var(--mac-text);
 }
 
-.modal-close-btn {
-  font-size: 22px;
-  opacity: 0.5;
+.user-control-modal .modal-close-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 28px;
+  height: 28px;
+  background: var(--mac-input-bg);
+  /* Grey circle background */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  opacity: 0.8;
   color: var(--mac-text);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -167,17 +182,21 @@
 
 .modal-close-btn:hover {
   opacity: 1;
-  transform: scale(1.1);
+  background: var(--mac-divider);
+  /* Subtle hover for the circle */
+  transform: scale(1.05);
 }
 
 /* 8. INTERNAL SCROLLABLE BODY */
 .modal-scroll-body {
   flex: 1 !important;
   overflow-y: auto !important;
-  padding: 30px !important;
+  padding: 20px 30px 30px 30px !important;
+  /* Reduced top padding to move content up */
   display: flex !important;
   flex-direction: column !important;
-  gap: 20px !important;
+  gap: 16px !important;
+  /* Slightly tighter gap */
 }
 
 /* 9. PHOTO SYNC AREA REPAIR */
@@ -185,7 +204,10 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  padding-bottom: 10px;
+  padding-bottom: 5px;
+  /* Tighter spacing */
+  margin-top: -5px;
+  /* Shift up further if needed */
 }
 
 .modal-avatar-preview {
@@ -257,7 +279,7 @@
 .modal-select {
   width: 100%;
   height: 48px;
-  background: var(--mac-bg-secondary) !important;
+  background: var(--mac-modal-field-bg) !important;
   border: 1px solid transparent !important;
   border-radius: 14px !important;
   padding: 0 16px;
@@ -266,6 +288,17 @@
   color: var(--mac-text) !important;
   outline: none;
   transition: all 0.2s ease;
+}
+
+.modal-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  background-size: 12px;
+  padding-right: 40px !important;
+  cursor: pointer;
 }
 
 .modal-input:focus,
@@ -280,7 +313,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  background: var(--mac-bg-secondary);
+  background: var(--mac-input-bg);
   border-radius: 14px;
   padding: 0 16px;
   height: 48px;
@@ -295,10 +328,57 @@
 }
 
 .phone-prefix-label {
-  font-weight: 700;
+  font-weight: 500;
   color: var(--mac-text-secondary);
   font-size: 15px;
   margin-right: 10px;
+}
+
+/* 11c. HYBRID DATE INPUT (TEXT + NATIVE PICKER) */
+.hybrid-date-field {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.date-text-input {
+  padding-right: 50px !important;
+  /* Space for the icon */
+}
+
+.native-picker-trigger {
+  position: absolute;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  color: var(--mac-blue);
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.native-picker-trigger:hover {
+  opacity: 1;
+}
+
+.hidden-native-picker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Ensure the calendar icon doesn't block type clicks but triggers picker */
+.calendar-icon {
+  font-size: 18px;
+  pointer-events: none;
 }
 
 .phone-input-clean {

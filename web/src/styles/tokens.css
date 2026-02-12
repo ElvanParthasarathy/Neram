@@ -80,6 +80,7 @@
       --mac-button-bg: rgba(0, 0, 0, 0.05);
       --mac-icon-color: #3C3C43;
       --mac-popup-bg: #FFFFFF;
+      --mac-modal-field-bg: #F2F2F7;
    }
 
 }

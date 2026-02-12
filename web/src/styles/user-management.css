@@ -289,4 +289,84 @@
     color: var(--mac-blue);
     opacity: 0.8;
     border-bottom: 1px solid var(--mac-divider);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+}
+
+/* --- 6. ROLE SWITCHER (SEQUOIA STYLE) --- */
+.role-switcher-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--mac-divider);
+}
+
+.role-pill-switcher {
+    display: flex;
+    background: rgba(0, 0, 0, 0.15);
+    /* Darker container background */
+    padding: 3px;
+    border-radius: 12px;
+    gap: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    /* Match macOS divider */
+}
+
+.role-pill {
+    border: none;
+    background: transparent;
+    padding: 8px 24px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.role-pill:hover {
+    color: var(--mac-text);
+}
+
+.role-pill.active {
+    background: rgba(255, 255, 255, 0.12);
+    /* Lighter grey active segment like appearance switcher */
+    color: #FFFFFF;
+    /* High contrast white for active */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+html:not(.dark) .role-pill-switcher {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) .role-pill.active {
+    background: #FFFFFF;
+    color: var(--mac-text);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.role-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.role-tag.super_admin {
+    background: rgba(255, 59, 48, 0.1);
+    color: #FF3B30;
+}
+
+.role-tag.faculty {
+    background: rgba(88, 86, 214, 0.1);
+    color: #5856D6;
+}
+
+.role-tag.admin {
+    background: rgba(255, 149, 0, 0.1);
+    color: #FF9500;
 }
