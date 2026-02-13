@@ -4,6 +4,7 @@ import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
 import { ref, onValue } from "firebase/database";
 import Logo from "../assets/neramv.svg";
+import LogoIcon from "../assets/neram.svg";
 import ThemeToggle from "./ThemeToggle";
 import {
     RiHomeLine,
@@ -12,7 +13,9 @@ import {
     RiFilePdfLine,
     RiGlobalLine,
     RiContactsLine,
-    RiUser3Fill
+    RiUser3Fill,
+    RiMenuFoldLine,
+    RiMenuUnfoldLine
 } from "react-icons/ri";
 
 // Styles - Using the same premium sidebar CSS
@@ -22,10 +25,21 @@ import "../styles/profile.css";
 const StudentSidebar = ({ user, userProfile, isAdmin }) => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [dbUser, setDbUser] = useState(null);
+    const [isCollapsed, setIsCollapsed] = useState(() => {
+        return localStorage.getItem('sidebar_collapsed') === 'true';
+    });
 
     const location = useLocation();
     const navigate = useNavigate();
     const containerRef = useRef(null);
+
+    const toggleCollapse = () => {
+        setIsCollapsed(prev => {
+            const next = !prev;
+            localStorage.setItem('sidebar_collapsed', String(next));
+            return next;
+        });
+    };
 
     // 1. Fetch Real User Profile for name synchronization
     useEffect(() => {
@@ -63,12 +77,15 @@ const StudentSidebar = ({ user, userProfile, isAdmin }) => {
     const firstName = userProfile?.firstName || dbUser?.firstName || (user?.displayName || "").split(' ')[0] || "User";
 
     return (
-        <div className="admin-sidebar">
+        <div className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
             {/* 1. BRANDING / LOGO */}
             <div className="admin-sidebar-branding">
                 <Link to="/" className="logo-link">
-                    <img src={Logo} alt="NERAM Logo" className="admin-sidebar-logo-img" />
+                    <img src={isCollapsed ? LogoIcon : Logo} alt="NERAM Logo" className="admin-sidebar-logo-img" />
                 </Link>
+                <button className="sidebar-collapse-btn" onClick={toggleCollapse} title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+                    {isCollapsed ? <RiMenuUnfoldLine /> : <RiMenuFoldLine />}
+                </button>
             </div>
 
             {/* 2. MAIN NAVIGATION */}
@@ -163,3 +180,4 @@ const StudentSidebar = ({ user, userProfile, isAdmin }) => {
 };
 
 export default StudentSidebar;
+

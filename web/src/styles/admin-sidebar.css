@@ -26,8 +26,8 @@
     }
 
     .admin-sidebar-logo-img {
-        height: 26px;
-        /* Increased from 20px */
+        height: 30px;
+        /* Increased from 26px */
         filter: brightness(0);
         /* Pure black for light mode */
         transition: all 0.2s ease;
@@ -107,5 +107,107 @@
     /* --- DARK MODE LOGO FIX --- */
     html.dark .admin-sidebar-logo-img {
         filter: brightness(0) invert(1) !important;
+    }
+
+    /* ──────────────────────────────────────────────────────────────────────
+       COLLAPSE TOGGLE BUTTON
+       ────────────────────────────────────────────────────────────────────── */
+
+    .admin-sidebar-branding {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .sidebar-collapse-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--mac-text-secondary);
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+    }
+
+    .sidebar-collapse-btn:hover {
+        background: var(--mac-sidebar-item-hover-bg);
+        color: var(--mac-text);
+    }
+
+    /* ──────────────────────────────────────────────────────────────────────
+       COLLAPSED STATE
+       ────────────────────────────────────────────────────────────────────── */
+
+    .admin-sidebar {
+        transition: flex-basis 0.25s cubic-bezier(0.2, 0, 0, 1),
+            width 0.25s cubic-bezier(0.2, 0, 0, 1);
+    }
+
+    .admin-sidebar.collapsed {
+        flex: 0 0 68px;
+    }
+
+    .admin-sidebar.collapsed .admin-sidebar-branding {
+        padding: 42px 0 16px 0;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .admin-sidebar.collapsed .admin-sidebar-logo-img {
+        height: 32px;
+    }
+
+    .admin-sidebar.collapsed .logo-link {
+        display: flex;
+        justify-content: center;
+    }
+
+    .admin-sidebar.collapsed .admin-sidebar-nav {
+        padding: 0 8px;
+        align-items: center;
+    }
+
+    .admin-sidebar.collapsed .nav-group-label {
+        display: none;
+    }
+
+    .admin-sidebar.collapsed .admin-nav-link {
+        justify-content: center;
+        padding: 10px;
+        border-radius: 12px;
+        width: 44px;
+        height: 44px;
+    }
+
+    .admin-sidebar.collapsed .admin-nav-link span {
+        display: none;
+    }
+
+    .admin-sidebar.collapsed .admin-nav-icon {
+        font-size: 20px;
+        margin: 0;
+    }
+
+    /* Hide user text in collapsed state */
+    .admin-sidebar.collapsed .trigger-text {
+        display: none;
+    }
+
+    .admin-sidebar.collapsed .profile-trigger {
+        justify-content: center;
+        padding: 8px;
+    }
+
+    .admin-sidebar.collapsed .user-auth-zone {
+        display: flex;
+        justify-content: center;
     }
 }

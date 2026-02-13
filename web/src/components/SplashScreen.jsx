@@ -1,5 +1,5 @@
 import React from 'react';
-import Logo from '../assets/neramv.svg';
+import Logo from '../assets/neram.svg';
 import '../styles/splash.css';
 
 const SplashScreen = () => {

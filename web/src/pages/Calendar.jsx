@@ -7,6 +7,7 @@ import {
   RiDownloadLine,
   RiInformationLine
 } from 'react-icons/ri';
+import { motion, AnimatePresence } from "framer-motion";
 import { db } from "../firebase";
 import { ref, onValue } from "firebase/database";
 import "../App.css";
@@ -47,6 +48,8 @@ const CalendarPage = ({ globalData, userProfile, activeProfile }) => {
   // --- STATE ---
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [direction, setDirection] = useState(0);
+  const [agendaDirection, setAgendaDirection] = useState(0);
   const [viewType, setViewType] = useState('month'); // 'month' or 'schedule'
   const [officialDocUrl, setOfficialDocUrl] = useState("/pdfs/academic-calendar.pdf");
   const [isAgendaOpen, setIsAgendaOpen] = useState(false);
@@ -279,9 +282,13 @@ const CalendarPage = ({ globalData, userProfile, activeProfile }) => {
                     key={di}
                     className={`cal-day ${isCurrentMonth ? '' : 'faded'} ${isSelected ? 'selected' : ''}`}
                     onClick={() => {
+                      const prevDate = new Date(selectedDate);
+                      setAgendaDirection(day > prevDate ? 1 : -1);
                       setSelectedDate(day);
                       if (!isCurrentMonth) {
-                        setCurrentMonth(new Date(day.getFullYear(), day.getMonth(), 1));
+                        const dayMonth = new Date(day.getFullYear(), day.getMonth(), 1);
+                        setDirection(dayMonth > currentMonth ? 1 : -1);
+                        setCurrentMonth(dayMonth);
                       }
                       if (window.innerWidth < 1024) setIsAgendaOpen(true);
                     }}
@@ -369,27 +376,62 @@ const CalendarPage = ({ globalData, userProfile, activeProfile }) => {
   const renderAgendaContent = () => {
     const todaysEvents = allEvents.filter(e => e.date === toISO(selectedDate));
     return (
-      <div className="cal-agenda-list">
-        {todaysEvents.length > 0 ? todaysEvents.map((e, i) => (
-          <div key={i} className="cal-agenda-card">
-            <div className="cal-agenda-dot" style={{ backgroundColor: getEventColor(e.title) }}></div>
-            <div>
-              <div className="cal-agenda-title">{e.title}</div>
-              <div className="cal-agenda-time">{e.fullTime || "All Day Event"}</div>
+      <AnimatePresence mode="popLayout" initial={false} custom={agendaDirection}>
+        <motion.div
+          key={selectedDate.toISOString()}
+          custom={agendaDirection}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{
+            x: { type: "spring", stiffness: 400, damping: 35 },
+            opacity: { duration: 0.2 }
+          }}
+          className="cal-agenda-list"
+        >
+          {todaysEvents.length > 0 ? todaysEvents.map((e, i) => (
+            <div key={i} className="cal-agenda-card">
+              <div className="cal-agenda-dot" style={{ backgroundColor: getEventColor(e.title) }}></div>
+              <div>
+                <div className="cal-agenda-title">{e.title}</div>
+                <div className="cal-agenda-time">{e.fullTime || "All Day Event"}</div>
+              </div>
             </div>
-          </div>
-        )) : (
-          <div className="cal-empty-state">
-            <RiInformationLine />
-            <p>No events scheduled for this day.</p>
-          </div>
-        )}
-      </div>
+          )) : (
+            <div className="cal-empty-state">
+              <RiInformationLine />
+              <p>No events scheduled for this day.</p>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
     );
   };
 
-  const handleMonthChange = (direction) => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + direction, 1));
+  const handleMonthChange = (step) => {
+    setDirection(step);
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + step, 1));
+  };
+
+  const variants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 50 : -50,
+      opacity: 0,
+      scale: 0.98
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1
+    },
+    exit: (direction) => ({
+      zIndex: 0,
+      x: direction < 0 ? 50 : -50,
+      opacity: 0,
+      scale: 0.98
+    })
   };
 
   // --- MAIN RETURN ---
@@ -398,28 +440,6 @@ const CalendarPage = ({ globalData, userProfile, activeProfile }) => {
       {/* ─── Toolbar ─── */}
       <div className="cal-toolbar">
         <div className="cal-toolbar-left">
-          <h1>Calendar</h1>
-          <span className="cal-batch-label">
-            {activeProfile?.batch || "2023-2027"}
-          </span>
-        </div>
-
-        <div className="cal-toolbar-center">
-          <button className="cal-nav-btn" onClick={() => handleMonthChange(-1)}>
-            <RiArrowLeftSLine />
-          </button>
-          <span className="cal-month-label">
-            {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-          </span>
-          <button className="cal-nav-btn" onClick={() => handleMonthChange(1)}>
-            <RiArrowRightSLine />
-          </button>
-          <button className="cal-today-btn" onClick={() => { setCurrentMonth(new Date()); setSelectedDate(new Date()); }}>
-            Today
-          </button>
-        </div>
-
-        <div className="cal-toolbar-right">
           <div className="cal-view-toggle">
             <button className={viewType === 'month' ? 'active' : ''} onClick={() => setViewType('month')}>
               <RiCalendarEventLine /> Month
@@ -429,12 +449,61 @@ const CalendarPage = ({ globalData, userProfile, activeProfile }) => {
             </button>
           </div>
         </div>
+
+        <div className="cal-toolbar-right">
+          <div className="cal-month-nav">
+            <button className="cal-nav-btn" onClick={() => handleMonthChange(-1)}>
+              <RiArrowLeftSLine />
+            </button>
+            <span className="cal-month-label">
+              {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </span>
+            <button className="cal-nav-btn" onClick={() => handleMonthChange(1)}>
+              <RiArrowRightSLine />
+            </button>
+            <button className="cal-today-btn" onClick={() => {
+              const today = new Date();
+              const todayMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+              const cm = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+
+              // Agenda Direction
+              if (today.getTime() !== selectedDate.getTime()) {
+                setAgendaDirection(today > selectedDate ? 1 : -1);
+              }
+
+              if (todayMonth.getTime() !== cm.getTime()) {
+                setDirection(todayMonth > cm ? 1 : -1);
+                setCurrentMonth(todayMonth);
+              }
+              setSelectedDate(today);
+            }}>
+              Today
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ─── Body ─── */}
       <div className="cal-body">
-        <div className="cal-main">
-          {viewType === 'month' ? renderMonthView() : renderScheduleView()}
+        <div className={`cal-main ${viewType === 'month' ? 'hide-scrollbar' : ''}`}>
+          <AnimatePresence mode="popLayout" initial={false} custom={direction}>
+            <motion.div
+              key={`${viewType}-${currentMonth.getTime()}`}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 400, damping: 35 },
+                opacity: { duration: 0.2 },
+                scale: { duration: 0.2 }
+              }}
+              style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}
+            >
+              {viewType === 'month' ? renderMonthView() : renderScheduleView()}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Desktop Sidebar — only in month view */}

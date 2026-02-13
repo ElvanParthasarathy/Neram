@@ -44,8 +44,8 @@
 
 .cal-toolbar-left {
     display: flex;
-    align-items: baseline;
-    gap: 12px;
+    align-items: center;
+    gap: 8px;
     min-width: 0;
 }
 
@@ -58,20 +58,13 @@
     color: var(--mac-text);
 }
 
-.cal-toolbar-left .cal-batch-label {
-    font-size: 11px;
-    font-weight: 700;
-    opacity: 0.4;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-}
-
-.cal-toolbar-center {
+.cal-month-nav {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
+
+/* Center group removed, logic moved to left */
 
 .cal-nav-btn {
     width: 34px;
@@ -98,9 +91,9 @@
 }
 
 .cal-month-label {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    min-width: 160px;
+    min-width: 140px;
     text-align: center;
     color: var(--mac-text);
 }
@@ -127,20 +120,20 @@
 .cal-toolbar-right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 16px;
 }
 
 .cal-view-toggle {
     display: flex;
     background: var(--mac-selection-bg);
-    border-radius: 10px;
+    border-radius: 999px;
     padding: 3px;
 }
 
 .cal-view-toggle button {
-    padding: 6px 14px;
+    padding: 6px 16px;
     border: none;
-    border-radius: 8px;
+    border-radius: 999px;
     background: transparent;
     font-size: 12px;
     font-weight: 700;
@@ -153,9 +146,9 @@
 }
 
 .cal-view-toggle button.active {
-    background: var(--mac-blue);
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(0, 99, 229, 0.3);
+    background: var(--mac-card-bg);
+    color: var(--mac-text);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .cal-view-toggle button svg {
@@ -180,11 +173,22 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
     min-width: 0;
     background: var(--mac-bg-content);
     border-radius: 20px;
     border: 1.5px solid var(--mac-divider);
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Hide scrollbar visually in month view, keep scroll functional */
+.cal-main.hide-scrollbar {
+    scrollbar-width: none;
+}
+
+.cal-main.hide-scrollbar::-webkit-scrollbar {
+    display: none;
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -195,8 +199,6 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    background: var(--mac-bg-content);
 }
 
 .cal-weekdays {
@@ -224,22 +226,20 @@
 }
 
 .cal-weeks {
-    flex: 1;
     display: flex;
     flex-direction: column;
+    flex: 1;
 }
 
 .cal-week-row {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    display: flex;
     flex: 1;
-    min-height: 0;
+    min-height: 100px;
     border-bottom: none;
 }
 
 .cal-week-row:last-child {
     border-bottom: none;
-    padding-bottom: 24px;
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -247,6 +247,7 @@
    ──────────────────────────────────────────────────────────────────────────── */
 
 .cal-day {
+    flex: 1;
     display: flex;
     flex-direction: column;
     padding: 5px 4px 3px;
@@ -434,6 +435,8 @@ html.dark .cal-day.selected {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
 }
 
 .cal-agenda-header {
@@ -466,6 +469,7 @@ html.dark .cal-day.selected {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width: 100%;
 }
 
 .cal-agenda-card {
@@ -564,8 +568,8 @@ html.dark .cal-agenda-card {
     display: flex;
     flex-direction: column;
     gap: 28px;
-    overflow-y: auto;
     flex: 1;
+    width: 100%;
 }
 
 .cal-sched-group {
@@ -693,6 +697,10 @@ html.dark .cal-agenda-card {
     flex: 1;
     padding: 8px 24px 24px;
     overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .cal-shutter-header {
