@@ -430,7 +430,7 @@ const Notes = () => {
                     cursor: pointer;
                     transition: all 0.2s;
                 }
-                .folder-item-mac:hover { background: var(--mac-selection-hover); border-color: var(--mac-blue); }
+                .folder-item-mac:hover { background: var(--mac-selection-hover); }
                 .folder-icon-glow {
                     width: 48px;
                     height: 48px;
@@ -456,7 +456,7 @@ const Notes = () => {
                     overflow: hidden;
                     transition: all 0.3s ease;
                 }
-                .subject-accordion-card.active { border-color: var(--mac-blue); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+                .subject-accordion-card.active { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
                 .accordion-header-row {
                     padding: 20px 24px;
                     display: flex;
