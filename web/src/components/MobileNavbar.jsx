@@ -353,7 +353,7 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
               {/* === VIEW 1: MAIN MENU === */}
               <div className="menu-view">
                 <button onClick={() => handleNav('/settings')} className="menu-item">
-                  <IconSettings className="menu-icon" /> Profile
+                  <IconSettings className="menu-icon" /> Settings
                 </button>
                 <button onClick={() => handleNav('/college-sites')} className="menu-item">
                   <IconSites className="menu-icon" /> College Sites
