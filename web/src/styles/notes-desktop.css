@@ -75,7 +75,6 @@
     align-items: center;
     padding: 16px 20px;
     background: var(--mac-sidebar-bg);
-    border: 1px solid var(--mac-divider);
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.2s;
@@ -127,7 +126,6 @@
 
 .subject-accordion-card {
     background: var(--mac-sidebar-bg);
-    border: 1px solid var(--mac-divider);
     border-radius: 24px;
     margin-bottom: 12px;
     overflow: hidden;
