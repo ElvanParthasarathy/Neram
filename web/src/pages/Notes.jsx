@@ -357,28 +357,30 @@ const Notes = () => {
                                                 {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
                                             </div>
 
-                                            {isExpanded && (
-                                                <div className="accordion-content-area">
-                                                    <div className="units-grid">
-                                                        {[1, 2, 3, 4, 5].map(n => {
-                                                            const key = `Unit ${n}`;
-                                                            const url = sub.units[key] || sub.units[`unit ${n}`];
-                                                            const isAvailable = !!url;
-                                                            return (
-                                                                <div
-                                                                    key={n}
-                                                                    className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
-                                                                    onClick={() => isAvailable ? window.open(url, "_blank") : null}
-                                                                >
-                                                                    {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
-                                                                    <span className="unit-label">{key}</span>
-                                                                    {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
-                                                                </div>
-                                                            );
-                                                        })}
+                                            <div className={`accordion-collapse ${isExpanded ? 'open' : ''}`}>
+                                                <div className="accordion-inner">
+                                                    <div className="accordion-content-area">
+                                                        <div className="units-grid">
+                                                            {[1, 2, 3, 4, 5].map(n => {
+                                                                const key = `Unit ${n}`;
+                                                                const url = sub.units[key] || sub.units[`unit ${n}`];
+                                                                const isAvailable = !!url;
+                                                                return (
+                                                                    <div
+                                                                        key={n}
+                                                                        className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
+                                                                        onClick={() => isAvailable ? window.open(url, "_blank") : null}
+                                                                    >
+                                                                        {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
+                                                                        <span className="unit-label">{key}</span>
+                                                                        {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            )}
+                                            </div>
                                         </div>
                                     );
                                 })}

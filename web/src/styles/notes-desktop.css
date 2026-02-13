@@ -162,6 +162,20 @@
     line-height: 1.4;
 }
 
+.accordion-collapse {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease-out;
+}
+
+.accordion-collapse.open {
+    grid-template-rows: 1fr;
+}
+
+.accordion-inner {
+    overflow: hidden;
+}
+
 .accordion-content-area {
     padding: 0 24px 24px 24px;
 }
