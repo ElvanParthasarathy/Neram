@@ -26,7 +26,7 @@ import CollegeSites from "./pages/CollegeSites";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import Settings from "./pages/Settings";
+import Settings2 from "./pages/Settings2";
 import AdminPanel from "./pages/AdminPanel";
 import Notes from "./pages/Notes";
 import SplashScreen from "./components/SplashScreen";
@@ -170,7 +170,7 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
                     <Route path="/notes" element={<Notes />} />
                     <Route path="/college-sites" element={<CollegeSites />} />
 
-                    <Route path="/settings" element={<Settings userProfile={dbUserProfile} />} />
+                    <Route path="/settings" element={<Settings2 userProfile={dbUserProfile} />} />
 
                     {/* Redirect /admin to the separate admin site */}
                     <Route path="/admin" element={<div style={{ padding: 50 }}>Please use <a href="/admin.html">/admin.html</a> or the Admin Portal URL.</div>} />
