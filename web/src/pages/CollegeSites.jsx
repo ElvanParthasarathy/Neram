@@ -1,4 +1,5 @@
 import React from "react";
+
 import "../styles/sites-desktop.css";
 
 const CollegeSites = () => {
@@ -9,7 +10,6 @@ const CollegeSites = () => {
       description: "Official RMD college website.",
       icon: "ri-building-4-fill"
     },
-
     {
       name: "RMK Nextgen Student",
       url: "https://nextgen.rmd.ac.in/",
@@ -34,7 +34,6 @@ const CollegeSites = () => {
       description: "Daily coding challenges and problem-solving tasks.",
       icon: "ri-terminal-box-fill"
     },
-
     {
       name: "Code Tantra",
       url: "https://rmd.codetantra.com/",
@@ -44,7 +43,7 @@ const CollegeSites = () => {
   ];
 
   return (
-    <div className="sites-view">
+    <div className="h2-view sites-view">
       <div className="sites-container">
 
         <header className="page-header">

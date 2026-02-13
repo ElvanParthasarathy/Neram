@@ -1,102 +1,107 @@
 /* ==========================================================================
-   COLLEGE SITES: DESKTOP STYLES (Colors & Theme Only)
+   COLLEGE SITES: DESKTOP STYLES
    ========================================================================== */
 
-/* Page Background & Text */
 .sites-view {
-    min-height: 100vh;
-    background-color: transparent;
-    /* Assuming main layout handles bg, if not uses proper variable */
-    color: var(--mac-text);
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 80px;
 }
 
 .sites-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px 80px 24px;
-}
-
-@media (max-width: 768px) {
-    .sites-container {
-        padding: 0 16px 80px 16px;
-    }
-}
-
-/* Header Typography */
-.page-title {
-    color: var(--mac-text);
-    margin-bottom: 8px;
-}
-
-.page-subtitle {
-    color: var(--mac-text-secondary);
-}
-
-/* Card Styling - Colors Only */
-.site-link-card {
     display: flex;
-    /* Ensure display is preserved if not already global */
     flex-direction: column;
-    background: var(--mac-sidebar-bg);
-    border-radius: 20px;
-    /* Matching other cards */
-    padding: 24px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    border: 1px solid var(--mac-divider);
-    /* Subtle border for definition */
+    gap: 24px;
 }
 
-/* Remove border if user prefers flat look like notes, 
-   but for now keeping subtle match to older folder style or flat if requested.
-   User said "match other pages". Notes just removed border. 
-   I will use border-radius and background mainly. 
-*/
-.site-link-card {
-    border: none;
-    /* Matching Notes flat look */
-    /* If resizing logic needed, keep layout styles minimal or rely on grid */
+.page-header {
+    margin-bottom: 16px;
 }
 
-.site-name {
+.page-title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
     color: var(--mac-text);
-    font-size: 18px;
-    font-weight: 700;
-    margin: 16px 0 8px 0;
-}
-
-.site-description {
-    color: var(--mac-text-secondary);
-    font-size: 14px;
-    line-height: 1.5;
     margin: 0;
 }
 
+.page-subtitle {
+    font-size: 15px;
+    color: var(--mac-text-secondary);
+    margin-top: 6px;
+}
+
+.sites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.site-link-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--mac-sidebar-bg);
+    padding: 24px;
+    border-radius: 24px;
+    text-decoration: none;
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    user-select: none;
+    cursor: pointer;
+}
+
+/* Dark mode override if needed, though var(--mac-sidebar-bg) usually handles it */
+html.dark .site-link-card {
+    background: #121212;
+}
+
+.site-link-card:hover {
+    background: var(--mac-selection-hover);
+    transform: translateY(-2px);
+}
+
 .site-icon {
-    width: 48px;
-    height: 48px;
-    background: rgba(0, 122, 255, 0.1);
-    color: var(--mac-blue);
-    border-radius: 12px;
+    font-size: 32px;
+    color: var(--mac-text);
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    width: 56px;
+    height: 56px;
+    background: var(--mac-bg);
+    border-radius: 16px;
+}
+
+html.dark .site-icon {
+    background: #1e1e1e;
+}
+
+.site-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin: 0 0 8px 0;
+}
+
+.site-description {
+    font-size: 14px;
+    color: var(--mac-text-secondary);
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
 }
 
 .arrow-indicator {
     position: absolute;
     top: 24px;
     right: 24px;
+    font-size: 20px;
     color: var(--mac-text-secondary);
     opacity: 0.5;
     transition: all 0.2s;
-}
-
-/* Hover Effects */
-.site-link-card:hover {
-    background: var(--mac-selection-hover);
-    transform: translateY(-2px);
 }
 
 .site-link-card:hover .arrow-indicator {
@@ -105,20 +110,12 @@
     transform: translate(2px, -2px);
 }
 
-/* Dark Mode Overrides */
-html.dark .sites-view {
-    /* Background handled global or transparent */
-}
+@media (max-width: 768px) {
+    .sites-view {
+        padding: 0 16px 80px 16px;
+    }
 
-/* Grid Layout (Preserving existing structure) */
-.sites-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-    padding-top: 32px;
-}
-
-.site-link-card {
-    position: relative;
-    /* For absolute arrow */
+    .sites-grid {
+        grid-template-columns: 1fr;
+    }
 }
