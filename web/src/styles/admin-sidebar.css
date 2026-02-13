@@ -5,7 +5,9 @@
    ========================================================================== */
 
     .admin-sidebar {
-        flex: 0 0 var(--sidebar-width);
+        flex: 0 0 auto;
+        width: var(--sidebar-width);
+        min-width: var(--sidebar-width);
         height: 100%;
         background: var(--mac-sidebar-bg);
         backdrop-filter: var(--mac-sidebar-blur);
@@ -18,7 +20,10 @@
         flex-direction: column;
         z-index: 1000;
         overflow: visible;
-        transition: background 0.3s ease;
+        transition: width 0.25s cubic-bezier(0.2, 0, 0, 1),
+            min-width 0.25s cubic-bezier(0.2, 0, 0, 1),
+            background 0.3s ease;
+        will-change: width, min-width;
     }
 
     .admin-sidebar-branding {
@@ -74,8 +79,20 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        transition: background 0.1s ease;
+        transition: background 0.1s ease,
+            padding 0.25s cubic-bezier(0.2, 0, 0, 1),
+            width 0.25s cubic-bezier(0.2, 0, 0, 1),
+            border-radius 0.25s cubic-bezier(0.2, 0, 0, 1);
         user-select: none;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .admin-nav-link span {
+        display: inline-block;
+        opacity: 1;
+        transition: width 0.25s cubic-bezier(0.2, 0, 0, 1),
+            opacity 0.2s ease 0.05s;
     }
 
     .admin-nav-icon {
@@ -83,6 +100,8 @@
         color: currentColor;
         /* Matches text color instead of blue */
         opacity: 0.8;
+        flex-shrink: 0;
+        transition: font-size 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
 
     .admin-nav-link:hover {
@@ -102,6 +121,13 @@
         text-transform: none;
         color: var(--mac-sidebar-header-text);
         letter-spacing: -0.1px;
+        max-height: 24px;
+        opacity: 1;
+        overflow: hidden;
+        transition: max-height 0.25s cubic-bezier(0.2, 0, 0, 1),
+            opacity 0.15s ease,
+            padding 0.25s cubic-bezier(0.2, 0, 0, 1),
+            margin 0.25s cubic-bezier(0.2, 0, 0, 1);
     }
 
     /* --- DARK MODE LOGO FIX --- */
@@ -144,13 +170,9 @@
        COLLAPSED STATE
        ────────────────────────────────────────────────────────────────────── */
 
-    .admin-sidebar {
-        transition: flex-basis 0.25s cubic-bezier(0.2, 0, 0, 1),
-            width 0.25s cubic-bezier(0.2, 0, 0, 1);
-    }
-
     .admin-sidebar.collapsed {
-        flex: 0 0 68px;
+        width: 68px;
+        min-width: 68px;
     }
 
     .admin-sidebar.collapsed .admin-sidebar-branding {
@@ -176,24 +198,33 @@
     }
 
     .admin-sidebar.collapsed .nav-group-label {
-        display: none;
+        max-height: 0;
+        opacity: 0;
+        padding: 0;
+        margin: 0;
     }
 
     .admin-sidebar.collapsed .admin-nav-link {
         justify-content: center;
-        padding: 10px;
+        padding: 0;
         border-radius: 12px;
         width: 44px;
         height: 44px;
+        gap: 0;
     }
 
     .admin-sidebar.collapsed .admin-nav-link span {
-        display: none;
+        width: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: width 0.15s cubic-bezier(0.2, 0, 0, 1),
+            opacity 0.1s ease;
     }
 
     .admin-sidebar.collapsed .admin-nav-icon {
-        font-size: 20px;
+        font-size: 19px;
         margin: 0;
+        opacity: 1;
     }
 
     /* Hide user text in collapsed state */
@@ -209,5 +240,17 @@
     .admin-sidebar.collapsed .user-auth-zone {
         display: flex;
         justify-content: center;
+        overflow: visible;
+        /* Allow popup to overflowing */
+    }
+
+    /* Fix Popup in Collapsed State - Flyout Style */
+    .admin-sidebar.collapsed .logout-popup-solid {
+        left: 78px;
+        /* Push out to the right */
+        bottom: 20px;
+        width: 240px;
+        right: auto;
+        transform-origin: bottom left;
     }
 }
