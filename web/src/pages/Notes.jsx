@@ -220,6 +220,13 @@ const Notes = () => {
         }
     };
 
+    const selectDeptFromSidebar = (dept) => {
+        if (path[0] === dept) return; // Already here
+        setPath([dept]);
+        fetchNotes(dept);
+        setExpandedSubjects({});
+    };
+
     const navigateUp = () => {
         if (path.length > 0) {
             const newPath = path.slice(0, -1);
@@ -289,110 +296,144 @@ const Notes = () => {
     // --- UI RENDERERS ---
     return (
         <div className="h2-view notes-container">
-            {/* Breadcrumb Header */}
-            <div className={`notes-header-stack ${path.length > 0 ? 'has-path' : ''}`}>
-                {path.length > 0 && (
-                    <button className="back-circle-btn" onClick={navigateUp}>
-                        <RiArrowLeftSLine />
-                    </button>
-                )}
-                <div>
-                    <h1 className="notes-title">
-                        {path.length === 0 ? "Lecture Notes" : path[path.length - 1]}
-                    </h1>
-                    {path.length > 0 && (
-                        <div className="notes-breadcrumb-sub">
-                            {path.slice(0, -1).join(" / ")}
-                        </div>
-                    )}
+            <div className="notes-split-container">
+
+                {/* Master: Sidebar Departments */}
+                <div className="notes-sidebar-pane">
+                    <h3 style={{ fontSize: '12px', fontWeight: 700, opacity: 0.5, textTransform: 'uppercase', marginBottom: '8px', paddingLeft: '16px' }}>Departments</h3>
+                    {ROOT_DEPTS.map(dept => {
+                        const isActive = path[0] === dept;
+                        return (
+                            <div
+                                key={dept}
+                                className={`notes-sidebar-item ${isActive ? 'active' : ''}`}
+                                onClick={() => selectDeptFromSidebar(dept)}
+                            >
+                                <div className="sidebar-icon-glow">
+                                    <RiFolderFill />
+                                </div>
+                                <span>{dept}</span>
+                            </div>
+                        )
+                    })}
                 </div>
-            </div>
 
-            {/* Main Content Area */}
-            <div className="notes-viewport">
-                {uiStatus === 'loading' && (
-                    <div className="centered-state">
-                        <div className="spinner-mac big"></div>
-                        <p>Syncing with RMD server...</p>
-                    </div>
-                )}
+                {/* Detail: Dynamic Content area */}
+                <div className="notes-content-pane">
 
-                {uiStatus === 'error' && (
-                    <div className="error-card-glass">
-                        <RiErrorWarningLine className="error-icon" />
-                        <h3>Connection Failed</h3>
-                        <p>{error}</p>
-                        <button className="btn-primary" onClick={() => fetchNotes(path[0])}>Retry Connection</button>
-                    </div>
-                )}
-
-                {(uiStatus === 'browser' || uiStatus === 'empty') && browserContent && (
-                    <>
-                        {browserContent.type === 'folders' && (
-                            <div className="folder-grid">
-                                {browserContent.items.map((name, i) => (
-                                    <div key={i} className="folder-item-mac" onClick={() => enterFolder(name)}>
-                                        <div className="folder-icon-glow">
-                                            <RiFolderFill />
-                                        </div>
-                                        <div className="folder-info">
-                                            <span className="folder-name">{name}</span>
-                                            <span className="folder-sub">Folder</span>
-                                        </div>
-                                        <RiArrowRightSLine className="folder-chevron" />
-                                    </div>
-                                ))}
-                            </div>
+                    {/* Breadcrumb / Title area within Content Pane */}
+                    <div className={`notes-header-stack ${path.length > 1 ? 'has-path' : ''}`}>
+                        {path.length > 1 && (
+                            <button className="back-circle-btn" onClick={navigateUp}>
+                                <RiArrowLeftSLine />
+                            </button>
                         )}
+                        <div>
+                            <h1 className="notes-title">
+                                {path.length === 0 ? "Select Department" : path[path.length - 1]}
+                            </h1>
+                            {path.length > 1 && (
+                                <div className="notes-breadcrumb-sub">
+                                    {path.slice(0, -1).join(" / ")}
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-                        {browserContent.type === 'files' && (
-                            <div className="files-stack">
-                                {browserContent.items.map((sub, i) => {
-                                    const isExpanded = expandedSubjects[sub.name];
-                                    return (
-                                        <div key={i} className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}>
-                                            <div className="accordion-header-row" onClick={() => setExpandedSubjects(p => ({ ...p, [sub.name]: !p[sub.name] }))}>
-                                                <div className="indicator-bar"></div>
-                                                <span className="subject-title">{sub.name}</span>
-                                                {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
-                                            </div>
-
-                                            {isExpanded && (
-                                                <div className="accordion-content-area">
-                                                    <div className="units-grid">
-                                                        {[1, 2, 3, 4, 5].map(n => {
-                                                            const key = `Unit ${n}`;
-                                                            const url = sub.units[key] || sub.units[`unit ${n}`];
-                                                            const isAvailable = !!url;
-                                                            return (
-                                                                <div
-                                                                    key={n}
-                                                                    className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
-                                                                    onClick={() => isAvailable ? window.open(url, "_blank") : null}
-                                                                >
-                                                                    {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
-                                                                    <span className="unit-label">{key}</span>
-                                                                    {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-
-                        {browserContent.type === 'empty' && (
+                    {/* Viewport content */}
+                    <div className="notes-viewport">
+                        {uiStatus === 'empty' && (
                             <div className="centered-state">
-                                <RiInformationLine className="centered-state-icon" />
-                                <p className="centered-state-text">No course material available in this directory.</p>
+                                <RiFolderOpenLine className="centered-state-icon" style={{ fontSize: '64px' }} />
+                                <p style={{ fontSize: '18px', opacity: 0.5 }}>Choose a department on the left to start browsing.</p>
                             </div>
                         )}
-                    </>
-                )}
+
+                        {uiStatus === 'loading' && (
+                            <div className="centered-state">
+                                <div className="spinner-mac big"></div>
+                                <p>Syncing with RMD server...</p>
+                            </div>
+                        )}
+
+                        {uiStatus === 'error' && (
+                            <div className="error-card-glass">
+                                <RiErrorWarningLine className="error-icon" />
+                                <h3>Connection Failed</h3>
+                                <p>{error}</p>
+                                <button className="btn-primary" onClick={() => fetchNotes(path[0])}>Retry Connection</button>
+                            </div>
+                        )}
+
+                        {uiStatus === 'browser' && browserContent && (
+                            <>
+                                {browserContent.type === 'folders' && (
+                                    <div className="folder-grid">
+                                        {browserContent.items.map((name, i) => (
+                                            <div key={i} className="folder-item-mac" onClick={() => enterFolder(name)}>
+                                                <div className="folder-icon-glow">
+                                                    <RiFolderFill />
+                                                </div>
+                                                <div className="folder-info">
+                                                    <span className="folder-name">{name}</span>
+                                                    <span className="folder-sub">Folder</span>
+                                                </div>
+                                                <RiArrowRightSLine className="folder-chevron" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {browserContent.type === 'files' && (
+                                    <div className="files-stack">
+                                        {browserContent.items.map((sub, i) => {
+                                            const isExpanded = expandedSubjects[sub.name];
+                                            return (
+                                                <div key={i} className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}>
+                                                    <div className="accordion-header-row" onClick={() => setExpandedSubjects(p => ({ ...p, [sub.name]: !p[sub.name] }))}>
+                                                        <div className="indicator-bar"></div>
+                                                        <span className="subject-title">{sub.name}</span>
+                                                        {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
+                                                    </div>
+
+                                                    {isExpanded && (
+                                                        <div className="accordion-content-area">
+                                                            <div className="units-grid">
+                                                                {[1, 2, 3, 4, 5].map(n => {
+                                                                    const key = `Unit ${n}`;
+                                                                    const url = sub.units[key] || sub.units[`unit ${n}`];
+                                                                    const isAvailable = !!url;
+                                                                    return (
+                                                                        <div
+                                                                            key={n}
+                                                                            className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
+                                                                            onClick={() => isAvailable ? window.open(url, "_blank") : null}
+                                                                        >
+                                                                            {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
+                                                                            <span className="unit-label">{key}</span>
+                                                                            {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {browserContent.type === 'empty' && (
+                                    <div className="centered-state">
+                                        <RiInformationLine className="centered-state-icon" />
+                                        <p className="centered-state-text">No course material available in this directory.</p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
