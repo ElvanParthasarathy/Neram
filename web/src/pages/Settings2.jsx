@@ -690,6 +690,10 @@ const StorageSettings = ({ userProfile, onBack }) => {
 
 const SecuritySettings = ({ onBack }) => {
     const [secView, setSecView] = useState("hub");
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deletePassword, setDeletePassword] = useState("");
+    const [deleteStatus, setDeleteStatus] = useState(null);
+    const [deleteMsg, setDeleteMsg] = useState("");
 
     if (secView === "change_password") {
         return <ChangePasswordView onBack={() => setSecView("hub")} />;
@@ -701,10 +705,6 @@ const SecuritySettings = ({ onBack }) => {
     // Hub view
     const user = auth.currentUser;
     const hasPassword = user?.providerData?.some(p => p.providerId === "password");
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [deletePassword, setDeletePassword] = useState("");
-    const [deleteStatus, setDeleteStatus] = useState(null);
-    const [deleteMsg, setDeleteMsg] = useState("");
 
     const handleDeleteAccount = async () => {
         if (!user) return;
