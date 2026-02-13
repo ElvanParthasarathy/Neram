@@ -25,6 +25,12 @@ import {
     RiKeyLine,
     RiLinkM,
     RiErrorWarningLine,
+    RiLockPasswordLine,
+    RiLoader4Line,
+    RiEyeLine,
+    RiEyeOffLine,
+    RiGoogleFill,
+    RiCheckboxCircleLine,
     RiUser3Fill,
     RiCalendar2Line,
     RiMegaphoneLine,
@@ -713,9 +719,20 @@ const StorageSettings = ({ userProfile, onBack }) => {
 const SecuritySettings = ({ onBack }) => {
     const [secView, setSecView] = useState("hub");
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [step, setStep] = useState(1); // 1: Warning, 2: Confirm
     const [deletePassword, setDeletePassword] = useState("");
-    const [deleteStatus, setDeleteStatus] = useState(null);
-    const [deleteMsg, setDeleteMsg] = useState("");
+    const [showPass, setShowPass] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [error, setError] = useState(null);
+
+    // Reset state when dialog closes
+    const closeDeleteDialog = () => {
+        setShowDeleteConfirm(false);
+        setStep(1);
+        setDeletePassword("");
+        setError(null);
+        setIsProcessing(false);
+    };
 
     if (secView === "change_password") {
         return <ChangePasswordView onBack={() => setSecView("hub")} />;
@@ -729,12 +746,12 @@ const SecuritySettings = ({ onBack }) => {
     const hasPassword = user?.providerData?.some(p => p.providerId === "password");
 
     const handleDeleteAccount = async () => {
-        if (!user) return;
-        setDeleteStatus("loading");
-        setDeleteMsg("Deleting account...");
+        if (!deletePassword && hasPassword) return setError("Please enter your password to confirm");
+        setIsProcessing(true);
+        setError(null);
         try {
             // Re-authenticate if password provider exists
-            if (hasPassword && deletePassword) {
+            if (hasPassword) {
                 const credential = EmailAuthProvider.credential(user.email, deletePassword);
                 await reauthenticateWithCredential(user, credential);
             }
@@ -743,17 +760,16 @@ const SecuritySettings = ({ onBack }) => {
             await remove(ref(db, `users/${user.uid}`));
             // Delete auth account
             await deleteUser(user);
+            // Redirect happens via App.jsx auth listener
         } catch (e) {
             console.error("Delete account failed:", e);
-            setDeleteStatus("error");
+            setError(e.message || "Failed to delete account.");
             if (e.code === "auth/wrong-password") {
-                setDeleteMsg("Incorrect password. Please try again.");
+                setError("Incorrect password. Please try again.");
             } else if (e.code === "auth/requires-recent-login") {
-                setDeleteMsg("Please sign out and sign back in, then try again.");
-            } else {
-                setDeleteMsg(e.message || "Failed to delete account.");
+                setError("Please sign out and sign back in, then try again.");
             }
-            setShowDeleteConfirm(false);
+            setIsProcessing(false);
         }
     };
 
@@ -794,44 +810,75 @@ const SecuritySettings = ({ onBack }) => {
                 />
             </SettingsGroup>
 
-            {deleteStatus === "error" && (
-                <>
-                    <div className="s2-spacer-sm" />
-                    <p className="s2-info-text" style={{ color: "#F44336" }}>{deleteMsg}</p>
-                </>
-            )}
-
             {/* Delete Account Dialog */}
             {showDeleteConfirm && (
-                <div className="s2-dialog-overlay" onClick={() => setShowDeleteConfirm(false)}>
+                <div className="s2-dialog-overlay" onClick={closeDeleteDialog}>
                     <div className="s2-dialog" onClick={(e) => e.stopPropagation()}>
                         <div className="s2-dialog-title">Delete Account</div>
-                        <div className="s2-dialog-text">
-                            This will permanently delete your account and all associated data. This action cannot be undone.
-                        </div>
-                        {hasPassword && (
-                            <input
-                                type="password"
-                                placeholder="Enter your password to confirm"
-                                value={deletePassword}
-                                onChange={(e) => setDeletePassword(e.target.value)}
-                                style={{
-                                    width: "100%", padding: "10px 12px", borderRadius: 12,
-                                    border: "1px solid var(--mac-divider)",
-                                    background: "var(--mac-bg)", color: "var(--mac-text)",
-                                    fontFamily: "inherit", fontSize: 14, marginBottom: 16,
-                                    boxSizing: "border-box"
-                                }}
-                            />
+
+                        {step === 1 && (
+                            <>
+                                <div className="s2-dialog-text">
+                                    <div style={{ background: "rgba(244, 67, 54, 0.1)", padding: 12, borderRadius: 8, color: "#D32F2F", fontSize: 13, marginBottom: 12 }}>
+                                        <strong>⚠️ This action is permanent</strong><br />
+                                        All your data, schedule, and preferences will be lost forever.
+                                    </div>
+                                    Are you sure you want to proceed?
+                                </div>
+                                <div className="s2-dialog-actions">
+                                    <button className="s2-dialog-btn cancel" onClick={closeDeleteDialog}>
+                                        Cancel
+                                    </button>
+                                    <button className="s2-dialog-btn confirm" style={{ background: "#F44336" }} onClick={() => setStep(2)}>
+                                        Continue
+                                    </button>
+                                </div>
+                            </>
                         )}
-                        <div className="s2-dialog-actions">
-                            <button className="s2-dialog-btn cancel" onClick={() => setShowDeleteConfirm(false)}>
-                                Cancel
-                            </button>
-                            <button className="s2-dialog-btn confirm" onClick={handleDeleteAccount}>
-                                Delete Account
-                            </button>
-                        </div>
+
+                        {step === 2 && (
+                            <>
+                                <div className="s2-dialog-text">
+                                    Please enter your password to confirm deletion.
+                                </div>
+                                {hasPassword && (
+                                    <div style={{ position: "relative", marginBottom: 16 }}>
+                                        <input
+                                            type={showPass ? "text" : "password"}
+                                            placeholder="Enter your password"
+                                            value={deletePassword}
+                                            onChange={(e) => setDeletePassword(e.target.value)}
+                                            style={{
+                                                width: "100%", padding: "10px 40px 10px 12px", borderRadius: 12,
+                                                border: "1px solid var(--mac-divider)",
+                                                background: "var(--mac-bg)", color: "var(--mac-text)",
+                                                fontFamily: "inherit", fontSize: 14,
+                                                boxSizing: "border-box"
+                                            }}
+                                        />
+                                        <button
+                                            onClick={() => setShowPass(!showPass)}
+                                            style={{
+                                                position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                                                background: "none", border: "none", cursor: "pointer", color: "var(--mac-text-secondary)",
+                                                display: "flex", alignItems: "center"
+                                            }}
+                                        >
+                                            {showPass ? <RiEyeOffLine /> : <RiEyeLine />}
+                                        </button>
+                                    </div>
+                                )}
+                                {error && <p className="s2-info-text" style={{ color: "#F44336", marginTop: 0, marginBottom: 12 }}>{error}</p>}
+                                <div className="s2-dialog-actions">
+                                    <button className="s2-dialog-btn cancel" onClick={closeDeleteDialog}>
+                                        Cancel
+                                    </button>
+                                    <button className="s2-dialog-btn confirm" style={{ background: "#F44336" }} onClick={handleDeleteAccount} disabled={isProcessing}>
+                                        {isProcessing ? "Deleting..." : "Delete Forever"}
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
@@ -845,113 +892,167 @@ const ChangePasswordView = ({ onBack }) => {
     const user = auth.currentUser;
     const hasPassword = user?.providerData?.some(p => p.providerId === "password");
 
+    const [step, setStep] = useState(hasPassword ? 1 : 2); // 1: Verify, 2: New Password, 3: Success
     const [currentPw, setCurrentPw] = useState("");
     const [newPw, setNewPw] = useState("");
     const [confirmPw, setConfirmPw] = useState("");
-    const [status, setStatus] = useState(null);
-    const [statusMsg, setStatusMsg] = useState("");
+    const [showPass, setShowPass] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [error, setError] = useState(null);
 
-    const handleSubmit = async () => {
-        if (newPw.length < 6) {
-            setStatus("error");
-            setStatusMsg("Password must be at least 6 characters.");
-            return;
-        }
-        if (newPw !== confirmPw) {
-            setStatus("error");
-            setStatusMsg("Passwords do not match.");
-            return;
-        }
-
-        setStatus("loading");
-        setStatusMsg(hasPassword ? "Changing password..." : "Creating password...");
-
+    const handleVerify = async () => {
+        if (!currentPw) return setError("Please enter your current password");
+        setIsProcessing(true);
+        setError(null);
         try {
-            // Re-authenticate with current password if changing
-            if (hasPassword && currentPw) {
-                const credential = EmailAuthProvider.credential(user.email, currentPw);
-                await reauthenticateWithCredential(user, credential);
-            }
+            const cred = EmailAuthProvider.credential(user.email, currentPw);
+            await reauthenticateWithCredential(user, cred);
+            setStep(2);
+        } catch (err) {
+            setError("Incorrect password");
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleUpdate = async () => {
+        if (newPw.length < 6) return setError("Password must be at least 6 characters");
+        if (newPw !== confirmPw) return setError("Passwords do not match");
+
+        setIsProcessing(true);
+        setError(null);
+        try {
             await updatePassword(user, newPw);
-            setStatus("success");
-            setStatusMsg(hasPassword ? "Password changed successfully!" : "Password created successfully!");
-            setCurrentPw("");
-            setNewPw("");
-            setConfirmPw("");
-        } catch (e) {
-            console.error("Password update failed:", e);
-            setStatus("error");
-            if (e.code === "auth/wrong-password") {
-                setStatusMsg("Current password is incorrect.");
-            } else if (e.code === "auth/requires-recent-login") {
-                setStatusMsg("Please sign out and sign back in, then try again.");
-            } else {
-                setStatusMsg(e.message || "Failed to update password.");
-            }
+            setStep(3);
+            setTimeout(onBack, 2000);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setIsProcessing(false);
         }
     };
 
     const inputStyle = {
-        width: "100%", padding: "12px 16px", borderRadius: 12,
+        width: "100%", padding: "12px 40px 12px 16px", borderRadius: 12,
         border: "1px solid var(--mac-divider)",
         background: "var(--mac-bg)", color: "var(--mac-text)",
         fontFamily: "inherit", fontSize: 14, boxSizing: "border-box"
     };
 
+    const InputWithEye = ({ value, onChange, placeholder }) => (
+        <div style={{ position: "relative" }}>
+            <input
+                type={showPass ? "text" : "password"}
+                placeholder={placeholder}
+                value={value}
+                onChange={onChange}
+                style={inputStyle}
+            />
+            <button
+                onClick={() => setShowPass(!showPass)}
+                style={{
+                    position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                    background: "none", border: "none", cursor: "pointer", color: "var(--mac-text-secondary)",
+                    display: "flex", alignItems: "center"
+                }}
+            >
+                {showPass ? <RiEyeOffLine /> : <RiEyeLine />}
+            </button>
+        </div>
+    );
+
     return (
         <>
             <SubHeader title={hasPassword ? "Change Password" : "Create Password"} onBack={onBack} />
 
-            <SettingsGroup>
-                <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
-                    {hasPassword && (
-                        <input
-                            type="password"
-                            placeholder="Current password"
-                            value={currentPw}
-                            onChange={(e) => setCurrentPw(e.target.value)}
-                            style={inputStyle}
-                        />
-                    )}
-                    <input
-                        type="password"
-                        placeholder="New password"
-                        value={newPw}
-                        onChange={(e) => setNewPw(e.target.value)}
-                        style={inputStyle}
-                    />
-                    <input
-                        type="password"
-                        placeholder="Confirm new password"
-                        value={confirmPw}
-                        onChange={(e) => setConfirmPw(e.target.value)}
-                        style={inputStyle}
-                    />
-                    <button
-                        onClick={handleSubmit}
-                        disabled={status === "loading"}
-                        style={{
-                            padding: "12px", borderRadius: 100, border: "none",
-                            background: "#9C27B0", color: "#fff",
-                            fontWeight: 600, fontSize: 14, cursor: "pointer",
-                            fontFamily: "inherit", opacity: status === "loading" ? 0.6 : 1
-                        }}
-                    >
-                        {status === "loading" ? "Please wait..." : hasPassword ? "Change Password" : "Create Password"}
-                    </button>
-                </div>
-            </SettingsGroup>
+            <div style={{ padding: "0 24px" }}>
+                {/* Progress Steps */}
+                {hasPassword && step < 3 && (
+                    <div style={{ display: "flex", gap: 8, marginBottom: 24, justifyContent: "center" }}>
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: step >= 1 ? "#9C27B0" : "var(--mac-divider)" }} />
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: step >= 2 ? "#9C27B0" : "var(--mac-divider)" }} />
+                    </div>
+                )}
 
-            {status && status !== "loading" && (
-                <>
-                    <div className="s2-spacer-sm" />
-                    <p className="s2-info-text" style={{
-                        color: status === "error" ? "#F44336" : "#4CAF50"
-                    }}>
-                        {statusMsg}
-                    </p>
-                </>
-            )}
+                {step === 1 && (
+                    <SettingsGroup>
+                        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+                            <div className="s2-info-text" style={{ margin: 0 }}>
+                                Please verify your identity by entering your current password.
+                            </div>
+                            <InputWithEye value={currentPw} onChange={(e) => setCurrentPw(e.target.value)} placeholder="Current Password" />
+                            {error && <p className="s2-info-text" style={{ color: "#F44336", margin: 0 }}>{error}</p>}
+                            <button
+                                onClick={handleVerify}
+                                disabled={isProcessing}
+                                style={{
+                                    padding: "12px", borderRadius: 100, border: "none",
+                                    background: "#9C27B0", color: "#fff",
+                                    fontWeight: 600, fontSize: 14, cursor: "pointer",
+                                    fontFamily: "inherit", opacity: isProcessing ? 0.6 : 1,
+                                    display: "flex", justifyContent: "center", alignItems: "center", gap: 8
+                                }}
+                            >
+                                {isProcessing && <RiLoader4Line className="s2-spin" />}
+                                Verify & Continue
+                            </button>
+                        </div>
+                    </SettingsGroup>
+                )}
+
+                {step === 2 && (
+                    <SettingsGroup>
+                        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+                            {!hasPassword && (
+                                <div style={{ background: "rgba(33, 150, 243, 0.1)", padding: 12, borderRadius: 12, display: "flex", gap: 8, alignItems: "start" }}>
+                                    <RiInformationLine style={{ color: "#2196F3", fontSize: 18, marginTop: 2 }} />
+                                    <p style={{ margin: 0, fontSize: 13, color: "#2196F3", lineHeight: 1.4 }}>
+                                        You signed in with Google. Create a password to enable email sign-in.
+                                    </p>
+                                </div>
+                            )}
+                            <InputWithEye value={newPw} onChange={(e) => setNewPw(e.target.value)} placeholder="New Password (min 6 chars)" />
+                            <InputWithEye value={confirmPw} onChange={(e) => setConfirmPw(e.target.value)} placeholder="Confirm Password" />
+
+                            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: newPw.length >= 6 ? "#4CAF50" : "var(--mac-text-secondary)" }}>
+                                    <RiCheckboxCircleLine /> At least 6 characters
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: newPw && newPw === confirmPw ? "#4CAF50" : "var(--mac-text-secondary)" }}>
+                                    <RiCheckboxCircleLine /> Passwords match
+                                </div>
+                            </div>
+
+                            {error && <p className="s2-info-text" style={{ color: "#F44336", margin: 0 }}>{error}</p>}
+
+                            <button
+                                onClick={handleUpdate}
+                                disabled={isProcessing || newPw.length < 6 || newPw !== confirmPw}
+                                style={{
+                                    padding: "12px", borderRadius: 100, border: "none",
+                                    background: "#9C27B0", color: "#fff",
+                                    fontWeight: 600, fontSize: 14, cursor: "pointer",
+                                    fontFamily: "inherit", opacity: (isProcessing || newPw.length < 6 || newPw !== confirmPw) ? 0.6 : 1,
+                                    display: "flex", justifyContent: "center", alignItems: "center", gap: 8
+                                }}
+                            >
+                                {isProcessing && <RiLoader4Line className="s2-spin" />}
+                                {hasPassword ? "Update Password" : "Create Password"}
+                            </button>
+                        </div>
+                    </SettingsGroup>
+                )}
+
+                {step === 3 && (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 40, gap: 16 }}>
+                        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#4CAF50", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 32 }}>
+                            <RiCheckboxCircleLine />
+                        </div>
+                        <h3 style={{ margin: 0, fontSize: 20 }}>Success!</h3>
+                        <p style={{ margin: 0, color: "var(--mac-text-secondary)" }}>Your password has been updated.</p>
+                    </div>
+                )}
+            </div>
         </>
     );
 };
@@ -962,14 +1063,15 @@ const LinkedAccountsView = ({ onBack }) => {
     const user = auth.currentUser;
     const isGoogleLinked = user?.providerData?.some(p => p.providerId === "google.com");
     const [linked, setLinked] = useState(isGoogleLinked);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [status, setStatus] = useState(null);
     const [statusMsg, setStatusMsg] = useState("");
 
     const googleEmail = user?.providerData?.find(p => p.providerId === "google.com")?.email || "";
 
     const handleLink = async () => {
-        setStatus("loading");
-        setStatusMsg("Linking Google account...");
+        setIsProcessing(true);
+        setStatus(null);
         try {
             const provider = new GoogleAuthProvider();
             await linkWithPopup(user, provider);
@@ -977,35 +1079,39 @@ const LinkedAccountsView = ({ onBack }) => {
             setStatus("success");
             setStatusMsg("Google account linked successfully!");
         } catch (e) {
-            console.error("Google link failed:", e);
+            console.error("Link failed:", e);
             setStatus("error");
             if (e.code === "auth/credential-already-in-use") {
                 setStatusMsg("This Google account is already linked to another user.");
             } else {
                 setStatusMsg(e.message || "Failed to link Google account.");
             }
+        } finally {
+            setIsProcessing(false);
         }
     };
 
     const handleUnlink = async () => {
-        // Only allow unlink if user has password provider (so they don't get locked out)
         const hasPassword = user?.providerData?.some(p => p.providerId === "password");
         if (!hasPassword) {
             setStatus("error");
             setStatusMsg("Create a password first before unlinking Google.");
             return;
         }
-        setStatus("loading");
-        setStatusMsg("Unlinking Google account...");
+
+        setIsProcessing(true);
+        setStatus(null);
         try {
             await unlink(user, "google.com");
             setLinked(false);
             setStatus("success");
             setStatusMsg("Google account unlinked.");
         } catch (e) {
-            console.error("Google unlink failed:", e);
+            console.error("Unlink failed:", e);
             setStatus("error");
             setStatusMsg(e.message || "Failed to unlink Google account.");
+        } finally {
+            setIsProcessing(false);
         }
     };
 
@@ -1013,54 +1119,7 @@ const LinkedAccountsView = ({ onBack }) => {
         <>
             <SubHeader title="Linked Accounts" onBack={onBack} />
 
-            <SettingsGroup>
-                <div className="s2-notif-item">
-                    <span className="s2-icon-circle blue" style={{ background: "#4285F4" }}>
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="#fff">
-                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                        </svg>
-                    </span>
-                    <div className="s2-item-text">
-                        <div className="s2-item-title">Google</div>
-                        <div className="s2-item-desc">
-                            {linked ? (googleEmail || "Connected") : "Not connected"}
-                        </div>
-                    </div>
-                    <button
-                        onClick={linked ? handleUnlink : handleLink}
-                        disabled={status === "loading"}
-                        style={{
-                            padding: "8px 16px", borderRadius: 100, border: "none",
-                            background: linked ? "rgba(244,67,54,0.1)" : "rgba(33,150,243,0.1)",
-                            color: linked ? "#F44336" : "#2196F3",
-                            fontWeight: 600, fontSize: 13, cursor: "pointer",
-                            fontFamily: "inherit"
-                        }}
-                    >
-                        {linked ? "Unlink" : "Link"}
-                    </button>
-                </div>
-            </SettingsGroup>
-
-            {status && status !== "loading" && (
-                <>
-                    <div className="s2-spacer-sm" />
-                    <p className="s2-info-text" style={{
-                        color: status === "error" ? "#F44336" : "#4CAF50"
-                    }}>
-                        {statusMsg}
-                    </p>
-                </>
-            )}
-
-            <div className="s2-spacer-md" />
-            <p className="s2-info-text">
-                Linking a Google account lets you sign in with Google.
-                You need at least one sign-in method active.
-            </p>
+        </p >
         </>
     );
 };
