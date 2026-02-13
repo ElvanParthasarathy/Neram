@@ -67,23 +67,22 @@
 /* Center group removed, logic moved to left */
 
 .cal-nav-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    border: 1px solid var(--mac-divider);
-    background: var(--mac-card-bg);
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: none;
+    background: var(--mac-selection-bg);
     color: var(--mac-text);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 16px;
     transition: all 0.15s ease;
 }
 
 .cal-nav-btn:hover {
     background: var(--mac-selection-hover);
-    border-color: var(--mac-blue);
 }
 
 .cal-nav-btn:active {
@@ -99,11 +98,11 @@
 }
 
 .cal-today-btn {
-    padding: 0 14px;
-    height: 34px;
-    border-radius: 10px;
-    border: 1px solid var(--mac-divider);
-    background: var(--mac-card-bg);
+    padding: 0 16px;
+    height: 32px;
+    border-radius: 999px;
+    border: none;
+    background: var(--mac-selection-bg);
     color: var(--mac-text);
     font-size: 12px;
     font-weight: 700;
@@ -112,9 +111,7 @@
 }
 
 .cal-today-btn:hover {
-    background: var(--mac-blue);
-    color: #fff;
-    border-color: var(--mac-blue);
+    background: var(--mac-selection-hover);
 }
 
 .cal-toolbar-right {
