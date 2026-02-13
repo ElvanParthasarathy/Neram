@@ -267,9 +267,21 @@ const DisplaySettings = ({ onBack }) => {
 
     const [theme, setTheme] = useState(getInitialTheme);
 
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setTheme(localStorage.getItem("neram-theme") || "auto");
+        };
+
+        window.addEventListener("theme-change", handleStorageChange);
+        return () =>
+            window.removeEventListener("theme-change", handleStorageChange);
+    }, []);
+
     const handleThemeChange = (newTheme) => {
         setTheme(newTheme);
         localStorage.setItem("neram-theme", newTheme);
+        window.dispatchEvent(new Event("theme-change"));
+
         const html = document.documentElement;
 
         if (newTheme === "auto") {

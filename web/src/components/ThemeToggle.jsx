@@ -2,8 +2,17 @@ import { useEffect, useState } from "react";
 
 const ThemeToggle = ({ asMenuItem = false }) => {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") || "auto";
+    return localStorage.getItem("neram-theme") || "auto";
   });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setTheme(localStorage.getItem("neram-theme") || "auto");
+    };
+
+    window.addEventListener("theme-change", handleStorageChange);
+    return () => window.removeEventListener("theme-change", handleStorageChange);
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -36,7 +45,8 @@ const ThemeToggle = ({ asMenuItem = false }) => {
   const handleSelect = (e, mode) => {
     e.stopPropagation();
     setTheme(mode);
-    localStorage.setItem("theme", mode);
+    localStorage.setItem("neram-theme", mode);
+    window.dispatchEvent(new Event("theme-change"));
   };
 
   const sliderStyles = `
