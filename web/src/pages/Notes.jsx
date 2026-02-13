@@ -17,6 +17,8 @@ import {
 import "../App.css";
 import "../styles/home.css";
 
+import "../styles/notes-desktop.css";
+
 /**
  * Notes Component - Android Parity Version
  * 
@@ -286,27 +288,20 @@ const Notes = () => {
 
     // --- UI RENDERERS ---
     return (
-        <div className="h2-view" style={{ padding: isMobile ? '0 16px' : '0' }}>
+        <div className="h2-view notes-container">
             {/* Breadcrumb Header */}
-            <div className="notes-header-stack" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px',
-                padding: 0,
-                borderBottom: path.length > 0 ? '1px solid var(--mac-divider)' : 'none',
-                marginBottom: '24px'
-            }}>
+            <div className={`notes-header-stack ${path.length > 0 ? 'has-path' : ''}`}>
                 {path.length > 0 && (
                     <button className="back-circle-btn" onClick={navigateUp}>
                         <RiArrowLeftSLine />
                     </button>
                 )}
                 <div>
-                    <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, letterSpacing: '-0.5px' }}>
+                    <h1 className="notes-title">
                         {path.length === 0 ? "Lecture Notes" : path[path.length - 1]}
                     </h1>
                     {path.length > 0 && (
-                        <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)', fontWeight: 600, opacity: 0.6, marginTop: '2px' }}>
+                        <div className="notes-breadcrumb-sub">
                             {path.slice(0, -1).join(" / ")}
                         </div>
                     )}
@@ -314,11 +309,11 @@ const Notes = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="notes-viewport" style={{ minHeight: '60vh' }}>
+            <div className="notes-viewport">
                 {uiStatus === 'loading' && (
                     <div className="centered-state">
                         <div className="spinner-mac big"></div>
-                        <p style={{ marginTop: '20px', fontWeight: 600 }}>Syncing with RMD server...</p>
+                        <p>Syncing with RMD server...</p>
                     </div>
                 )}
 
@@ -392,105 +387,13 @@ const Notes = () => {
 
                         {browserContent.type === 'empty' && (
                             <div className="centered-state">
-                                <RiInformationLine style={{ fontSize: '48px', opacity: 0.2 }} />
-                                <p style={{ opacity: 0.5 }}>No course material available in this directory.</p>
+                                <RiInformationLine className="centered-state-icon" />
+                                <p className="centered-state-text">No course material available in this directory.</p>
                             </div>
                         )}
                     </>
                 )}
             </div>
-
-            {/* Inline Styles for the New Layout */}
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .back-circle-btn {
-                    width: 44px;
-                    height: 44px;
-                    border-radius: 50%;
-                    border: 1px solid var(--mac-divider);
-                    background: var(--mac-sidebar-bg);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 20px;
-                    color: var(--mac-text);
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .back-circle-btn:hover { background: var(--mac-selection-hover); transform: scale(1.05); }
-
-                .folder-grid { display: flex; flex-direction: column; gap: 12px; }
-                .folder-item-mac {
-                    display: flex;
-                    align-items: center;
-                    padding: 16px 20px;
-                    background: var(--mac-sidebar-bg);
-                    border: 1px solid var(--mac-divider);
-                    border-radius: 20px;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .folder-item-mac:hover { background: var(--mac-selection-hover); }
-                .folder-icon-glow {
-                    width: 48px;
-                    height: 48px;
-                    background: rgba(0, 122, 255, 0.1);
-                    color: var(--mac-blue);
-                    border-radius: 14px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 24px;
-                    margin-right: 18px;
-                }
-                .folder-info { flex: 1; display: flex; flex-direction: column; }
-                .folder-name { font-size: 16px; font-weight: 700; color: var(--mac-text); }
-                .folder-sub { font-size: 11px; font-weight: 700; color: var(--mac-text-secondary); text-transform: uppercase; margin-top: 2px; opacity: 0.6; }
-                .folder-chevron { color: var(--mac-text-secondary); opacity: 0.3; }
-
-                .subject-accordion-card {
-                    background: var(--mac-sidebar-bg);
-                    border: 1px solid var(--mac-divider);
-                    border-radius: 24px;
-                    margin-bottom: 12px;
-                    overflow: hidden;
-                    transition: all 0.3s ease;
-                }
-                .subject-accordion-card.active { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-                .accordion-header-row {
-                    padding: 20px 24px;
-                    display: flex;
-                    align-items: center;
-                    cursor: pointer;
-                    gap: 16px;
-                }
-                .indicator-bar { width: 4px; height: 24px; background: var(--mac-blue); border-radius: 10px; }
-                .subject-title { flex: 1; font-size: 16px; font-weight: 700; color: var(--mac-text); line-height: 1.4; }
-
-                .accordion-content-area { padding: 0 24px 24px 24px; }
-                .units-grid { display: flex; flex-direction: column; gap: 8px; }
-                .unit-status-chip {
-                    display: flex;
-                    align-items: center;
-                    padding: 14px 18px;
-                    border-radius: 14px;
-                    background: rgba(0,0,0,0.03);
-                    gap: 14px;
-                    transition: all 0.2s;
-                }
-                html.dark .unit-status-chip { background: rgba(255,255,255,0.03); }
-                .unit-status-chip.available { cursor: pointer; }
-                .unit-status-chip.available:hover { background: var(--mac-selection-hover); transform: translateX(4px); }
-                .unit-status-chip.locked { opacity: 0.5; cursor: not-allowed; }
-                
-                .unit-label { flex: 1; font-size: 14px; font-weight: 600; }
-                .open-icon { color: var(--mac-blue); }
-                .lock-icon { opacity: 0.4; }
-
-                .spinner-mac { width: 32px; height: 32px; border: 3px solid var(--mac-divider); border-top-color: var(--mac-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
-                @keyframes spin { to { transform: rotate(360deg); } }
-                .centered-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; }
-            `}} />
         </div>
     );
 };
