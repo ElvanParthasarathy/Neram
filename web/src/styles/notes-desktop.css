@@ -21,7 +21,7 @@
 }
 
 .notes-header-stack.has-path {
-    border-bottom: 1px solid var(--mac-divider);
+    /* border-bottom removed */
 }
 
 .notes-title {
@@ -56,6 +56,9 @@
     color: var(--mac-text);
     cursor: pointer;
     transition: all 0.2s;
+    border: none;
+    outline: none;
+    box-shadow: none;
 }
 
 .back-circle-btn:hover {
