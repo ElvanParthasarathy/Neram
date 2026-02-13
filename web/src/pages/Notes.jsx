@@ -212,89 +212,29 @@ const Notes = () => {
     }, [parseTable]);
 
     // --- NAVIGATION LOGIC ---
-    const selectDept = (name) => {
-        if (path.length > 0 && path[0] === name) return; // Already selected
-        setPath([name]);
-        setCachedSemesters([]);
-        setExpandedSubjects({});
-        fetchNotes(name);
-    };
-
     const enterFolder = (name) => {
         const newPath = [...path, name];
         setPath(newPath);
-        // On mobile, if entering from root (no dept selected yet), fetch
         if (newPath.length === 1) {
             fetchNotes(name);
         }
     };
 
     const navigateUp = () => {
-        if (path.length > 1) {
-            // Go up within the dept
+        if (path.length > 0) {
             const newPath = path.slice(0, -1);
             setPath(newPath);
-        } else if (path.length === 1 && isMobile) {
-            // On mobile, go back to dept list
-            setPath([]);
-            setUiStatus('empty');
-            setCachedSemesters([]);
-            setExpandedSubjects({});
+            if (newPath.length === 0) {
+                setUiStatus('empty');
+                setCachedSemesters([]);
+                setExpandedSubjects({});
+            }
         }
-        // On desktop, path[0] always stays (dept is in sidebar)
     };
 
-    const selectedDept = path.length > 0 ? path[0] : null;
-
-    // --- SHARED RENDER HELPER: Subject Files (Accordions + Unit Chips) ---
-    const renderFiles = (items) => (
-        <div className="files-stack">
-            {items.map((sub, i) => {
-                const isExpanded = expandedSubjects[sub.name];
-                return (
-                    <div key={i} className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}>
-                        <div className="accordion-header-row" onClick={() => setExpandedSubjects(p => ({ ...p, [sub.name]: !p[sub.name] }))}>
-                            <div className="indicator-bar"></div>
-                            <span className="subject-title">{sub.name}</span>
-                            {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
-                        </div>
-
-                        {isExpanded && (
-                            <div className="accordion-content-area">
-                                <div className="units-grid">
-                                    {[1, 2, 3, 4, 5].map(n => {
-                                        const key = `Unit ${n}`;
-                                        const url = sub.units[key] || sub.units[`unit ${n}`];
-                                        const isAvailable = !!url;
-                                        return (
-                                            <div
-                                                key={n}
-                                                className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
-                                                onClick={() => isAvailable ? window.open(url, "_blank") : null}
-                                            >
-                                                {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
-                                                <span className="unit-label">{key}</span>
-                                                {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                );
-            })}
-        </div>
-    );
-
     // --- CONTENT RESOLUTION (The ViewModel Logic) ---
-    // On desktop, path[0] is the dept (selected via sidebar). Content starts from path[1].
-    // On mobile, path[0] is also the dept but selected via folder click.
     const browserContent = useMemo(() => {
-        if (path.length === 0) {
-            // No dept selected — show dept folders on mobile, empty state on desktop
-            return isMobile ? { type: 'folders', items: ROOT_DEPTS } : null;
-        }
+        if (path.length === 0) return { type: 'folders', items: ROOT_DEPTS };
         if (uiStatus !== 'browser') return null;
 
         const rootDept = path[0];
@@ -303,14 +243,14 @@ const Notes = () => {
 
         if (isSNH) {
             switch (depth) {
-                case 1: {
+                case 1: { // SNH Root -> Show Group Depts
                     const groups = Array.from(new Set(cachedSemesters.map(s => {
                         const raw = s.title.split("|")[0].trim();
                         return mapDeptToAbbreviation(raw);
                     }))).sort();
                     return { type: 'folders', items: groups };
                 }
-                case 2: {
+                case 2: { // Inside SNH Dept -> Show Semesters
                     const targetDept = path[1];
                     const sems = Array.from(new Set(cachedSemesters.filter(s => {
                         const raw = s.title.split("|")[0].trim();
@@ -318,7 +258,7 @@ const Notes = () => {
                     }).map(s => toTitleCase(s.title.split("|")[1]?.trim() || s.title)))).sort();
                     return { type: 'folders', items: sems };
                 }
-                case 3: {
+                case 3: { // Inside Semester -> Show Subjects
                     const targetDept = path[1];
                     const targetSem = path[2];
                     const match = cachedSemesters.find(s => {
@@ -332,11 +272,11 @@ const Notes = () => {
             }
         } else {
             switch (depth) {
-                case 1: {
+                case 1: { // Standard Dept -> Show Semesters
                     const sems = Array.from(new Set(cachedSemesters.map(s => toTitleCase(s.title))));
                     return { type: 'folders', items: sems };
                 }
-                case 2: {
+                case 2: { // Inside Semester -> Show Subjects
                     const targetSem = path[1];
                     const match = cachedSemesters.find(s => toTitleCase(s.title) === targetSem);
                     return match ? { type: 'files', items: match.subjects } : { type: 'empty' };
@@ -344,167 +284,115 @@ const Notes = () => {
                 default: return { type: 'empty' };
             }
         }
-    }, [path, uiStatus, cachedSemesters, mapDeptToAbbreviation, toTitleCase, isMobile]);
+    }, [path, uiStatus, cachedSemesters, mapDeptToAbbreviation, toTitleCase]);
 
-    // Build breadcrumb text for the content header
-    const contentTitle = path.length > 1 ? path[path.length - 1] : (selectedDept || "");
-    const contentBreadcrumb = path.length > 2 ? path.slice(1, -1).join(" / ") : "";
-
-    // --- RENDER: MOBILE (original single-column flow) ---
-    if (isMobile) {
-        return (
-            <div className="h2-view notes-container">
-                <h1 className="notes-page-title">Lecture Notes</h1>
-                <div className="notes-viewport">
-                    {/* Back button if we're inside a dept */}
+    // --- UI RENDERERS ---
+    return (
+        <div className="h2-view notes-container">
+            {/* Breadcrumb Header */}
+            <div className={`notes-header-stack ${path.length > 0 ? 'has-path' : ''}`}>
+                {path.length > 0 && (
+                    <button className="back-circle-btn" onClick={navigateUp}>
+                        <RiArrowLeftSLine />
+                    </button>
+                )}
+                <div>
+                    <h1 className="notes-title">
+                        {path.length === 0 ? "Lecture Notes" : path[path.length - 1]}
+                    </h1>
                     {path.length > 0 && (
-                        <div className="notes-content-header">
-                            <button className="back-circle-btn" onClick={navigateUp}>
-                                <RiArrowLeftSLine />
-                            </button>
-                            <div>
-                                <h2 className="notes-content-title">{contentTitle}</h2>
-                                {contentBreadcrumb && <div className="notes-content-breadcrumb">{contentBreadcrumb}</div>}
-                            </div>
+                        <div className="notes-breadcrumb-sub">
+                            {path.slice(0, -1).join(" / ")}
                         </div>
-                    )}
-
-                    {uiStatus === 'loading' && (
-                        <div className="centered-state">
-                            <div className="spinner-mac big"></div>
-                            <p>Syncing with RMD server...</p>
-                        </div>
-                    )}
-
-                    {uiStatus === 'error' && (
-                        <div className="centered-state">
-                            <RiErrorWarningLine className="centered-state-icon" />
-                            <p>Connection Failed</p>
-                            <p className="centered-state-text">{error}</p>
-                        </div>
-                    )}
-
-                    {(uiStatus === 'browser' || uiStatus === 'empty') && browserContent && (
-                        <>
-                            {browserContent.type === 'folders' && (
-                                <div className="folder-grid">
-                                    {browserContent.items.map((name, i) => (
-                                        <div key={i} className="folder-item-mac" onClick={() => enterFolder(name)}>
-                                            <div className="folder-icon-glow"><RiFolderFill /></div>
-                                            <div className="folder-info">
-                                                <span className="folder-name">{name}</span>
-                                                <span className="folder-sub">Folder</span>
-                                            </div>
-                                            <RiArrowRightSLine className="folder-chevron" />
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {browserContent.type === 'files' && renderFiles(browserContent.items)}
-
-                            {browserContent.type === 'empty' && (
-                                <div className="centered-state">
-                                    <RiInformationLine className="centered-state-icon" />
-                                    <p className="centered-state-text">No course material available.</p>
-                                </div>
-                            )}
-                        </>
                     )}
                 </div>
             </div>
-        );
-    }
 
-    // --- RENDER: DESKTOP (dual-pane layout) ---
-    return (
-        <div className="h2-view notes-container">
-            <h1 className="notes-page-title">Lecture Notes</h1>
+            {/* Main Content Area */}
+            <div className="notes-viewport">
+                {uiStatus === 'loading' && (
+                    <div className="centered-state">
+                        <div className="spinner-mac big"></div>
+                        <p>Syncing with RMD server...</p>
+                    </div>
+                )}
 
-            <div className="notes-split">
-                {/* LEFT: Department Sidebar */}
-                <div className="notes-sidebar-pane">
-                    {ROOT_DEPTS.map((dept) => (
-                        <button
-                            key={dept}
-                            className={`notes-sidebar-item ${selectedDept === dept ? 'active' : ''}`}
-                            onClick={() => selectDept(dept)}
-                        >
-                            <div className="notes-sidebar-icon"><RiFolderFill /></div>
-                            <span className="notes-sidebar-label">{dept}</span>
-                        </button>
-                    ))}
-                </div>
+                {uiStatus === 'error' && (
+                    <div className="error-card-glass">
+                        <RiErrorWarningLine className="error-icon" />
+                        <h3>Connection Failed</h3>
+                        <p>{error}</p>
+                        <button className="btn-primary" onClick={() => fetchNotes(path[0])}>Retry Connection</button>
+                    </div>
+                )}
 
-                {/* RIGHT: Content Pane */}
-                <div className="notes-content-pane">
-                    {/* No dept selected */}
-                    {!selectedDept && (
-                        <div className="notes-empty-detail">
-                            <RiFolderFill className="notes-empty-detail-icon" />
-                            <span className="notes-empty-detail-text">Select a department to browse notes</span>
-                        </div>
-                    )}
-
-                    {/* Loading */}
-                    {selectedDept && uiStatus === 'loading' && (
-                        <div className="centered-state">
-                            <div className="spinner-mac big"></div>
-                            <p>Syncing with RMD server...</p>
-                        </div>
-                    )}
-
-                    {/* Error */}
-                    {selectedDept && uiStatus === 'error' && (
-                        <div className="centered-state">
-                            <RiErrorWarningLine className="centered-state-icon" />
-                            <p>Connection Failed</p>
-                            <p className="centered-state-text">{error}</p>
-                        </div>
-                    )}
-
-                    {/* Content */}
-                    {selectedDept && uiStatus === 'browser' && browserContent && (
-                        <>
-                            {/* Content header with back button when navigating deeper */}
-                            {path.length > 1 && (
-                                <div className="notes-content-header">
-                                    <button className="back-circle-btn" onClick={navigateUp}>
-                                        <RiArrowLeftSLine />
-                                    </button>
-                                    <div>
-                                        <h2 className="notes-content-title">{contentTitle}</h2>
-                                        {contentBreadcrumb && <div className="notes-content-breadcrumb">{contentBreadcrumb}</div>}
-                                    </div>
-                                </div>
-                            )}
-
-                            {browserContent.type === 'folders' && (
-                                <div className="folder-grid">
-                                    {browserContent.items.map((name, i) => (
-                                        <div key={i} className="folder-item-mac" onClick={() => enterFolder(name)}>
-                                            <div className="folder-icon-glow"><RiFolderFill /></div>
-                                            <div className="folder-info">
-                                                <span className="folder-name">{name}</span>
-                                                <span className="folder-sub">Folder</span>
-                                            </div>
-                                            <RiArrowRightSLine className="folder-chevron" />
+                {(uiStatus === 'browser' || uiStatus === 'empty') && browserContent && (
+                    <>
+                        {browserContent.type === 'folders' && (
+                            <div className="folder-grid">
+                                {browserContent.items.map((name, i) => (
+                                    <div key={i} className="folder-item-mac" onClick={() => enterFolder(name)}>
+                                        <div className="folder-icon-glow">
+                                            <RiFolderFill />
                                         </div>
-                                    ))}
-                                </div>
-                            )}
+                                        <div className="folder-info">
+                                            <span className="folder-name">{name}</span>
+                                            <span className="folder-sub">Folder</span>
+                                        </div>
+                                        <RiArrowRightSLine className="folder-chevron" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
-                            {browserContent.type === 'files' && renderFiles(browserContent.items)}
+                        {browserContent.type === 'files' && (
+                            <div className="files-stack">
+                                {browserContent.items.map((sub, i) => {
+                                    const isExpanded = expandedSubjects[sub.name];
+                                    return (
+                                        <div key={i} className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}>
+                                            <div className="accordion-header-row" onClick={() => setExpandedSubjects(p => ({ ...p, [sub.name]: !p[sub.name] }))}>
+                                                <div className="indicator-bar"></div>
+                                                <span className="subject-title">{sub.name}</span>
+                                                {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
+                                            </div>
 
-                            {browserContent.type === 'empty' && (
-                                <div className="centered-state">
-                                    <RiInformationLine className="centered-state-icon" />
-                                    <p className="centered-state-text">No course material available.</p>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
+                                            {isExpanded && (
+                                                <div className="accordion-content-area">
+                                                    <div className="units-grid">
+                                                        {[1, 2, 3, 4, 5].map(n => {
+                                                            const key = `Unit ${n}`;
+                                                            const url = sub.units[key] || sub.units[`unit ${n}`];
+                                                            const isAvailable = !!url;
+                                                            return (
+                                                                <div
+                                                                    key={n}
+                                                                    className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
+                                                                    onClick={() => isAvailable ? window.open(url, "_blank") : null}
+                                                                >
+                                                                    {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
+                                                                    <span className="unit-label">{key}</span>
+                                                                    {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {browserContent.type === 'empty' && (
+                            <div className="centered-state">
+                                <RiInformationLine className="centered-state-icon" />
+                                <p className="centered-state-text">No course material available in this directory.</p>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
         </div>
     );
