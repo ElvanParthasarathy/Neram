@@ -209,7 +209,7 @@
 
 .cal-weekday {
     padding: 8px 12px;
-    text-align: right;
+    text-align: center;
     font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
@@ -234,7 +234,7 @@
     grid-template-columns: repeat(7, 1fr);
     flex: 1;
     min-height: 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--mac-divider) 60%, transparent);
+    border-bottom: none;
 }
 
 .cal-week-row:last-child {
@@ -263,8 +263,7 @@
     top: 0;
     bottom: 0;
     right: 0;
-    width: 1px;
-    background: color-mix(in srgb, var(--mac-divider) 60%, transparent);
+    display: none;
     z-index: 0;
     pointer-events: none;
 }
@@ -275,10 +274,12 @@
 
 .cal-day:hover {
     background: rgba(0, 99, 229, 0.04);
+    border-radius: 12px;
 }
 
 html.dark .cal-day:hover {
     background: rgba(0, 113, 255, 0.06);
+    border-radius: 12px;
 }
 
 .cal-day.faded {
@@ -474,8 +475,12 @@ html.dark .cal-day.selected {
     padding: 14px;
     border-radius: 14px;
     background: var(--mac-bg-secondary);
-    border: 1px solid var(--mac-divider);
+    border: none;
     transition: transform 0.15s ease;
+}
+
+html.dark .cal-agenda-card {
+    background: #1E1E1E;
 }
 
 .cal-agenda-card:hover {
