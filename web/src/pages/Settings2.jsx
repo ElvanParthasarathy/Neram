@@ -1119,7 +1119,65 @@ const LinkedAccountsView = ({ onBack }) => {
         <>
             <SubHeader title="Linked Accounts" onBack={onBack} />
 
-        </p >
+            <div className="s2-section-label">Sign-in Methods</div>
+            <SettingsGroup>
+                <div style={{ padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 4px rgba(0,0,0,0.1)" }}>
+                            <RiGoogleFill style={{ fontSize: 24, color: "#EA4335" }} />
+                        </div>
+                        <div>
+                            <div style={{ fontSize: 16, fontWeight: 600 }}>Google</div>
+                            <div style={{ fontSize: 13, color: "var(--mac-text-secondary)" }}>
+                                {linked ? googleEmail : "Not connected"}
+                            </div>
+                        </div>
+                    </div>
+                    {linked ? (
+                        <button
+                            onClick={handleUnlink}
+                            disabled={isProcessing}
+                            style={{
+                                padding: "8px 16px", borderRadius: 20, border: "1px solid #ddd",
+                                background: "var(--mac-bg)", color: "var(--mac-text)",
+                                fontSize: 13, fontWeight: 500, cursor: "pointer",
+                                opacity: isProcessing ? 0.6 : 1
+                            }}
+                        >
+                            {isProcessing ? "Wait..." : "Unlink"}
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleLink}
+                            disabled={isProcessing}
+                            style={{
+                                padding: "8px 16px", borderRadius: 20, border: "none",
+                                background: "#2196F3", color: "#fff",
+                                fontSize: 13, fontWeight: 500, cursor: "pointer",
+                                opacity: isProcessing ? 0.6 : 1
+                            }}
+                        >
+                            {isProcessing ? "Wait..." : "Connect"}
+                        </button>
+                    )}
+                </div>
+            </SettingsGroup>
+
+            <div className="s2-spacer-md" />
+
+            <div className="s2-info-text">
+                <RiInformationLine style={{ verticalAlign: "middle", marginRight: 4 }} />
+                Linking multiple sign-in methods ensures you never lose access to your account.
+            </div>
+
+            {status && (
+                <p className="s2-info-text" style={{
+                    color: status === "error" ? "#F44336" : "#4CAF50",
+                    marginTop: 16
+                }}>
+                    {statusMsg}
+                </p>
+            )}
         </>
     );
 };
