@@ -35,6 +35,7 @@ import {
     RiLinkedinFill,
     RiGithubFill,
     RiMapPin2Line,
+    RiArrowRightSLine,
 } from "react-icons/ri";
 
 import LogoIcon from "../assets/neram.svg";
