@@ -1,0 +1,403 @@
+/* ==========================================================================
+   PROFILE VIEW — Kotlin Port
+   ========================================================================== */
+
+/* Header Card */
+.s2-prof-header {
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.s2-prof-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(0, 122, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.s2-prof-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.s2-prof-avatar-letter {
+    font-size: 48px;
+    font-weight: 600;
+    color: #007AFF;
+}
+
+.dark .s2-prof-avatar-letter {
+    color: #0A84FF;
+}
+
+.s2-prof-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin-bottom: 4px;
+}
+
+.s2-prof-email {
+    font-size: 14px;
+    color: var(--mac-text-secondary);
+    margin-bottom: 16px;
+}
+
+.s2-prof-sync-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 122, 255, 0.15);
+    color: #007AFF;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dark .s2-prof-sync-btn {
+    background: rgba(10, 132, 255, 0.15);
+    color: #0A84FF;
+}
+
+.s2-prof-sync-btn:hover {
+    background: rgba(0, 122, 255, 0.25);
+}
+
+.dark .s2-prof-sync-btn:hover {
+    background: rgba(10, 132, 255, 0.25);
+}
+
+/* Section Card */
+.s2-prof-section {
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.s2-prof-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.s2-prof-section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #007AFF;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dark .s2-prof-section-icon {
+    background: #0A84FF;
+}
+
+.s2-prof-section-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+/* Divider between fields */
+.s2-prof-divider {
+    height: 1px;
+    background: var(--mac-divider);
+    margin: 8px 0;
+}
+
+/* Field: display mode */
+.s2-prof-field-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+}
+
+.s2-prof-field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    margin-bottom: 2px;
+}
+
+.s2-prof-field-value {
+    font-size: 15px;
+    color: var(--mac-text);
+}
+
+.s2-prof-field-value.empty {
+    color: var(--mac-text-secondary);
+    font-style: italic;
+}
+
+.s2-prof-edit-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--mac-bg);
+    color: var(--mac-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+}
+
+.s2-prof-edit-btn:hover {
+    background: var(--mac-divider);
+}
+
+/* Field: editing mode */
+.s2-prof-field-editing {
+    padding: 8px 0;
+}
+
+.s2-prof-edit-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.s2-prof-field-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.s2-prof-cancel-btn {
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: 1px solid var(--mac-divider);
+    background: transparent;
+    color: var(--mac-text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.s2-prof-cancel-btn:hover {
+    background: var(--mac-bg);
+}
+
+.s2-prof-save-btn {
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: none;
+    background: #007AFF;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dark .s2-prof-save-btn {
+    background: #0A84FF;
+}
+
+.s2-prof-save-btn:hover {
+    opacity: 0.9;
+}
+
+/* Dropdown button (select fields) */
+.s2-prof-dropdown {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--mac-card-bg);
+    border: none;
+    border-radius: 24px;
+    padding: 14px 16px;
+    font-size: 15px;
+    color: var(--mac-text);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s;
+    border: 1px solid transparent;
+}
+
+/* Different bg since parent is already card-bg */
+.s2-prof-section .s2-prof-dropdown {
+    background: var(--mac-bg);
+}
+
+.s2-prof-dropdown:hover {
+    border-color: var(--mac-divider);
+}
+
+.s2-prof-dropdown:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.s2-prof-dropdown span {
+    flex: 1;
+}
+
+/* Mobile prefix */
+.s2-prof-prefix {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: var(--mac-text-secondary);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.s2-prof-phone-input {
+    padding-left: 52px !important;
+}
+
+/* Sign Out button */
+.s2-prof-logout {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--mac-card-bg);
+    border: none;
+    border-radius: 24px;
+    padding: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #FF3B30;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 32px;
+}
+
+.dark .s2-prof-logout {
+    color: #FF453A;
+}
+
+.s2-prof-logout:hover {
+    background: rgba(255, 59, 48, 0.1);
+}
+
+/* Selector Modal */
+.s2-prof-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 10000;
+    animation: s2-prof-fade-in 0.2s ease;
+}
+
+@keyframes s2-prof-fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.s2-prof-modal {
+    background: var(--mac-card-bg);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 500px;
+    max-height: 60vh;
+    overflow-y: auto;
+    animation: s2-prof-slide-up 0.3s ease;
+}
+
+@keyframes s2-prof-slide-up {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.s2-prof-modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--mac-text);
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--mac-divider);
+}
+
+.s2-prof-modal-list {
+    padding-bottom: 32px;
+}
+
+.s2-prof-modal-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: transparent;
+    border: none;
+    font-size: 15px;
+    color: var(--mac-text);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+}
+
+.s2-prof-modal-option:hover {
+    background: var(--mac-bg);
+}
+
+.s2-prof-modal-option svg {
+    color: #007AFF;
+    flex-shrink: 0;
+}
+
+.dark .s2-prof-modal-option svg {
+    color: #0A84FF;
+}
+
+/* Snackbar */
+.s2-prof-snackbar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--mac-card-bg);
+    color: var(--mac-text);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 10001;
+    animation: s2-prof-fade-in 0.2s ease;
+}

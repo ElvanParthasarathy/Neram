@@ -1,0 +1,191 @@
+/* ==========================================================================
+   SETTINGS HUB — Two-panel layout + profile card
+   ========================================================================== */
+
+/* ── Page View (outer wrapper, matches Home h2-view) ── */
+.s2-page-view {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Two-Column Grid (desktop) ── */
+@media (min-width: 769px) {
+    .s2-content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        align-items: stretch;
+    }
+
+    .s2-col-left,
+    .s2-col-right {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .s2-col-left {
+        /* No sticky — both panels independent */
+    }
+
+    /* Remove the inner .settings2-view constraints on desktop grid */
+    .s2-content-grid .settings2-view {
+        max-width: none;
+        padding: 0;
+    }
+}
+
+/* ── Mobile: single column, show one at a time ── */
+@media (max-width: 768px) {
+    .s2-page-view {
+        padding: 0 16px 80px;
+    }
+
+    .s2-content-grid {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .s2-col-left,
+    .s2-col-right {
+        width: 100%;
+    }
+
+    .s2-hide-mobile {
+        display: none;
+    }
+}
+
+/* ── Inner Settings View (used inside each column) ── */
+.settings2-view {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Welcome card (empty right panel) ── */
+.s2-welcome-card {
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    padding: 48px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+    min-height: 0;
+    gap: 16px;
+}
+
+.s2-welcome-icon-ring {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(128, 128, 128, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.s2-welcome-gear {
+    width: 40px;
+    height: 40px;
+    color: var(--mac-text-secondary);
+    opacity: 0.4;
+    animation: s2-gear-spin 12s linear infinite;
+}
+
+@keyframes s2-gear-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.s2-welcome-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--mac-text);
+    letter-spacing: -0.5px;
+}
+
+.s2-welcome-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    opacity: 0.6;
+    max-width: 260px;
+    line-height: 1.5;
+}
+
+/* ── Profile Card (Pill) ── */
+.s2-profile-card {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: var(--mac-card-bg);
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.s2-profile-card:hover {
+    background: var(--mac-selection-hover);
+}
+
+.s2-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(128, 128, 128, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.s2-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.s2-avatar-icon {
+    font-size: 24px;
+    color: var(--mac-text);
+}
+
+.s2-profile-text {
+    margin-left: 16px;
+    flex: 1;
+    min-width: 0;
+}
+
+.s2-profile-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--mac-text);
+    line-height: 1.3;
+}
+
+.s2-profile-sub {
+    font-size: 14px;
+    color: var(--mac-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Responsive (mobile inner view) ── */
+@media (max-width: 768px) {
+    .settings2-view {
+        padding: 0 16px 80px;
+    }
+}

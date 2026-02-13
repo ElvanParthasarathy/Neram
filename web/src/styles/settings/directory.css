@@ -1,0 +1,122 @@
+/* ==========================================================================
+   USER DIRECTORY — Kotlin-matched styles
+   ========================================================================== */
+
+.s2-dir-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Loading & empty states */
+.s2-dir-loading {
+    padding: 48px 0;
+    text-align: center;
+    color: var(--mac-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.s2-dir-empty {
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--mac-text-secondary);
+    font-size: 15px;
+    font-style: italic;
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+}
+
+/* Folder Item */
+.s2-dir-folder {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 20px 16px;
+    border-radius: 24px;
+    background: var(--mac-card-bg);
+    border: none;
+    cursor: pointer;
+    gap: 16px;
+    font-family: inherit;
+    transition: background 0.15s ease;
+}
+
+.s2-dir-folder:hover {
+    background: var(--mac-hover);
+}
+
+.s2-dir-folder-icon {
+    color: #007AFF;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.dark .s2-dir-folder-icon {
+    color: #0A84FF;
+}
+
+.s2-dir-folder-name {
+    flex: 1;
+    text-align: left;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.s2-dir-chevron {
+    color: var(--mac-text-secondary);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* User Card */
+.s2-dir-user {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: 24px;
+    background: var(--mac-card-bg);
+    gap: 16px;
+}
+
+.s2-dir-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.s2-dir-avatar-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--mac-hover);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--mac-text-secondary);
+    flex-shrink: 0;
+}
+
+.s2-dir-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.s2-dir-user-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.s2-dir-user-reg {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    margin-top: 2px;
+    line-height: 14px;
+}

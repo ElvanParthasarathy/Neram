@@ -1,0 +1,94 @@
+/* ==========================================================================
+   DEVELOPER PAGE
+   ========================================================================== */
+
+.s2-dev-hero {
+    background: linear-gradient(135deg, #1976D2, #2196F3);
+    border-radius: 24px;
+    padding: 32px;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 32px;
+}
+
+.s2-dev-hello {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.s2-dev-name {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.s2-dev-role {
+    font-size: 16px;
+    opacity: 0.8;
+    margin-bottom: 24px;
+}
+
+.s2-dev-portfolio-btn {
+    background: #fff;
+    color: #2196F3;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    font-family: inherit;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.s2-dev-portfolio-btn:hover {
+    transform: translateY(-2px);
+    background: #f0f0f0;
+}
+
+.s2-contact-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background: var(--mac-card-bg);
+    border-radius: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s;
+}
+
+.s2-contact-item:hover {
+    background: var(--mac-selection-hover);
+}
+
+.s2-contact-text {
+    flex: 1;
+    margin-left: 16px;
+}
+
+.s2-contact-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.s2-contact-sub {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    margin-top: 2px;
+}
+
+.s2-chevron-right {
+    color: var(--mac-text-secondary);
+    opacity: 0.5;
+    font-size: 20px;
+}
