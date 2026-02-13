@@ -508,3 +508,71 @@ html.dark .s2-back-btn:hover {
         padding: 0 16px 80px;
     }
 }
+
+/* ── About Page Extras ── */
+.s2-about-header {
+    text-align: center;
+    padding-bottom: 32px;
+}
+
+.s2-about-tamil {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--mac-text);
+    line-height: 1.2;
+}
+
+.s2-about-english {
+    font-size: 20px;
+    color: var(--mac-text-secondary);
+    background: rgba(128, 128, 128, 0.1);
+    padding: 4px 16px;
+    border-radius: 100px;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+.s2-about-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin-bottom: 16px;
+}
+
+.s2-about-desc {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--mac-text-secondary);
+}
+
+.s2-feature-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px 0;
+}
+
+.s2-feature-text {
+    flex: 1;
+    margin-left: 16px;
+}
+
+.s2-feature-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mac-text);
+    margin-bottom: 4px;
+}
+
+.s2-feature-desc {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--mac-text-secondary);
+}
+
+.s2-about-footer {
+    text-align: center;
+    margin-top: 32px;
+    color: var(--mac-text-secondary);
+    font-size: 13px;
+    opacity: 0.8;
+}
