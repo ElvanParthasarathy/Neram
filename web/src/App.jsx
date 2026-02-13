@@ -23,7 +23,7 @@ import Home from "./pages/Home";
 import Schedule from "./pages/Schedule";
 import Calendar from "./pages/Calendar";
 import CollegeSites from "./pages/CollegeSites";
-import Contact from "./pages/Contact";
+
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import Settings from "./pages/Settings";
@@ -169,7 +169,7 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
                     <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
                     <Route path="/notes" element={<Notes />} />
                     <Route path="/college-sites" element={<CollegeSites />} />
-                    <Route path="/contact" element={<Contact />} />
+
                     <Route path="/settings" element={<Settings userProfile={dbUserProfile} />} />
 
                     {/* Redirect /admin to the separate admin site */}

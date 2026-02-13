@@ -53,13 +53,7 @@ const IconUser = (props) => (
   </svg>
 );
 
-// 6. MAIL (Contact)
-const IconMail = (props) => (
-  <svg {...props} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3.5 3.5 0 0 1-3.144 0L1.5 8.67Z" />
-    <path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z" />
-  </svg>
-);
+
 
 // 6.5 NOTES (Book)
 const IconBook = (props) => (
@@ -364,9 +358,7 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
                 <button onClick={() => handleNav('/college-sites')} className="menu-item">
                   <IconSites className="menu-icon" /> College Sites
                 </button>
-                <button onClick={() => handleNav('/contact')} className="menu-item">
-                  <IconMail className="menu-icon" /> Contact
-                </button>
+
 
                 {isAdmin && (
                   <>

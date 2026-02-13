@@ -12,7 +12,7 @@ import {
     RiCalendarEventLine,
     RiFilePdfLine,
     RiGlobalLine,
-    RiContactsLine,
+
     RiUser3Fill,
     RiMenuFoldLine,
     RiMenuUnfoldLine
@@ -116,10 +116,7 @@ const StudentSidebar = ({ user, userProfile, isAdmin }) => {
                     <RiGlobalLine className="admin-nav-icon" />
                     <span>Sites</span>
                 </Link>
-                <Link to="/contact" replace className={`admin-nav-link ${location.pathname === "/contact" ? "active" : ""}`}>
-                    <RiContactsLine className="admin-nav-icon" />
-                    <span>Contact</span>
-                </Link>
+
 
                 <div className="nav-spacer" style={{ height: '20px' }}></div>
             </nav>
