@@ -4,7 +4,7 @@ import { auth } from "../firebase";
 import "../styles/settings2.css";
 
 import {
-    RiBrightness6Line,
+    RiSunLine,
     RiDatabase2Line,
     RiNotification3Line,
     RiShieldKeyholeLine,
@@ -118,7 +118,7 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
             {/* Group 1: Display / Storage / Notifications */}
             <SettingsGroup>
                 <SettingsItem
-                    icon={<RiBrightness6Line />}
+                    icon={<RiSunLine />}
                     iconColor="green"
                     title="Display"
                     desc="Theme, appearance"
