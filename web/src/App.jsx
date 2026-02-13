@@ -10,13 +10,14 @@ import "./App.css";
 import "./mobile.css";
 import "./mobileapp.css";
 import "./styles/admin-sidebar.css";
+import "./styles/schedule2.css";
 
 // Data & Components
 import { adminEmails, getHardcodedRole } from "./data/admins";
 import StudentSidebar from "./components/StudentSidebar";
 import Navbar from "./components/Navbar";
 import MobileNavbar from "./components/MobileNavbar";
-import Footer from "./components/Footer";
+
 import SetupModal from "./components/SetupModal";
 import Home from "./pages/Home";
 import Schedule from "./pages/Schedule";
@@ -169,14 +170,14 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
                     <Route path="/notes" element={<Notes />} />
                     <Route path="/college-sites" element={<CollegeSites />} />
                     <Route path="/contact" element={<Contact />} />
-                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/settings" element={<Settings userProfile={dbUserProfile} />} />
 
                     {/* Redirect /admin to the separate admin site */}
                     <Route path="/admin" element={<div style={{ padding: 50 }}>Please use <a href="/admin.html">/admin.html</a> or the Admin Portal URL.</div>} />
 
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
-                  <Footer />
+
                 </div>
               )}
 

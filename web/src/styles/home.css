@@ -1,629 +1,1503 @@
-@media (min-width: 769px) {
-
-  /* ==========================================================================
-   NERAM PORTAL: FULL HOME DASHBOARD (SOLID SEQUOIA + GRID + FIXES)
+/* ==========================================================================
+   HOME2: KOTLIN-PARITY HOME DASHBOARD – DESKTOP STYLES
+   Namespaced with `h2-` prefix to avoid clashing with home.css
    ========================================================================== */
 
-  /* --- UPDATE: REMOVE ANIMATION LINE FROM HERE --- */
-  .home-view {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding-bottom: 80px;
-    /* animation line cut from here */
-  }
+/* ===== DESKTOP ===== */
+@media (min-width: 769px) {
 
-  /* --- 1. DASHBOARD GRID SYSTEM --- */
-  .home-container {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    /* Flexible 6-column grid */
-    gap: 24px;
-    align-items: start;
-  }
-
-  /* Spanning logic for full-width and split sections */
-  .page-header,
-  .timetable-section {
-    grid-column: span 6;
-  }
-
-  .date-section,
-  .calendar-section,
-  .updates-live-section,
-  .updates-general-section {
-    grid-column: span 3;
-  }
-
-  .academic-card {
-    grid-column: span 2;
-  }
-
-  /* --- 2. HEADER & STATUS BADGES --- */
-  .page-header {
-    margin-bottom: 8px;
-  }
-
-  .header-main {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .page-title {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--mac-text);
-    /* */
-    letter-spacing: -0.5px;
-  }
-
-  .admin-status-badge {
-    background: rgba(52, 199, 89, 0.12);
-    color: #34C759;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .global-preview-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 159, 10, 0.12);
-    border: 1px solid rgba(255, 159, 10, 0.2);
-    color: #FF9F0A;
-    padding: 10px 16px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-  }
-
-  /* --- 3. GLASS CARD COMPONENT (SCOPED TO HOME VIEW ONLY) --- */
-  /* By adding .home-view before section, this ONLY affects the Home page */
-  .home-view section {
-    background: var(--mac-sidebar-bg);
-    border: none;
-    box-shadow: none;
-    border-radius: 32px;
-    /* Match Command Center rounded corners slightly reduced */
-    padding: 24px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    cursor: default;
-  }
-
-  .home-view section:hover {
-    transform: translateY(-2px);
-  }
-
-  /* Scoping the title as well */
-  .home-view .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--mac-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 18px;
-    opacity: 0.6;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  /* --- 4. DATE SELECTION (SCOPED TO HOME ONLY) --- */
-  /* This prevents the Home styles from breaking the Schedule page Pill Bar */
-  .home-view .date-section {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    z-index: 100;
-    overflow: visible !important;
-  }
-
-  .home-view .date-input-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-top: auto;
-    margin-bottom: auto;
-  }
-
-  .home-view .date-display {
-    flex: 1;
-    background: var(--mac-bg-secondary);
-    border: none;
-    padding: 12px 24px;
-    border-radius: 100px;
-    font-size: 14.5px;
-    font-weight: 600;
-    color: var(--mac-text);
-    outline: none;
-  }
-
-  html.dark .home-view .date-display {
-    background: #1C1C1E;
-  }
-
-  /* Home-specific Round Button (Won't affect Schedule Page) */
-  .home-view .round-calendar-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: none;
-    background: var(--mac-blue);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
-    transition: all 0.2s;
-  }
-
-  .home-view .round-calendar-btn:hover {
-    background: var(--mac-blue-hover);
-    transform: scale(1.05);
-  }
-
-  /* --- 5. ACADEMIC CALENDAR (ROW 1 RIGHT) --- */
-  .calendar-section {
-    height: 100%;
-  }
-
-  .home-event-pill {
-    display: flex;
-    gap: 12px;
-    padding: 8px 0;
-  }
-
-  .event-indicator {
-    width: 4px;
-    height: auto;
-    background: var(--mac-blue);
-    border-radius: 4px;
-  }
-
-  /* --- Dynamic Event Coloring (Matches Mobile Kotlin) --- */
-  /* 1. Holiday = Violet (#8B5CF6) */
-  .event-indicator.indicator-holiday {
-    background: #8B5CF6;
-  }
-
-  /* 2. Exam = Green (#22C55E) */
-  .event-indicator.indicator-exam {
-    background: #22C55E;
-  }
-
-  /* 3. Working Day Order = Cyan (#00BCD4) */
-  .event-indicator.indicator-order {
-    background: #00BCD4;
-  }
-
-  /* 4. Special Event = Yellow (#FBC02D) */
-  .event-indicator.indicator-special {
-    background: #FBC02D;
-  }
-
-  /* 5. Default = Blue */
-  .event-indicator.indicator-default {
-    background: var(--mac-blue);
-  }
-
-  .calendar-text {
-    font-size: 14px;
-    color: var(--mac-text);
-  }
-
-  .calendar-subtext {
-    font-size: 12px;
-    color: var(--mac-text-secondary);
-    opacity: 0.7;
-  }
-
-  .calendar-text-empty {
-    font-size: 14px;
-    font-style: italic;
-    opacity: 0.5;
-  }
-
-  /* --- 6. TIMETABLE (MATCHED TO SCHEDULE PAGE LOOK) --- */
-  /* --- 6. TIMETABLE (CARD LAYOUT - KOTLIN MATCH) --- */
-  .home-view .timetable-section {
-    z-index: 1;
-  }
-
-  .home-view .schedule-list {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-top: 8px;
-  }
-
-  .home-view .period-card {
-    background: var(--mac-bg-secondary);
-    border: none;
-    border-radius: 18px;
-    /* Kotlin uses rounded cards */
-    padding: 16px 20px;
-    display: flex;
-    /* Row layout: Circle | Content */
-    align-items: flex-start;
-    gap: 16px;
-    transition: transform 0.2s ease;
-  }
-
-  html.dark .home-view .period-card {
-    background: #1C1C1E;
-  }
-
-  .home-view .period-card:hover {
-    transform: translateY(-2px);
-  }
-
-  /* Left: Period Number Circle */
-  .home-view .period-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: var(--mac-blue);
-    color: #FFFFFF;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    font-weight: 800;
-    flex-shrink: 0;
-    margin-top: 2px;
-    /* Visual alignment with first line of text */
-  }
-
-  /* Right: Content Column */
-  .home-view .period-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    /* Spacing between split entries */
-  }
-
-  /* Individual Entry (for split courses) */
-  .home-view .course-entry {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  /* Code Row: Code + Lab Badge */
-  .home-view .course-header-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .home-view .course-code {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--mac-blue);
-  }
-
-  .home-view .lab-badge {
-    background: rgba(0, 122, 255, 0.1);
-    color: var(--mac-blue);
-    font-size: 10px;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 100px;
-    /* Pill shape */
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .home-view .course-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--mac-text);
-    line-height: 1.4;
-  }
-
-  .home-view .course-faculty {
-    font-size: 13px;
-    color: var(--mac-text-secondary);
-    font-weight: 500;
-    opacity: 0.8;
-  }
-
-  /* Divider line for split entries */
-  .home-view .entry-divider {
-    height: 1px;
-    background: var(--mac-divider);
-    margin-top: 8px;
-    width: 100%;
-    opacity: 0.6;
-  }
-
-  /* --- 6.1 SOLID EXAM CARD (TODAY'S VIEW) --- */
-  .home-view .exam-mini-card {
-    background: var(--mac-blue);
-    color: white;
-    padding: 24px;
-    border-radius: 18px;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
-    transition: transform 0.2s ease;
-  }
-
-  .home-view .exam-mini-card:hover {
-    transform: translateY(-2px);
-  }
-
-  .home-view .exam-mini-card.major {
-    background: #FF3B30;
-  }
-
-  /* --- 7. REFINED UPDATE SECTIONS (PILL BUTTONS & TINTED BOXES) --- */
-  .updates-live-section,
-  .updates-general-section {
-    height: 100%;
-    min-height: 240px;
-  }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-  }
-
-  .edit-trigger {
-    background: var(--mac-blue);
-    color: #FFFFFF;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 100px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
-    transition: all 0.2s ease;
-  }
-
-  .edit-trigger:hover {
-    background: var(--mac-blue-hover);
-    transform: translateY(-1px);
-  }
-
-  .message-container {
-    background: var(--mac-bg-secondary);
-    padding: 20px;
-    border-radius: 16px;
-    border: none;
-    height: calc(100% - 70px);
-    display: flex;
-    align-items: flex-start;
-  }
-
-  html.dark .message-container {
-    background: #1C1C1E;
-  }
-
-  .message-body {
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--mac-text);
-    margin: 0;
-  }
-
-  .edit-textarea {
-    width: 100%;
-    min-height: 120px;
-    padding: 14px;
-    border-radius: 14px;
-    border: none;
-    background: var(--mac-bg-secondary);
-    color: var(--mac-text);
-    font-family: inherit;
-    font-size: 14px;
-    margin-bottom: 12px;
-    outline: none;
-  }
-
-  html.dark .edit-textarea {
-    background: #1C1C1E;
-  }
-
-  .form-buttons {
-    display: flex;
-    gap: 10px;
-  }
-
-  /* UPDATED SAVE BUTTON STYLES */
-  .save-btn {
-    background: var(--mac-blue);
-    color: #FFF;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 110px;
-    /* Prevents button jumping when loading */
-    transition: all 0.2s;
-  }
-
-  .save-btn:hover:not(:disabled) {
-    background: var(--mac-blue-hover);
-  }
-
-  .save-btn:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-
-  /* SPINNING ANIMATION */
-  .btn-spinner {
-    width: 14px;
-    height: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: btnSpin 0.6s linear infinite;
-  }
-
-  @keyframes btnSpin {
-    to {
-      transform: rotate(360deg);
+    .h2-view {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-bottom: 80px;
     }
-  }
 
-  .cancel-btn {
-    background: var(--mac-bg-secondary);
-    color: var(--mac-text);
-    border: none;
-    padding: 8px 18px;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  html.dark .cancel-btn {
-    background: #1C1C1E;
-  }
-
-  /* --- 8. INDIVIDUAL ACADEMIC CARDS --- */
-  .home-view .academic-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-height: 90px;
-    /* Inherits background: var(--mac-sidebar-bg) from section rule */
-    padding: 16px;
-    border: none;
-    text-align: center;
-    margin-bottom: 0;
-  }
-
-  .home-view .info-label {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--mac-text-secondary);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 2px;
-  }
-
-  .home-view .info-value {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--mac-blue);
-  }
-
-  /* --- 9. FULL EXAM CARDS (MATCHED TO SCHEDULE PAGE LOOK) --- */
-  .home-view .full-exam-schedule-card {
-    background: var(--mac-card-bg);
-    backdrop-filter: blur(20px) saturate(160%);
-    -webkit-backdrop-filter: blur(20px) saturate(160%);
-    border: var(--mac-card-border);
-    box-shadow: none;
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 24px !important;
-  }
-
-  .home-view .exam-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed !important;
-  }
-
-  .home-view .exam-table th:nth-child(1),
-  .home-view .exam-table td:nth-child(1) {
-    width: 135px;
-    text-align: left;
-    border-right: 1px solid var(--mac-divider);
-  }
-
-  .home-view .exam-table th:nth-child(3),
-  .home-view .exam-table td:nth-child(3) {
-    width: 140px;
-    text-align: right !important;
-
-    .home-view {
-      margin-bottom: 120px;
-      /* Extra breathing room for mobile devices */
-      padding-bottom: 20px;
+    .h2-page-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 20px;
+        letter-spacing: -0.5px;
+        color: var(--mac-text);
     }
-  }
 
-  /* --- 10. LOADING & EMPTY STATES --- */
-  .home-loading-card,
-  .no-classes-card {
-    background: var(--mac-bg-secondary);
-    border-radius: 32px;
-    padding: 60px 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    text-align: center;
-    margin: 20px 0;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: default;
-    color: var(--mac-text);
-  }
+    /* --- 1. VERTICAL LAYOUT (Kotlin LazyColumn) --- */
+    .h2-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
 
-  html.dark .home-loading-card,
-  html.dark .no-classes-card {
-    background: #1C1C1E;
-    /* Synced Dark Card Color */
-  }
+    .h2-page-header,
+    .h2-timetable-section,
+    .h2-date-section,
+    .h2-calendar-section,
+    .h2-updates-live,
+    .h2-updates-general {
+        width: 100%;
+    }
 
-  .home-loading-card:hover,
-  .no-classes-card:hover {
-    transform: translateY(-2px);
-  }
+    /* --- 2. SECTION CARD (only for academic details) --- */
+    .h2-calendar-dot.holiday {
+        background: #8B5CF6;
+    }
 
-  .btn-spinner.grey {
-    border-color: var(--mac-border);
-    border-top-color: var(--mac-blue);
-    width: 24px;
-    height: 24px;
-  }
+    .h2-calendar-dot.exam {
+        background: #22C55E;
+    }
 
-  .empty-icon {
-    font-size: 48px;
-    color: var(--mac-text-secondary);
-    opacity: 0.4;
-    margin-bottom: 8px;
-  }
+    .h2-calendar-dot.order {
+        background: #00BCD4;
+    }
 
-  .empty-text .main-msg {
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--mac-text);
-    margin: 0 0 6px 0;
-  }
+    .h2-calendar-dot.special {
+        background: #FBC02D;
+    }
 
-  .empty-text .sub-msg {
-    font-size: 14px;
-    color: var(--mac-text-secondary);
-    margin: 0;
-    opacity: 0.8;
-  }
+    .h2-academic-card {
+        background: var(--mac-sidebar-bg);
+        border-radius: 28px;
+        padding: 12px;
+    }
 
+    html.dark .h2-academic-card {
+        background: #121212;
+    }
+
+    /* --- 3. HEADER — Kotlin PageHeader Pill --- */
+    .h2-page-header {
+        margin-bottom: 8px;
+    }
+
+    .h2-profile-pill {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--mac-sidebar-bg);
+        border-radius: 100px;
+        /* Pill shape */
+        padding: 16px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    html.dark .h2-profile-pill {
+        background: #121212;
+    }
+
+    .h2-profile-section {
+        width: 100%;
+    }
+
+    .h2-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: var(--mac-bg-secondary);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    html.dark .h2-avatar {
+        background: #121212;
+    }
+
+    .h2-avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .h2-avatar-emoji {
+        font-size: 24px;
+    }
+
+    .h2-greeting-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .h2-greeting-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .h2-greeting-text {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--mac-text);
+        letter-spacing: -0.3px;
+    }
+
+    .h2-sparkle {
+        font-size: 20px;
+        display: inline-flex;
+    }
+
+    .h2-user-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--mac-text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .h2-admin-badge {
+        background: rgba(52, 199, 89, 0.12);
+        color: #34C759;
+        padding: 5px 12px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+    .h2-preview-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 159, 10, 0.12);
+        border: 1px solid rgba(255, 159, 10, 0.2);
+        color: #FF9F0A;
+        padding: 10px 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-top: 8px;
+    }
+
+    /* --- 4. SECTION TITLE --- */
+    .h2-section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--mac-text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* --- 5. DATE SECTION --- */
+    .h2-date-section {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        z-index: 100;
+        overflow: visible !important;
+    }
+
+    .h2-date-input-group {
+        position: relative;
+        height: 64px;
+        /* HomeDimens.DatePillHeight */
+        width: 100%;
+        margin: 0;
+    }
+
+    /* Layer 1: The Pill Background */
+    .h2-date-pill {
+        width: 100%;
+        height: 100%;
+        background: var(--mac-sidebar-bg);
+        border-radius: 100px;
+        /* Pillow shape */
+        display: flex;
+        align-items: center;
+        padding-left: 32px;
+        /* SpacingXxxl */
+        padding-right: 80px;
+        /* Space for button */
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        outline: none;
+    }
+
+    html.dark .h2-date-pill {
+        background: #121212;
+    }
+
+    .h2-date-text {
+        font-family: inherit;
+        font-size: 18px;
+        /* HomeTypography.DateText */
+        font-weight: 600;
+        color: var(--mac-text);
+        margin: 0;
+    }
+
+    /* Layer 2: The Calendar Button (Overlay) */
+    .h2-calendar-btn {
+        position: absolute;
+        right: 8px;
+        /* SpacingSm */
+        top: 50%;
+        transform: translateY(-50%);
+        width: 48px;
+        /* CalendarIconSize */
+        height: 48px;
+        border-radius: 50%;
+        background: var(--mac-blue);
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        cursor: pointer;
+        z-index: 2;
+        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .h2-calendar-btn:hover {
+        transform: translateY(-50%) scale(1.05);
+        background: var(--mac-blue-hover);
+    }
+
+    .h2-calendar-btn:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+
+    .h2-date-picker-trigger {
+        position: relative;
+    }
+
+    .h2-calendar-dropdown {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        z-index: 200;
+        background: var(--mac-card-bg, var(--mac-sidebar-bg));
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+    }
+
+    .h2-calendar-dropdown .react-datepicker {
+        border: none !important;
+        background: transparent !important;
+        font-family: inherit !important;
+    }
+
+    /* --- 6. ACADEMIC CALENDAR --- */
+    /* --- 6. ACADEMIC CALENDAR (Kotlin GroupedEventsCard) --- */
+    .h2-grouped-card {
+        background: var(--mac-sidebar-bg);
+        border-radius: 20px;
+        /* HomeShapes.Item */
+        overflow: hidden;
+        margin-top: 8px;
+        /* Spacing */
+    }
+
+    html.dark .h2-grouped-card {
+        background: #121212;
+    }
+
+    .h2-event-row {
+        display: flex;
+        align-items: center;
+        padding: 16px 20px;
+        /* CardPadding */
+        position: relative;
+    }
+
+    .h2-event-bar {
+        width: 4px;
+        /* PillIndicatorWidth */
+        height: 32px;
+        /* PillIndicatorHeight */
+        border-radius: 4px;
+        margin-right: 20px;
+        /* SpacingXl */
+        flex-shrink: 0;
+    }
+
+    /* Colors matching Kotlin */
+    .h2-event-bar.holiday {
+        background: #8B5CF6;
+    }
+
+    .h2-event-bar.exam {
+        background: #22C55E;
+    }
+
+    .h2-event-bar.order {
+        background: #00BCD4;
+    }
+
+    .h2-event-bar.special {
+        background: #FBC02D;
+    }
+
+    /* Cyan for working day order */
+    .h2-event-bar.default {
+        background-color: var(--mac-blue);
+    }
+
+    .h2-event-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .h2-event-title-text {
+        font-size: 16px;
+        /* PillTitle */
+        font-weight: 600;
+        color: var(--mac-text);
+        margin: 0;
+        line-height: normal;
+    }
+
+    .h2-event-time-text {
+        font-size: 13px;
+        /* PillTime */
+        font-weight: 500;
+        color: var(--mac-text-secondary);
+        margin: 0;
+    }
+
+    .h2-event-divider {
+        height: 1px;
+        width: calc(100% - 40px);
+        /* Subtract horizontal padding */
+        margin: 0 auto;
+        background-color: var(--mac-border);
+        opacity: 0.5;
+    }
+
+    .h2-empty-events {
+        padding: 30px;
+        text-align: center;
+        color: var(--mac-text-secondary);
+        font-size: 15px;
+        font-style: italic;
+    }
+
+    /* --- 7. SCHEDULE HEADER ROW --- */
+    .h2-schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .h2-schedule-header .h2-section-title {
+        margin-bottom: 0;
+    }
+
+    .h2-status-badge {
+        background: var(--mac-sidebar-bg);
+        color: var(--mac-text-secondary);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    html.dark .h2-status-badge {
+        background: #121212;
+        color: var(--mac-text-secondary);
+    }
+
+    /* --- 8. TIMETABLE CARDS --- */
+    /* --- 8. TIMETABLE CARDS (Kotlin TimetableCard) --- */
+    .h2-schedule-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        /* SpacingLg */
+        width: 100%;
+    }
+
+    .h2-period-row {
+        background: var(--mac-sidebar-bg);
+        border-radius: 20px;
+        /* TimetableRowRadius */
+        padding: 16px 20px;
+        /* TimetableRowPadding */
+        display: flex;
+        align-items: flex-start;
+        /* Top alignment */
+        gap: 16px;
+        /* Spacing10 */
+        box-shadow: none;
+    }
+
+    html.dark .h2-period-row {
+        background: #121212;
+    }
+
+    .h2-period-num {
+        width: 40px;
+        /* IconSizeLg */
+        height: 40px;
+        background: var(--mac-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: white;
+        font-size: 16px;
+        /* CellHour */
+        font-weight: 800;
+    }
+
+    .h2-period-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-self: stretch;
+    }
+
+    .h2-period-entry {
+        display: flex;
+        flex-direction: column;
+        /* Grouped entry styles */
+    }
+
+    .h2-entry-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        /* SpacingSm for lab tag */
+    }
+
+    .h2-course-code {
+        font-size: 15px;
+        /* CourseCode */
+        font-weight: 700;
+        color: var(--mac-blue);
+        letter-spacing: 0.5px;
+    }
+
+    .h2-lab-tag {
+        background: rgba(0, 122, 255, 0.15);
+        color: var(--mac-blue);
+        font-size: 9px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 100px;
+        /* Pill shape */
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    /* Removed unused grid classes */
+    .h2-course-title {
+        font-size: 15px;
+        /* CourseName */
+        font-weight: 600;
+        color: var(--mac-text);
+        margin-top: 2px;
+        line-height: 1.3;
+    }
+
+    .h2-faculty-name {
+        font-size: 13px;
+        /* StatusBadge/FacultyName */
+        font-weight: 500;
+        color: var(--mac-text-secondary);
+        margin-top: 4px;
+        opacity: 0.8;
+    }
+
+    .h2-entry-divider {
+        height: 1px;
+        background: var(--mac-divider);
+        margin-top: 6px;
+        width: 100%;
+        opacity: 0.5;
+    }
+
+    /* --- 9. EXAM CARD --- */
+    .h2-exam-card {
+        background: var(--mac-blue);
+        color: white;
+        padding: 24px;
+        border-radius: 24px;
+        margin-bottom: 16px;
+        box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
+        transition: transform 0.2s ease;
+    }
+
+    .h2-exam-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .h2-exam-card.major {
+        background: #FF3B30;
+        box-shadow: 0 8px 24px rgba(255, 59, 48, 0.15);
+    }
+
+    .h2-exam-card.cycle {
+        background: var(--mac-blue);
+    }
+
+    .h2-exam-tag {
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+        margin-bottom: 12px;
+    }
+
+    .h2-exam-flex {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .h2-exam-icon {
+        font-size: 40px;
+        opacity: 0.9;
+        flex-shrink: 0;
+        padding-top: 2px;
+    }
+
+    .h2-exam-info h3 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+    }
+
+    .h2-exam-info p {
+        font-size: 14px;
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .h2-exam-meta {
+        display: flex;
+        gap: 6px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+    }
+
+    .h2-meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 3px 7px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    .h2-meta-chip svg {
+        font-size: 11px;
+    }
+
+    /* --- 10. NO CLASSES & SUSPENDED --- */
+    .h2-no-classes {
+        background: var(--mac-sidebar-bg);
+        border-radius: 24px;
+        padding: 40px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-align: center;
+    }
+
+    html.dark .h2-no-classes {
+        background: #121212;
+    }
+
+    .h2-no-classes-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--mac-text);
+        margin: 0;
+    }
+
+    .h2-no-classes-sub {
+        display: inline-block;
+        background: var(--mac-bg-secondary);
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--mac-text-secondary);
+        margin: 0;
+    }
+
+    html.dark .h2-no-classes .h2-no-classes-sub {
+        background: #121212;
+        color: var(--mac-text-secondary);
+    }
+
+    .h2-suspended-notice {
+        background: var(--mac-bg-secondary);
+        border-radius: 24px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    html.dark .h2-suspended-notice {
+        background: #121212;
+    }
+
+    .h2-suspended-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(0, 122, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .h2-suspended-icon svg {
+        font-size: 24px;
+        color: var(--mac-blue);
+    }
+
+    .h2-suspended-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--mac-text);
+        margin: 0;
+    }
+
+    .h2-suspended-sub {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--mac-text-secondary);
+        line-height: 20px;
+        margin: 4px 0 0 0;
+    }
+
+    /* --- 11. LOADING CARD --- */
+    .h2-loading-card {
+        background: var(--mac-sidebar-bg);
+        border-radius: 24px;
+        padding: 60px 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        text-align: center;
+        color: var(--mac-text);
+    }
+
+    html.dark .h2-loading-card {
+        background: #121212;
+    }
+
+    .h2-spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid var(--mac-border);
+        border-top-color: var(--mac-blue);
+        border-radius: 50%;
+        animation: h2Spin 0.6s linear infinite;
+    }
+
+    @keyframes h2Spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* --- 12. EDITABLE SECTIONS (Kotlin EditableSection) --- */
+    .h2-editable-section {
+        width: 100%;
+    }
+
+    .h2-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .h2-section-header .h2-section-title {
+        margin-bottom: 0;
+    }
+
+    .h2-edit-trigger {
+        background: var(--mac-blue);
+        color: #FFF;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .h2-edit-trigger:hover {
+        background: var(--mac-blue-hover);
+        transform: translateY(-1px);
+    }
+
+    /* Message Surface — Kotlin Surface(shape=Item, color=surface) */
+    .h2-message-surface {
+        background: var(--mac-sidebar-bg);
+        padding: 24px;
+        border-radius: 20px;
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+    }
+
+    html.dark .h2-message-surface {
+        background: #121212;
+    }
+
+    .h2-message-body {
+        font-size: 15px;
+        line-height: 22px;
+        color: var(--mac-text);
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
+    /* Author Pill — Kotlin Surface(RoundedCornerShape(12.dp)), right-aligned */
+    .h2-author-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+        /* Increased from 8px for better spacing */
+    }
+
+    .h2-author-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--mac-sidebar-bg);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--mac-text-secondary);
+    }
+
+    html.dark .h2-author-pill {
+        background: #121212;
+    }
+
+    .h2-author-pill svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    /* Edit Form — Kotlin Surface(shape=Item, color=surface) */
+    .h2-edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        background: var(--mac-sidebar-bg);
+        border-radius: 20px;
+        padding: 16px;
+    }
+
+    html.dark .h2-edit-form {
+        background: #121212;
+    }
+
+    .h2-edit-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 14px;
+        border-radius: 16px;
+        border: none;
+        background: var(--mac-bg-secondary);
+        color: var(--mac-text);
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+
+    html.dark .h2-edit-textarea {
+        background: #2C2C2E;
+    }
+
+    .h2-form-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .h2-save-btn {
+        flex: 1;
+        background: var(--mac-blue);
+        color: #FFF;
+        border: none;
+        padding: 0;
+        height: 44px;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .h2-save-btn:hover:not(:disabled) {
+        background: var(--mac-blue-hover);
+    }
+
+    .h2-save-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .h2-cancel-btn {
+        flex: 1;
+        background: var(--mac-bg-secondary);
+        color: var(--mac-text);
+        border: none;
+        padding: 0;
+        height: 44px;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    html.dark .h2-cancel-btn {
+        background: #2C2C2E;
+    }
+
+    .h2-btn-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #FFF;
+        border-radius: 50%;
+        animation: h2Spin 0.6s linear infinite;
+    }
+
+    /* --- 13. ACADEMIC DETAIL CARDS --- */
+    .h2-info-grid {
+        display: flex;
+        gap: 12px;
+    }
+
+    .h2-academic-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        min-height: 80px;
+        /* Reduced from 110px to be more compact */
+        padding: 16px;
+        text-align: center;
+    }
+
+    .h2-info-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--mac-text-secondary);
+        text-transform: uppercase;
+        opacity: 0.7;
+    }
+
+    .h2-info-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--mac-text);
+    }
+
+    /* --- GRID LAYOUT --- */
+    .h2-content-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        align-items: start;
+        margin-top: 8px;
+    }
+
+    .h2-col-left,
+    .h2-col-right {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        min-width: 0;
+    }
+
+    .h2-col-left {
+        position: sticky;
+        top: 24px;
+        height: min-content;
+    }
+
+    /* --- ANIMATIONS --- */
+    .h2-fade-in {
+        animation: h2FadeIn 0.35s ease-out;
+    }
+
+    @keyframes h2FadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .h2-slide-left {
+        animation: h2SlideLeft 0.3s ease-out;
+    }
+
+    .h2-slide-right {
+        animation: h2SlideRight 0.3s ease-out;
+    }
+
+    @keyframes h2SlideLeft {
+        from {
+            opacity: 0;
+            transform: translateX(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes h2SlideRight {
+        from {
+            opacity: 0;
+            transform: translateX(-40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+
+    .h2-view {
+        padding: 0 16px;
+        padding-bottom: 120px;
+    }
+
+    .h2-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    /* Stack columns on mobile */
+    .h2-content-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-top: 0;
+    }
+
+    .h2-col-left,
+    .h2-col-right {
+        gap: 16px;
+    }
+
+
+    /* Card styling only for academic details */
+    .h2-academic-card {
+        background: var(--mac-sidebar-bg);
+        border-radius: 24px;
+        padding: 12px;
+    }
+
+    html.dark .h2-academic-card {
+        background: #121212;
+    }
+
+    /* Header — Profile Pill */
+    .h2-page-header {
+        margin-bottom: 4px;
+    }
+
+    .h2-profile-pill {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--mac-sidebar-bg);
+        border-radius: 100px;
+        padding: 12px;
+    }
+
+    html.dark .h2-profile-pill {
+        background: #121212;
+    }
+
+    .h2-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--bg-button-secondary, var(--mac-bg-secondary));
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .h2-avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .h2-avatar-emoji {
+        font-size: 22px;
+    }
+
+    .h2-greeting-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        min-width: 0;
+    }
+
+    .h2-greeting-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .h2-greeting-text {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary, var(--mac-text));
+        letter-spacing: -0.3px;
+    }
+
+    .h2-sparkle {
+        font-size: 18px;
+        display: inline-flex;
+    }
+
+    .h2-user-name {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary, var(--mac-text-secondary));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .h2-admin-badge {
+        background: rgba(52, 199, 89, 0.12);
+        color: #34C759;
+        padding: 4px 10px;
+        border-radius: 100px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        flex-shrink: 0;
+    }
+
+    .h2-preview-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 159, 10, 0.1);
+        color: #FF9F0A;
+        padding: 8px 14px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 8px;
+    }
+
+    /* Section Title */
+    .h2-section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-secondary, var(--mac-text-secondary));
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+        margin-top: 0;
+    }
+
+    /* Date Section */
+    .h2-date-section {
+        overflow: visible !important;
+        z-index: 100;
+    }
+
+    .h2-date-input-group {
+        position: relative;
+        height: 56px;
+        /* Slightly smaller on mobile */
+        width: 100%;
+        margin: 0;
+    }
+
+    .h2-date-pill {
+        width: 100%;
+        height: 100%;
+        background: var(--bg-button-secondary, var(--mac-bg-secondary));
+        border-radius: 100px;
+        display: flex;
+        align-items: center;
+        padding-left: 24px;
+        padding-right: 64px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        outline: none;
+    }
+
+    html.dark .h2-date-pill {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+
+
+    /* Calendar Events */
+    /* Grouped Calendar (Mobile) */
+    .h2-grouped-card {
+        background: var(--mac-sidebar-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    html.dark .h2-grouped-card {
+        background: #121212;
+    }
+
+    .h2-event-row {
+        padding: 16px;
+    }
+
+    .h2-event-bar {
+        width: 4px;
+        height: 32px;
+        border-radius: 4px;
+        margin-right: 16px;
+    }
+
+    .h2-empty-events {
+        padding: 24px;
+        font-size: 14px;
+    }
+
+    /* Schedule Header */
+    .h2-schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .h2-schedule-header .h2-section-title {
+        margin: 0;
+    }
+
+    .h2-status-badge {
+        background: var(--mac-sidebar-bg);
+        color: var(--text-secondary, var(--mac-text-secondary));
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* Timetable */
+    /* Timetable (Mobile) */
+    /* Timetable (matches Schedule Page) */
+    .h2-schedule-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 0 12px;
+    }
+
+
+
+    /* No Classes */
+    .h2-no-classes {
+        background: var(--mac-sidebar-bg);
+        border-radius: 24px;
+        padding: 40px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-align: center;
+    }
+
+    html.dark .h2-no-classes {
+        background: #121212;
+    }
+
+    .h2-no-classes-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary, var(--mac-text));
+        margin: 0;
+    }
+
+    .h2-no-classes-sub {
+        background: var(--bg-button-secondary, rgba(120, 120, 128, 0.15));
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary, var(--mac-text-secondary));
+        margin: 0;
+    }
+
+    .h2-loading-card {
+        background: var(--mac-sidebar-bg);
+        border-radius: 24px;
+        padding: 40px 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        text-align: center;
+        color: var(--text-primary, var(--mac-text));
+    }
+
+    .h2-spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid var(--glass-border, var(--mac-border));
+        border-top-color: var(--accent-primary, var(--mac-blue));
+        border-radius: 50%;
+        animation: h2Spin 0.6s linear infinite;
+    }
+
+    /* Editable Sections (Kotlin EditableSection) */
+    .h2-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+
+    .h2-section-header .h2-section-title {
+        margin: 0;
+    }
+
+    .h2-edit-trigger {
+        background: var(--accent-primary, var(--mac-blue));
+        color: #FFF;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .h2-message-surface {
+        background: var(--mac-sidebar-bg);
+        padding: 24px;
+        border-radius: 20px;
+        min-height: 140px;
+        /* Increased from 120px for more height parity */
+        display: flex;
+        align-items: center;
+    }
+
+    html.dark .h2-message-surface {
+        background: var(--bg-card, #0E0E0E);
+    }
+
+    .h2-message-body {
+        font-size: 16px;
+        /* Increased from 15px */
+        line-height: 24px;
+        color: var(--mac-text);
+        margin: 0;
+        white-space: pre-wrap;
+    }
+
+    .h2-author-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 16px;
+        /* Increased from 8px for better spacing */
+    }
+
+    .h2-author-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--mac-sidebar-bg);
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-secondary, var(--mac-text-secondary));
+    }
+
+    html.dark .h2-author-pill {
+        background: #121212;
+    }
+
+    .h2-author-pill svg {
+        width: 12px;
+        height: 12px;
+    }
+
+    .h2-edit-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: var(--mac-sidebar-bg);
+        border-radius: 20px;
+        padding: 16px;
+    }
+
+    html.dark .h2-edit-form {
+        background: #121212;
+    }
+
+    .h2-edit-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 14px;
+        border-radius: 16px;
+        border: none;
+        background: var(--bg-button-secondary, var(--mac-bg-secondary));
+        color: var(--text-primary, var(--mac-text));
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+
+    html.dark .h2-edit-textarea {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .h2-form-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .h2-save-btn {
+        flex: 1;
+        background: var(--accent-primary, var(--mac-blue));
+        color: #FFF;
+        border: none;
+        padding: 0;
+        height: 44px;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .h2-save-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .h2-cancel-btn {
+        flex: 1;
+        background: var(--bg-button-secondary, var(--mac-bg-secondary));
+        color: var(--text-primary, var(--mac-text));
+        border: none;
+        padding: 0;
+        height: 44px;
+        border-radius: 100px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .h2-btn-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #FFF;
+        border-radius: 50%;
+        animation: h2Spin 0.6s linear infinite;
+    }
+
+    /* Academic info row */
+    .h2-info-grid {
+        display: flex;
+        gap: 12px;
+    }
+
+    .h2-academic-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: 12px;
+        text-align: center;
+    }
+
+    .h2-info-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-secondary, var(--mac-text-secondary));
+        text-transform: uppercase;
+        opacity: 0.7;
+    }
+
+    .h2-info-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-primary, var(--mac-text));
+    }
 }

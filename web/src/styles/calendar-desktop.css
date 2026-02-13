@@ -1,0 +1,822 @@
+/* ==========================================================================
+   NERAM CALENDAR — DESKTOP REDESIGN (SEQUOIA PRO)
+   Full-bleed layout with stretched grid, premium sidebar
+   ========================================================================== */
+
+/* ────────────────────────────────────────────────────────────────────────────
+   1. PAGE WRAPPER — full bleed inside #main-viewport
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    font-family: "Inter Variable", "Inter", system-ui, -apple-system, sans-serif;
+    color: var(--mac-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+@media (min-width: 1024px) {
+    .cal-page {
+        /* Counteract #main-viewport padding to go edge-to-edge */
+        margin: -48px -64px;
+        width: calc(100% + 128px);
+        height: 100vh;
+        overflow: hidden;
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   2. TOOLBAR — compact header row
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: none;
+    background: var(--mac-card-bg);
+    flex-shrink: 0;
+    gap: 16px;
+    z-index: 10;
+}
+
+.cal-toolbar-left {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    min-width: 0;
+}
+
+.cal-toolbar-left h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0;
+    white-space: nowrap;
+    color: var(--mac-text);
+}
+
+.cal-toolbar-left .cal-batch-label {
+    font-size: 11px;
+    font-weight: 700;
+    opacity: 0.4;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.cal-toolbar-center {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cal-nav-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--mac-divider);
+    background: var(--mac-card-bg);
+    color: var(--mac-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.15s ease;
+}
+
+.cal-nav-btn:hover {
+    background: var(--mac-selection-hover);
+    border-color: var(--mac-blue);
+}
+
+.cal-nav-btn:active {
+    transform: scale(0.94);
+}
+
+.cal-month-label {
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 160px;
+    text-align: center;
+    color: var(--mac-text);
+}
+
+.cal-today-btn {
+    padding: 0 14px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--mac-divider);
+    background: var(--mac-card-bg);
+    color: var(--mac-text);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.cal-today-btn:hover {
+    background: var(--mac-blue);
+    color: #fff;
+    border-color: var(--mac-blue);
+}
+
+.cal-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cal-view-toggle {
+    display: flex;
+    background: var(--mac-selection-bg);
+    border-radius: 10px;
+    padding: 3px;
+}
+
+.cal-view-toggle button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.cal-view-toggle button.active {
+    background: var(--mac-blue);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 99, 229, 0.3);
+}
+
+.cal-view-toggle button svg {
+    font-size: 14px;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   3. BODY — split pane container
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+    gap: 20px;
+    padding: 0 24px 24px;
+    background: var(--mac-card-bg);
+}
+
+.cal-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+    background: var(--mac-bg-content);
+    border-radius: 20px;
+    border: 1.5px solid var(--mac-divider);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   4. MONTH GRID — weekday header + day rows
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-grid {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--mac-bg-content);
+}
+
+.cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1.5px solid var(--mac-divider);
+    background: var(--mac-bg-content);
+    flex-shrink: 0;
+}
+
+.cal-weekday {
+    padding: 8px 12px;
+    text-align: right;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--mac-text-secondary);
+    opacity: 0.45;
+}
+
+.cal-weekday.sun {
+    color: #EF5350;
+    opacity: 0.75;
+}
+
+.cal-weeks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.cal-week-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    flex: 1;
+    min-height: 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--mac-divider) 60%, transparent);
+}
+
+.cal-week-row:last-child {
+    border-bottom: none;
+    padding-bottom: 24px;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   5. DAY CELL
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-day {
+    display: flex;
+    flex-direction: column;
+    padding: 5px 4px 3px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.18s ease;
+    overflow: hidden;
+}
+
+/* Vertical divider — pseudo-element so event bars can paint over it */
+.cal-day::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 1px;
+    background: color-mix(in srgb, var(--mac-divider) 60%, transparent);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.cal-day:last-child::before {
+    display: none;
+}
+
+.cal-day:hover {
+    background: rgba(0, 99, 229, 0.04);
+}
+
+html.dark .cal-day:hover {
+    background: rgba(0, 113, 255, 0.06);
+}
+
+.cal-day.faded {
+    opacity: 0.25;
+}
+
+.cal-day.faded:hover {
+    opacity: 0.4;
+}
+
+.cal-day.selected {
+    background: rgba(0, 99, 229, 0.07);
+    border-radius: 12px;
+}
+
+html.dark .cal-day.selected {
+    background: rgba(0, 113, 255, 0.1);
+}
+
+.cal-day.selected::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 15%;
+    right: 15%;
+    height: 2.5px;
+    background: var(--mac-blue);
+    border-radius: 2px 2px 0 0;
+    z-index: 3;
+}
+
+.cal-day-num {
+    font-size: 13px;
+    font-weight: 600;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 3px auto;
+    border-radius: 50%;
+    color: var(--mac-text);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.cal-day-num.today {
+    background: var(--mac-blue);
+    color: #fff;
+    font-weight: 800;
+    box-shadow: 0 2px 8px rgba(0, 99, 229, 0.35);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   6. EVENT INDICATORS — multi-day bars
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-events {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5px;
+    flex: 1;
+    min-height: 0;
+    padding-top: 1px;
+    margin-left: -4px;
+    margin-right: -4px;
+    position: relative;
+    z-index: 1;
+}
+
+.cal-event-bar {
+    height: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+    transition: filter 0.15s ease;
+}
+
+.cal-day:hover .cal-event-bar:not(.spacer) {
+    filter: brightness(1.1);
+}
+
+.cal-event-bar.single {
+    border-radius: 5px;
+    margin: 0 8px;
+}
+
+.cal-event-bar.start {
+    border-radius: 5px 0 0 5px;
+    margin-left: 8px;
+    /* visual 4px inset from cell edge */
+    padding-left: 7px;
+}
+
+.cal-event-bar.middle {
+    border-radius: 0;
+}
+
+.cal-event-bar.end {
+    border-radius: 0 5px 5px 0;
+    margin-right: 8px;
+}
+
+.cal-event-bar.spacer {
+    background: transparent;
+}
+
+.cal-event-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: visible;
+    pointer-events: none;
+    text-shadow: 0 0.5px 1.5px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    line-height: 1;
+    letter-spacing: -0.1px;
+}
+
+/* Yellow events get dark text */
+.cal-event-bar[data-color="special"] .cal-event-label {
+    color: #1D1D1F;
+    text-shadow: none;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   7. RIGHT SIDEBAR — agenda panel
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-sidebar {
+    width: 320px;
+    background: var(--mac-card-bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-radius: 20px;
+}
+
+.cal-sidebar-inner {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.cal-agenda-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--mac-divider);
+}
+
+.cal-agenda-header h3 {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    margin: 0;
+}
+
+.cal-today-badge {
+    font-size: 9px;
+    font-weight: 900;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(0, 99, 229, 0.1);
+    color: var(--mac-blue);
+    letter-spacing: 0.5px;
+}
+
+.cal-agenda-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cal-agenda-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    transition: transform 0.15s ease;
+}
+
+.cal-agenda-card:hover {
+    transform: translateY(-1px);
+}
+
+.cal-agenda-dot {
+    width: 5px;
+    height: 28px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.cal-agenda-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--mac-text);
+    line-height: 1.3;
+}
+
+.cal-agenda-time {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+.cal-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+    opacity: 0.3;
+    text-align: center;
+}
+
+.cal-empty-state svg {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.cal-empty-state p {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.cal-doc-btn {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--mac-blue);
+    color: #fff;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.cal-doc-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+}
+
+.cal-doc-btn svg {
+    font-size: 18px;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   8. SCHEDULE VIEW — chronological list
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-schedule {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.cal-sched-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cal-sched-date {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cal-sched-num {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--mac-selection-bg);
+    border: 1px solid var(--mac-divider);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--mac-text);
+    flex-shrink: 0;
+}
+
+.cal-sched-num.today {
+    background: var(--mac-blue);
+    color: #fff;
+    border-color: var(--mac-blue);
+}
+
+.cal-sched-day {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--mac-text);
+}
+
+.cal-sched-monthyr {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    opacity: 0.5;
+    text-transform: uppercase;
+}
+
+.cal-sched-events {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-left: 54px;
+}
+
+.cal-sched-item {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: var(--mac-card-bg);
+    border: 1px solid var(--mac-divider);
+}
+
+.cal-sched-strip {
+    width: 4px;
+    height: 28px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.cal-sched-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--mac-text);
+}
+
+.cal-sched-time {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   9. MOBILE SHUTTER (preserved behavior)
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-mobile-shutter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--mac-sidebar-bg);
+    backdrop-filter: blur(40px);
+    border-top: 1px solid var(--mac-divider);
+    border-radius: 24px 24px 0 0;
+    height: 520px;
+    transform: translateY(100%);
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.cal-mobile-shutter.open {
+    transform: translateY(0);
+}
+
+.cal-shutter-handle {
+    width: 36px;
+    height: 5px;
+    background: var(--mac-divider);
+    border-radius: 10px;
+    margin: 12px auto;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.cal-shutter-body {
+    flex: 1;
+    padding: 8px 24px 24px;
+    overflow-y: auto;
+}
+
+.cal-shutter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.cal-shutter-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.cal-shutter-header p {
+    font-size: 13px;
+    opacity: 0.5;
+    font-weight: 600;
+    margin: 4px 0 0 0;
+}
+
+.cal-doc-btn-round {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--mac-blue);
+    color: #fff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   10. RESPONSIVE & VISIBILITY
+   ──────────────────────────────────────────────────────────────────────────── */
+
+.cal-desktop-only {
+    display: none;
+}
+
+.cal-mobile-only {
+    display: flex;
+}
+
+@media (min-width: 1024px) {
+    .cal-desktop-only {
+        display: flex;
+    }
+
+    .cal-mobile-only {
+        display: none !important;
+    }
+}
+
+/* Explicitly hide mobile shutter on desktop */
+@media (min-width: 1024px) {
+    .cal-mobile-shutter {
+        display: none !important;
+        pointer-events: none;
+        visibility: hidden;
+    }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   11. MOBILE OVERRIDES — calendar.css still handles <768px base styling,
+       but we add some mobile adjustments here for the new class names
+   ──────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+    .cal-page {
+        padding: 0;
+    }
+
+    .cal-toolbar {
+        flex-wrap: wrap;
+        padding: 14px 16px;
+        gap: 10px;
+    }
+
+    .cal-toolbar-left h1 {
+        font-size: 18px;
+    }
+
+    .cal-month-label {
+        font-size: 14px;
+        min-width: 120px;
+    }
+
+    .cal-body {
+        flex-direction: column;
+    }
+
+    .cal-sidebar {
+        display: none;
+    }
+
+    .cal-day-num {
+        font-size: 11px;
+        width: 22px;
+        height: 22px;
+    }
+
+    .cal-event-bar {
+        height: 14px;
+    }
+
+    .cal-event-label {
+        font-size: 9px;
+    }
+
+    .cal-grid {
+        overflow-y: auto;
+    }
+
+    .cal-weeks {
+        flex: initial;
+    }
+
+    .cal-week-row {
+        flex: initial;
+        min-height: 70px;
+    }
+
+    .cal-schedule {
+        padding: 16px;
+    }
+}

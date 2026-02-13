@@ -1,0 +1,896 @@
+/* ==========================================================================
+   SCHEDULE2 — Kotlin App Port (s2- prefix for isolation)
+   ========================================================================== */
+
+/* --- 1. PAGE LAYOUT --- */
+.s2-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 20px 120px 20px;
+    font-family: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--mac-text);
+}
+
+.s2-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    letter-spacing: -0.5px;
+    color: var(--mac-text);
+}
+
+/* --- 2. VIEW TYPE TABS (Class / Exams Pill Switcher) --- */
+.s2-view-tabs {
+    position: relative;
+    display: flex;
+    flex: 1;
+    /* Grow equally with date section */
+    background: var(--mac-card-bg);
+    border-radius: 100px;
+    padding: 6px;
+    /* Increased from 4px */
+    gap: 0;
+    overflow: hidden;
+}
+
+.s2-view-tabs .s2-tab-indicator {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 6px;
+    width: calc(50% - 6px);
+    background: var(--mac-selection-bg);
+    border-radius: 100px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+}
+
+.s2-view-tabs .s2-tab-indicator.exams {
+    transform: translateX(100%);
+}
+
+.s2-view-tabs button {
+    flex: 1;
+    height: 40px;
+    /* Match calendar button height */
+    position: relative;
+    z-index: 1;
+    border: none;
+    background: transparent;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: color 0.25s ease;
+    border-radius: 100px;
+    font-family: inherit;
+}
+
+.s2-view-tabs button svg {
+    font-size: 16px;
+}
+
+.s2-view-tabs button.active {
+    color: var(--mac-text);
+    font-weight: 700;
+}
+
+.s2-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.s2-date-section {
+    display: flex;
+    flex: 1;
+    /* Grow equally with view tabs */
+    align-items: center;
+}
+
+.s2-date-section-unified {
+    position: relative;
+    display: flex;
+    flex: 1;
+    /* Grow equally with view tabs to achieve symmetry */
+    align-items: center;
+    background: var(--mac-card-bg);
+    padding: 6px;
+    /* Increased from 4px */
+    border-radius: 100px;
+    gap: 6px;
+    box-sizing: border-box;
+}
+
+.s2-date-nav-group {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    /* Take up remaining space next to button */
+    justify-content: space-between;
+    /* Put arrows at both ends */
+    padding: 0 2px;
+}
+
+.s2-date-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--mac-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    font-family: inherit;
+}
+
+.s2-date-arrow:hover {
+    background: var(--mac-selection-hover);
+    color: var(--mac-text);
+}
+
+.s2-date-text {
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-text);
+    text-align: left;
+    /* Left-aligned text */
+    flex: 1;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s;
+}
+
+.s2-date-text:hover {
+    color: var(--mac-blue);
+}
+
+.s2-calendar-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--mac-border);
+    margin: 0 4px;
+    opacity: 0.5;
+}
+
+.s2-calendar-trigger-btn {
+    width: 40px;
+    /* Increased from 36px */
+    height: 40px;
+    /* Increased from 36px */
+    border-radius: 50%;
+    border: none;
+    background: var(--mac-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    /* Increased from 18px */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.s2-calendar-trigger-btn:hover {
+    background: var(--mac-blue-hover);
+    transform: scale(1.05);
+}
+
+/* --- 4. SPACER --- */
+.s2-spacer-sm {
+    height: 16px;
+}
+
+.s2-spacer-md {
+    height: 24px;
+}
+
+.s2-spacer-lg {
+    height: 32px;
+}
+
+/* --- 5. SECTION TITLE --- */
+.s2-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text);
+    letter-spacing: -0.2px;
+    margin: 0;
+    padding: 8px 0;
+}
+
+.s2-section-title.muted {
+    color: var(--mac-text-secondary);
+}
+
+/* --- 6. STATUS BADGE --- */
+.s2-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.s2-status-badge {
+    background: var(--mac-card-bg);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--mac-text-secondary);
+}
+
+/* --- 7. SCHEDULE TABLE (Period Rows — matches Kotlin ScheduleTable) --- */
+.s2-schedule-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 0 12px;
+}
+
+.s2-period-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--mac-card-bg);
+    border-radius: 20px;
+    padding: 14px 16px;
+}
+
+.s2-period-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--mac-blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.s2-period-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.s2-period-entry {
+    display: flex;
+    flex-direction: column;
+}
+
+.s2-course-code-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.s2-course-code {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mac-blue);
+    letter-spacing: -0.1px;
+}
+
+.s2-lab-badge {
+    display: inline-flex;
+    padding: 2px 5px;
+    border-radius: 100px;
+    background: rgba(0, 99, 229, 0.12);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--mac-blue);
+}
+
+.s2-course-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--mac-text);
+    margin-top: 2px;
+}
+
+.s2-faculty {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+
+/* --- 8. EVENT CARDS (Full Day / Half Day / Exam — matches Kotlin MajorEventCard) --- */
+.s2-event-card {
+    background: var(--mac-blue);
+    border-radius: 28px;
+    padding: 24px;
+    color: #fff;
+    margin-bottom: 16px;
+}
+
+.s2-event-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 12px;
+}
+
+.s2-event-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.s2-event-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+.s2-event-info h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 2px;
+    letter-spacing: -0.3px;
+}
+
+.s2-event-info p {
+    font-size: 13.5px;
+    font-weight: 500;
+    opacity: 0.95;
+    margin: 0;
+}
+
+.s2-event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.s2-meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.s2-meta-chip svg {
+    font-size: 12px;
+}
+
+/* --- 9. NOTICE CARD (Suspension — matches Kotlin NoticeCard) --- */
+.s2-notice-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--mac-card-bg);
+    border-radius: 20px;
+    padding: 24px;
+}
+
+.s2-notice-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(0, 99, 229, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--mac-blue);
+    font-size: 24px;
+}
+
+.s2-notice-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin: 0 0 4px;
+}
+
+.s2-notice-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* --- 10. COLLAPSIBLE SECTION --- */
+.s2-collapsible-card {
+    background: var(--mac-card-bg);
+    border-radius: 28px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.s2-collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.s2-collapsible-header:hover .s2-collapsible-icon {
+    background: var(--mac-selection-hover);
+    color: var(--mac-text);
+}
+
+.s2-collapsible-integrated-anim {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    opacity: 0;
+}
+
+.s2-collapsible-integrated-anim.open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+.s2-collapsible-integrated-inner {
+    overflow: hidden;
+}
+
+.s2-collapsible-integrated-content {
+    padding: 0 16px 16px;
+}
+
+.s2-collapsible-header .s2-section-title {
+    padding: 0;
+}
+
+.s2-collapsible-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 20px;
+    color: var(--mac-text-secondary);
+    transition: all 0.3s ease;
+}
+
+.s2-collapsible-icon.open {
+    transform: rotate(180deg);
+}
+
+.s2-collapsible-body-anim {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    opacity: 0;
+}
+
+.s2-collapsible-body-anim.open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+.s2-collapsible-body-inner {
+    overflow: hidden;
+}
+
+.s2-collapsible-body-content {
+    padding-top: 12px;
+}
+
+/* --- 11. DAY TABS (Tue–Sat Pill Row — matches Kotlin DayTabsRow) --- */
+.s2-day-tabs {
+    display: flex;
+    background: var(--mac-bg-secondary);
+    border-radius: 100px;
+    padding: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+html.dark .s2-day-tabs {
+    background: #1E1E1E;
+}
+
+.s2-day-tabs .s2-day-indicator {
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    border-radius: 100px;
+    background: var(--mac-blue);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+}
+
+.s2-day-tabs button {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    border: none;
+    background: transparent;
+    padding: 9px 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    transition: color 0.2s ease, font-weight 0.2s ease;
+    border-radius: 100px;
+    font-family: inherit;
+}
+
+.s2-day-tabs button.active {
+    color: #fff;
+    font-weight: 700;
+}
+
+/* --- 12. EXAM SCHEDULE CARD (matches Kotlin ExamScheduleCard) --- */
+.s2-exam-card {
+    background: var(--mac-card-bg);
+    border-radius: 28px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.s2-exam-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.s2-exam-header-icon {
+    font-size: 24px;
+    color: var(--mac-blue);
+    flex-shrink: 0;
+}
+
+.s2-exam-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin: 0;
+}
+
+.s2-exam-type {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    margin: 0;
+}
+
+.s2-exam-subject-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+}
+
+.s2-exam-subject-row+.s2-exam-subject-row {
+    border-top: 1px solid var(--mac-divider);
+}
+
+.s2-exam-date {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mac-text);
+}
+
+.s2-exam-code-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mac-blue);
+    margin-top: 6px;
+}
+
+.s2-exam-time-portion {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.s2-exam-empty {
+    font-size: 11px;
+    color: var(--mac-text-secondary);
+    padding: 8px 0;
+}
+
+/* --- 13. COURSE DIRECTORY (matches Kotlin CourseDirectoryTable) --- */
+.s2-course-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.s2-course-card {
+    background: var(--mac-card-bg);
+    border-radius: 28px;
+    padding: 16px;
+}
+
+.s2-course-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.s2-course-periods {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+}
+
+.s2-course-card .s2-course-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--mac-text);
+    margin-top: 0;
+}
+
+.s2-course-card .s2-faculty {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    margin-top: 6px;
+    text-transform: none;
+    letter-spacing: normal;
+    opacity: 1;
+}
+
+/* --- 14. INFO CARD (Staff — matches Kotlin InfoCard) --- */
+.s2-info-card {
+    background: var(--mac-card-bg);
+    border-radius: 28px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.s2-info-card .s2-info-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    margin: 0 0 12px;
+}
+
+.s2-info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 0;
+}
+
+.s2-info-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0, 99, 229, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--mac-blue);
+    font-size: 14px;
+}
+
+.s2-info-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--mac-text);
+}
+
+.s2-info-empty {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    opacity: 0.5;
+}
+
+/* --- 15. EMPTY STATE CARD --- */
+.s2-empty-card {
+    background: var(--mac-card-bg);
+    border-radius: 28px;
+    padding: 32px;
+    text-align: center;
+}
+
+.s2-empty-card p {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    margin: 0;
+}
+
+/* --- 16. LOADING CARD & SPINNER --- */
+.s2-loading-card {
+    background: var(--mac-card-bg);
+    border-radius: 28px;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    text-align: center;
+    color: var(--mac-text);
+    margin: 20px 0;
+}
+
+.s2-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--mac-divider);
+    border-top-color: var(--mac-blue);
+    border-radius: 50%;
+    animation: s2Spin 0.8s linear infinite;
+}
+
+@keyframes s2Spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.s2-loading-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+}
+
+/* --- 17. CALENDAR DROPDOWN (inline DatePicker) --- */
+.s2-calendar-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 200;
+    background: var(--mac-card-bg);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+/* Remove any extra wrapper chrome react-datepicker adds in inline mode */
+.s2-calendar-dropdown .react-datepicker {
+    border: none !important;
+    background: transparent !important;
+    font-family: inherit !important;
+}
+
+/* --- 18. PREVIEW TAG --- */
+.s2-preview-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 99, 229, 0.08);
+    color: var(--mac-blue);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* --- 19. ANIMATION --- */
+.s2-fade-in {
+    animation: s2FadeIn 0.35s ease-out;
+}
+
+@keyframes s2FadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.s2-slide-left {
+    animation: s2SlideLeft 0.3s ease-out;
+}
+
+.s2-slide-right {
+    animation: s2SlideRight 0.3s ease-out;
+}
+
+@keyframes s2SlideLeft {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes s2SlideRight {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --- 20. MOBILE RESPONSIVE --- */
+@media (max-width: 768px) {
+    .s2-page {
+        padding: 0 var(--screen-edge-spacing, 16px) 100px;
+        margin-top: 0;
+    }
+}
+
+/* --- 21. DESKTOP SIDE-BY-SIDE LAYOUT --- */
+@media (min-width: 900px) {
+    .s2-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        /* Match Home Layout: No side padding implies main-viewport handles it or clean edge look */
+        padding: 0 0 120px;
+    }
+
+    .s2-desktop-layout {
+        display: grid;
+        /* Equal sized columns as requested */
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        /* Increased gap for better breathing room */
+        align-items: start;
+    }
+
+    .s2-desktop-main {
+        min-width: 0;
+    }
+
+    .s2-desktop-side {
+        position: sticky;
+        top: 24px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Hide spacers in side column since we use flex gap if needed */
+
+    .s2-mobile-only {
+        display: none !important;
+    }
+}

@@ -2,9 +2,8 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AdminProfile from './admins/AdminProfile';
 import Security from './settings/Security';
-import Maintenance from './settings/Maintenance';
 import About from './settings/About';
-import { RiUserLine, RiShieldKeyholeLine, RiToolsLine, RiInformationLine } from 'react-icons/ri';
+import { RiUserLine, RiShieldKeyholeLine, RiInformationLine } from 'react-icons/ri';
 import '../styles/admin-settings.css';
 
 const AdminSettings = () => {
@@ -39,13 +38,6 @@ const AdminSettings = () => {
                         </button>
 
                         <button
-                            className={`shifter-item ${activeTab === 'maintenance' ? 'active' : ''}`}
-                            onClick={() => handleTabChange('maintenance')}
-                        >
-                            <RiToolsLine /> <span>Maintenance</span>
-                        </button>
-
-                        <button
                             className={`shifter-item ${activeTab === 'about' ? 'active' : ''}`}
                             onClick={() => handleTabChange('about')}
                         >
@@ -59,7 +51,6 @@ const AdminSettings = () => {
             <main className="settings-content-flow">
                 {activeTab === 'personal' && <AdminProfile />}
                 {activeTab === 'security' && <Security />}
-                {activeTab === 'maintenance' && <Maintenance />}
                 {activeTab === 'about' && <About />}
             </main>
         </div>

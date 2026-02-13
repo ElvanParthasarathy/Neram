@@ -1,7 +1,7 @@
 /* Refactored App.css */
 @import './styles/auth.css';
 @import './styles/tokens.css';
-@import './styles/home.css';
+/* @import './styles/home.css'; DISABLED: replaced by home2.css */
 @import './styles/animations.css';
 @import './styles/schedule.desktop.css';
 @import './styles/schedule.mobile.css';

@@ -24,8 +24,9 @@ html.dark {
    --mac-sidebar-bg: #121212;
    --mac-popup-bg: #1A1A1A;
 
-   --mac-selection-bg: rgba(255, 255, 255, 0.1);
-   --mac-selection-hover: rgba(255, 255, 255, 0.15);
+   --mac-selection-bg: rgba(255, 255, 255, 0.02);
+   --mac-selection-hover: rgba(255, 255, 255, 0.04);
+   --mac-hover: rgba(255, 255, 255, 0.04);
 
    --mac-table-header: #121212;
    --mac-input-bg: #1A1A1A;

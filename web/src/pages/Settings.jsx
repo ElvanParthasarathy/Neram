@@ -3,10 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import PersonalInfo from './settings/PersonalInfo';
 import Security from './settings/Security';
 import UserDirectory from './settings/UserDirectory';
+import Maintenance from './settings/Maintenance';
+import About from './settings/About';
 // MAC-STYLE LINE ICONS
-import { RiUserLine, RiShieldKeyholeLine, RiGroupLine } from 'react-icons/ri';
+import { RiUserLine, RiShieldKeyholeLine, RiGroupLine, RiToolsLine, RiInformationLine } from 'react-icons/ri';
 
-const Settings = () => {
+const Settings = ({ userProfile }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'personal';
 
@@ -42,6 +44,20 @@ const Settings = () => {
           >
             <RiGroupLine /> <span>Users</span>
           </button>
+
+          <button
+            className={`shifter-item ${activeTab === 'maintenance' ? 'active' : ''}`}
+            onClick={() => handleTabChange('maintenance')}
+          >
+            <RiToolsLine /> <span>Storage</span>
+          </button>
+
+          <button
+            className={`shifter-item ${activeTab === 'about' ? 'active' : ''}`}
+            onClick={() => handleTabChange('about')}
+          >
+            <RiInformationLine /> <span>About</span>
+          </button>
         </nav>
       </header>
 
@@ -50,6 +66,14 @@ const Settings = () => {
         {activeTab === 'personal' && <PersonalInfo />}
         {activeTab === 'security' && <Security />}
         {activeTab === 'directory' && <UserDirectory />}
+        {activeTab === 'maintenance' && (
+          <Maintenance
+            batch={userProfile?.batch}
+            department={userProfile?.department}
+            section={userProfile?.section}
+          />
+        )}
+        {activeTab === 'about' && <About />}
       </main>
     </div>
   );

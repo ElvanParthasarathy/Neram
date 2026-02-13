@@ -290,8 +290,7 @@
 }
 
 html.dark .dropdown-trigger:hover {
-    filter: brightness(1.2);
-    /* Lighter in dark mode for visibility */
+    background: rgba(255, 255, 255, 0.06);
 }
 
 html.dark .dropdown-trigger {

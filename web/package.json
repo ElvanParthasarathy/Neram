@@ -15,6 +15,7 @@
     "@react-oauth/google": "^0.13.4",
     "firebase": "^12.7.0",
     "framer-motion": "^12.23.26",
+    "pdfjs-dist": "^5.4.624",
     "react": "^19.2.0",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.0",

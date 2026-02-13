@@ -1,188 +1,124 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import {
+    RiFolderFill,
+    RiArrowRightSLine,
+    RiArrowLeftSLine,
+    RiFileTextFill,
+    RiExternalLinkLine,
+    RiLockLine,
+    RiLoader4Line,
+    RiErrorWarningLine,
+    RiArrowDownSLine,
+    RiArrowUpSLine,
+    RiFilePdfLine,
+    RiCloudOffLine,
+    RiInformationLine
+} from 'react-icons/ri';
 import "../App.css";
 
-const departments = [
-    { id: "cse", name: "CSE" },
-    { id: "it", name: "IT" },
-    { id: "ece", name: "ECE" },
+/**
+ * Notes Component - Android Parity Version
+ * 
+ * Features:
+ * - Stack-based navigation (Breadcrumbs/Path)
+ * - Depth-aware data processing (Root -> Dept -> Semester -> Subjects)
+ * - SNH Special Logic (Inferred Grouping)
+ * - Sequoia Pro UI (Folders, Accordions, Unit Chips)
+ */
 
-    { id: "aiml", name: "AIML" },
-    { id: "csbs", name: "CSBS" },
-    { id: "snh", name: "First Year / SNH" },
-];
-
-
-// --- MOBILE ICONS ---
-const IconFolder = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M19.5 21a3 3 0 0 0 3-3v-4.5a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3V18a3 3 0 0 0 3 3h15ZM1.5 10.146V6a3 3 0 0 1 3-3h5.379a2.25 2.25 0 0 1 1.59.659l2.31 2.31a.75.75 0 0 0 .53.22h6.44a3 3 0 0 1 3 3v1.146A4.483 4.483 0 0 0 19.5 9h-15a4.483 4.483 0 0 0-3 1.146Z" />
-    </svg>
-);
-
-const IconChevronRight = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path fillRule="evenodd" d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z" clipRule="evenodd" />
-    </svg>
-);
-
-const IconArrowLeft = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
-    </svg>
-);
-
-const IconChevronDown = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path fillRule="evenodd" d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z" clipRule="evenodd" />
-    </svg>
-);
-
-const IconFileText = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path fillRule="evenodd" d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z" clipRule="evenodd" />
-        <path d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z" />
-    </svg>
-);
-
-const IconOpen = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path fillRule="evenodd" d="M15.75 2.25H21a.75.75 0 0 1 .75.75v5.25a.75.75 0 0 1-1.5 0V4.81L8.03 17.03a.75.75 0 0 1-1.06-1.06L19.19 3.75h-3.44a.75.75 0 0 1 0-1.5Zm-10.5 4.5a1.5 1.5 0 0 0-1.5 1.5v10.5a1.5 1.5 0 0 0 1.5 1.5h10.5a1.5 1.5 0 0 0 1.5-1.5V10.5a.75.75 0 0 1 1.5 0v8.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V8.25a3 3 0 0 1 3-3h8.25a.75.75 0 0 1 0 1.5H5.25Z" clipRule="evenodd" />
-    </svg>
-);
-
+const ROOT_DEPTS = ["ECE", "AIML", "CSBS", "CSE", "IT", "SNH"];
 
 const Notes = () => {
-    const [selectedDept, setSelectedDept] = useState("cse");
-    const [notesData, setNotesData] = useState([]);
-    const [loading, setLoading] = useState(false);
+    // --- STATE ---
+    const [path, setPath] = useState([]); // Stack: ["CSE", "Semester 3"]
+    const [cachedSemesters, setCachedSemesters] = useState([]); // Raw data from RMD
+    const [uiStatus, setUiStatus] = useState('empty'); // 'empty', 'loading', 'browser', 'error'
     const [error, setError] = useState(null);
-
-    // --- MOBILE STATE ---
+    const [expandedSubjects, setExpandedSubjects] = useState({});
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-    const [mobileStep, setMobileStep] = useState('departments'); // 'departments' | 'notes'
-    const [expandedSubjects, setExpandedSubjects] = useState({}); // { "Sem 1-Subject A": true }
 
+    // --- RESPONSIVE ---
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // --- PARSING LOGIC (Ported from Kotlin) ---
-    // --- PARSING LOGIC (Ported from Kotlin - Robust Regex Version) ---
-    // --- PARSING LOGIC (Ported from Kotlin - Robust Hybrid Version) ---
-    const parseTable = (table, isSNH = false, deptFilter = "") => {
+    // --- HELPERS (Android Parity) ---
+    const toTitleCase = useCallback((str) => {
+        if (!str) return "";
+        const s = String(str).trim();
+        if (!s) return "";
+
+        return s.split(" ").map(word => {
+            // Preserve Regulation codes like R-2024
+            if (word.includes("-") && /\d/.test(word)) return word;
+            // Preserve words with digits
+            if (/\d/.test(word)) return word;
+            // Preserve abbreviations
+            if (word.length <= 4 && word === word.toUpperCase() && word.length > 0) return word;
+            // Normal word -> Title Case
+            return word.toLowerCase().replace(/^\w/, (c) => c.toUpperCase());
+        }).join(" ");
+    }, []);
+
+    const mapDeptToAbbreviation = useCallback((raw) => {
+        const upper = raw.toUpperCase();
+        const found = [];
+        if (upper.includes("COMPUTER SCIENCE AND ENGINEERING") || upper.includes("CSE")) found.push("CSE");
+        if (upper.includes("INFORMATION TECHNOLOGY") || upper.includes("IT")) found.push("IT");
+        if (upper.includes("ELECTRONICS AND COMMUNICATION") || upper.includes("ECE")) found.push("ECE");
+        if (upper.includes("ELECTRICAL AND ELECTRONICS") || upper.includes("EEE")) found.push("EEE");
+        if (upper.includes("ARTIFICIAL INTELLIGENCE") || upper.includes("AIML")) found.push("AIML");
+        if (upper.includes("BUSINESS SYSTEM")) found.push("CSBS");
+        if (upper.includes("SCIENCE AND HUMANITIES") || upper.includes("SNH")) found.push("SNH");
+
+        return found.length > 0 ? found.join(" / ") : toTitleCase(raw);
+    }, [toTitleCase]);
+
+    // --- PARSING (Web Specific Implementation of Repository Logic) ---
+    const parseTable = useCallback((table) => {
         const subjects = [];
         const rows = Array.from(table.querySelectorAll("tbody tr"));
-        const headers = Array.from(table.querySelectorAll("thead th"));
 
-        // 1. Column Mapping Strategy (Header-Based)
-        // map: { "Unit 1": 2, "Unit 2": 3, ... }
-        const colMap = {};
-
-        if (headers.length > 0) {
-            headers.forEach((th, index) => {
-                const text = th.innerText.toLowerCase().trim();
-                const match = /unit\s*(\d+)|([ivx]+)/i.exec(text);
-                if (match) {
-                    // Try to convert Roman numerals if present (simple case)
-                    let num = match[1];
-                    if (!num && match[2]) {
-                        const roman = match[2].toLowerCase();
-                        if (roman === 'i') num = 1;
-                        if (roman === 'ii') num = 2;
-                        if (roman === 'iii') num = 3;
-                        if (roman === 'iv') num = 4;
-                        if (roman === 'v') num = 5;
-                    }
-                    if (num) colMap[`Unit ${num}`] = index;
-                }
-            });
-        }
-
-        // Fallback: If no headers found or map is empty, assume standard layout
-        // Standard: Col 0=S.No, Col 1=Code, Col 2=Title, Col 3=Unit 1... OR
-        // Standard: Col 0=Code, Col 1=Title, Col 2=Unit 1...
-        // We will detect "Unit 1" column dynamically in rows if headers failed
-        let fallbackUnit1Index = -1;
-
-        rows.forEach((row) => {
+        rows.forEach(row => {
             const tds = Array.from(row.querySelectorAll("td"));
             if (tds.length < 2) return;
 
-            // Subject Name Detection (Longest text that isn't a link/unit)
-            // Or typically 2nd or 3rd column
-            let subjectName = "";
-            let subjectIdx = -1;
-
-            // Strategy: Find class with text, not centered/digit
-            const candidates = [tds[1], tds[2], tds[0]].filter(Boolean);
-            for (const td of candidates) {
-                const text = td.innerText.trim();
-                // Exclude mostly digits (Subject Code) or short S.No
-                if (text.length > 3 && !/^\d+$/.test(text) && !/^\w+\d+$/.test(text)) {
-                    subjectName = text;
-                    subjectIdx = tds.indexOf(td);
-                    break;
-                }
+            let subjectName = tds[1]?.innerText?.trim() || "";
+            if (!subjectName || /^\d+\.?$/.test(subjectName)) {
+                subjectName = tds[0]?.innerText?.trim() || "";
             }
-            // Fallback to Col 1 if detection failed
-            if (!subjectName) subjectName = tds[1]?.innerText?.trim() || tds[0]?.innerText?.trim();
+            if (!subjectName || /^\d+\.?$/.test(subjectName)) {
+                subjectName = tds[2]?.innerText?.trim() || "";
+            }
 
-
-            if (subjectName) {
+            if (subjectName && !/^\d+\.?$/.test(subjectName)) {
                 const units = {};
 
-                // 2. Extract Links
-                // Use Map if available
-                if (Object.keys(colMap).length > 0) {
-                    Object.entries(colMap).forEach(([unitKey, colIdx]) => {
-                        const td = tds[colIdx];
-                        if (td) {
-                            const links = Array.from(td.querySelectorAll("a"));
-                            // Prioritize Drive/Docs links
-                            const driveLink = links.find(l => /drive|docs\.google/i.test(l.href));
-                            const validLink = driveLink || links.find(l => l.href && l.href !== "#" && !l.href.endsWith("notes.html"));
+                // Scan all cells for units
+                tds.forEach(td => {
+                    const links = Array.from(td.querySelectorAll("a"));
+                    links.forEach(link => {
+                        const href = link.getAttribute("href");
+                        const text = link.innerText.trim();
+                        if (!href || href === "#" || href.endsWith("notes.html")) return;
 
-                            if (validLink) {
-                                units[unitKey] = validLink.getAttribute("href");
-                            }
+                        const unitMatch = /Unit\s*(\d+)/i.exec(text);
+                        if (unitMatch) {
+                            const unitNum = unitMatch[1];
+                            const unitKey = `Unit ${unitNum}`;
+                            if (!units[unitKey]) units[unitKey] = href;
                         }
                     });
-                } else {
-                    // Adaptive Scan without headers
-                    if (fallbackUnit1Index === -1) {
-                        // Try to find first "Unit" link in this row
-                        for (let i = 0; i < tds.length; i++) {
-                            if (i === subjectIdx) continue; // Skip subject col
-                            const txt = tds[i].innerText.toLowerCase();
-                            if (txt.includes("unit 1") || txt.includes("i")) {
-                                // Check if it HAS a link
-                                if (tds[i].querySelector("a")) {
-                                    fallbackUnit1Index = i;
-                                    break;
-                                }
-                            }
-                        }
-                        // If still -1, default to subjectIdx + 1 or +2
-                        if (fallbackUnit1Index === -1 && subjectIdx !== -1) fallbackUnit1Index = subjectIdx + 1;
-                        if (fallbackUnit1Index === -1) fallbackUnit1Index = 2; // Hard default
-                    }
+                });
 
-                    // Scan from calculated start
-                    for (let i = 0; i < 5; i++) {
-                        const colIdx = fallbackUnit1Index + i;
-                        if (colIdx < tds.length) {
-                            const td = tds[colIdx];
-                            const links = Array.from(td.querySelectorAll("a"));
-                            const unitKey = `Unit ${i + 1}`;
-
-                            const driveLink = links.find(l => /drive|docs\.google/i.test(l.href));
-                            const validLink = driveLink || links.find(l => l.href && l.href !== "#" && !l.href.endsWith("notes.html"));
-
-                            if (validLink) {
-                                units[unitKey] = validLink.getAttribute("href");
-                            }
+                // Fallback column-based
+                if (Object.keys(units).length === 0) {
+                    for (let i = 2; i < Math.min(tds.length, 8); i++) {
+                        const link = tds[i].querySelector("a")?.getAttribute("href");
+                        if (link && link !== "#" && !link.endsWith("notes.html")) {
+                            units[`Unit ${i - 1}`] = link;
                         }
                     }
                 }
@@ -193,389 +129,369 @@ const Notes = () => {
             }
         });
         return subjects;
-    };
+    }, []);
 
+    // --- DATA FETCHING ---
     const fetchNotes = useCallback(async (deptCode) => {
-        setLoading(true);
+        setUiStatus('loading');
         setError(null);
-        setNotesData([]);
 
-        const cacheKey = `notes_cache_${deptCode}`; // We still use session cache for the session, but can force refresh
-        // Note: You might want to allow a "Force Refresh" button to clear this and re-fetch.
-        // For now, we'll respect the session cache to save bandwidth, but the INITIAL fetch 
-        // in a new session will always be fresh due to the timestamp below.
+        const urlSegment = deptCode.toLowerCase() === "snh" ? "snh" : deptCode.toLowerCase();
+        const targetUrl = `https://rmd.ac.in/dept/${urlSegment}/notes.html?t=${Date.now()}`;
 
-        const cached = sessionStorage.getItem(cacheKey);
-        if (cached) {
-            setNotesData(JSON.parse(cached));
-            setLoading(false);
-            return;
-        }
-
-        const targetUrl = `https://rmd.ac.in/dept/${deptCode}/notes.html?t=${Date.now()}`;
-
-        // List of proxies to try in order
-        const proxyGenerators = [
-            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-            (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-            (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+        // Proxy logic for CORS
+        const proxies = [
+            (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+            (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+            (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
         ];
 
         let html = null;
-        let lastError = null;
-
-        // Try proxies sequentially
-        for (const generateProxyUrl of proxyGenerators) {
+        for (const proxy of proxies) {
             try {
-                const proxyUrl = generateProxyUrl(targetUrl);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error(`Proxy returned ${response.status}`);
-                html = await response.text();
-                if (html && html.length > 100) break; // Success!
-            } catch (err) {
-                console.warn(`Proxy failed: ${err.message}`);
-                lastError = err;
-            }
+                const res = await fetch(proxy(targetUrl));
+                if (res.ok) {
+                    html = await res.text();
+                    if (html && html.length > 500) break;
+                }
+            } catch (e) { console.warn("Proxy failed", e); }
+        }
+
+        if (!html) {
+            setUiStatus('error');
+            setError("Unable to connect to college server.");
+            return;
         }
 
         try {
-            if (!html) throw new Error("Unable to fetch notes. Please check your connection.");
-
             const doc = new DOMParser().parseFromString(html, "text/html");
-            const tables = doc.querySelectorAll("table");
-            const results = [];
+            const semesters = [];
 
-            if (deptCode === "snh") {
-                const tempSemesters = {};
+            if (urlSegment === "snh") {
+                const tables = Array.from(doc.querySelectorAll("table"));
+                let currentDept = "General";
+                let currentSem = "";
+
                 tables.forEach(table => {
-                    let currentDept = "General";
-                    let currentSem = "";
-                    const headers = table.querySelectorAll("thead th");
-                    headers.forEach(th => {
-                        const text = th.innerText.toUpperCase();
+                    const headers = Array.from(table.querySelectorAll("thead th"));
+                    headers.forEach(h => {
+                        const text = h.innerText.toUpperCase();
                         if (text.includes("DEPARTMENT")) currentDept = text.replace("DEPARTMENT OF", "").trim();
                         if (text.includes("SEMESTER")) currentSem = text.trim();
                     });
 
                     if (currentSem) {
-                        const subjects = parseTable(table, true);
-                        if (subjects.length > 0) {
-                            const key = currentDept !== "General" ? `${currentDept} | ${currentSem}` : currentSem;
-                            if (!tempSemesters[key]) tempSemesters[key] = [];
-                            tempSemesters[key].push(...subjects);
+                        const subs = parseTable(table);
+                        if (subs.length > 0) {
+                            const title = currentDept !== "General" ? `${currentDept} | ${currentSem}` : currentSem;
+                            semesters.push({ title, subjects: subs });
                         }
                     }
                 });
-                Object.keys(tempSemesters).sort().forEach(key => results.push({ title: key, subjects: tempSemesters[key] }));
             } else {
+                const tables = Array.from(doc.querySelectorAll("table"));
                 tables.forEach(table => {
-                    const thead = table.querySelector("thead tr:first-child");
-                    let title = thead?.innerText?.trim() || "Course Material";
-                    title = title.replace(/\s+/g, ' ');
-                    if (title.toUpperCase().includes("SEMESTER") || deptCode === "aiml") {
-                        const subjects = parseTable(table);
-                        if (subjects.length > 0) results.push({ title, subjects });
+                    const title = table.querySelector("thead tr:first-child")?.innerText?.trim() || "Course Material";
+                    if (title.toLowerCase().includes("semester") || urlSegment === "aiml") {
+                        const subs = parseTable(table);
+                        if (subs.length > 0) semesters.push({ title, subjects: subs });
                     }
                 });
             }
 
-            if (results.length === 0) throw new Error("No notes found");
-
-            setNotesData(results);
-            sessionStorage.setItem(cacheKey, JSON.stringify(results));
-
-        } catch (err) {
-            console.error(err);
-            setError(err.message || lastError?.message || "Failed to load notes");
-        } finally {
-            setLoading(false);
+            if (semesters.length === 0) throw new Error("No notes found for this section.");
+            setCachedSemesters(semesters);
+            setUiStatus('browser');
+        } catch (e) {
+            setUiStatus('error');
+            setError(e.message);
         }
-    }, []);
+    }, [parseTable]);
 
-    // Desktop: Fetch on Dept Switch
-    useEffect(() => {
-        if (!isMobile) {
-            fetchNotes(selectedDept);
+    // --- NAVIGATION LOGIC ---
+    const enterFolder = (name) => {
+        const newPath = [...path, name];
+        setPath(newPath);
+        if (newPath.length === 1) {
+            fetchNotes(name);
         }
-    }, [selectedDept, fetchNotes, isMobile]);
-
-
-    // Mobile: Handle Dept Click
-    const handleMobileDeptClick = (deptId) => {
-        setSelectedDept(deptId);
-        setMobileStep('notes');
-        fetchNotes(deptId);
     };
 
-    // Mobile: Handle Back Click
-    const handleMobileBack = () => {
-        setMobileStep('departments');
-        setNotesData([]); // Clear to avoid showing stale data briefly
+    const navigateUp = () => {
+        if (path.length > 0) {
+            const newPath = path.slice(0, -1);
+            setPath(newPath);
+            if (newPath.length === 0) {
+                setUiStatus('empty');
+                setCachedSemesters([]);
+                setExpandedSubjects({});
+            }
+        }
     };
 
-    // Mobile: Toggle Accordion
-    const toggleAccordion = (key) => {
-        setExpandedSubjects(prev => ({
-            ...prev,
-            [key]: !prev[key]
-        }));
-    };
+    // --- CONTENT RESOLUTION (The ViewModel Logic) ---
+    const browserContent = useMemo(() => {
+        if (path.length === 0) return { type: 'folders', items: ROOT_DEPTS };
+        if (uiStatus !== 'browser') return null;
 
+        const rootDept = path[0];
+        const isSNH = rootDept === "SNH";
+        const depth = path.length;
 
+        if (isSNH) {
+            switch (depth) {
+                case 1: { // SNH Root -> Show Group Depts
+                    const groups = Array.from(new Set(cachedSemesters.map(s => {
+                        const raw = s.title.split("|")[0].trim();
+                        return mapDeptToAbbreviation(raw);
+                    }))).sort();
+                    return { type: 'folders', items: groups };
+                }
+                case 2: { // Inside SNH Dept -> Show Semesters
+                    const targetDept = path[1];
+                    const sems = Array.from(new Set(cachedSemesters.filter(s => {
+                        const raw = s.title.split("|")[0].trim();
+                        return mapDeptToAbbreviation(raw) === targetDept;
+                    }).map(s => toTitleCase(s.title.split("|")[1]?.trim() || s.title)))).sort();
+                    return { type: 'folders', items: sems };
+                }
+                case 3: { // Inside Semester -> Show Subjects
+                    const targetDept = path[1];
+                    const targetSem = path[2];
+                    const match = cachedSemesters.find(s => {
+                        const rawDept = s.title.split("|")[0].trim();
+                        const rawSem = s.title.split("|")[1]?.trim() || "";
+                        return mapDeptToAbbreviation(rawDept) === targetDept && toTitleCase(rawSem) === targetSem;
+                    });
+                    return match ? { type: 'files', items: match.subjects } : { type: 'empty' };
+                }
+                default: return { type: 'empty' };
+            }
+        } else {
+            switch (depth) {
+                case 1: { // Standard Dept -> Show Semesters
+                    const sems = Array.from(new Set(cachedSemesters.map(s => toTitleCase(s.title))));
+                    return { type: 'folders', items: sems };
+                }
+                case 2: { // Inside Semester -> Show Subjects
+                    const targetSem = path[1];
+                    const match = cachedSemesters.find(s => toTitleCase(s.title) === targetSem);
+                    return match ? { type: 'files', items: match.subjects } : { type: 'empty' };
+                }
+                default: return { type: 'empty' };
+            }
+        }
+    }, [path, uiStatus, cachedSemesters, mapDeptToAbbreviation, toTitleCase]);
+
+    // --- UI RENDERERS ---
     return (
-        <div className="home-view" style={{ paddingBottom: '40px', ...(isMobile ? { padding: '0 var(--screen-edge-spacing)', marginTop: 0 } : {}) }}>
-
-            <header className="page-header" style={{ display: isMobile ? 'none' : 'block' }}>
-                <div className="header-main">
-                    <h1 className="page-title">Lecture Notes</h1>
-                    <span className="admin-status-badge">Student Access</span>
-                </div>
-            </header>
-
-            {/* --- DESKTOP VIEW --- */}
-            {!isMobile && (
-                <>
-                    {/* Dept Selector - Glass Card */}
-                    <section className="notes-dept-section" style={{ marginBottom: '24px' }}>
-                        <h3 className="section-title">Select Department</h3>
-                        <div className="dept-selector-scroll">
-                            {departments.map((dept) => (
-                                <button
-                                    key={dept.id}
-                                    className={`dept-pill-modern ${selectedDept === dept.id ? "active" : ""}`}
-                                    onClick={() => setSelectedDept(dept.id)}
-                                >
-                                    {dept.name}
-                                </button>
-                            ))}
-                        </div>
-                    </section>
-
-                    {/* Content Area */}
-                    <div className="notes-content-area">
-                        {loading && (
-                            <div className="loading-state-glass">
-                                <div className="spinner-mac"></div>
-                                <p>Fetching notes from RMD...</p>
-                            </div>
-                        )}
-
-                        {error && (
-                            <div className="error-state-glass">
-                                <i className="ri-error-warning-line"></i>
-                                <p>{error}</p>
-                                <button className="retry-btn-mac" onClick={() => fetchNotes(selectedDept)}>Retry</button>
-                            </div>
-                        )}
-
-                        {!loading && !error && notesData.map((sem, index) => (
-                            <section key={index} className="semester-block-glass">
-                                <div className="semester-header">
-                                    <h2 className="semester-title-mac">{sem.title}</h2>
-                                </div>
-
-                                <div className="subjects-grid-mac">
-                                    {sem.subjects.map((sub, sIndex) => (
-                                        <div key={sIndex} className="subject-card-mac">
-                                            <h3 className="subject-name-mac">{sub.name}</h3>
-                                            <div className="units-list-mac">
-                                                {[1, 2, 3, 4, 5].map((unitNum) => {
-                                                    const unitKey = `Unit ${unitNum}`;
-                                                    const link = sub.units[unitKey] || sub.units[`unit ${unitNum}`] || sub.units[`Unit ${unitNum} `];
-                                                    const isAvailable = !!link;
-
-                                                    if (isAvailable) {
-                                                        return (
-                                                            <a
-                                                                key={unitKey}
-                                                                href={link}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="unit-chip"
-                                                            >
-                                                                <i className="ri-file-pdf-line"></i>
-                                                                {unitKey}
-                                                            </a>
-                                                        );
-                                                    } else {
-                                                        return (
-                                                            <div
-                                                                key={unitKey}
-                                                                className="unit-chip disabled"
-                                                                style={{
-                                                                    opacity: 0.5,
-                                                                    cursor: 'not-allowed',
-                                                                    background: 'rgba(0,0,0,0.05)',
-                                                                    border: '1px solid transparent'
-                                                                }}
-                                                                onClick={() => alert(`${unitKey} is not uploaded yet.`)}
-                                                            >
-                                                                <i className="ri-lock-line"></i>
-                                                                {unitKey}
-                                                            </div>
-                                                        );
-                                                    }
-                                                })}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </section>
-                        ))}
-
-                        {!loading && !error && notesData.length === 0 && (
-                            <div className="empty-state-glass">No notes found for this department.</div>
-                        )}
-                    </div>
-                </>
-            )}
-
-            {/* --- MOBILE VIEW --- */}
-            {isMobile && (
-                <>
-                    {/* STEP 1: Department List (Folders) */}
-                    {mobileStep === 'departments' && (
-                        <div className="folder-list-container">
-                            <div className="mobile-notes-header" style={{ marginBottom: '16px' }}>
-                                <h1 className="page-title" style={{ fontSize: '28px' }}>Notes</h1>
-                            </div>
-
-                            {departments.map((dept) => (
-                                <div
-                                    key={dept.id}
-                                    className="folder-item"
-                                    onClick={() => handleMobileDeptClick(dept.id)}
-                                >
-                                    <div className="folder-item-icon">
-                                        <IconFolder />
-                                    </div>
-                                    <span className="folder-item-text">{dept.name}</span>
-                                    <div className="folder-item-arrow">
-                                        <IconChevronRight />
-                                    </div>
-                                </div>
-                            ))}
+        <div className="home-view" style={{ padding: isMobile ? '0 16px' : '0 24px' }}>
+            {/* Breadcrumb Header */}
+            <div className="notes-header-stack" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                padding: '24px 0',
+                borderBottom: path.length > 0 ? '1px solid var(--mac-divider)' : 'none',
+                marginBottom: '24px'
+            }}>
+                {path.length > 0 && (
+                    <button className="back-circle-btn" onClick={navigateUp}>
+                        <RiArrowLeftSLine />
+                    </button>
+                )}
+                <div>
+                    <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 800, letterSpacing: '-0.5px' }}>
+                        {path.length === 0 ? "Lecture Notes" : path[path.length - 1]}
+                    </h1>
+                    {path.length > 0 && (
+                        <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)', fontWeight: 600, opacity: 0.6, marginTop: '2px' }}>
+                            {path.slice(0, -1).join(" / ")}
                         </div>
                     )}
+                </div>
+            </div>
 
-                    {/* STEP 2: Subject List (Accordions) */}
-                    {mobileStep === 'notes' && (
-                        <div className="mobile-details-container">
+            {/* Main Content Area */}
+            <div className="notes-viewport" style={{ minHeight: '60vh' }}>
+                {uiStatus === 'loading' && (
+                    <div className="centered-state">
+                        <div className="spinner-mac big"></div>
+                        <p style={{ marginTop: '20px', fontWeight: 600 }}>Syncing with RMD server...</p>
+                    </div>
+                )}
 
-                            <div className="mobile-notes-header">
-                                <button className="mobile-back-btn" onClick={handleMobileBack}>
-                                    <IconArrowLeft /> Back
-                                </button>
-                                <h2 style={{ fontSize: '18px', fontWeight: 600, marginLeft: 'auto', marginRight: 'auto', color: 'var(--mac-text)' }}>
-                                    {departments.find(d => d.id === selectedDept)?.name}
-                                </h2>
-                                <div style={{ width: '40px' }}></div> {/* Spacer for center alignment */}
+                {uiStatus === 'error' && (
+                    <div className="error-card-glass">
+                        <RiErrorWarningLine className="error-icon" />
+                        <h3>Connection Failed</h3>
+                        <p>{error}</p>
+                        <button className="btn-primary" onClick={() => fetchNotes(path[0])}>Retry Connection</button>
+                    </div>
+                )}
+
+                {(uiStatus === 'browser' || uiStatus === 'empty') && browserContent && (
+                    <>
+                        {browserContent.type === 'folders' && (
+                            <div className="folder-grid">
+                                {browserContent.items.map((name, i) => (
+                                    <div key={i} className="folder-item-mac" onClick={() => enterFolder(name)}>
+                                        <div className="folder-icon-glow">
+                                            <RiFolderFill />
+                                        </div>
+                                        <div className="folder-info">
+                                            <span className="folder-name">{name}</span>
+                                            <span className="folder-sub">Folder</span>
+                                        </div>
+                                        <RiArrowRightSLine className="folder-chevron" />
+                                    </div>
+                                ))}
                             </div>
+                        )}
 
-                            {loading && (
-                                <div className="loading-state-glass" style={{ background: 'transparent', border: 'none', padding: '40px 0' }}>
-                                    <div className="spinner-mac"></div>
-                                </div>
-                            )}
+                        {browserContent.type === 'files' && (
+                            <div className="files-stack">
+                                {browserContent.items.map((sub, i) => {
+                                    const isExpanded = expandedSubjects[sub.name];
+                                    return (
+                                        <div key={i} className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}>
+                                            <div className="accordion-header-row" onClick={() => setExpandedSubjects(p => ({ ...p, [sub.name]: !p[sub.name] }))}>
+                                                <div className="indicator-bar"></div>
+                                                <span className="subject-title">{sub.name}</span>
+                                                {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
+                                            </div>
 
-                            {error && (
-                                <div className="error-state-glass" style={{ padding: '40px 16px', textAlign: 'center' }}>
-                                    <p>{error}</p>
-                                    <button className="retry-btn-mac" onClick={() => fetchNotes(selectedDept)}>Retry</button>
-                                </div>
-                            )}
-
-                            {!loading && !error && notesData.map((sem, sIndex) => (
-                                <div key={sIndex} style={{ marginBottom: '24px' }}>
-                                    <h3
-                                        style={{
-                                            fontSize: '13px',
-                                            textTransform: 'uppercase',
-                                            color: 'var(--mac-text-secondary)',
-                                            fontWeight: 600,
-                                            marginBottom: '10px',
-                                            paddingLeft: '4px',
-                                            letterSpacing: '0.5px'
-                                        }}
-                                    >
-                                        {sem.title}
-                                    </h3>
-
-                                    {sem.subjects.map((sub, subIndex) => {
-                                        const uniqueKey = `${sIndex}-${subIndex}`;
-                                        const isExpanded = expandedSubjects[uniqueKey];
-
-                                        return (
-                                            <div key={uniqueKey} className={`subject-accordion ${isExpanded ? 'expanded' : ''}`}>
-                                                <div
-                                                    className="subject-accordion-header"
-                                                    onClick={() => toggleAccordion(uniqueKey)}
-                                                >
-                                                    <div className="accordion-indicator-bar"></div>
-                                                    <span className="accordion-title">{sub.name}</span>
-                                                    <div className="accordion-toggle-icon">
-                                                        <IconChevronDown />
+                                            {isExpanded && (
+                                                <div className="accordion-content-area">
+                                                    <div className="units-grid">
+                                                        {[1, 2, 3, 4, 5].map(n => {
+                                                            const key = `Unit ${n}`;
+                                                            const url = sub.units[key] || sub.units[`unit ${n}`];
+                                                            const isAvailable = !!url;
+                                                            return (
+                                                                <div
+                                                                    key={n}
+                                                                    className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
+                                                                    onClick={() => isAvailable ? window.open(url, "_blank") : null}
+                                                                >
+                                                                    {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
+                                                                    <span className="unit-label">{key}</span>
+                                                                    {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
+                                                                </div>
+                                                            );
+                                                        })}
                                                     </div>
                                                 </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
 
-                                                <div className="subject-accordion-content">
-                                                    {[1, 2, 3, 4, 5].map((unitNum) => {
-                                                        const unitKey = `Unit ${unitNum}`;
-                                                        // Case-insensitive check or direct access
-                                                        const link = sub.units[unitKey] || sub.units[`unit ${unitNum}`] || sub.units[`Unit ${unitNum} `];
-                                                        const isAvailable = !!link;
+                        {browserContent.type === 'empty' && (
+                            <div className="centered-state">
+                                <RiInformationLine style={{ fontSize: '48px', opacity: 0.2 }} />
+                                <p style={{ opacity: 0.5 }}>No course material available in this directory.</p>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
 
-                                                        return (
-                                                            <div
-                                                                key={unitKey}
-                                                                onClick={() => {
-                                                                    if (isAvailable) window.open(link, "_blank");
-                                                                    else alert(`${unitKey} is not uploaded yet.`);
-                                                                }}
-                                                                className={`unit-item-mobile ${!isAvailable ? 'disabled-unit' : ''}`}
-                                                                style={{
-                                                                    opacity: isAvailable ? 1 : 0.6,
-                                                                    cursor: isAvailable ? 'pointer' : 'not-allowed',
-                                                                    backgroundColor: isAvailable ? 'var(--bg-secondary)' : 'transparent'
-                                                                }}
-                                                            >
-                                                                <div className="unit-icon" style={{ color: isAvailable ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
-                                                                    {isAvailable ? <IconFileText /> : (
-                                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                                                            <path fillRule="evenodd" d="M12 1.5a5.25 5.25 0 0 0-5.25 5.25v3a3 3 0 0 0-3 3v6.75a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3v-6.75a3 3 0 0 0-3-3v-3c0-2.9-2.35-5.25-5.25-5.25Zm3.75 8.25v-3a3.75 3.75 0 1 0-7.5 0v3h7.5Z" clipRule="evenodd" />
-                                                                        </svg>
-                                                                    )}
-                                                                </div>
-                                                                <span className="unit-name" style={{ color: isAvailable ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
-                                                                    {unitKey}
-                                                                </span>
-                                                                <div className="unit-open-icon" style={{ color: isAvailable ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
-                                                                    {isAvailable ? <IconOpen /> : null}
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            ))}
+            {/* Inline Styles for the New Layout */}
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .back-circle-btn {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    border: 1px solid var(--mac-divider);
+                    background: var(--mac-sidebar-bg);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                    color: var(--mac-text);
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .back-circle-btn:hover { background: var(--mac-selection-hover); transform: scale(1.05); }
 
-                            {!loading && !error && notesData.length === 0 && (
-                                <div className="empty-state-glass" style={{ background: 'transparent', border: 'none' }}>
-                                    No notes found.
-                                </div>
-                            )}
+                .folder-grid { display: flex; flex-direction: column; gap: 12px; }
+                .folder-item-mac {
+                    display: flex;
+                    align-items: center;
+                    padding: 16px 20px;
+                    background: var(--mac-sidebar-bg);
+                    border: 1px solid var(--mac-divider);
+                    border-radius: 20px;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .folder-item-mac:hover { background: var(--mac-selection-hover); border-color: var(--mac-blue); }
+                .folder-icon-glow {
+                    width: 48px;
+                    height: 48px;
+                    background: rgba(0, 122, 255, 0.1);
+                    color: var(--mac-blue);
+                    border-radius: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 24px;
+                    margin-right: 18px;
+                }
+                .folder-info { flex: 1; display: flex; flex-direction: column; }
+                .folder-name { font-size: 16px; font-weight: 700; color: var(--mac-text); }
+                .folder-sub { font-size: 11px; font-weight: 700; color: var(--mac-text-secondary); text-transform: uppercase; margin-top: 2px; opacity: 0.6; }
+                .folder-chevron { color: var(--mac-text-secondary); opacity: 0.3; }
 
-                        </div>
-                    )}
-                </>
-            )}
+                .subject-accordion-card {
+                    background: var(--mac-sidebar-bg);
+                    border: 1px solid var(--mac-divider);
+                    border-radius: 24px;
+                    margin-bottom: 12px;
+                    overflow: hidden;
+                    transition: all 0.3s ease;
+                }
+                .subject-accordion-card.active { border-color: var(--mac-blue); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+                .accordion-header-row {
+                    padding: 20px 24px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    gap: 16px;
+                }
+                .indicator-bar { width: 4px; height: 24px; background: var(--mac-blue); border-radius: 10px; }
+                .subject-title { flex: 1; font-size: 16px; font-weight: 700; color: var(--mac-text); line-height: 1.4; }
 
+                .accordion-content-area { padding: 0 24px 24px 24px; }
+                .units-grid { display: flex; flex-direction: column; gap: 8px; }
+                .unit-status-chip {
+                    display: flex;
+                    align-items: center;
+                    padding: 14px 18px;
+                    border-radius: 14px;
+                    background: rgba(0,0,0,0.03);
+                    gap: 14px;
+                    transition: all 0.2s;
+                }
+                html.dark .unit-status-chip { background: rgba(255,255,255,0.03); }
+                .unit-status-chip.available { cursor: pointer; }
+                .unit-status-chip.available:hover { background: var(--mac-selection-hover); transform: translateX(4px); }
+                .unit-status-chip.locked { opacity: 0.5; cursor: not-allowed; }
+                
+                .unit-label { flex: 1; font-size: 14px; font-weight: 600; }
+                .open-icon { color: var(--mac-blue); }
+                .lock-icon { opacity: 0.4; }
+
+                .spinner-mac { width: 32px; height: 32px; border: 3px solid var(--mac-divider); border-top-color: var(--mac-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+                @keyframes spin { to { transform: rotate(360deg); } }
+                .centered-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; }
+            `}} />
         </div>
     );
 };
 
 export default Notes;
-
