@@ -9,6 +9,7 @@
     max-width: 620px;
     margin: 0 auto;
     padding: 0 24px 80px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 /* ── Profile Card (Pill) ── */
@@ -520,6 +521,7 @@ html.dark .s2-back-btn:hover {
     font-weight: 700;
     color: var(--mac-text);
     line-height: 1.2;
+    font-family: 'Mukta Malar', sans-serif;
 }
 
 .s2-about-english {
@@ -543,6 +545,10 @@ html.dark .s2-back-btn:hover {
     font-size: 15px;
     line-height: 1.6;
     color: var(--mac-text-secondary);
+}
+
+.s2-tamil {
+    font-family: 'Mukta Malar', sans-serif;
 }
 
 .s2-feature-item {

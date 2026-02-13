@@ -1121,7 +1121,7 @@ const AboutPage = ({ onBack }) => (
             <div style={{ padding: 24 }}>
                 <div className="s2-about-card-title">What is Neram?</div>
                 <div className="s2-about-desc">
-                    Neram (நேரம், meaning 'Time') is a sleek, all-in-one campus
+                    Neram (<span className="s2-tamil">நேரம்</span>, meaning 'Time') is a sleek, all-in-one campus
                     companion app designed specifically for RMD Engineering
                     College students. It brings together everything you need to
                     stay organized and informed throughout your academic day.
