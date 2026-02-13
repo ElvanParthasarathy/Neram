@@ -15,6 +15,7 @@ import {
     RiInformationLine
 } from 'react-icons/ri';
 import "../App.css";
+import "../styles/home.css";
 
 /**
  * Notes Component - Android Parity Version
@@ -285,13 +286,13 @@ const Notes = () => {
 
     // --- UI RENDERERS ---
     return (
-        <div className="home-view" style={{ padding: isMobile ? '0 16px' : '0 24px' }}>
+        <div className="h2-view" style={{ padding: isMobile ? '0 16px' : '0' }}>
             {/* Breadcrumb Header */}
             <div className="notes-header-stack" style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '16px',
-                padding: '24px 0',
+                padding: 0,
                 borderBottom: path.length > 0 ? '1px solid var(--mac-divider)' : 'none',
                 marginBottom: '24px'
             }}>
