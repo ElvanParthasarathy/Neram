@@ -57,6 +57,8 @@
     color: var(--mac-text);
     cursor: pointer;
     transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .back-circle-btn:hover {
@@ -79,6 +81,8 @@
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .folder-item-mac:hover {
@@ -131,6 +135,8 @@
     margin-bottom: 12px;
     overflow: hidden;
     transition: all 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .subject-accordion-card.active {
@@ -178,6 +184,8 @@
     background: rgba(0, 0, 0, 0.03);
     gap: 14px;
     transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 html.dark .unit-status-chip {
