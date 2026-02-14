@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useSystemTheme } from "./hooks/useSystemTheme";
 import { db, auth } from "./firebase";
 import { ref, onValue, get, set } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
@@ -193,6 +194,7 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
 }
 
 function App() {
+  useSystemTheme();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAdminUser, setIsAdminUser] = useState(false);
