@@ -4,7 +4,7 @@ import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../firebase";
 import { ref, onValue } from "firebase/database";
 
-// --- IMPORT THE SWITCHER ---
+
 import AdminViewSwitcher from "./AdminViewSwitcher";
 
 // =================================================================================
@@ -52,8 +52,6 @@ const IconUser = (props) => (
     <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
   </svg>
 );
-
-
 
 // 6.5 NOTES (Book)
 const IconBook = (props) => (
@@ -167,29 +165,35 @@ const IconSettings = (props) => (
   </svg>
 );
 
+
 const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const [user, setUser] = useState(auth.currentUser);
   const [dbUser, setDbUser] = useState(null);
-  const [imgError, setImgError] = useState(false);
-
-  // State for Menus & Switcher
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuView, setMenuView] = useState('main'); // 'main' or 'appearance'
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-
-  // --- NEW: THEME STATE ---
   const [currentTheme, setCurrentTheme] = useState('auto');
-
-  // --- HIDE ON DESKTOP LOGIC ---
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-  // --- 1. DETERMINE IF WE SHOW BACK BUTTON ---
-  // Show on any page that is NOT a main tab (Home, Schedule, Calendar)
-  const showBackButton = !['/', '/schedule', '/calendar'].includes(location.pathname);
+  const showBackButton = !['/', '/schedule', '/calendar', '/notes'].includes(location.pathname);
+
+  const getScreenTitle = (path) => {
+    switch (path) {
+      case '/': return "Neram";
+      case '/schedule': return "Schedule";
+      case '/calendar': return "Calendar";
+      case '/notes': return "Notes";
+      case '/settings': return "Settings";
+      case '/profile': return "Edit Profile";
+      case '/college-sites': return "Important Sites";
+      case '/contact': return "Contact";
+      default: return "";
+    }
+  };
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -197,269 +201,187 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Reset menu view when menu closes
-  useEffect(() => {
-    if (!isMenuOpen) {
-      const timer = setTimeout(() => setMenuView('main'), 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isMenuOpen]);
-
-  // --- SYNC THEME STATE FROM CENTRALIZED CONTROLLER ---
   useEffect(() => {
     const syncTheme = () => {
       setCurrentTheme(localStorage.getItem("neram-theme") || "auto");
     };
-    syncTheme(); // Initial sync
+    syncTheme();
     window.addEventListener("theme-change", syncTheme);
     return () => window.removeEventListener("theme-change", syncTheme);
   }, []);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser?.photoURL) {
-        setImgError(false);
-      }
-    });
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (!user) {
-      setDbUser(null);
-      return;
-    }
+    if (!user) { setDbUser(null); return; }
     const userRef = ref(db, `users/${user.uid}`);
-    const unsubscribe = onValue(userRef, (snapshot) => {
-      if (snapshot.exists()) {
-        setDbUser(snapshot.val());
-      }
+    const unsubscribe = onValue(userRef, (snap) => {
+      if (snap.exists()) setDbUser(snap.val());
     });
     return () => unsubscribe();
   }, [user]);
 
-  // If not mobile, render NOTHING
   if (!isMobile) return null;
 
-  // --- UPDATED NAVIGATION HANDLER ---
   const handleNav = (targetPath, index) => {
     if (index !== undefined && onTabClick) {
-      onTabClick(index); // Trigger the Smooth Scroll Engine
+      onTabClick(index);
     } else {
       setIsMenuOpen(false);
       if (location.pathname === targetPath) return;
-      const shouldReplace = location.pathname !== "/" || targetPath === "/";
-      navigate(targetPath, { replace: shouldReplace });
+      navigate(targetPath, { replace: location.pathname !== "/" || targetPath === "/" });
     }
   };
 
-  const requestLogout = () => {
-    setIsMenuOpen(false);
-    setShowLogoutConfirm(true);
-  };
+  const requestLogout = () => { setIsMenuOpen(false); setShowLogoutConfirm(true); };
 
   const performLogout = async () => {
     try {
       sessionStorage.removeItem("admin_preview_session");
       await signOut(auth);
       navigate('/login', { replace: true });
-    } catch (error) {
-      console.error("Logout Error:", error);
-    }
+    } catch (e) { console.error(e); }
   };
 
-  // --- THEME SWITCHER: Delegates to centralized hook ---
   const handleThemeChange = (theme) => {
     setCurrentTheme(theme);
     localStorage.setItem("neram-theme", theme);
-    // Centralized useSystemTheme hook will pick this up and apply classes
     window.dispatchEvent(new Event("theme-change"));
   };
 
   return (
     <>
-      {/* --- 1. ADMIN SWITCHER OVERLAY --- */}
+      {/* 1. ADMIN SWITCHER */}
       {isAdmin && dbUser && isSwitcherOpen && (
         <div className="admin-switcher-overlay">
           <AdminViewSwitcher realProfile={dbUser} onClose={() => setIsSwitcherOpen(false)} />
         </div>
       )}
-      {isSwitcherOpen && (
-        <div className="switcher-backdrop" onClick={() => setIsSwitcherOpen(false)} />
-      )}
+      {isSwitcherOpen && <div className="switcher-backdrop" onClick={() => setIsSwitcherOpen(false)} />}
 
-      {/* --- 2. LOGOUT CONFIRMATION MODAL --- */}
+      {/* 2. LOGOUT CONFIRM */}
       {showLogoutConfirm && (
         <>
-          <div
-            className="switcher-backdrop"
-            style={{ zIndex: 10002, background: 'rgba(0,0,0,0.6)' }}
-            onClick={() => setShowLogoutConfirm(false)}
-          />
+          <div className="switcher-backdrop" style={{ zIndex: 10002, background: 'rgba(0,0,0,0.6)' }} onClick={() => setShowLogoutConfirm(false)} />
           <div className="logout-confirm-modal">
             <h3 className="confirm-title">Sign Out?</h3>
-            <p className="confirm-text">Are you sure you want to log out of your account?</p>
+            <p className="confirm-text">Are you sure you want to log out?</p>
             <div className="confirm-actions">
-              <button className="confirm-btn cancel" onClick={() => setShowLogoutConfirm(false)}>
-                Cancel
-              </button>
-              <button className="confirm-btn confirm" onClick={performLogout}>
-                Sign Out
-              </button>
+              <button className="confirm-btn cancel" onClick={() => setShowLogoutConfirm(false)}>Cancel</button>
+              <button className="confirm-btn confirm" onClick={performLogout}>Sign Out</button>
             </div>
           </div>
         </>
       )}
 
-      {/* --- 3. TOP HEADER --- */}
+      {/* 3. TOP BAR — Ported from Kotlin TopBar + SecondaryTopBar.kt */}
+      <div className="mobile-top-bar">
+        {showBackButton ? (
+          <>
+            {/* SecondaryTopBar: Circular back button (40dp, surface bg, ChevronLeft) */}
+            <button className="top-back-btn" onClick={() => navigate(-1)}>
+              <svg style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+              </svg>
+            </button>
+            <span className="secondary-top-title">{getScreenTitle(location.pathname)}</span>
+          </>
+        ) : (
+          <span className="top-bar-title">{getScreenTitle(location.pathname)}</span>
+        )}
 
-      {/* NEW: GLOBAL BACK BUTTON */}
-      {showBackButton && (
-        <div className="back-nav-btn" onClick={() => navigate(-1)}>
-          <IconArrowLeft style={{ width: '22px', height: '22px' }} />
+        {/* Action buttons — Kotlin TopMenuBar: 40dp Circle, Surface bg */}
+        <div className="top-bar-actions">
+          {/* 3-Dot Menu (Kotlin: MoreHoriz, 40dp circle, colors.surface) */}
+          <button className="top-back-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            <svg style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="6" cy="12" r="2" />
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="18" cy="12" r="2" />
+            </svg>
+          </button>
         </div>
-      )}
-
-      <div className="menu-toggle-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-        <IconDots style={{ width: '22px', height: '22px' }} />
       </div>
 
-      {/* --- 4. TOP RIGHT DROPDOWN MENU (SLIDER & INSET DESIGN) --- */}
+      {/* 4. MENU DROPDOWN (PRESERVING ORIGINAL CONTENT & ICONS) */}
       {isMenuOpen && (
         <>
-          <div className="menu-backdrop" onClick={() => setIsMenuOpen(false)}
-            style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'transparent' }}
-          />
+          <div className="menu-backdrop" onClick={() => setIsMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9998 }} />
+          <div className="top-menu-dropdown" style={{ height: menuView === 'main' ? '168px' : '220px' }}>
+            <div className="menu-slider-track" style={{ transform: menuView === 'main' ? 'translateX(0%)' : 'translateX(-50%)' }}>
 
-          <div className="top-menu-dropdown">
-            <div
-              className="menu-slider-track"
-              style={{ transform: menuView === 'main' ? 'translateX(0%)' : 'translateX(-50%)' }}
-            >
-
-              {/* === VIEW 1: MAIN MENU === */}
+              {/* MAIN MENU (Kotlin Match: settings, important sites, appearance) */}
               <div className="menu-view">
-                <button onClick={() => handleNav('/settings')} className="menu-item">
-                  <IconSettings className="menu-icon" /> Profile
-                </button>
                 <button onClick={() => handleNav('/college-sites')} className="menu-item">
-                  <IconSites className="menu-icon" /> College Sites
+                  <IconSites className="menu-icon" /> Important Sites
                 </button>
-
-
-                {isAdmin && (
-                  <>
-                    <div className="menu-divider" />
-                    <button onClick={() => handleNav('/admin')} className="menu-item">
-                      <IconAdmin className="menu-icon" /> Admin Panel
-                    </button>
-                    <button onClick={() => { setIsMenuOpen(false); setIsSwitcherOpen(true); }} className="menu-item">
-                      <IconEye className="menu-icon" /> Preview System
-                    </button>
-                  </>
-                )}
-
+                <button onClick={() => handleNav('/settings')} className="menu-item">
+                  <IconSettings className="menu-icon" /> Settings
+                </button>
                 <div className="menu-divider" />
-
-                <button
-                  onClick={() => setMenuView('appearance')}
-                  className="menu-item space-between"
-                >
+                <button onClick={() => setMenuView('appearance')} className="menu-item space-between">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <IconMoonSun className="menu-icon" />
                     <span>Appearance</span>
                   </div>
                   <IconChevronRight style={{ width: '18px', height: '18px', opacity: 0.4 }} />
                 </button>
-
-                <button onClick={requestLogout} className="menu-item sign-out">
-                  <IconLogOut className="menu-icon" style={{ color: '#FF3B30' }} /> Sign Out
-                </button>
               </div>
 
-              {/* === VIEW 2: APPEARANCE SUBMENU === */}
+              {/* APPEARANCE MENU */}
               <div className="menu-view">
-                <button
-                  onClick={() => setMenuView('main')}
-                  className="menu-item back-btn"
-                >
-                  <IconArrowLeft style={{ width: '20px', height: '20px' }} />
-                  Back
+                <button onClick={() => setMenuView('main')} className="menu-item back-btn">
+                  <IconArrowLeft style={{ width: '20px', height: '20px' }} /> Back
                 </button>
                 <div className="menu-divider" />
-
-                <button
-                  onClick={() => handleThemeChange('auto')}
-                  className={`menu-item ${currentTheme === 'auto' ? 'selected' : ''}`}
-                >
+                <button onClick={() => handleThemeChange('auto')} className={`menu-item ${currentTheme === 'auto' ? 'selected' : ''}`}>
                   <IconAuto className="menu-icon" /> Auto System
                 </button>
-
-                <button
-                  onClick={() => handleThemeChange('light')}
-                  className={`menu-item ${currentTheme === 'light' ? 'selected' : ''}`}
-                >
+                <button onClick={() => handleThemeChange('light')} className={`menu-item ${currentTheme === 'light' ? 'selected' : ''}`}>
                   <IconSun className="menu-icon" /> Light Mode
                 </button>
-
-                <button
-                  onClick={() => handleThemeChange('dark')}
-                  className={`menu-item ${currentTheme === 'dark' ? 'selected' : ''}`}
-                >
+                <button onClick={() => handleThemeChange('dark')} className={`menu-item ${currentTheme === 'dark' ? 'selected' : ''}`}>
                   <IconMoon className="menu-icon" /> Dark Mode
                 </button>
               </div>
-
             </div>
           </div>
         </>
       )}
 
-      {/* --- 5. BOTTOM BAR (NAV PILL) --- */}
+      {/* 5. BOTTOM BAR (M3 - REUSING CUSTOM ICONS) */}
       <div className="mobile-bottom-bar">
         <div className="nav-links">
-
-          <button
-            className={`nav-item ${activeTab === 0 ? 'active' : ''}`}
-            onClick={() => handleNav('/', 0)}
-          >
-            <div className={activeTab === 0 ? 'symbol-bounce' : ''}>
+          <button className={`nav-item ${activeTab === 0 ? 'active' : ''}`} onClick={() => handleNav('/', 0)}>
+            <div className="nav-icon-container">
               <IconHome />
             </div>
             <span className="nav-label">Home</span>
           </button>
 
-          <button
-            className={`nav-item ${activeTab === 1 ? 'active' : ''}`}
-            onClick={() => handleNav('/schedule', 1)}
-          >
-            <div className={activeTab === 1 ? 'symbol-bounce' : ''}>
+          <button className={`nav-item ${activeTab === 1 ? 'active' : ''}`} onClick={() => handleNav('/schedule', 1)}>
+            <div className="nav-icon-container">
               <IconClock />
             </div>
             <span className="nav-label">Schedule</span>
           </button>
 
-          <button
-            className={`nav-item ${activeTab === 2 ? 'active' : ''}`}
-            onClick={() => handleNav('/calendar', 2)}
-          >
-            <div className={activeTab === 2 ? 'symbol-bounce' : ''}>
+          <button className={`nav-item ${activeTab === 2 ? 'active' : ''}`} onClick={() => handleNav('/calendar', 2)}>
+            <div className="nav-icon-container">
               <IconCalendar />
             </div>
             <span className="nav-label">Calendar</span>
           </button>
 
-          <button
-            className={`nav-item ${activeTab === 3 ? 'active' : ''}`}
-            onClick={() => handleNav('/notes', 3)}
-          >
-            <div className={activeTab === 3 ? 'symbol-bounce' : ''}>
+          <button className={`nav-item ${activeTab === 3 ? 'active' : ''}`} onClick={() => handleNav('/notes', 3)}>
+            <div className="nav-icon-container">
               <IconBook />
             </div>
             <span className="nav-label">Notes</span>
           </button>
-
         </div>
       </div>
     </>

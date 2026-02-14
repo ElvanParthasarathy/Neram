@@ -1,5 +1,5 @@
 /* 1. FONT IMPORT */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+/* 1. FONT IMPORT REMOVED (Moved to index.html) */
 
 /* ==========================================================================
    MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
@@ -19,25 +19,29 @@
    2. THEME VARIABLES (GLOBAL)
    ========================================================================== */
   :root {
-    /* --- LAYOUT DIMENSIONS --- */
-    --dock-height: 56px;
-    --dock-radius: 28px;
+    /* --- LAYOUT DIMENSIONS (M3) --- */
+    --dock-height: 80px;
+    /* Taller for M3 */
+    --dock-radius: 0px;
+    /* No radius for full width */
     --item-radius: 24px;
 
-    --top-btn-size: 44px;
+    --top-btn-size: 48px;
     --safe-area-bottom: env(safe-area-inset-bottom, 20px);
-    --screen-edge-spacing: 12px;
+    --screen-edge-spacing: 16px;
+    --bg-nav-selection: rgba(0, 0, 0, 0.1);
+    /* Slightly darker for better visibility */
 
     /* --- LIGHT MODE COLORS (DEFAULT) --- */
-    --bg-body: #F5F5F7;
+    --bg-body: #F2F2F7;
 
-    /* GLASS MATERIAL */
-    --bg-card: rgba(255, 255, 255, 0.8);
-    --glass-blur: blur(24px) saturate(150%);
-    --glass-border: 1px solid rgba(255, 255, 255, 0.4);
+    /* SOLID MATERIAL (No Glass) */
+    --bg-card: #FFFFFF;
+    --glass-blur: none;
+    --glass-border: 1px solid rgba(0, 0, 0, 0.08);
 
-    /* SHADOWS */
-    --shadow-dock: 0 8px 32px rgba(0, 0, 0, 0.12);
+    /* SHADOWS (Subtle M3 Elevation) */
+    --shadow-dock: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     /* SELECTION */
     --bg-nav-selection: rgba(0, 0, 0, 0.1);
@@ -63,13 +67,17 @@
 
   /* --- DARK MODE DEFINITIONS --- */
 
+  /* --- DARK MODE DEFINITIONS --- */
+
   /* 1. Force Dark Mode (Manual Toggle) */
   html.dark {
     --bg-body: #121212;
-    --bg-card: rgba(28, 28, 30, 0.8);
+    --bg-card: #1E1E1E;
+    /* Material Dark Surface */
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-    --bg-nav-selection: rgba(44, 44, 46, 0.9);
+    --bg-nav-selection: rgba(255, 255, 255, 0.1);
     --text-primary: #FFFFFF;
+    /* ... */
     --text-secondary: #9CA3AF;
 
     /* FIXED: Vibrant System Blue (was pale #60A5FA) */
@@ -89,7 +97,8 @@
   @media (prefers-color-scheme: dark) {
     html:not(.light) {
       --bg-body: #121212;
-      --bg-card: rgba(28, 28, 30, 0.8);
+      --bg-card: #1C1C1E;
+      /* Solid Material Dark Surface */
       --glass-border: 1px solid rgba(255, 255, 255, 0.1);
       --bg-nav-selection: rgba(44, 44, 46, 0.9);
       --text-primary: #FFFFFF;
@@ -154,6 +163,14 @@
       overflow-x: hidden;
       touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
+
+      /* Hide scrollbar but keep functionality */
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    #main-viewport::-webkit-scrollbar {
+      display: none;
     }
 
     /* Hide Desktop-Specific Elements */
@@ -169,100 +186,148 @@
      B. NAVBAR COMPONENTS (TOP)
      ------------------------------------------------------------- */
 
-    /* GLOBAL BACK BUTTON (Top Left) */
-    .back-nav-btn {
+    /* ==========================================================================
+     B. NAVBAR COMPONENTS (Material 3 Expressive)
+     ========================================================================== */
+
+    /* ---------------------------------------------------------------
+     * TOP BAR — Direct port from Kotlin TopBar + SecondaryTopBar.kt
+     * --------------------------------------------------------------- */
+
+    /* Shared top bar container */
+    .mobile-top-bar {
       position: fixed;
-      top: var(--screen-edge-spacing);
-      left: var(--screen-edge-spacing);
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      padding: 0 24px;
+      padding-top: env(safe-area-inset-top);
+      background: #F2F2F7;
+      /* Matched to Bottom Bar / Secondary White */
       z-index: 9998;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-sizing: border-box;
+    }
 
-      width: var(--top-btn-size);
-      height: var(--top-btn-size);
+    /* Home title (Kotlin: PageTitle — 28sp, ExtraBold, -1sp) */
+    .top-bar-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -1px;
+    }
 
-      background: var(--bg-card);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
+    /* Actions row (Kotlin: Arrangement.spacedBy(8.dp)) */
+    .top-bar-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
 
-      border-radius: 50%;
-      box-shadow: var(--shadow-dock);
-
+    /* ACTION ICONS — Kotlin: Pure IconButton, NO background, NO circle
+       Just a transparent touch target with the icon centered. */
+    .top-action-btn {
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-primary);
-      transition: transform 0.2s ease, background 0.2s ease;
+      background: none;
+      border: none;
+      border-radius: 0;
+      cursor: pointer;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .back-nav-btn:active {
-      transform: scale(0.92);
-    }
-
-    /* MENU TOGGLE BUTTON (Top Right) */
-    .menu-toggle-btn {
-      position: fixed;
-      top: var(--screen-edge-spacing);
-      right: var(--screen-edge-spacing);
-      z-index: 9998;
-
-      width: var(--top-btn-size);
-      height: var(--top-btn-size);
-
-      background: var(--bg-card);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-
+    /* BACK BUTTON — Kotlin SecondaryTopBar: 40dp Circle, Surface color bg */
+    .top-back-btn {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      box-shadow: var(--shadow-dock);
-
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text-primary);
-      transition: transform 0.2s ease, background 0.2s ease;
+      background: var(--bg-card);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .menu-toggle-btn:active {
-      transform: scale(0.92);
+    /* Secondary top bar title (Kotlin: 28sp PageTitle after the back button) */
+    .secondary-top-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -1px;
+      margin-left: 12px;
+      flex: 1;
+    }
+
+    /* Dark Mode Override for Top Bar */
+    html.dark .mobile-top-bar {
+      background: #000000;
     }
 
 
     /* -------------------------------------------------------------
      C. BOTTOM DOCK (iOS 26 STYLE)
      ------------------------------------------------------------- */
+    /* -------------------------------------------------------------
+     C. BOTTOM BAR (Material 3 - Full Width)
+     ------------------------------------------------------------- */
     .mobile-bottom-bar {
       position: fixed;
-      bottom: calc(24px + env(safe-area-inset-bottom));
-      left: 50%;
-      transform: translateX(-50%);
-      width: 92%;
-      max-width: 430px;
-      height: var(--dock-height);
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 80px;
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+
+      /* Secondary White (Kotlin match) */
+      background: #F2F2F7;
+
       z-index: 9998;
       display: flex;
-      gap: 12px;
       align-items: center;
-      pointer-events: none;
-      /* Allows clicks through gaps */
+      justify-content: space-around;
+
+      /* Reset constraints */
+      transform: none;
+      max-width: none;
+
+      /* Removed border for flatter look */
+      border-top: none;
+    }
+
+    /* Dark Mode Override */
+    html.dark .mobile-bottom-bar {
+      background: #000000;
+      border-top: none;
     }
 
     .nav-links {
-      pointer-events: auto;
+      /* Reset all glass/container styles */
       flex: 1;
       height: 100%;
-      box-sizing: border-box;
-      background: var(--bg-card);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      border-radius: var(--dock-radius);
-      box-shadow: var(--shadow-dock);
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+
       display: flex;
       align-items: center;
       justify-content: space-evenly;
-      padding: 4px;
-      gap: 4px;
+      padding: 0;
+      gap: 0;
     }
 
     .nav-item {
@@ -272,106 +337,84 @@
       color: var(--text-secondary);
       flex: 1;
       height: 100%;
+
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 1px;
-      border-radius: var(--item-radius);
+      gap: 4px;
+      /* Space between pill and text */
+
+      border-radius: 0;
       cursor: pointer;
-      transition: transform 0.2s ease, color 0.3s ease;
-      z-index: 1;
+      padding-top: 12px;
+      /* Center visual weight */
     }
 
     .nav-item:active {
-      transform: scale(0.9);
+      transform: none;
+    }
+
+    /* M3 PILL INDICATOR */
+    .nav-icon-container {
+      position: relative;
+      width: 58px;
+      min-width: 58px;
+      /* Prevent shrinking */
+      max-width: 58px;
+      /* Prevent stretching */
+      height: 32px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s ease;
+      margin-bottom: 4px;
+      /* Space for label */
     }
 
     .nav-item svg {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       position: relative;
       z-index: 2;
-      /* Smooth transition for icon changes */
-      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: color 0.2s ease;
     }
 
     .nav-label {
-      font-size: 10px;
-      font-weight: 600;
+      font-size: 12px;
+      font-weight: 500;
       letter-spacing: 0.01em;
-      line-height: 1;
+      line-height: 1.3;
       display: block;
-      position: relative;
-      z-index: 2;
+      color: var(--text-secondary);
+      transition: color 0.2s ease;
     }
 
     /* Active State Styling */
-    .nav-item.active {
-      color: var(--accent-primary);
+    .nav-item.active .nav-icon-container {
+      background-color: rgba(0, 122, 255, 0.15);
+      /* Light Blue M3 style, matching user ref */
     }
 
-    .nav-item.active::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: var(--item-radius);
-      background: var(--bg-nav-selection);
-      z-index: 0;
-      animation: scaleIn 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    }
-
-    /* Animation is currently locked to scale(1) via keyframes */
     .nav-item.active svg {
-      animation: symbolBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      color: var(--accent-primary);
+      /* Dark Blue icon */
+      /* Remove white override */
     }
 
-    /* Settings Circle (Matches Home/Schedule Logic) */
-    .profile-circle-btn {
-      pointer-events: auto;
-      height: var(--dock-height);
-      width: var(--dock-height);
-      flex-shrink: 0;
-      background: var(--bg-card);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      border-radius: 50%;
-      box-shadow: var(--shadow-dock);
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      cursor: pointer;
-
-      /* Base Color (Grey) */
-      color: var(--text-secondary);
-      transition: transform 0.2s ease, color 0.3s ease;
+    .nav-item.active .nav-label {
+      color: var(--accent-primary);
+      font-weight: 700;
     }
 
-    /* Active Press Effect - FIXED */
-    .profile-circle-btn:active {
-      transform: scale(0.9);
-      /* REMOVED: color: var(--text-primary); */
-      /* Now it stays grey and just shrinks, matching Home/Schedule */
+    /* Legacy Cleanup */
+    .nav-item.active::before {
+      display: none;
     }
 
-    .profile-circle-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-    }
-
-    /* SVG inherits color from .profile-circle-btn */
-    .profile-circle-inner svg {
-      display: block !important;
-      width: 24px;
-      height: 24px;
+    .nav-item.active svg {
+      animation: none;
     }
 
     /* -------------------------------------------------------------
@@ -452,6 +495,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+      -webkit-transform: translate(-50%, -50%);
       z-index: 10003;
       width: 85%;
       max-width: 300px;
@@ -476,23 +520,30 @@
       z-index: 9999;
 
       /* 1. FIXED WIDTH & BOX MODEL */
-      width: 300px;
+      width: 240px;
       box-sizing: border-box;
 
-      /* 2. CARD STYLING */
-      border-radius: 32px;
-      background: var(--bg-card);
-      backdrop-filter: var(--glass-blur);
-      -webkit-backdrop-filter: var(--glass-blur);
-      border: var(--glass-border);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      /* 2. CARD STYLING (Flat & Opaque) */
+      border-radius: 28px;
+      background: #FFFFFF !important;
+      /* Force Opaque Light */
+      opacity: 1 !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 
-      /* 3. SMOOTH ANIMATION (NO BOUNCE) */
+      /* 3. SMOOTH ANIMATION */
       transform-origin: top right;
-      /* Changed timing function to standard smooth ease-out */
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+        height 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
       animation: menuScaleSmooth 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
-
       overflow: hidden;
+    }
+
+    html.dark .top-menu-dropdown {
+      background: #1C1C1E !important;
+      /* Force Opaque Dark */
     }
 
     /* The Sliding Container (SMOOTH SLIDE) */
@@ -501,6 +552,8 @@
       width: 200%;
       /* Removed bounce curve (1.1), used smooth curve */
       transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      /* Prevent views from stretching to match tallest view */
+      align-items: flex-start;
     }
 
     /* Individual Pages */
@@ -508,11 +561,11 @@
       width: 50%;
 
       /* 4. THE INVISIBLE BORDER (Gap) */
-      padding: 16px;
+      padding: 8px 12px;
 
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 4px;
 
       box-sizing: border-box;
     }
@@ -520,47 +573,62 @@
     /* BUTTONS */
     .menu-item {
       width: 100%;
-      height: 54px;
+      height: 48px;
       padding: 0 16px;
 
       background: transparent;
-      border-radius: 18px;
-      border: 1px solid transparent;
+      border-radius: 100px;
+      /* Pill Shape */
+      border: none !important;
+      outline: none;
+      box-shadow: none !important;
+      -webkit-tap-highlight-color: transparent;
 
       text-align: left;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       color: var(--text-primary);
 
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
 
       transition: 0.2s ease;
       position: relative;
       box-sizing: border-box;
     }
 
-    /* Active State */
-    .menu-item:active {
-      background: var(--bg-nav-selection);
-      transform: scale(0.98);
+    /* Hover/Active/Focus State (Grey Pill — No zoom, no blue) */
+    .top-menu-dropdown .menu-item:hover,
+    .top-menu-dropdown .menu-item:active,
+    .top-menu-dropdown .menu-item:focus,
+    .top-menu-dropdown .menu-item:focus-visible {
+      outline: none;
+      background: #E2E2E7 !important;
+      /* Slightly darker grey for better visibility */
+      color: var(--text-primary) !important;
+    }
+
+    /* Dark mode: lighter overlay */
+    html.dark .top-menu-dropdown .menu-item:hover,
+    html.dark .top-menu-dropdown .menu-item:active,
+    html.dark .top-menu-dropdown .menu-item:focus,
+    html.dark .top-menu-dropdown .menu-item:focus-visible {
+      background: rgba(255, 255, 255, 0.15) !important;
+      color: var(--text-primary) !important;
     }
 
     /* Icons */
     .menu-icon {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
       opacity: 0.85;
       color: currentColor;
     }
 
-    /* Dividers */
+    /* Dividers (Removed per user request) */
     .menu-divider {
-      height: 1px;
-      background: var(--glass-border);
-      margin: 4px 12px;
-      opacity: 0.5;
+      display: none;
     }
 
     /* Utilities */
@@ -569,19 +637,32 @@
     }
 
     .menu-item.back-btn {
-      color: var(--accent-primary);
+      color: var(--accent-primary) !important;
       font-size: 16px;
+    }
+
+    /* Keep back button blue even on hover */
+    .menu-item.back-btn:hover,
+    .menu-item.back-btn:active,
+    .menu-item.back-btn:focus {
+      color: var(--accent-primary) !important;
     }
 
     .menu-item.sign-out {
       color: var(--accent-danger);
     }
 
-    /* Selected State */
-    .menu-item.selected {
-      background: var(--bg-nav-selection);
-      color: var(--text-primary);
-      border: 1px solid var(--glass-border);
+    /* Selected State (Grey Pill) */
+    .top-menu-dropdown .menu-item.selected {
+      background: #D1D1D6 !important;
+      color: var(--text-primary) !important;
+      border: none;
+      /* Pill should be flat and borderless */
+    }
+
+    html.dark .top-menu-dropdown .menu-item.selected {
+      background: rgba(255, 255, 255, 0.2) !important;
+      color: var(--text-primary) !important;
     }
 
     .menu-item.selected::after {
@@ -655,6 +736,7 @@
       padding-bottom: calc(var(--dock-height) + var(--safe-area-bottom) + 80px);
       padding-top: 80px;
       -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
     }
 
     .snap-page::-webkit-scrollbar {

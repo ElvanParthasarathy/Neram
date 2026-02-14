@@ -21,27 +21,27 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
      ========================================================================== */
   :root {
     /* --- LAYOUT DIMENSIONS --- */
-    --dock-height: 56px;
-    --dock-radius: 28px;
+    --dock-height: 80px;
+    /* Taller M3 Dock */
+    --dock-radius: 0px;
+    /* Full width */
 
     --item-radius: 24px;
 
-    --top-btn-size: 44px;
+    --top-btn-size: 48px;
     --safe-area-bottom: env(safe-area-inset-bottom, 20px);
-    --screen-edge-spacing: 12px;
+    --screen-edge-spacing: 16px;
 
     /* --- LIGHT MODE COLORS (DEFAULT) --- */
-    --bg-body: #F5F5F7;
+    --bg-body: #F2F2F7;
 
-    /* GLASS MATERIAL */
-    --bg-card: rgba(255, 255, 255, 0.9);
-    /* Slightly more opaque for cleanliness */
-    --glass-blur: blur(24px) saturate(150%);
+    /* SOLID MATERIAL (No Glass) */
+    --bg-card: #FFFFFF;
+    --glass-blur: none;
     --glass-border: 1px solid rgba(0, 0, 0, 0.08);
-    /* Softer border */
 
     /* SHADOWS */
-    --shadow-dock: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --shadow-dock: 0 2px 8px rgba(0, 0, 0, 0.05);
 
     /* SELECTION */
     --bg-nav-selection: rgba(0, 0, 0, 0.05);
@@ -62,7 +62,7 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     --input-focus: #1D1D1F;
 
     /* --- UTILITIES --- */
-    --bg-button-secondary: #F5F5F7;
+    --bg-button-secondary: #F2F2F7;
     /* FIXED: Much lighter, cleaner grey */
     --bg-modal-solid: #FFFFFF;
   }
@@ -73,10 +73,12 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
   @media (max-width: 768px) {
     html.dark {
       --bg-body: #121212;
-      --bg-card: rgba(28, 28, 30, 0.8);
+      --bg-card: #1E1E1E;
+      /* Solid Dark Surface */
       --glass-border: 1px solid rgba(255, 255, 255, 0.1);
-      --bg-nav-selection: rgba(44, 44, 46, 0.9);
+      --bg-nav-selection: rgba(255, 255, 255, 0.1);
       --text-primary: #FFFFFF;
+      /* ... */
       --text-secondary: #9CA3AF;
 
       /* FIXED: Changed from pale #60A5FA to Vibrant #0A84FF */
@@ -195,6 +197,7 @@ MOBILE SCREEN BLOCKER (Prevents Desktop Leaks)
     -webkit-overflow-scrolling: touch;
     /* Native iOS Momentum Scrolling */
     padding-bottom: 0 !important;
+    background-color: var(--bg-body) !important;
   }
 
   /* ==========================================================================
