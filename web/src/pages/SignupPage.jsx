@@ -114,7 +114,7 @@ const SignupPage = () => {
 
   return (
     <AuthLayout>
-      <div style={{ height: '120px' }} />
+      <div style={{ height: '80px' }} />
 
       <AuthHeader
         title="Create Account"
@@ -124,55 +124,51 @@ const SignupPage = () => {
       <div style={{ height: '40px' }} />
 
       <form onSubmit={handleSignup} style={{ width: '100%' }}>
-        {/* Name Row */}
-        <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-          <div style={{ flex: 1 }}>
+        <div className="auth-grid">
+          <AuthInput
+            label="First Name"
+            placeholder="Enter First Name"
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+            required
+          />
+          <AuthInput
+            label="Last Name"
+            placeholder="Enter Last Name"
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            required
+          />
+
+          <AuthInput
+            label="Register Number"
+            placeholder="Enter Register Number"
+            value={formData.regNo}
+            onChange={(e) => setFormData({ ...formData, regNo: e.target.value })}
+            required
+          />
+          <AuthInput
+            label="Email Address"
+            placeholder="Enter Email Address"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            type="email"
+            required
+          />
+
+          <div className="span-2">
             <AuthInput
-              label="First Name"
-              placeholder="Enter First Name"
-              value={formData.firstName}
-              onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-              required
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <AuthInput
-              label="Last Name"
-              placeholder="Enter Last Name"
-              value={formData.lastName}
-              onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              label="Password"
+              placeholder="Enter Password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              type="password"
               required
             />
           </div>
         </div>
 
-        <AuthInput
-          label="Register Number"
-          placeholder="Enter Register Number"
-          value={formData.regNo}
-          onChange={(e) => setFormData({ ...formData, regNo: e.target.value })}
-          required
-        />
-
-        <AuthInput
-          label="Email Address"
-          placeholder="Enter Email Address"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          type="email"
-          required
-        />
-
-        <AuthInput
-          label="Password"
-          placeholder="Enter Password"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          type="password"
-          required
-        />
-
-        <div style={{ height: '40px' }} />
+        <div style={{ height: '24px' }} />
 
         <AuthButton
           type="submit"
