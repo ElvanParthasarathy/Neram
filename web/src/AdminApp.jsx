@@ -89,11 +89,28 @@ function AdminApp() {
 
             if (u) {
                 setUser(u);
+
+                // 1. Check Hardcoded Role IMMEDIATELY (Avoids "Pending" flash)
+                const hardcodedRole = getHardcodedRole(u.email);
+                const isHardcodedAdmin = !!hardcodedRole;
+
+                if (isHardcodedAdmin) {
+                    setIsAdminUser(true);
+                    // Still fetch DB profile for other data, but access is already granted
+                }
+
                 const userRef = ref(db, `users/${u.uid}`);
                 userUnsubscribe = onValue(userRef, (snapshot) => {
                     const userData = snapshot.val() || {};
                     setDbUserProfile(userData);
-                    setIsAdminUser(adminEmails.includes(u.email) || userData?.role === 'admin' || userData?.role === 'faculty' || userData?.role === 'rep' || userData?.role === 'super_admin');
+
+                    // 2. Database Role check (for extensive admins)
+                    const dbRole = userData?.role;
+                    const isDbAdmin = dbRole === 'admin' || dbRole === 'faculty' || dbRole === 'rep' || dbRole === 'super_admin';
+
+                    if (!isHardcodedAdmin) {
+                        setIsAdminUser(isDbAdmin);
+                    }
                     setLoading(false);
                 });
             } else {
