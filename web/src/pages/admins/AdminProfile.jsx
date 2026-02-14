@@ -8,137 +8,16 @@ import {
     RiLock2Line
 } from 'react-icons/ri';
 
-const AdminProfile = () => {
-    const user = auth.currentUser;
-    const [editing, setEditing] = useState({});
-    const [hierarchy, setHierarchy] = useState({});
+import { SubHeader } from '../settings/SettingsShared';
 
-    // State for Name Separation
-    const [nameData, setNameData] = useState({ first: '', last: '' });
-
-    const [formData, setFormData] = useState({
-        displayName: user?.displayName || '',
-        firstName: '',
-        lastName: '',
-        gender: '',
-        mobile: '',
-        birthday: '',
-        photoURL: user?.photoURL || '',
-        role: '',
-        department: '',
-        adminLevel: ''
-    });
-
-    const [originalData, setOriginalData] = useState({});
-
-    // Load User Profile Data
-    useEffect(() => {
-        if (!user) return;
-
-        const userRef = ref(db, `users/${user.uid}`);
-        onValue(userRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                setFormData(prev => ({ ...prev, ...data }));
-                setOriginalData(data);
-            }
-        });
-
-        // Load Hierarchy for Dropdowns
-        const hierarchyRef = ref(db, 'academic_hierarchy');
-        onValue(hierarchyRef, (snap) => {
-            if (snap.exists()) setHierarchy(snap.val());
-        });
-    }, [user]);
-
-    // --- AUTO-EDIT IF MISSING DATA ---
-    useEffect(() => {
-        if (!formData.role) return;
-
-        if (formData.role === 'faculty' && !formData.department && !editing.department) {
-            setEditing(prev => ({ ...prev, department: true }));
-        }
-
-        if (formData.role === 'rep' && (!formData.batch || !formData.section) && !editing.class) {
-            setEditing(prev => ({ ...prev, class: true }));
-        }
-    }, [formData, editing]);
-
-    // --- SMART TOGGLE EDIT ---
-    const toggleEdit = (field) => {
-        if (field === 'name') {
-            if (formData.firstName || formData.lastName) {
-                setNameData({
-                    first: formData.firstName || "",
-                    last: formData.lastName || ""
-                });
-            } else {
-                const full = formData.displayName || "";
-                const lastSpaceIndex = full.lastIndexOf(" ");
-                if (lastSpaceIndex === -1) {
-                    setNameData({ first: full, last: "" });
-                } else {
-                    setNameData({
-                        first: full.substring(0, lastSpaceIndex),
-                        last: full.substring(lastSpaceIndex + 1)
-                    });
-                }
-            }
-        }
-        setEditing(prev => ({ ...prev, [field]: true }));
-    };
-
-    const cancelEdit = (field) => {
-        setFormData(prev => ({ ...prev, [field]: originalData[field] || '' }));
-        setEditing(prev => ({ ...prev, [field]: false }));
-    };
-
-    // --- SMART SAVE HANDLER ---
-    const handleSave = async (field) => {
-        try {
-            let updateObj = {};
-
-            if (field === 'name') {
-                const full = `${nameData.first} ${nameData.last}`.trim();
-                await updateProfile(user, { displayName: full });
-                updateObj = {
-                    displayName: full,
-                    firstName: nameData.first,
-                    lastName: nameData.last
-                };
-            }
-            else if (field === 'department') {
-                if (!formData.department) return alert("Select a department");
-                updateObj = { department: formData.department };
-            }
-            else if (field === 'class') {
-                // For Reps, 'class' means batch + section update
-                if (!formData.batch || !formData.section) return alert("Select Batch and Section");
-                updateObj = {
-                    batch: formData.batch,
-                    department: formData.department, // Ensure dept matches batch if needed, or keep existing
-                    section: formData.section
-                };
-            }
-            else {
-                updateObj = { [field]: formData[field] };
-            }
-
-            await update(ref(db, `users/${user.uid}`), updateObj);
-            setEditing(prev => ({ ...prev, [field]: false }));
-        } catch (err) {
-            alert(err.message);
-        }
-    };
+const AdminProfile = ({ onBack }) => {
+    // ... (existing hooks)
 
     return (
         <div className="settings-section-content">
+            <SubHeader title="Admin Profile" onBack={onBack} />
 
-            {/* HEADER */}
-            <div className="settings-top-nav-bar" style={{ border: 'none', padding: '0 0 30px 0' }}>
-                <h2 className="settings-label-main">Admin Profile</h2>
-                <p style={{ color: 'var(--mac-text-secondary)', margin: 0 }}>Manage your administrative identity</p>
-            </div>
+            {/* PROFILE HEADER CARD */}
 
             {/* PROFILE HEADER CARD */}
             <div className="settings-group-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px' }}>
