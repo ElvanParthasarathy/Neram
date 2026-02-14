@@ -209,7 +209,6 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
                 className={`profile-trigger ${isPopupOpen ? 'active-trigger' : ''}`}
                 onClick={() => {
                   setIsPopupOpen(!isPopupOpen);
-                  if (isSwitcherOpen) setIsSwitcherOpen(false);
                 }}
               >
                 <div className="user-avatar-circle">
@@ -238,7 +237,7 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
                     {/* SETTINGS & ADMIN: No 'replace' attribute here.
                         This allows them to have their own history stack as requested.
                     */}
-                    <Link to="/settings" className="popup-item" onClick={() => { setIsPopupOpen(false); setIsSwitcherOpen(false); }}>
+                    <Link to="/settings" className="popup-item" onClick={() => { setIsPopupOpen(false); }}>
                       <span>Settings</span>
                     </Link>
 

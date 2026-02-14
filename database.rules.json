@@ -1,0 +1,53 @@
+{
+    "rules": {
+        "users": {
+            "$uid": {
+                ".read": "auth != null && (auth.uid === $uid || root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty')",
+                ".write": "auth != null && (auth.uid === $uid || root.child('users/' + auth.uid + '/role').val() === 'super_admin')"
+            },
+            ".read": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty')"
+        },
+        "academic_hierarchy": {
+            ".read": "auth != null",
+            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin')"
+        },
+        "schedules": {
+            ".read": "auth != null",
+            "$batch": {
+                "$dept": {
+                    "$section": {
+                        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+                    }
+                }
+            }
+        },
+        "events": {
+            ".read": "auth != null",
+            "$batch": {
+                "$dept": {
+                    "$section": {
+                        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+                    }
+                }
+            }
+        },
+        "updates": {
+            ".read": "auth != null",
+            "$batch": {
+                "$dept": {
+                    "$section": {
+                        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+                    }
+                }
+            }
+        },
+        "official_docs": {
+            ".read": "auth != null",
+            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin')"
+        },
+        "$other": {
+            ".read": false,
+            ".write": false
+        }
+    }
+}
