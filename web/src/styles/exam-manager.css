@@ -247,9 +247,9 @@
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2) !important;
 }
 
-/* Fix Native Date/Time Icons for Dark Mode Balance */
-input[type="time"]::-webkit-calendar-picker-indicator,
-input[type="date"]::-webkit-calendar-picker-indicator {
+/* Fix Native Date/Time Icons for Dark Mode Balance (scoped to exam manager) */
+.exam-manager-container input[type="time"]::-webkit-calendar-picker-indicator,
+.exam-manager-container input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   border-radius: 4px;
   padding: 2px;
@@ -257,8 +257,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 0.6;
 }
 
-html.dark input[type="time"]::-webkit-calendar-picker-indicator,
-html.dark input[type="date"]::-webkit-calendar-picker-indicator {
+html.dark .exam-manager-container input[type="time"]::-webkit-calendar-picker-indicator,
+html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(1.5) !important;
   opacity: 0.9 !important;
 }

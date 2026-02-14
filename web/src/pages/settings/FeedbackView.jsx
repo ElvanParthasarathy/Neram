@@ -14,15 +14,24 @@ import {
 } from "react-icons/ri";
 import { SubHeader, InputWithIcon } from "./SettingsShared";
 
-const FeedbackView = ({ onBack }) => {
+const FeedbackView = ({ userProfile, onBack }) => {
     const user = auth.currentUser;
-    const [name, setName] = useState(user?.displayName || "");
-    const [mobile, setMobile] = useState("");
-    const [email, setEmail] = useState(user?.email || "");
+    const [name, setName] = useState(userProfile?.displayName || user?.displayName || "");
+    const [mobile, setMobile] = useState(userProfile?.mobile || "");
+    const [email, setEmail] = useState(userProfile?.email || user?.email || "");
     const [message, setMessage] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState(null); // success, error
     const [statusMsg, setStatusMsg] = useState("");
+
+    // Keep fields in sync if profile matures
+    React.useEffect(() => {
+        if (userProfile) {
+            if (userProfile.displayName && !name) setName(userProfile.displayName);
+            if (userProfile.email && !email) setEmail(userProfile.email);
+            if (userProfile.mobile && !mobile) setMobile(userProfile.mobile);
+        }
+    }, [userProfile]);
 
     const handleSubmit = async () => {
         if (!name || !mobile || !email || !message) {

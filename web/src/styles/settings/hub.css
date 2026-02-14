@@ -2,21 +2,40 @@
    SETTINGS HUB — Two-panel layout + profile card
    ========================================================================== */
 
-/* ── Page View (outer wrapper, matches Home h2-view) ── */
+/* ── Page View (outer wrapper) ── */
 .s2-page-view {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 24px 80px;
+    padding: 0 24px;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 /* ── Two-Column Grid (desktop) ── */
 @media (min-width: 769px) {
+
+    /* Full bleed settings, no parent padding */
+    #main-viewport:has(.s2-page-view) {
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .s2-page-view {
+        height: 100vh;
+        overflow: hidden;
+        padding-top: 48px;
+        /* Standard Match for Home padding */
+        box-sizing: border-box;
+    }
+
     .s2-content-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 32px;
         align-items: stretch;
+        height: 100%;
+        padding: 0;
+        /* Remove redundant padding */
+        box-sizing: border-box;
     }
 
     .s2-col-left,
@@ -24,11 +43,21 @@
         display: flex;
         flex-direction: column;
         min-width: 0;
-        overflow: hidden;
+        height: 100%;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        /* Hide scrollbar for Firefox */
+        scrollbar-width: none;
+        /* Hide scrollbar for IE/Edge */
+        -ms-overflow-style: none;
     }
 
-    .s2-col-left {
-        /* No sticky — both panels independent */
+    /* Hide scrollbars for Chrome/Safari */
+    .s2-col-left::-webkit-scrollbar,
+    .s2-col-right::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
     }
 
     /* Remove the inner .settings2-view constraints on desktop grid */

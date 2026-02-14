@@ -27,9 +27,20 @@ const SettingsWelcome = () => (
 );
 
 const Settings2 = ({ userProfile }) => {
-    const [currentView, setCurrentView] = useState("hub");
+    // Default to 'profile' on desktop to avoid blank space, 'hub' on mobile
+    const [currentView, setCurrentView] = useState(() => {
+        return window.innerWidth > 768 ? "profile" : "hub";
+    });
 
-    const goHub = () => setCurrentView("hub");
+    const goHub = () => {
+        // On desktop, "Back" should just keep us in a valid view (defaulting to Profile)
+        // On mobile, it needs to return to the Hub menu.
+        if (window.innerWidth > 768) {
+            setCurrentView("profile");
+        } else {
+            setCurrentView("hub");
+        }
+    };
 
     const renderDetailView = () => {
         switch (currentView) {
@@ -46,12 +57,14 @@ const Settings2 = ({ userProfile }) => {
             case "directory":
                 return <UserDirectoryView onBack={goHub} />;
             case "complaints":
-                return <FeedbackView onBack={goHub} />;
+                return <FeedbackView userProfile={userProfile} onBack={goHub} />;
             case "developer":
                 return <DeveloperPage onBack={goHub} />;
             case "about":
                 return <AboutPage onBack={goHub} />;
             default:
+                // For desktop, if no view is selected (hub), fallback to profile
+                if (window.innerWidth > 768) return <ProfileView userProfile={userProfile} onBack={goHub} />;
                 return null;
         }
     };

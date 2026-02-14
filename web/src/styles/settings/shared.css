@@ -304,21 +304,74 @@
     padding: 14px 16px 14px 44px;
     border-radius: 24px;
     border: 2px solid transparent;
-    background: var(--mac-card-bg);
+    background: var(--mac-modal-field-bg);
     color: var(--mac-text);
     font-family: inherit;
     font-size: 14px;
     box-sizing: border-box;
     outline: none;
     transition: border-color 0.2s ease;
+    color-scheme: light;
 }
 
 .s2-complaint-input:focus {
     border-color: #007AFF;
 }
 
+html.dark .s2-complaint-input:focus,
 .dark .s2-complaint-input:focus {
     border-color: #0A84FF;
+}
+
+/* Dark mode: tell the browser to render native elements (calendar icon) as light-on-dark */
+html.dark .s2-complaint-input,
+.dark .s2-complaint-input {
+    color-scheme: dark;
+}
+
+/* ── Custom Date Input Icon ── */
+.s2-date-input-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.s2-date-input-wrap .s2-date-input {
+    padding-right: 44px;
+}
+
+/* ── Select Input (Custom Arrow) ── */
+.s2-select-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 44px;
+    cursor: pointer;
+}
+
+.s2-select-input option {
+    background: var(--mac-bg-secondary);
+    color: var(--mac-text);
+}
+
+/* Hide the native browser calendar icon */
+.s2-date-input::-webkit-calendar-picker-indicator {
+    opacity: 0 !important;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 44px;
+    height: 100%;
+    cursor: pointer;
+}
+
+/* Custom themed calendar icon */
+.s2-date-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--mac-text-secondary);
+    pointer-events: none;
 }
 
 /* ── Spinner (shared) ── */

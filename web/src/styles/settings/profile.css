@@ -156,7 +156,7 @@
     height: 40px;
     border-radius: 50%;
     border: none;
-    background: var(--mac-bg);
+    background: var(--mac-modal-field-bg);
     color: var(--mac-text-secondary);
     display: flex;
     align-items: center;
@@ -307,11 +307,14 @@
 .s2-prof-modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
     animation: s2-prof-fade-in 0.2s ease;
 }
 
@@ -327,21 +330,25 @@
 
 .s2-prof-modal {
     background: var(--mac-card-bg);
-    border-radius: 24px 24px 0 0;
+    border-radius: 24px;
     width: 100%;
-    max-width: 500px;
-    max-height: 60vh;
+    max-width: 400px;
+    max-height: 80vh;
     overflow-y: auto;
-    animation: s2-prof-slide-up 0.3s ease;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--mac-divider);
+    animation: s2-prof-modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@keyframes s2-prof-slide-up {
+@keyframes s2-prof-modal-pop {
     from {
-        transform: translateY(100%);
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
     }
 
     to {
-        transform: translateY(0);
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }
 

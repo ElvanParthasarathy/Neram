@@ -10,6 +10,7 @@ import {
     RiArrowDownSLine,
     RiGraduationCapLine,
     RiLogoutBoxRLine,
+    RiCalendarLine,
 } from "react-icons/ri";
 import { SubHeader } from "./SettingsShared";
 
@@ -57,10 +58,7 @@ const ProfileView = ({ userProfile, onBack }) => {
     const [lastName, setLastName] = useState("");
     const [mobileNumber, setMobileNumber] = useState("");
     const [snackbar, setSnackbar] = useState(null);
-    const [showSelector, setShowSelector] = useState(false);
-    const [selectorTitle, setSelectorTitle] = useState("");
-    const [selectorOptions, setSelectorOptions] = useState([]);
-    const [selectorCallback, setSelectorCallback] = useState(null);
+
 
     // Load user data + hierarchy
     useEffect(() => {
@@ -76,16 +74,9 @@ const ProfileView = ({ userProfile, onBack }) => {
         return () => { unsub(); unsub2(); };
     }, [user?.uid]);
 
-    const getBatches = () => Object.keys(hierarchy).sort();
-    const getDepartments = (batch) => hierarchy[batch] ? Object.keys(hierarchy[batch]).sort() : [];
-    const getSections = (batch, dept) => hierarchy[batch]?.[dept] ? Object.values(hierarchy[batch][dept]).sort() : [];
-
-    const openSelector = (title, options, cb) => {
-        setSelectorTitle(title);
-        setSelectorOptions(options);
-        setSelectorCallback(() => cb);
-        setShowSelector(true);
-    };
+    const getBatches = () => hierarchy ? Object.keys(hierarchy).sort() : [];
+    const getDepartments = (batch) => (hierarchy && hierarchy[batch]) ? Object.keys(hierarchy[batch]).filter(d => d !== 'initialized').sort() : [];
+    const getSections = (batch, dept) => (hierarchy && hierarchy[batch] && hierarchy[batch][dept]) ? Object.values(hierarchy[batch][dept]).sort() : [];
 
     const handleSave = (field, overrideValue) => {
         if (!user?.uid) return;
@@ -213,9 +204,12 @@ const ProfileView = ({ userProfile, onBack }) => {
                 >
                     <div className="s2-complaint-field">
                         <div className="s2-complaint-label">Date of Birth</div>
-                        <input className="s2-complaint-input" type="date"
-                            value={formData.birthday || ""}
-                            onChange={e => setFormData(d => ({ ...d, birthday: e.target.value }))} />
+                        <div className="s2-date-input-wrap">
+                            <input className="s2-complaint-input s2-date-input" type="date"
+                                value={formData.birthday || ""}
+                                onChange={e => setFormData(d => ({ ...d, birthday: e.target.value }))} />
+                            <RiCalendarLine className="s2-date-icon" />
+                        </div>
                     </div>
                 </ProfileField>
 
@@ -230,12 +224,18 @@ const ProfileView = ({ userProfile, onBack }) => {
                 >
                     <div className="s2-complaint-field">
                         <div className="s2-complaint-label">Gender</div>
-                        <button className="s2-prof-dropdown" onClick={() =>
-                            openSelector("Select Gender", ["Male", "Female", "Other"], (v) => setFormData(d => ({ ...d, gender: v })))
-                        }>
-                            <span>{formData.gender || "Select Gender"}</span>
-                            <RiArrowDownSLine size={20} />
-                        </button>
+                        <div className="s2-date-input-wrap">
+                            <select className="s2-complaint-input s2-select-input"
+                                value={formData.gender || ""}
+                                onChange={(e) => setFormData(d => ({ ...d, gender: e.target.value }))}
+                            >
+                                <option value="" disabled>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <RiArrowDownSLine className="s2-date-icon" />
+                        </div>
                     </div>
                 </ProfileField>
             </ProfileSection>
@@ -253,30 +253,44 @@ const ProfileView = ({ userProfile, onBack }) => {
                     <div className="s2-prof-edit-fields">
                         <div className="s2-complaint-field">
                             <div className="s2-complaint-label">Batch</div>
-                            <button className="s2-prof-dropdown" onClick={() =>
-                                openSelector("Select Batch", getBatches(), (v) => setFormData(d => ({ ...d, batch: v, department: "", section: "" })))
-                            }>
-                                <span>{formData.batch || "Select Batch"}</span>
-                                <RiArrowDownSLine size={20} />
-                            </button>
+                            <div className="s2-date-input-wrap">
+                                <select className="s2-complaint-input s2-select-input"
+                                    value={formData.batch || ""}
+                                    onChange={(e) => setFormData(d => ({ ...d, batch: e.target.value, department: "", section: "" }))}
+                                >
+                                    <option value="" disabled>Select Batch</option>
+                                    {getBatches().map(b => <option key={b} value={b}>{b}</option>)}
+                                </select>
+                                <RiArrowDownSLine className="s2-date-icon" />
+                            </div>
                         </div>
                         <div className="s2-complaint-field">
                             <div className="s2-complaint-label">Department</div>
-                            <button className="s2-prof-dropdown" disabled={!formData.batch}
-                                onClick={() => openSelector("Select Department", getDepartments(formData.batch), (v) => setFormData(d => ({ ...d, department: v, section: "" })))
-                                }>
-                                <span>{formData.department || "Select Department"}</span>
-                                <RiArrowDownSLine size={20} />
-                            </button>
+                            <div className="s2-date-input-wrap">
+                                <select className="s2-complaint-input s2-select-input"
+                                    disabled={!formData.batch}
+                                    value={formData.department || ""}
+                                    onChange={(e) => setFormData(d => ({ ...d, department: e.target.value, section: "" }))}
+                                >
+                                    <option value="" disabled>Select Department</option>
+                                    {getDepartments(formData.batch).map(dept => <option key={dept} value={dept}>{dept}</option>)}
+                                </select>
+                                <RiArrowDownSLine className="s2-date-icon" />
+                            </div>
                         </div>
                         <div className="s2-complaint-field">
                             <div className="s2-complaint-label">Section</div>
-                            <button className="s2-prof-dropdown" disabled={!formData.department}
-                                onClick={() => openSelector("Select Section", getSections(formData.batch, formData.department), (v) => setFormData(d => ({ ...d, section: v })))
-                                }>
-                                <span>{formData.section || "Select Section"}</span>
-                                <RiArrowDownSLine size={20} />
-                            </button>
+                            <div className="s2-date-input-wrap">
+                                <select className="s2-complaint-input s2-select-input"
+                                    disabled={!formData.department}
+                                    value={formData.section || ""}
+                                    onChange={(e) => setFormData(d => ({ ...d, section: e.target.value }))}
+                                >
+                                    <option value="" disabled>Select Section</option>
+                                    {getSections(formData.batch, formData.department).map(sec => <option key={sec} value={sec}>{sec}</option>)}
+                                </select>
+                                <RiArrowDownSLine className="s2-date-icon" />
+                            </div>
                         </div>
                     </div>
                 </ProfileField>
@@ -305,25 +319,7 @@ const ProfileView = ({ userProfile, onBack }) => {
                 Sign Out
             </button>
 
-            {/* Selector Modal */}
-            {showSelector && (
-                <div className="s2-prof-modal-overlay" onClick={() => setShowSelector(false)}>
-                    <div className="s2-prof-modal" onClick={e => e.stopPropagation()}>
-                        <div className="s2-prof-modal-title">{selectorTitle}</div>
-                        <div className="s2-prof-modal-list">
-                            {selectorOptions.map(opt => (
-                                <button key={opt} className="s2-prof-modal-option" onClick={() => {
-                                    selectorCallback?.(opt);
-                                    setShowSelector(false);
-                                }}>
-                                    {opt}
-                                    <RiArrowRightSLine size={18} />
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             {/* Snackbar */}
             {snackbar && (

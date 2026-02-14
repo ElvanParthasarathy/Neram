@@ -32,6 +32,7 @@ html.dark {
    --mac-input-bg: #1A1A1A;
    --mac-button-bg: rgba(255, 255, 255, 0.1);
    --mac-icon-color: #EBEBF5;
+   --mac-modal-field-bg: #1E1E1E;
 
    /* Sidebar Overrides */
    --mac-sidebar-border: transparent;

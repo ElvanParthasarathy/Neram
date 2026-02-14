@@ -409,11 +409,6 @@ html.dark .phone-entry-group:focus-within {
   border-color: var(--mac-blue) !important;
 }
 
-html.dark input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(1.5) !important;
-  /* Make calendar icon white */
-}
-
 html.dark .btn-cancel {
   background: rgba(255, 255, 255, 0.1) !important;
   color: #FFFFFF !important;
