@@ -65,6 +65,12 @@
     color: #FF3B30;
 }
 
+
 .dark .s2-complaint-status.error {
     color: #FF453A;
+}
+
+/* Card-colored input override */
+.s2-input-card-bg {
+    background: var(--mac-card-bg) !important;
 }

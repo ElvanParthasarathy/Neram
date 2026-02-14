@@ -54,7 +54,7 @@ export const ToggleSwitch = ({ checked, onChange }) => (
     </button>
 );
 
-export const InputWithIcon = ({ icon: Icon, value, onChange, placeholder, label, type = "text", multiline = false, rows = 4 }) => {
+export const InputWithIcon = ({ icon: Icon, value, onChange, placeholder, label, type = "text", multiline = false, rows = 4, className = "" }) => {
     return (
         <div className="s2-complaint-field">
             {label && <div className="s2-complaint-label">{label}</div>}
@@ -70,7 +70,7 @@ export const InputWithIcon = ({ icon: Icon, value, onChange, placeholder, label,
                         onChange={onChange}
                         placeholder={placeholder}
                         rows={rows}
-                        className="s2-complaint-input s2-complaint-textarea"
+                        className={`s2-complaint-input s2-complaint-textarea ${className}`}
                     />
                 ) : (
                     <input
@@ -78,7 +78,7 @@ export const InputWithIcon = ({ icon: Icon, value, onChange, placeholder, label,
                         value={value}
                         onChange={onChange}
                         placeholder={placeholder}
-                        className="s2-complaint-input"
+                        className={`s2-complaint-input ${className}`}
                     />
                 )}
             </div>

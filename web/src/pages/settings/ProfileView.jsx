@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { signOut } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import { ref, onValue, update } from "firebase/database";
 import {
@@ -9,7 +8,6 @@ import {
     RiArrowRightSLine,
     RiArrowDownSLine,
     RiGraduationCapLine,
-    RiLogoutBoxRLine,
     RiCalendarLine,
 } from "react-icons/ri";
 import { SubHeader } from "./SettingsShared";
@@ -108,11 +106,7 @@ const ProfileView = ({ userProfile, onBack }) => {
         }
     };
 
-    const handleLogout = () => {
-        if (window.confirm("Are you sure you want to sign out?")) {
-            signOut(auth);
-        }
-    };
+
 
     const photoUrl = formData.photoURL;
     const displayName = formData.displayName || user?.displayName || "Your Name";
@@ -313,11 +307,7 @@ const ProfileView = ({ userProfile, onBack }) => {
                 </ProfileField>
             </ProfileSection>
 
-            {/* Sign Out */}
-            <button className="s2-prof-logout" onClick={handleLogout}>
-                <RiLogoutBoxRLine size={18} />
-                Sign Out
-            </button>
+
 
 
 

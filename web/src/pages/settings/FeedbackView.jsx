@@ -105,6 +105,7 @@ const FeedbackView = ({ userProfile, onBack }) => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your Name"
+                    className="s2-input-card-bg"
                 />
                 <InputWithIcon
                     icon={RiPhoneLine}
@@ -113,6 +114,7 @@ const FeedbackView = ({ userProfile, onBack }) => {
                     onChange={(e) => setMobile(e.target.value)}
                     placeholder="Mobile Number"
                     type="tel"
+                    className="s2-input-card-bg"
                 />
                 <InputWithIcon
                     icon={RiMailLine}
@@ -121,6 +123,7 @@ const FeedbackView = ({ userProfile, onBack }) => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email Address"
                     type="email"
+                    className="s2-input-card-bg"
                 />
                 <InputWithIcon
                     icon={RiMessage2Line}
@@ -129,6 +132,7 @@ const FeedbackView = ({ userProfile, onBack }) => {
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Your Message / Review / Query"
                     multiline
+                    className="s2-input-card-bg"
                 />
 
                 <button

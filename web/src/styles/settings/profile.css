@@ -191,8 +191,8 @@
 .s2-prof-cancel-btn {
     padding: 8px 20px;
     border-radius: 50px;
-    border: 1px solid var(--mac-divider);
-    background: transparent;
+    border: none;
+    background: var(--mac-modal-field-bg);
     color: var(--mac-text);
     font-size: 14px;
     font-weight: 500;
@@ -201,7 +201,7 @@
 }
 
 .s2-prof-cancel-btn:hover {
-    background: var(--mac-bg);
+    filter: brightness(0.85);
 }
 
 .s2-prof-save-btn {

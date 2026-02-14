@@ -27,11 +27,10 @@ const InputWithEye = ({ value, onChange, placeholder }) => {
                 placeholder={placeholder}
                 value={value}
                 onChange={onChange}
+                className="s2-complaint-input"
                 style={{
-                    width: "100%", padding: "12px 40px 12px 16px", borderRadius: 12,
-                    border: "1px solid var(--mac-divider)",
-                    background: "var(--mac-bg)", color: "var(--mac-text)",
-                    fontFamily: "inherit", fontSize: 14, boxSizing: "border-box"
+                    paddingLeft: 16,
+                    paddingRight: 40,
                 }}
             />
             <button
