@@ -1,6 +1,7 @@
 import React from "react";
 import {
     RiArrowLeftSLine,
+    RiEditLine
 } from "react-icons/ri";
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -85,3 +86,41 @@ export const InputWithIcon = ({ icon: Icon, value, onChange, placeholder, label,
         </div>
     );
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PROFILE COMPONENTS (Shared between Student & Admin)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const ProfileSection = ({ title, icon, children }) => (
+    <div className="s2-prof-section">
+        <div className="s2-prof-section-header">
+            <div className="s2-prof-section-icon">{icon}</div>
+            <span className="s2-prof-section-title">{title}</span>
+        </div>
+        {children}
+    </div>
+);
+
+export const ProfileField = ({ label, value, isEditing, onEdit, onCancel, onSave, children }) => (
+    <div className="s2-prof-field">
+        {!isEditing ? (
+            <div className="s2-prof-field-display">
+                <div>
+                    <div className="s2-prof-field-label">{label}</div>
+                    <div className={`s2-prof-field-value ${!value ? 'empty' : ''}`}>{value || "Not set"}</div>
+                </div>
+                <button className="s2-prof-edit-btn" onClick={onEdit}>
+                    <RiEditLine size={18} />
+                </button>
+            </div>
+        ) : (
+            <div className="s2-prof-field-editing">
+                {children}
+                <div className="s2-prof-field-actions">
+                    <button className="s2-prof-cancel-btn" onClick={onCancel}>Cancel</button>
+                    <button className="s2-prof-save-btn" onClick={onSave}>Save</button>
+                </div>
+            </div>
+        )}
+    </div>
+);

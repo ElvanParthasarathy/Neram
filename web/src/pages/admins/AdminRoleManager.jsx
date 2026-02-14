@@ -45,6 +45,9 @@ const AdminRoleManager = ({ userProfile }) => {
     const unsub = onValue(usersRef, (snapshot) => {
       setUsers(snapshot.exists() ? snapshot.val() : {});
       setLoading(false);
+    }, (error) => {
+      console.error("AdminRoleManager: Permission denied reading users:", error.message);
+      setLoading(false); // Unblock UI even on error
     });
     return () => unsub();
   }, []);

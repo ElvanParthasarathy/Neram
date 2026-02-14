@@ -95,7 +95,7 @@ const AdminPanel = ({ user, userProfile }) => {
         {activeModule === 'home' && <AdminDashboard user={user} userProfile={userProfile} />}
         {activeModule === 'structure' && <StructureManager />}
         {activeModule === 'users' && <UserManagement />}
-        {activeModule === 'roles' && <AdminRoleManager />}
+        {activeModule === 'roles' && <AdminRoleManager userProfile={userProfile} />}
         {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} />}
         {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} />}
         {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} />}

@@ -3,95 +3,287 @@ import { auth, db } from "../../firebase";
 import { ref, update, onValue } from "firebase/database";
 import { updateProfile } from "firebase/auth";
 import {
-    RiUserLine, RiPhoneLine, RiCake2Line, RiGenderlessLine,
-    RiEditLine, RiShieldKeyholeLine, RiBuilding4Line, RiRefreshLine,
-    RiLock2Line
+    RiUser3Line, RiBuilding4Line, RiShieldKeyholeLine, RiRefreshLine,
+    RiArrowDownSLine, RiCalendarLine
 } from 'react-icons/ri';
 
-import { SubHeader } from '../settings/SettingsShared';
+import { SubHeader, ProfileSection, ProfileField } from '../settings/SettingsShared';
 
 const AdminProfile = ({ onBack }) => {
-    // ... (existing hooks)
+    const user = auth.currentUser;
+    const [editing, setEditing] = useState({});
+    const [hierarchy, setHierarchy] = useState({});
+
+    // State for Name Separation
+    const [nameData, setNameData] = useState({ first: '', last: '' });
+
+    const [formData, setFormData] = useState({
+        displayName: user?.displayName || '',
+        firstName: '',
+        lastName: '',
+        gender: '',
+        mobile: '',
+        birthday: '',
+        photoURL: user?.photoURL || '',
+        role: '',
+        department: '',
+        adminLevel: ''
+    });
+
+    const [originalData, setOriginalData] = useState({});
+    const [snackbar, setSnackbar] = useState(null);
+
+    // Load User Profile Data
+    useEffect(() => {
+        if (!user) return;
+
+        const userRef = ref(db, `users/${user.uid}`);
+        onValue(userRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                setFormData(prev => ({ ...prev, ...data }));
+                setOriginalData(data);
+            }
+        });
+
+        // Load Hierarchy for Dropdowns
+        const hierarchyRef = ref(db, 'academic_hierarchy');
+        onValue(hierarchyRef, (snap) => {
+            if (snap.exists()) setHierarchy(snap.val());
+        });
+    }, [user]);
+
+    // --- SMART TOGGLE EDIT ---
+    const toggleEdit = (field) => {
+        if (field === 'name') {
+            if (formData.firstName || formData.lastName) {
+                setNameData({
+                    first: formData.firstName || "",
+                    last: formData.lastName || ""
+                });
+            } else {
+                const full = formData.displayName || "";
+                const lastSpaceIndex = full.lastIndexOf(" ");
+                if (lastSpaceIndex === -1) {
+                    setNameData({ first: full, last: "" });
+                } else {
+                    setNameData({
+                        first: full.substring(0, lastSpaceIndex),
+                        last: full.substring(lastSpaceIndex + 1)
+                    });
+                }
+            }
+        }
+        setEditing(prev => ({ ...prev, [field]: true }));
+    };
+
+    const cancelEdit = (field) => {
+        setFormData(prev => ({ ...prev, [field]: originalData[field] || '' }));
+        setEditing(prev => ({ ...prev, [field]: false }));
+    };
+
+    const showSnack = (msg) => {
+        setSnackbar(msg);
+        setTimeout(() => setSnackbar(null), 3000);
+    };
+
+    // --- SMART SAVE HANDLER ---
+    const handleSave = async (field) => {
+        try {
+            let updateObj = {};
+
+            if (field === 'name') {
+                const full = `${nameData.first} ${nameData.last}`.trim();
+                await updateProfile(user, { displayName: full });
+                updateObj = {
+                    displayName: full,
+                    firstName: nameData.first,
+                    lastName: nameData.last
+                };
+            }
+            else if (field === 'department') {
+                if (!formData.department) return alert("Select a department");
+                updateObj = { department: formData.department };
+            }
+            else if (field === 'class') {
+                // For Reps, 'class' means batch + section update
+                if (!formData.batch || !formData.section) return alert("Select Batch and Section");
+                updateObj = {
+                    batch: formData.batch,
+                    department: formData.department, // Ensure dept matches batch if needed, or keep existing
+                    section: formData.section
+                };
+            }
+            else {
+                updateObj = { [field]: formData[field] };
+            }
+
+            await update(ref(db, `users/${user.uid}`), updateObj);
+            setEditing(prev => ({ ...prev, [field]: false }));
+            showSnack("Saved successfully");
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    const syncGooglePhoto = async () => {
+        const googleData = user.providerData.find(p => p.providerId === 'google.com');
+        if (googleData?.photoURL) {
+            await update(ref(db, `users/${user.uid}`), { photoURL: googleData.photoURL });
+            showSnack("Photo Synced!");
+        } else {
+            showSnack("No Google photo found");
+        }
+    };
 
     return (
-        <div className="settings-section-content">
+        <div className="s2-page-view-inner"> {/* Wrapper to match student view context if needed, or just fragment */}
             <SubHeader title="Admin Profile" onBack={onBack} />
 
-            {/* PROFILE HEADER CARD */}
-
-            {/* PROFILE HEADER CARD */}
-            <div className="settings-group-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', gap: '32px', marginBottom: '40px' }}>
-                <div style={{ position: 'relative' }}>
-                    <img src={formData.photoURL || "/default-avatar.png"} alt="Profile" className="settings-avatar" style={{ width: '100px', height: '100px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }} />
-                </div>
-                <div>
-                    <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '800' }}>{formData.displayName || "Administrator"}</h3>
-                    <p style={{ margin: '0 0 16px 0', color: 'var(--mac-text-secondary)', fontSize: '14px' }}>{user?.email}</p>
-                    <button className="sync-btn" onClick={async () => {
-                        const googleData = user.providerData.find(p => p.providerId === 'google.com');
-                        if (googleData?.photoURL) {
-                            await update(ref(db, `users/${user.uid}`), { photoURL: googleData.photoURL });
-                            alert("Photo Synced!");
-                        }
-                    }}>
-                        <RiRefreshLine /> Sync Google Photo
-                    </button>
-                </div>
-            </div>
-
-            {/* IDENTITY CARD */}
-            <div className="settings-group-card">
-                <div className="settings-row">
-                    <label><RiUserLine /> NAME</label>
-                    {!editing.name ? (
-                        <div className="input-group">
-                            <span className="display-text">{formData.displayName || "Not Set"}</span>
-                            <button className="edit-icon-btn" onClick={() => toggleEdit('name')}><RiEditLine /> Edit</button>
-                        </div>
+            {/* Profile Header Card */}
+            <div className="s2-prof-header">
+                <div className="s2-prof-avatar">
+                    {formData.photoURL ? (
+                        <img src={formData.photoURL} alt="Profile" />
                     ) : (
-                        <div className="edit-mode-group">
-                            <div style={{ display: 'flex', gap: '10px', width: '100%', marginBottom: '10px' }}>
-                                <input type="text" value={nameData.first} onChange={e => setNameData({ ...nameData, first: e.target.value })} placeholder="First Name" className="settings-input" style={{ flex: 1 }} />
-                                <input type="text" value={nameData.last} onChange={e => setNameData({ ...nameData, last: e.target.value })} placeholder="Last Name" className="settings-input" style={{ flex: 1 }} />
-                            </div>
-                            <div className="action-btns">
-                                <button className="save-btn" onClick={() => handleSave('name')}>Save</button>
-                                <button className="cancel-btn" onClick={() => cancelEdit('name')}>Cancel</button>
-                            </div>
-                        </div>
+                        <span className="s2-prof-avatar-letter">
+                            {(formData.displayName || "A").charAt(0).toUpperCase()}
+                        </span>
                     )}
                 </div>
-
-                <div className="settings-row">
-                    <label><RiShieldKeyholeLine /> PRIVILEGE LEVEL</label>
-                    <div className="input-group">
-                        <span className="display-text" style={{ color: 'var(--mac-traffic-green)', fontWeight: 'bold', textTransform: 'uppercase' }}>
-                            {formData.role || "Unassigned"}
-                        </span>
-                    </div>
-                </div>
+                <div className="s2-prof-name">{formData.displayName || "Administrator"}</div>
+                <div className="s2-prof-email">{user?.email}</div>
+                <button className="s2-prof-sync-btn" onClick={syncGooglePhoto}>
+                    <RiRefreshLine size={16} />
+                    Sync Google Photo
+                </button>
             </div>
 
-            {/* SYSTEM ACCESS & SCOPE CARD */}
-            {(formData.department || formData.batch || formData.role === 'super_admin') && (
-                <div className="settings-group-card">
-                    {/* ASSIGNED DEPARTMENT (SHOW IF FACULTY OR REP) */}
-                    {['faculty'].includes(formData.role) && (
-                        <div className="settings-row animate-fade-in">
-                            <label><RiBuilding4Line /> ASSIGNED DEPARTMENT</label>
-                            {!editing.department ? (
-                                <div className="input-group">
-                                    <span className="display-text">
-                                        {formData.department || "Pending Assignment"}
-                                    </span>
-                                    <button className="edit-icon-btn" onClick={() => toggleEdit('department')}><RiEditLine /> Edit</button>
+            {/* Personal Information */}
+            <ProfileSection title="Personal Information" icon={<RiUser3Line size={20} />}>
+                {/* NAME */}
+                <ProfileField
+                    label="Full Name" value={formData.displayName}
+                    isEditing={editing.name}
+                    onEdit={() => toggleEdit('name')}
+                    onCancel={() => cancelEdit('name')}
+                    onSave={() => handleSave('name')}
+                >
+                    <div className="s2-prof-edit-fields">
+                        <div className="s2-complaint-field">
+                            <div className="s2-complaint-label">First Name</div>
+                            <input className="s2-complaint-input" value={nameData.first} onChange={e => setNameData({ ...nameData, first: e.target.value })} placeholder="First Name" />
+                        </div>
+                        <div className="s2-complaint-field">
+                            <div className="s2-complaint-label">Last Name</div>
+                            <input className="s2-complaint-input" value={nameData.last} onChange={e => setNameData({ ...nameData, last: e.target.value })} placeholder="Last Name" />
+                        </div>
+                    </div>
+                </ProfileField>
+
+                <div className="s2-prof-divider" />
+
+                {/* MOBILE */}
+                <ProfileField
+                    label="Mobile" value={formData.mobile ? `+91 ${formData.mobile.replace(/^91/, '').replace(/\s/g, '')}` : null}
+                    isEditing={editing.mobile}
+                    onEdit={() => toggleEdit('mobile')}
+                    onCancel={() => cancelEdit('mobile')}
+                    onSave={() => handleSave('mobile')}
+                >
+                    <div className="s2-complaint-field">
+                        <div className="s2-complaint-label">Mobile Number</div>
+                        <div style={{ position: "relative" }}>
+                            <span className="s2-prof-prefix">+91</span>
+                            <input className="s2-complaint-input s2-prof-phone-input" value={formData.mobile}
+                                onChange={e => setFormData({ ...formData, mobile: e.target.value })}
+                                placeholder="10-digit number" type="tel" />
+                        </div>
+                    </div>
+                </ProfileField>
+
+                <div className="s2-prof-divider" />
+
+                {/* DOB */}
+                <ProfileField
+                    label="Date of Birth" value={formData.birthday || null}
+                    isEditing={editing.birthday}
+                    onEdit={() => toggleEdit('birthday')}
+                    onCancel={() => cancelEdit('birthday')}
+                    onSave={() => handleSave('birthday')}
+                >
+                    <div className="s2-complaint-field">
+                        <div className="s2-complaint-label">Date of Birth</div>
+                        <div className="s2-date-input-wrap">
+                            <input className="s2-complaint-input s2-date-input" type="date"
+                                value={formData.birthday || ""}
+                                onChange={e => setFormData({ ...formData, birthday: e.target.value })} />
+                            <RiCalendarLine className="s2-date-icon" />
+                        </div>
+                    </div>
+                </ProfileField>
+
+                <div className="s2-prof-divider" />
+
+                {/* GENDER */}
+                <ProfileField
+                    label="Gender" value={formData.gender || null}
+                    isEditing={editing.gender}
+                    onEdit={() => toggleEdit('gender')}
+                    onCancel={() => cancelEdit('gender')}
+                    onSave={() => handleSave('gender')}
+                >
+                    <div className="s2-complaint-field">
+                        <div className="s2-complaint-label">Gender</div>
+                        <div className="s2-date-input-wrap">
+                            <select className="s2-complaint-input s2-select-input"
+                                value={formData.gender || ""}
+                                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                            >
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <RiArrowDownSLine className="s2-date-icon" />
+                        </div>
+                    </div>
+                </ProfileField>
+            </ProfileSection>
+
+            {/* Admin Details */}
+            {(formData.department || formData.batch || formData.role === 'super_admin' || formData.role === 'faculty') && (
+                <ProfileSection title="Administrative Details" icon={<RiShieldKeyholeLine size={20} />}>
+
+                    {/* ROLE */}
+                    <div className="s2-prof-field">
+                        <div className="s2-prof-field-display">
+                            <div>
+                                <div className="s2-prof-field-label">Privilege Level</div>
+                                <div className="s2-prof-field-value" style={{ textTransform: 'uppercase', color: 'var(--mac-traffic-green)', fontWeight: '600' }}>
+                                    {formData.role || "Unassigned"}
                                 </div>
-                            ) : (
-                                <div className="edit-mode-group">
-                                    <select
-                                        value={formData.department}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="s2-prof-divider" />
+
+                    {/* ASSIGNED DEPARTMENT (FACULTY) */}
+                    {['faculty'].includes(formData.role) && (
+                        <ProfileField
+                            label="Assigned Department" value={formData.department}
+                            isEditing={editing.department}
+                            onEdit={() => toggleEdit('department')}
+                            onCancel={() => cancelEdit('department')}
+                            onSave={() => handleSave('department')}
+                        >
+                            <div className="s2-complaint-field">
+                                <div className="s2-complaint-label">Department</div>
+                                <div className="s2-date-input-wrap">
+                                    <select className="s2-complaint-input s2-select-input"
+                                        value={formData.department || ""}
                                         onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                                        className="settings-input"
                                     >
                                         <option value="">Select Department</option>
                                         {Array.from(new Set(
@@ -100,173 +292,98 @@ const AdminProfile = ({ onBack }) => {
                                             <option key={d} value={d}>{d}</option>
                                         ))}
                                     </select>
-                                    <div className="action-btns">
-                                        <button className="save-btn" onClick={() => handleSave('department')}>Save</button>
-                                        <button className="cancel-btn" onClick={() => cancelEdit('department')}>Cancel</button>
-                                    </div>
+                                    <RiArrowDownSLine className="s2-date-icon" />
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        </ProfileField>
                     )}
 
-                    {/* ASSIGNED CLASS (SHOW IF REP) */}
+                    {/* ASSIGNED CLASS (REP) */}
                     {formData.role === 'rep' && (
-                        <div className="settings-row animate-fade-in">
-                            <label><RiBuilding4Line /> ASSIGNED CLASS</label>
-                            {!editing.class ? (
-                                <div className="input-group">
-                                    <span className="display-text">
-                                        {formData.batch} - {formData.section}
-                                    </span>
-                                    <button className="edit-icon-btn" onClick={() => toggleEdit('class')}><RiEditLine /> Edit</button>
-                                </div>
-                            ) : (
-                                <div className="edit-mode-group">
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
-                                        {/* BATCH */}
-                                        <select
-                                            value={formData.batch}
+                        <ProfileField
+                            label="Assigned Class" value={formData.batch ? `${formData.batch} - ${formData.section}` : null}
+                            isEditing={editing.class}
+                            onEdit={() => toggleEdit('class')}
+                            onCancel={() => cancelEdit('class')}
+                            onSave={() => handleSave('class')}
+                        >
+                            <div className="s2-prof-edit-fields">
+                                <div className="s2-complaint-field">
+                                    <div className="s2-complaint-label">Batch</div>
+                                    <div className="s2-date-input-wrap">
+                                        <select className="s2-complaint-input s2-select-input"
+                                            value={formData.batch || ""}
                                             onChange={(e) => setFormData({ ...formData, batch: e.target.value, section: "" })}
-                                            className="settings-input"
                                         >
                                             <option value="">Select Batch</option>
                                             {Object.keys(hierarchy).sort().reverse().map(b => (
                                                 <option key={b} value={b}>{b}</option>
                                             ))}
                                         </select>
+                                        <RiArrowDownSLine className="s2-date-icon" />
+                                    </div>
+                                </div>
 
-                                        {/* DEPT (If Batch Selected) */}
-                                        {formData.batch && (
-                                            <select
-                                                value={formData.department}
+                                {formData.batch && (
+                                    <div className="s2-complaint-field">
+                                        <div className="s2-complaint-label">Department</div>
+                                        <div className="s2-date-input-wrap">
+                                            <select className="s2-complaint-input s2-select-input"
+                                                value={formData.department || ""}
                                                 onChange={(e) => setFormData({ ...formData, department: e.target.value, section: "" })}
-                                                className="settings-input"
                                             >
                                                 <option value="">Select Dept</option>
                                                 {Object.keys(hierarchy[formData.batch] || {})
                                                     .filter(k => k !== 'initialized')
                                                     .map(d => <option key={d} value={d}>{d}</option>)}
                                             </select>
-                                        )}
+                                            <RiArrowDownSLine className="s2-date-icon" />
+                                        </div>
+                                    </div>
+                                )}
 
-                                        {/* SECTION (If Dept Selected) */}
-                                        {formData.department && (
-                                            <select
-                                                value={formData.section}
+                                {formData.department && (
+                                    <div className="s2-complaint-field">
+                                        <div className="s2-complaint-label">Section</div>
+                                        <div className="s2-date-input-wrap">
+                                            <select className="s2-complaint-input s2-select-input"
+                                                value={formData.section || ""}
                                                 onChange={(e) => setFormData({ ...formData, section: e.target.value })}
-                                                className="settings-input"
                                             >
                                                 <option value="">Select Section</option>
                                                 {hierarchy[formData.batch]?.[formData.department]?.map(s => (
                                                     <option key={s} value={s}>{s}</option>
                                                 ))}
                                             </select>
-                                        )}
+                                            <RiArrowDownSLine className="s2-date-icon" />
+                                        </div>
                                     </div>
-
-                                    <div className="action-btns" style={{ marginTop: '10px' }}>
-                                        <button className="save-btn" onClick={() => handleSave('class')}>Save</button>
-                                        <button className="cancel-btn" onClick={() => cancelEdit('class')}>Cancel</button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        </ProfileField>
                     )}
 
-                    {/* SUPER ADMIN NOTICE */}
+                    {/* SUPER ADMIN SCOPE */}
                     {formData.role === 'super_admin' && (
-                        <div className="settings-row animate-fade-in">
-                            <label><RiBuilding4Line /> ACCESS SCOPE</label>
-                            <div className="input-group">
-                                <span className="display-text" style={{ color: 'var(--mac-text-secondary)' }}>
-                                    Full System Access (All Departments)
-                                </span>
-                                <RiLock2Line style={{ color: 'var(--mac-text-secondary)', opacity: 0.5 }} />
+                        <div className="s2-prof-field">
+                            <div className="s2-prof-field-display">
+                                <div>
+                                    <div className="s2-prof-field-label">Access Scope</div>
+                                    <div className="s2-prof-field-value">Full System Access (All Departments)</div>
+                                </div>
+                                <RiShieldKeyholeLine style={{ color: 'var(--mac-text-secondary)', opacity: 0.5 }} size={18} />
                             </div>
                         </div>
                     )}
-                </div>
+
+                </ProfileSection>
             )}
 
-            {/* PERSONAL DETAILS CARD */}
-            <div className="settings-group-card">
-                {/* GENDER */}
-                <div className="settings-row">
-                    <label><RiGenderlessLine /> GENDER</label>
-                    {!editing.gender ? (
-                        <div className="input-group">
-                            <span className="display-text">{formData.gender || "Set Gender"}</span>
-                            <button className="edit-icon-btn" onClick={() => toggleEdit('gender')}><RiEditLine /> Edit</button>
-                        </div>
-                    ) : (
-                        <div className="edit-mode-group">
-                            <div className="role-pill-switcher" style={{ width: 'fit-content' }}>
-                                {['Male', 'Female', 'Other'].map(g => (
-                                    <button
-                                        key={g}
-                                        className={`role-pill ${formData.gender === g ? 'active' : ''}`}
-                                        onClick={() => setFormData({ ...formData, gender: g })}
-                                    >
-                                        {g}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="action-btns" style={{ marginTop: '10px' }}>
-                                <button className="save-btn" onClick={() => handleSave('gender')}>Save</button>
-                                <button className="cancel-btn" onClick={() => cancelEdit('gender')}>Cancel</button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* BIRTHDAY */}
-                <div className="settings-row">
-                    <label><RiCake2Line /> DATE OF BIRTH</label>
-                    {!editing.birthday ? (
-                        <div className="input-group">
-                            <span className="display-text">{formData.birthday || "Set Birthday"}</span>
-                            <button className="edit-icon-btn" onClick={() => toggleEdit('birthday')}><RiEditLine /> Edit</button>
-                        </div>
-                    ) : (
-                        <div className="edit-mode-group">
-                            <input
-                                type="date"
-                                value={formData.birthday}
-                                onChange={e => setFormData({ ...formData, birthday: e.target.value })}
-                                className="settings-input"
-                            />
-                            <div className="action-btns">
-                                <button className="save-btn" onClick={() => handleSave('birthday')}>Save</button>
-                                <button className="cancel-btn" onClick={() => cancelEdit('birthday')}>Cancel</button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* MOBILE */}
-                <div className="settings-row">
-                    <label><RiPhoneLine /> CONTACT NUMBER</label>
-                    {!editing.mobile ? (
-                        <div className="input-group">
-                            <span className="display-text">
-                                {formData.mobile ? `+91 ${formData.mobile.replace(/^91/, '').replace(/\s/g, '')}` : "Add Mobile"}
-                            </span>
-                            <button className="edit-icon-btn" onClick={() => toggleEdit('mobile')}><RiEditLine /> Edit</button>
-                        </div>
-                    ) : (
-                        <div className="edit-mode-group">
-                            <input type="tel" value={formData.mobile} onChange={e => setFormData({ ...formData, mobile: e.target.value })} placeholder="10-digit mobile" className="settings-input" />
-                            <div className="action-btns">
-                                <button className="save-btn" onClick={() => handleSave('mobile')}>Save</button>
-                                <button className="cancel-btn" onClick={() => cancelEdit('mobile')}>Cancel</button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-
+            {/* Snackbar */}
+            {snackbar && (
+                <div className="s2-prof-snackbar">{snackbar}</div>
+            )}
         </div>
     );
 };
-
 export default AdminProfile;

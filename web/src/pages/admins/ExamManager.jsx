@@ -226,6 +226,20 @@ const ExamManager = ({ user, userProfile }) => {
         </div>
       </header>
 
+      {/* REP SETUP WARNING */}
+      {isRep && (!userProfile?.batch || !userProfile?.department || !userProfile?.section) && (
+        <div className="rep-setup-warning settings-card" style={{ margin: '20px', textAlign: 'center', padding: '40px' }}>
+          <RiTrophyLine size={48} style={{ color: 'var(--mac-warning-text)', marginBottom: '16px' }} />
+          <h3>Class Assignment Required</h3>
+          <p style={{ color: 'var(--mac-text-secondary)', marginBottom: '24px' }}>
+            You are logged in as a Class Representative, but your account is not assigned to a specific class.
+            <br />
+            Please go to <strong>Settings {'>'} Admin Profile</strong> and select your <strong>Assigned Class</strong>.
+          </p>
+          <button className="btn-save-master" onClick={() => updateLevel('home')}>Go to Dashboard</button>
+        </div>
+      )}
+
       {viewLevel !== 'editor' ? (
         <div className="explorer-content explorer-grid">
           {viewLevel === 'batches' && Object.keys(hierarchy || {}).sort().reverse().map(b => (
@@ -327,7 +341,7 @@ const ExamManager = ({ user, userProfile }) => {
               ))}
 
               <datalist id="portion-presets">
-                {Object.values(PORTION_DEFAULTS).map(p => <option key={p} value={p} />)}
+                {[...new Set(Object.values(PORTION_DEFAULTS))].map(p => <option key={p} value={p} />)}
               </datalist>
 
               <button className="btn-add-line" onClick={() => {
