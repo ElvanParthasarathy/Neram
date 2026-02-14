@@ -2,6 +2,96 @@
    NERAM PORTAL: PENDING REQUESTS (ADMIN)
    ========================================================================== */
 
+/* --- AUTH CARD STYLES (Ported from mobileapp.css for Desktop Support) --- */
+.login-body-wrapper {
+    font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    box-sizing: border-box;
+    background-color: var(--bg-body);
+    transition: background-color 0.4s ease;
+}
+
+.glass-login-card {
+    background: var(--mac-card-bg);
+    backdrop-filter: blur(40px) saturate(210%) brightness(1.02);
+    -webkit-backdrop-filter: blur(40px) saturate(210%) brightness(1.02);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    border-radius: 28px;
+    padding: 52px 40px;
+    width: 100%;
+    max-width: 410px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-sizing: border-box;
+    animation: macFadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+html.dark .glass-login-card {
+    background: rgba(28, 28, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-login-card>img {
+    height: 40px;
+    width: auto;
+    margin: 0 auto 12px auto;
+    display: block;
+    object-fit: contain;
+    flex-shrink: 0;
+    transition: filter 0.3s ease;
+}
+
+html.dark .glass-login-card>img {
+    filter: invert(1) brightness(2);
+}
+
+.google-btn {
+    font-family: inherit;
+    width: 100%;
+    height: 50px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid transparent;
+    border-radius: 50px;
+    color: var(--mac-text);
+    font-weight: 600;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.google-btn:hover {
+    background: var(--mac-hover);
+    transform: translateY(-1px);
+}
+
+html.dark .google-btn {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes macFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 .pending-requests-container {
     width: 100%;
 }
