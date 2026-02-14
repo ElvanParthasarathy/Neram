@@ -2,7 +2,7 @@ import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from "r
 import { useState, useEffect, useRef } from "react";
 import { useSystemTheme } from "./hooks/useSystemTheme";
 import { db, auth } from "./firebase";
-import { ref, onValue, get } from "firebase/database";
+import { ref, onValue, get, update } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import "@fontsource-variable/inter";
 
@@ -96,6 +96,14 @@ function AdminApp() {
 
                 if (isHardcodedAdmin) {
                     setIsAdminUser(true);
+                    // CRITICAL: Sync Hardcoded Role to DB so Security Rules pass
+                    get(ref(db, `users/${u.uid}/role`)).then((snap) => {
+                        if (snap.val() !== hardcodedRole) {
+                            console.log(`Syncing hardcoded role '${hardcodedRole}' to DB...`);
+                            update(ref(db, `users/${u.uid}`), { role: hardcodedRole })
+                                .catch(err => console.error("Role Sync Failed:", err));
+                        }
+                    });
                     // Still fetch DB profile for other data, but access is already granted
                 }
 
