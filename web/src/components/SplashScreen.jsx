@@ -1,20 +1,36 @@
 import React from 'react';
-import Logo from '../assets/neram.svg';
-import '../styles/splash.css';
+import { AuthLayout } from './auth/AuthComponents';
+import Logo from '../assets/neram.svg'; // Using the SVG logo like in Login/Signup
+import '../styles/splash.css'; // Keep for specific spinner styles if needed, or inline them
 
 const SplashScreen = () => {
     return (
-        <div className="splash-container">
-            {/* Logo */}
-            <img src={Logo} alt="Neram" className="splash-logo" />
+        <AuthLayout>
+            <div style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                gap: '24px'
+            }}>
+                {/* Logo */}
+                <img
+                    src={Logo}
+                    alt="Neram"
+                    className="animate-zoom auth-logo-themed"
+                    style={{ width: '120px', height: 'auto' }}
+                />
 
-            {/* iOS Spinner (No Text as requested) */}
-            <div className="splash-spinner">
-                {[...Array(12)].map((_, i) => (
-                    <div key={i} className="bar"></div>
-                ))}
+                {/* Spinner */}
+                <div className="splash-spinner animate-enter delay-1">
+                    {[...Array(12)].map((_, i) => (
+                        <div key={i} className="bar"></div>
+                    ))}
+                </div>
             </div>
-        </div>
+        </AuthLayout>
     );
 };
 

@@ -14,6 +14,8 @@ import "./mobileapp.css";
 import { adminEmails } from "./data/admins";
 import AdminNavbar from "./components/AdminNavbar";
 import AdminLoginPage from "./pages/AdminLoginPage";
+import AdminWelcomePage from "./pages/AdminWelcomePage";
+import AdminSignupPage from "./pages/AdminSignupPage";
 import AdminPanel from "./pages/AdminPanel";
 import AdminSettings from "./pages/AdminSettings";
 import AdminDashboard from "./pages/admins/AdminDashboard";
@@ -30,8 +32,10 @@ function AdminAppContent({ user, isAdminUser, isMobile, loading, dbUserProfile }
         <>
             {!user ? (
                 <Routes>
+                    <Route path="/" element={<AdminWelcomePage />} />
                     <Route path="/login" element={<AdminLoginPage />} />
-                    <Route path="*" element={<Navigate to="/login" replace />} />
+                    <Route path="/signup" element={<AdminSignupPage />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             ) : !isAdminUser ? (
                 /* NOT AN ADMIN: Show blocking "Pending Approval" screen */

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+import { auth } from "../../firebase";
 import {
     RiSunLine,
     RiDatabase2Line,
@@ -9,10 +10,12 @@ import {
     RiCodeSSlashLine,
     RiInformationLine,
     RiUser3Fill,
+    RiLogoutBoxRLine,
 } from "react-icons/ri";
 import { SettingsGroup, SettingsDivider, SettingsItem } from "./SettingsShared";
 
 const SettingsHub = ({ userProfile, onNavigate }) => {
+    const [showSignOut, setShowSignOut] = useState(false);
 
     return (
         <>
@@ -58,14 +61,7 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                     desc="Manage cached content"
                     onClick={() => onNavigate("storage")}
                 />
-                <SettingsDivider />
-                <SettingsItem
-                    icon={<RiNotification3Line />}
-                    iconColor="purple"
-                    title="Notifications"
-                    desc="Manage alerts and reminders"
-                    onClick={() => onNavigate("notifications")}
-                />
+
             </SettingsGroup>
 
             <div className="s2-spacer-sm" />
@@ -122,6 +118,44 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                     onClick={() => onNavigate("about")}
                 />
             </SettingsGroup>
+
+            <div className="s2-spacer-md" />
+
+            {/* Group 5: Sign Out */}
+            <SettingsGroup>
+                <SettingsItem
+                    icon={<RiLogoutBoxRLine />}
+                    iconColor="red"
+                    title="Sign Out"
+                    desc="Log out of your account"
+                    onClick={() => setShowSignOut(true)}
+                    danger
+                />
+            </SettingsGroup>
+
+            {/* Sign Out Modal */}
+            {showSignOut && (
+                <div className="s2-dialog-overlay" onClick={() => setShowSignOut(false)}>
+                    <div className="s2-dialog" onClick={e => e.stopPropagation()}>
+                        <div className="s2-dialog-title">Sign Out?</div>
+                        <div className="s2-dialog-text">Are you sure you want to sign out of your account?</div>
+                        <div className="s2-dialog-actions">
+                            <button
+                                className="s2-dialog-btn cancel"
+                                onClick={() => setShowSignOut(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="s2-dialog-btn confirm"
+                                onClick={() => auth.signOut()}
+                            >
+                                Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </>
     );

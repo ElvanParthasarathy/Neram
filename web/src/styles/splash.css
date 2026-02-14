@@ -1,6 +1,19 @@
-/* ==========================================================================
-   GLOBAL SPLASH SCREEN (Theme-Aware)
-   ========================================================================== */
+/* Animation */
+@keyframes zoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-zoom {
+    animation: zoomIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
 :root {
     /* LIGHT MODE (Default) - Matches Android Theme.Neram */

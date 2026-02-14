@@ -6,19 +6,25 @@ import {
     sendPasswordResetEmail
 } from "firebase/auth";
 import { ref, get, update, onValue } from "firebase/database";
-import { Link, useNavigate } from "react-router-dom";
-import { RiShieldKeyholeLine, RiArrowRightLine, RiErrorWarningLine } from "react-icons/ri";
-import { adminEmails, HARDCODED_ADMINS } from "../data/admins";
+import { useNavigate } from "react-router-dom";
+import { RiShieldKeyholeLine, RiArrowRightLine } from "react-icons/ri";
+import { HARDCODED_ADMINS } from "../data/admins";
+import {
+    AuthLayout,
+    AuthHeader,
+    AuthInput,
+    AuthButton,
+    AuthDivider,
+    AuthLink
+} from "../components/auth/AuthComponents";
 
 // IMPORT THE LOGO ASSET
-import Logo from "../assets/neramv.svg";
+import Logo from "../assets/neram.svg"; // Use same logo as student portal
 
 const AdminLoginPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
 
     const navigate = useNavigate();
 
@@ -39,7 +45,6 @@ const AdminLoginPage = () => {
 
     // ---- ADMIN CHECK LOGIC ----
     const checkAdminStatus = async (user) => {
-        setErrorMsg("");
         const userRef = ref(db, `users/${user.uid}`);
         const snapshot = await get(userRef);
         const userData = snapshot.val();
@@ -133,7 +138,7 @@ const AdminLoginPage = () => {
         } catch (err) {
             console.error(err);
             setIsLoggingIn(false);
-            setErrorMsg(err.message);
+            alert(err.message);
         }
     };
 
@@ -145,7 +150,7 @@ const AdminLoginPage = () => {
             await checkAdminStatus(result.user);
         } catch (err) {
             setIsLoggingIn(false);
-            setErrorMsg("Invalid Email or Password.");
+            alert("Invalid Email or Password.");
         }
     };
 
@@ -156,57 +161,73 @@ const AdminLoginPage = () => {
             .catch((err) => alert(err.message));
     };
 
-    if (isLoggingIn) {
-        return (
-            <div className="ios-loader-container">
-                <div className="ios-loading-wrapper">
-                    <div className="mac-loader-spinner">
-                        {[...Array(12)].map((_, i) => <div key={i} className="bar"></div>)}
-                    </div>
-                    <p className="mac-loader-text">Verifying Admin Access</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="login-body-wrapper">
-            <div className="glass-login-card admin-login-card">
-                <div className="admin-badge-top">
-                    <RiShieldKeyholeLine /> Admin Portal
-                </div>
+        <AuthLayout>
+            <div style={{ height: '60px' }} />
 
-                <img src={Logo} alt="Logo" className="admin-login-logo" />
+            <AuthHeader
+                title="Admin Portal"
+                subtitle="Secure access for administrators"
+            />
 
-                {errorMsg && (
-                    <div className="error-banner animate-fade-in">
-                        <RiErrorWarningLine /> {errorMsg}
-                    </div>
-                )}
+            <div style={{ height: '32px' }} />
 
-                <button onClick={handleGoogleLogin} className="google-btn">
-                    <img src="https://www.google.com/favicon.ico" alt="Google" width="18" height="18" />
+            <form onSubmit={handleEmailLogin} style={{ width: '100%' }}>
+                <AuthInput
+                    label="Admin Email"
+                    placeholder="Enter Admin Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    type="email"
+                    required
+                />
+
+                <AuthInput
+                    label="Password"
+                    placeholder="Enter Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    type="password"
+                    required
+                />
+
+                <div style={{ height: '24px' }} />
+
+                <AuthButton
+                    type="submit"
+                    loading={isLoggingIn}
+                >
+                    Secure Login
+                </AuthButton>
+            </form>
+
+            <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+                <AuthLink
+                    prefix=""
+                    linkText="Forgot Admin Password?"
+                    onClick={handleForgotPassword}
+                />
+            </div>
+
+            <AuthDivider />
+
+            <div style={{ width: '100%' }}>
+                <AuthButton
+                    onClick={handleGoogleLogin}
+                    loading={isLoggingIn}
+                    secondary
+                >
+                    <img src="https://www.google.com/favicon.ico" alt="G" style={{ width: '20px', marginRight: '12px' }} />
                     Admin Sign in with Google
-                </button>
+                </AuthButton>
+            </div>
 
-                <div className="divider"><span>Or Credentials</span></div>
-
-                <form onSubmit={handleEmailLogin} style={{ width: '100%' }}>
-                    <div className="input-group">
-                        <input type="email" className="glass-input" placeholder="Admin Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                    </div>
-                    <div className="input-group">
-                        <input type={showPassword ? "text" : "password"} className="glass-input" placeholder="Password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-                        <button type="button" className="eye-icon-btn" onClick={() => setShowPassword(!showPassword)}>
-                            {showPassword ? "Hide" : "Show"}
-                        </button>
-                    </div>
-                    <button type="submit" className="login-btn admin-theme-btn">Secure Login <RiArrowRightLine /></button>
-
-                    <div className="bottom-links" style={{ justifyContent: 'center' }}>
-                        <span onClick={handleForgotPassword} className="link-text" style={{ cursor: 'pointer' }}>Forgot Admin Password?</span>
-                    </div>
-                </form>
+            <div style={{ marginTop: '32px' }}>
+                <AuthLink
+                    prefix="Don't have an account?"
+                    linkText="Sign Up"
+                    onClick={() => navigate('/signup')}
+                />
             </div>
 
             {/* --- ADMIN SETUP MODAL --- */}
@@ -306,7 +327,7 @@ const AdminLoginPage = () => {
                     </div>
                 </div>
             )}
-        </div>
+        </AuthLayout>
     );
 };
 

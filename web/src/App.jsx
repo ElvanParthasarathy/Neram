@@ -18,7 +18,7 @@ import StudentSidebar from "./components/StudentSidebar";
 import Navbar from "./components/Navbar";
 import MobileNavbar from "./components/MobileNavbar";
 
-import SetupModal from "./components/SetupModal";
+import SetupPage from "./pages/SetupPage";
 import Home from "./pages/Home";
 import Schedule from "./pages/Schedule";
 import Calendar from "./pages/Calendar";
@@ -26,6 +26,7 @@ import CollegeSites from "./pages/CollegeSites";
 
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import WelcomePage from "./pages/WelcomePage";
 import Settings2 from "./pages/Settings2";
 import AdminPanel from "./pages/AdminPanel";
 import Notes from "./pages/Notes";
@@ -97,9 +98,10 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
     <>
       {!user ? (
         <Routes>
+          <Route path="/" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       ) : (() => {
         // --- BLOCK PURE ADMINS (Super/Faculty) FROM STUDENT PORTAL ---
@@ -111,12 +113,12 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
           return (
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: '100vh', width: '100vw', background: '#000',
-              fontFamily: "'Inter', system-ui, sans-serif", color: '#fff',
+              height: '100vh', width: '100vw', background: 'var(--auth-bg)',
+              fontFamily: "'Inter', system-ui, sans-serif", color: 'var(--auth-text)',
               flexDirection: 'column', gap: '20px', textAlign: 'center'
             }}>
               <h1 style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.5px' }}>Admin Account Detected</h1>
-              <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', maxWidth: '400px', lineHeight: 1.6 }}>
+              <p style={{ fontSize: '15px', color: 'var(--auth-text-secondary)', maxWidth: '400px', lineHeight: 1.6 }}>
                 Your account is registered as a <strong style={{ color: '#FF9F0A' }}>{userRole === 'super_admin' ? 'Super Admin' : 'Faculty Admin'}</strong>.
                 The Student Portal requires student data (Batch, Section) which is not available for your role.
               </p>
@@ -182,7 +184,7 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
               )}
 
             </main>
-            {showForcedSetup && <SetupModal uid={user.uid} />}
+            {showForcedSetup && <SetupPage user={user} onComplete={() => setShowForcedSetup(false)} />}
           </div>
         );
       })()}
