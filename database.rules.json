@@ -47,7 +47,7 @@
         },
         "calendars": {
             ".read": "auth != null",
-            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+            ".write": "auth != null"
         },
         "$other": {
             ".read": false,
