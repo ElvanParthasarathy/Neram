@@ -114,17 +114,17 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
           return (
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              height: '100vh', width: '100vw', background: 'var(--auth-bg)',
-              fontFamily: "'Inter', system-ui, sans-serif", color: 'var(--auth-text)',
+              height: '100vh', width: '100vw', background: 'var(--mac-bg-primary)',
+              fontFamily: "'Inter', system-ui, sans-serif", color: 'var(--mac-text)',
               flexDirection: 'column', gap: '20px', textAlign: 'center'
             }}>
               <h1 style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.5px' }}>Admin Account Detected</h1>
-              <p style={{ fontSize: '15px', color: 'var(--auth-text-secondary)', maxWidth: '400px', lineHeight: 1.6 }}>
-                Your account is registered as a <strong style={{ color: '#FF9F0A' }}>{userRole === 'super_admin' ? 'Super Admin' : 'Faculty Admin'}</strong>.
+              <p style={{ fontSize: '15px', color: 'var(--mac-text-secondary)', maxWidth: '400px', lineHeight: 1.6 }}>
+                Your account is registered as a <strong style={{ color: 'var(--mac-traffic-yellow)' }}>{userRole === 'super_admin' ? 'Super Admin' : 'Faculty Admin'}</strong>.
                 The Student Portal requires student data (Batch, Section) which is not available for your role.
               </p>
               <a href="/admin.html" style={{
-                background: '#007AFF', color: '#fff', padding: '14px 32px',
+                background: 'var(--mac-blue)', color: '#fff', padding: '14px 32px',
                 borderRadius: '50px', textDecoration: 'none', fontWeight: 600,
                 fontSize: '14px', marginTop: '10px'
               }}>
