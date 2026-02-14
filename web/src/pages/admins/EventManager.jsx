@@ -94,23 +94,15 @@ const EventManager = ({ user, userProfile }) => {
   }, [viewLevel, path.batch, path.dept, path.sec]);
 
   const syncToDB = async (updatedList) => {
-    // DEBUG LOGGING: Check what path we are trying to save to
-    console.log("Attempting to save event...");
-    console.log("Batch:", path.batch);
-    console.log("Dept:", path.dept);
-    console.log("Sec:", path.sec);
-
     if (!path.sec) {
       alert("Error: Section path is missing. Cannot save.");
       return;
     }
 
     const savePath = `events/${path.batch}/${path.dept}/${path.sec}`;
-    console.log("Saving to Firebase Path:", savePath);
 
     try {
       await set(ref(db, savePath), updatedList);
-      console.log("Save Success!");
     } catch (err) {
       console.error("Firebase Save Error:", err);
       alert("Database Error: " + err.message);
@@ -258,7 +250,7 @@ const EventManager = ({ user, userProfile }) => {
 
             {newEvent.type === 'HalfDay' && (
               <div className="subject-mapping-section animate-slide-down">
-                <div className="exam-subject-row professional" style={{ background: '#fff8e1', border: '1px solid #ffe082' }}>
+                <div className="exam-subject-row professional" style={{ background: 'var(--mac-warning-bg)', border: '1px solid var(--mac-warning-border)' }}>
                   <div className="input-group-vertical" style={{ flex: 1 }}>
                     <label><RiTimeLine /> Start Time</label>
                     <input type="time" value={newEvent.startTime} onChange={e => setNewEvent({ ...newEvent, startTime: e.target.value })} />
@@ -268,7 +260,7 @@ const EventManager = ({ user, userProfile }) => {
                     <input type="time" value={newEvent.endTime} onChange={e => setNewEvent({ ...newEvent, endTime: e.target.value })} />
                   </div>
                   <div className="input-group-vertical" style={{ flex: 3, justifyContent: 'center' }}>
-                    <span style={{ fontSize: '0.9em', color: '#b45309' }}>
+                    <span style={{ fontSize: '0.9em', color: 'var(--mac-warning-text)' }}>
                       <RiInformationLine style={{ verticalAlign: 'middle' }} /> Schedule visible + Event Badge.
                     </span>
                   </div>
@@ -313,17 +305,18 @@ const EventManager = ({ user, userProfile }) => {
                     <tr key={ev.id}>
                       <td>
                         <div style={{ fontWeight: 'bold' }}>{parseDate(ev.date)?.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</div>
-                        <div style={{ fontSize: '0.8em', color: '#666' }}>{parseDate(ev.date)?.getFullYear()}</div>
+                        <div style={{ fontSize: '0.8em', color: 'var(--mac-text-secondary)' }}>{parseDate(ev.date)?.getFullYear()}</div>
                       </td>
                       <td>
-                        <div style={{ fontWeight: '600', color: 'var(--primary)' }}>{ev.title}</div>
-                        <div style={{ fontSize: '0.85em' }}>{ev.description}</div>
+                        <div style={{ fontWeight: '600', color: 'var(--mac-text)' }}>{ev.title}</div>
+                        <div style={{ fontSize: '0.85em', color: 'var(--mac-text-secondary)' }}>{ev.description}</div>
                       </td>
                       <td>
                         <span className={`portion-badge ${ev.type === 'FullDay' ? 'danger' : ev.type === 'HalfDay' ? 'warning' : 'success'}`}
                           style={{
-                            background: ev.type === 'FullDay' ? '#fee2e2' : ev.type === 'HalfDay' ? '#fef3c7' : '#dcfce7',
-                            color: ev.type === 'FullDay' ? '#dc2626' : ev.type === 'HalfDay' ? '#d97706' : '#16a34a'
+                            background: ev.type === 'FullDay' ? 'rgba(220, 38, 38, 0.1)' : ev.type === 'HalfDay' ? 'rgba(217, 119, 6, 0.1)' : 'rgba(22, 163, 74, 0.1)',
+                            color: ev.type === 'FullDay' ? 'var(--mac-traffic-red)' : ev.type === 'HalfDay' ? '#d97706' : 'var(--mac-traffic-green)',
+                            border: '1px solid currentColor'
                           }}>
                           {ev.type}
                         </span>
@@ -343,7 +336,7 @@ const EventManager = ({ user, userProfile }) => {
                     </tr>
                   )) : (
                     <tr>
-                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--mac-text-secondary)' }}>
                         No events added for this section.
                       </td>
                     </tr>
