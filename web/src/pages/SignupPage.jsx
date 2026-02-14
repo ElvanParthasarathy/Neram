@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { auth, db, googleProvider } from "../firebase";
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from "firebase/auth";
-import { ref, set, serverTimestamp } from "firebase/database";
+import { ref, set, get, update, serverTimestamp } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import {
   AuthLayout,
@@ -94,14 +94,25 @@ const SignupPage = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Extract names if possible
-      const fullName = user.displayName || "";
-      const lastSpace = fullName.lastIndexOf(" ");
-      const firstName = lastSpace === -1 ? fullName : fullName.substring(0, lastSpace);
-      const lastName = lastSpace === -1 ? "" : fullName.substring(lastSpace + 1);
+      // Check if user already exists in DB
+      const userRef = ref(db, `users/${user.uid}`);
+      const snapshot = await get(userRef);
 
-      // Write to DB (Note: RegNo will be empty for Google Sign Up, mimics Kotlin behavior which calls writeUserToDatabase with regNo="")
-      await writeUserToDatabase(user, { firstName, lastName, regNo: "" });
+      if (snapshot.exists()) {
+        // Existing user — just update lastLogin and let them in
+        await update(userRef, {
+          lastLogin: new Date().toISOString(),
+          photoURL: user.photoURL || "",
+        });
+      } else {
+        // New user — write full profile
+        const fullName = user.displayName || "";
+        const lastSpace = fullName.lastIndexOf(" ");
+        const firstName = lastSpace === -1 ? fullName : fullName.substring(0, lastSpace);
+        const lastName = lastSpace === -1 ? "" : fullName.substring(lastSpace + 1);
+
+        await writeUserToDatabase(user, { firstName, lastName, regNo: "" });
+      }
 
       navigate("/");
     } catch (error) {

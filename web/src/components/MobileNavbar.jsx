@@ -205,19 +205,14 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
     }
   }, [isMenuOpen]);
 
-  // --- NEW: INITIALIZE THEME ON MOUNT (MOBILE ONLY) ---
+  // --- SYNC THEME STATE FROM CENTRALIZED CONTROLLER ---
   useEffect(() => {
-    // BLOCK DESKTOP: If width > 768, do nothing (or force light)
-    if (window.innerWidth > 768) return;
-
-    const savedTheme = localStorage.getItem("theme") || "auto";
-    setCurrentTheme(savedTheme); // Sync State
-
-    const root = document.documentElement;
-    root.classList.remove("light", "dark");
-    if (savedTheme !== "auto") {
-      root.classList.add(savedTheme);
-    }
+    const syncTheme = () => {
+      setCurrentTheme(localStorage.getItem("neram-theme") || "auto");
+    };
+    syncTheme(); // Initial sync
+    window.addEventListener("theme-change", syncTheme);
+    return () => window.removeEventListener("theme-change", syncTheme);
   }, []);
 
   useEffect(() => {
@@ -274,19 +269,12 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
     }
   };
 
-  // --- NEW: THEME SWITCHER LOGIC ---
+  // --- THEME SWITCHER: Delegates to centralized hook ---
   const handleThemeChange = (theme) => {
-    // 1. Update State
     setCurrentTheme(theme);
-
-    // 2. Logic
-    localStorage.setItem("theme", theme);
-    const root = document.documentElement;
-    root.classList.remove("light", "dark");
-    if (theme !== 'auto') root.classList.add(theme);
-
-    // Optional: Close menu? Currently keeping it open so user sees the tick
-    // setIsMenuOpen(false);
+    localStorage.setItem("neram-theme", theme);
+    // Centralized useSystemTheme hook will pick this up and apply classes
+    window.dispatchEvent(new Event("theme-change"));
   };
 
   return (

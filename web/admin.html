@@ -22,7 +22,7 @@
     (function () {
       try {
         // 1. Get the user's saved preference
-        const savedTheme = localStorage.getItem('theme') || 'auto';
+        const savedTheme = localStorage.getItem('neram-theme') || 'auto';
         // 2. Check the device's system preference
         const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 

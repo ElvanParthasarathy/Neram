@@ -38,9 +38,10 @@ const AdminLoginPage = () => {
     // Load hierarchy for setup
     useEffect(() => {
         const hierarchyRef = ref(db, 'academic_hierarchy');
-        onValue(hierarchyRef, (snap) => {
+        const unsubscribe = onValue(hierarchyRef, (snap) => {
             if (snap.exists()) setHierarchy(snap.val());
         });
+        return () => unsubscribe();
     }, []);
 
     // ---- ADMIN CHECK LOGIC ----

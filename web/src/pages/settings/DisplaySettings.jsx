@@ -28,20 +28,8 @@ const DisplaySettings = ({ onBack }) => {
     const handleThemeChange = (newTheme) => {
         setTheme(newTheme);
         localStorage.setItem("neram-theme", newTheme);
+        // Centralized useSystemTheme hook will pick this up and apply classes
         window.dispatchEvent(new Event("theme-change"));
-
-        const html = document.documentElement;
-
-        if (newTheme === "auto") {
-            const prefersDark = window.matchMedia(
-                "(prefers-color-scheme: dark)"
-            ).matches;
-            html.classList.toggle("dark", prefersDark);
-        } else if (newTheme === "dark") {
-            html.classList.add("dark");
-        } else {
-            html.classList.remove("dark");
-        }
     };
 
     return (

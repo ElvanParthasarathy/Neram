@@ -14,33 +14,8 @@ const ThemeToggle = ({ asMenuItem = false }) => {
     return () => window.removeEventListener("theme-change", handleStorageChange);
   }, []);
 
-  useEffect(() => {
-    const root = document.documentElement;
-
-    const applyTheme = (mode) => {
-      root.classList.remove("light", "dark");
-
-      if (mode === "auto") {
-        const isSystemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        root.classList.add(isSystemDark ? "dark" : "light");
-      } else {
-        root.classList.add(mode);
-      }
-    };
-
-    applyTheme(theme);
-
-    // If auto, listen for system changes
-    if (theme === "auto") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      const handleChange = (e) => {
-        root.classList.remove("light", "dark");
-        root.classList.add(e.matches ? "dark" : "light");
-      };
-      mediaQuery.addEventListener("change", handleChange);
-      return () => mediaQuery.removeEventListener("change", handleChange);
-    }
-  }, [theme]);
+  // Theme application is handled by the centralized useSystemTheme hook.
+  // This component only needs to sync its local state when external changes happen.
 
   const handleSelect = (e, mode) => {
     e.stopPropagation();

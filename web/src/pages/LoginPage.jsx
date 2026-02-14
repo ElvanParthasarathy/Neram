@@ -3,9 +3,10 @@ import { auth, googleProvider } from "../firebase";
 import {
   signInWithPopup,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut
 } from "firebase/auth";
-import { ref, update, get } from "firebase/database";
+import { ref, update, get, set, serverTimestamp } from "firebase/database";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import {
@@ -28,7 +29,34 @@ const LoginPage = () => {
     const snapshot = await get(userRef);
     const userData = snapshot.val();
 
-    // 1. Initial Sync
+    if (!userData) {
+      // Edge case: Auth exists but DB record doesn't (e.g. signup DB write failed)
+      // Create a full record so the user isn't stuck
+      const fullName = user.displayName || "";
+      const lastSpace = fullName.lastIndexOf(" ");
+      const firstName = lastSpace === -1 ? fullName : fullName.substring(0, lastSpace);
+      const lastName = lastSpace === -1 ? "" : fullName.substring(lastSpace + 1);
+
+      await set(userRef, {
+        uid: user.uid,
+        displayName: fullName || "New User",
+        firstName,
+        lastName,
+        regNo: "",
+        email: user.email,
+        photoURL: user.photoURL || "",
+        role: "student",
+        joinedAt: serverTimestamp(),
+        lastLogin: new Date().toISOString(),
+        batch: "",
+        department: "",
+        section: ""
+      });
+      navigate("/");
+      return;
+    }
+
+    // 1. Sync login metadata
     const updatePayload = {
       uid: user.uid,
       email: user.email,
@@ -36,13 +64,13 @@ const LoginPage = () => {
       lastLogin: new Date().toISOString(),
     };
 
-    if (!userData?.displayName) {
+    if (!userData.displayName) {
       updatePayload.displayName = user.displayName || "New User";
     }
     await update(userRef, updatePayload);
 
     // 2. Role Check
-    const role = userData?.role || 'student';
+    const role = userData.role || 'student';
     if (['admin', 'faculty', 'super_admin'].includes(role)) {
       alert("Faculty & Admins must use the Admin Portal.");
       await signOut(auth);
@@ -72,8 +100,8 @@ const LoginPage = () => {
       const result = await signInWithEmailAndPassword(auth, email, password);
       await checkUserStatus(result.user);
     } catch (err) {
-      alert(err.message || "Invalid Email or Password");
       setLoading(false);
+      alert(err.message || "Invalid Email or Password");
     }
   };
 
@@ -116,6 +144,19 @@ const LoginPage = () => {
           Sign In
         </AuthButton>
       </form>
+
+      <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+        <AuthLink
+          prefix=""
+          linkText="Forgot Password?"
+          onClick={() => {
+            if (!email) return alert("Enter your email first.");
+            sendPasswordResetEmail(auth, email)
+              .then(() => alert("Reset link sent! Check your inbox."))
+              .catch((err) => alert(err.message));
+          }}
+        />
+      </div>
 
       <AuthDivider />
 
