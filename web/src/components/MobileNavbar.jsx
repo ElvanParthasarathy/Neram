@@ -181,6 +181,15 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
 
   const showBackButton = !['/', '/schedule', '/calendar', '/notes'].includes(location.pathname);
 
+  // Toggle CSS class for frame overlay adjustment (Kotlin: bottomMargin changes per screen)
+  useEffect(() => {
+    if (showBackButton) {
+      document.documentElement.classList.add('secondary-screen');
+    } else {
+      document.documentElement.classList.remove('secondary-screen');
+    }
+  }, [showBackButton]);
+
   const getScreenTitle = (path) => {
     switch (path) {
       case '/': return "Neram";
@@ -352,38 +361,40 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
         </>
       )}
 
-      {/* 5. BOTTOM BAR (M3 - REUSING CUSTOM ICONS) */}
-      <div className="mobile-bottom-bar">
-        <div className="nav-links">
-          <button className={`nav-item ${activeTab === 0 ? 'active' : ''}`} onClick={() => handleNav('/', 0)}>
-            <div className="nav-icon-container">
-              <IconHome />
-            </div>
-            <span className="nav-label">Home</span>
-          </button>
+      {/* 5. BOTTOM BAR — Only on main tabs (Kotlin: if currentScreen == "tabs") */}
+      {!showBackButton && (
+        <div className="mobile-bottom-bar">
+          <div className="nav-links">
+            <button className={`nav-item ${activeTab === 0 ? 'active' : ''}`} onClick={() => handleNav('/', 0)}>
+              <div className="nav-icon-container">
+                <IconHome />
+              </div>
+              <span className="nav-label">Home</span>
+            </button>
 
-          <button className={`nav-item ${activeTab === 1 ? 'active' : ''}`} onClick={() => handleNav('/schedule', 1)}>
-            <div className="nav-icon-container">
-              <IconClock />
-            </div>
-            <span className="nav-label">Schedule</span>
-          </button>
+            <button className={`nav-item ${activeTab === 1 ? 'active' : ''}`} onClick={() => handleNav('/schedule', 1)}>
+              <div className="nav-icon-container">
+                <IconClock />
+              </div>
+              <span className="nav-label">Schedule</span>
+            </button>
 
-          <button className={`nav-item ${activeTab === 2 ? 'active' : ''}`} onClick={() => handleNav('/calendar', 2)}>
-            <div className="nav-icon-container">
-              <IconCalendar />
-            </div>
-            <span className="nav-label">Calendar</span>
-          </button>
+            <button className={`nav-item ${activeTab === 2 ? 'active' : ''}`} onClick={() => handleNav('/calendar', 2)}>
+              <div className="nav-icon-container">
+                <IconCalendar />
+              </div>
+              <span className="nav-label">Calendar</span>
+            </button>
 
-          <button className={`nav-item ${activeTab === 3 ? 'active' : ''}`} onClick={() => handleNav('/notes', 3)}>
-            <div className="nav-icon-container">
-              <IconBook />
-            </div>
-            <span className="nav-label">Notes</span>
-          </button>
+            <button className={`nav-item ${activeTab === 3 ? 'active' : ''}`} onClick={() => handleNav('/notes', 3)}>
+              <div className="nav-icon-container">
+                <IconBook />
+              </div>
+              <span className="nav-label">Notes</span>
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 };

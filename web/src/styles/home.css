@@ -1023,18 +1023,82 @@
         gap: 16px;
     }
 
-    /* Stack columns on mobile */
+    /* ===============================================================
+       MOBILE SINGLE-COLUMN LAYOUT — Kotlin HomeLayout.kt Order Parity
+       
+       Kotlin LazyColumn order:
+       1. Header (Profile)     — .h2-profile-section
+       2. DatePicker            — .h2-date-section
+       3. Academic Calendar     — .h2-calendar-section
+       4. Schedule (Timetable)  — .h2-timetable-section
+       5. Live Updates          — .h2-editable-section (1st)
+       6. General Notice        — .h2-editable-section (2nd)
+       7. Academic Details      — .h2-info-grid
+       
+       Technique: display:contents dissolves column + animated wrappers,
+       letting individual section divs participate in parent flex ordering.
+       =============================================================== */
     .h2-content-grid {
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 20px;
         margin-top: 0;
     }
 
+    /* Step 1: Dissolve column wrappers */
     .h2-col-left,
     .h2-col-right {
-        gap: 16px;
+        display: contents;
     }
+
+    /* Step 2: Dissolve the animated keyed wrapper divs ONLY.
+       Left wrapper  = direct child of col-left that is NOT a named section.
+       Right wrapper = direct child of col-right that is NOT .h2-date-section. */
+    .h2-col-left>div:not(.h2-profile-section):not(.h2-info-grid) {
+        display: contents !important;
+    }
+
+    .h2-col-right>div:not(.h2-date-section) {
+        display: contents !important;
+    }
+
+    /* Step 3: Section ordering (matches Kotlin LazyColumn) */
+    .h2-profile-section {
+        order: 1;
+    }
+
+    /* 1. Header */
+    .h2-date-section {
+        order: 2;
+    }
+
+    /* 2. DatePicker */
+    .h2-calendar-section {
+        order: 3;
+    }
+
+    /* 3. Academic Calendar */
+    .h2-timetable-section {
+        order: 4;
+    }
+
+    /* 4. Schedule */
+    .h2-editable-section {
+        order: 5;
+    }
+
+    /* 5. Live Updates (default) */
+    .h2-editable-section+.h2-editable-section {
+        order: 6;
+    }
+
+    /* 6. General Notice */
+    .h2-info-grid {
+        order: 7;
+        margin-top: 0 !important;
+    }
+
+    /* 7. Academic Details */
 
 
     /* Card styling only for academic details */

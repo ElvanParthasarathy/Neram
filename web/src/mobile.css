@@ -225,6 +225,11 @@
       }
     }
 
+    /* Secondary screens (no bottom bar) — frame extends to bottom */
+    html.secondary-screen #app-shell::after {
+      bottom: 12px;
+    }
+
     .mobile-page-container {
       margin: 0 12px;
       background: var(--bg-card);
