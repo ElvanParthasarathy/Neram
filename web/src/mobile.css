@@ -164,13 +164,74 @@
       touch-action: pan-y;
       -webkit-overflow-scrolling: touch;
 
+      /* Frame background — matches navbar color (Kotlin: colors.background) */
+      background: #F2F2F7;
+
       /* Hide scrollbar but keep functionality */
       scrollbar-width: none;
       -ms-overflow-style: none;
     }
 
+    html.dark #main-viewport {
+      background: #000000;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html:not(.light) #main-viewport {
+        background: #000000;
+      }
+    }
+
     #main-viewport::-webkit-scrollbar {
       display: none;
+    }
+
+    /* -------------------------------------------------------------
+       FLOATING CONTENT SURFACE (Kotlin Canvas Frame Port)
+       
+       Two-part technique:
+       1. #app-shell::after — Fixed overlay frame with rounded "hole"
+          (CSS equivalent of Kotlin Canvas + Path.Difference)
+       2. .mobile-page-container — Side margins + card bg for content
+     ------------------------------------------------------------- */
+
+    /* FIXED FRAME OVERLAY — Sticky rounded corners */
+    #app-shell::after {
+      content: '';
+      position: fixed;
+      /* Rounded hole positioned between navbars */
+      top: 64px;
+      /* top bar height */
+      bottom: 96px;
+      /* bottom bar height + gap */
+      left: 12px;
+      right: 12px;
+      border-radius: 24px;
+      /* Massive box-shadow fills everything OUTSIDE the rounded rect */
+      box-shadow: 0 0 0 9999px #F2F2F7;
+      pointer-events: none;
+      /* Click-through */
+      z-index: 9997;
+      /* Below navbars (9998) but above content */
+    }
+
+    html.dark #app-shell::after {
+      box-shadow: 0 0 0 9999px #000000;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html:not(.light) #app-shell::after {
+        box-shadow: 0 0 0 9999px #000000;
+      }
+    }
+
+    .mobile-page-container {
+      margin: 0 12px;
+      background: var(--bg-card);
+      position: relative;
+      /* Override App.css padding — clear top bar + show below rounded top edge */
+      padding-top: 80px !important;
+      padding-bottom: 100px;
     }
 
     /* Hide Desktop-Specific Elements */

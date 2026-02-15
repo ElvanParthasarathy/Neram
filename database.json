@@ -1757,7 +1757,7 @@
                   "startTime": "08:30"
                 },
                 {
-                  "code": "22CBB003",
+                  "code": "22CB003",
                   "date": "2026-01-27",
                   "endTime": "09:20",
                   "portion": "Unit 1",
@@ -1794,7 +1794,7 @@
                   "startTime": "12:05"
                 },
                 {
-                  "code": "22CBB003",
+                  "code": "22CB003",
                   "date": "2026-02-02",
                   "endTime": "15:05",
                   "portion": "Unit 1 & 2",
@@ -2128,23 +2128,11 @@
       "ECE": {
         "A": {
           "daily_update": {
-            "2026-02-10": {
-              "author": "Jaiprakash  Parthasarathy",
-              "note": "hello"
-            },
-            "2026-02-11": {
-              "author": "Jaiprakash Parthasarathy",
-              "note": ""
-            },
-            "2026-02-17": {
-              "author": "Jaiprakash Parthasarathy",
-              "note": ""
-            },
             "author": "Jaiprakash  Parthasarathy",
             "note": "No special updates for today."
           },
-          "general_author": "Jaiprakash Parthasarathy",
-          "general_text": "வணக்கம் Android ",
+          "general_author": "Kamalesh E",
+          "general_text": "ALL is well ✨",
           "live_daily": {
             "2025-12-25": {
               "note": "helllo"
@@ -2335,12 +2323,22 @@
       "section": "A",
       "uid": "0JkVvDlskcWgt3yKmzWzS1ECePy2"
     },
+    "0k3Bd5dVz0eShG9nW0etshgJFuV2": {
+      "batch": "2023-2027",
+      "department": "ECE",
+      "displayName": "JAIPRAKASH P ECE DEPT",
+      "email": "23104055@rmd.ac.in",
+      "lastLogin": "2026-02-14T12:12:34.875Z",
+      "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocIrS5jnkwgLoH1_c-iEXLtEP00nWEFTHzpOZINHrtivuCqlwjxT=s96-c",
+      "section": "A",
+      "uid": "0k3Bd5dVz0eShG9nW0etshgJFuV2"
+    },
     "1brAcxjrePhD5RUc85yaH3vgG843": {
       "batch": "2023-2027",
       "department": "ECE",
       "displayName": "YOGARATHINAM T L ECE DEPT",
       "email": "23104177@rmd.ac.in",
-      "lastLogin": "2026-01-27T18:31:54.194Z",
+      "lastLogin": "2026-02-13T01:23:38.514Z",
       "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocIrbf2HIIPE-UL8QQXrHPifj5L94UBn7MHZNOntescI9bffcA=s96-c",
       "section": "A",
       "uid": "1brAcxjrePhD5RUc85yaH3vgG843"
@@ -2476,8 +2474,11 @@
       "department": "ECE",
       "displayName": "Ilayarajan",
       "email": "ilayarajan252003@gmail.com",
+      "lastLogin": "2026-02-14T10:19:04.745Z",
+      "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocJDVclzWQ5N9-L6gZOWywJCUUNeCRJ-_SGiK0FSwhvPvGbWDM81=s96-c",
       "role": "student",
-      "section": "A"
+      "section": "A",
+      "uid": "CavxXVNOk4RizRhbJfYPKJYUGqi1"
     },
     "CedF67E7bJZMAzdQJLR3Au59bVm2": {
       "batch": "2023-2027",
@@ -2548,17 +2549,6 @@
       "role": "student",
       "section": "A"
     },
-    "Eq87ystFOdOlDxfiyz0h8cir9xi2": {
-      "batch": "2023-2027",
-      "department": "ECE",
-      "displayName": "JAIPRAKASH P ECE DEPT",
-      "email": "23104055@rmd.ac.in",
-      "lastLogin": "2026-02-11T13:52:37.427Z",
-      "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocIrS5jnkwgLoH1_c-iEXLtEP00nWEFTHzpOZINHrtivuCqlwjxT=s96-c",
-      "role": "rep",
-      "section": "A",
-      "uid": "Eq87ystFOdOlDxfiyz0h8cir9xi2"
-    },
     "F51YVmuM1QRIRdpfUwI2iZ6ipvE2": {
       "batch": "2023-2027",
       "department": "ECE",
@@ -2588,7 +2578,7 @@
       "email": "23104092@rmd.ac.in",
       "firstName": "Mohan Krishna Samvith",
       "gender": "",
-      "lastLogin": "2026-01-15T17:36:44.932Z",
+      "lastLogin": "2026-02-12T02:57:24.814Z",
       "lastName": "P",
       "mobile": "",
       "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocJJRIBJsGwnprfGy3K9YmEDU_d3Zab-JAjQCCyNl9Q4nuG5pw=s96-c",
@@ -2686,11 +2676,18 @@
       "uid": "TcL3WVNJSTho0PciSFtbp6QMge93"
     },
     "TtLGGWYWTRglWfIKHDgHNQ6o9nA3": {
+      "batch": "",
+      "department": "",
       "displayName": "Jaiprakash Parthasarathy",
       "email": "jaiprakashpartha@gmail.com",
-      "lastLogin": "2026-02-11T14:02:20.327Z",
+      "firstName": "Jaiprakash",
+      "joinedAt": 1771039906598,
+      "lastLogin": "2026-02-14T12:16:34.835Z",
+      "lastName": "Parthasarathy",
       "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocIav960_UPcVtelPuxqs5nvxgjWnHIuM-UjyAWL9H4bcRfGkAR1=s96-c",
-      "role": "super_admin",
+      "regNo": "",
+      "role": "student",
+      "section": "",
       "uid": "TtLGGWYWTRglWfIKHDgHNQ6o9nA3"
     },
     "VnfMQZ2skGfrV9QZl9HeYzodLFS2": {
@@ -2987,7 +2984,7 @@
       "department": "ECE",
       "displayName": "Desktop 123",
       "email": "desktop123fe@gmail.com",
-      "lastLogin": "2026-01-04T18:06:06.544Z",
+      "lastLogin": "2026-02-12T16:31:14.108Z",
       "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocIWgHWB8isAriNH_GOr5hfQX1FPb5AlT0Z0c_nGaZAL8g4CHQ=s96-c",
       "section": "A",
       "uid": "oVD791GbEWcXQTFcKNGhMRAIgRF2"
@@ -3118,10 +3115,16 @@
     "tBWX2pbSa8Z6YN6KKPSbImSN3JJ2": {
       "department": "ECE",
       "displayName": "Elvan Parthasarathy",
+      "dob": "",
       "email": "jaiprakashvp2006@gmail.com",
-      "lastLogin": "2026-02-11T13:20:46.740Z",
+      "firstName": "Elvan",
+      "gender": "Male",
+      "lastLogin": "2026-02-14T06:23:19.952Z",
+      "lastName": "Parthasarathy",
+      "mobile": "",
       "photoURL": "https://lh3.googleusercontent.com/a/ACg8ocJDdE2PdwBiApaZA_cFKIh7DYGvJdaUaMfddD9T-MvcVnPLZlYW=s96-c",
       "role": "faculty",
+      "section": "",
       "uid": "tBWX2pbSa8Z6YN6KKPSbImSN3JJ2"
     },
     "tUHTVhBIZOMcbCOsQYTG5AvJQrX2": {

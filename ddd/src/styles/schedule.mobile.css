@@ -1,7 +1,0 @@
-/* --- MOBILE PADDING OVERRIDE --- */
-@media (max-width: 768px) {
-    .schedule-view {
-        padding-left: var(--screen-edge-spacing) !important;
-        padding-right: var(--screen-edge-spacing) !important;
-    }
-}
