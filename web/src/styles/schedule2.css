@@ -851,11 +851,37 @@ html.dark .s2-day-tabs {
     }
 }
 
-/* --- 20. MOBILE RESPONSIVE --- */
+/* --- 20. MOBILE RESPONSIVE — Kotlin ScheduleLayout.kt Order Parity --- */
 @media (max-width: 768px) {
     .s2-page {
         padding: 0 var(--screen-edge-spacing, 16px) 100px;
         margin-top: 0;
+    }
+
+    /* Stack columns in Kotlin order:
+       1. Today's Schedule (s2-desktop-main) — FIRST
+       2. Weekly Overview + Courses + Staff (s2-desktop-side) — SECOND */
+    .s2-desktop-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .s2-desktop-main {
+        order: 1;
+    }
+
+    /* Today's Schedule first */
+    .s2-desktop-side {
+        order: 2;
+    }
+
+    /* Extras second */
+
+    /* Stack pill switcher above date picker (Kotlin: separate LazyColumn items) */
+    .s2-header-row {
+        flex-direction: column;
+        gap: 12px;
     }
 }
 

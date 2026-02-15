@@ -767,42 +767,125 @@ html.dark .cal-agenda-card {
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
-   11. MOBILE OVERRIDES — calendar.css still handles <768px base styling,
-       but we add some mobile adjustments here for the new class names
+   11. MOBILE OVERRIDES — Kotlin CalendarLayout.kt Parity
+   Resets desktop chrome and matches Kotlin's vertical single-column layout:
+   Month Title (centered) → Calendar Widget → Sliding Agenda Card
    ──────────────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 1023px) {
+
+    /* --- Page: No desktop padding/margins --- */
     .cal-page {
         padding: 0;
+        height: auto;
+        overflow: visible;
     }
 
+    /* --- Toolbar: Vertical stack, transparent bg (Kotlin Layout) ---
+       Kotlin order: ViewType Toggle → Month Title (centered, large)
+       We stack: view-toggle row on top, month-nav row below */
     .cal-toolbar {
-        flex-wrap: wrap;
-        padding: 14px 16px;
-        gap: 10px;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px var(--screen-edge-spacing, 16px);
+        gap: 12px;
+        background: transparent;
+        border-bottom: none;
     }
 
-    .cal-toolbar-left h1 {
-        font-size: 18px;
+    .cal-toolbar-left,
+    .cal-toolbar-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* View toggle pill: full width */
+    .cal-view-toggle {
+        flex: 1;
+    }
+
+    /* Month nav: centered with larger label (Kotlin: 22sp SemiBold) */
+    .cal-month-nav {
+        justify-content: center;
+        width: 100%;
     }
 
     .cal-month-label {
-        font-size: 14px;
-        min-width: 120px;
+        font-size: 20px;
+        font-weight: 600;
+        min-width: unset;
+        letter-spacing: -0.3px;
     }
 
+    .cal-nav-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .cal-today-btn {
+        height: 36px;
+        font-size: 13px;
+    }
+
+    /* --- Body: Single column, no card chrome --- */
     .cal-body {
         flex-direction: column;
+        padding: 0;
+        gap: 0;
+        background: transparent;
+        overflow: visible;
     }
 
     .cal-sidebar {
         display: none;
     }
 
+    /* --- Main: No card border/rounding on mobile --- */
+    .cal-main {
+        background: transparent;
+        border-radius: 0;
+        border: none;
+        overflow: visible;
+    }
+
+    /* --- Month Grid: Kotlin-sized cells --- */
+    .cal-grid {
+        overflow: visible;
+    }
+
+    .cal-weekdays {
+        border-bottom: 1px solid var(--mac-divider);
+        background: transparent;
+        padding: 0 var(--screen-edge-spacing, 16px);
+    }
+
+    .cal-weekday {
+        padding: 6px 0;
+        font-size: 10px;
+    }
+
+    .cal-weeks {
+        flex: initial;
+        padding: 0 var(--screen-edge-spacing, 16px);
+    }
+
+    .cal-week-row {
+        flex: initial;
+        min-height: 60px;
+    }
+
+    .cal-day {
+        padding: 4px 2px 3px;
+    }
+
     .cal-day-num {
-        font-size: 11px;
-        width: 22px;
-        height: 22px;
+        font-size: 12px;
+        width: 24px;
+        height: 24px;
+    }
+
+    .cal-day-num.today {
+        box-shadow: 0 1px 6px rgba(0, 99, 229, 0.3);
     }
 
     .cal-event-bar {
@@ -813,20 +896,28 @@ html.dark .cal-agenda-card {
         font-size: 9px;
     }
 
-    .cal-grid {
-        overflow-y: auto;
-    }
-
-    .cal-weeks {
-        flex: initial;
-    }
-
-    .cal-week-row {
-        flex: initial;
-        min-height: 70px;
-    }
-
+    /* --- Schedule View: Mobile edge padding --- */
     .cal-schedule {
-        padding: 16px;
+        padding: 16px var(--screen-edge-spacing, 16px);
+    }
+
+    .cal-sched-item {
+        border: none;
+        background: var(--mac-card-bg);
+    }
+
+    /* --- Mobile Shutter: Sits above bottom navbar (Kotlin Agenda card) --- */
+    .cal-mobile-shutter {
+        height: 50vh;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 70px);
+        /* room for bottom nav */
+    }
+
+    .cal-shutter-body {
+        padding: 8px var(--screen-edge-spacing, 16px) 24px;
+    }
+
+    .cal-shutter-header h2 {
+        font-size: 20px;
     }
 }
