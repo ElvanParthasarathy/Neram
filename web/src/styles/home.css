@@ -319,8 +319,8 @@
     .h2-event-bar {
         width: 4px;
         /* PillIndicatorWidth */
-        height: 32px;
-        /* PillIndicatorHeight */
+        height: 26px;
+        /* PillIndicatorHeight Reduced */
         border-radius: 4px;
         margin-right: 20px;
         /* SpacingXl */
@@ -356,8 +356,8 @@
     }
 
     .h2-event-title-text {
-        font-size: 16px;
-        /* PillTitle */
+        font-size: 14px;
+        /* PillTitle Reduced */
         font-weight: 600;
         color: var(--mac-text);
         margin: 0;
@@ -365,8 +365,8 @@
     }
 
     .h2-event-time-text {
-        font-size: 13px;
-        /* PillTime */
+        font-size: 11px;
+        /* PillTime Reduced */
         font-weight: 500;
         color: var(--mac-text-secondary);
         margin: 0;

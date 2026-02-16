@@ -275,7 +275,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     flex-shrink: 0;
 }
@@ -299,7 +299,7 @@
 }
 
 .s2-course-code {
-    font-size: 13px;
+    font-size: 11.5px;
     font-weight: 700;
     color: var(--mac-blue);
     letter-spacing: -0.1px;
@@ -317,14 +317,14 @@
 }
 
 .s2-course-name {
-    font-size: 14px;
+    font-size: 12.5px;
     font-weight: 500;
     color: var(--mac-text);
     margin-top: 2px;
 }
 
 .s2-faculty {
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 600;
     color: var(--mac-text-secondary);
     opacity: 0.7;
