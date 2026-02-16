@@ -976,13 +976,7 @@
         }
     }
 
-    .h2-slide-left {
-        animation: h2SlideLeft 0.3s ease-out;
-    }
 
-    .h2-slide-right {
-        animation: h2SlideRight 0.3s ease-out;
-    }
 
     @keyframes h2SlideLeft {
         from {
@@ -1563,5 +1557,103 @@
         font-size: 14px;
         font-weight: 700;
         color: var(--text-primary, var(--mac-text));
+    }
+}
+
+/* ==========================================================================
+   MOBILE & SHARED STYLES (Animations, Loaders)
+   ========================================================================== */
+
+@keyframes h2SlideLeft {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes h2SlideRight {
+    from {
+        opacity: 0;
+        transform: translateX(-40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes h2FadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes h2Spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.h2-slide-left {
+    animation: h2SlideLeft 0.3s ease-out forwards;
+}
+
+.h2-slide-right {
+    animation: h2SlideRight 0.3s ease-out forwards;
+}
+
+.h2-fade-in {
+    animation: h2FadeIn 0.35s ease-out forwards;
+}
+
+.h2-loading-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    gap: 16px;
+    background: var(--mac-sidebar-bg);
+    /* Match card bg */
+    border-radius: 20px;
+    color: var(--mac-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 12px;
+}
+
+html.dark .h2-loading-card {
+    background: #121212;
+}
+
+.h2-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(128, 128, 128, 0.2);
+    border-top-color: var(--mac-blue);
+    border-radius: 50%;
+    animation: h2Spin 0.8s linear infinite;
+}
+
+/* Fix for Mobile Home Animation (Propagate to children of display:contents wrappers) */
+@media (max-width: 768px) {
+    .h2-slide-left>* {
+        animation: h2SlideLeft 0.3s ease-out forwards;
+    }
+
+    .h2-slide-right>* {
+        animation: h2SlideRight 0.3s ease-out forwards;
     }
 }

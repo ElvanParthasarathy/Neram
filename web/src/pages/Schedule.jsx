@@ -158,6 +158,8 @@ export const ViewTypeTabsRow = ({ activeTab, onTabSelected }) => (
 export const DateSection = ({ date, onPrev, onNext, onDateChange }) => {
   const [calOpen, setCalOpen] = useState(false);
   const wrapperRef = useRef(null);
+  const touchStartX = useRef(null);
+  const touchEndX = useRef(null);
 
   // Close on outside click
   useEffect(() => {
@@ -170,8 +172,44 @@ export const DateSection = ({ date, onPrev, onNext, onDateChange }) => {
     return () => document.removeEventListener("mousedown", handler);
   }, [calOpen]);
 
+  // Swipe Logic
+  const minSwipeDistance = 50;
+  const onTouchStart = (e) => {
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+  const onTouchMove = (e) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+  const onTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      onNext();
+    } else if (isRightSwipe) {
+      onPrev();
+    }
+  };
+
+  // Helper to format date for input
+  const toISODateLocal = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  };
+
   return (
-    <div className="s2-date-section-unified" ref={wrapperRef}>
+    <div
+      className="s2-date-section-unified"
+      ref={wrapperRef}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <div className="s2-date-nav-group">
         <button className="s2-date-arrow" onClick={onPrev}><RiArrowLeftSLine /></button>
         <div className="s2-date-text" onClick={() => setCalOpen(!calOpen)}>{formatDateLong(date)}</div>
@@ -180,9 +218,22 @@ export const DateSection = ({ date, onPrev, onNext, onDateChange }) => {
 
       <div className="s2-calendar-divider" />
 
-      <button className="s2-calendar-trigger-btn" onClick={() => setCalOpen(!calOpen)}>
-        <RiCalendarEventLine />
-      </button>
+      <div className="s2-calendar-trigger-wrapper">
+        <button className="s2-calendar-trigger-btn" onClick={() => setCalOpen(!calOpen)}>
+          <RiCalendarEventLine />
+        </button>
+        {/* Native Mobile Date Picker */}
+        <input
+          type="date"
+          className="s2-mobile-date-input"
+          value={toISODateLocal(date)}
+          onChange={(e) => {
+            if (e.target.valueAsDate) {
+              onDateChange(e.target.valueAsDate);
+            }
+          }}
+        />
+      </div>
 
       {calOpen && (
         <div className="s2-calendar-dropdown">
