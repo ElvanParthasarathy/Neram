@@ -307,10 +307,11 @@
 
     /* Home title (Kotlin: PageTitle — 28sp, ExtraBold, -1sp) */
     .top-bar-title {
-      font-size: 28px;
+      font-size: 22px;
       font-weight: 800;
       color: var(--text-primary);
-      letter-spacing: -1px;
+      letter-spacing: -0.5px;
+      margin-left: 4px;
     }
 
     /* Actions row (Kotlin: Arrangement.spacedBy(8.dp)) */
@@ -367,10 +368,10 @@
 
     /* Secondary top bar title (Kotlin: 28sp PageTitle after the back button) */
     .secondary-top-title {
-      font-size: 28px;
+      font-size: 22px;
       font-weight: 800;
       color: var(--text-primary);
-      letter-spacing: -1px;
+      letter-spacing: -0.5px;
       margin-left: 12px;
       flex: 1;
     }
@@ -1720,7 +1721,7 @@
   }
 
   .h2-event-title-text {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
