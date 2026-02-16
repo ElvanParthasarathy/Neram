@@ -9,7 +9,7 @@ import "@fontsource-variable/inter";
 // Styles
 import "./App.css";
 import "./mobile.css";
-import "./mobileapp.css";
+
 
 // Admin Components
 import { adminEmails, getHardcodedRole } from "./data/admins";
