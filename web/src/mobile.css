@@ -63,6 +63,32 @@
     /* --- NEW VARIABLES (ADDED) --- */
     --bg-button-secondary: rgba(120, 120, 128, 0.15);
     --bg-modal-solid: rgba(250, 250, 250, 0.95);
+
+    /* --- DESKTOP TOKEN PARITY (Light Mode) --- */
+    /* These are defined in tokens.css only for min-width:769px.
+       Without them, light-mode mobile has no --mac-* values. */
+    --mac-blue: #0063E5;
+    --mac-blue-hover: #005CBF;
+    --mac-bg-primary: #FFFFFF;
+    --mac-bg-content: #F5F5F7;
+    --mac-bg-secondary: #F2F2F7;
+    --mac-text: #1D1D1F;
+    --mac-text-secondary: #3C3C43;
+    --mac-text-tertiary: rgba(60, 60, 67, 0.6);
+    --mac-selection-bg: rgba(0, 0, 0, 0.04);
+    --mac-selection-hover: rgba(0, 0, 0, 0.06);
+    --mac-divider: rgba(0, 0, 0, 0.05);
+    --mac-border: rgba(0, 0, 0, 0.05);
+    --mac-card-bg: #FFFFFF;
+    --mac-card-border: 1px solid rgba(0, 0, 0, 0.06);
+    --mac-card-shadow: none;
+    --mac-sidebar-bg: #FFFFFF;
+    --mac-icon-color: #3C3C43;
+    --mac-popup-bg: #FFFFFF;
+    --mac-table-header: #FAFAFA;
+    --mac-input-bg: #FFFFFF;
+    --mac-button-bg: rgba(0, 0, 0, 0.05);
+    --mac-modal-field-bg: #F2F2F7;
   }
 
   /* --- DARK MODE DEFINITIONS --- */
@@ -71,8 +97,8 @@
 
   /* 1. Force Dark Mode (Manual Toggle) */
   html.dark {
-    --bg-body: #121212;
-    --bg-card: #1E1E1E;
+    --bg-body: #000000;
+    --bg-card: #121212;
     /* Material Dark Surface */
     --glass-border: 1px solid rgba(255, 255, 255, 0.1);
     --bg-nav-selection: rgba(255, 255, 255, 0.1);
@@ -96,8 +122,8 @@
   /* 2. System Dark Mode (Auto - respecting overrides) */
   @media (prefers-color-scheme: dark) {
     html:not(.light) {
-      --bg-body: #121212;
-      --bg-card: #1C1C1E;
+      --bg-body: #000000;
+      --bg-card: #121212;
       /* Solid Material Dark Surface */
       --glass-border: 1px solid rgba(255, 255, 255, 0.1);
       --bg-nav-selection: rgba(44, 44, 46, 0.9);
@@ -232,7 +258,7 @@
 
     .mobile-page-container {
       margin: 0 12px;
-      background: var(--bg-card);
+      background: var(--bg-body);
       position: relative;
       /* Override App.css padding — clear top bar + show below rounded top edge */
       padding-top: 80px !important;
@@ -1584,5 +1610,139 @@
 
 
 
+
+  /* ==========================================================================
+     G. ACADEMIC CALENDAR (Mobile Port)
+     ========================================================================== */
+
+  .h2-calendar-section {
+    width: 100%;
+    margin-top: 24px;
+    padding: 0;
+    /* Remove padding to let card fill container */
+    box-sizing: border-box;
+  }
+
+  .h2-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    padding-left: 16px;
+  }
+
+  .h2-page-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    padding-left: 16px;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+  }
+
+  .h2-grouped-card {
+    background: var(--bg-card);
+    border-radius: 20px;
+    overflow: hidden;
+    /* box-shadow: var(--shadow-dock); optional depth */
+  }
+
+  html.dark .h2-grouped-card {
+    background: var(--bg-card);
+    /* Uses #1E1E1E in dark */
+  }
+
+  .h2-event-row {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    position: relative;
+  }
+
+  .h2-event-row:active {
+    background-color: var(--bg-nav-selection);
+  }
+
+  .h2-event-bar {
+    width: 4px;
+    height: 32px;
+    border-radius: 4px;
+    margin-right: 16px;
+    flex-shrink: 0;
+  }
+
+  /* Colors */
+  .h2-event-bar.holiday {
+    background: #8B5CF6;
+  }
+
+  .h2-event-bar.exam {
+    background: #22C55E;
+  }
+
+  .h2-event-bar.order {
+    background: #00BCD4;
+  }
+
+  .h2-event-bar.special {
+    background: #FBC02D;
+  }
+
+  .h2-event-bar.default {
+    background-color: var(--accent-primary);
+  }
+
+  .h2-event-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .h2-event-title-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .h2-event-time-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .h2-event-divider {
+    height: 1px;
+    width: calc(100% - 32px);
+    margin: 0 auto;
+    background-color: var(--text-secondary);
+    /* Fallback */
+    opacity: 0.1;
+  }
+
+  /* Dark mode divider */
+  html.dark .h2-event-divider {
+    background-color: #FFFFFF;
+    opacity: 0.1;
+  }
+
+  .h2-empty-events {
+    padding: 24px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 15px;
+    font-style: italic;
+  }
+
   /* CSS BLOKER KLOSING */
+
 }

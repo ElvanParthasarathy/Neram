@@ -61,7 +61,7 @@
     }
 
     html.dark .h2-academic-card {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     /* --- 3. HEADER — Kotlin PageHeader Pill --- */
@@ -82,7 +82,7 @@
     }
 
     html.dark .h2-profile-pill {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-profile-section {
@@ -102,7 +102,7 @@
     }
 
     html.dark .h2-avatar {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-avatar-img {
@@ -227,7 +227,7 @@
     }
 
     html.dark .h2-date-pill {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-date-text {
@@ -305,7 +305,7 @@
     }
 
     html.dark .h2-grouped-card {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-event-row {
@@ -411,7 +411,7 @@
     }
 
     html.dark .h2-status-badge {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
         color: var(--mac-text-secondary);
     }
 
@@ -440,7 +440,7 @@
     }
 
     html.dark .h2-period-row {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-period-num {
@@ -621,7 +621,7 @@
     }
 
     html.dark .h2-no-classes {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-no-classes-title {
@@ -643,7 +643,7 @@
     }
 
     html.dark .h2-no-classes .h2-no-classes-sub {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
         color: var(--mac-text-secondary);
     }
 
@@ -657,7 +657,7 @@
     }
 
     html.dark .h2-suspended-notice {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-suspended-icon {
@@ -706,7 +706,7 @@
     }
 
     html.dark .h2-loading-card {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-spinner {
@@ -773,7 +773,7 @@
     }
 
     html.dark .h2-message-surface {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-message-body {
@@ -805,7 +805,7 @@
     }
 
     html.dark .h2-author-pill {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-author-pill svg {
@@ -824,7 +824,7 @@
     }
 
     html.dark .h2-edit-form {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-edit-textarea {
@@ -1013,7 +1013,7 @@
 @media (max-width: 768px) {
 
     .h2-view {
-        padding: 0 16px;
+        padding: 0;
         padding-bottom: 120px;
     }
 
@@ -1109,7 +1109,7 @@
     }
 
     html.dark .h2-academic-card {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     /* Header — Profile Pill */
@@ -1127,7 +1127,7 @@
     }
 
     html.dark .h2-profile-pill {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-avatar {
@@ -1268,7 +1268,7 @@
     }
 
     html.dark .h2-grouped-card {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-event-row {
@@ -1333,7 +1333,7 @@
     }
 
     html.dark .h2-no-classes {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-no-classes-title {
@@ -1445,7 +1445,7 @@
     }
 
     html.dark .h2-author-pill {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-author-pill svg {
@@ -1463,7 +1463,7 @@
     }
 
     html.dark .h2-edit-form {
-        background: var(--bg-card, #1C1C1E);
+        background: #121212;
     }
 
     .h2-edit-textarea {

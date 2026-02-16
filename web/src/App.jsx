@@ -9,7 +9,7 @@ import "@fontsource-variable/inter";
 // Styles
 import "./App.css";
 import "./mobile.css";
-import "./mobileapp.css";
+
 import "./styles/admin-sidebar.css";
 import "./styles/schedule2.css";
 

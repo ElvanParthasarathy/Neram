@@ -854,8 +854,20 @@ html.dark .s2-day-tabs {
 /* --- 20. MOBILE RESPONSIVE — Kotlin ScheduleLayout.kt Order Parity --- */
 @media (max-width: 768px) {
     .s2-page {
-        padding: 0 var(--screen-edge-spacing, 16px) 100px;
+        padding: 0 0 100px;
         margin-top: 0;
+    }
+
+    .s2-page-title {
+        padding-left: 16px;
+    }
+
+    .s2-section-title {
+        padding-left: 16px;
+    }
+
+    .s2-status-row {
+        padding: 0 16px;
     }
 
     /* Stack columns in Kotlin order:

@@ -171,7 +171,7 @@
         display: flex;
         flex-direction: column;
         gap: 12px;
-        padding: 0 var(--screen-edge-spacing) 80px var(--screen-edge-spacing);
+        padding: 0 0 80px;
         /* Bottom padding for Navbar */
     }
 
@@ -228,7 +228,7 @@
         display: flex;
         align-items: center;
         margin-bottom: 24px;
-        padding: 0 var(--screen-edge-spacing);
+        padding: 0 16px;
     }
 
     .mobile-back-btn {
@@ -246,7 +246,7 @@
 
     /* 4. Details Container */
     .mobile-details-container {
-        padding: 0 var(--screen-edge-spacing) 80px var(--screen-edge-spacing);
+        padding: 0 0 80px;
     }
 
     /* 5. Accordion Styles (Subject) */
