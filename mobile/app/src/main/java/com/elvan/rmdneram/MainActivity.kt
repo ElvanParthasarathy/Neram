@@ -60,10 +60,17 @@ import android.os.Build
 
 @OptIn(ExperimentalAnimationApi::class)
 class MainActivity : ComponentActivity() {
+    private lateinit var appUpdateManager: com.google.android.play.core.appupdate.AppUpdateManager
+    private val UPDATE_REQUEST_CODE = 1001
+
     override fun onCreate(savedInstanceState: Bundle?) {
         // Dismiss Android 12+ system splash IMMEDIATELY (like Instagram/ChatGPT)
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { false }
+
+        // Initialize AppUpdateManager
+        appUpdateManager = com.google.android.play.core.appupdate.AppUpdateManagerFactory.create(this)
+        checkForAppUpdate()
 
         // Create Notification Channels
         NotificationHelper.createNotificationChannels(this)
@@ -98,6 +105,13 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                      permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+
+            // Listen for Login Errors (e.g. Blocked Roles)
+            LaunchedEffect(mainViewModel) {
+                mainViewModel.loginErrorFlow.collect { errorMessage ->
+                    android.widget.Toast.makeText(this@MainActivity, errorMessage, android.widget.Toast.LENGTH_LONG).show()
                 }
             }
             
@@ -302,6 +316,55 @@ class MainActivity : ComponentActivity() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+    override fun onResume() {
+        super.onResume()
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                // If an in-app update is already in progress, resume it.
+                try {
+                    appUpdateManager.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        this,
+                        com.google.android.play.core.appupdate.AppUpdateOptions.defaultOptions(com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE),
+                        UPDATE_REQUEST_CODE
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == UPDATE_REQUEST_CODE) {
+            if (resultCode != Activity.RESULT_OK) {
+                // If the update is cancelled or fails,
+                // you can request to start the update again.
+                checkForAppUpdate()
+            }
+        }
+    }
+
+    private fun checkForAppUpdate() {
+        val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+        appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+            if (appUpdateInfo.updateAvailability() == com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE &&
+                appUpdateInfo.isUpdateTypeAllowed(com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE)
+            ) {
+                try {
+                    appUpdateManager.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        this,
+                        com.google.android.play.core.appupdate.AppUpdateOptions.defaultOptions(com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE),
+                        UPDATE_REQUEST_CODE
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 }

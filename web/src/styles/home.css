@@ -1458,6 +1458,8 @@
         background: var(--mac-sidebar-bg);
         border-radius: 20px;
         padding: 16px;
+        animation: h2EditOpen 0.25s cubic-bezier(0.2, 0.0, 0.2, 1.0);
+        transform-origin: top center;
     }
 
     html.dark .h2-edit-form {
@@ -1616,6 +1618,18 @@
 
 .h2-slide-right {
     animation: h2SlideRight 0.3s ease-out forwards;
+}
+
+@keyframes h2EditOpen {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .h2-fade-in {

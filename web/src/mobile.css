@@ -1761,6 +1761,17 @@
     font-style: italic;
   }
 
+  /* Compact Message Cards for Mobile */
+  .h2-message-surface {
+    min-height: auto !important;
+    padding: 16px !important;
+  }
+
+  .h2-message-body {
+    font-size: 14px !important;
+    line-height: 1.4;
+  }
+
   /* CSS BLOKER KLOSING */
 
 }

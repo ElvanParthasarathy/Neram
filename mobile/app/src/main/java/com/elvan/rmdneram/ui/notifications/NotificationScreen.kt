@@ -28,8 +28,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.statusBars
 import com.elvan.rmdneram.data.local.entity.NotificationEntity
 import com.elvan.rmdneram.ui.home.rememberHomeColors
+import com.elvan.rmdneram.ui.home.HomeDimens
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -50,10 +54,12 @@ fun NotificationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = HomeDimens.ContentPadding)
         ) {
-            // Header is handled by SecondaryTopBar in MainScreen, but we need spacer if transparent
-            Spacer(modifier = Modifier.height(80.dp)) // Adjust based on TopBar height
+            // Header padding to match Home Screen Profile Card position
+            // Home Screen uses: StatusBar + HomeDimens.ContentPaddingTop
+            val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+            Spacer(modifier = Modifier.height(statusBarHeight + HomeDimens.ContentPaddingTop))
 
             if (notifications.isEmpty()) {
                 Box(
@@ -212,6 +218,7 @@ fun NotificationItem(
         shape = RoundedCornerShape(24.dp), // Pill Shape
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
             .clickable(onClick = onClick)
     ) {
         Row(

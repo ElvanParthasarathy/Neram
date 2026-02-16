@@ -14,7 +14,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.elvan.rmdneram"
+        applicationId = "com.elvan.neram"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -158,4 +158,8 @@ dependencies {
     
     // Google Calendar API (Removed to avoid Unverified App warning)
     // Using System Sync instead
+
+    // In-App Updates
+    implementation("com.google.android.play:app-update:2.1.0")
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
 }
