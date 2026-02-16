@@ -1625,7 +1625,7 @@
   }
 
   .h2-section-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: var(--text-secondary);
     text-transform: uppercase;
@@ -1635,7 +1635,7 @@
   }
 
   .h2-page-title {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
     margin: 0 0 16px;
     padding-left: 16px;
