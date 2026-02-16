@@ -335,6 +335,12 @@
       cursor: pointer;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s ease, opacity 0.1s;
+    }
+
+    .top-action-btn:active {
+      transform: scale(0.92);
+      opacity: 0.7;
     }
 
     /* BACK BUTTON — Kotlin SecondaryTopBar: 40dp Circle, Surface color bg */
@@ -351,6 +357,12 @@
       cursor: pointer;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s ease, background-color 0.2s;
+    }
+
+    .top-back-btn:active {
+      transform: scale(0.92);
+      background: var(--mac-selection-hover);
     }
 
     /* Secondary top bar title (Kotlin: 28sp PageTitle after the back button) */
@@ -445,7 +457,7 @@
     }
 
     .nav-item:active {
-      transform: none;
+      transform: scale(0.94);
     }
 
     /* M3 PILL INDICATOR */
@@ -580,7 +592,7 @@
     .btn-primary:active {
       opacity: 0.8;
       /* Keeps the blue color but dims it */
-      transform: scale(0.98);
+      transform: scale(0.96);
     }
 
     .logout-confirm-modal {

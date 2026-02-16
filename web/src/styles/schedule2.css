@@ -871,8 +871,7 @@ html.dark .s2-day-tabs {
     }
 
     .s2-page-title {
-        padding-left: 16px;
-        font-size: 22px;
+        display: none;
     }
 
     .s2-section-title {
@@ -907,18 +906,30 @@ html.dark .s2-day-tabs {
     /* Native Mobile Date Picker Overlay */
     .s2-calendar-trigger-btn {
         position: relative;
+        transition: transform 0.1s ease;
+        z-index: 0;
+    }
+
+    .s2-mobile-date-input:active~.s2-calendar-trigger-btn,
+    .s2-calendar-trigger-btn:active {
+        transform: scale(0.92);
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
     }
 
     .s2-mobile-date-input {
         display: block;
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        width: auto;
+        height: auto;
         opacity: 0;
         cursor: pointer;
         z-index: 10;
+        -webkit-appearance: none;
     }
 
     /* Stack columns in Kotlin order:

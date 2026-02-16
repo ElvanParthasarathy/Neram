@@ -219,10 +219,7 @@ export const DateSection = ({ date, onPrev, onNext, onDateChange }) => {
       <div className="s2-calendar-divider" />
 
       <div className="s2-calendar-trigger-wrapper">
-        <button className="s2-calendar-trigger-btn" onClick={() => setCalOpen(!calOpen)}>
-          <RiCalendarEventLine />
-        </button>
-        {/* Native Mobile Date Picker */}
+        {/* Native Mobile Date Picker (Placed FIRST for CSS sibling selector) */}
         <input
           type="date"
           className="s2-mobile-date-input"
@@ -233,6 +230,9 @@ export const DateSection = ({ date, onPrev, onNext, onDateChange }) => {
             }
           }}
         />
+        <button className="s2-calendar-trigger-btn" onClick={() => setCalOpen(!calOpen)}>
+          <RiCalendarEventLine />
+        </button>
       </div>
 
       {calOpen && (
