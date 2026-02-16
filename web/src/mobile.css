@@ -154,7 +154,8 @@
      ------------------------------------------------------------- */
     html {
       height: 100%;
-      overflow: hidden;
+      width: 100%;
+      overflow-x: hidden;
       overscroll-behavior-x: none;
       overscroll-behavior-y: auto;
     }
