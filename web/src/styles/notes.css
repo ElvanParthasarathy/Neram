@@ -210,7 +210,7 @@
 
     .folder-item-text {
         flex: 1;
-        font-size: 17px;
+        font-size: 15px;
         font-weight: 600;
         color: var(--mac-text);
         letter-spacing: -0.02em;
@@ -235,7 +235,7 @@
         background: none;
         border: none;
         color: var(--mac-blue);
-        font-size: 17px;
+        font-size: 15px;
         font-weight: 500;
         display: flex;
         align-items: center;
@@ -282,7 +282,7 @@
 
     .accordion-title {
         flex: 1;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 600;
         color: var(--mac-text);
         line-height: 1.4;
@@ -338,7 +338,7 @@
 
     .unit-name {
         flex: 1;
-        font-size: 14.5px;
+        font-size: 13px;
         font-weight: 500;
         color: var(--mac-text);
     }
