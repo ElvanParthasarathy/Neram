@@ -133,6 +133,13 @@ const IconChevronRight = (props) => (
   </svg>
 );
 
+// 15.5 CHEVRON LEFT
+const IconChevronLeft = (props) => (
+  <svg {...props} viewBox="0 0 24 24" fill="currentColor">
+    <path fillRule="evenodd" d="M7.72 12.53a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 1 1 1.06 1.06L9.31 12l6.97 6.97a.75.75 0 1 1-1.06 1.06l-7.5-7.5Z" clipRule="evenodd" />
+  </svg>
+);
+
 // 16. ARROW LEFT
 const IconArrowLeft = (props) => (
   <svg {...props} viewBox="0 0 24 24" fill="currentColor">
@@ -276,6 +283,23 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // --- 7. LISTEN FOR CUSTOM NAV UPDATES (Settings Sub-pages) ---
+  const [navOverride, setNavOverride] = useState(null);
+
+  useEffect(() => {
+    const handleNavUpdate = (e) => {
+      // e.detail can be { title, onBack: 'goHub' } or just { title }
+      setNavOverride(e.detail);
+    };
+    window.addEventListener('neram-update-nav', handleNavUpdate);
+    return () => window.removeEventListener('neram-update-nav', handleNavUpdate);
+  }, []);
+
+  // Also reset override on route change
+  useEffect(() => {
+    setNavOverride(null);
+  }, [location.pathname]);
+
   useEffect(() => {
     const syncTheme = () => {
       setCurrentTheme(localStorage.getItem("neram-theme") || "auto");
@@ -300,6 +324,17 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
   }, [user]);
 
   if (!isMobile) return null;
+
+  const handleBack = () => {
+    if (navOverride?.onBack === 'goHub') {
+      // Dispatch event for settings to catch
+      window.dispatchEvent(new Event('neram-go-hub'));
+      return;
+    }
+    window.history.back();
+  };
+
+  const currentTitle = navOverride?.title || getScreenTitle(location.pathname);
 
   const handleNav = (targetPath, index) => {
     if (index !== undefined && onTabClick) {
@@ -354,15 +389,15 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
 
       {/* 3. TOP BAR — Ported from Kotlin TopBar + SecondaryTopBar.kt */}
       <div className="mobile-top-bar">
-        {showBackButton ? (
+        {(showBackButton || navOverride) ? (
           <>
-            <button className="top-back-btn" onClick={() => window.history.back()}>
-              <IconArrowLeft style={{ width: '24px', height: '24px' }} />
+            <button className="top-back-btn" onClick={handleBack}>
+              <IconChevronLeft style={{ width: '24px', height: '24px' }} />
             </button>
-            <span className="secondary-top-title">{getScreenTitle(location.pathname)}</span>
+            <span className="secondary-top-title">{currentTitle}</span>
           </>
         ) : (
-          <span className="top-bar-title">{getScreenTitle(location.pathname)}</span>
+          <span className="top-bar-title">{currentTitle}</span>
         )}
 
         {/* Action buttons */}
@@ -442,7 +477,7 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
               {/* APPEARANCE MENU */}
               <div className="menu-view">
                 <button onClick={() => setMenuView('main')} className="menu-item back-btn">
-                  <IconArrowLeft style={{ width: '20px', height: '20px' }} /> Back
+                  <IconChevronLeft style={{ width: '20px', height: '20px' }} /> Back
                 </button>
                 <div className="menu-divider" />
                 <button onClick={() => handleThemeChange('auto')} className={`menu-item ${currentTheme === 'auto' ? 'selected' : ''}`}>

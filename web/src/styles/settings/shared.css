@@ -143,6 +143,12 @@
     flex-shrink: 0;
 }
 
+@media (max-width: 768px) {
+    .s2-sub-header {
+        display: none;
+    }
+}
+
 .s2-back-btn:hover {
     background: var(--mac-selection-hover);
 }

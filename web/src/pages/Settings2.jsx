@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/settings2.css";
 
 import SettingsHub from "./settings/SettingsHub";
@@ -41,6 +41,40 @@ const Settings2 = ({ userProfile }) => {
             setCurrentView("hub");
         }
     };
+
+    // --- NAV OVERRIDE LOGIC ---
+    useEffect(() => {
+        if (currentView === 'hub') {
+            window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
+        } else {
+            // Map view names to titles
+            const titles = {
+                profile: 'Edit Profile',
+                display: 'Appearance',
+                notifications: 'Notifications',
+                storage: 'Storage & Data',
+                security: 'Security',
+                directory: 'User Directory',
+                complaints: 'Report Issue',
+                developer: 'About Developer',
+                about: 'About App'
+            };
+            const title = titles[currentView] || 'Settings';
+            window.dispatchEvent(new CustomEvent('neram-update-nav', {
+                detail: { title, onBack: 'goHub' }
+            }));
+        }
+
+        // Cleanup on unmount
+        return () => window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
+    }, [currentView]);
+
+    // Listen for goHub request from MobileNavbar
+    useEffect(() => {
+        const handleGoHub = () => goHub();
+        window.addEventListener('neram-go-hub', handleGoHub);
+        return () => window.removeEventListener('neram-go-hub', handleGoHub);
+    }, []);
 
     const renderDetailView = () => {
         switch (currentView) {
