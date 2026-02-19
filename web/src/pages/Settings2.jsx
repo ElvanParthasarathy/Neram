@@ -30,22 +30,24 @@ const Settings2 = ({ userProfile }) => {
     // 1. Initialize State from Hash (Mobile) or Default (Desktop)
     const [currentView, setCurrentView] = useState(() => {
         const hash = window.location.hash.replace('#', '');
+        const mainView = hash.split('/')[0];
         // Desktop: Default to 'profile' if empty
         // Mobile: Default to 'hub' if empty
-        if (window.innerWidth > 768) return hash || "profile";
-        return hash || "hub";
+        if (window.innerWidth > 768) return mainView || "profile";
+        return mainView || "hub";
     });
 
     // 2. Listen for Hash Changes (System Back Button Support)
     useEffect(() => {
         const handleHashChange = () => {
             const hash = window.location.hash.replace('#', '');
+            const mainView = hash.split('/')[0];
             if (window.innerWidth <= 768) {
                 // Mobile: Sync state with hash
-                setCurrentView(hash || 'hub');
+                setCurrentView(mainView || 'hub');
             } else {
                 // Desktop: Sync state with hash (optional, but good for linking)
-                if (hash) setCurrentView(hash);
+                if (mainView) setCurrentView(mainView);
             }
         };
 
@@ -124,7 +126,14 @@ const Settings2 = ({ userProfile }) => {
     }, []);
 
     const renderDetailView = () => {
-        switch (currentView) {
+        // Parse hash for sub-routes
+        // Format: #view/sub/path
+        const hash = window.location.hash.replace('#', '');
+        const parts = hash.split('/');
+        const mainView = parts[0] || (window.innerWidth > 768 ? "profile" : "hub");
+        const subPath = parts.slice(1).join('/');
+
+        switch (mainView) {
             case "profile":
                 return <ProfileView userProfile={userProfile} onBack={goHub} />;
             case "display":
@@ -136,7 +145,7 @@ const Settings2 = ({ userProfile }) => {
             case "security":
                 return <SecuritySettings onBack={goHub} />;
             case "directory":
-                return <UserDirectoryView onBack={goHub} />;
+                return <UserDirectoryView onBack={goHub} subPath={subPath} />;
             case "complaints":
                 return <FeedbackView userProfile={userProfile} onBack={goHub} />;
             case "developer":

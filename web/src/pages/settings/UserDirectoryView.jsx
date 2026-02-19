@@ -41,12 +41,22 @@ const DirectoryUserCard = ({ user }) => {
     );
 };
 
-const UserDirectoryView = ({ onBack }) => {
+const UserDirectoryView = ({ onBack, subPath }) => {
     const [hierarchy, setHierarchy] = useState({});
     const [path, setPath] = useState([]); // [] = batches, [batch] = depts, [batch,dept] = sections, [b,d,s] = users
     const [users, setUsers] = useState([]);
     const [usersLoading, setUsersLoading] = useState(false);
     const [hierarchyLoading, setHierarchyLoading] = useState(true);
+
+    // Sync subPath prop to local path state
+    useEffect(() => {
+        if (subPath) {
+            const newPath = subPath.split('/').filter(Boolean).map(decodeURIComponent);
+            setPath(newPath);
+        } else {
+            setPath([]);
+        }
+    }, [subPath]);
 
     // Load academic hierarchy once
     useEffect(() => {
@@ -113,10 +123,17 @@ const UserDirectoryView = ({ onBack }) => {
         }
     }, [path]);
 
+    // Navigation Helper
+    const navigateTo = (newPath) => {
+        const hashPath = newPath.map(encodeURIComponent).join('/');
+        window.location.hash = `#directory/${hashPath}`;
+    };
+
     // Back handler: go up one level or exit
     const handleBack = () => {
+        // If we have a path, go back in history (which updates hash -> path)
         if (path.length > 0) {
-            setPath(path.slice(0, -1));
+            window.history.back();
         } else {
             onBack();
         }
@@ -148,7 +165,7 @@ const UserDirectoryView = ({ onBack }) => {
                             <DirectoryFolderItem
                                 key={batch}
                                 name={`Batch ${batch}`}
-                                onClick={() => setPath([...path, batch])}
+                                onClick={() => navigateTo([...path, batch])}
                             />
                         ))}
                     </div>
@@ -161,7 +178,7 @@ const UserDirectoryView = ({ onBack }) => {
                             <DirectoryFolderItem
                                 key={dept}
                                 name={dept}
-                                onClick={() => setPath([...path, dept])}
+                                onClick={() => navigateTo([...path, dept])}
                             />
                         ))}
                     </div>
@@ -174,7 +191,7 @@ const UserDirectoryView = ({ onBack }) => {
                             <DirectoryFolderItem
                                 key={section}
                                 name={`Section ${section}`}
-                                onClick={() => setPath([...path, section])}
+                                onClick={() => navigateTo([...path, section])}
                             />
                         ))}
                     </div>

@@ -82,9 +82,7 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
       }
     };
     window.addEventListener("popstate", handleBackButton);
-    if (location.pathname === "/") {
-      window.history.pushState(null, document.title, window.location.href);
-    }
+    // REMOVED: window.history.pushState(null, document.title, window.location.href);
     return () => window.removeEventListener("popstate", handleBackButton);
   }, [location.pathname, user, navigate]);
 
