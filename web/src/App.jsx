@@ -242,10 +242,19 @@ function App() {
   useEffect(() => {
     const updateThemeColor = () => {
       const isDark = document.documentElement.classList.contains("dark");
-      const metaThemeColor = document.querySelector("meta[name='theme-color']");
-      if (metaThemeColor) {
-        metaThemeColor.setAttribute("content", isDark ? "#000000" : "#F2F2F7");
+      const themeColor = isDark ? "#000000" : "#F2F2F7";
+
+      // Update theme-color meta tag (affects Status Bar & Android System Navbar)
+      let metaThemeColor = document.querySelector("meta[name='theme-color']");
+      if (!metaThemeColor) {
+        metaThemeColor = document.createElement('meta');
+        metaThemeColor.name = "theme-color";
+        document.head.appendChild(metaThemeColor);
       }
+      metaThemeColor.setAttribute("content", themeColor);
+
+      // Force background color on body to match for overscroll/system blending
+      document.body.style.backgroundColor = themeColor;
     };
 
     // Initial check
