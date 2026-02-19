@@ -397,7 +397,7 @@
       padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
 
       /* Secondary White (Kotlin match) */
-      background: #F2F2F7;
+      background: var(--bg-body);
 
       z-index: 9998;
       display: flex;
@@ -414,7 +414,7 @@
 
     /* Dark Mode Override */
     html.dark .mobile-bottom-bar {
-      background: #000000;
+      background: var(--bg-body);
       border-top: none;
     }
 
