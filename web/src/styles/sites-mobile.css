@@ -1,0 +1,120 @@
+/* ==========================================================================
+   COLLEGE SITES: MOBILE STYLES (Kotlin Parity)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+
+    /* 1. VIEW CONFIGURATION */
+    .h2-view.sites-view {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .sites-container {
+        padding: 120px 16px 100px 16px;
+        /* Increased top padding */
+        gap: 16px;
+    }
+
+    /* 2. HEADER (Hidden on mobile) */
+    .page-header {
+        display: none;
+    }
+
+    /* 3. GRID -> LIST LAYOUT */
+    .sites-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* 4. CARD STYLING (FLAT / Row Layout) */
+    .site-link-card {
+        flex-direction: row !important;
+        align-items: center;
+        padding: 16px;
+        gap: 16px;
+
+        /* Flat Look - Material 3 Surface / iOS Cell */
+        background: var(--bg-card) !important;
+        border: none !important;
+        /* No border for flat look */
+        border-radius: 24px !important;
+        /* Slightly more rounded */
+        box-shadow: none !important;
+        /* No shadow */
+
+        /* Reset Desktop Transforms */
+        transition: none;
+        transform: none !important;
+    }
+
+    .site-link-card:active {
+        background: var(--bg-button-secondary) !important;
+        /* Highlight on tap */
+        transform: scale(0.98) !important;
+        transition: 0.1s;
+    }
+
+    /* 5. ICON STYLING */
+    .site-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        font-size: 24px;
+        margin-bottom: 0;
+
+        /* Light Grey Background for Icon */
+        background: var(--bg-button-secondary) !important;
+        color: var(--accent-primary) !important;
+    }
+
+    /* 6. TEXT CONTAINER */
+    .site-text-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2px;
+    }
+
+    .site-name {
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+
+    .site-description {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.4;
+        margin: 0;
+
+        /* Truncate to 2 lines */
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* 7. ARROW INDICATOR */
+    .arrow-indicator {
+        position: static;
+        /* Remove absolute positioning */
+        font-size: 20px;
+        color: var(--text-tertiary, #C7C7CC);
+        /* iOS Chevron Color */
+        opacity: 0.6;
+        margin-left: 4px;
+        transform: none !important;
+        /* Prevent hover slide */
+    }
+
+    html.dark .arrow-indicator {
+        color: #48484A;
+    }
+}

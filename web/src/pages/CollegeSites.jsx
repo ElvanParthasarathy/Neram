@@ -1,6 +1,7 @@
 import React from "react";
 
 import "../styles/sites-desktop.css";
+import "../styles/sites-mobile.css";
 
 const CollegeSites = () => {
   const links = [
@@ -64,8 +65,10 @@ const CollegeSites = () => {
                 <i className={site.icon}></i>
               </div>
 
-              <h2 className="site-name">{site.name}</h2>
-              <p className="site-description">{site.description}</p>
+              <div className="site-text-container">
+                <h2 className="site-name">{site.name}</h2>
+                <p className="site-description">{site.description}</p>
+              </div>
 
               <div className="arrow-indicator">
                 <i className="ri-arrow-right-up-line"></i>

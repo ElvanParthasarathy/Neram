@@ -440,6 +440,8 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
                 </div>
               </button>
             </>
+          ) : ['/settings', '/college-sites'].includes(location.pathname) ? (
+            null
           ) : (
             /* Standard 3-Dot Menu */
             <button className="top-back-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
