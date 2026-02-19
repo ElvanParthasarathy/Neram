@@ -1009,10 +1009,10 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
         <div className="cal-toolbar-left">
           <div className="cal-view-toggle">
             <button className={viewType === 'month' ? 'active' : ''} onClick={() => setViewType('month')}>
-              <MdCalendarViewMonth /> Month
+              Month
             </button>
             <button className={viewType === 'schedule' ? 'active' : ''} onClick={() => setViewType('schedule')}>
-              <MdViewAgenda /> Schedule
+              Schedule
             </button>
           </div>
         </div>
@@ -1043,7 +1043,7 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
               }
               setSelectedDate(today);
             }}>
-              <MdCalendarToday style={{ marginRight: '6px', fontSize: '14px' }} /> Today
+              Today
             </button>
           </div>
         </div>

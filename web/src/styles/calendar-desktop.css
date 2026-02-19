@@ -104,6 +104,9 @@
     border: none;
     background: var(--mac-selection-bg);
     color: var(--mac-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
