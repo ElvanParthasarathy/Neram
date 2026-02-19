@@ -238,6 +238,26 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // --- DYNAMIC STATUS BAR COLOR ---
+  useEffect(() => {
+    const updateThemeColor = () => {
+      const isDark = document.documentElement.classList.contains("dark");
+      const metaThemeColor = document.querySelector("meta[name='theme-color']");
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute("content", isDark ? "#000000" : "#FFFFFF");
+      }
+    };
+
+    // Initial check
+    updateThemeColor();
+
+    // Observe html class changes (for theme switching)
+    const observer = new MutationObserver(updateThemeColor);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+
+    return () => observer.disconnect();
+  }, []);
+
   const expandGoogleEvent = useCallback((event) => {
     const startVal = event.start.dateTime || event.start.date;
     const endVal = event.end.dateTime || event.end.date;
