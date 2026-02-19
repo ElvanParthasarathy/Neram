@@ -1,0 +1,663 @@
+/* --- Mobile Calendar Variables --- */
+:root {
+    --cal-mob-bg: var(--bg-card);
+    /* Card Background (White / Dark Grey) */
+    --cal-mob-text: var(--text-primary);
+    --cal-mob-text-sec: var(--text-secondary);
+    --cal-mob-surface: var(--bg-body);
+    /* Body Background (Grey / Black) */
+    --cal-mob-accent: var(--accent-primary);
+
+    /* Samsung/Kotlin Palette */
+    --cal-mob-red: #EF5350;
+    --cal-mob-green: #66BB6A;
+    --cal-mob-blue: #42A5F5;
+    --cal-mob-purple: #9C27B0;
+    --cal-mob-yellow: #FFCA28;
+    --cal-mob-cyan: #00BCD4;
+}
+
+/* Dark Mode Overrides - REMOVED (Handled by Global Vars) */
+/* [data-theme='dark'],
+.dark {
+    --cal-mob-bg: #000;
+    --cal-mob-text: #fff;
+    --cal-mob-text-sec: #aaa;
+    --cal-mob-surface: #1c1c1e;
+} */
+
+/* --- Layout --- */
+.cal-mob-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background-color: var(--cal-mob-surface);
+    /* Grey/Surface Background */
+    color: var(--cal-mob-text);
+    overflow-y: hidden;
+    /* Container doesn't scroll, card does */
+    padding-bottom: 80px;
+    /* Space for bottom nav */
+}
+
+/* --- Top Bar (New - Single Row) --- */
+.cal-mob-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px 8px 20px;
+    background-color: transparent;
+    /* Sitting on surface */
+    flex-shrink: 0;
+}
+
+/* --- Content Card (White Sheet) --- */
+.cal-mob-content-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--cal-mob-bg);
+    /* White */
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-top-right-radius: 24px;
+    overflow: hidden;
+    /* Clip content to corners */
+    padding-top: 16px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.cal-mob-app-title {
+    font-size: 26px;
+    /* Matched to Kotlin HeadlineSmall/Large */
+    font-weight: 700;
+}
+
+.cal-mob-top-actions {
+    display: flex;
+    gap: 8px;
+    /* Spacing between icons */
+}
+
+.cal-mob-icon-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    font-size: 22px;
+    /* Icon size */
+    color: var(--cal-mob-text);
+    cursor: pointer;
+    border-radius: 50%;
+    /* Ripple effect area */
+}
+
+.cal-mob-icon-btn:active {
+    background-color: var(--bg-nav-selection);
+}
+
+/* [data-theme='dark'] .cal-mob-icon-btn:active ... REMOVED */
+
+/* --- Header --- */
+.cal-mob-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    /* Align bottom */
+    padding: 16px 24px 8px 24px;
+}
+
+.cal-mob-date-display {
+    display: flex;
+    align-items: baseline;
+    /* Align text to baseline */
+}
+
+.cal-mob-day-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cal-mob-text);
+    margin-right: 8px;
+}
+
+.cal-mob-day-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--cal-mob-text-sec);
+    text-transform: uppercase;
+}
+
+.cal-mob-refresh-btn {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--cal-mob-text-sec);
+}
+
+.cal-mob-refresh-btn svg {
+    width: 32px;
+    height: 32px;
+}
+
+/* --- Calendar Grid --- */
+.cal-mob-month-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-top: 16px;
+    /* Added spacing */
+    text-transform: uppercase;
+}
+
+.cal-mob-weekdays {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 16px;
+    margin-bottom: 8px;
+}
+
+.cal-mob-weekday {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--cal-mob-text-sec);
+    opacity: 0.6;
+}
+
+.cal-mob-weekday.sun {
+    color: var(--cal-mob-red);
+    opacity: 1;
+}
+
+.cal-mob-grid {
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+    height: 310px;
+    /* Fixed height ~6 rows. Rows will flex to fit. */
+    margin-bottom: 25px;
+}
+
+.cal-mob-grid .infinite-pager-wrapper,
+.cal-mob-grid .infinite-pager-track,
+.cal-mob-grid .infinite-pager-item {
+    height: 100%;
+}
+
+.cal-mob-grid-month {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cal-mob-week-row {
+    display: flex;
+    flex: 1;
+    /* Flex to fill container */
+    min-height: 0;
+    /* Allow compression */
+}
+
+.cal-mob-day-cell {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-top: 2px;
+}
+
+/* Pseudo-element for Selection Border (Overlay, no layout space) */
+.cal-mob-day-cell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    /* Kotlin shape */
+    pointer-events: none;
+    z-index: 10;
+}
+
+.cal-mob-day-cell.selected::after {
+    border-color: var(--cal-mob-text-sec);
+}
+
+.cal-mob-day-content {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    /* Kotlin inner shape */
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    /* Tighter layout */
+}
+
+.cal-mob-day-content.today {
+    background-color: var(--cal-mob-text);
+    color: var(--cal-mob-bg);
+}
+
+/* Removed .selected from content */
+/* .cal-mob-day-content.selected {} */
+
+.cal-mob-day-cell.faded .cal-mob-day-content {
+    opacity: 0.3;
+}
+
+/* --- Indicators (Bars) --- */
+.cal-mob-indicators {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cal-mob-bar {
+    height: 3.5px;
+    width: 100%;
+    background-color: transparent;
+    border-radius: 0;
+    /* Reset */
+    box-sizing: border-box;
+    /* Crucial for padding to work inside width */
+}
+
+/* START: Gap on left (padding), touches right */
+.cal-mob-bar.start {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    padding-left: 2px;
+    padding-right: 0;
+}
+
+/* END: Touches left, Gap on right (padding) */
+.cal-mob-bar.end {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    padding-left: 0;
+    padding-right: 2px;
+}
+
+/* MIDDLE: Touches both sides */
+.cal-mob-bar.middle {
+    border-radius: 0;
+    padding: 0;
+}
+
+/* SINGLE: Gaps on both sides */
+.cal-mob-bar.single {
+    border-radius: 2px;
+    padding: 0 2px;
+}
+
+.cal-mob-bar-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+}
+
+/* --- Agenda List --- */
+.cal-mob-agenda {
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    /* gap: 12px; */
+    /* Let children manage padding */
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.cal-mob-empty-msg {
+    font-size: 14px;
+    color: var(--cal-mob-text-sec);
+    opacity: 0.7;
+}
+
+.cal-mob-card {
+    background-color: var(--cal-mob-surface);
+    border-radius: 24px;
+    /* Kotlin HomeShapes.Card */
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.cal-mob-card-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.cal-mob-card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.cal-mob-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--cal-mob-text);
+}
+
+.cal-mob-card-time {
+    font-size: 12px;
+    color: var(--cal-mob-text-sec);
+}
+
+/* --- Top Bar (New - Single Row) --- */
+.cal-mob-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px 8px 20px;
+    background-color: var(--cal-mob-bg);
+    z-index: 10;
+    gap: 12px;
+}
+
+.cal-mob-title-month {
+    font-size: 20px;
+    /* Slightly smaller to fit single row */
+    font-weight: 700;
+    color: var(--cal-mob-text);
+    line-height: 1.2;
+}
+
+.cal-mob-top-actions-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cal-mob-today-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cal-mob-surface);
+    border: none;
+    border-radius: 50%;
+    color: var(--cal-mob-accent);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* --- View Switcher (Compact) --- */
+.cal-mob-view-switcher {
+    display: flex;
+    background-color: var(--cal-mob-surface);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.cal-mob-view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    /* Square/Icon only if no text, or auto if text */
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--cal-mob-text-sec);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cal-mob-view-btn.active {
+    background-color: var(--cal-mob-bg);
+    color: var(--cal-mob-text);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cal-mob-view-btn.active svg {
+    color: var(--cal-mob-accent);
+}
+
+
+/* --- Schedule View --- */
+.cal-mob-schedule-list {
+    padding: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* Kotlin groups might be tighter, but let's use standard list spacing */
+    gap: 0;
+    /* Kotlin groups might be tighter, but let's use standard list spacing */
+    /* overflow-y: auto;  REMOVED: Let parent card scroll */
+    flex: 1;
+}
+
+.cal-mob-sched-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+}
+
+.cal-mob-sched-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 20px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    background-color: var(--cal-mob-bg);
+    /* Opaque for sticking */
+    z-index: 5;
+}
+
+.cal-mob-sched-date-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--cal-mob-surface);
+    color: var(--cal-mob-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.cal-mob-sched-date-badge.today {
+    background-color: var(--cal-mob-accent);
+    color: #fff;
+}
+
+.cal-mob-sched-date-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.cal-mob-sched-day {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--cal-mob-text);
+    text-transform: capitalize;
+}
+
+.cal-mob-sched-month {
+    font-size: 13px;
+    color: var(--cal-mob-text-sec);
+}
+
+.cal-mob-sched-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 20px;
+}
+
+.cal-mob-sched-card {
+    background-color: var(--cal-mob-surface);
+    border-radius: 12px;
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+    cursor: pointer;
+    min-height: 70px;
+}
+
+.cal-mob-sched-bar {
+    width: 6px;
+    /* Color strip on left */
+}
+
+.cal-mob-sched-content {
+    flex: 1;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cal-mob-sched-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--cal-mob-text);
+    margin-bottom: 4px;
+}
+
+.cal-mob-sched-time {
+    font-size: 13px;
+    color: var(--cal-mob-text-sec);
+}
+
+/* --- Schedule Navigation Header --- */
+.cal-mob-sched-nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: var(--cal-mob-bg);
+}
+
+.cal-mob-sched-title-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cal-mob-text);
+}
+
+.cal-mob-sched-nav-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.cal-mob-sched-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--cal-mob-surface);
+    color: var(--cal-mob-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.cal-mob-empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
+    font-size: 16px;
+    color: var(--cal-mob-text-sec);
+    background-color: var(--cal-mob-surface);
+    margin: 16px 20px;
+    border-radius: 12px;
+}
+
+/* --- Official Docs (Mobile Schedule) --- */
+.cal-mob-docs-container {
+    padding: 0 20px 16px 20px;
+    border-bottom: var(--glass-border);
+    margin-bottom: 16px;
+}
+
+.cal-mob-docs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    cursor: pointer;
+}
+
+.cal-mob-docs-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--cal-mob-text-sec);
+}
+
+.cal-mob-docs-content {
+    overflow: hidden;
+}
+
+.cal-mob-docs-item {
+    display: flex;
+    align-items: center;
+    background-color: var(--cal-mob-surface);
+    padding: 12px 16px;
+    border-radius: 12px;
+    margin-top: 8px;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.cal-mob-docs-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(239, 83, 80, 0.1);
+    /* Red tint */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cal-mob-docs-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.cal-mob-docs-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cal-mob-text);
+}
+
+.cal-mob-docs-desc {
+    font-size: 12px;
+    color: var(--cal-mob-text-sec);
+}
+
+/* --- Sticky Header Wrapper (Month View) --- */
+.cal-mob-sticky-header {
+    /* position: sticky removed - using flex layout */
+    background-color: var(--cal-mob-bg);
+    z-index: 20;
+    padding-bottom: 8px;
+    flex-shrink: 0;
+}

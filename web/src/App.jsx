@@ -159,7 +159,7 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
                   <Routes>
                     <Route path="/" element={<Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
                     <Route path="/schedule" element={<Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
-                    <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                    <Route path="/calendar" element={<Calendar isMobile={true} isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
                     <Route path="/notes" element={<Notes />} />
                   </Routes>
                 </div>
@@ -169,7 +169,7 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
                   <Routes>
                     <Route path="/" element={<Home isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
                     <Route path="/schedule" element={<Schedule globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
-                    <Route path="/calendar" element={<Calendar isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
+                    <Route path="/calendar" element={<Calendar isMobile={isMobile} isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
                     <Route path="/notes" element={<Notes />} />
                     <Route path="/college-sites" element={<CollegeSites />} />
 

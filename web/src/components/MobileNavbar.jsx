@@ -166,6 +166,91 @@ const IconSettings = (props) => (
 );
 
 
+// CUSTOM MONTH VIEW ICON (Replication of ic_month_view_custom.xml)
+const IconCustomMonth = (props) => (
+  <svg {...props} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M22 16H2"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    <path
+      d="M2 8C2 5.79086 3.79086 4 6 4H18C20.2091 4 22 5.79086 22 8V18C22 20.2091 20.2091 22 18 22H6C3.79086 22 2 20.2091 2 18V8Z"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    <path
+      d="M9 11.5H15"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    <path
+      d="M8 2V5.5"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+    <path
+      d="M16 2V5.5"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+// CUSTOM LIST VIEW ICON (Replication of ic_list_view_custom.xml)
+const IconCustomList = (props) => (
+  <svg {...props} viewBox="0 0 24 24" fill="none">
+    {/* Bullet 1 */}
+    <path
+      d="M4 5H4.01"
+      stroke="currentColor"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+    {/* Line 1 */}
+    <path
+      d="M9 5H20"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    {/* Bullet 2 */}
+    <path
+      d="M4 12H4.01"
+      stroke="currentColor"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+    {/* Line 2 */}
+    <path
+      d="M9 12H20"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    {/* Bullet 3 */}
+    <path
+      d="M4 19H4.01"
+      stroke="currentColor"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+    {/* Line 3 */}
+    <path
+      d="M9 19H20"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+
 const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -290,11 +375,8 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
       <div className="mobile-top-bar">
         {showBackButton ? (
           <>
-            {/* SecondaryTopBar: Circular back button (40dp, surface bg, ChevronLeft) */}
-            <button className="top-back-btn" onClick={() => navigate(-1)}>
-              <svg style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24" fill="currentColor">
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-              </svg>
+            <button className="top-back-btn" onClick={() => window.history.back()}>
+              <IconArrowLeft style={{ width: '24px', height: '24px' }} />
             </button>
             <span className="secondary-top-title">{getScreenTitle(location.pathname)}</span>
           </>
@@ -302,16 +384,52 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
           <span className="top-bar-title">{getScreenTitle(location.pathname)}</span>
         )}
 
-        {/* Action buttons — Kotlin TopMenuBar: 40dp Circle, Surface bg */}
+        {/* Action buttons */}
         <div className="top-bar-actions">
-          {/* 3-Dot Menu (Kotlin: MoreHoriz, 40dp circle, colors.surface) */}
-          <button className="top-back-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <svg style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="6" cy="12" r="2" />
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="18" cy="12" r="2" />
-            </svg>
-          </button>
+          {location.pathname === '/calendar' ? (
+            <>
+              <button
+                className="top-action-btn"
+                onClick={() => window.dispatchEvent(new CustomEvent('neram-cal-view', { detail: 'month' }))}
+                title="Month View"
+              >
+                <IconCustomMonth style={{ width: '22px', height: '22px' }} />
+              </button>
+              <button
+                className="top-action-btn"
+                onClick={() => window.dispatchEvent(new CustomEvent('neram-cal-view', { detail: 'schedule' }))}
+                title="Schedule View"
+              >
+                <IconCustomList style={{ width: '22px', height: '22px' }} />
+              </button>
+              <button
+                className="top-action-btn"
+                onClick={() => window.dispatchEvent(new Event('neram-cal-today'))}
+                title="Today"
+              >
+                <div style={{
+                  width: '20px',
+                  height: '20px',
+                  border: '2px solid currentColor',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: '900',
+                  lineHeight: '1',
+                  paddingTop: '1px'
+                }}>
+                  {new Date().getDate()}
+                </div>
+              </button>
+            </>
+          ) : (
+            /* Standard 3-Dot Menu */
+            <button className="top-back-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <IconDots style={{ width: '24px', height: '24px' }} />
+            </button>
+          )}
         </div>
       </div>
 
