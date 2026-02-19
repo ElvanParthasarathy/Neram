@@ -64,10 +64,12 @@ const Settings2 = ({ userProfile }) => {
                 detail: { title, onBack: 'goHub' }
             }));
         }
-
-        // Cleanup on unmount
-        return () => window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
     }, [currentView]);
+
+    // Cleanup navigation override ONLY on unmount
+    useEffect(() => {
+        return () => window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
+    }, []);
 
     // Listen for goHub request from MobileNavbar
     useEffect(() => {
