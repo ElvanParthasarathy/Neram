@@ -27,18 +27,59 @@ const SettingsWelcome = () => (
 );
 
 const Settings2 = ({ userProfile }) => {
-    // Default to 'profile' on desktop to avoid blank space, 'hub' on mobile
+    // 1. Initialize State from Hash (Mobile) or Default (Desktop)
     const [currentView, setCurrentView] = useState(() => {
-        return window.innerWidth > 768 ? "profile" : "hub";
+        const hash = window.location.hash.replace('#', '');
+        // Desktop: Default to 'profile' if empty
+        // Mobile: Default to 'hub' if empty
+        if (window.innerWidth > 768) return hash || "profile";
+        return hash || "hub";
     });
 
-    const goHub = () => {
-        // On desktop, "Back" should just keep us in a valid view (defaulting to Profile)
-        // On mobile, it needs to return to the Hub menu.
-        if (window.innerWidth > 768) {
-            setCurrentView("profile");
+    // 2. Listen for Hash Changes (System Back Button Support)
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash.replace('#', '');
+            if (window.innerWidth <= 768) {
+                // Mobile: Sync state with hash
+                setCurrentView(hash || 'hub');
+            } else {
+                // Desktop: Sync state with hash (optional, but good for linking)
+                if (hash) setCurrentView(hash);
+            }
+        };
+
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []);
+
+    // 3. Navigation Handler (Push to History on Mobile)
+    const handleNavigate = (view) => {
+        if (window.innerWidth <= 768) {
+            // Mobile: Push hash to history
+            window.location.hash = view;
         } else {
-            setCurrentView("hub");
+            // Desktop: Just update state (or push hash if you want deep linking)
+            setCurrentView(view);
+            // Optional: Update hash without scrolling
+            window.history.replaceState(null, null, `#${view}`);
+        }
+    };
+
+    const goHub = () => {
+        if (window.innerWidth > 768) {
+            // Desktop "Back" -> Profile
+            setCurrentView("profile");
+            window.history.replaceState(null, null, '#profile');
+        } else {
+            // Mobile "Back" -> History Back (pops the hash)
+            if (window.location.hash && window.location.hash !== '#hub') {
+                window.history.back();
+            } else {
+                // Fallback if no hash
+                setCurrentView("hub");
+                window.location.hash = ''; // Clear hash
+            }
         }
     };
 
@@ -60,8 +101,12 @@ const Settings2 = ({ userProfile }) => {
                 about: 'About App'
             };
             const title = titles[currentView] || 'Settings';
+
+            // REMOVED: onBack: 'goHub'
+            // Reason: We want the default MobileNavbar back button to call history.back()
+            // which will now correctly pop the hash state we pushed.
             window.dispatchEvent(new CustomEvent('neram-update-nav', {
-                detail: { title, onBack: 'goHub' }
+                detail: { title }
             }));
         }
     }, [currentView]);
@@ -71,7 +116,7 @@ const Settings2 = ({ userProfile }) => {
         return () => window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
     }, []);
 
-    // Listen for goHub request from MobileNavbar
+    // Listen for goHub request from MobileNavbar (Fallback)
     useEffect(() => {
         const handleGoHub = () => goHub();
         window.addEventListener('neram-go-hub', handleGoHub);
@@ -112,7 +157,7 @@ const Settings2 = ({ userProfile }) => {
             <div className="s2-content-grid">
                 {/* LEFT: Hub navigation */}
                 <div className={`s2-col-left ${currentView !== "hub" ? "s2-hide-mobile" : ""}`}>
-                    <SettingsHub userProfile={userProfile} onNavigate={setCurrentView} />
+                    <SettingsHub userProfile={userProfile} onNavigate={handleNavigate} />
                 </div>
 
                 {/* RIGHT: Detail view */}
