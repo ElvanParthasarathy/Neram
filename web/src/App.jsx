@@ -244,7 +244,7 @@ function App() {
       const isDark = document.documentElement.classList.contains("dark");
       const metaThemeColor = document.querySelector("meta[name='theme-color']");
       if (metaThemeColor) {
-        metaThemeColor.setAttribute("content", isDark ? "#000000" : "#F5F5F7");
+        metaThemeColor.setAttribute("content", isDark ? "#000000" : "#F2F2F7");
       }
     };
 
