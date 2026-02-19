@@ -67,7 +67,7 @@
     border-top-right-radius: 24px;
     overflow: hidden;
     /* Clip content to corners */
-    padding-top: 16px;
+    padding-top: 0;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.02);
 }
 
@@ -157,7 +157,7 @@
     font-size: 16px;
     font-weight: 700;
     margin-bottom: 12px;
-    padding-top: 16px;
+    padding-top: 0;
     /* Added spacing */
     text-transform: uppercase;
 }
