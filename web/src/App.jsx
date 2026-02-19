@@ -66,7 +66,18 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
 
   // 1. CLICK NAVIGATION (Standard Navigation)
   const scrollToTab = (index) => {
-    navigate(tabs[index], { replace: true });
+    const target = tabs[index];
+
+    // If we are navigating to Home, and we are NOT at Home: Push (so Back works)
+    // If we are navigating from Home to Subpage: Push (so Back works)
+    // If we are navigating Subpage -> Subpage: Replace (to keep "Back -> Home" logic clean)
+
+    if (target === "/" || location.pathname === "/") {
+      navigate(target);
+    } else {
+      // Subpage -> Subpage
+      navigate(target, { replace: true });
+    }
   };
 
   // --- BACK BUTTON LOGIC ---
@@ -82,7 +93,6 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
       }
     };
     window.addEventListener("popstate", handleBackButton);
-    // REMOVED: window.history.pushState(null, document.title, window.location.href);
     return () => window.removeEventListener("popstate", handleBackButton);
   }, [location.pathname, user, navigate]);
 
