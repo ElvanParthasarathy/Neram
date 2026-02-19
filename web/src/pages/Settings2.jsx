@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../styles/settings2.css";
+import { motion, AnimatePresence } from "framer-motion";
 
 import SettingsHub from "./settings/SettingsHub";
 import DisplaySettings from "./settings/DisplaySettings";
@@ -27,60 +28,78 @@ const SettingsWelcome = () => (
 );
 
 const Settings2 = ({ userProfile }) => {
-    // 1. Initialize State from Hash (Mobile) or Default (Desktop)
+    // 1. Initialize State
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [direction, setDirection] = useState(0); // 1: Forward (Right to Left), -1: Back (Left to Right)
+
     const [currentView, setCurrentView] = useState(() => {
         const hash = window.location.hash.replace('#', '');
         const mainView = hash.split('/')[0];
-        // Desktop: Default to 'profile' if empty
-        // Mobile: Default to 'hub' if empty
         if (window.innerWidth > 768) return mainView || "profile";
         return mainView || "hub";
     });
+
+    const prevViewRef = useRef(currentView);
+
+    // Track Resize
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // 2. Listen for Hash Changes (System Back Button Support)
     useEffect(() => {
         const handleHashChange = () => {
             const hash = window.location.hash.replace('#', '');
-            const mainView = hash.split('/')[0];
-            if (window.innerWidth <= 768) {
-                // Mobile: Sync state with hash
-                setCurrentView(mainView || 'hub');
+            const mainView = hash.split('/')[0] || (isMobile ? 'hub' : 'profile');
+
+            // Determine Direction using Ref to avoid closure staleness if we used state directly without dependency issue, 
+            // but here we are in an effect.
+            // Logic: Hub -> Detail (Forward/1), Detail -> Hub (Back/-1)
+            // Detail -> Detail (Replace/0 or Forward/1?) -> Let's say 0 for now (Fade) or 1.
+
+            const prev = prevViewRef.current;
+            if (prev === 'hub' && mainView !== 'hub') {
+                setDirection(1);
+            } else if (prev !== 'hub' && mainView === 'hub') {
+                setDirection(-1);
             } else {
-                // Desktop: Sync state with hash (optional, but good for linking)
-                if (mainView) setCurrentView(mainView);
+                setDirection(0); // Sibilng or unknown
             }
+
+            setCurrentView(mainView);
+            prevViewRef.current = mainView;
         };
 
         window.addEventListener('hashchange', handleHashChange);
         return () => window.removeEventListener('hashchange', handleHashChange);
-    }, []);
+    }, [isMobile]);
 
-    // 3. Navigation Handler (Push to History on Mobile)
+    // 3. Navigation Handler
     const handleNavigate = (view) => {
-        if (window.innerWidth <= 768) {
-            // Mobile: Push hash to history
+        if (isMobile) {
+            setDirection(1); // Explicit forward triggers immediately
             window.location.hash = view;
         } else {
-            // Desktop: Just update state (or push hash if you want deep linking)
             setCurrentView(view);
-            // Optional: Update hash without scrolling
             window.history.replaceState(null, null, `#${view}`);
         }
     };
 
     const goHub = () => {
-        if (window.innerWidth > 768) {
-            // Desktop "Back" -> Profile
+        if (!isMobile) {
             setCurrentView("profile");
             window.history.replaceState(null, null, '#profile');
         } else {
-            // Mobile "Back" -> History Back (pops the hash)
+            // Mobile: Pop history (which triggers hashchange -> direction -1 via logic above)
+            // For smoother feel, we could set direction here, but hashchange is fast enough.
             if (window.location.hash && window.location.hash !== '#hub') {
                 window.history.back();
             } else {
-                // Fallback if no hash
+                setDirection(-1);
                 setCurrentView("hub");
-                window.location.hash = ''; // Clear hash
+                window.location.hash = '';
             }
         }
     };
@@ -90,7 +109,6 @@ const Settings2 = ({ userProfile }) => {
         if (currentView === 'hub') {
             window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
         } else {
-            // Map view names to titles
             const titles = {
                 profile: 'Edit Profile',
                 display: 'Appearance',
@@ -104,76 +122,121 @@ const Settings2 = ({ userProfile }) => {
             };
             const title = titles[currentView] || 'Settings';
 
-            // REMOVED: onBack: 'goHub'
-            // Reason: We want the default MobileNavbar back button to call history.back()
-            // which will now correctly pop the hash state we pushed.
             window.dispatchEvent(new CustomEvent('neram-update-nav', {
                 detail: { title }
             }));
         }
     }, [currentView]);
 
-    // Cleanup navigation override ONLY on unmount
+    // Cleanup navigation override
     useEffect(() => {
         return () => window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
     }, []);
 
-    // Listen for goHub request from MobileNavbar (Fallback)
+    // Listen for goHub (Fallback)
     useEffect(() => {
         const handleGoHub = () => goHub();
         window.addEventListener('neram-go-hub', handleGoHub);
         return () => window.removeEventListener('neram-go-hub', handleGoHub);
-    }, []);
+    }, [isMobile]); // Add isMobile dep
 
     const renderDetailView = () => {
-        // Parse hash for sub-routes
-        // Format: #view/sub/path
         const hash = window.location.hash.replace('#', '');
         const parts = hash.split('/');
-        const mainView = parts[0] || (window.innerWidth > 768 ? "profile" : "hub");
+        const mainView = parts[0] || (isMobile ? 'hub' : 'profile'); // Robust fallback
         const subPath = parts.slice(1).join('/');
 
-        switch (mainView) {
-            case "profile":
-                return <ProfileView userProfile={userProfile} onBack={goHub} />;
-            case "display":
-                return <DisplaySettings onBack={goHub} />;
-            case "notifications":
-                return <NotificationSettings onBack={goHub} />;
-            case "storage":
-                return <StorageSettings userProfile={userProfile} onBack={goHub} />;
-            case "security":
-                return <SecuritySettings onBack={goHub} />;
-            case "directory":
-                return <UserDirectoryView onBack={goHub} subPath={subPath} />;
-            case "complaints":
-                return <FeedbackView userProfile={userProfile} onBack={goHub} />;
-            case "developer":
-                return <DeveloperPage onBack={goHub} />;
-            case "about":
-                return <AboutPage onBack={goHub} />;
+        /* Only render actual content if not hub (optimization) */
+        if (mainView === 'hub' && isMobile) return null;
+
+        const effectiveView = mainView === 'hub' && !isMobile ? 'profile' : mainView;
+
+        switch (effectiveView) {
+            case "profile": return <ProfileView userProfile={userProfile} onBack={goHub} />;
+            case "display": return <DisplaySettings onBack={goHub} />;
+            case "notifications": return <NotificationSettings onBack={goHub} />;
+            case "storage": return <StorageSettings userProfile={userProfile} onBack={goHub} />;
+            case "security": return <SecuritySettings onBack={goHub} />;
+            case "directory": return <UserDirectoryView onBack={goHub} subPath={subPath} />;
+            case "complaints": return <FeedbackView userProfile={userProfile} onBack={goHub} />;
+            case "developer": return <DeveloperPage onBack={goHub} />;
+            case "about": return <AboutPage onBack={goHub} />;
             default:
-                // For desktop, if no view is selected (hub), fallback to profile
-                if (window.innerWidth > 768) return <ProfileView userProfile={userProfile} onBack={goHub} />;
-                return null;
+                if (!isMobile) return <ProfileView userProfile={userProfile} onBack={goHub} />;
+                return <div className="s2-not-found">View not found</div>;
         }
     };
 
     const detailContent = renderDetailView();
 
-    return (
-        <div className="s2-page-view">
-            <div className="s2-content-grid">
-                {/* LEFT: Hub navigation */}
-                <div className={`s2-col-left ${currentView !== "hub" ? "s2-hide-mobile" : ""}`}>
-                    <SettingsHub userProfile={userProfile} onNavigate={handleNavigate} />
-                </div>
+    // --- ANIMATION VARIANTS ---
+    const variants = {
+        enter: (direction) => ({
+            x: direction > 0 ? "100%" : (direction < 0 ? "-100%" : 0),
+            opacity: 0,
+            zIndex: 1 // Enter on top?
+        }),
+        center: {
+            x: 0,
+            opacity: 1,
+            zIndex: 0
+        },
+        exit: (direction) => ({
+            x: direction < 0 ? "100%" : (direction > 0 ? "-100%" : 0),
+            opacity: 0,
+            zIndex: 0
+        })
+    };
 
-                {/* RIGHT: Detail view */}
-                <div className={`s2-col-right ${currentView === "hub" ? "s2-hide-mobile" : ""}`}>
-                    {detailContent || <SettingsWelcome />}
+    const transition = { type: "spring", stiffness: 300, damping: 30 };
+
+    return (
+        <div className="s2-page-view" style={isMobile ? { position: 'relative', overflow: 'hidden', height: '100%' } : {}}>
+            {isMobile ? (
+                <AnimatePresence mode="popLayout" custom={direction} initial={false}>
+                    {currentView === 'hub' ? (
+                        <motion.div
+                            key="hub"
+                            custom={direction}
+                            variants={variants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={transition}
+                            className="s2-col-left"
+                            style={{ width: '100%', height: '100%' }} // Flex basis?
+                        >
+                            <SettingsHub userProfile={userProfile} onNavigate={handleNavigate} />
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="detail"
+                            custom={direction}
+                            variants={variants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={transition}
+                            className="s2-col-right"
+                            style={{ width: '100%', height: '100%' }}
+                        >
+                            {detailContent}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            ) : (
+                <div className="s2-content-grid">
+                    {/* LEFT: Hub navigation */}
+                    <div className="s2-col-left">
+                        <SettingsHub userProfile={userProfile} onNavigate={handleNavigate} />
+                    </div>
+
+                    {/* RIGHT: Detail view */}
+                    <div className="s2-col-right">
+                        {detailContent || <SettingsWelcome />}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
