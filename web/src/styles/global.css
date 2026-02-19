@@ -1,35 +1,36 @@
-@media (min-width: 769px) {
-
-  /* ==========================================================================
+/* ==========================================================================
    2. GLOBAL SYSTEM & VIEWPORT (ELASTIC BOUNCE ENABLED)
    ========================================================================== */
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-  html,
-  body {
-    height: 100%;
-    width: 100%;
-    overflow: auto;
-    /* REMOVED RADIAL GRADIENT TO PREVENT SIDBAR BLEED */
-    background-color: var(--mac-bg-primary);
-    background-attachment: fixed;
-    scroll-behavior: smooth;
-  }
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  /* REMOVED RADIAL GRADIENT TO PREVENT SIDBAR BLEED */
+  background-color: var(--mac-bg-primary);
+  background-attachment: fixed;
+  scroll-behavior: smooth;
+}
+
+@media (max-width: 768px) {
 
   /* DARK MODE BACKGROUND OVERRIDE (MOBILE ONLY) */
-  @media (max-width: 768px) {
-    html.dark body {
-      background: var(--mac-bg-primary);
-      /* Uses the Deep Midnight defined in html.dark */
-    }
+  html.dark body {
+    background: var(--mac-bg-primary);
+    /* Uses the Deep Midnight defined in html.dark */
   }
+}
+
+@media (min-width: 769px) {
 
   #app-shell.desktop-mode-active {
     display: flex;
@@ -40,8 +41,6 @@
     /* Match content area background always */
     transition: background 0.3s ease;
   }
-
-
 
   #main-viewport {
     flex: 1;
