@@ -408,12 +408,6 @@ const ExamManager = ({ user, userProfile }) => {
                     <div className="header-actions">
                       {isEditing ? (
                         <>
-                          <button className="btn-save-mini" onClick={saveEdit}>Save</button>
-                          <button className="btn-cancel-mini" onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
-                        </>
-                      ) : (
-                        <>
-                          <button className="btn-edit-mini" onClick={() => startEditing(ex)}><RiEditLine /> Edit</button>
                           <button className="btn-del-mini" onClick={() => {
                             showConfirm(
                               "Delete Timetable?",
@@ -421,6 +415,12 @@ const ExamManager = ({ user, userProfile }) => {
                               () => syncExamsToDB(masterData.exams.filter(e => e.id !== ex.id))
                             );
                           }}><RiDeleteBin6Line /> Delete</button>
+                          <button className="btn-save-mini" onClick={saveEdit}>Save</button>
+                          <button className="btn-cancel-mini" onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button className="btn-edit-mini" onClick={() => startEditing(ex)}><RiEditLine /> Edit</button>
                         </>
                       )}
                     </div>

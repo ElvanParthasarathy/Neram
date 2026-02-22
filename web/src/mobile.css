@@ -199,6 +199,11 @@
       -ms-overflow-style: none;
     }
 
+    /* Admin panel: offset content below the fixed top bar */
+    #app-shell #main-viewport {
+      padding-top: calc(64px + env(safe-area-inset-top));
+    }
+
     html.dark #main-viewport {
       background: #000000;
     }
@@ -241,6 +246,8 @@
       z-index: 9997;
       /* Below navbars (9998) but above content */
     }
+
+    /* (Removed Admin App Canvas bottom override since we added a Bottom Navbar) */
 
     html.dark #app-shell::after {
       box-shadow: 0 0 0 9999px #000000;
@@ -1770,6 +1777,851 @@
   .h2-message-body {
     font-size: 14px !important;
     line-height: 1.4;
+  }
+
+  /* =====================================================================
+     ADMIN PANEL — PAGE HEADER & CONTENT FLOW (Mobile)
+     ===================================================================== */
+
+  .admin-view-dead-end .page-header {
+    display: none;
+  }
+
+  .admin-content-flow {
+    padding: 0 !important;
+  }
+
+  /* =====================================================================
+     ADMIN SUBPAGES — MOBILE OVERRIDES (Schedule Manager, Exams, etc.)
+     ===================================================================== */
+
+  .admin-subpage {
+    padding: 0 16px;
+    padding-bottom: 100px;
+  }
+
+  .admin-subpage>h1,
+  .admin-subpage>h2 {
+    font-size: 24px !important;
+    margin-bottom: 8px;
+  }
+
+  .explorer-header {
+    padding: 8px 0 12px 0;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .breadcrumb-nav {
+    font-size: 12px;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb-full {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .breadcrumb-mobile {
+    display: inline;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text);
+  }
+
+  .crumb-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .crumb-static {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .back-btn-minimal,
+  .explorer-back-btn {
+    display: none !important;
+  }
+
+  .explorer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .explorer-card {
+    border-radius: 20px;
+    padding: 20px 16px;
+  }
+
+  .explorer-card:hover {
+    transform: none;
+  }
+
+  .card-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .card-initial {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  .explorer-card h3,
+  .card-info h3 {
+    font-size: 14px;
+  }
+
+  .explorer-card p,
+  .card-info p {
+    font-size: 11px;
+  }
+
+  /* Editor workspace */
+  .schedule-editor-workspace {
+    padding: 0 0 120px;
+  }
+
+  .editor-tabs {
+    display: flex !important;
+    flex-wrap: nowrap;
+    gap: 4px;
+    border-radius: 100px !important;
+    padding: 4px !important;
+    margin-bottom: 16px;
+    background: var(--mac-sidebar-bg);
+    border: none !important;
+    box-shadow: none !important;
+    overflow-x: auto;
+  }
+
+  .editor-tabs button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 8px !important;
+    font-size: 12px !important;
+    border-radius: 100px !important;
+    gap: 6px !important;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .editor-tabs button.active {
+    background: var(--mac-selection-bg, rgba(0, 122, 255, 0.1));
+    color: var(--mac-blue);
+  }
+
+  .editor-tabs button svg {
+    font-size: 14px;
+  }
+
+  /* Tab content */
+  .tab-content-area {
+    padding: 8px 0;
+  }
+
+  /* Timetable */
+  .timetable-builder {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .timetable-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+
+  .edit-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .admin-timetable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--mac-sidebar-bg);
+    border: none;
+    border-radius: 16px !important;
+    overflow: hidden;
+    font-size: 12px;
+  }
+
+  .admin-timetable th,
+  .admin-timetable td {
+    padding: 8px 6px !important;
+    font-size: 11px;
+    border-bottom: 1px solid var(--mac-divider);
+    border-right: 1px solid var(--mac-divider);
+    text-align: center;
+  }
+
+  .admin-timetable th {
+    background: var(--mac-table-header, rgba(0, 0, 0, 0.1));
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mac-text-secondary);
+  }
+
+  .day-label {
+    min-width: 60px !important;
+    font-size: 11px !important;
+    font-weight: 700;
+    background: var(--mac-table-header, rgba(0, 0, 0, 0.1));
+  }
+
+  .cell-static-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mac-text);
+  }
+
+  .timetable-combo-input {
+    width: 100%;
+    background: var(--mac-bg-secondary);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 11px !important;
+    padding: 6px 4px !important;
+    text-align: center;
+    color: var(--mac-text);
+  }
+
+  .timetable-combo-input:focus {
+    border-color: var(--mac-blue);
+    background: var(--mac-card-bg, var(--mac-sidebar-bg));
+  }
+
+  /* Course manager — Add bar */
+  .course-manager .add-item-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px !important;
+    background: var(--mac-sidebar-bg);
+    padding: 12px !important;
+    border-radius: 16px !important;
+    border: none;
+    margin-bottom: 16px;
+  }
+
+  .course-manager .add-item-bar input,
+  .add-item-bar input {
+    flex: 1 1 100%;
+    min-width: 0;
+    height: 40px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider, rgba(255, 255, 255, 0.1));
+    border-radius: 10px;
+    padding: 0 12px;
+    font-size: 13px;
+    color: var(--mac-text);
+    box-sizing: border-box;
+  }
+
+  .course-manager .add-item-bar input:focus,
+  .add-item-bar input:focus {
+    border-color: var(--mac-blue);
+    outline: none;
+  }
+
+  /* Course list items */
+  .list-item-card {
+    background: var(--mac-sidebar-bg);
+    border: none;
+    padding: 14px 16px !important;
+    border-radius: 16px !important;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .item-main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .course-code-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--mac-blue);
+    background: rgba(0, 122, 255, 0.1);
+    padding: 3px 10px;
+    border-radius: 50px;
+    letter-spacing: 0.5px;
+    width: fit-content;
+  }
+
+  .course-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text);
+    line-height: 1.3;
+  }
+
+  .course-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .course-meta-tag {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    font-weight: 500;
+  }
+
+  .item-meta-info {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    font-weight: 500;
+  }
+
+  .item-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .action-edit {
+    background: rgba(0, 122, 255, 0.12);
+    color: var(--mac-blue);
+  }
+
+  .action-delete {
+    background: rgba(255, 59, 48, 0.12);
+    color: #ff3b30;
+  }
+
+  .action-label {
+    font-size: 13px;
+  }
+
+  .icon-edit {
+    color: var(--mac-blue);
+    cursor: pointer;
+  }
+
+  .icon-del {
+    color: #ff3b30;
+    cursor: pointer;
+  }
+
+  /* ================================================================
+     TIMETABLE EDITOR V2 — MOBILE
+     ================================================================ */
+  .timetable-builder-v2 {
+    padding: 0;
+  }
+
+  .timetable-builder-v2 .s2-day-tabs {
+    margin-bottom: 16px;
+  }
+
+  .tt-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .tt-day-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0;
+  }
+
+  .tt-edit-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .tt-period-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tt-period-card {
+    background: var(--mac-sidebar-bg);
+    border: 1px solid var(--mac-divider, rgba(255, 255, 255, 0.08));
+    border-radius: 16px;
+    padding: 14px 16px;
+  }
+
+  .tt-period-card.editing {
+    border-color: rgba(0, 122, 255, 0.25);
+    background: var(--mac-card-bg);
+  }
+
+  .tt-period-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mac-text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .tt-period-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mac-text);
+    padding: 12px 14px;
+    background: var(--mac-bg-secondary);
+    border-radius: 12px;
+    min-height: 20px;
+    word-break: break-word;
+  }
+
+  .tt-empty {
+    color: var(--mac-text-secondary);
+    opacity: 0.4;
+  }
+
+  .tt-period-input {
+    width: 100% !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    background: var(--mac-bg-secondary) !important;
+    border: 1.5px solid var(--mac-divider, rgba(255, 255, 255, 0.15)) !important;
+    border-radius: 14px !important;
+    padding: 0 16px !important;
+    color: var(--mac-text) !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    box-sizing: border-box !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  .tt-period-input:focus {
+    border-color: var(--mac-blue) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15) !important;
+  }
+
+  /* ================================================================
+     INLINE EDIT — COMPLETE MOBILE REDESIGN
+     ================================================================ */
+  .list-item-card .inline-edit-row.full-fields {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+    padding: 4px 0 !important;
+  }
+
+  .list-item-card .edit-field-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    width: 100% !important;
+  }
+
+  .list-item-card .edit-field-label {
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    color: var(--mac-text-secondary) !important;
+    padding-left: 2px !important;
+  }
+
+  .list-item-card .inline-edit-row.full-fields input,
+  .list-item-card .edit-field-group input {
+    width: 100% !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    background: var(--mac-bg-secondary) !important;
+    border: 1.5px solid var(--mac-divider, rgba(255, 255, 255, 0.15)) !important;
+    border-radius: 14px !important;
+    padding: 0 16px !important;
+    color: var(--mac-text) !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    box-sizing: border-box !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+
+  .list-item-card .inline-edit-row.full-fields input:focus,
+  .list-item-card .edit-field-group input:focus {
+    border-color: var(--mac-blue) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15) !important;
+  }
+
+  .list-item-card .edit-btn-group {
+    display: flex !important;
+    gap: 8px !important;
+    padding-top: 4px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .btn-save-mini,
+  .btn-cancel-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .btn-save-mini {
+    background: var(--mac-blue);
+    color: white;
+  }
+
+  .btn-cancel-mini {
+    background: var(--mac-button-bg, rgba(255, 255, 255, 0.1));
+    color: var(--mac-text);
+  }
+
+  /* Buttons */
+  .btn-save-master,
+  .btn-edit-mode,
+  .btn-add {
+    border-radius: 50px !important;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+
+  .btn-save-master,
+  .btn-add {
+    background: var(--mac-blue);
+    color: #fff;
+  }
+
+  .btn-edit-mode {
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--mac-blue);
+  }
+
+  .btn-cancel {
+    background: var(--mac-button-bg, rgba(255, 255, 255, 0.1));
+    color: var(--mac-text);
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+  }
+
+  /* Counseling V2 */
+  .counseling-manager-v2 {
+    padding: 0;
+  }
+
+  .counseling-grid-modern {
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .coordinator-card-v2,
+  .counselor-list-card-v2 {
+    background: var(--mac-sidebar-bg);
+    border: none;
+    border-radius: 20px;
+    padding: 16px;
+  }
+
+  .card-header-modern {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .card-header-modern .icon-wrap {
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 122, 255, 0.1);
+    color: var(--mac-blue);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .card-header-modern h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .card-header-modern p {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    margin: 2px 0 0 0;
+  }
+
+  .coordinator-fields-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .coordinator-row-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .coordinator-display {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .coordinator-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-text);
+    padding: 10px 14px;
+    background: var(--mac-bg-secondary);
+    border-radius: 10px;
+  }
+
+  .role-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mac-text-secondary);
+    background: var(--mac-bg-secondary);
+    padding: 4px 10px;
+    border-radius: 6px;
+    width: fit-content;
+  }
+
+  .input-group-modern {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .input-group-modern input {
+    flex: 1;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider, rgba(255, 255, 255, 0.1));
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--mac-text);
+  }
+
+  .input-group-modern input:focus {
+    border-color: var(--mac-blue);
+    outline: none;
+  }
+
+  .add-counselor-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .add-counselor-v2 input {
+    flex: 1;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider, rgba(255, 255, 255, 0.1));
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--mac-text);
+  }
+
+  .btn-add-circle {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--mac-blue);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .counselor-items-v2 {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .counselor-item-row {
+    background: var(--mac-bg-secondary);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .counselor-name-chip {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 0;
+  }
+
+  .counselor-row-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .btn-delete-chip {
+    background: transparent;
+    border: none;
+    color: #ff3b30;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  .inline-edit-pill-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .inline-edit-pill-wrap input {
+    flex: 1;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-blue);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--mac-text);
+  }
+
+  .edit-pill-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .btn-pill-save,
+  .btn-pill-cancel {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .btn-pill-save {
+    background: var(--mac-blue);
+    color: white;
+  }
+
+  .btn-pill-cancel {
+    background: var(--mac-button-bg, rgba(255, 255, 255, 0.1));
+    color: var(--mac-text);
+  }
+
+  .confirm-delete-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 59, 48, 0.05);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+    padding: 4px 8px;
+    border-radius: 10px;
+  }
+
+  .confirm-delete-inline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-confirm-del {
+    background: #ff3b30;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-cancel-del,
+  .btn-cancel-icon {
+    background: transparent;
+    border: none;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    padding: 4px;
+    font-size: 16px;
+  }
+
+  .btn-confirm-text {
+    background: transparent;
+    border: none;
+    color: #ff3b30;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
   }
 
   /* CSS BLOKER KLOSING */

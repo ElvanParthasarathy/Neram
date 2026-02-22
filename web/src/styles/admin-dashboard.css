@@ -26,7 +26,7 @@
 }
 
 .stat-card-premium:hover {
-    transform: translateY(-2px);
+    transform: none;
 }
 
 .stat-icon-box {
@@ -122,7 +122,7 @@
 }
 
 .admin-profile-slim:hover {
-    transform: translateY(-2px);
+    transform: none;
 }
 
 .hero-avatar-slim {
@@ -183,7 +183,7 @@
 }
 
 .admin-context-box:hover {
-    transform: translateY(-2px);
+    transform: none;
 }
 
 .admin-context-box h3 {
@@ -483,7 +483,108 @@ html.dark .dropdown-menu {
 }
 
 @media (max-width: 900px) {
+
+    /* FORCE EDGE-TO-EDGE ON MOBILE FOR ROOT CONTAINERS */
+    .admin-view-dead-end,
+    .admin-content-flow,
+    .admin-dashboard-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Add exactly 12px safe area margin to match Student Portal */
+    .admin-dashboard-container {
+        margin: 0 12px !important;
+        /* Physically constrain to canvas hole */
+        padding-top: 16px !important;
+        /* Clear top navbar */
+        padding-bottom: 30px !important;
+        width: auto !important;
+        /* Allow margins to act */
+    }
+
     .admin-dashboard-new-layout {
         grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 0;
+        /* Let canvas frame handle lateral bounds */
+        margin-top: 12px;
+        /* slight bump from navbar */
+    }
+
+    /* Hide redundant desktop header to remove huge top gap */
+    .admin-dashboard-container .page-header {
+        display: none !important;
+    }
+
+    .admin-left-column {
+        gap: 16px;
+    }
+
+    .admin-profile-slim {
+        border-radius: 100px;
+        padding: 16px;
+        min-height: auto;
+    }
+
+    .hero-avatar-slim {
+        width: 54px;
+        height: 54px;
+        font-size: 24px;
+    }
+
+    .hero-text-slim h1 {
+        font-size: 18px;
+        margin-bottom: 2px;
+    }
+
+    .admin-context-box {
+        border-radius: 28px;
+        padding: 16px;
+    }
+
+    .context-row {
+        padding: 8px 0;
+    }
+
+    .admin-right-column {
+        flex-direction: row !important;
+        overflow-x: auto;
+        gap: 12px;
+        padding: 0;
+        /* Let canvas frame handle lateral bounds */
+        padding-top: 0;
+        margin: 0;
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+        scroll-snap-type: x mandatory;
+    }
+
+    .stat-vertical {
+        border-radius: 28px;
+        padding: 16px;
+        min-height: auto !important;
+        min-width: 220px !important;
+    }
+
+    .stat-vertical .stat-icon-box {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+        margin-bottom: 0;
+    }
+
+    .stat-vertical .stat-value {
+        font-size: 18px;
+    }
+
+
+    .admin-right-column {
+        display: none !important;
     }
 }

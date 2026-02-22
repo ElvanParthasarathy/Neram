@@ -5,8 +5,9 @@ import { ref, onValue, set } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import "../../styles/event-manager.css";
 import {
-  RiCalendarEventLine, RiTimeLine, RiDeleteBin6Line,
+  RiCalendarEventLine, RiTimeLine, RiDeleteBin6Line, RiEditLine,
   RiAddLine, RiInformationLine, RiFlagLine,
   RiArrowRightSLine, RiTeamLine, RiLayoutGridLine, RiArrowLeftLine
 } from 'react-icons/ri';
@@ -145,10 +146,53 @@ const EventManager = ({ user, userProfile }) => {
     setNewEvent({ ...newEvent, title: '', description: '', type: 'Event' });
   };
 
+  // --- 4.5 TIME FORMAT HELPERS ---
+  const parseTimeForInput = (timeStr) => {
+    if (!timeStr) return '';
+    const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (match) {
+      let hours = parseInt(match[1], 10);
+      if (match[3].toUpperCase() === 'PM' && hours < 12) hours += 12;
+      if (match[3].toUpperCase() === 'AM' && hours === 12) hours = 0;
+      return `${hours.toString().padStart(2, '0')}:${match[2]}`;
+    }
+    return timeStr;
+  };
+
+  const formatTimeForDisplay = (timeStr) => {
+    if (!timeStr) return '';
+    const match = timeStr.match(/^(\d{2}):(\d{2})$/);
+    if (match) {
+      let hours = parseInt(match[1], 10);
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      return `${hours.toString().padStart(2, '0')}:${match[2]} ${ampm}`;
+    }
+    return timeStr; // Return as-is if already formatted
+  };
+
   const handleDelete = (id) => {
     if (!window.confirm("Remove this event?")) return;
     const updated = events.filter(e => e.id !== id);
     syncToDB(updated);
+  };
+
+  // --- 5. EDITING LOGIC ---
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [editBuffer, setEditBuffer] = useState(null);
+
+  const startEditing = (ev) => {
+    setEditingEventId(ev.id);
+    setEditBuffer({ ...ev });
+  };
+
+  const saveEdit = () => {
+    if (!editBuffer.title || !editBuffer.date) return alert("Title and Date are required!");
+
+    const updated = events.map(e => (e.id === editingEventId ? editBuffer : e));
+    syncToDB(updated);
+    setEditingEventId(null);
+    setEditBuffer(null);
   };
 
   return (
@@ -211,36 +255,37 @@ const EventManager = ({ user, userProfile }) => {
         </div>
       ) : (
         /* 3. EDITOR WORKSPACE (Your existing Event Logic) */
-        <div className="exam-editor-workspace">
+        <div className="event-editor-workspace">
 
           {/* CREATOR CARD */}
-          <div className="settings-card exam-creator-card">
-            <h2 className="editor-title"><RiCalendarEventLine /> Create New Event</h2>
+          <div className="event-creator-card">
+            <h2 className="event-creator-title"><RiCalendarEventLine /> Create New Event</h2>
 
-            <div className="exam-config-grid">
-              <div className="field" style={{ flex: 2 }}>
+            <div className="event-config-grid">
+              <div className="event-field" style={{ gridColumn: 'span 2' }}>
                 <label>Event Title</label>
                 <input
+                  className="event-input"
                   value={newEvent.title}
                   onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
                   placeholder="e.g. Class Party"
                 />
               </div>
 
-              <div className="field">
+              <div className="event-field">
                 <label>Date</label>
                 <DatePicker
                   selected={parseDate(newEvent.date)}
                   onChange={(date) => setNewEvent({ ...newEvent, date: formatDate(date) })}
                   dateFormat="dd/MM/yyyy"
                   placeholderText="Select Date"
-                  className="custom-datepicker-input"
+                  className="event-input"
                 />
               </div>
 
-              <div className="field">
+              <div className="event-field">
                 <label>Event Type</label>
-                <select value={newEvent.type} onChange={e => setNewEvent({ ...newEvent, type: e.target.value })}>
+                <select className="event-select" value={newEvent.type} onChange={e => setNewEvent({ ...newEvent, type: e.target.value })}>
                   <option value="Event">Regular Notice</option>
                   <option value="FullDay">Full Day (Suspended)</option>
                   <option value="HalfDay">Half Day (Classes + Event)</option>
@@ -249,100 +294,156 @@ const EventManager = ({ user, userProfile }) => {
             </div>
 
             {newEvent.type === 'HalfDay' && (
-              <div className="subject-mapping-section animate-slide-down">
-                <div className="exam-subject-row professional" style={{ background: 'var(--mac-warning-bg)', border: '1px solid var(--mac-warning-border)' }}>
-                  <div className="input-group-vertical" style={{ flex: 1 }}>
-                    <label><RiTimeLine /> Start Time</label>
-                    <input type="time" value={newEvent.startTime} onChange={e => setNewEvent({ ...newEvent, startTime: e.target.value })} />
-                  </div>
-                  <div className="input-group-vertical" style={{ flex: 1 }}>
-                    <label><RiTimeLine /> End Time</label>
-                    <input type="time" value={newEvent.endTime} onChange={e => setNewEvent({ ...newEvent, endTime: e.target.value })} />
-                  </div>
-                  <div className="input-group-vertical" style={{ flex: 3, justifyContent: 'center' }}>
-                    <span style={{ fontSize: '0.9em', color: 'var(--mac-warning-text)' }}>
-                      <RiInformationLine style={{ verticalAlign: 'middle' }} /> Schedule visible + Event Badge.
-                    </span>
-                  </div>
+              <div className="event-time-row animate-slide-down">
+                <div className="event-time-field">
+                  <label><RiTimeLine /> Start</label>
+                  <input className="event-input" type="time" value={parseTimeForInput(newEvent.startTime) || '09:00'} onChange={e => setNewEvent({ ...newEvent, startTime: e.target.value })} />
+                </div>
+                <div className="event-time-field">
+                  <label><RiTimeLine /> End</label>
+                  <input className="event-input" type="time" value={parseTimeForInput(newEvent.endTime) || '12:00'} onChange={e => setNewEvent({ ...newEvent, endTime: e.target.value })} />
+                </div>
+                <div className="event-time-info">
+                  <RiInformationLine /> Schedule blocks visible + Event Badge
                 </div>
               </div>
             )}
 
-            <div className="field" style={{ marginTop: '15px' }}>
+            <div className="event-field" style={{ marginTop: '8px' }}>
               <label>Description / Note</label>
               <textarea
-                className="admin-textarea"
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
-                rows="2"
+                className="event-textarea"
                 placeholder="Optional details..."
                 value={newEvent.description}
                 onChange={e => setNewEvent({ ...newEvent, description: e.target.value })}
               />
             </div>
 
-            <button className="btn-save-master" onClick={handleAddEvent} style={{ width: '100%', marginTop: '20px' }}>
+            <button className="btn-save-master" onClick={handleAddEvent} style={{ width: '100%', marginTop: '24px', height: '48px', fontSize: '15px' }}>
               <RiAddLine /> Add to Section Calendar
             </button>
           </div>
 
           {/* LIST CARD */}
-          <div className="published-exams-section">
-            <h3 className="section-divider-title">Events for {path.dept} - {path.sec}</h3>
+          <div className="events-list-section">
+            <h3 className="events-list-title"><RiCalendarEventLine /> Events for {path.dept} - {path.sec}</h3>
 
-            <div className="settings-card">
-              <table className="preview-table published-style">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Event Details</th>
-                    <th>Type</th>
-                    <th>Timings</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {events.length > 0 ? events.map((ev) => (
-                    <tr key={ev.id}>
-                      <td>
-                        <div style={{ fontWeight: 'bold' }}>{parseDate(ev.date)?.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</div>
-                        <div style={{ fontSize: '0.8em', color: 'var(--mac-text-secondary)' }}>{parseDate(ev.date)?.getFullYear()}</div>
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: '600', color: 'var(--mac-text)' }}>{ev.title}</div>
-                        <div style={{ fontSize: '0.85em', color: 'var(--mac-text-secondary)' }}>{ev.description}</div>
-                      </td>
-                      <td>
-                        <span className={`portion-badge ${ev.type === 'FullDay' ? 'danger' : ev.type === 'HalfDay' ? 'warning' : 'success'}`}
-                          style={{
-                            background: ev.type === 'FullDay' ? 'rgba(220, 38, 38, 0.1)' : ev.type === 'HalfDay' ? 'rgba(217, 119, 6, 0.1)' : 'rgba(22, 163, 74, 0.1)',
-                            color: ev.type === 'FullDay' ? 'var(--mac-traffic-red)' : ev.type === 'HalfDay' ? '#d97706' : 'var(--mac-traffic-green)',
-                            border: '1px solid currentColor'
-                          }}>
-                          {ev.type}
-                        </span>
-                      </td>
-                      <td>
-                        {ev.type === 'HalfDay' ? (
-                          <span style={{ fontFamily: 'monospace' }}>{ev.startTime} - {ev.endTime}</span>
-                        ) : (
-                          <span style={{ opacity: 0.5 }}>-</span>
-                        )}
-                      </td>
-                      <td>
-                        <button className="btn-del-mini" onClick={() => handleDelete(ev.id)}>
-                          <RiDeleteBin6Line />
+            <div className="events-list-container">
+              {events.length > 0 ? events.map((ev) => (
+                <div key={ev.id} className={`published-event-card ${editingEventId === ev.id ? 'editing-active' : ''}`}>
+                  {editingEventId === ev.id ? (
+                    /* EDIT MODE UI */
+                    <div className="event-edit-mode">
+                      <div className="event-config-grid" style={{ marginBottom: '16px' }}>
+                        <div className="event-field" style={{ gridColumn: 'span 2' }}>
+                          <label>Event Title</label>
+                          <input
+                            className="event-input"
+                            value={editBuffer.title}
+                            onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })}
+                          />
+                        </div>
+
+                        <div className="event-field">
+                          <label>Date</label>
+                          <DatePicker
+                            selected={parseDate(editBuffer.date)}
+                            onChange={(date) => setEditBuffer({ ...editBuffer, date: formatDate(date) })}
+                            dateFormat="dd/MM/yyyy"
+                            className="event-input"
+                          />
+                        </div>
+
+                        <div className="event-field">
+                          <label>Event Type</label>
+                          <select className="event-select" value={editBuffer.type} onChange={e => setEditBuffer({ ...editBuffer, type: e.target.value })}>
+                            <option value="Event">Regular Notice</option>
+                            <option value="FullDay">Full Day (Suspended)</option>
+                            <option value="HalfDay">Half Day (Classes + Event)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {editBuffer.type === 'HalfDay' && (
+                        <div className="event-time-row" style={{ marginBottom: '16px', padding: '12px 16px' }}>
+                          <div className="event-time-field">
+                            <label><RiTimeLine /> Start</label>
+                            <input className="event-input" type="time" value={parseTimeForInput(editBuffer.startTime) || '09:00'} onChange={e => setEditBuffer({ ...editBuffer, startTime: e.target.value })} />
+                          </div>
+                          <div className="event-time-field">
+                            <label><RiTimeLine /> End</label>
+                            <input className="event-input" type="time" value={parseTimeForInput(editBuffer.endTime) || '12:00'} onChange={e => setEditBuffer({ ...editBuffer, endTime: e.target.value })} />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="event-field">
+                        <label>Description / Note</label>
+                        <textarea
+                          className="event-textarea"
+                          value={editBuffer.description}
+                          onChange={e => setEditBuffer({ ...editBuffer, description: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="event-actions-area" style={{ justifyContent: 'flex-end', marginTop: '20px', paddingTop: '16px', borderTop: '1px dashed var(--mac-divider)' }}>
+                        <button className="btn-event-delete" onClick={() => handleDelete(ev.id)}>
+                          <RiDeleteBin6Line /> Delete
                         </button>
-                      </td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: 'var(--mac-text-secondary)' }}>
-                        No events added for this section.
-                      </td>
-                    </tr>
+                        <button className="btn-save-mini" onClick={saveEdit}>Save</button>
+                        <button className="btn-cancel-mini" onClick={() => { setEditingEventId(null); setEditBuffer(null); }}>Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* VIEW MODE UI */
+                    <>
+                      <header className={`event-card-header ${(!ev.description && ev.type !== 'HalfDay') ? 'no-details' : ''}`}>
+
+                        <div className="event-title-area">
+                          <div className="event-icon-box">
+                            <RiCalendarEventLine />
+                          </div>
+                          <div className="event-name-box">
+                            <h3>{ev.title}</h3>
+                            <p>{parseDate(ev.date)?.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                          </div>
+                        </div>
+
+                        <div className="event-actions-area">
+                          <span className={`event-type-badge ${ev.type.toLowerCase()}`}>
+                            {ev.type === 'Event' ? 'Regular Notice' : ev.type === 'FullDay' ? 'Full Day Off' : 'Half Day Off'}
+                          </span>
+                          <button className="btn-edit-mini" onClick={() => startEditing(ev)}>
+                            <RiEditLine /> Edit
+                          </button>
+                        </div>
+
+                      </header>
+
+                      {(ev.description || ev.type === 'HalfDay') && (
+                        <div className="event-details-area">
+                          {ev.description && (
+                            <div className="event-detail-block" style={{ flex: 1 }}>
+                              <label>Description</label>
+                              <span>{ev.description}</span>
+                            </div>
+                          )}
+                          {ev.type === 'HalfDay' && (
+                            <div className="event-detail-block time-block">
+                              <label>Timings</label>
+                              <span>{formatTimeForDisplay(ev.startTime)} - {formatTimeForDisplay(ev.endTime)}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
                   )}
-                </tbody>
-              </table>
+                </div>
+              )) : (
+                <div className="event-empty-state">
+                  No events added for this section.
+                </div>
+              )}
             </div>
           </div>
         </div>

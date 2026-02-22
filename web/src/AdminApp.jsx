@@ -14,6 +14,7 @@ import "./mobile.css";
 // Admin Components
 import { adminEmails, getHardcodedRole } from "./data/admins";
 import AdminNavbar from "./components/AdminNavbar";
+import AdminMobileNavbar from "./components/AdminMobileNavbar";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminWelcomePage from "./pages/AdminWelcomePage";
 import AdminSignupPage from "./pages/AdminSignupPage";
@@ -57,6 +58,15 @@ function AdminAppContent({ user, isAdminUser, isMobile, loading, dbUserProfile }
                             <Route path="*" element={<Navigate to="/" replace />} />
                         </Routes>
                     </main>
+
+                    {/* NEW: MOBILE BOTTOM NAV BAR */}
+                    {isMobile && (
+                        <AdminMobileNavbar
+                            isAdminUser={isAdminUser}
+                            user={user}
+                            userProfile={dbUserProfile}
+                        />
+                    )}
                 </div>
             )}
         </>

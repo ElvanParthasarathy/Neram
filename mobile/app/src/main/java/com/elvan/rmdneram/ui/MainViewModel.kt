@@ -63,6 +63,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         awaitClose { auth.removeAuthStateListener(listener) }
     }
 
+    // Event channel for login errors (e.g. Access Denied)
+    private val _loginErrorChannel = kotlinx.coroutines.channels.Channel<String>(kotlinx.coroutines.channels.Channel.BUFFERED)
+    val loginErrorFlow = _loginErrorChannel.receiveAsFlow()
+
     init {
         // Observe Auth Changes and Load Profile
         viewModelScope.launch {
@@ -125,6 +129,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                         }
                                     }
                                 }
+                            }
+                            
+                            // --- ROLE CHECK: BLOCK ADMINS/FACULTY/ETC ---
+                            // 'rep' is allowed as they are students too.
+                            val blockedRoles = listOf("admin", "faculty", "super_admin", "checker", "blocker")
+                            if (effectiveProfile != null && blockedRoles.contains(effectiveProfile.role)) {
+                                // Block Access
+                                _uiState.update { it.copy(isLoading = false) }
+                                viewModelScope.launch {
+                                    _loginErrorChannel.send("Access Denied: ${effectiveProfile.role} role must use the Admin Portal.")
+                                }
+                                signOut() // Log them out immediately
+                                return@collect // Stop processing this profile
                             }
                             
                             val isComplete = effectiveProfile != null && 

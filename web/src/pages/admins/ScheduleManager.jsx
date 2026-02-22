@@ -7,7 +7,7 @@ import {
   RiCalendarScheduleLine, RiArrowRightSLine, RiTeamLine,
   RiLayoutGridLine, RiSave3Line, RiBookOpenLine,
   RiUserVoiceLine, RiAddLine, RiDeleteBin6Line, RiEditLine,
-  RiCloseLine, RiCheckLine, RiArrowLeftLine
+  RiCloseLine, RiCheckLine, RiArrowLeftLine, RiUserLine, RiTimeLine
 } from 'react-icons/ri';
 
 const ScheduleManager = ({ user, userProfile }) => {
@@ -60,6 +60,7 @@ const ScheduleManager = ({ user, userProfile }) => {
 
   const [timetableBuffer, setTimetableBuffer] = useState(null);
   const [isEditingTimetable, setIsEditingTimetable] = useState(false);
+  const [editingDay, setEditingDay] = useState('Tuesday');
   const [newCourse, setNewCourse] = useState({ code: '', name: '', faculty: '', periods: '' });
   const [newCounselor, setNewCounselor] = useState("");
 
@@ -69,7 +70,11 @@ const ScheduleManager = ({ user, userProfile }) => {
   // --- NEW: Counselor Editing State ---
   const [counselorEditingIdx, setCounselorEditingIdx] = useState(null);
   const [tempCounselor, setTempCounselor] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState({ type: null, index: null });
+  const [confirmDelete, setConfirmDelete] = useState({ type: null, index: null, name: '' });
+
+  // --- Coordinator Editing State ---
+  const [editingCoordRole, setEditingCoordRole] = useState(null);
+  const [tempCoordValue, setTempCoordValue] = useState("");
 
   // Load Hierarchy once
   useEffect(() => {
@@ -173,13 +178,13 @@ const ScheduleManager = ({ user, userProfile }) => {
   const removeCounselor = (index) => {
     const filtered = masterData.counseling.counselors.filter((_, i) => i !== index);
     syncToDB({ ...masterData, counseling: { ...masterData.counseling, counselors: filtered } });
-    setConfirmDelete({ type: null, index: null });
+    setConfirmDelete({ type: null, index: null, name: '' });
   };
 
   const removeCourse = (index) => {
     const filtered = masterData.courses.filter((_, i) => i !== index);
     syncToDB({ ...masterData, courses: filtered });
-    setConfirmDelete({ type: null, index: null });
+    setConfirmDelete({ type: null, index: null, name: '' });
   };
 
   // --- NEW: Counselor Update Logic ---
@@ -216,12 +221,22 @@ const ScheduleManager = ({ user, userProfile }) => {
               <span>Sec {path.sec}</span>
             </div>
           ) : (
-            /* INTERACTIVE BREADCRUMBS FOR OTHERS */
             <>
-              <span className="crumb-btn" onClick={() => updateLevel('batches', { batch: '', dept: '', sec: '' })}>Schedules</span>
-              {path.batch && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
-              {path.dept && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => updateLevel('secs', { sec: '' })}>{path.dept}</span></>}
-              {path.sec && <><RiArrowRightSLine /> <span className="crumb-static">Sec {path.sec}</span></>}
+              {/* FULL BREADCRUMB — Desktop only */}
+              <span className="breadcrumb-full">
+                <span className="crumb-btn" onClick={() => updateLevel('batches', { batch: '', dept: '', sec: '' })}>Schedules</span>
+                {path.batch && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
+                {path.dept && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => updateLevel('secs', { sec: '' })}>{path.dept}</span></>}
+                {path.sec && <><RiArrowRightSLine /> <span className="crumb-static">Sec {path.sec}</span></>}
+              </span>
+
+              {/* MOBILE ONLY — Current level label */}
+              <span className="breadcrumb-mobile">
+                {viewLevel === 'batches' && 'Schedules'}
+                {viewLevel === 'depts' && path.batch}
+                {viewLevel === 'secs' && path.dept}
+                {viewLevel === 'editor' && `Sec ${path.sec}`}
+              </span>
             </>
           )}
         </div>
@@ -270,39 +285,83 @@ const ScheduleManager = ({ user, userProfile }) => {
 
           <div className="tab-content-area">
             {activeTab === 'timetable' && (
-              <div className="timetable-builder">
-                <div className="timetable-controls">
+              <div className="timetable-builder-v2">
+                {/* Day Selector Tabs — Same design as student Schedule page */}
+                {(() => {
+                  const days = ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  const shortLabels = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                  const selectedIndex = days.indexOf(editingDay);
+                  const tabWidth = 100 / days.length;
+                  return (
+                    <div className="s2-day-tabs">
+                      <div
+                        className="s2-day-indicator"
+                        style={{
+                          left: `calc(${selectedIndex * tabWidth}% + 5px)`,
+                          width: `calc(${tabWidth}% - 10px)`
+                        }}
+                      />
+                      {days.map((day, i) => (
+                        <button
+                          key={day}
+                          className={editingDay === day ? 'active' : ''}
+                          onClick={() => setEditingDay(day)}
+                        >
+                          {shortLabels[i]}
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
+
+                {/* Edit / Save / Cancel Controls */}
+                <div className="tt-controls">
+                  <h3 className="tt-day-title">{editingDay}</h3>
                   {!isEditingTimetable ? (
-                    <button className="btn-edit-mode" onClick={startEditingTimetable}><RiEditLine /> Edit Timetable</button>
+                    <button className="action-btn action-edit" onClick={startEditingTimetable}>
+                      <RiEditLine /> <span className="action-label">Edit</span>
+                    </button>
                   ) : (
-                    <div className="edit-actions">
-                      <button className="btn-cancel" onClick={() => setIsEditingTimetable(false)}><RiCloseLine /> Cancel</button>
-                      <button className="btn-save-master" onClick={saveTimetableEdit}><RiSave3Line /> Update</button>
+                    <div className="tt-edit-actions">
+                      <button className="action-btn action-edit" onClick={saveTimetableEdit}>
+                        <RiSave3Line /> <span className="action-label">Save</span>
+                      </button>
+                      <button className="action-btn" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--mac-text)' }} onClick={() => setIsEditingTimetable(false)}>
+                        <RiCloseLine /> <span className="action-label">Cancel</span>
+                      </button>
                     </div>
                   )}
                 </div>
+
+                {/* Datalist for autocomplete */}
                 <datalist id="course-list">
                   {masterData.courses?.map(c => <option key={c.code} value={c.code}>{c.name}</option>)}
+                  <option value="Library">Library</option>
+                  <option value="Placement">Placement</option>
+                  <option value="Sports">Sports</option>
                 </datalist>
-                <table className={`admin-timetable ${isEditingTimetable ? 'editing-active' : ''}`}>
-                  <thead><tr><th>Day</th>{[1, 2, 3, 4, 5, 6, 7].map(n => <th key={n}>P{n}</th>)}</tr></thead>
-                  <tbody>
-                    {['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => (
-                      <tr key={day}>
-                        <td className="day-label">{day}</td>
-                        {[0, 1, 2, 3, 4, 5, 6].map(idx => (
-                          <td key={idx}>
-                            {isEditingTimetable ? (
-                              <input list="course-list" value={timetableBuffer?.[day]?.[idx] || ""} onChange={(e) => updateBufferCell(day, idx, e.target.value)} className="timetable-combo-input" />
-                            ) : (
-                              <span className="cell-static-text">{masterData.timetable?.[day]?.[idx] || "-"}</span>
-                            )}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+
+                {/* Period Cards */}
+                <div className="tt-period-grid">
+                  {[0, 1, 2, 3, 4, 5, 6].map(idx => (
+                    <div key={idx} className={`tt-period-card ${isEditingTimetable ? 'editing' : ''}`}>
+                      <div className="tt-period-label">Period {idx + 1}</div>
+                      {isEditingTimetable ? (
+                        <input
+                          list="course-list"
+                          className="tt-period-input"
+                          placeholder="Enter code or type freely..."
+                          value={timetableBuffer?.[editingDay]?.[idx] || ""}
+                          onChange={(e) => updateBufferCell(editingDay, idx, e.target.value)}
+                        />
+                      ) : (
+                        <div className="tt-period-value">
+                          {masterData.timetable?.[editingDay]?.[idx] || <span className="tt-empty">—</span>}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -320,31 +379,44 @@ const ScheduleManager = ({ user, userProfile }) => {
                     <div key={i} className="list-item-card">
                       {editingCourseIdx === i ? (
                         <div className="inline-edit-row full-fields">
-                          <input className="edit-code" placeholder="Code" value={tempCourse.code} onChange={e => setTempCourse({ ...tempCourse, code: e.target.value })} />
-                          <input className="edit-name" placeholder="Name" value={tempCourse.name} onChange={e => setTempCourse({ ...tempCourse, name: e.target.value })} />
-                          <input className="edit-faculty" placeholder="Faculty" value={tempCourse.faculty} onChange={e => setTempCourse({ ...tempCourse, faculty: e.target.value })} />
-                          <input className="edit-periods" type="number" placeholder="Prds" value={tempCourse.periods} onChange={e => setTempCourse({ ...tempCourse, periods: e.target.value })} />
+                          <div className="edit-field-group">
+                            <label className="edit-field-label">Subject Code</label>
+                            <input className="edit-code" placeholder="Code" value={tempCourse.code} onChange={e => setTempCourse({ ...tempCourse, code: e.target.value })} />
+                          </div>
+                          <div className="edit-field-group">
+                            <label className="edit-field-label">Subject Name</label>
+                            <input className="edit-name" placeholder="Name" value={tempCourse.name} onChange={e => setTempCourse({ ...tempCourse, name: e.target.value })} />
+                          </div>
+                          <div className="edit-field-group">
+                            <label className="edit-field-label">Faculty</label>
+                            <input className="edit-faculty" placeholder="Faculty" value={tempCourse.faculty} onChange={e => setTempCourse({ ...tempCourse, faculty: e.target.value })} />
+                          </div>
+                          <div className="edit-field-group">
+                            <label className="edit-field-label">Periods</label>
+                            <input className="edit-periods" type="number" placeholder="Prds" value={tempCourse.periods} onChange={e => setTempCourse({ ...tempCourse, periods: e.target.value })} />
+                          </div>
                           <div className="edit-btn-group">
-                            <button onClick={handleUpdateCourse} className="btn-save-mini"><RiCheckLine /></button>
-                            <button onClick={() => setEditingCourseIdx(null)} className="btn-cancel-mini"><RiCloseLine /></button>
+                            <button onClick={handleUpdateCourse} className="action-btn action-edit"><RiCheckLine /> <span className="action-label">Save</span></button>
+                            <button onClick={() => setEditingCourseIdx(null)} className="action-btn" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--mac-text)' }}><RiCloseLine /> <span className="action-label">Cancel</span></button>
+                            <button className="action-btn action-delete" onClick={() => setConfirmDelete({ type: 'course', index: i, name: `${tempCourse.code} - ${tempCourse.name}` })}>
+                              <RiDeleteBin6Line /> <span className="action-label">Delete</span>
+                            </button>
                           </div>
                         </div>
                       ) : (
                         <>
                           <div className="item-main">
-                            <strong>{c.code}</strong> - {c.name}
-                            <span className="item-meta-info">({c.faculty || 'No Faculty'} • {c.periods || 0} Periods)</span>
+                            <span className="course-code-badge">{c.code}</span>
+                            <span className="course-name">{c.name}</span>
+                            <div className="course-meta-row">
+                              <span className="course-meta-tag"><RiUserLine /> {c.faculty || 'No Faculty'}</span>
+                              <span className="course-meta-tag"><RiTimeLine /> {c.periods || 0} Periods</span>
+                            </div>
                           </div>
                           <div className="item-actions">
-                            <RiEditLine className="icon-edit" onClick={() => { setEditingCourseIdx(i); setTempCourse(c); }} />
-                            {confirmDelete.type === 'course' && confirmDelete.index === i ? (
-                              <div className="confirm-delete-group">
-                                <button className="btn-confirm-del" onClick={() => removeCourse(i)}>Confirm</button>
-                                <button className="btn-cancel-del" onClick={() => setConfirmDelete({ type: null, index: null })}><RiCloseLine /></button>
-                              </div>
-                            ) : (
-                              <RiDeleteBin6Line className="icon-del" onClick={() => setConfirmDelete({ type: 'course', index: i })} />
-                            )}
+                            <button className="action-btn action-edit" onClick={() => { setEditingCourseIdx(i); setTempCourse(c); }}>
+                              <RiEditLine /> <span className="action-label">Edit</span>
+                            </button>
                           </div>
                         </>
                       )}
@@ -373,14 +445,39 @@ const ScheduleManager = ({ user, userProfile }) => {
                           <div className="role-info">
                             <span className="role-tag">{role}</span>
                           </div>
-                          <div className="input-group-modern">
-                            <input
-                              placeholder={`Enter ${role} name`}
-                              value={masterData.counseling?.coordinators?.[role] || ""}
-                              onChange={(e) => handleCoordUpdate(role, e.target.value)}
-                            />
-                            <button className="btn-save-mini" onClick={() => syncToDB(masterData)}><RiCheckLine /></button>
-                          </div>
+                          {editingCoordRole === role ? (
+                            <div className="input-group-modern">
+                              <input
+                                autoFocus
+                                placeholder={`Enter ${role} name`}
+                                value={tempCoordValue}
+                                onChange={(e) => setTempCoordValue(e.target.value)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') {
+                                    handleCoordUpdate(role, tempCoordValue);
+                                    syncToDB({ ...masterData, counseling: { ...masterData.counseling, coordinators: { ...masterData.counseling.coordinators, [role]: tempCoordValue } } });
+                                    setEditingCoordRole(null);
+                                  }
+                                  if (e.key === 'Escape') setEditingCoordRole(null);
+                                }}
+                              />
+                              <div className="counselor-row-actions">
+                                <button className="action-btn action-edit" onClick={() => {
+                                  handleCoordUpdate(role, tempCoordValue);
+                                  syncToDB({ ...masterData, counseling: { ...masterData.counseling, coordinators: { ...masterData.counseling.coordinators, [role]: tempCoordValue } } });
+                                  setEditingCoordRole(null);
+                                }}><RiCheckLine /> <span className="action-label">Save</span></button>
+                                <button className="action-btn action-delete" onClick={() => setEditingCoordRole(null)}><RiCloseLine /> <span className="action-label">Cancel</span></button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="coordinator-display">
+                              <span className="coordinator-value">{masterData.counseling?.coordinators?.[role] || 'Not set'}</span>
+                              <button className="action-btn action-edit" onClick={() => { setEditingCoordRole(role); setTempCoordValue(masterData.counseling?.coordinators?.[role] || ''); }}>
+                                <RiEditLine /> <span className="action-label">Edit</span>
+                              </button>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -403,7 +500,7 @@ const ScheduleManager = ({ user, userProfile }) => {
                         onChange={e => setNewCounselor(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && addCounselor()}
                       />
-                      <button className="btn-add-circle" onClick={addCounselor}><RiAddLine /></button>
+                      <button className="action-btn action-edit" onClick={addCounselor} style={{ borderRadius: '50px', padding: '10px 18px' }}><RiAddLine /> <span className="action-label">Add</span></button>
                     </div>
 
                     <div className="counselor-items-v2">
@@ -421,26 +518,22 @@ const ScheduleManager = ({ user, userProfile }) => {
                                 }}
                               />
                               <div className="edit-pill-actions">
-                                <button className="btn-pill-save" onClick={handleUpdateCounselor}><RiCheckLine /></button>
-                                <button className="btn-pill-cancel" onClick={() => setCounselorEditingIdx(null)}><RiCloseLine /></button>
+                                <button className="action-btn action-edit" onClick={handleUpdateCounselor}><RiCheckLine /> <span className="action-label">Save</span></button>
+                                <button className="action-btn" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--mac-text)' }} onClick={() => setCounselorEditingIdx(null)}><RiCloseLine /> <span className="action-label">Cancel</span></button>
+                                <button className="action-btn action-delete" onClick={() => setConfirmDelete({ type: 'counselor', index: i, name })}>
+                                  <RiDeleteBin6Line /> <span className="action-label">Delete</span>
+                                </button>
                               </div>
                             </div>
                           ) : (
                             <>
-                              <div className="counselor-name-chip" onClick={() => { setCounselorEditingIdx(i); setTempCounselor(name); }}>
+                              <div className="counselor-name-chip">
                                 {name}
                               </div>
                               <div className="counselor-row-actions">
-                                {confirmDelete.type === 'counselor' && confirmDelete.index === i ? (
-                                  <div className="confirm-delete-inline">
-                                    <button className="btn-confirm-text" onClick={() => removeCounselor(i)}>Confirm Delete?</button>
-                                    <button className="btn-cancel-icon" onClick={() => setConfirmDelete({ type: null, index: null })}><RiCloseLine /></button>
-                                  </div>
-                                ) : (
-                                  <button className="btn-delete-chip" onClick={() => setConfirmDelete({ type: 'counselor', index: i })}>
-                                    <RiDeleteBin6Line />
-                                  </button>
-                                )}
+                                <button className="action-btn action-edit" onClick={() => { setCounselorEditingIdx(i); setTempCounselor(name); }}>
+                                  <RiEditLine /> <span className="action-label">Edit</span>
+                                </button>
                               </div>
                             </>
                           )}
@@ -451,6 +544,29 @@ const ScheduleManager = ({ user, userProfile }) => {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* DELETE CONFIRMATION MODAL */}
+      {confirmDelete.type && (
+        <div className="delete-modal-overlay" onClick={() => setConfirmDelete({ type: null, index: null, name: '' })}>
+          <div className="delete-modal-card" onClick={e => e.stopPropagation()}>
+            <div className="delete-modal-icon">⚠️</div>
+            <h3 className="delete-modal-title">Delete Confirmation</h3>
+            <p className="delete-modal-desc">
+              Are you sure you want to delete <strong>{confirmDelete.name}</strong>? This action cannot be undone.
+            </p>
+            <div className="delete-modal-actions">
+              <button className="delete-modal-btn cancel" onClick={() => setConfirmDelete({ type: null, index: null, name: '' })}>
+                Cancel
+              </button>
+              <button className="delete-modal-btn confirm" onClick={() => {
+                if (confirmDelete.type === 'course') removeCourse(confirmDelete.index);
+                if (confirmDelete.type === 'counselor') removeCounselor(confirmDelete.index);
+              }}>
+                <RiDeleteBin6Line /> Yes, Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

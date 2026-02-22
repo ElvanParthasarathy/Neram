@@ -328,7 +328,7 @@ const Home = ({
     // ======================= RENDER =======================
     return (
         <div className="h2-view">
-            <h1 className="h2-page-title">Home Dashboard</h1>
+            {!hideHeader && <h1 className="h2-page-title">Home Dashboard</h1>}
             <div className="h2-container">
                 {/* ========== 1. HEADER — Kotlin PageHeader Pill ========== */}
                 {!hideHeader && activeProfile?.section !== userProfile?.section && (
@@ -350,31 +350,33 @@ const Home = ({
                     {/* ========== LEFT COLUMN (Was Right) ========== */}
                     <div className="h2-col-left">
                         {/* ========== PROFILE CARD (Static) ========== */}
-                        <div className="h2-profile-section">
-                            <div className="h2-section-title">Profile</div>
-                            <div className="h2-profile-pill">
-                                <div className="h2-avatar">
-                                    {userProfile?.photoURL ? (
-                                        <img
-                                            src={userProfile.photoURL}
-                                            alt="Profile"
-                                            className="h2-avatar-img"
-                                        />
-                                    ) : (
-                                        <span className="h2-avatar-emoji">👤</span>
-                                    )}
-                                </div>
-                                <div className="h2-greeting-col">
-                                    <div className="h2-greeting-row">
-                                        <span className="h2-greeting-text">Vanakkam!</span>
-                                        <span className="h2-sparkle">✨</span>
+                        {!hideHeader && (
+                            <div className="h2-profile-section">
+                                <div className="h2-section-title">Profile</div>
+                                <div className="h2-profile-pill">
+                                    <div className="h2-avatar">
+                                        {userProfile?.photoURL ? (
+                                            <img
+                                                src={userProfile.photoURL}
+                                                alt="Profile"
+                                                className="h2-avatar-img"
+                                            />
+                                        ) : (
+                                            <span className="h2-avatar-emoji">👤</span>
+                                        )}
                                     </div>
-                                    <span className="h2-user-name">
-                                        {userProfile?.displayName || "Student"}
-                                    </span>
+                                    <div className="h2-greeting-col">
+                                        <div className="h2-greeting-row">
+                                            <span className="h2-greeting-text">Vanakkam!</span>
+                                            <span className="h2-sparkle">✨</span>
+                                        </div>
+                                        <span className="h2-user-name">
+                                            {userProfile?.displayName || "Student"}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* ANIMATED SIDEBAR CONTENT */}
                         <div key={`side-${todayStr}`} className={slideAnim} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>

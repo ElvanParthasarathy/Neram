@@ -29,6 +29,17 @@
     color: var(--mac-text-secondary);
 }
 
+.breadcrumb-full {
+    display: inline;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.breadcrumb-mobile {
+    display: none;
+}
+
 .crumb-btn {
     cursor: pointer;
     padding: 6px 12px;

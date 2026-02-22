@@ -41,22 +41,12 @@ const DirectoryUserCard = ({ user }) => {
     );
 };
 
-const UserDirectoryView = ({ onBack, subPath }) => {
+const UserDirectoryView = ({ onBack }) => {
     const [hierarchy, setHierarchy] = useState({});
     const [path, setPath] = useState([]); // [] = batches, [batch] = depts, [batch,dept] = sections, [b,d,s] = users
     const [users, setUsers] = useState([]);
     const [usersLoading, setUsersLoading] = useState(false);
     const [hierarchyLoading, setHierarchyLoading] = useState(true);
-
-    // Sync subPath prop to local path state
-    useEffect(() => {
-        if (subPath) {
-            const newPath = subPath.split('/').filter(Boolean).map(decodeURIComponent);
-            setPath(newPath);
-        } else {
-            setPath([]);
-        }
-    }, [subPath]);
 
     // Load academic hierarchy once
     useEffect(() => {
@@ -125,15 +115,13 @@ const UserDirectoryView = ({ onBack, subPath }) => {
 
     // Navigation Helper
     const navigateTo = (newPath) => {
-        const hashPath = newPath.map(encodeURIComponent).join('/');
-        window.location.hash = `#directory/${hashPath}`;
+        setPath(newPath);
     };
 
     // Back handler: go up one level or exit
     const handleBack = () => {
-        // If we have a path, go back in history (which updates hash -> path)
         if (path.length > 0) {
-            window.history.back();
+            setPath(path.slice(0, -1));
         } else {
             onBack();
         }

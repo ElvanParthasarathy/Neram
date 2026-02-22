@@ -5,8 +5,6 @@ import { auth, db } from "../firebase";
 import { ref, onValue } from "firebase/database";
 
 
-import AdminViewSwitcher from "./AdminViewSwitcher";
-
 // =================================================================================
 //  IOS "26" ULTIMATE ICONS (Redesigned: Filled, Centered, Geometric)
 // =================================================================================
@@ -364,14 +362,6 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
 
   return (
     <>
-      {/* 1. ADMIN SWITCHER */}
-      {isAdmin && dbUser && isSwitcherOpen && (
-        <div className="admin-switcher-overlay">
-          <AdminViewSwitcher realProfile={dbUser} onClose={() => setIsSwitcherOpen(false)} />
-        </div>
-      )}
-      {isSwitcherOpen && <div className="switcher-backdrop" onClick={() => setIsSwitcherOpen(false)} />}
-
       {/* 2. LOGOUT CONFIRM */}
       {showLogoutConfirm && (
         <>

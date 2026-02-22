@@ -268,55 +268,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun scheduleDailyAlarm() {
-        try {
-            val alarmManager = getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
-            val intent = android.content.Intent(this, com.elvan.rmdneram.receivers.DailyAlarmReceiver::class.java)
-            val pendingIntent = android.app.PendingIntent.getBroadcast(
-                this,
-                0,
-                intent,
-                android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
-            )
-
-            // Set time to 5:30 AM
-            val calendar = java.util.Calendar.getInstance().apply {
-                timeInMillis = System.currentTimeMillis()
-                set(java.util.Calendar.HOUR_OF_DAY, 5)
-                set(java.util.Calendar.MINUTE, 30)
-                set(java.util.Calendar.SECOND, 0)
-            }
-
-            // If time has passed today, schedule for tomorrow
-            if (calendar.timeInMillis <= System.currentTimeMillis()) {
-                calendar.add(java.util.Calendar.DAY_OF_YEAR, 1)
-            }
-
-            // Schedule exact alarm
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (alarmManager.canScheduleExactAlarms()) {
-                    alarmManager.setExactAndAllowWhileIdle(
-                        android.app.AlarmManager.RTC_WAKEUP,
-                        calendar.timeInMillis,
-                        pendingIntent
-                    )
-                } else {
-                    // Fallback to inexact if permission denied (rare for this use case if declared)
-                    alarmManager.setAndAllowWhileIdle(
-                        android.app.AlarmManager.RTC_WAKEUP,
-                        calendar.timeInMillis,
-                        pendingIntent
-                    )
-                }
-            } else {
-                alarmManager.setExactAndAllowWhileIdle(
-                    android.app.AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
-                    pendingIntent
-                )
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        com.elvan.rmdneram.utils.AlarmScheduler.scheduleDailyAlarm(this)
     }
     override fun onResume() {
         super.onResume()

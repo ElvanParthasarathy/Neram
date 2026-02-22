@@ -632,12 +632,13 @@
         gap: 12px;
     }
 
-    /* 3. COURSE MANAGER: PREMIUM INPUTS */
+    /* 3. COURSE MANAGER: PREMIUM INPUTS — 2-Column Grid */
     .course-manager .add-item-bar {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 12px;
         background: var(--mac-button-bg);
-        padding: 16px;
+        padding: 20px;
         border-radius: 16px;
         border: 1px solid var(--mac-divider);
         margin-bottom: 24px;
@@ -650,7 +651,6 @@
         padding: 0 14px;
         font-size: 14px;
         transition: all 0.2s ease;
-        flex: 1;
     }
 
     .course-manager .add-item-bar input:focus {
@@ -659,7 +659,12 @@
         box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
     }
 
-    /* 4. COURSE LIST ITEM CARDS (Visual Refinement) */
+    .course-manager .add-item-bar .btn-add {
+        grid-column: 1 / -1;
+        justify-content: center;
+    }
+
+    /* 4. COURSE LIST ITEM CARDS */
     .list-item-card {
         background: var(--mac-card-bg);
         border: 1px solid var(--mac-divider);
@@ -672,14 +677,45 @@
         transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
 
-    /* FIX: Subtle Sequoia Lift instead of Slide */
     .list-item-card:hover {
         background: var(--mac-selection-hover);
     }
 
     .item-main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .course-code-badge {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--mac-blue);
+        background: rgba(0, 122, 255, 0.1);
+        padding: 4px 12px;
+        border-radius: 50px;
+        letter-spacing: 0.5px;
+    }
+
+    .course-name {
         font-size: 14.5px;
+        font-weight: 600;
         color: var(--mac-text);
+    }
+
+    .course-meta-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .course-meta-tag {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--mac-text-secondary);
     }
 
     .item-meta-info {
@@ -689,29 +725,73 @@
         color: var(--mac-text-secondary);
     }
 
-    /* 5. INLINE EDITING STATE FIX (4-FIELD SUPPORT) */
-    .inline-edit-row.full-fields {
+    .item-actions {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+
+    .action-btn {
         display: flex;
         align-items: center;
+        gap: 6px;
+        border: none;
+        border-radius: 50px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .action-edit {
+        background: rgba(0, 122, 255, 0.1);
+        color: var(--mac-blue);
+    }
+
+    .action-edit:hover {
+        background: rgba(0, 122, 255, 0.2);
+    }
+
+    .action-delete {
+        background: rgba(255, 59, 48, 0.1);
+        color: #ff3b30;
+    }
+
+    .action-delete:hover {
+        background: rgba(255, 59, 48, 0.2);
+    }
+
+    .action-label {
+        font-size: 12px;
+    }
+
+    /* 5. INLINE EDITING STATE — 2-Column Grid */
+    .inline-edit-row.full-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 10px;
         width: 100%;
     }
 
-    /* Individual field sizing for balance */
-    .inline-edit-row.full-fields .edit-code {
-        flex: 0 0 100px;
+    .inline-edit-row.full-fields .edit-btn-group {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
     }
 
-    .inline-edit-row.full-fields .edit-name {
-        flex: 2;
+    .edit-field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
 
-    .inline-edit-row.full-fields .edit-faculty {
-        flex: 1.5;
-    }
-
-    .inline-edit-row.full-fields .edit-periods {
-        flex: 0 0 70px;
+    .edit-field-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--mac-text-secondary);
+        padding-left: 4px;
     }
 
     .inline-edit-row input {
@@ -853,6 +933,22 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+    }
+
+    .coordinator-display {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .coordinator-value {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--mac-text);
+        padding: 10px 16px;
+        background: var(--mac-bg-secondary);
+        border-radius: 10px;
+        flex: 1;
     }
 
     .role-tag {
@@ -1105,4 +1201,212 @@
         }
     }
 
+    /* ==========================================================================
+       TIMETABLE EDITOR V2  
+       ========================================================================== */
+    .timetable-builder-v2 {
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .timetable-builder-v2 .s2-day-tabs {
+        margin-bottom: 20px;
+    }
+
+    .tt-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .tt-day-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .tt-edit-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .tt-period-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .tt-period-card {
+        background: var(--mac-sidebar-bg);
+        border: 1px solid var(--mac-divider);
+        border-radius: 16px;
+        padding: 16px;
+        transition: all 0.2s ease;
+    }
+
+    .tt-period-card.editing {
+        border-color: rgba(0, 122, 255, 0.3);
+        background: var(--mac-card-bg);
+    }
+
+    .tt-period-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--mac-text-secondary);
+        margin-bottom: 8px;
+    }
+
+    .tt-period-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--mac-text);
+        padding: 10px 14px;
+        background: var(--mac-bg-secondary);
+        border-radius: 10px;
+        min-height: 20px;
+        word-break: break-word;
+    }
+
+    .tt-empty {
+        color: var(--mac-text-secondary);
+        opacity: 0.4;
+    }
+
+    .tt-period-input {
+        width: 100%;
+        height: 44px;
+        background: var(--mac-bg-secondary);
+        border: 1.5px solid var(--mac-divider);
+        border-radius: 10px;
+        padding: 0 14px;
+        color: var(--mac-text);
+        font-size: 14px;
+        font-weight: 500;
+        box-sizing: border-box;
+        transition: border-color 0.2s ease;
+    }
+
+    .tt-period-input:focus {
+        border-color: var(--mac-blue);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+
+}
+
+/* ====================================================================
+   DELETE CONFIRMATION MODAL (Works on both desktop and mobile)
+   ==================================================================== */
+.delete-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+.delete-modal-card {
+    background: var(--mac-card-bg, #1c1c1e);
+    border: 1px solid var(--mac-divider, rgba(255, 255, 255, 0.1));
+    border-radius: 20px;
+    padding: 32px 28px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalSlideUp 0.25s ease-out;
+}
+
+.delete-modal-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.delete-modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--mac-text, #fff);
+    margin: 0 0 8px 0;
+}
+
+.delete-modal-desc {
+    font-size: 14px;
+    color: var(--mac-text-secondary, #999);
+    margin: 0 0 24px 0;
+    line-height: 1.5;
+}
+
+.delete-modal-desc strong {
+    color: var(--mac-text, #fff);
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.delete-modal-btn {
+    flex: 1;
+    padding: 12px 0;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+.delete-modal-btn.cancel {
+    background: var(--mac-button-bg, rgba(255, 255, 255, 0.1));
+    color: var(--mac-text, #fff);
+}
+
+.delete-modal-btn.cancel:hover {
+    background: var(--mac-divider, rgba(255, 255, 255, 0.15));
+}
+
+.delete-modal-btn.confirm {
+    background: #ff3b30;
+    color: white;
+}
+
+.delete-modal-btn.confirm:hover {
+    background: #e0352b;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/settings2.css";
 
 // Reuse Student Components
@@ -30,27 +30,25 @@ const SettingsWelcome = () => (
 );
 
 const AdminSettings = ({ userProfile }) => {
-    // Default to 'profile' on desktop to avoid blank space, 'hub' on mobile
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
     const [currentView, setCurrentView] = useState(() => {
-        return window.innerWidth > 768 ? "profile" : "hub";
+        if (window.innerWidth > 768) return "profile";
+        return "hub";
     });
 
-    // Mock UserProfile for SettingsHub (since Admin has different data shape, but Hub mostly needs photo/name)
-    // We can fetch real user data or pass it down. AdminApp doesn't pass props to AdminSettings in Route.
-    // So we might need to fetch it or rely on Context. 
-    // BUT SettingsHub takes `userProfile`. AdminSettings can fetch it or just pass what it has.
-    // AdminApp routes: <Route path="/settings" element={<AdminSettings />} />
-    // It doesn't pass userProfile. 
-    // I should probably update AdminApp to pass userProfile to AdminSettings, OR just fetch it here.
-    // For now, I'll let SettingsHub handle missing profile (it shows defaults).
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
-    // Actually AdminApp *could* pass it.
-
-    // Using simple mock for now or local state if I fetch it. 
-    // AdminProfile fetches its own data.
+    const handleNavigate = (view) => {
+        setCurrentView(view);
+    };
 
     const goHub = () => {
-        if (window.innerWidth > 768) {
+        if (!isMobile) {
             setCurrentView("profile");
         } else {
             setCurrentView("hub");
@@ -58,15 +56,27 @@ const AdminSettings = ({ userProfile }) => {
     };
 
     const renderDetailView = () => {
-        switch (currentView) {
+        /* Only render actual content if not hub (optimization) */
+        if (currentView === 'hub' && isMobile) return null;
+
+        const effectiveView = currentView === 'hub' && !isMobile ? 'profile' : currentView;
+
+        switch (effectiveView) {
             case "profile":
-                return <AdminProfile onBack={goHub} />; // Custom Admin Profile
+                return <AdminProfile onBack={goHub} />;
             case "display":
                 return <DisplaySettings onBack={goHub} />;
             case "notifications":
                 return <NotificationSettings onBack={goHub} />;
             case "storage":
-                return <StorageSettings userProfile={userProfile} onBack={goHub} />;
+                const adminContext = JSON.parse(localStorage.getItem('admin_dashboard_context') || '{}');
+                const storageProfile = {
+                    ...userProfile,
+                    batch: userProfile?.batch || adminContext.batch || "",
+                    department: userProfile?.department || adminContext.dept || "",
+                    section: userProfile?.section || adminContext.sec || ""
+                };
+                return <StorageSettings userProfile={storageProfile} onBack={goHub} />;
             case "security":
                 return <SecuritySettings onBack={goHub} />;
             case "directory":
@@ -78,7 +88,7 @@ const AdminSettings = ({ userProfile }) => {
             case "about":
                 return <AboutPage onBack={goHub} />;
             default:
-                if (window.innerWidth > 768) return <AdminProfile onBack={goHub} />;
+                if (!isMobile) return <AdminProfile onBack={goHub} />;
                 return null;
         }
     };
@@ -89,13 +99,12 @@ const AdminSettings = ({ userProfile }) => {
         <div className="s2-page-view">
             <div className="s2-content-grid">
                 {/* LEFT: Hub navigation */}
-                <div className={`s2-col-left ${currentView !== "hub" ? "s2-hide-mobile" : ""}`}>
-                    {/* SettingsHub expects userProfile. We might need to fetch it or pass minimal. */}
-                    <SettingsHub userProfile={userProfile} onNavigate={setCurrentView} />
+                <div className={`s2-col-left ${currentView !== "hub" && isMobile ? "s2-hide-mobile" : ""}`}>
+                    <SettingsHub userProfile={userProfile} onNavigate={handleNavigate} />
                 </div>
 
                 {/* RIGHT: Detail view */}
-                <div className={`s2-col-right ${currentView === "hub" ? "s2-hide-mobile" : ""}`}>
+                <div className={`s2-col-right ${currentView === "hub" && isMobile ? "s2-hide-mobile" : ""}`}>
                     {detailContent || <SettingsWelcome />}
                 </div>
             </div>
@@ -104,3 +113,4 @@ const AdminSettings = ({ userProfile }) => {
 };
 
 export default AdminSettings;
+

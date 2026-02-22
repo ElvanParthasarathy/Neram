@@ -292,8 +292,20 @@ class DailyUpdateWorker(
     
     // Helper to check for Lab
     private fun checkIsLab(code: String, courses: List<com.elvan.rmdneram.data.model.Course>, batch: String): Boolean {
-        // 1. Check Course Object
-        val course = courses.find { it.code == code }
+        val trimmedCode = code.trim()
+
+        // 1. Try exact match first
+        var course = courses.find { it.code == trimmedCode }
+
+        // 2. React Native Pattern: Extract FIRST WORD as course code
+        // This handles: "22CS602 LAB BAY 3" -> "22CS602"
+        // Also handles: "22IT602 A1" -> "22IT602"
+        if (course == null) {
+            val parts = trimmedCode.split(" ")
+            val pureCode = parts.first()
+            course = courses.find { it.code == pureCode }
+        }
+
         if (course != null) {
             // Check Faculty/Name logic
              if (batch.isNotBlank()) {
@@ -304,7 +316,7 @@ class DailyUpdateWorker(
             }
         }
         
-        // 2. Check Code conventions if needed or if course not found
+        // 3. Fallback: Check Code conventions if needed or if course not found
         // "22CS602 LAB"
         if (code.contains("Lab", ignoreCase = true)) return true
         

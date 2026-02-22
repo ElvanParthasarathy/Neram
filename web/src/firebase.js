@@ -19,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 
 // Main Exports
 export const auth = getAuth(app);
-export const db = getDatabase(app);         // Used by Calendar.jsx and CalendarManager.jsx
+export const db = getDatabase(app);        // Used by Calendar.jsx and CalendarManager.jsx
 export const firestore = getFirestore(app); // Used by ContactForm.jsx
 export const storage = getStorage(app);     // Used by ResourceManager.jsx
 export const googleProvider = new GoogleAuthProvider();
