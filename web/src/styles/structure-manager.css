@@ -399,6 +399,85 @@
 }
 
 /* ==========================================================================
+   LABELED ACTION BUTTONS (TOUCH-FRIENDLY)
+   ========================================================================== */
+.labeled-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1px solid var(--mac-divider);
+    background: var(--mac-bg-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    white-space: nowrap;
+    color: var(--mac-text-secondary);
+}
+
+.labeled-btn:active {
+    transform: scale(0.95);
+}
+
+.labeled-btn.edit {
+    color: var(--mac-blue);
+    background: rgba(10, 132, 255, 0.06);
+    border-color: rgba(10, 132, 255, 0.15);
+}
+
+.labeled-btn.edit:hover {
+    background: rgba(10, 132, 255, 0.14);
+}
+
+.labeled-btn.save {
+    color: var(--mac-green);
+    background: rgba(48, 209, 88, 0.06);
+    border-color: rgba(48, 209, 88, 0.15);
+}
+
+.labeled-btn.save:hover {
+    background: rgba(48, 209, 88, 0.14);
+}
+
+.labeled-btn.danger {
+    color: var(--mac-red);
+    background: rgba(255, 69, 58, 0.06);
+    border-color: rgba(255, 69, 58, 0.15);
+}
+
+.labeled-btn.danger:hover {
+    background: rgba(255, 69, 58, 0.14);
+}
+
+.labeled-btn.cancel {
+    color: var(--mac-text-secondary);
+}
+
+.labeled-btn.cancel:hover {
+    color: var(--mac-text);
+    background: var(--mac-divider);
+}
+
+/* ==========================================================================
+   EDITOR GROUPS (SUBHEADINGS)
+   ========================================================================== */
+.editor-group {
+    margin-bottom: 16px;
+}
+
+.editor-group-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px 4px;
+    opacity: 0.7;
+}
+
+/* ==========================================================================
    MOBILE OVERRIDES
    ========================================================================== */
 @media (max-width: 900px) {
@@ -414,6 +493,18 @@
     }
 
     .editor-list-item {
-        padding: 12px 16px;
+        padding: 14px 16px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .node-actions {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .labeled-btn {
+        font-size: 12px;
+        padding: 8px 14px;
     }
 }

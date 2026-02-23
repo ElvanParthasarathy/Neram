@@ -279,7 +279,7 @@ const StructureManager = () => {
 
           {isEditing && (
             <div className="flat-editor-viewport animate-fade-in">
-              <h2 className="editor-section-title">Edit Batches</h2>
+              <h2 className="editor-section-title">Batches</h2>
               <div className="flat-editor-list">
                 {Object.keys(hierarchy).sort().reverse().map(batch => (
                   <div key={`batch-${batch}`} className="editor-list-item">
@@ -294,85 +294,92 @@ const StructureManager = () => {
                     <div className="node-actions">
                       {editingBatch?.oldVal === batch ? (
                         <>
-                          <button className="action-btn save" onClick={handleUpdateBatch}><RiSave3Line /></button>
-                          <button className="action-btn cancel" onClick={() => setEditingBatch(null)}><RiCloseLine /></button>
+                          <button className="labeled-btn save" onClick={handleUpdateBatch}><RiSave3Line /> Save</button>
+                          <button className="labeled-btn danger" onClick={() => handleDeleteBatch(batch)}><RiDeleteBinLine /> Delete</button>
+                          <button className="labeled-btn cancel" onClick={() => setEditingBatch(null)}><RiCloseLine /> Cancel</button>
                         </>
                       ) : (
-                        <>
-                          <button className="action-btn edit" onClick={() => setEditingBatch({ oldVal: batch, newVal: batch })}><RiEditLine /></button>
-                          <button className="action-btn delete" onClick={() => handleDeleteBatch(batch)}><RiDeleteBinLine /></button>
-                        </>
+                        <button className="labeled-btn edit" onClick={() => setEditingBatch({ oldVal: batch, newVal: batch })}><RiEditLine /> Edit</button>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
 
-              <h2 className="editor-section-title mt-4">Edit Departments</h2>
-              <div className="flat-editor-list">
-                {Object.keys(hierarchy).sort().reverse().map(batch =>
-                  Object.keys(hierarchy[batch]).map(dept => dept !== 'initialized' && (
-                    <div key={`dept-${batch}-${dept}`} className="editor-list-item">
-                      <div className="list-item-content">
-                        <span className="item-context-tag">{batch}</span>
-                        <span className="item-badge dept-badge">Dept</span>
-                        {editingDept?.oldVal === dept && editingDept?.batch === batch ? (
-                          <input value={editingDept.newVal} onChange={e => setEditingDept({ ...editingDept, newVal: e.target.value })} autoFocus className="mac-input inline-edit-input wide" />
-                        ) : (
-                          <span className="item-text">{dept}</span>
-                        )}
-                      </div>
-                      <div className="node-actions">
-                        {editingDept?.oldVal === dept && editingDept?.batch === batch ? (
-                          <>
-                            <button className="action-btn save" onClick={handleUpdateDept}><RiSave3Line /></button>
-                            <button className="action-btn cancel" onClick={() => setEditingDept(null)}><RiCloseLine /></button>
-                          </>
-                        ) : (
-                          <>
-                            <button className="action-btn edit" onClick={() => setEditingDept({ batch, oldVal: dept, newVal: dept })}><RiEditLine /></button>
-                            <button className="action-btn delete" onClick={() => handleDeleteDept(batch, dept)}><RiDeleteBinLine /></button>
-                          </>
-                        )}
+              <h2 className="editor-section-title mt-4">Departments</h2>
+              {Object.keys(hierarchy).sort().reverse().map(batch => {
+                const depts = Object.keys(hierarchy[batch]).filter(d => d !== 'initialized');
+                if (depts.length === 0) return null;
+                return (
+                  <div key={`deptgroup-${batch}`} className="editor-group">
+                    <p className="editor-group-label">{batch}</p>
+                    <div className="flat-editor-list">
+                      {depts.map(dept => (
+                        <div key={`dept-${batch}-${dept}`} className="editor-list-item">
+                          <div className="list-item-content">
+                            <span className="item-badge dept-badge">Dept</span>
+                            {editingDept?.oldVal === dept && editingDept?.batch === batch ? (
+                              <input value={editingDept.newVal} onChange={e => setEditingDept({ ...editingDept, newVal: e.target.value })} autoFocus className="mac-input inline-edit-input wide" />
+                            ) : (
+                              <span className="item-text">{dept}</span>
+                            )}
+                          </div>
+                          <div className="node-actions">
+                            {editingDept?.oldVal === dept && editingDept?.batch === batch ? (
+                              <>
+                                <button className="labeled-btn save" onClick={handleUpdateDept}><RiSave3Line /> Save</button>
+                                <button className="labeled-btn danger" onClick={() => handleDeleteDept(batch, dept)}><RiDeleteBinLine /> Delete</button>
+                                <button className="labeled-btn cancel" onClick={() => setEditingDept(null)}><RiCloseLine /> Cancel</button>
+                              </>
+                            ) : (
+                              <button className="labeled-btn edit" onClick={() => setEditingDept({ batch, oldVal: dept, newVal: dept })}><RiEditLine /> Edit</button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+
+              <h2 className="editor-section-title mt-4">Sections</h2>
+              {Object.keys(hierarchy).sort().reverse().map(batch =>
+                Object.keys(hierarchy[batch]).map(dept => {
+                  if (dept === 'initialized') return null;
+                  const secs = Array.isArray(hierarchy[batch][dept]) ? hierarchy[batch][dept] : [];
+                  if (secs.length === 0) return null;
+                  return (
+                    <div key={`secgroup-${batch}-${dept}`} className="editor-group">
+                      <p className="editor-group-label">{batch} — {dept}</p>
+                      <div className="flat-editor-list">
+                        {secs.map(sec => (
+                          <div key={`sec-${batch}-${dept}-${sec}`} className="editor-list-item">
+                            <div className="list-item-content">
+                              <span className="item-badge sec-badge">Sec</span>
+                              {editingSec?.oldVal === sec && editingSec?.dept === dept && editingSec?.batch === batch ? (
+                                <input value={editingSec.newVal} onChange={e => setEditingSec({ ...editingSec, newVal: e.target.value })} autoFocus className="mac-input inline-edit-input thin" />
+                              ) : (
+                                <span className="item-text">{sec}</span>
+                              )}
+                            </div>
+                            <div className="node-actions">
+                              {editingSec?.oldVal === sec && editingSec?.dept === dept && editingSec?.batch === batch ? (
+                                <>
+                                  <button className="labeled-btn save" onClick={handleUpdateSection}><RiSave3Line /> Save</button>
+                                  <button className="labeled-btn danger" onClick={() => handleDeleteSection(batch, dept, sec)}><RiDeleteBinLine /> Delete</button>
+                                  <button className="labeled-btn cancel" onClick={() => setEditingSec(null)}><RiCloseLine /> Cancel</button>
+                                </>
+                              ) : (
+                                <button className="labeled-btn edit" onClick={() => setEditingSec({ batch, dept, oldVal: sec, newVal: sec })}><RiEditLine /> Edit</button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  ))
-                )}
-              </div>
-
-              <h2 className="editor-section-title mt-4">Edit Sections</h2>
-              <div className="flat-editor-list">
-                {Object.keys(hierarchy).sort().reverse().map(batch =>
-                  Object.keys(hierarchy[batch]).map(dept => dept !== 'initialized' &&
-                    Array.isArray(hierarchy[batch][dept]) && hierarchy[batch][dept].map(sec => (
-                      <div key={`sec-${batch}-${dept}-${sec}`} className="editor-list-item">
-                        <div className="list-item-content">
-                          <span className="item-context-tag">{batch} / {dept}</span>
-                          <span className="item-badge sec-badge">Sec</span>
-                          {editingSec?.oldVal === sec && editingSec?.dept === dept && editingSec?.batch === batch ? (
-                            <input value={editingSec.newVal} onChange={e => setEditingSec({ ...editingSec, newVal: e.target.value })} className="mac-input inline-edit-input thin" />
-                          ) : (
-                            <span className="item-text">{sec}</span>
-                          )}
-                        </div>
-                        <div className="node-actions">
-                          {editingSec?.oldVal === sec && editingSec?.dept === dept && editingSec?.batch === batch ? (
-                            <>
-                              <button className="action-btn save" onClick={handleUpdateSection}><RiSave3Line /></button>
-                              <button className="action-btn cancel" onClick={() => setEditingSec(null)}><RiCloseLine /></button>
-                            </>
-                          ) : (
-                            <>
-                              <button className="action-btn edit" onClick={() => setEditingSec({ batch, dept, oldVal: sec, newVal: sec })}><RiEditLine /></button>
-                              <button className="action-btn delete" onClick={() => handleDeleteSection(batch, dept, sec)}><RiDeleteBinLine /></button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ))
-                  )
-                )}
-              </div>
+                  );
+                })
+              )}
             </div>
           )}
         </div>
