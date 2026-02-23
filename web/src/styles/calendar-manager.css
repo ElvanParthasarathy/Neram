@@ -324,7 +324,6 @@
 }
 
 .calendar-manager-container .calendar-tr:hover {
-    border-color: var(--mac-blue);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
     transform: translateY(-2px);
 }
