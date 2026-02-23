@@ -136,7 +136,7 @@ const AdminRoleManager = ({ userProfile }) => {
                 return (
                   <div key={uid} className="user-row">
                     <div className="user-details">
-                      <img src={u.photoURL || ""} alt="" className="user-avatar-mini" />
+                      <img src={u.photoURL || "/default-avatar.png"} alt="" className="user-avatar-mini" />
                       <div className="user-info-text">
                         <strong className="user-name-bold">{u.displayName}</strong>
                         {isFromCurrentPreview && <span className="view-tag">In View</span>}
@@ -201,7 +201,7 @@ const AdminRoleManager = ({ userProfile }) => {
                   {group.list.map(([uid, u, badgeRole, hardcodedRole]) => (
                     <div key={uid} className="admin-card" style={{ zIndex: activeMenuId === uid ? 1001 : 1 }}>
                       <div className="admin-info-wrap">
-                        <img src={u.photoURL || ""} alt="" className="admin-avatar-main" />
+                        <img src={u.photoURL || "/default-avatar.png"} alt="" className="admin-avatar-main" />
                         <div className="admin-text-content">
                           <h4 className="admin-name-row">
                             {u.displayName}
