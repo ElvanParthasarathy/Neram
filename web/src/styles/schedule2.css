@@ -875,7 +875,7 @@ html.dark .s2-day-tabs {
     }
 
     .s2-section-title {
-        padding-left: 16px;
+        padding-left: 12px;
         font-size: 12px;
     }
 
@@ -890,7 +890,7 @@ html.dark .s2-day-tabs {
     }
 
     .s2-status-row {
-        padding: 0 16px;
+        padding: 0 12px;
     }
 
     /* Compact Text for Mobile */

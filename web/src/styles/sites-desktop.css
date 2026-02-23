@@ -112,7 +112,7 @@ html.dark .site-icon {
 
 @media (max-width: 768px) {
     .sites-view {
-        padding: 0 16px 80px 16px;
+        padding: 0 12px 80px 12px;
     }
 
     .sites-grid {

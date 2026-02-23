@@ -76,7 +76,7 @@
 /* ── Mobile: single column, show one at a time ── */
 @media (max-width: 768px) {
     .s2-page-view {
-        padding: 24px 16px 80px;
+        padding: 24px 12px 80px;
     }
 
     .s2-content-grid {
@@ -104,7 +104,7 @@
 
 @media (max-width: 768px) {
     .settings2-view {
-        padding: 0 16px 80px;
+        padding: 0 12px 80px;
     }
 }
 
@@ -227,6 +227,6 @@
 /* ── Responsive (mobile inner view) ── */
 @media (max-width: 768px) {
     .settings2-view {
-        padding: 0 16px 80px;
+        padding: 0 12px 80px;
     }
 }
