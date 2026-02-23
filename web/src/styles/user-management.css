@@ -278,8 +278,6 @@
 }
 
 .modal-footer {
-    background: rgba(0, 0, 0, 0.1);
-    border-top: 1px solid var(--mac-divider);
     padding: 20px 30px;
 }
 
