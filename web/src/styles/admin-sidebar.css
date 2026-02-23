@@ -169,8 +169,17 @@
     }
 
     /* ──────────────────────────────────────────────────────────────────────
-       COLLAPSED STATE
+       THEME TOGGLE IN SIDEBAR
        ────────────────────────────────────────────────────────────────────── */
+
+    .sidebar-theme-toggle {
+        padding: 4px 12px 8px 12px;
+        flex-shrink: 0;
+    }
+
+    /* ──────────────────────────────────────────────────────────────────────
+       COLLAPSED STATE
+       ────────────────────────────────────────────────────────────────────── 
 
     .admin-sidebar.collapsed {
         width: 68px;
@@ -229,8 +238,9 @@
         opacity: 1;
     }
 
-    /* Hide user text in collapsed state */
-    .admin-sidebar.collapsed .trigger-text {
+    /* Hide user text and theme toggle in collapsed state */
+    .admin-sidebar.collapsed .trigger-text,
+    .admin-sidebar.collapsed .sidebar-theme-toggle {
         display: none;
     }
 
