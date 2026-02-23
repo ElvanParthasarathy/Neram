@@ -64,31 +64,7 @@
     --bg-button-secondary: rgba(120, 120, 128, 0.15);
     --bg-modal-solid: rgba(250, 250, 250, 0.95);
 
-    /* --- DESKTOP TOKEN PARITY (Light Mode) --- */
-    /* These are defined in tokens.css only for min-width:769px.
-       Without them, light-mode mobile has no --mac-* values. */
-    --mac-blue: #0063E5;
-    --mac-blue-hover: #005CBF;
-    --mac-bg-primary: #FFFFFF;
-    --mac-bg-content: #F5F5F7;
-    --mac-bg-secondary: #F2F2F7;
-    --mac-text: #1D1D1F;
-    --mac-text-secondary: #3C3C43;
-    --mac-text-tertiary: rgba(60, 60, 67, 0.6);
-    --mac-selection-bg: rgba(0, 0, 0, 0.04);
-    --mac-selection-hover: rgba(0, 0, 0, 0.06);
-    --mac-divider: rgba(0, 0, 0, 0.05);
-    --mac-border: rgba(0, 0, 0, 0.05);
-    --mac-card-bg: #FFFFFF;
-    --mac-card-border: 1px solid rgba(0, 0, 0, 0.06);
-    --mac-card-shadow: none;
-    --mac-sidebar-bg: #FFFFFF;
-    --mac-icon-color: #3C3C43;
-    --mac-popup-bg: #FFFFFF;
-    --mac-table-header: #FAFAFA;
-    --mac-input-bg: #FFFFFF;
-    --mac-button-bg: rgba(0, 0, 0, 0.05);
-    --mac-modal-field-bg: #F2F2F7;
+
   }
 
   /* --- DARK MODE DEFINITIONS --- */
