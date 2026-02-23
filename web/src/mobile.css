@@ -1850,9 +1850,28 @@
 
   .explorer-grid,
   .user-directory-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     gap: 12px;
     padding-bottom: 120px;
+  }
+
+  .user-management-card {
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+    gap: 14px !important;
+  }
+
+  .user-card-avatar {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .u-name {
+    font-size: 14px !important;
+  }
+
+  .u-email {
+    font-size: 12px !important;
   }
 
   .explorer-card {
