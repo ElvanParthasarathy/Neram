@@ -464,13 +464,13 @@ const ExamManager = ({ user, userProfile }) => {
                               </div>
                               <div className="input-group-vertical"><label>Start</label><input type="time" value={s.startTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
                               <div className="input-group-vertical"><label>End</label><input type="time" value={s.endTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
-                              <button className="btn-del-mini" onClick={() => {
+                              <button className="btn-del-mini danger-style" onClick={() => {
                                 showConfirm(
                                   "Remove Day?",
                                   "Remove this subject day from the timetable?",
                                   () => { let subs = editBuffer.subjects.filter((_, idx) => idx !== i); setEditBuffer({ ...editBuffer, subjects: subs }); }
                                 );
-                              }}><RiDeleteBin6Line /></button>
+                              }}><RiDeleteBin6Line /> Remove Subject Day</button>
                             </>
                           ) : (
                             <>

@@ -395,6 +395,42 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
 }
 
 /* Standardized s2 matching */
+.s2-exam-subject-row.is-editing-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 24px;
+  background: var(--mac-bg-secondary);
+  border-radius: 20px;
+  margin-top: 12px;
+  border: 1px solid var(--mac-divider);
+}
+
+.s2-exam-subject-row.is-editing-row .input-group-vertical {
+  width: 100%;
+}
+
+.s2-exam-subject-row.is-editing-row .variant-code,
+.s2-exam-subject-row.is-editing-row .variant-portion {
+  grid-column: span 2;
+}
+
+.s2-exam-subject-row.is-editing-row .btn-del-mini {
+  grid-column: span 2;
+  margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .s2-exam-subject-row.is-editing-row {
+    grid-template-columns: 1fr;
+  }
+
+  .s2-exam-subject-row.is-editing-row .variant-code,
+  .s2-exam-subject-row.is-editing-row .variant-portion,
+  .s2-exam-subject-row.is-editing-row .btn-del-mini {
+    grid-column: span 1;
+  }
+}
 
 .published-header {
   /* Legacy - will be replaced by action bar above card */
