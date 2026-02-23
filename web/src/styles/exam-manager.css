@@ -426,6 +426,8 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
 .s2-exam-subject-row.is-editing-row .btn-del-mini {
   grid-column: span 2;
   margin-top: 8px;
+  width: 100% !important;
+  /* Force take full row width */
 }
 
 @media (max-width: 600px) {
