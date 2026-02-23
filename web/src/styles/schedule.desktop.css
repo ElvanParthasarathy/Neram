@@ -662,8 +662,8 @@
     .course-manager .add-item-bar .btn-add {
         grid-column: 1 / -1;
         justify-content: center;
-        background: var(--mac-blue);
-        color: #FFFFFF;
+        background: var(--mac-blue) !important;
+        color: #FFFFFF !important;
         border: none;
         box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
         transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
