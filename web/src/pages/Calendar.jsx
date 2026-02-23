@@ -335,7 +335,7 @@ const InfinitePager = ({ pageKey, onChange, renderItem }) => {
         onDragEnd={handleDragEnd}
       >
         {[-1, 0, 1].map(offset => (
-          <div key={offset} className="infinite-pager-item" style={{ minWidth: '100%', flexShrink: 0, padding: '0 10px', boxSizing: 'border-box' }}>
+          <div key={offset} className="infinite-pager-item" style={{ minWidth: '100%', width: '100%', flexShrink: 0, padding: '0 10px', boxSizing: 'border-box' }}>
             {renderItem(offset)}
           </div>
         ))}

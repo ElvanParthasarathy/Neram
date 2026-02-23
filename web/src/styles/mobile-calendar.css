@@ -364,10 +364,13 @@
     font-weight: 600;
     line-height: 1.4;
     color: var(--cal-mob-text);
-    display: block;
-    white-space: normal !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     word-break: break-word;
-    overflow-wrap: break-word;
+    white-space: normal !important;
 }
 
 .cal-mob-card-time {
@@ -558,10 +561,13 @@
     line-height: 1.4;
     color: var(--cal-mob-text);
     margin-bottom: 4px;
-    display: block;
-    white-space: normal !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     word-break: break-word;
-    overflow-wrap: break-word;
+    white-space: normal !important;
 }
 
 .cal-mob-sched-time {
