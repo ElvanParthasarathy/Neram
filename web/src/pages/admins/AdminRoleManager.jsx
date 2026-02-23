@@ -165,91 +165,118 @@ const AdminRoleManager = ({ userProfile }) => {
       {/* --- SECTION 2: ACTIVE ADMINS LIST --- */}
       <div className="admin-list-section">
         <h2 className="section-heading">Active Administrators</h2>
-        <div className="admin-grid">
-          {Object.entries(users)
-            .filter(([_, u]) => u.role === 'admin' || u.role === 'faculty' || u.role === 'rep' || u.role === 'super_admin' || getHardcodedRole(u.email))
-            .sort((a, b) => (a[1].displayName || "").localeCompare(b[1].displayName || ""))
-            .map(([uid, u]) => {
-              const hardcodedRole = getHardcodedRole(u.email);
-              const displayRole = hardcodedRole
-                ? (hardcodedRole === 'super_admin' ? 'Super Admin' : (hardcodedRole === 'faculty' ? 'Faculty Admin' : 'Student Admin'))
-                : (u.role === 'rep' ? 'Student Admin' : 'Faculty Admin');
+        {(() => {
+          const allAdmins = Object.entries(users)
+            .filter(([_, u]) => ['admin', 'faculty', 'rep', 'super_admin'].includes(u.role) || getHardcodedRole(u.email))
+            .sort((a, b) => (a[1].displayName || "").localeCompare(b[1].displayName || ""));
 
-              return (
-                <div key={uid} className="admin-card" style={{ zIndex: activeMenuId === uid ? 1001 : 1 }}>
-                  <div className="admin-info-wrap">
-                    <img src={u.photoURL || ""} alt="" className="admin-avatar-main" />
-                    <div className="admin-text-content">
-                      <h4 className="admin-name-row">
-                        {u.displayName}
-                        {hardcodedRole && (
-                          <RiLockLine className="admin-system-lock-icon" title="Hardcoded System Admin" />
+          const groups = [
+            { title: 'Super Admins', list: [] },
+            { title: 'Faculty Admins', list: [] },
+            { title: 'Student Admins', list: [] }
+          ];
+
+          allAdmins.forEach(([uid, u]) => {
+            const hardcodedRole = getHardcodedRole(u.email);
+            const displayRole = hardcodedRole
+              ? (hardcodedRole === 'super_admin' ? 'Super Admins' : (hardcodedRole === 'faculty' ? 'Faculty Admins' : 'Student Admins'))
+              : (u.role === 'super_admin' ? 'Super Admins' : (u.role === 'rep' ? 'Student Admins' : 'Faculty Admins'));
+
+            const badgeRole = hardcodedRole
+              ? (hardcodedRole === 'super_admin' ? 'Super Admin' : (hardcodedRole === 'faculty' ? 'Faculty Admin' : 'Student Admin'))
+              : (u.role === 'super_admin' ? 'Super Admin' : (u.role === 'rep' ? 'Student Admin' : 'Faculty Admin'));
+
+            const group = groups.find(g => g.title === displayRole);
+            if (group) group.list.push([uid, u, badgeRole, hardcodedRole]);
+          });
+
+          return groups.map(group => {
+            if (group.list.length === 0) return null;
+
+            return (
+              <div key={group.title} className="admin-role-group" style={{ marginBottom: '40px' }}>
+                <h3 className="section-heading" style={{ color: 'var(--mac-text)', opacity: 0.9, fontSize: '15px', letterSpacing: '0.05em' }}>
+                  {group.title}
+                </h3>
+                <div className="admin-grid" style={{ marginTop: '16px' }}>
+                  {group.list.map(([uid, u, badgeRole, hardcodedRole]) => (
+                    <div key={uid} className="admin-card" style={{ zIndex: activeMenuId === uid ? 1001 : 1 }}>
+                      <div className="admin-info-wrap">
+                        <img src={u.photoURL || ""} alt="" className="admin-avatar-main" />
+                        <div className="admin-text-content">
+                          <h4 className="admin-name-row">
+                            {u.displayName}
+                            {hardcodedRole && (
+                              <RiLockLine className="admin-system-lock-icon" title="Hardcoded System Admin" />
+                            )}
+                          </h4>
+                          <p className="admin-email-text">{u.email}</p>
+                          <span className={`role-badge ${badgeRole === 'Student Admin' ? 'rep' : 'faculty'}`}>{badgeRole}</span>
+                        </div>
+                      </div>
+
+                      <div className="admin-menu-container" style={{ zIndex: activeMenuId === uid ? 1002 : 1 }}>
+                        {!hardcodedRole && (
+                          <>
+                            <button
+                              className="btn-icon-only"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveMenuId(activeMenuId === uid ? null : uid);
+                              }}
+                            >
+                              <RiMore2Fill />
+                            </button>
+
+                            {activeMenuId === uid && (
+                              <div className="admin-dropdown-menu">
+                                {u.role !== 'faculty' && iAmFacultyOrSuper && (
+                                  <button
+                                    className="menu-item"
+                                    onClick={() => { updateRole(uid, 'faculty'); setActiveMenuId(null); }}
+                                  >
+                                    Make Faculty
+                                  </button>
+                                )}
+
+                                {u.role !== 'rep' && iAmSuper && (
+                                  <button
+                                    className="menu-item"
+                                    onClick={() => { updateRole(uid, 'rep'); setActiveMenuId(null); }}
+                                  >
+                                    Make Student Admin
+                                  </button>
+                                )}
+
+                                {u.role !== 'super_admin' && iAmSuper && (
+                                  <button
+                                    className="menu-item"
+                                    onClick={() => { updateRole(uid, 'super_admin'); setActiveMenuId(null); }}
+                                  >
+                                    Make Super Admin
+                                  </button>
+                                )}
+
+                                {(iAmSuper || (u.role === 'rep')) && (
+                                  <button
+                                    className="menu-item text-red"
+                                    onClick={() => { updateRole(uid, 'student'); setActiveMenuId(null); }}
+                                  >
+                                    Remove Admin
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </>
                         )}
-                      </h4>
-                      <p className="admin-email-text">{u.email}</p>
-                      <span className={`role-badge ${u.role === 'rep' ? 'rep' : 'faculty'}`}>{displayRole}</span>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="admin-menu-container" style={{ zIndex: activeMenuId === uid ? 1002 : 1 }}>
-                    {!hardcodedRole && (
-                      <>
-                        <button
-                          className="btn-icon-only"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveMenuId(activeMenuId === uid ? null : uid);
-                          }}
-                        >
-                          <RiMore2Fill />
-                        </button>
-
-                        {activeMenuId === uid && (
-                          <div className="admin-dropdown-menu">
-                            {u.role !== 'faculty' && iAmFacultyOrSuper && (
-                              <button
-                                className="menu-item"
-                                onClick={() => { updateRole(uid, 'faculty'); setActiveMenuId(null); }}
-                              >
-                                Make Faculty
-                              </button>
-                            )}
-
-                            {u.role !== 'rep' && iAmSuper && (
-                              <button
-                                className="menu-item"
-                                onClick={() => { updateRole(uid, 'rep'); setActiveMenuId(null); }}
-                              >
-                                Make Student Admin
-                              </button>
-                            )}
-
-                            {u.role !== 'super_admin' && iAmSuper && (
-                              <button
-                                className="menu-item"
-                                onClick={() => { updateRole(uid, 'super_admin'); setActiveMenuId(null); }}
-                              >
-                                Make Super Admin
-                              </button>
-                            )}
-
-                            {(iAmSuper || (u.role === 'rep')) && (
-                              <button
-                                className="menu-item text-red"
-                                onClick={() => { updateRole(uid, 'student'); setActiveMenuId(null); }}
-                              >
-                                Remove Admin
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
+                  ))}
                 </div>
-              )
-            })}
-        </div>
+              </div>
+            );
+          });
+        })()}
       </div>
     </div>
   );
