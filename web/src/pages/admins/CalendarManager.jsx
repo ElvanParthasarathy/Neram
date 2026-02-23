@@ -183,44 +183,61 @@ const CalendarManager = () => {
           </div>
         ) : (
           <div className="calendar-admin-workspace">
-            <aside className="admin-sidebar-controls settings-card">
-              <div className="config-header">
-                <h3><RiGoogleFill /> API Configuration</h3>
-                <button className="btn-modify-mini" onClick={() => setIsEditingConfig(!isEditingConfig)}>
-                  {isEditingConfig ? <RiCloseLine /> : <RiSettings4Line />}
-                </button>
+            {/* 1. NEW TOP-BAR CONFIGURATION MODULE */}
+            <div className="cm-desktop-header settings-card">
+              <div className="cm-header-top-row">
+                <div className="cm-header-title">
+                  <RiGoogleFill className="google-icon" />
+                  <div>
+                    <h3>API Configuration</h3>
+                    <p>Google Calendar Live Sync Settings</p>
+                  </div>
+                </div>
+
+                <div className="cm-header-actions">
+                  <button className="btn-modify-mini" onClick={() => setIsEditingConfig(!isEditingConfig)}>
+                    {isEditingConfig ? <RiCloseLine /> : <RiSettings4Line />}
+                  </button>
+                  <div className="cm-divider-vert"></div>
+                  <button className="btn-safety" onClick={() => syncFromGoogle(true)}>
+                    <RiRefreshLine /> Manual Sync
+                  </button>
+                  <button className="btn-safety push" onClick={forcePushToFirebase}>
+                    <RiUploadCloud2Line /> Force Push
+                  </button>
+                </div>
               </div>
 
-              <div className={`config-inputs ${isEditingConfig ? 'active' : 'disabled'}`}>
-                <label>API Key</label>
-                <input disabled={!isEditingConfig} value={config.apiKey} onChange={e => setConfig({ ...config, apiKey: e.target.value })} />
-                <label>Calendar ID</label>
-                <input disabled={!isEditingConfig} value={config.calendarId} onChange={e => setConfig({ ...config, calendarId: e.target.value })} />
-                <hr />
-                <label>Fetch Start</label>
-                <input type="date" disabled={!isEditingConfig} value={semConfig.start} onChange={e => setSemConfig({ ...semConfig, start: e.target.value })} />
-                <label>Fetch End</label>
-                <input type="date" disabled={!isEditingConfig} value={semConfig.end} onChange={e => setSemConfig({ ...semConfig, end: e.target.value })} />
-
+              <div className={`cm-config-dropdown ${isEditingConfig ? 'active' : ''}`}>
+                <div className="cm-config-grid">
+                  <div className="cm-input-group">
+                    <label>API Key</label>
+                    <input disabled={!isEditingConfig} value={config.apiKey} onChange={e => setConfig({ ...config, apiKey: e.target.value })} />
+                  </div>
+                  <div className="cm-input-group">
+                    <label>Calendar ID</label>
+                    <input disabled={!isEditingConfig} value={config.calendarId} onChange={e => setConfig({ ...config, calendarId: e.target.value })} />
+                  </div>
+                  <div className="cm-input-group">
+                    <label>Fetch Start</label>
+                    <input type="date" disabled={!isEditingConfig} value={semConfig.start} onChange={e => setSemConfig({ ...semConfig, start: e.target.value })} />
+                  </div>
+                  <div className="cm-input-group">
+                    <label>Fetch End</label>
+                    <input type="date" disabled={!isEditingConfig} value={semConfig.end} onChange={e => setSemConfig({ ...semConfig, end: e.target.value })} />
+                  </div>
+                </div>
                 {isEditingConfig && (
-                  <button className="btn-save-settings" onClick={saveSettingsToFirebase}>
-                    <RiSave3Line /> Save & Lock Range
-                  </button>
+                  <div className="cm-config-footer">
+                    <button className="btn-save-settings" onClick={saveSettingsToFirebase}>
+                      <RiSave3Line /> Save & Lock Range
+                    </button>
+                  </div>
                 )}
               </div>
+            </div>
 
-              <hr />
-              <div className="safety-controls">
-                <h4>Safety Overrides</h4>
-                <button className="btn-safety" onClick={() => syncFromGoogle(true)}>
-                  <RiRefreshLine /> Manual Sync
-                </button>
-                <button className="btn-safety push" onClick={forcePushToFirebase}>
-                  <RiUploadCloud2Line /> Force Push to Firebase
-                </button>
-              </div>
-            </aside>
-
+            {/* 2. FULL-WIDTH EVENT GRID MODULE */}
             <div className="calendar-editable-list settings-card">
               <nav className="table-navigation">
                 <button className="nav-btn" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}>Prev</button>
@@ -229,22 +246,26 @@ const CalendarManager = () => {
               </nav>
 
               <div className="admin-table-wrapper">
-                <table className="calendar-table">
-                  <thead><tr><th>Date</th><th>Day</th><th>Events (Grouped)</th></tr></thead>
-                  <tbody>
+                <div className="calendar-table">
+                  <div className="calendar-thead">
+                    <div className="date-cell hd">Date</div>
+                    <div className="day-cell hd">Day</div>
+                    <div className="events-cell hd">Events</div>
+                  </div>
+                  <div className="calendar-tbody">
                     {Object.keys(groupedByDate).sort().map((dateStr) => {
                       const [year, month, day] = dateStr.split('-');
                       const displayDate = `${day}/${month}/${year}`;
 
                       return (
-                        <tr key={dateStr}>
-                          <td className="date-cell">
+                        <div key={dateStr} className="calendar-tr">
+                          <div className="date-cell">
                             {displayDate}
-                          </td>
-                          <td className="day-cell">
+                          </div>
+                          <div className="day-cell">
                             {new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' })}
-                          </td>
-                          <td className="events-cell">
+                          </div>
+                          <div className="events-cell">
                             <div className="events-list-vertical">
                               {groupedByDate[dateStr].map((event, i) => (
                                 <div key={i} className="event-item-pill">
@@ -253,12 +274,12 @@ const CalendarManager = () => {
                                 </div>
                               ))}
                             </div>
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
