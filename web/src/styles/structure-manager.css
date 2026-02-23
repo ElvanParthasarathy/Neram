@@ -29,10 +29,10 @@
 }
 
 .btn-toggle-explicit.editing {
-    background-color: var(--mac-red);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 4px 12px rgba(255, 69, 58, 0.2);
+    background-color: #FF3B30 !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 4px 14px rgba(255, 59, 48, 0.35);
 }
 
 .btn-toggle-explicit:hover {
@@ -40,7 +40,7 @@
 }
 
 .btn-toggle-explicit.editing:hover {
-    background-color: #ff5247;
+    background-color: #e8342a !important;
 }
 
 .btn-toggle-explicit:active {
