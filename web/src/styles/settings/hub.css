@@ -102,6 +102,12 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+@media (max-width: 768px) {
+    .settings2-view {
+        padding: 0 16px 80px;
+    }
+}
+
 /* ── Welcome card (empty right panel) ── */
 .s2-welcome-card {
     background: var(--mac-card-bg);
