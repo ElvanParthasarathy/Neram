@@ -637,7 +637,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 12px;
-        background: var(--mac-button-bg);
+        background: var(--mac-card-bg);
         padding: 20px;
         border-radius: 16px;
         border: 1px solid var(--mac-divider);
