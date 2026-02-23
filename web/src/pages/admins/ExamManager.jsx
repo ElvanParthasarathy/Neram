@@ -272,105 +272,111 @@ const ExamManager = ({ user, userProfile }) => {
         <div className="exam-editor-workspace">
 
           {/* 1. CREATOR SECTION */}
-          <div className="settings-card exam-creator-card">
-            <h2 className="editor-title"><RiTrophyLine /> Create New Timetable</h2>
-            <div className="exam-config-grid">
-              <div className="field">
-                <label>Exam Type</label>
-                <select value={newExam.type} onChange={e => handleTypeChange(e.target.value)}>
-                  {Object.keys(PORTION_DEFAULTS).map(k => <option key={k} value={k}>{k}</option>)}
-                </select>
-              </div>
-              <div className="field"><label>Title</label><input value={newExam.title} onChange={e => setNewExam({ ...newExam, title: e.target.value })} placeholder="e.g. IA-1 Oct" /></div>
-
-              {/* DATEPICKER: Show From */}
-              <div className="field">
-                <label>Show From</label>
-                <DatePicker
-                  selected={parseDate(newExam.startDate)}
-                  onChange={(date) => setNewExam({ ...newExam, startDate: formatDate(date) })}
-                  dateFormat="dd/MM/yyyy"
-                  placeholderText="dd/mm/yyyy"
-                  className="custom-datepicker-input"
-                />
-              </div>
-
-              {/* DATEPICKER: Show Until */}
-              <div className="field">
-                <label>Show Until</label>
-                <DatePicker
-                  selected={parseDate(newExam.endDate)}
-                  onChange={(date) => setNewExam({ ...newExam, endDate: formatDate(date) })}
-                  dateFormat="dd/MM/yyyy"
-                  placeholderText="dd/mm/yyyy"
-                  className="custom-datepicker-input"
-                />
+          <div className={`s2-exam-card s2-fade-in is-editing`}>
+            <div className="s2-editor-header">
+              <RiTrophyLine className="s2-exam-header-icon" />
+              <div className="s2-editor-meta">
+                <div className="s2-editor-field">
+                  <label className="s2-editor-label">Exam Type</label>
+                  <select className="s2-editor-pill-select" value={newExam.type} onChange={e => handleTypeChange(e.target.value)}>
+                    {Object.keys(PORTION_DEFAULTS).map(k => <option key={k} value={k}>{k}</option>)}
+                  </select>
+                </div>
+                <div className="s2-editor-field">
+                  <label className="s2-editor-label">Timetable Title</label>
+                  <input className="s2-editor-pill-input" value={newExam.title} onChange={e => setNewExam({ ...newExam, title: e.target.value })} placeholder="e.g. IA-1 Oct" />
+                </div>
+                <div className="s2-editor-field">
+                  <label className="s2-editor-label">Visibility Range</label>
+                  <div className="s2-editor-date-range">
+                    <DatePicker
+                      selected={parseDate(newExam.startDate)}
+                      onChange={(date) => setNewExam({ ...newExam, startDate: formatDate(date) })}
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText="From"
+                      className="s2-editor-pill-input"
+                    />
+                    <span className="s2-editor-range-sep">to</span>
+                    <DatePicker
+                      selected={parseDate(newExam.endDate)}
+                      onChange={(date) => setNewExam({ ...newExam, endDate: formatDate(date) })}
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText="Until"
+                      className="s2-editor-pill-input"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="subject-mapping-section">
+            <div className="published-subjects-container">
               {newExam.subjects.map((sub, idx) => (
-                <div key={idx} className="exam-subject-row professional">
-                  <div className="input-group-vertical">
-                    <label>Date</label>
-                    {/* DATEPICKER: Subject Date */}
-                    <DatePicker
-                      selected={parseDate(sub.date)}
-                      onChange={(date) => { let s = [...newExam.subjects]; s[idx].date = formatDate(date); setNewExam({ ...newExam, subjects: s }); }}
-                      dateFormat="dd/MM/yyyy"
-                      placeholderText="dd/mm/yyyy"
-                      className="custom-datepicker-input"
-                    />
+                <div key={idx} className="s2-editor-subject-card">
+                  <div className="s2-editor-row-grid">
+                    <div className="s2-editor-field">
+                      <label className="s2-editor-label">Date</label>
+                      <DatePicker
+                        selected={parseDate(sub.date)}
+                        onChange={(date) => { let s = [...newExam.subjects]; s[idx].date = formatDate(date); setNewExam({ ...newExam, subjects: s }); }}
+                        dateFormat="dd/MM/yyyy"
+                        className="s2-editor-pill-input"
+                      />
+                    </div>
+                    <div className="s2-editor-field">
+                      <label className="s2-editor-label">Portion</label>
+                      <input
+                        className="s2-editor-pill-input"
+                        list="portion-presets"
+                        value={sub.portion}
+                        onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }}
+                        placeholder="Portion..."
+                      />
+                    </div>
+                    <div className="s2-editor-field full-width">
+                      <label className="s2-editor-label">Course Name</label>
+                      <select className="s2-editor-pill-select" value={sub.code} onChange={e => { let s = [...newExam.subjects]; s[idx].code = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
+                        <option value="">Select Course</option>
+                        {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
+                      </select>
+                    </div>
+                    <div className="s2-editor-field">
+                      <label className="s2-editor-label">Start Time</label>
+                      <input className="s2-editor-pill-input" type="time" value={sub.startTime} onChange={e => { let s = [...newExam.subjects]; s[idx].startTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} />
+                    </div>
+                    <div className="s2-editor-field">
+                      <label className="s2-editor-label">End Time</label>
+                      <input className="s2-editor-pill-input" type="time" value={sub.endTime} onChange={e => { let s = [...newExam.subjects]; s[idx].endTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} />
+                    </div>
                   </div>
-                  <div className="input-group-vertical variant-code">
-                    <label>Subject</label>
-                    <select value={sub.code} onChange={e => { let s = [...newExam.subjects]; s[idx].code = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
-                      <option value="">Select Course</option>
-                      {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
-                    </select>
-                  </div>
-                  <div className="input-group-vertical variant-portion">
-                    <label>Portion</label>
-                    <input
-                      list="portion-presets"
-                      value={sub.portion}
-                      onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }}
-                      placeholder="Portion..."
-                    />
-                  </div>
-                  <div className="input-group-vertical"><label>Start</label><input type="time" value={sub.startTime} onChange={e => { let s = [...newExam.subjects]; s[idx].startTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
-                  <div className="input-group-vertical"><label>End</label><input type="time" value={sub.endTime} onChange={e => { let s = [...newExam.subjects]; s[idx].endTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
-                  <button className="btn-del-mini" onClick={() => {
+                  <button className="btn-del-mini danger-style" style={{ height: '44px', width: '100% !important', borderRadius: '12px' }} onClick={() => {
                     showConfirm(
                       "Delete Subject?",
                       `Are you sure you want to remove ${getSubjectName(sub.code) || 'this subject'} from the draft?`,
                       () => setNewExam({ ...newExam, subjects: newExam.subjects.filter((_, i) => i !== idx) })
                     );
-                  }}><RiDeleteBin6Line /></button>
+                  }}><RiDeleteBin6Line /> Remove Day</button>
                 </div>
               ))}
-
-              <datalist id="portion-presets">
-                {[...new Set(Object.values(PORTION_DEFAULTS))].map(p => <option key={p} value={p} />)}
-              </datalist>
-
-              <button className="btn-add-line" onClick={() => {
-                const lastSub = newExam.subjects[newExam.subjects.length - 1];
-                setNewExam({
-                  ...newExam,
-                  subjects: [...newExam.subjects, {
-                    date: '',
-                    code: '',
-                    startTime: lastSub ? to24h(lastSub.startTime) : '08:30',
-                    endTime: lastSub ? to24h(lastSub.endTime) : '11:30',
-                    portion: PORTION_DEFAULTS[newExam.type]
-                  }]
-                });
-              }}><RiAddLine /> Add Subject Day</button>
-              <button className="btn-save-master publish-btn" onClick={handlePublish}>Publish New Exam</button>
             </div>
-          </div>
+            <datalist id="portion-presets">
+              {[...new Set(Object.values(PORTION_DEFAULTS))].map(p => <option key={p} value={p} />)}
+            </datalist>
 
+            <button className="s2-editor-add-btn" onClick={() => {
+              const lastSub = newExam.subjects[newExam.subjects.length - 1];
+              setNewExam({
+                ...newExam,
+                subjects: [...newExam.subjects, {
+                  date: '',
+                  code: '',
+                  startTime: lastSub ? to24h(lastSub.startTime) : '08:30',
+                  endTime: lastSub ? to24h(lastSub.endTime) : '11:30',
+                  portion: PORTION_DEFAULTS[newExam.type]
+                }]
+              });
+            }}><RiAddLine /> Add Subject Day</button>
+            <button className="btn-save-master publish-btn" style={{ height: '54px', borderRadius: '20px', fontSize: '16px' }} onClick={handlePublish}>Publish New Exam</button>
+          </div>
 
           {/* 2. PUBLISHED SECTION */}
           <div className="published-exams-section">
@@ -384,15 +390,15 @@ const ExamManager = ({ user, userProfile }) => {
                   <div className="published-exam-actions">
                     {isEditing ? (
                       <>
-                        <button className="btn-del-mini" onClick={() => {
+                        <button className="btn-del-mini" style={{ height: '40px', padding: '0 20px', borderRadius: '50px' }} onClick={() => {
                           showConfirm(
                             "Delete Timetable?",
                             `This will permanently remove "${ex.title}". This action cannot be undone.`,
                             () => syncExamsToDB(masterData.exams.filter(e => e.id !== ex.id))
                           );
                         }}><RiDeleteBin6Line /> Delete</button>
-                        <button className="btn-save-mini" onClick={saveEdit}>Save</button>
-                        <button className="btn-cancel-mini" onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
+                        <button className="btn-save-mini" style={{ height: '40px', padding: '0 20px', borderRadius: '50px' }} onClick={saveEdit}>Save</button>
+                        <button className="btn-cancel-mini" style={{ height: '40px', padding: '0 20px', borderRadius: '50px' }} onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
                       </>
                     ) : (
                       <button className="btn-edit-mini" onClick={() => startEditing(ex)}><RiEditLine /> Edit</button>
@@ -400,77 +406,108 @@ const ExamManager = ({ user, userProfile }) => {
                   </div>
 
                   <div className={`s2-exam-card s2-fade-in ${isEditing ? 'is-editing' : ''}`}>
-                    <div className="s2-exam-header">
+                    <div className="s2-exam-header s2-editor-header">
                       <RiTrophyLine className="s2-exam-header-icon" />
-                      <div>
-                        {isEditing ? (
-                          <div className="edit-meta-inputs">
-                            <input className="edit-title-input" value={currentData.title} onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })} />
-                            <div className="date-group">
-                              <label>Range:</label>
+                      {isEditing ? (
+                        <div className="s2-editor-meta">
+                          <div className="s2-editor-field">
+                            <label className="s2-editor-label">Exam Title</label>
+                            <input
+                              className="s2-editor-pill-input"
+                              placeholder="e.g. Cycle Test 1"
+                              value={currentData.title}
+                              onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })}
+                            />
+                          </div>
+                          <div className="s2-editor-field">
+                            <label className="s2-editor-label">Display Date Range</label>
+                            <div className="s2-editor-date-range">
                               <DatePicker
                                 selected={parseDate(currentData.startDate)}
                                 onChange={date => setEditBuffer({ ...editBuffer, startDate: formatDate(date) })}
                                 dateFormat="dd/MM/yyyy"
-                                className="inline-datepicker"
+                                className="s2-editor-pill-input"
                               />
-                              <span>to</span>
+                              <span className="s2-editor-range-sep">to</span>
                               <DatePicker
                                 selected={parseDate(currentData.endDate)}
                                 onChange={date => setEditBuffer({ ...editBuffer, endDate: formatDate(date) })}
                                 dateFormat="dd/MM/yyyy"
-                                className="inline-datepicker"
+                                className="s2-editor-pill-input"
                               />
                             </div>
                           </div>
-                        ) : (
-                          <>
-                            <h3 className="s2-exam-title">{ex.title} <span>({ex.type})</span></h3>
-                            <p className="s2-exam-type">Visible: {parseDate(ex.startDate)?.toLocaleDateString('en-GB') || ex.startDate} to {parseDate(ex.endDate)?.toLocaleDateString('en-GB') || ex.endDate}</p>
-                          </>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <h3 className="s2-exam-title">{ex.title} <span>({ex.type})</span></h3>
+                          <p className="s2-exam-type">Visible: {parseDate(ex.startDate)?.toLocaleDateString('en-GB') || ex.startDate} to {parseDate(ex.endDate)?.toLocaleDateString('en-GB') || ex.endDate}</p>
+                        </div>
+                      )}
                     </div>
 
                     <div className="published-subjects-container">
                       {(currentData.subjects || []).map((s, i) => (
-                        <div key={i} className={`s2-exam-subject-row ${isEditing ? 'is-editing-row' : ''}`}>
+                        <div key={i} className={isEditing ? 's2-editor-subject-card' : 's2-exam-subject-row'}>
                           {isEditing ? (
                             <>
-                              <div className="input-group-vertical">
-                                <label>Date</label>
-                                <DatePicker
-                                  selected={parseDate(s.date)}
-                                  onChange={date => { let subs = [...editBuffer.subjects]; subs[i].date = formatDate(date); setEditBuffer({ ...editBuffer, subjects: subs }); }}
-                                  dateFormat="dd/MM/yyyy"
-                                  className="custom-datepicker-input"
-                                  placeholderText="dd/mm/yyyy"
-                                />
+                              <div className="s2-editor-row-grid">
+                                <div className="s2-editor-field">
+                                  <label className="s2-editor-label">Subject Date</label>
+                                  <DatePicker
+                                    selected={parseDate(s.date)}
+                                    onChange={date => { let subs = [...editBuffer.subjects]; subs[i].date = formatDate(date); setEditBuffer({ ...editBuffer, subjects: subs }); }}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="s2-editor-pill-input"
+                                  />
+                                </div>
+                                <div className="s2-editor-field">
+                                  <label className="s2-editor-label">Portion</label>
+                                  <input
+                                    className="s2-editor-pill-input"
+                                    list="portion-presets"
+                                    placeholder="Full Syllabus"
+                                    value={s.portion}
+                                    onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}
+                                  />
+                                </div>
+                                <div className="s2-editor-field full-width">
+                                  <label className="s2-editor-label">Course Name</label>
+                                  <select
+                                    className="s2-editor-pill-select"
+                                    value={s.code}
+                                    onChange={e => { let subs = [...editBuffer.subjects]; subs[i].code = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}
+                                  >
+                                    <option value="">Select Course</option>
+                                    {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {getSubjectName(c.code)}</option>)}
+                                  </select>
+                                </div>
+                                <div className="s2-editor-field">
+                                  <label className="s2-editor-label">Start Time</label>
+                                  <input
+                                    className="s2-editor-pill-input"
+                                    type="time"
+                                    value={s.startTime}
+                                    onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}
+                                  />
+                                </div>
+                                <div className="s2-editor-field">
+                                  <label className="s2-editor-label">End Time</label>
+                                  <input
+                                    className="s2-editor-pill-input"
+                                    type="time"
+                                    value={s.endTime}
+                                    onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}
+                                  />
+                                </div>
                               </div>
-                              <div className="input-group-vertical variant-code">
-                                <label>Subject</label>
-                                <select value={s.code} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].code = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
-                                  <option value="">Select</option>
-                                  {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {getSubjectName(c.code)}</option>)}
-                                </select>
-                              </div>
-                              <div className="input-group-vertical variant-portion">
-                                <label>Portion</label>
-                                <input
-                                  list="portion-presets"
-                                  value={s.portion}
-                                  onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}
-                                />
-                              </div>
-                              <div className="input-group-vertical"><label>Start</label><input type="time" value={s.startTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
-                              <div className="input-group-vertical"><label>End</label><input type="time" value={s.endTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
-                              <button className="btn-del-mini danger-style" onClick={() => {
+                              <button className="btn-del-mini danger-style" style={{ height: '44px', width: '100% !important', borderRadius: '12px' }} onClick={() => {
                                 showConfirm(
                                   "Remove Day?",
                                   "Remove this subject day from the timetable?",
                                   () => { let subs = editBuffer.subjects.filter((_, idx) => idx !== i); setEditBuffer({ ...editBuffer, subjects: subs }); }
                                 );
-                              }}><RiDeleteBin6Line /> Remove Subject Day</button>
+                              }}><RiDeleteBin6Line /> Remove Day</button>
                             </>
                           ) : (
                             <>
@@ -492,7 +529,7 @@ const ExamManager = ({ user, userProfile }) => {
                     </div>
                   </div>
                   {isEditing && (
-                    <button className="btn-add-line" onClick={() => {
+                    <button className="s2-editor-add-btn" onClick={() => {
                       const lastSub = editBuffer.subjects[editBuffer.subjects.length - 1];
                       setEditBuffer({
                         ...editBuffer,
@@ -513,7 +550,6 @@ const ExamManager = ({ user, userProfile }) => {
         </div>
       )}
 
-      {/* --- PREMIUM CONFIRMATION MODAL --- */}
       {confirmModal.show && (
         <div className="modal-overlay animate-fade-in" onClick={closeConfirm}>
           <div className="modal-content animate-pop-in" onClick={e => e.stopPropagation()}>
