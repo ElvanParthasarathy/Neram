@@ -11,9 +11,12 @@ import {
     RiFilePdfLine,
     RiListCheck,
     RiCloseLine,
-    RiArrowLeftSLine
+    RiArrowLeftSLine,
+    RiTimeLine,
+    RiSettings3Line
 } from "react-icons/ri";
 import { getHardcodedRole } from '../data/admins';
+import ThemeToggle from './ThemeToggle';
 
 const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -183,6 +186,25 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                                     </button>
                                 </>
                             )}
+
+                            {isSuper && (
+                                <>
+                                    <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
+                                    <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Requests</div>
+                                    <button onClick={() => handleNav('pending')} className={`menu-item ${activeModule === 'pending' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'pending' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'pending' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'pending' ? '600' : '500' }}>
+                                        <RiTimeLine style={{ fontSize: '20px' }} /> <span>Pending</span>
+                                    </button>
+                                </>
+                            )}
+
+                            <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
+                            <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Preferences</div>
+                            <button onClick={() => { navigate('/settings'); setIsSidebarOpen(false); }} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
+                                <RiSettings3Line style={{ fontSize: '20px' }} /> <span>Settings</span>
+                            </button>
+                            <div style={{ padding: '0 16px' }}>
+                                <ThemeToggle asMenuItem={true} />
+                            </div>
                         </div>
                     </div>
                     <style>{`
