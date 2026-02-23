@@ -64,7 +64,7 @@ const ResourceManager = () => {
     };
 
     return (
-        <div className="admin-subpage animate-fade-in">
+        <div className="admin-subpage animate-fade-in resources-page-wrapper">
             <header className="explorer-header">
                 <div className="breadcrumb-nav">
                     <RiInformationLine className="card-icon-mini" />
@@ -72,88 +72,82 @@ const ResourceManager = () => {
                 </div>
             </header>
 
-            <div className="explorer-content">
-                <div className="settings-card rm-card-limit">
-                    <h3>Academic Calendar</h3>
-                    <p className="rm-description">
-                        Update the official academic calendar PDF. Upload your PDF to Google Drive,
-                        make it public ("Anyone with the link"), and paste the link below.
-                    </p>
+            <div className="resources-container">
+                <div className="resource-card settings-card">
+                    <div className="rc-header">
+                        <h3>Academic Calendar</h3>
+                        <p>Manage the official academic calendar PDF. Upload your file to Google Drive, set permissions to "Anyone with the link", and paste it below.</p>
+                    </div>
 
-                    {/* Current File Status */}
-                    <div className="rm-status-box">
-                        <div className="rm-status-label">
-                            Current Configuration
-                        </div>
+                    {/* Current File Status Block */}
+                    <div className="active-file-wrapper">
+                        <div className="wrapper-label">Current Configuration</div>
                         {currentFile ? (
-                            <div className="rm-file-info">
-                                <RiFilePdfLine size={28} className="mac-icon-alt" />
-                                <div className="rm-file-details">
-                                    <div className="rm-file-name">{currentFile.name || 'Academic Calendar'}</div>
-                                    <div className="rm-file-date">Last Updated: {new Date(currentFile.updatedAt).toLocaleDateString()}</div>
+                            <div className="active-file-block">
+                                <div className="file-icon-box">
+                                    <RiFilePdfLine />
                                 </div>
-                                <a href={currentFile.originalUrl || currentFile.url} target="_blank" rel="noreferrer"
-                                    className="rm-view-link">
-                                    <RiExternalLinkLine /> Check Link
+                                <div className="file-meta">
+                                    <h4>{currentFile.name || 'Academic Calendar'}</h4>
+                                    <span>Last Updated: {new Date(currentFile.updatedAt).toLocaleDateString()}</span>
+                                </div>
+                                <a href={currentFile.originalUrl || currentFile.url} target="_blank" rel="noreferrer" className="btn-verify-link">
+                                    <RiExternalLinkLine />
+                                    <span>Check Link</span>
                                 </a>
                             </div>
                         ) : (
-                            <div className="rm-no-file">No calendar configured.</div>
+                            <div className="empty-file-block">No calendar configured currently.</div>
                         )}
                     </div>
 
-                    {/* Form */}
-                    <div className="rm-form-stack">
-                        <div className="input-group">
-                            <label className="rm-input-label">Display Name</label>
-                            <input
-                                value={inputName}
-                                onChange={(e) => setInputName(e.target.value)}
-                                placeholder="e.g. Academic Calendar 2025-26"
-                                className="rm-text-input"
-                            />
+                    {/* Editor Form */}
+                    <div className="resource-editor-form">
+                        <div className="input-split-row">
+                            <div className="input-group">
+                                <label>Display Name</label>
+                                <input
+                                    value={inputName}
+                                    onChange={(e) => setInputName(e.target.value)}
+                                    placeholder="e.g. Academic Calendar 2025-26"
+                                    className="mac-input"
+                                />
+                            </div>
+                            <div className="input-group">
+                                <label>PDF Link (Google Drive / GitHub)</label>
+                                <input
+                                    value={inputUrl}
+                                    onChange={(e) => setInputUrl(e.target.value)}
+                                    placeholder="https://drive.google.com/..."
+                                    className="mac-input"
+                                />
+                            </div>
                         </div>
 
-                        <div className="input-group">
-                            <label className="rm-input-label">PDF Link (Google Drive / GitHub)</label>
-                            <input
-                                value={inputUrl}
-                                onChange={(e) => setInputUrl(e.target.value)}
-                                placeholder="https://drive.google.com/..."
-                                className="rm-text-input"
-                            />
-                        </div>
-
-                        <div className="rm-action-row">
-                            <button
-                                onClick={handleSave}
-                                disabled={saving}
-                                className="rm-save-btn"
-                            >
+                        <div className="form-actions-row">
+                            <button onClick={handleSave} disabled={saving} className="btn-save-master">
                                 {saving ? <RiLoader4Line className="spin" /> : <RiSave3Line />}
                                 {saving ? 'Updating...' : 'Save Changes'}
                             </button>
 
                             {message && (
-                                <div className={`rm-message ${message.includes('failed') ? 'error' : 'success'}`}>
+                                <div className={`status-badge ${message.includes('failed') ? 'error' : 'success'}`}>
                                     {message.includes('success') && <RiCheckLine />}
                                     {message}
                                 </div>
                             )}
                         </div>
                     </div>
+                </div>
 
-                    <div className="rm-help-box">
-                        <strong className="rm-help-title">
-                            <RiInformationLine size={16} /> How to get a Google Drive Link:
-                        </strong>
-                        <ol className="rm-help-list">
-                            <li>Upload PDF to Google Drive.</li>
-                            <li>Right click the file → Share → Share.</li>
-                            <li>Under "General Access", select <strong>"Anyone with the link"</strong>.</li>
-                            <li>Click "Copy Link" and paste it above.</li>
-                        </ol>
-                    </div>
+                <div className="resource-help-section settings-card">
+                    <h4><RiInformationLine /> Quick Guide: Obtaining a Direct Link</h4>
+                    <ol>
+                        <li>Upload your PDF file to <strong>Google Drive</strong>.</li>
+                        <li>Right click the uploaded file and select <strong>Share</strong>.</li>
+                        <li>Under "General Access", change it to <strong>"Anyone with the link"</strong>.</li>
+                        <li>Click <strong>Copy Link</strong> and paste it into the field above.</li>
+                    </ol>
                 </div>
             </div>
         </div>
