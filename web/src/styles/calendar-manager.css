@@ -54,42 +54,41 @@
 /* 2. EXPLORER GRID (BATCH SELECTION) */
 .calendar-manager-container .explorer-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .calendar-manager-container .explorer-card {
-    background: var(--mac-card-bg);
+    background: var(--mac-sidebar-bg);
+    border: none;
     border-radius: 32px;
-    padding: 30px;
+    padding: 32px 24px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-    min-height: 140px;
-    border: 1px solid var(--mac-divider);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .calendar-manager-container .explorer-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-    border-color: rgba(10, 132, 255, 0.3);
+    background: var(--mac-selection-hover);
 }
 
 .calendar-manager-container .card-icon {
-    font-size: 44px;
+    font-size: 48px;
     color: var(--mac-blue);
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 }
 
 .calendar-manager-container .card-info h3 {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
-    color: var(--mac-text);
     margin: 0 0 4px 0;
+    color: var(--mac-text);
 }
 
 .calendar-manager-container .card-info p {
