@@ -454,16 +454,16 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
 .s2-editor-pill-input,
 .s2-editor-pill-select,
 .custom-datepicker-wrapper {
-  background-color: #F2F2F7 !important;
+  background-color: var(--mac-bg-secondary) !important;
   /* Explicit light grey for visibility */
-  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid var(--mac-divider) !important;
   /* Slightly stronger border */
   border-radius: 50px;
   height: 48px;
   padding: 0 20px;
   font-size: 14px;
   font-weight: 600;
-  color: #1D1D1F !important;
+  color: var(--mac-text) !important;
   width: 100%;
   transition: all 0.2s;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);

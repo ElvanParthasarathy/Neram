@@ -57,7 +57,8 @@
    --content-bg: #F5F5F7;
 
    /* New Semantic Variables for Refactoring */
-   --mac-bg-secondary: #F2F2F7;
+   --mac-bg-secondary: #EBEBEF;
+   /* Slightly darker for better contrast against white cards in light mode */
    --mac-table-header: #FAFAFA;
    --mac-input-bg: #FFFFFF;
    --mac-button-bg: rgba(0, 0, 0, 0.05);
