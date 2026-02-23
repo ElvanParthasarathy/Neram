@@ -389,9 +389,27 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
 .published-exam-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 16px;
+  /* Increased from 12px */
+  margin-bottom: 12px;
   padding: 0 16px;
+}
+
+/* Force vertical stack for Edit Mode header */
+.s2-exam-card.is-editing .s2-exam-header {
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center;
+  gap: 20px;
+}
+
+.s2-exam-card.is-editing .s2-exam-header-icon {
+  margin: 0 auto;
+  font-size: 32px;
+}
+
+.s2-exam-card.is-editing .edit-meta-inputs {
+  width: 100%;
 }
 
 /* Standardized s2 matching */
