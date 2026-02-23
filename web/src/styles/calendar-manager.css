@@ -374,3 +374,25 @@ html.dark .calendar-manager-container .event-item-pill {
         position: static;
     }
 }
+
+@media (max-width: 900px) {
+    .calendar-manager-container input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .calendar-manager-container .safety-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .calendar-manager-container .btn-safety {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .calendar-manager-container .table-navigation {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
