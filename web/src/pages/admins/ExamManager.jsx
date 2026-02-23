@@ -271,26 +271,24 @@ const ExamManager = ({ user, userProfile }) => {
               </div>
               <div className="field"><label>Title</label><input value={newExam.title} onChange={e => setNewExam({ ...newExam, title: e.target.value })} placeholder="e.g. IA-1 Oct" /></div>
 
-              {/* DATEPICKER: Show From */}
+              {/* NATIVE DATE INPUT: Show From */}
               <div className="field">
                 <label>Show From</label>
-                <DatePicker
-                  selected={parseDate(newExam.startDate)}
-                  onChange={(date) => setNewExam({ ...newExam, startDate: formatDate(date) })}
-                  dateFormat="dd/MM/yyyy"
-                  placeholderText="dd/mm/yyyy"
+                <input
+                  type="date"
+                  value={newExam.startDate || ''}
+                  onChange={(e) => setNewExam({ ...newExam, startDate: e.target.value })}
                   className="custom-datepicker-input"
                 />
               </div>
 
-              {/* DATEPICKER: Show Until */}
+              {/* NATIVE DATE INPUT: Show Until */}
               <div className="field">
                 <label>Show Until</label>
-                <DatePicker
-                  selected={parseDate(newExam.endDate)}
-                  onChange={(date) => setNewExam({ ...newExam, endDate: formatDate(date) })}
-                  dateFormat="dd/MM/yyyy"
-                  placeholderText="dd/mm/yyyy"
+                <input
+                  type="date"
+                  value={newExam.endDate || ''}
+                  onChange={(e) => setNewExam({ ...newExam, endDate: e.target.value })}
                   className="custom-datepicker-input"
                 />
               </div>
