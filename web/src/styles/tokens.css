@@ -1,3 +1,71 @@
+:root {
+   /* Using Inter Variable from your NPM package */
+   font-family: "Inter", "Mukta Malar", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+   /* ==========================================================================
+      LIGHT MODE (DEFAULT)
+      ========================================================================== */
+
+   --mac-blue: #0063E5;
+   --mac-blue-hover: #005CBF;
+
+   --mac-bg-primary: #FFFFFF;
+   --mac-bg-content: #F5F5F7;
+
+   --mac-text: #1D1D1F;
+   --mac-text-secondary: #3C3C43;
+   --mac-text-tertiary: rgba(60, 60, 67, 0.6);
+
+   /* Exact Match to Original App.css values */
+   --mac-selection-bg: rgba(0, 0, 0, 0.04);
+   --mac-selection-hover: rgba(0, 0, 0, 0.06);
+
+   --mac-divider: rgba(0, 0, 0, 0.05);
+   --mac-border: rgba(0, 0, 0, 0.05);
+
+   /* Card Tokens */
+   --mac-card-bg: #FFFFFF;
+   --mac-card-border: 1px solid rgba(0, 0, 0, 0.06);
+   --mac-card-shadow: none;
+
+   /* macOS Sidebar Tokens */
+   --mac-sidebar-bg: #FFFFFF;
+   /* Very subtle translucent gray */
+   --mac-sidebar-blur: blur(40px) saturate(200%);
+   --mac-sidebar-border: transparent;
+   --mac-sidebar-shadow: none;
+
+   --mac-traffic-red: #FF5F57;
+   --mac-traffic-yellow: #FFBD2E;
+   --mac-traffic-green: #28C840;
+
+   --mac-sidebar-item-active-bg: rgba(0, 0, 0, 0.08);
+   --mac-sidebar-item-active-text: #1D1D1F;
+   --mac-sidebar-item-hover-bg: rgba(0, 0, 0, 0.04);
+   --mac-sidebar-item-text: #3C3C43;
+   --mac-sidebar-header-text: rgba(60, 60, 67, 0.5);
+
+   /* Placeholder for future Dark Mode */
+   --mac-sidebar-bg-dark: rgba(45, 45, 45, 0.7);
+   --mac-sidebar-item-active-bg-dark: rgba(255, 255, 255, 0.1);
+   --mac-sidebar-text-dark: #FFFFFF;
+   --mac-sidebar-header-text-dark: rgba(255, 255, 255, 0.4);
+
+   --sidebar-width: 260px;
+   --nav-radius: 8px;
+   --nav-item-gap: 4px;
+   --content-bg: #F5F5F7;
+
+   /* New Semantic Variables for Refactoring */
+   --mac-bg-secondary: #F2F2F7;
+   --mac-table-header: #FAFAFA;
+   --mac-input-bg: #FFFFFF;
+   --mac-button-bg: rgba(0, 0, 0, 0.05);
+   --mac-icon-color: #3C3C43;
+   --mac-popup-bg: #FFFFFF;
+   --mac-modal-field-bg: #F2F2F7;
+}
+
 @media (min-width: 769px) {
 
    /* ==========================================================================
@@ -5,82 +73,5 @@
    ========================================================================== */
 
    /* :root variables are now inherited from index.css for Theme Support */
-
-}
-
-@media (min-width: 769px) {
-
-   /* ==========================================================================
-   1. PREMIUM SEQUOIA TOKENS (NPM FONT OPTIMIZED)
-   ========================================================================== */
-
-   :root {
-      /* Using Inter Variable from your NPM package */
-      font-family: "Inter", "Mukta Malar", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-      /* ==========================================================================
-     LIGHT MODE (DEFAULT)
-     ========================================================================== */
-
-      --mac-blue: #0063E5;
-      --mac-blue-hover: #005CBF;
-
-      --mac-bg-primary: #FFFFFF;
-      --mac-bg-content: #F5F5F7;
-
-      --mac-text: #1D1D1F;
-      --mac-text-secondary: #3C3C43;
-      --mac-text-tertiary: rgba(60, 60, 67, 0.6);
-
-      /* Exact Match to Original App.css values */
-      --mac-selection-bg: rgba(0, 0, 0, 0.04);
-      --mac-selection-hover: rgba(0, 0, 0, 0.06);
-
-      --mac-divider: rgba(0, 0, 0, 0.05);
-      --mac-border: rgba(0, 0, 0, 0.05);
-
-      /* Card Tokens */
-      --mac-card-bg: #FFFFFF;
-      --mac-card-border: 1px solid rgba(0, 0, 0, 0.06);
-      --mac-card-shadow: none;
-
-      /* macOS Sidebar Tokens */
-      --mac-sidebar-bg: #FFFFFF;
-      /* Very subtle translucent gray */
-      --mac-sidebar-blur: blur(40px) saturate(200%);
-      --mac-sidebar-border: transparent;
-      --mac-sidebar-shadow: none;
-
-      --mac-traffic-red: #FF5F57;
-      --mac-traffic-yellow: #FFBD2E;
-      --mac-traffic-green: #28C840;
-
-      --mac-sidebar-item-active-bg: rgba(0, 0, 0, 0.08);
-      --mac-sidebar-item-active-text: #1D1D1F;
-      --mac-sidebar-item-hover-bg: rgba(0, 0, 0, 0.04);
-      --mac-sidebar-item-text: #3C3C43;
-      --mac-sidebar-header-text: rgba(60, 60, 67, 0.5);
-
-      /* Placeholder for future Dark Mode - will be used when html.dark is active */
-      --mac-sidebar-bg-dark: rgba(45, 45, 45, 0.7);
-      --mac-sidebar-item-active-bg-dark: rgba(255, 255, 255, 0.1);
-      --mac-sidebar-text-dark: #FFFFFF;
-      --mac-sidebar-header-text-dark: rgba(255, 255, 255, 0.4);
-
-      --sidebar-width: 260px;
-      --nav-radius: 8px;
-      /* MacBook radius is subtle */
-      --nav-item-gap: 4px;
-      --content-bg: #F5F5F7;
-
-      /* New Semantic Variables for Refactoring */
-      --mac-bg-secondary: #F2F2F7;
-      --mac-table-header: #FAFAFA;
-      --mac-input-bg: #FFFFFF;
-      --mac-button-bg: rgba(0, 0, 0, 0.05);
-      --mac-icon-color: #3C3C43;
-      --mac-popup-bg: #FFFFFF;
-      --mac-modal-field-bg: #F2F2F7;
-   }
 
 }
