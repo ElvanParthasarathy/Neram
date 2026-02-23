@@ -269,7 +269,7 @@
       background: var(--bg-body);
       position: relative;
       /* Override App.css padding — clear top bar + show below rounded top edge */
-      padding-top: 80px !important;
+      padding-top: 24px !important;
       padding-bottom: 100px;
     }
 
