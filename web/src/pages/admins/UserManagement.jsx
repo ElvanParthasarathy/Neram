@@ -383,7 +383,7 @@ const UserManagement = () => {
               setSelectedUser(null);
             }
           }}>
-            <RiDeleteBin6Line /> Delete Record
+            <RiDeleteBin6Line /> Delete
           </button>
           <div className="footer-actions">
             <button className="btn-cancel" onClick={() => setSelectedUser(null)}>Cancel</button>
