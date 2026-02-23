@@ -662,6 +662,17 @@
     .course-manager .add-item-bar .btn-add {
         grid-column: 1 / -1;
         justify-content: center;
+        background: var(--mac-blue);
+        color: #FFFFFF;
+        border: none;
+        box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
+        transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .course-manager .add-item-bar .btn-add:hover {
+        background: var(--mac-blue-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(10, 132, 255, 0.3);
     }
 
     /* 4. COURSE LIST ITEM CARDS */
