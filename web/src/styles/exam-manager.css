@@ -665,13 +665,19 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
     white-space: nowrap !important;
   }
 
+  .published-exam-card {
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
+  }
+
   .exam-subject-row.professional,
-  .exam-subject-row.professional.editing {
+  .exam-subject-row.professional.editing,
+  .exam-subject-row.professional.view-mode {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
-    padding: 20px 0;
-    border-radius: 0;
+    padding: 20px 0 !important;
+    border-radius: 0 !important;
     background: transparent !important;
     border: none !important;
     border-bottom: 1px solid var(--mac-divider) !important;
