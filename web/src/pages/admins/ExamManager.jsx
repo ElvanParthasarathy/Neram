@@ -4,10 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
-// IMPORT DATEPICKER
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-
+// Using Native Browser Date Inputs
 import {
   RiTrophyLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine,
   RiSave3Line, RiAddLine, RiDeleteBin6Line, RiBookOpenLine, RiEditLine, RiCloseLine, RiArrowLeftLine
@@ -304,12 +301,11 @@ const ExamManager = ({ user, userProfile }) => {
                 <div key={idx} className="exam-subject-row professional">
                   <div className="input-group-vertical">
                     <label>Date</label>
-                    {/* DATEPICKER: Subject Date */}
-                    <DatePicker
-                      selected={parseDate(sub.date)}
-                      onChange={(date) => { let s = [...newExam.subjects]; s[idx].date = formatDate(date); setNewExam({ ...newExam, subjects: s }); }}
-                      dateFormat="dd/MM/yyyy"
-                      placeholderText="dd/mm/yyyy"
+                    {/* NATIVE DATE INPUT */}
+                    <input
+                      type="date"
+                      value={sub.date || ''}
+                      onChange={(e) => { let s = [...newExam.subjects]; s[idx].date = e.target.value; setNewExam({ ...newExam, subjects: s }); }}
                       className="custom-datepicker-input"
                     />
                   </div>
@@ -378,19 +374,19 @@ const ExamManager = ({ user, userProfile }) => {
                         <input className="edit-title-input" value={currentData.title} onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })} />
                         <div className="date-group">
                           <label>Range:</label>
-                          {/* DATEPICKER: Edit Start */}
-                          <DatePicker
-                            selected={parseDate(currentData.startDate)}
-                            onChange={date => setEditBuffer({ ...editBuffer, startDate: formatDate(date) })}
-                            dateFormat="dd/MM/yyyy"
+                          {/* NATIVE DATE INPUT: Edit Start */}
+                          <input
+                            type="date"
+                            value={currentData.startDate || ''}
+                            onChange={(e) => setEditBuffer({ ...editBuffer, startDate: e.target.value })}
                             className="inline-datepicker"
                           />
                           <span>to</span>
-                          {/* DATEPICKER: Edit End */}
-                          <DatePicker
-                            selected={parseDate(currentData.endDate)}
-                            onChange={date => setEditBuffer({ ...editBuffer, endDate: formatDate(date) })}
-                            dateFormat="dd/MM/yyyy"
+                          {/* NATIVE DATE INPUT: Edit End */}
+                          <input
+                            type="date"
+                            value={currentData.endDate || ''}
+                            onChange={(e) => setEditBuffer({ ...editBuffer, endDate: e.target.value })}
                             className="inline-datepicker"
                           />
                         </div>
@@ -434,12 +430,11 @@ const ExamManager = ({ user, userProfile }) => {
                           <>
                             <div className="input-group-vertical">
                               <label>Date</label>
-                              <DatePicker
-                                selected={parseDate(s.date)}
-                                onChange={date => { let subs = [...editBuffer.subjects]; subs[i].date = formatDate(date); setEditBuffer({ ...editBuffer, subjects: subs }); }}
-                                dateFormat="dd/MM/yyyy"
+                              <input
+                                type="date"
+                                value={s.date || ''}
+                                onChange={(e) => { let subs = [...editBuffer.subjects]; subs[i].date = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}
                                 className="custom-datepicker-input"
-                                placeholderText="dd/mm/yyyy"
                               />
                             </div>
                             <div className="input-group-vertical variant-code">
