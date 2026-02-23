@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, set } from "firebase/database";
@@ -512,7 +513,7 @@ const ExamManager = ({ user, userProfile }) => {
       )}
 
       {/* --- PREMIUM CONFIRMATION MODAL --- */}
-      {confirmModal.show && (
+      {confirmModal.show && createPortal(
         <div className="modal-overlay animate-fade-in" onClick={closeConfirm}>
           <div className="modal-content animate-pop-in" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
@@ -525,7 +526,8 @@ const ExamManager = ({ user, userProfile }) => {
               <button className="btn-modal-confirm" onClick={() => { confirmModal.onConfirm(); closeConfirm(); }}>Delete</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
