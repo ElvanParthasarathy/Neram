@@ -273,16 +273,23 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
 
 /* Subject Mapping Row */
 .exam-subject-row.professional {
-  background: var(--mac-bg-secondary);
-  border: 1px solid var(--mac-divider);
-  border-radius: 20px;
-  padding: 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed var(--mac-divider);
+  border-radius: 0;
+  padding: 0 0 24px 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   transition: all 0.2s ease;
   align-items: flex-end;
+}
+
+.exam-subject-row.professional:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0px;
 }
 
 .exam-subject-row.professional>.btn-del-mini {
