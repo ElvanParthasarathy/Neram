@@ -266,7 +266,7 @@ const ScheduleManager = ({ user, userProfile }) => {
           )}
           {viewLevel === 'secs' && (
             <div className="explorer-grid">
-              {(hierarchy[path.batch]?.[path.dept] || []).map(s => (
+              {Object.keys(hierarchy[path.batch]?.[path.dept] || {}).map(s => (
                 <div key={s} className="explorer-card" onClick={() => updateLevel('editor', { sec: s })}>
                   <div className="card-initial">{s}</div>
                   <div className="card-info"><h3>Section {s}</h3><p>Manage Data</p></div>

@@ -246,7 +246,7 @@ const EventManager = ({ user, userProfile }) => {
             </div>
           ))}
           {/* C. SECTION SELECTION */}
-          {viewLevel === 'secs' && path.batch && path.dept && (hierarchy[path.batch]?.[path.dept] || []).map(s => (
+          {viewLevel === 'secs' && path.batch && path.dept && Object.keys(hierarchy[path.batch]?.[path.dept] || {}).map(s => (
             <div key={s} className="explorer-card" onClick={() => updateLevel('editor', { sec: s })}>
               <div className="card-initial">{s}</div>
               <div className="card-info"><h3>Section {s}</h3><p>Open Event Manager</p></div>
