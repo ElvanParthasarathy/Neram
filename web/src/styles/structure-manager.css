@@ -301,6 +301,104 @@
 }
 
 /* ==========================================================================
+   FLAT LIST EDITOR (NEW EDIT MODE)
+   ========================================================================== */
+.flat-editor-viewport {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.editor-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin: 16px 0 8px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--mac-divider);
+}
+
+.editor-section-title.mt-4 {
+    margin-top: 32px;
+}
+
+.flat-editor-list {
+    display: flex;
+    flex-direction: column;
+    background: var(--mac-bg-primary);
+    border: 1px solid var(--mac-divider);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.editor-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--mac-divider);
+    transition: background 0.2s ease;
+}
+
+.editor-list-item:last-child {
+    border-bottom: none;
+}
+
+.editor-list-item:hover {
+    background: var(--mac-selection-bg);
+}
+
+.list-item-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.item-badge {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+.batch-badge {
+    background: rgba(10, 132, 255, 0.1);
+    color: var(--mac-blue);
+}
+
+.dept-badge {
+    background: rgba(255, 149, 0, 0.1);
+    color: #FF9500;
+}
+
+.sec-badge {
+    background: rgba(48, 209, 88, 0.1);
+    color: var(--mac-green);
+}
+
+.item-context-tag {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.item-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.inline-edit-input.wide {
+    width: 160px;
+}
+
+.inline-edit-input.thin {
+    width: 80px;
+}
+
+/* ==========================================================================
    MOBILE OVERRIDES
    ========================================================================== */
 @media (max-width: 900px) {
@@ -313,5 +411,9 @@
     .admin-tree-column {
         border-radius: 24px;
         padding: 24px;
+    }
+
+    .editor-list-item {
+        padding: 12px 16px;
     }
 }
