@@ -9,7 +9,8 @@ import "react-datepicker/dist/react-datepicker.css";
 
 import {
   RiTrophyLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine,
-  RiSave3Line, RiAddLine, RiDeleteBin6Line, RiBookOpenLine, RiEditLine, RiCloseLine, RiArrowLeftLine
+  RiSave3Line, RiAddLine, RiDeleteBin6Line, RiBookOpenLine, RiEditLine, RiCloseLine, RiArrowLeftLine,
+  RiTimeLine, RiFilePaperLine
 } from 'react-icons/ri';
 
 const PORTION_DEFAULTS = {
@@ -152,6 +153,15 @@ const ExamManager = ({ user, userProfile }) => {
 
   const getSubjectName = (code) => {
     return masterData.courses.find(c => c.code === code)?.name || "Unknown Subject";
+  };
+
+  const getCleanSubjectName = (code) => {
+    let name = getSubjectName(code);
+    name = name.replace(/\s*\(.*?\)/g, "").trim();
+    ["Lab Integrated", "Integrated Lab", "Integrated", "Lab"].forEach(term => {
+      name = name.replace(new RegExp(`\\s*${term}`, "gi"), "").trim();
+    });
+    return name.replace(/[-\s/]+$/, "");
   };
 
   const syncExamsToDB = async (updatedExams) => {
@@ -370,124 +380,116 @@ const ExamManager = ({ user, userProfile }) => {
               const currentData = isEditing ? editBuffer : ex;
 
               return (
-                <div key={ex.id} className={`settings-card published-exam-card ${isEditing ? 'editing-active' : ''}`}>
-                  <header className="published-header">
+                <div key={ex.id} className="published-exam-wrapper">
+                  <div className="published-exam-actions">
                     {isEditing ? (
-                      <div className="edit-meta-inputs">
-                        <input className="edit-title-input" value={currentData.title} onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })} />
-                        <div className="date-group">
-                          <label>Range:</label>
-                          {/* DATEPICKER: Edit Start */}
-                          <DatePicker
-                            selected={parseDate(currentData.startDate)}
-                            onChange={date => setEditBuffer({ ...editBuffer, startDate: formatDate(date) })}
-                            dateFormat="dd/MM/yyyy"
-                            className="inline-datepicker"
-                          />
-                          <span>to</span>
-                          {/* DATEPICKER: Edit End */}
-                          <DatePicker
-                            selected={parseDate(currentData.endDate)}
-                            onChange={date => setEditBuffer({ ...editBuffer, endDate: formatDate(date) })}
-                            dateFormat="dd/MM/yyyy"
-                            className="inline-datepicker"
-                          />
-                        </div>
-                      </div>
+                      <>
+                        <button className="btn-del-mini" onClick={() => {
+                          showConfirm(
+                            "Delete Timetable?",
+                            `This will permanently remove "${ex.title}". This action cannot be undone.`,
+                            () => syncExamsToDB(masterData.exams.filter(e => e.id !== ex.id))
+                          );
+                        }}><RiDeleteBin6Line /> Delete</button>
+                        <button className="btn-save-mini" onClick={saveEdit}>Save</button>
+                        <button className="btn-cancel-mini" onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
+                      </>
                     ) : (
-                      <div className="pub-title-group">
-                        <RiTrophyLine className="icon-main" />
-                        <div>
-                          <h3>{ex.title} <span>({ex.type})</span></h3>
-                          {/* DISPLAY: View Mode Range */}
-                          <p>Visible: {parseDate(ex.startDate)?.toLocaleDateString('en-GB') || ex.startDate} to {parseDate(ex.endDate)?.toLocaleDateString('en-GB') || ex.endDate}</p>
-                        </div>
-                      </div>
+                      <button className="btn-edit-mini" onClick={() => startEditing(ex)}><RiEditLine /> Edit</button>
                     )}
+                  </div>
 
-                    <div className="header-actions">
-                      {isEditing ? (
-                        <>
-                          <button className="btn-del-mini" onClick={() => {
-                            showConfirm(
-                              "Delete Timetable?",
-                              `This will permanently remove "${ex.title}". This action cannot be undone.`,
-                              () => syncExamsToDB(masterData.exams.filter(e => e.id !== ex.id))
-                            );
-                          }}><RiDeleteBin6Line /> Delete</button>
-                          <button className="btn-save-mini" onClick={saveEdit}>Save</button>
-                          <button className="btn-cancel-mini" onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
-                        </>
-                      ) : (
-                        <>
-                          <button className="btn-edit-mini" onClick={() => startEditing(ex)}><RiEditLine /> Edit</button>
-                        </>
-                      )}
-                    </div>
-                  </header>
-
-                  <div className="published-subjects-container">
-                    {(currentData.subjects || []).map((s, i) => (
-                      <div key={i} className={`exam-subject-row ${isEditing ? 'professional editing' : 'professional view-mode'}`}>
+                  <div className={`s2-exam-card s2-fade-in ${isEditing ? 'is-editing' : ''}`}>
+                    <div className="s2-exam-header">
+                      <RiTrophyLine className="s2-exam-header-icon" />
+                      <div>
                         {isEditing ? (
-                          <>
-                            <div className="input-group-vertical">
-                              <label>Date</label>
+                          <div className="edit-meta-inputs">
+                            <input className="edit-title-input" value={currentData.title} onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })} />
+                            <div className="date-group">
+                              <label>Range:</label>
                               <DatePicker
-                                selected={parseDate(s.date)}
-                                onChange={date => { let subs = [...editBuffer.subjects]; subs[i].date = formatDate(date); setEditBuffer({ ...editBuffer, subjects: subs }); }}
+                                selected={parseDate(currentData.startDate)}
+                                onChange={date => setEditBuffer({ ...editBuffer, startDate: formatDate(date) })}
                                 dateFormat="dd/MM/yyyy"
-                                className="custom-datepicker-input"
-                                placeholderText="dd/mm/yyyy"
+                                className="inline-datepicker"
+                              />
+                              <span>to</span>
+                              <DatePicker
+                                selected={parseDate(currentData.endDate)}
+                                onChange={date => setEditBuffer({ ...editBuffer, endDate: formatDate(date) })}
+                                dateFormat="dd/MM/yyyy"
+                                className="inline-datepicker"
                               />
                             </div>
-                            <div className="input-group-vertical variant-code">
-                              <label>Subject</label>
-                              <select value={s.code} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].code = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
-                                <option value="">Select</option>
-                                {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {getSubjectName(c.code)}</option>)}
-                              </select>
-                            </div>
-                            <div className="input-group-vertical variant-portion">
-                              <label>Portion</label>
-                              <input
-                                list="portion-presets"
-                                value={s.portion}
-                                onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}
-                              />
-                            </div>
-                            <div className="input-group-vertical"><label>Start</label><input type="time" value={s.startTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
-                            <div className="input-group-vertical"><label>End</label><input type="time" value={s.endTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
-                            <button className="btn-del-mini" onClick={() => {
-                              showConfirm(
-                                "Remove Day?",
-                                "Remove this subject day from the timetable?",
-                                () => { let subs = editBuffer.subjects.filter((_, idx) => idx !== i); setEditBuffer({ ...editBuffer, subjects: subs }); }
-                              );
-                            }}><RiDeleteBin6Line /></button>
-                          </>
+                          </div>
                         ) : (
                           <>
-                            <div className="view-cell date-cell">
-                              <label>Date</label>
-                              <span>{parseDate(s.date)?.toLocaleDateString('en-GB') || s.date}</span>
-                            </div>
-                            <div className="view-cell subject-cell">
-                              <label>Subject</label>
-                              <span><strong>{s.code}</strong>: {getSubjectName(s.code)}</span>
-                            </div>
-                            <div className="view-cell time-cell">
-                              <label>Time</label>
-                              <span>{to12h(s.startTime)} - {to12h(s.endTime)}</span>
-                            </div>
-                            <div className="view-cell portion-cell">
-                              <label>Portion</label>
-                              <span className="portion-badge">{s.portion}</span>
-                            </div>
+                            <h3 className="s2-exam-title">{ex.title} <span>({ex.type})</span></h3>
+                            <p className="s2-exam-type">Visible: {parseDate(ex.startDate)?.toLocaleDateString('en-GB') || ex.startDate} to {parseDate(ex.endDate)?.toLocaleDateString('en-GB') || ex.endDate}</p>
                           </>
                         )}
                       </div>
-                    ))}
+                    </div>
+
+                    <div className="published-subjects-container">
+                      {(currentData.subjects || []).map((s, i) => (
+                        <div key={i} className={`s2-exam-subject-row ${isEditing ? 'is-editing-row' : ''}`}>
+                          {isEditing ? (
+                            <>
+                              <div className="input-group-vertical">
+                                <label>Date</label>
+                                <DatePicker
+                                  selected={parseDate(s.date)}
+                                  onChange={date => { let subs = [...editBuffer.subjects]; subs[i].date = formatDate(date); setEditBuffer({ ...editBuffer, subjects: subs }); }}
+                                  dateFormat="dd/MM/yyyy"
+                                  className="custom-datepicker-input"
+                                  placeholderText="dd/mm/yyyy"
+                                />
+                              </div>
+                              <div className="input-group-vertical variant-code">
+                                <label>Subject</label>
+                                <select value={s.code} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].code = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
+                                  <option value="">Select</option>
+                                  {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {getSubjectName(c.code)}</option>)}
+                                </select>
+                              </div>
+                              <div className="input-group-vertical variant-portion">
+                                <label>Portion</label>
+                                <input
+                                  list="portion-presets"
+                                  value={s.portion}
+                                  onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}
+                                />
+                              </div>
+                              <div className="input-group-vertical"><label>Start</label><input type="time" value={s.startTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
+                              <div className="input-group-vertical"><label>End</label><input type="time" value={s.endTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
+                              <button className="btn-del-mini" onClick={() => {
+                                showConfirm(
+                                  "Remove Day?",
+                                  "Remove this subject day from the timetable?",
+                                  () => { let subs = editBuffer.subjects.filter((_, idx) => idx !== i); setEditBuffer({ ...editBuffer, subjects: subs }); }
+                                );
+                              }}><RiDeleteBin6Line /></button>
+                            </>
+                          ) : (
+                            <>
+                              <div className="s2-period-num">{i + 1}</div>
+                              <div style={{ flex: 1 }}>
+                                <div className="s2-exam-date">{parseDate(s.date)?.toLocaleDateString('en-GB') || s.date}</div>
+                                <div className="s2-exam-code-name">
+                                  {s.code}: {getCleanSubjectName(s.code)}
+                                </div>
+                                <div className="s2-exam-time-portion">
+                                  <span><RiTimeLine /> {to12h(s.startTime)} - {to12h(s.endTime)}</span>
+                                  {s.portion && <><span className="s2-divider">|</span> <RiFilePaperLine /> {s.portion}</>}
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   {isEditing && (
                     <button className="btn-add-line" onClick={() => {

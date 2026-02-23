@@ -179,3 +179,28 @@ html.dark .admin-home-preview-v2 .date-display {
     grid-row: 4 !important;
     margin-bottom: 0 !important;
 }
+
+@media (max-width: 900px) {
+    .admin-home-preview-v2 section {
+        padding: 16px !important;
+        border-radius: 20px !important;
+    }
+
+    .admin-home-preview-v2 .home-view {
+        gap: 12px !important;
+    }
+
+    .admin-home-preview-v2 .section-title {
+        font-size: 11px !important;
+    }
+
+    .admin-home-preview-v2 .info-item {
+        padding: 8px 12px !important;
+        font-size: 12px !important;
+    }
+
+    .admin-home-preview-v2 .status-badge-small {
+        padding: 4px 10px !important;
+        font-size: 10px !important;
+    }
+}

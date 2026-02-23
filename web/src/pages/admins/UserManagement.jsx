@@ -234,7 +234,7 @@ const UserManagement = () => {
         <div className="modal-header">
           <div className="modal-title">
             <RiUserSettingsLine />
-            <h3>Edit Profile</h3>
+            <h3>Edit Profile: {selectedUser.firstName}</h3>
           </div>
           <RiCloseLine className="modal-close-btn" onClick={() => setSelectedUser(null)} />
         </div>
