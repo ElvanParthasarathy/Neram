@@ -380,194 +380,48 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
   transform: scale(0.9);
 }
 
-/* --- 6. PUBLISHED TIMETABLES (UNIFIED s2 STYLES) --- */
-.published-exam-wrapper {
-  margin-bottom: 40px;
-  animation: fadeIn 0.4s ease-out;
-}
-
-.published-exam-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  /* Increased from 12px */
-  margin-bottom: 12px;
-  padding: 0 16px;
-}
-
-/* Force vertical stack for Edit Mode header */
-.s2-exam-card.is-editing .s2-exam-header {
-  flex-direction: column !important;
-  align-items: center !important;
-  text-align: center;
-  gap: 20px;
-}
-
-.s2-exam-card.is-editing .s2-exam-header-icon {
-  margin: 0 auto;
-  font-size: 32px;
-}
-
-.s2-exam-card.is-editing .edit-meta-inputs {
-  width: 100%;
-}
-
-/* --- PREMIUM s2-EDITOR REDESIGN --- */
-.s2-exam-card.is-editing {
-  border: 1px solid var(--mac-divider);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-  padding: 30px 20px;
-}
-
-.s2-editor-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 24px;
-  margin-bottom: 32px;
-}
-
-.s2-editor-meta {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.s2-editor-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
-}
-
-.s2-editor-label {
-  font-size: 11px;
+/* --- 6. PUBLISHED TIMETABLES --- */
+.section-divider-title {
+  font-size: 12px;
   font-weight: 700;
+  color: var(--mac-blue);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--mac-text-secondary);
-  padding-left: 16px;
-}
-
-.s2-editor-pill-input,
-.s2-editor-pill-select,
-.custom-datepicker-wrapper {
-  background-color: var(--mac-button-bg) !important;
-  /* Dynamic transparent rgba tint for perfect contrast on any background */
-  border: 1px solid var(--mac-divider) !important;
-  /* Slightly stronger border */
-  border-radius: 50px;
-  height: 48px;
-  padding: 0 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--mac-text) !important;
-  width: 100%;
-  transition: all 0.2s;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
-}
-
-.s2-editor-pill-input:focus,
-.s2-editor-pill-select:focus {
-  border-color: var(--mac-blue) !important;
-  background: var(--mac-card-bg) !important;
-  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
-  outline: none;
-}
-
-/* Ensure inputs inside the grey subject card are white so they pop out */
-.s2-editor-subject-card .s2-editor-pill-input,
-.s2-editor-subject-card .s2-editor-pill-select,
-.s2-editor-subject-card .custom-datepicker-wrapper {
-  background-color: var(--mac-card-bg) !important;
-}
-
-.s2-editor-date-range {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+  display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.s2-editor-range-sep {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--mac-text-secondary);
+.section-divider-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mac-divider);
 }
 
-/* Subject Row Cards */
-.s2-editor-subject-card {
+.published-exam-card {
+  background: var(--mac-sidebar-bg);
+  border-radius: 32px;
+  padding: 24px;
+  border: 1px solid var(--mac-border);
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.published-exam-card.editing-active {
   background: var(--mac-bg-secondary);
-  border-radius: 24px;
-  padding: 20px;
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  border: 1px solid transparent;
-  transition: all 0.2s;
-}
-
-.s2-editor-subject-card:hover {
   border-color: var(--mac-divider);
-  background: var(--mac-selection-hover);
-}
-
-.s2-editor-row-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.s2-editor-row-grid .full-width {
-  grid-column: span 2;
-}
-
-/* Redesigned Add Button */
-.s2-editor-add-btn {
-  width: 100%;
-  height: 54px;
-  border-radius: 20px;
-  background: var(--mac-bg-secondary);
-  border: 2px dashed var(--mac-divider);
-  color: var(--mac-blue);
-  font-size: 14px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  cursor: pointer;
-  margin: 10px 0 24px 0;
-  transition: all 0.2s;
-}
-
-.s2-editor-add-btn:hover {
-  background: rgba(0, 122, 255, 0.05);
-  border-color: var(--mac-blue);
-  transform: translateY(-2px);
-}
-
-.s2-editor-add-btn svg {
-  font-size: 20px;
-}
-
-/* Mobile Overrides */
-@media (max-width: 600px) {
-  .s2-editor-row-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .s2-editor-row-grid .full-width {
-    grid-column: span 1;
-  }
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 }
 
 .published-header {
-  /* Legacy - will be replaced by action bar above card */
-  display: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--mac-divider);
 }
 
 .pub-title-group {
@@ -811,19 +665,13 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
     white-space: nowrap !important;
   }
 
-  .published-exam-card {
-    padding: 20px 16px !important;
-    border-radius: 20px !important;
-  }
-
   .exam-subject-row.professional,
-  .exam-subject-row.professional.editing,
-  .exam-subject-row.professional.view-mode {
+  .exam-subject-row.professional.editing {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
-    padding: 20px 0 !important;
-    border-radius: 0 !important;
+    padding: 20px 0;
+    border-radius: 0;
     background: transparent !important;
     border: none !important;
     border-bottom: 1px solid var(--mac-divider) !important;
@@ -959,9 +807,6 @@ html.dark .exam-subject-row.professional.view-mode {
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
   border: none !important;
   outline: none !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-  min-width: fit-content !important;
 }
 
 .btn-edit-mini {
@@ -997,29 +842,15 @@ html.dark .exam-subject-row.professional.view-mode {
 }
 
 .btn-del-mini {
-  background: #FF3B30 !important;
-  color: white !important;
-  box-shadow: 0 4px 10px rgba(255, 59, 48, 0.2);
+  background: rgba(255, 59, 48, 0.08) !important;
+  color: #FF3B30 !important;
+  min-width: 36px;
+  padding: 0 12px !important;
 }
 
 /* If it has text (Delete) */
 .btn-del-mini:not(:empty) {
   padding: 0 18px !important;
-}
-
-/* Explicit Danger Style for prominent actions */
-.btn-del-mini.danger-style {
-  background: #FF3B30 !important;
-  color: white !important;
-  height: 48px !important;
-  border-radius: 16px !important;
-  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.2) !important;
-  margin-top: 12px;
-}
-
-.btn-del-mini.danger-style:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
 }
 
 .btn-del-mini:hover {
