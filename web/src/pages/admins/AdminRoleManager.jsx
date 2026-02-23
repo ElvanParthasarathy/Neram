@@ -164,7 +164,6 @@ const AdminRoleManager = ({ userProfile }) => {
 
       {/* --- SECTION 2: ACTIVE ADMINS LIST --- */}
       <div className="admin-list-section">
-        <h2 className="section-heading">Active Administrators</h2>
         {(() => {
           const allAdmins = Object.entries(users)
             .filter(([_, u]) => ['admin', 'faculty', 'rep', 'super_admin'].includes(u.role) || getHardcodedRole(u.email))
