@@ -454,8 +454,8 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
 .s2-editor-pill-input,
 .s2-editor-pill-select,
 .custom-datepicker-wrapper {
-  background: var(--mac-card-bg);
-  /* Use white for contrast against grey card/inner sections */
+  background: var(--mac-bg-secondary);
+  /* Light grey for contrast against white card */
   border: 1px solid var(--mac-divider);
   border-radius: 50px;
   height: 48px;
