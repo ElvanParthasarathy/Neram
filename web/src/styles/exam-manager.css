@@ -471,10 +471,17 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
 
 .s2-editor-pill-input:focus,
 .s2-editor-pill-select:focus {
-  border-color: var(--mac-blue);
-  background: var(--mac-card-bg);
+  border-color: var(--mac-blue) !important;
+  background: var(--mac-card-bg) !important;
   box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
   outline: none;
+}
+
+/* Ensure inputs inside the grey subject card are white so they pop out */
+.s2-editor-subject-card .s2-editor-pill-input,
+.s2-editor-subject-card .s2-editor-pill-select,
+.s2-editor-subject-card .custom-datepicker-wrapper {
+  background-color: var(--mac-card-bg) !important;
 }
 
 .s2-editor-date-range {
