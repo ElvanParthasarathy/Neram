@@ -547,6 +547,19 @@ body.modal-open,
   }
 }
 
+/* User Management Modal Mobile Fixes */
+@media (max-width: 768px) {
+  .input-row {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+
+  .select-triple-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+}
+
 @media (min-width: 769px) {
 
 
