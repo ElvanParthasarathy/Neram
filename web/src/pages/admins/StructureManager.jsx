@@ -164,60 +164,76 @@ const StructureManager = () => {
   };
 
   return (
-    <div className="settings-section-content structure-manager-bounded">
+    <div className="admin-subpage animate-fade-in resources-page-wrapper">
       {/* HEADER BAR */}
-      <div className="structure-header-bar">
-        <h3>Academic Hierarchy</h3>
+      <header className="explorer-header" style={{ marginBottom: '24px' }}>
+        <div className="breadcrumb-nav">
+          <RiInformationLine className="card-icon-mini" />
+          <span className="crumb-static">Academic Hierarchy</span>
+        </div>
         <button
           className={`btn-toggle-explicit ${isEditing ? 'editing' : ''}`}
           onClick={() => setIsEditing(!isEditing)}
         >
           {isEditing ? <><RiCloseLine /> Done Editing</> : <><RiEditLine /> Edit Structure</>}
         </button>
-      </div>
+      </header>
 
       <div className="admin-grid-layout">
 
         {/* COMMAND COLUMN - HIDDEN WHEN LOCKED */}
         {isEditing && (
           <div className="admin-forms-column slide-in-left">
-            <section className="security-module">
+            <section className="settings-card security-module">
               <h3><RiAddLine /> Initialize New Batch</h3>
               <div className="settings-row-vertical">
-                <div className="dual-input">
-                  <input type="number" placeholder="Start Year" value={batchStart} onChange={e => setBatchStart(e.target.value)} />
-                  <span className="input-divider">-</span>
-                  <input type="number" placeholder="End Year" value={batchEnd} onChange={e => setBatchEnd(e.target.value)} />
+                <div className="input-split-row">
+                  <div className="input-group">
+                    <label>Start Year</label>
+                    <input type="number" placeholder="YYYY" value={batchStart} onChange={e => setBatchStart(e.target.value)} className="mac-input" />
+                  </div>
+                  <div className="input-group">
+                    <label>End Year</label>
+                    <input type="number" placeholder="YYYY" value={batchEnd} onChange={e => setBatchEnd(e.target.value)} className="mac-input" />
+                  </div>
                 </div>
-                <button onClick={handleCreateBatch} className="btn-primary-full">Create Batch</button>
+                <button onClick={handleCreateBatch} className="btn-save-master" style={{ justifyContent: 'center', marginTop: '10px' }}>Create Batch</button>
               </div>
             </section>
 
-            <section className="security-module">
+            <section className="settings-card security-module">
               <h3><RiAddLine /> Map Sections</h3>
-              <div className="settings-row-vertical">
-                <label>Target Batch</label>
-                <select value={selectedBatch} onChange={e => setSelectedBatch(e.target.value)}>
-                  <option value="">Select Batch</option>
-                  {Object.keys(hierarchy).map(b => <option key={b} value={b}>{b}</option>)}
-                </select>
-                <label>Department</label>
-                <select value={selectedDept} onChange={e => setSelectedDept(e.target.value)}>
-                  <option value="">Select Dept</option>
-                  {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-                <label>Section Name</label>
-                <div className="input-with-btn">
-                  <input type="text" placeholder="e.g. A" value={newSection} onChange={e => setNewSection(e.target.value)} />
-                  <button onClick={handleAddSection} className="btn-success-sq">Add</button>
+              <div className="settings-row-vertical" style={{ gap: '20px' }}>
+                <div className="input-group">
+                  <label>Target Batch</label>
+                  <select value={selectedBatch} onChange={e => setSelectedBatch(e.target.value)} className="mac-input">
+                    <option value="">Select Batch</option>
+                    {Object.keys(hierarchy).map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
                 </div>
+
+                <div className="input-split-row">
+                  <div className="input-group">
+                    <label>Department</label>
+                    <select value={selectedDept} onChange={e => setSelectedDept(e.target.value)} className="mac-input">
+                      <option value="">Select Dept</option>
+                      {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div className="input-group">
+                    <label>Section Name</label>
+                    <input type="text" placeholder="e.g. A" value={newSection} onChange={e => setNewSection(e.target.value)} className="mac-input" />
+                  </div>
+                </div>
+
+                <button onClick={handleAddSection} className="btn-save-master" style={{ justifyContent: 'center', marginTop: '10px' }}>Add Map</button>
               </div>
             </section>
           </div>
         )}
 
         {/* TREE COLUMN - ALWAYS VISIBLE, BUT CONTROLS HIDDEN */}
-        <div className={`admin-tree-column ${isEditing ? '' : 'full-width'}`}>
+        <div className={`admin-tree-column settings-card ${isEditing ? '' : 'full-width'}`}>
           <div className="tree-viewport">
             {!isEditing && (
               <div className="read-only-banner">
@@ -231,7 +247,7 @@ const StructureManager = () => {
                 <div className="node-label batch">
                   {editingBatch?.oldVal === batch ? (
                     <div className="pill-edit">
-                      <input value={editingBatch.newVal} onChange={e => setEditingBatch({ ...editingBatch, newVal: e.target.value })} autoFocus />
+                      <input value={editingBatch.newVal} onChange={e => setEditingBatch({ ...editingBatch, newVal: e.target.value })} autoFocus className="mac-input" style={{ height: '32px' }} />
                       <button className="text-btn save" onClick={handleUpdateBatch}><RiSave3Line /></button>
                       <button className="text-btn cancel" onClick={() => setEditingBatch(null)}><RiCloseLine /></button>
                     </div>
@@ -254,7 +270,7 @@ const StructureManager = () => {
                       <div className="node-label dept">
                         {editingDept?.oldVal === dept && editingDept?.batch === batch ? (
                           <div className="pill-edit">
-                            <input value={editingDept.newVal} onChange={e => setEditingDept({ ...editingDept, newVal: e.target.value })} autoFocus />
+                            <input value={editingDept.newVal} onChange={e => setEditingDept({ ...editingDept, newVal: e.target.value })} autoFocus className="mac-input" style={{ height: '32px' }} />
                             <button className="text-btn save" onClick={handleUpdateDept}><RiSave3Line /></button>
                             <button className="text-btn cancel" onClick={() => setEditingDept(null)}><RiCloseLine /></button>
                           </div>
@@ -276,7 +292,7 @@ const StructureManager = () => {
                           <div key={sec} className="tree-sec-pill">
                             {editingSec?.oldVal === sec && editingSec?.dept === dept && editingSec?.batch === batch ? (
                               <div className="pill-edit">
-                                <input value={editingSec.newVal} onChange={e => setEditingSec({ ...editingSec, newVal: e.target.value })} />
+                                <input value={editingSec.newVal} onChange={e => setEditingSec({ ...editingSec, newVal: e.target.value })} className="mac-input" style={{ height: '32px' }} />
                                 <button className="text-btn save" onClick={handleUpdateSection}><RiSave3Line /></button>
                                 <button className="text-btn cancel" onClick={() => setEditingSec(null)}><RiCloseLine /></button>
                               </div>
