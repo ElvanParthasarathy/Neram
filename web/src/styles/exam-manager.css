@@ -229,7 +229,8 @@
 .exam-manager-container select,
 .custom-datepicker-input,
 .table-input {
-  background: var(--mac-input-bg) !important;
+  background: var(--mac-button-bg) !important;
+  /* Fixed contrast: uses rgba tint */
   border: 1px solid var(--mac-divider) !important;
   border-radius: 12px !important;
   height: 44px;
