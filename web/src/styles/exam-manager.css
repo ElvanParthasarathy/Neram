@@ -399,11 +399,19 @@ html.dark .exam-manager-container input[type="date"]::-webkit-calendar-picker-in
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
-  padding: 24px;
-  background: var(--mac-bg-secondary);
-  border-radius: 20px;
-  margin-top: 12px;
-  border: 1px solid var(--mac-divider);
+  padding: 24px 0;
+  /* Remove horizontal padding to blend */
+  background: transparent;
+  /* Remove nested background */
+  border-radius: 0;
+  margin-top: 0;
+  border: none;
+  border-bottom: 2px dashed var(--mac-divider);
+  /* Dashed separator instead of nested card */
+}
+
+.s2-exam-subject-row.is-editing-row:last-of-type {
+  border-bottom: none;
 }
 
 .s2-exam-subject-row.is-editing-row .input-group-vertical {
