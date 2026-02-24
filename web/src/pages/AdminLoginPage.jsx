@@ -3,7 +3,9 @@ import { auth, googleProvider, db } from "../firebase";
 import {
     signInWithPopup,
     signInWithEmailAndPassword,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    GoogleAuthProvider,
+    signInWithCredential
 } from "firebase/auth";
 import { ref, get, update, onValue } from "firebase/database";
 import { useNavigate } from "react-router-dom";
