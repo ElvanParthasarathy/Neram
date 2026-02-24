@@ -44,6 +44,17 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         setNavOverride(null);
     }, [location.pathname]);
 
+    // Handle bottom spacing (hide bar spacing on secondary screens like settings)
+    useEffect(() => {
+        if (isOnSettings) {
+            document.documentElement.classList.add('secondary-screen');
+        } else {
+            document.documentElement.classList.remove('secondary-screen');
+        }
+        // Cleanup on unmount
+        return () => document.documentElement.classList.remove('secondary-screen');
+    }, [isOnSettings]);
+
     // --- EARLY RETURNS (must be after all hooks) ---
     if (location.pathname !== '/' && !isOnSettings) return null;
     if (!isAdminUser) return null;
