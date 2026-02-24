@@ -114,6 +114,25 @@ function AdminApp() {
         return () => observer.disconnect();
     }, []);
 
+    // --- NATIVE SCROLL SYNC ---
+    // Tell the Android WebView whether we are at the top, so it can enable/disable Pull-to-Refresh
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.NativeBridge && window.NativeBridge.setRefreshEnabled) {
+                // If scroll is at 0, enable refresh. Otherwise disable to allow scrolling up.
+                const isAtTop = window.scrollY === 0;
+                window.NativeBridge.setRefreshEnabled(isAtTop);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        // Also check on mount
+        handleScroll();
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     useEffect(() => {
         let userUnsubscribe = null;
         const authUnsubscribe = onAuthStateChanged(auth, (u) => {
