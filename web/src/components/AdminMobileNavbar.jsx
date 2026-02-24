@@ -74,8 +74,27 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     const canViewExtras = isSuper;
 
     const handleNav = (mod) => {
-        setSearchParams({ mod });
         setIsSidebarOpen(false); // Close sidebar if it was open
+
+        const currentMod = searchParams.get('mod') || 'home';
+        if (currentMod === mod) return;
+
+        const mainTabs = ['home', 'schedules', 'exams', 'events'];
+        const isCurrentlyRoot = mainTabs.includes(currentMod);
+
+        if (!isCurrentlyRoot) {
+            // We are on a sidebar module or subpage. Pop it off before switching.
+            navigate(-1);
+            setTimeout(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const poppedMod = urlParams.get('mod') || 'home';
+                const poppedToHome = poppedMod === 'home';
+                setSearchParams({ mod }, { replace: !poppedToHome });
+            }, 10);
+        } else {
+            // We are on a root tab. PUSH from Home, REPLACE from other tabs.
+            setSearchParams({ mod }, { replace: currentMod !== 'home' });
+        }
     };
 
     const topBarTitle = {
@@ -289,7 +308,6 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
 
                         {/* Pinned Bottom: Settings + Appearance */}
                         <div style={{ borderTop: '1px solid var(--border-color)', padding: '12px 0', flexShrink: 0 }}>
-                            <div className="nav-group-label" style={{ padding: '4px 24px 8px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Appearance</div>
                             <div style={{ padding: '0 16px' }}>
                                 <ThemeToggle asMenuItem={true} />
                             </div>

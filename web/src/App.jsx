@@ -64,38 +64,34 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
   const currentTabIndex = tabs.indexOf(location.pathname);
   const isMainTab = currentTabIndex !== -1;
 
-  // 1. CLICK NAVIGATION — All tab switches REPLACE history (app-like behavior)
+  // 1. CLICK NAVIGATION — Maintain strict [Home, Tab] stack to prevent infinite back-button loops
   const scrollToTab = (index) => {
     const target = tabs[index];
-    if (location.pathname === target) return; // Already there
-    // Always replace — tab switches should never stack history
-    navigate(target, { replace: true });
+    if (location.pathname === target) return;
+
+    const rootTabs = ["/", "/schedule", "/calendar", "/notes"];
+    const isCurrentlyRoot = rootTabs.includes(location.pathname);
+
+    if (!isCurrentlyRoot) {
+      // We are on a subpage. Pop it off before switching root tabs.
+      navigate(-1);
+      setTimeout(() => {
+        const poppedToHome = window.location.pathname === '/' || window.location.pathname === '/home';
+        navigate(target, { replace: !poppedToHome });
+      }, 10);
+    } else {
+      // We are on a root tab. Use Push for first step off Home, otherwise Replace.
+      navigate(target, { replace: location.pathname !== '/' });
+    }
   };
 
   // --- BACK BUTTON LOGIC ---
-  // Root tabs → Home (replace), Home → exit, Settings sub → hub, Subpages → pop
+  // The strict navigation stack above ensures hardware back button always works perfectly 
+  // (Subpage -> Tab -> Home -> Exit) without needing buggy popstate interceptors.
   useEffect(() => {
     if (!user) return;
-    const handleBackButton = (event) => {
-      const rootTabs = ["/schedule", "/calendar", "/notes"];
-      const secondaryPages = ["/settings", "/college-sites", "/contact", "/profile"];
-
-      if (location.pathname === "/") {
-        // On Home → let browser exit naturally
-        return;
-      }
-
-      if (rootTabs.includes(location.pathname)) {
-        // Root tab → go Home (replace, don't stack)
-        event.preventDefault();
-        navigate("/", { replace: true });
-      }
-      // Settings and other secondary pages: popstate handles naturally
-      // (Settings2 has its own popstate handler for sub-sections)
-    };
-    window.addEventListener("popstate", handleBackButton);
-    return () => window.removeEventListener("popstate", handleBackButton);
-  }, [location.pathname, user, navigate]);
+    // Removed legacy forced-replace popstate listener to allow natural browser flow.
+  }, [user]);
 
 
 

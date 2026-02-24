@@ -340,9 +340,27 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
     } else {
       setIsMenuOpen(false);
       if (location.pathname === targetPath) return;
-      // Bottom tab clicks (with index) always replace; menu items push
+
       const isTabSwitch = index !== undefined;
-      navigate(targetPath, { replace: isTabSwitch });
+      const rootTabs = ["/", "/schedule", "/calendar", "/notes", "/settings"];
+      const isCurrentlyRoot = rootTabs.includes(location.pathname);
+
+      if (isTabSwitch) {
+        if (!isCurrentlyRoot) {
+          // We are on a subpage. Pop it off before switching tabs.
+          navigate(-1);
+          setTimeout(() => {
+            const poppedToHome = window.location.pathname === '/' || window.location.pathname === '/home';
+            navigate(targetPath, { replace: !poppedToHome });
+          }, 10);
+        } else {
+          // We are on a root tab. PUSH from Home, REPLACE from other tabs.
+          navigate(targetPath, { replace: location.pathname !== '/' });
+        }
+      } else {
+        // Menu item (subpages like settings, profile, etc)
+        navigate(targetPath);
+      }
     }
   };
 
