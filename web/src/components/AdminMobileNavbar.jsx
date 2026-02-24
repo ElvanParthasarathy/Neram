@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     RiHomeLine,
@@ -27,6 +27,24 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
 
     // Show on admin panel and settings
     const isOnSettings = location.pathname === '/settings';
+
+    // --- SETTINGS SUB-SECTION DYNAMIC TITLE (same as student MobileNavbar) ---
+    const [navOverride, setNavOverride] = useState(null);
+
+    useEffect(() => {
+        const handleNavUpdate = (e) => {
+            setNavOverride(e.detail);
+        };
+        window.addEventListener('neram-update-nav', handleNavUpdate);
+        return () => window.removeEventListener('neram-update-nav', handleNavUpdate);
+    }, []);
+
+    // Reset override on route change
+    useEffect(() => {
+        setNavOverride(null);
+    }, [location.pathname]);
+
+    // --- EARLY RETURNS (must be after all hooks) ---
     if (location.pathname !== '/' && !isOnSettings) return null;
     if (!isAdminUser) return null;
 
@@ -101,16 +119,44 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     const isDeepView = isInScheduleDeep || isInExamDeep;
     const handleDeepBack = isInScheduleDeep ? handleScheduleBack : handleExamBack;
 
+    // Determine current settings title
+    const settingsTitle = navOverride?.title || 'Settings';
+    const isInSubSection = isOnSettings && navOverride?.title;
+
+    const handleSettingsBack = () => {
+        if (isInSubSection) {
+            // Go back to settings hub
+            window.dispatchEvent(new Event('neram-go-hub'));
+        } else {
+            navigate('/');
+        }
+    };
+
     return (
         <>
             {/* 1. TOP BAR */}
             <div className="mobile-top-bar" style={{ justifyContent: 'flex-start' }}>
                 {isOnSettings ? (
                     <>
-                        <button className="top-action-btn" onClick={() => navigate('/')} style={{ marginRight: '12px' }}>
-                            <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
+                        <span className="top-bar-title" style={{ marginLeft: '16px', flex: 1 }}>{settingsTitle}</span>
+                        <button
+                            className="top-action-btn"
+                            onClick={handleSettingsBack}
+                            style={{
+                                marginLeft: 'auto',
+                                marginRight: '8px',
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '50%',
+                                background: 'var(--mac-bg-secondary, rgba(120,120,128,0.12))',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: 'none'
+                            }}
+                        >
+                            <RiArrowLeftSLine style={{ width: '22px', height: '22px', color: 'var(--text-primary)' }} />
                         </button>
-                        <span className="top-bar-title" style={{ marginLeft: 0, flex: 1 }}>Settings</span>
                     </>
                 ) : (
                     <>
