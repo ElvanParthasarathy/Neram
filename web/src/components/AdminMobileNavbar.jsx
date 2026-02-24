@@ -25,8 +25,9 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     const activeModule = searchParams.get('mod') || 'home';
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Only show on the main Admin Panel route, not on Settings
-    if (location.pathname !== '/') return null;
+    // Show on admin panel and settings
+    const isOnSettings = location.pathname === '/settings';
+    if (location.pathname !== '/' && !isOnSettings) return null;
     if (!isAdminUser) return null;
 
     // --- ROLE DETERMINATION (Matches AdminNavbar) ---
@@ -102,16 +103,27 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
 
     return (
         <>
-            {/* 1. TOP BAR WITH HAMBURGER (Left) + BACK BUTTON (Right) */}
+            {/* 1. TOP BAR */}
             <div className="mobile-top-bar" style={{ justifyContent: 'flex-start' }}>
-                <button className="top-action-btn" onClick={() => setIsSidebarOpen(true)} style={{ marginRight: '12px' }}>
-                    <RiMenuLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
-                </button>
-                <span className="top-bar-title" style={{ marginLeft: 0, flex: 1 }}>{topBarTitle}</span>
-                {isDeepView && (
-                    <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
-                        <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)', marginLeft: '-2px' }} />
-                    </button>
+                {isOnSettings ? (
+                    <>
+                        <button className="top-action-btn" onClick={() => navigate('/')} style={{ marginRight: '12px' }}>
+                            <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
+                        </button>
+                        <span className="top-bar-title" style={{ marginLeft: 0, flex: 1 }}>Settings</span>
+                    </>
+                ) : (
+                    <>
+                        <button className="top-action-btn" onClick={() => setIsSidebarOpen(true)} style={{ marginRight: '12px' }}>
+                            <RiMenuLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
+                        </button>
+                        <span className="top-bar-title" style={{ marginLeft: 0, flex: 1 }}>{topBarTitle}</span>
+                        {isDeepView && (
+                            <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
+                                <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)', marginLeft: '-2px' }} />
+                            </button>
+                        )}
+                    </>
                 )}
             </div>
 
@@ -216,40 +228,42 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                 </>
             )}
 
-            {/* 3. BOTTOM TABS (4 Items) */}
-            <div className="mobile-bottom-bar admin-bottom-bar" style={{ zIndex: 10000 }}>
-                <div className="nav-links" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', padding: '0 8px' }}>
+            {/* 3. BOTTOM TABS (4 Items) - HIDDEN ON SETTINGS */}
+            {!isOnSettings && (
+                <div className="mobile-bottom-bar admin-bottom-bar" style={{ zIndex: 10000, paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
+                    <div className="nav-links" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', padding: '0 8px' }}>
 
-                    <button className={`nav-item ${activeModule === 'home' ? 'active' : ''}`} onClick={() => handleNav('home')}>
-                        <div className="nav-icon-container">
-                            <RiHomeLine style={{ width: '24px', height: '24px' }} />
-                        </div>
-                        <span className="nav-label">Home</span>
-                    </button>
+                        <button className={`nav-item ${activeModule === 'home' ? 'active' : ''}`} onClick={() => handleNav('home')}>
+                            <div className="nav-icon-container">
+                                <RiHomeLine style={{ width: '24px', height: '24px' }} />
+                            </div>
+                            <span className="nav-label">Home</span>
+                        </button>
 
-                    <button className={`nav-item ${activeModule === 'schedules' ? 'active' : ''}`} onClick={() => handleNav('schedules')}>
-                        <div className="nav-icon-container">
-                            <RiCalendarScheduleLine style={{ width: '24px', height: '24px' }} />
-                        </div>
-                        <span className="nav-label">Schedule</span>
-                    </button>
+                        <button className={`nav-item ${activeModule === 'schedules' ? 'active' : ''}`} onClick={() => handleNav('schedules')}>
+                            <div className="nav-icon-container">
+                                <RiCalendarScheduleLine style={{ width: '24px', height: '24px' }} />
+                            </div>
+                            <span className="nav-label">Schedule</span>
+                        </button>
 
-                    <button className={`nav-item ${activeModule === 'exams' ? 'active' : ''}`} onClick={() => handleNav('exams')}>
-                        <div className="nav-icon-container">
-                            <RiTrophyLine style={{ width: '24px', height: '24px' }} />
-                        </div>
-                        <span className="nav-label">Exams</span>
-                    </button>
+                        <button className={`nav-item ${activeModule === 'exams' ? 'active' : ''}`} onClick={() => handleNav('exams')}>
+                            <div className="nav-icon-container">
+                                <RiTrophyLine style={{ width: '24px', height: '24px' }} />
+                            </div>
+                            <span className="nav-label">Exams</span>
+                        </button>
 
-                    <button className={`nav-item ${activeModule === 'events' ? 'active' : ''}`} onClick={() => handleNav('events')}>
-                        <div className="nav-icon-container">
-                            <RiCalendarEventLine style={{ width: '24px', height: '24px' }} />
-                        </div>
-                        <span className="nav-label">Events</span>
-                    </button>
+                        <button className={`nav-item ${activeModule === 'events' ? 'active' : ''}`} onClick={() => handleNav('events')}>
+                            <div className="nav-icon-container">
+                                <RiCalendarEventLine style={{ width: '24px', height: '24px' }} />
+                            </div>
+                            <span className="nav-label">Events</span>
+                        </button>
 
+                    </div>
                 </div>
-            </div>
+            )}
         </>
     );
 };
