@@ -131,15 +131,57 @@ const AdminLoginPage = () => {
     };
 
     // ---- LOGIC HANDLERS ----
+    // Setup listeners for Native Android Google Login response
+    useEffect(() => {
+        window.handleNativeGoogleResult = async (idToken) => {
+            try {
+                // Build credential from the ID token passed by Android
+                const credential = GoogleAuthProvider.credential(idToken);
+                // Sign in to Firebase Auth using the credential
+                const result = await signInWithCredential(auth, credential);
+                await checkAdminStatus(result.user);
+            } catch (err) {
+                console.error("Native Google Login via Firebase failed:", err);
+                setIsLoggingIn(false);
+                alert("Native Sign-In Verification Failed: " + err.message);
+            }
+        };
+
+        window.handleNativeGoogleError = (errorMsg) => {
+            console.error("Native Google Login failed:", errorMsg);
+            setIsLoggingIn(false);
+            alert(errorMsg);
+        };
+
+        return () => {
+            delete window.handleNativeGoogleResult;
+            delete window.handleNativeGoogleError;
+        };
+    }, []);
+
     const handleGoogleLogin = async () => {
         setIsLoggingIn(true);
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            await checkAdminStatus(result.user);
-        } catch (err) {
-            console.error(err);
-            setIsLoggingIn(false);
-            alert(err.message);
+        // Check if running inside the Android App WebView
+        if (window.NativeBridge && window.NativeBridge.loginWithGoogle) {
+            try {
+                // Trigger Native Android Google Sign-In
+                window.NativeBridge.loginWithGoogle();
+                // We do NOT set isLoggingIn(false) here because we are waiting for 
+                // window.handleNativeGoogleResult() to be called by the native app.
+            } catch (err) {
+                console.error("Failed to bridge to native login:", err);
+                setIsLoggingIn(false);
+            }
+        } else {
+            // Running in regular browser, use standard popup
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                await checkAdminStatus(result.user);
+            } catch (err) {
+                console.error(err);
+                setIsLoggingIn(false);
+                alert(err.message);
+            }
         }
     };
 
