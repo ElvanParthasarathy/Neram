@@ -195,11 +195,6 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
 
       </nav>
 
-      {/* 2.5 THEME SWITCHER - ALWAYS VISIBLE */}
-      <div className="sidebar-theme-toggle">
-        <ThemeToggle asMenuItem={true} />
-      </div>
-
       {/* 3. AUTH & ACTION ZONE */}
       <div className="user-auth-zone" ref={containerRef}>
         {!user ? (
