@@ -106,6 +106,11 @@ function AdminApp() {
             }
             metaThemeColor.setAttribute("content", themeColor);
             document.body.style.backgroundColor = themeColor;
+
+            // Tell native Android app to update status/nav bar colors
+            if (window.NativeBridge && window.NativeBridge.setTheme) {
+                window.NativeBridge.setTheme(isDark);
+            }
         };
 
         updateThemeColor();
