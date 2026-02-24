@@ -44,6 +44,10 @@ const AdminSettings = ({ userProfile }) => {
     }, []);
 
     const handleNavigate = (view) => {
+        // Push a history entry so the system back button can pop it
+        if (isMobile) {
+            window.history.pushState({ settingsView: view }, '');
+        }
         setCurrentView(view);
     };
 
@@ -54,6 +58,61 @@ const AdminSettings = ({ userProfile }) => {
             setCurrentView("hub");
         }
     };
+
+    // --- SYSTEM BACK BUTTON SUPPORT ---
+    useEffect(() => {
+        const handlePopState = (e) => {
+            // If we are in a sub-section, go back to hub
+            // We use a ref-like approach: check if the state has settingsView
+            if (isMobile) {
+                goHub();
+            }
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [isMobile]);
+
+    // --- NAV OVERRIDE LOGIC (dispatch title to AdminMobileNavbar) ---
+    useEffect(() => {
+        if (currentView === 'hub') {
+            window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
+        } else {
+            const titles = {
+                profile: 'Edit Profile',
+                display: 'Appearance',
+                notifications: 'Notifications',
+                storage: 'Storage & Data',
+                security: 'Security',
+                directory: 'User Directory',
+                complaints: 'Report Issue',
+                developer: 'About Developer',
+                about: 'About App'
+            };
+            const title = titles[currentView] || 'Settings';
+            window.dispatchEvent(new CustomEvent('neram-update-nav', {
+                detail: { title }
+            }));
+        }
+    }, [currentView]);
+
+    // Cleanup navigation override on unmount
+    useEffect(() => {
+        return () => window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
+    }, []);
+
+    // Listen for goHub from the top bar back button
+    useEffect(() => {
+        const handleGoHub = () => {
+            // Pop the history entry we pushed, then go to hub
+            if (isMobile && currentView !== 'hub') {
+                window.history.back(); // This triggers popstate -> goHub
+            } else {
+                goHub();
+            }
+        };
+        window.addEventListener('neram-go-hub', handleGoHub);
+        return () => window.removeEventListener('neram-go-hub', handleGoHub);
+    }, [isMobile, currentView]);
 
     const renderDetailView = () => {
         /* Only render actual content if not hub (optimization) */

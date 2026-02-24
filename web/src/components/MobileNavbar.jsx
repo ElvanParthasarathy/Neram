@@ -340,7 +340,9 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
     } else {
       setIsMenuOpen(false);
       if (location.pathname === targetPath) return;
-      navigate(targetPath, { replace: location.pathname !== "/" || targetPath === "/" });
+      // Bottom tab clicks (with index) always replace; menu items push
+      const isTabSwitch = index !== undefined;
+      navigate(targetPath, { replace: isTabSwitch });
     }
   };
 

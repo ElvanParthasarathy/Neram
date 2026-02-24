@@ -164,9 +164,28 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             <RiMenuLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
                         </button>
                         <span className="top-bar-title" style={{ marginLeft: 0, flex: 1 }}>{topBarTitle}</span>
-                        {isDeepView && (
+                        {isDeepView ? (
                             <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
                                 <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)', marginLeft: '-2px' }} />
+                            </button>
+                        ) : ['users', 'roles', 'calendar', 'resources', 'structure', 'pending'].includes(activeModule) && (
+                            <button
+                                className="top-action-btn"
+                                onClick={() => setSearchParams({ mod: 'home' })}
+                                style={{
+                                    marginLeft: 'auto',
+                                    marginRight: '8px',
+                                    width: '36px',
+                                    height: '36px',
+                                    borderRadius: '50%',
+                                    background: 'var(--mac-bg-secondary, rgba(120,120,128,0.12))',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    border: 'none'
+                                }}
+                            >
+                                <RiArrowLeftSLine style={{ width: '22px', height: '22px', color: 'var(--text-primary)' }} />
                             </button>
                         )}
                     </>
@@ -255,14 +274,17 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                                 </>
                             )}
 
-                            <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
-                            <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Preferences</div>
-                            <button onClick={() => { navigate('/settings'); setIsSidebarOpen(false); }} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
-                                <RiSettings3Line style={{ fontSize: '20px' }} /> <span>Settings</span>
-                            </button>
+                        </div>
+
+                        {/* Pinned Bottom: Settings + Appearance */}
+                        <div style={{ borderTop: '1px solid var(--border-color)', padding: '12px 0', flexShrink: 0 }}>
+                            <div className="nav-group-label" style={{ padding: '4px 24px 8px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Appearance</div>
                             <div style={{ padding: '0 16px' }}>
                                 <ThemeToggle asMenuItem={true} />
                             </div>
+                            <button onClick={() => { navigate('/settings'); setIsSidebarOpen(false); }} style={{ width: '100%', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
+                                <RiSettings3Line style={{ fontSize: '20px' }} /> <span>Settings</span>
+                            </button>
                         </div>
                     </div>
                     <style>{`

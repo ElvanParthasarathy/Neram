@@ -64,33 +64,34 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
   const currentTabIndex = tabs.indexOf(location.pathname);
   const isMainTab = currentTabIndex !== -1;
 
-  // 1. CLICK NAVIGATION (Standard Navigation)
+  // 1. CLICK NAVIGATION — All tab switches REPLACE history (app-like behavior)
   const scrollToTab = (index) => {
     const target = tabs[index];
-
-    // If we are navigating to Home, and we are NOT at Home: Push (so Back works)
-    // If we are navigating from Home to Subpage: Push (so Back works)
-    // If we are navigating Subpage -> Subpage: Replace (to keep "Back -> Home" logic clean)
-
-    if (target === "/" || location.pathname === "/") {
-      navigate(target);
-    } else {
-      // Subpage -> Subpage
-      navigate(target, { replace: true });
-    }
+    if (location.pathname === target) return; // Already there
+    // Always replace — tab switches should never stack history
+    navigate(target, { replace: true });
   };
 
   // --- BACK BUTTON LOGIC ---
+  // Root tabs → Home (replace), Home → exit, Settings sub → hub, Subpages → pop
   useEffect(() => {
     if (!user) return;
     const handleBackButton = (event) => {
-      const mainPaths = ["/schedule", "/calendar", "/notes", "/college-sites", "/contact"];
-      const isMainPath = mainPaths.includes(location.pathname);
-      if (location.pathname === "/") return;
-      if (isMainPath) {
+      const rootTabs = ["/schedule", "/calendar", "/notes"];
+      const secondaryPages = ["/settings", "/college-sites", "/contact", "/profile"];
+
+      if (location.pathname === "/") {
+        // On Home → let browser exit naturally
+        return;
+      }
+
+      if (rootTabs.includes(location.pathname)) {
+        // Root tab → go Home (replace, don't stack)
         event.preventDefault();
         navigate("/", { replace: true });
       }
+      // Settings and other secondary pages: popstate handles naturally
+      // (Settings2 has its own popstate handler for sub-sections)
     };
     window.addEventListener("popstate", handleBackButton);
     return () => window.removeEventListener("popstate", handleBackButton);
