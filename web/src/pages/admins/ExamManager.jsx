@@ -250,7 +250,7 @@ const ExamManager = ({ user, userProfile }) => {
               <RiLayoutGridLine className="card-icon" /> <div className="card-info"><h3>{d}</h3><p>Select Section</p></div>
             </div>
           ))}
-          {viewLevel === 'secs' && path.batch && path.dept && Object.keys(hierarchy[path.batch]?.[path.dept] || {}).map(s => (
+          {viewLevel === 'secs' && path.batch && path.dept && Object.values(hierarchy[path.batch]?.[path.dept] || {}).map(s => (
             <div key={s} className="explorer-card" onClick={() => updateLevel('editor', { sec: s })}>
               <div className="card-initial">{s}</div> <div className="card-info"><h3>Section {s}</h3><p>Manage Exams</p></div>
             </div>
