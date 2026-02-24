@@ -92,6 +92,28 @@ function AdminApp() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // --- DYNAMIC STATUS BAR COLOR ---
+    useEffect(() => {
+        const updateThemeColor = () => {
+            const isDark = document.documentElement.classList.contains("dark");
+            const themeColor = isDark ? "#000000" : "#F2F2F7";
+
+            let metaThemeColor = document.querySelector("meta[name='theme-color']");
+            if (!metaThemeColor) {
+                metaThemeColor = document.createElement('meta');
+                metaThemeColor.name = "theme-color";
+                document.head.appendChild(metaThemeColor);
+            }
+            metaThemeColor.setAttribute("content", themeColor);
+            document.body.style.backgroundColor = themeColor;
+        };
+
+        updateThemeColor();
+        const observer = new MutationObserver(updateThemeColor);
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+        return () => observer.disconnect();
+    }, []);
+
     useEffect(() => {
         let userUnsubscribe = null;
         const authUnsubscribe = onAuthStateChanged(auth, (u) => {
