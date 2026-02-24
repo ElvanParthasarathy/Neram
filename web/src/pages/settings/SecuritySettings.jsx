@@ -355,6 +355,34 @@ const SecuritySettings = ({ onBack }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState(null);
 
+    React.useEffect(() => {
+        const handlePopState = (e) => {
+            const state = e.state;
+            if (state && state.secView) {
+                setSecView(state.secView);
+            } else {
+                setSecView("hub");
+            }
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    const handleNavigate = (view) => {
+        if (window.innerWidth <= 768) {
+            window.history.pushState({ settingsView: "security", secView: view }, '');
+        }
+        setSecView(view);
+    };
+
+    const handleSubBack = () => {
+        if (window.innerWidth <= 768) {
+            window.history.back();
+        } else {
+            setSecView("hub");
+        }
+    };
+
     // Reset state when dialog closes
     const closeDeleteDialog = () => {
         setShowDeleteConfirm(false);
@@ -365,10 +393,10 @@ const SecuritySettings = ({ onBack }) => {
     };
 
     if (secView === "change_password") {
-        return <ChangePasswordView onBack={() => setSecView("hub")} />;
+        return <ChangePasswordView onBack={handleSubBack} />;
     }
     if (secView === "linked_accounts") {
-        return <LinkedAccountsView onBack={() => setSecView("hub")} />;
+        return <LinkedAccountsView onBack={handleSubBack} />;
     }
 
     // Hub view
@@ -414,7 +442,7 @@ const SecuritySettings = ({ onBack }) => {
                     iconColor="purple"
                     title={hasPassword ? "Change Password" : "Create Password"}
                     desc={hasPassword ? "Update your login password" : "Add a password to your account"}
-                    onClick={() => setSecView("change_password")}
+                    onClick={() => handleNavigate("change_password")}
                 />
                 <SettingsDivider />
                 <SettingsItem
@@ -422,7 +450,7 @@ const SecuritySettings = ({ onBack }) => {
                     iconColor="blue"
                     title="Linked Accounts"
                     desc="Manage Google sign-in"
-                    onClick={() => setSecView("linked_accounts")}
+                    onClick={() => handleNavigate("linked_accounts")}
                 />
             </SettingsGroup>
 
@@ -469,7 +497,7 @@ const SecuritySettings = ({ onBack }) => {
                                         <button
                                             className="s2-dialog-btn confirm"
                                             style={{ background: "#9C27B0" }}
-                                            onClick={() => { closeDeleteDialog(); setSecView("change_password"); }}
+                                            onClick={() => { closeDeleteDialog(); handleNavigate("change_password"); }}
                                         >
                                             Create Password
                                         </button>

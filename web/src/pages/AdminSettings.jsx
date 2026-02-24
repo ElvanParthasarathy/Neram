@@ -62,10 +62,14 @@ const AdminSettings = ({ userProfile }) => {
     // --- SYSTEM BACK BUTTON SUPPORT ---
     useEffect(() => {
         const handlePopState = (e) => {
-            // If we are in a sub-section, go back to hub
-            // We use a ref-like approach: check if the state has settingsView
             if (isMobile) {
-                goHub();
+                const state = e.state;
+                if (state && state.settingsView) {
+                    setCurrentView(state.settingsView);
+                } else {
+                    // No valid state means we probably arrived back at the implicit hub state
+                    goHub();
+                }
             }
         };
         window.addEventListener('popstate', handlePopState);

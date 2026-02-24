@@ -113,15 +113,36 @@ const UserDirectoryView = ({ onBack }) => {
         }
     }, [path]);
 
+    // System Back Button Support
+    useEffect(() => {
+        const handlePopState = (e) => {
+            const state = e.state;
+            if (state && state.dirPath) {
+                setPath(state.dirPath);
+            } else {
+                setPath([]);
+            }
+        };
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
     // Navigation Helper
     const navigateTo = (newPath) => {
+        if (window.innerWidth <= 768) {
+            window.history.pushState({ settingsView: "directory", dirPath: newPath }, '');
+        }
         setPath(newPath);
     };
 
     // Back handler: go up one level or exit
     const handleBack = () => {
         if (path.length > 0) {
-            setPath(path.slice(0, -1));
+            if (window.innerWidth <= 768) {
+                window.history.back();
+            } else {
+                setPath(path.slice(0, -1));
+            }
         } else {
             onBack();
         }
