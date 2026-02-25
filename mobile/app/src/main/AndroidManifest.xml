@@ -61,6 +61,9 @@
             android:name=".receivers.DailyAlarmReceiver"
             android:enabled="true"
             android:exported="true">
+            <intent-filter>
+                <action android:name="com.elvan.neram.DAILY_ALARM" />
+            </intent-filter>
         </receiver>
 
         <receiver

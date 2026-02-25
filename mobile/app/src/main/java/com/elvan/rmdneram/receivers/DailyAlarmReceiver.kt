@@ -13,6 +13,15 @@ import com.elvan.rmdneram.utils.AlarmScheduler
 class DailyAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "Daily Alarm Received at 5:30 AM")
+
+        // Clear notification preferences if triggered manually so we can test it repeatedly
+        if (intent.action == "com.elvan.neram.DAILY_ALARM") {
+            context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
+                .edit()
+                .clear()
+                .apply()
+            Log.d(TAG, "Cleared notification prefs for manual test")
+        }
         
         // 1. Trigger the worker immediately as an expedited job
         val request = OneTimeWorkRequestBuilder<DailyUpdateWorker>()

@@ -122,28 +122,6 @@ const Home = ({
     const getSubjectName = (code) =>
         masterData.courses?.find((c) => c.code === code)?.name || "General Subject";
 
-    const isLabCourse = (code) => {
-        if (!code || !masterData.courses) return false;
-        if (code.includes("/"))
-            return code
-                .split("/")
-                .some((p) => isLabCourse(p.trim()));
-        const trimmed = code.trim();
-        const course = masterData.courses.find(
-            (c) => c.code === trimmed.split(" ")[0]
-        );
-        if (course) {
-            if (
-                course.name.toLowerCase().includes("lab") ||
-                course.type?.toLowerCase().includes("lab")
-            )
-                return true;
-        }
-        const parts = trimmed.split(" ");
-        if (parts.length > 1 && /^[A-Za-z]\d+$/.test(parts[1])) return true;
-        return trimmed.toLowerCase().includes("lab");
-    };
-
     const currentExamPeriod = masterData.exams?.find(
         (ex) => todayStr >= ex.startDate && todayStr <= ex.endDate
     );
@@ -152,15 +130,19 @@ const Home = ({
     );
     const examTitle = currentExamPeriod?.title?.toLowerCase() || "";
     const isCycleTest = examTitle.includes("cycle test");
-    const isMajorExam = isExamToday && !isCycleTest;
+    const isMajorExam = currentExamPeriod && !isCycleTest;
 
     let hasLabToday = false;
     const eventsForDay = allCalendar?.filter((e) => e.date === todayStr) || [];
     const holidayEvent = eventsForDay.find((e) =>
         e.title.toLowerCase().includes("holiday")
     );
+    const fullDayEvt = eventsForDay.find((e) => e.type === "FullDay");
 
-    if (!holidayEvent && !isMajorExam) {
+    // Kotlin parity: classes are suspended on holidays, full-day events, or major exams
+    const classesSuspended = !!holidayEvent || !!fullDayEvt || isMajorExam;
+
+    if (!classesSuspended) {
         let tempOrder = "";
         const manualOrderEvent = eventsForDay.find((e) =>
             e.title.toLowerCase().includes("order")
@@ -177,7 +159,11 @@ const Home = ({
             tempOrder = weekdayName === "Sunday" ? "" : weekdayName;
         }
         if (tempOrder && masterData.timetable?.[tempOrder]) {
-            hasLabToday = masterData.timetable[tempOrder].some((c) => isLabCourse(c));
+            // Use getPeriodDetails (same as Schedule.jsx / Kotlin) for accurate lab detection
+            // Only periods with batch suffixes (A1, B2, etc.) are considered labs
+            hasLabToday = masterData.timetable[tempOrder].some((c) =>
+                getPeriodDetails(c, masterData.courses).isLab
+            );
         }
     }
 

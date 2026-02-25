@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Light theme matching React admin portal -->
+    <style name="Theme.Neram" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">#F2F2F7</item>
+        <item name="android:statusBarColor">#F2F2F7</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">#F2F2F7</item>
+        <item name="android:navigationBarColor">#F2F2F7</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
 
-    <style name="Theme.Neram" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Splash theme for backwards compatibility (pre-Android 12) -->
+    <style name="Theme.Neram.Splash" parent="Theme.Neram" />
 </resources>

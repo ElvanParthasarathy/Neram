@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Neram"
 include(":app")
+include(":admin")

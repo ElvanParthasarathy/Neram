@@ -75,7 +75,12 @@ class DailyUpdateWorker(
             val todaysEvents = calendarEvents.filter { it.date == todayDateStr }
             
             // Calculate Day Order / Schedule Status
-            val isHoliday = todaysEvents.any { it.type == "Holiday" || it.type == "FullDay" }
+            // Match CalendarEvent.isHoliday() — check title, not just type
+            val isSunday = today.dayOfWeek == java.time.DayOfWeek.SUNDAY
+            val isHoliday = isSunday || todaysEvents.any {
+                it.type == "Holiday" || it.type == "FullDay" ||
+                it.title.lowercase().contains("holiday")
+            }
             var dayKey = today.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH)
             
             // Logic to find "Day X" or override
@@ -206,8 +211,11 @@ class DailyUpdateWorker(
 
                 if (eventRemindersEnabled && todaysEvents.isNotEmpty()) {
                     val eventTitles = todaysEvents.joinToString(", ") { it.title }
-                    val isHoliday = todaysEvents.any { it.type == "Holiday" || it.type == "FullDay" }
-                    val title = if (isHoliday) "Holiday Today" else "Today's Event"
+                    val isEventHoliday = todaysEvents.any { 
+                        it.type == "Holiday" || it.type == "FullDay" || 
+                        it.title.lowercase().contains("holiday")
+                    }
+                    val title = if (isEventHoliday) "Holiday Today" else "Today's Event"
                     
                     if (prefs.getString("last_event_notif_date", "") != todayDateStr) {
                          NotificationHelper.showNotification(
@@ -290,36 +298,25 @@ class DailyUpdateWorker(
         }
     }
     
-    // Helper to check for Lab
+    // Helper to check for Lab — matches HomeViewModel batch suffix pattern
+    // A period is a lab ONLY if the timetable entry has a batch suffix (A1, B2, C3, etc.)
     private fun checkIsLab(code: String, courses: List<com.elvan.rmdneram.data.model.Course>, batch: String): Boolean {
         val trimmedCode = code.trim()
+        val parts = trimmedCode.split(" ")
+        val pureCode = parts.first()
 
-        // 1. Try exact match first
-        var course = courses.find { it.code == trimmedCode }
-
-        // 2. React Native Pattern: Extract FIRST WORD as course code
-        // This handles: "22CS602 LAB BAY 3" -> "22CS602"
-        // Also handles: "22IT602 A1" -> "22IT602"
-        if (course == null) {
-            val parts = trimmedCode.split(" ")
-            val pureCode = parts.first()
-            course = courses.find { it.code == pureCode }
-        }
+        // Find the course by exact match or by first word
+        val course = courses.find { it.code == trimmedCode }
+            ?: courses.find { it.code == pureCode }
 
         if (course != null) {
-            // Check Faculty/Name logic
-             if (batch.isNotBlank()) {
-                val patterns = listOf("Lab", "Integrated")
-                // Simple heuristic: if name contains "Lab"
-                if (course.name.contains("Lab", ignoreCase = true)) return true
-                if (course.type.contains("Lab", ignoreCase = true)) return true
-            }
+            // Lab detection: check if second word is a batch pattern (A1, B2, C3, etc.)
+            // This matches HomeViewModel.formatSingleEntry logic exactly
+            val suffix = parts.getOrNull(1) ?: ""
+            val batchPattern = Regex("^[A-Za-z]\\d+$")
+            return batchPattern.matches(suffix)
         }
-        
-        // 3. Fallback: Check Code conventions if needed or if course not found
-        // "22CS602 LAB"
-        if (code.contains("Lab", ignoreCase = true)) return true
-        
+
         return false
     }
 
