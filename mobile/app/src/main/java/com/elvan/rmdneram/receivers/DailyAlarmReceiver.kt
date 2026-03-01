@@ -4,36 +4,37 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkManager
-import com.elvan.rmdneram.workers.DailyUpdateWorker
 import com.elvan.rmdneram.utils.AlarmScheduler
+import com.elvan.rmdneram.utils.DailyUpdateHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class DailyAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d(TAG, "Daily Alarm Received at 5:30 AM")
+        Log.d(TAG, "Daily Alarm Received!")
 
-        // Clear notification preferences if triggered manually so we can test it repeatedly
         if (intent.action == "com.elvan.neram.DAILY_ALARM") {
-            context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
-                .edit()
-                .clear()
-                .apply()
-            Log.d(TAG, "Cleared notification prefs for manual test")
+            // Keep device awake long enough to process Firebase data directly
+            val pendingResult = goAsync()
+            
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    // Fetch directly, bypassing WorkManager
+                    DailyUpdateHelper.processDailyUpdates(context)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error processing daily updates in receiver", e)
+                } finally {
+                    // Always finish the receiver so the OS can sleep again
+                    pendingResult.finish()
+                    
+                    // Schedule next alarm (5:30, 6:30, 7:30)
+                    AlarmScheduler.scheduleDailyAlarm(context)
+                }
+            }
+        } else if (intent.action == "android.intent.action.BOOT_COMPLETED") {
+             AlarmScheduler.scheduleDailyAlarm(context)
         }
-        
-        // 1. Trigger the worker immediately as an expedited job
-        val request = OneTimeWorkRequestBuilder<DailyUpdateWorker>()
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .build()
-
-        WorkManager.getInstance(context).enqueue(request)
-
-        // 2. Reschedule for the next day to ensure loop continues
-        // (Though exact alarms usually need rescheduling, AlarmScheduler checks date and adds 1 day if needed)
-        // Note: In strict Doze mode, this might fire slightly off, but exact alarm permission helps.
-        AlarmScheduler.scheduleDailyAlarm(context)
     }
 
     companion object {

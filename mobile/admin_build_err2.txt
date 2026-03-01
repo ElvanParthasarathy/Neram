@@ -1,0 +1,116 @@
+﻿Starting a Gradle Daemon, 2 busy and 1 stopped Daemons could not be reused, use --status for details
+
+> Configure project :admin
+.\gradlew : e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:41:9: Using 
+'jvmTarget: String' is an error. Please migrate to the compilerOptions DSL. More 
+details are here: https://kotl.in/u1r8ln
+At line:1 char:1
++ .\gradlew :admin:assembleDebug 2>&1 | Out-File -Encoding utf8 admin_b ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///D:/P.../kotl.in/u1r8ln:Str 
+   ing) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:54:34: Unresolved 
+reference: appcompat
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:62:34: Unresolved 
+reference: material
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:75:34: Unresolved 
+reference: analytics
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:81:25: Function 
+invocation 'credentials(...)' expected
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:81:25: Unresolved 
+reference. None of the following candidates is applicable because of receiver type 
+mismatch: 
+public inline fun AuthenticationSupported.credentials(credentialsType: KClass<out 
+Credentials>): Unit defined in org.gradle.kotlin.dsl
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:82:25: Function 
+invocation 'credentials(...)' expected
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:82:25: Unresolved 
+reference. None of the following candidates is applicable because of receiver type 
+mismatch: 
+public inline fun AuthenticationSupported.credentials(credentialsType: KClass<out 
+Credentials>): Unit defined in org.gradle.kotlin.dsl
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:83:25: Unresolved 
+reference: googleid
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:86:25: Unresolved 
+reference: lifecycle
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:89:25: Unresolved 
+reference: navigation
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:92:25: Unresolved 
+reference: room
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:93:25: Unresolved 
+reference: room
+e: file:///D:/Projects/Neram/mobile/admin/build.gradle.kts:94:14: Unresolved 
+reference: room
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file 'D:\Projects\Neram\mobile\admin\build.gradle.kts' line: 41
+
+* What went wrong:
+Script compilation errors:
+
+  Line 41:         jvmTarget = "11"
+                   ^ Using 'jvmTarget: String' is an error. Please migrate to the 
+compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+
+  Line 54:     implementation(libs.androidx.appcompat)
+                                            ^ Unresolved reference: appcompat
+
+  Line 62:     implementation(libs.androidx.material.icons.extended)
+                                            ^ Unresolved reference: material
+
+  Line 75:     implementation(libs.firebase.analytics)
+                                            ^ Unresolved reference: analytics
+
+  Line 81:     implementation(libs.credentials)
+                                   ^ Function invocation 'credentials(...)' 
+expected
+
+  Line 81:     implementation(libs.credentials)
+                                   ^ Unresolved reference. None of the following 
+candidates is applicable because of receiver type mismatch: 
+                                       public inline fun 
+AuthenticationSupported.credentials(credentialsType: KClass<out Credentials>): 
+Unit defined in org.gradle.kotlin.dsl
+
+  Line 82:     implementation(libs.credentials.play.services)
+                                   ^ Function invocation 'credentials(...)' 
+expected
+
+  Line 82:     implementation(libs.credentials.play.services)
+                                   ^ Unresolved reference. None of the following 
+candidates is applicable because of receiver type mismatch: 
+                                       public inline fun 
+AuthenticationSupported.credentials(credentialsType: KClass<out Credentials>): 
+Unit defined in org.gradle.kotlin.dsl
+
+  Line 83:     implementation(libs.googleid)
+                                   ^ Unresolved reference: googleid
+
+  Line 86:     implementation(libs.lifecycle.viewmodel.compose)
+                                   ^ Unresolved reference: lifecycle
+
+  Line 89:     implementation(libs.navigation.compose)
+                                   ^ Unresolved reference: navigation
+
+  Line 92:     implementation(libs.room.runtime)
+                                   ^ Unresolved reference: room
+
+  Line 93:     implementation(libs.room.ktx)
+                                   ^ Unresolved reference: room
+
+  Line 94:     ksp(libs.room.compiler)
+                        ^ Unresolved reference: room
+
+14 errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 26s

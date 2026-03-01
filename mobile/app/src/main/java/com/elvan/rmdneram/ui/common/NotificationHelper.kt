@@ -22,7 +22,7 @@ import android.media.RingtoneManager
  */
 object NotificationHelper {
     // Versioned channel IDs to force update on devices where channels are already created with lower importance
-    const val CHANNEL_ID_DAILY = "daily_updates_v5"
+    const val CHANNEL_ID_DAILY = "daily_updates_v7"
     const val CHANNEL_ID_INSTANT = "instant_alerts_v5"
     const val CHANNEL_ID_EXAMS = "exam_alerts_v5"
     const val CHANNEL_ID_EVENTS = "event_reminders_v5"
@@ -44,7 +44,7 @@ object NotificationHelper {
 
             // Daily Updates - HIGH Importance for Popup
             val dailyChannel = NotificationChannel(
-                CHANNEL_ID_DAILY,
+                "daily_updates_v7", // Bumped ID to force new sound ringtone update back to simple notification
                 "Daily Briefing",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {

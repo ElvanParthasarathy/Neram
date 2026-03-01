@@ -1,0 +1,25 @@
+﻿
+[Incubating] Problems report is available at: file:///D:/Projects/Neram/mobile/build/reports/problems/problems-report.html
+.\gradlew : 
+At line:1 char:1
++ .\gradlew :admin:assembleDebug 2>&1 | Out-File -Encoding utf8 admin_b ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Cannot locate tasks that match ':admin:assembleDebug' as project 'admin' not found 
+in root project 'Neram'.
+
+* Try:
+> Run gradlew projects to get a list of available projects.
+> For more on name expansion, please refer to https://docs.gradle.org/8.13/userguid
+e/command_line_interface.html#sec:name_abbreviation in the Gradle documentation.
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2s
