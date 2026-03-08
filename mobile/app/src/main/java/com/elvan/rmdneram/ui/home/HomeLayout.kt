@@ -38,7 +38,7 @@ fun HomeMainLayout(
     uiState: HomeUiState,
     scheduleState: ScheduleState,
     filteredEvents: List<CalendarEvent>,
-    todayUpdate: DailyUpdate?,
+    todayUpdate: HomeViewModel.DailyUpdateDisplay?,
     formattedDate: String,
     showAcademicCalendarSection: Boolean,
     isOffline: Boolean,
@@ -196,7 +196,8 @@ fun HomeMainLayout(
                 item(key = "updates_section", contentType = "editable") {
                     UpdatesSection(
                         sectionName = uiState.userProfile?.section ?: "",
-                        content = todayUpdate?.note ?: "No special updates for today.",
+                        content = todayUpdate?.displayNote ?: "No special updates for today.",
+                        rawContent = todayUpdate?.rawNote ?: "",
                         author = todayUpdate?.author ?: "System",
                         canEdit = true,
                         isSaving = uiState.isSyncing,

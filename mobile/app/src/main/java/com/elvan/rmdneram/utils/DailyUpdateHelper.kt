@@ -20,11 +20,26 @@ import java.time.format.DateTimeFormatter
 object DailyUpdateHelper {
     private const val TAG = "DailyUpdateHelper"
 
-    suspend fun processDailyUpdates(context: Context) {
+    suspend fun processDailyUpdates(context: Context, dateOverride: String? = null) {
         Log.d(TAG, "Starting to process daily notifications")
+        NotificationHelper.showNotification(
+            context,
+            "Debug",
+            "processDailyUpdates started testing " + (dateOverride ?: "today"),
+            NotificationHelper.CHANNEL_ID_DAILY,
+            9999
+        )
         
         try {
-            val today = LocalDate.now()
+            val today = if (dateOverride != null) {
+                try {
+                    LocalDate.parse(dateOverride)
+                } catch (e: Exception) {
+                    LocalDate.now()
+                }
+            } else {
+                LocalDate.now()
+            }
             val settingsPrefs = context.getSharedPreferences("notification_settings", Context.MODE_PRIVATE)
 
             // Read Notification Settings
@@ -65,7 +80,33 @@ object DailyUpdateHelper {
             val timetable = masterData.timetable
             val exams = masterData.exams
             
-            val calendarEvents = db.calendarEventDao().getAllEvents().first()
+            val globalEvents = db.calendarEventDao().getAllEvents().first().map { it.toCalendarEvent() }
+            
+            val database = FirebaseDatabase.getInstance()
+            val eventsRef = database.getReference("events/$batch/$dept/$section")
+            val eventsSnapshot = eventsRef.get().await()
+            val liveSectionEvents = eventsSnapshot.children.mapNotNull { child ->
+                try {
+                    val rawDate = child.child("date").getValue(String::class.java) ?: ""
+                    val normalizedDate = if (rawDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
+                        val parts = rawDate.split("-")
+                        "${parts[2]}-${parts[1]}-${parts[0]}"
+                    } else { rawDate }
+                    com.elvan.rmdneram.data.model.CalendarEvent(
+                        id = child.key ?: "",
+                        title = child.child("title").getValue(String::class.java) ?: "",
+                        date = normalizedDate,
+                        type = child.child("type").getValue(String::class.java) ?: "",
+                        startTime = child.child("startTime").getValue(String::class.java),
+                        endTime = child.child("endTime").getValue(String::class.java),
+                        description = child.child("description").getValue(String::class.java),
+                        fullTime = child.child("fullTime").getValue(String::class.java),
+                        isSection = true
+                    )
+                } catch(e: Exception) { null }
+            }
+            
+            val calendarEvents = globalEvents + liveSectionEvents
             val todayDateStr = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val todaysEvents = calendarEvents.filter { it.date == todayDateStr }
             
@@ -121,7 +162,6 @@ object DailyUpdateHelper {
             }
 
             // 4. Fetch Data from Firebase (Deduplication REMOVED - so it rings all 3 times)
-            val database = FirebaseDatabase.getInstance()
             val updatesRef = database.getReference("updates/$batch/$dept/$section")
             val sectionSnapshot = updatesRef.get().await()
             
@@ -168,10 +208,28 @@ object DailyUpdateHelper {
                 val tomorrowStr = tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
                 examsData.forEach { exam ->
+                    // 1. Notify for Today
+                    val subjectToday = exam.subjects.find { it.date == todayDateStr }
+                    if (subjectToday != null) {
+                        val courseName = courses.find { it.code == subjectToday.code }?.name ?: subjectToday.code
+                        val title = "Exam Today: $courseName"
+                        val message = "Best of luck for $courseName! Time: ${subjectToday.startTime} - ${subjectToday.endTime}"
+                        
+                        NotificationHelper.showNotification(
+                            context,
+                            title,
+                            message,
+                            NotificationHelper.CHANNEL_ID_EXAMS,
+                            notificationId = subjectToday.code.hashCode() + 1
+                        )
+                    }
+
+                    // 2. Notify for Tomorrow
                     val subjectTomorrow = exam.subjects.find { it.date == tomorrowStr }
                     if (subjectTomorrow != null) {
-                        val title = "Exam Tomorrow: ${subjectTomorrow.code}"
-                        val message = "Prepare for ${subjectTomorrow.code}. Time: ${subjectTomorrow.startTime} - ${subjectTomorrow.endTime}"
+                        val courseName = courses.find { it.code == subjectTomorrow.code }?.name ?: subjectTomorrow.code
+                        val title = "Exam Tomorrow: $courseName"
+                        val message = "Prepare for $courseName. Time: ${subjectTomorrow.startTime} - ${subjectTomorrow.endTime}"
                         
                         NotificationHelper.showNotification(
                             context,
@@ -186,20 +244,33 @@ object DailyUpdateHelper {
             
             // C. Today's Events
             if (eventRemindersEnabled && todaysEvents.isNotEmpty()) {
-                val eventTitles = todaysEvents.joinToString(", ") { it.title }
-                val isEventHoliday = todaysEvents.any { 
-                    it.type == "Holiday" || it.type == "FullDay" || 
-                    it.title.lowercase().contains("holiday")
+                todaysEvents.forEach { event ->
+                    val type = event.type
+                    val isHoliday = type == "Holiday" || event.title.lowercase().contains("holiday")
+                    val isFullDay = type == "FullDay"
+                    val isHalfDay = type == "HalfDay"
+                    
+                    val title = when {
+                        isHoliday -> "Holiday Today"
+                        isFullDay -> "Full Day Event Today"
+                        isHalfDay -> "Half Day Event Today"
+                        else -> "Today's Event"
+                    }
+                    
+                    val message = if (isHalfDay && !event.startTime.isNullOrBlank()) {
+                        "${event.title} (${event.startTime} - ${event.endTime})"
+                    } else {
+                        event.title
+                    }
+                    
+                    NotificationHelper.showNotification(
+                        context,
+                        title,
+                        message,
+                        NotificationHelper.CHANNEL_ID_EVENTS,
+                        notificationId = kotlin.math.abs(event.id.hashCode()) + 3003
+                    )
                 }
-                val title = if (isEventHoliday) "Holiday Today" else "Today's Event"
-                
-                NotificationHelper.showNotification(
-                    context,
-                    title,
-                    eventTitles,
-                    NotificationHelper.CHANNEL_ID_EVENTS,
-                    notificationId = 3003
-                )
             }
 
             // D. Timetable Logic (Only if NOT a holiday)

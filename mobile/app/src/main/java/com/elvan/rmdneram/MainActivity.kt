@@ -58,7 +58,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import android.Manifest
 import android.os.Build
 import android.util.Log
-import com.google.firebase.messaging.FirebaseMessaging
 
 @OptIn(ExperimentalAnimationApi::class)
 class MainActivity : ComponentActivity() {
@@ -83,9 +82,6 @@ class MainActivity : ComponentActivity() {
         // Schedule Daily Alarm (5:30 AM)
         scheduleDailyAlarm()
 
-        // Subscribe to standard FCM Topics
-        subscribeToTopics()
-        
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
@@ -325,34 +321,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun subscribeToTopics() {
-        FirebaseMessaging.getInstance().subscribeToTopic("all_users")
-            .addOnCompleteListener { task ->
-                var msg = "Subscribed to all_users"
-                if (!task.isSuccessful) {
-                    msg = "Subscribe to all_users failed"
-                }
-                Log.d("MainActivity", msg)
-            }
-            
-        FirebaseMessaging.getInstance().subscribeToTopic("live_messages")
-            .addOnCompleteListener { task ->
-                var msg = "Subscribed to live_messages"
-                if (!task.isSuccessful) {
-                    msg = "Subscribe to live_messages failed"
-                }
-                Log.d("MainActivity", msg)
-            }
 
-        FirebaseMessaging.getInstance().subscribeToTopic("daily_updates")
-            .addOnCompleteListener { task ->
-                var msg = "Subscribed to daily_updates"
-                if (!task.isSuccessful) {
-                    msg = "Subscribe to daily_updates failed"
-                }
-                Log.d("MainActivity", msg)
-            }
-    }
 }
 
 @Composable

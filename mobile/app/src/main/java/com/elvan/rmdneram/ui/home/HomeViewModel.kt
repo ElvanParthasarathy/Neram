@@ -490,7 +490,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     .flowOn(Dispatchers.Default)
     .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _cachedScheduleState)
 
-    val todayUpdate: StateFlow<DailyUpdate?> = combine(
+    data class DailyUpdateDisplay(
+        val rawNote: String,
+        val displayNote: String,
+        val author: String
+    )
+    
+    val todayUpdate: StateFlow<DailyUpdateDisplay?> = combine(
         uiState.map { it.sectionUpdates.daily }.distinctUntilChanged(),
         _selectedDate,
         scheduleState
@@ -507,7 +513,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val hasLabToday = !classesSuspended && schedule.periods.any { it.isLab }
         val hasExamToday = schedule.todayExam != null
         
-        var finalNote = visibleServerUpdate?.note ?: ""
+        val rawNote = visibleServerUpdate?.note ?: ""
+        var finalNote = rawNote
         var finalAuthor = visibleServerUpdate?.author ?: "System Reminder"
 
         val automatedNotices = mutableListOf<String>()
@@ -528,7 +535,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         if (finalNote.isEmpty()) {
             null
         } else {
-            DailyUpdate(note = finalNote, author = finalAuthor)
+            DailyUpdateDisplay(rawNote = rawNote, displayNote = finalNote, author = finalAuthor)
         }
     }
     .flowOn(Dispatchers.Default)

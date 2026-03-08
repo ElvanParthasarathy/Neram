@@ -15,13 +15,15 @@ class DailyAlarmReceiver : BroadcastReceiver() {
         Log.d(TAG, "Daily Alarm Received!")
 
         if (intent.action == "com.elvan.neram.DAILY_ALARM") {
+            val dateOverride = intent.getStringExtra("date_override") // optional override
+            
             // Keep device awake long enough to process Firebase data directly
             val pendingResult = goAsync()
             
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     // Fetch directly, bypassing WorkManager
-                    DailyUpdateHelper.processDailyUpdates(context)
+                    DailyUpdateHelper.processDailyUpdates(context, dateOverride)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error processing daily updates in receiver", e)
                 } finally {
