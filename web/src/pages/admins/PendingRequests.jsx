@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { ref, onValue, update } from 'firebase/database';
 import { RiCheckLine, RiCloseLine, RiUserLine, RiTimeLine } from 'react-icons/ri';
+import { convertTo12Hour, formatDateDDMMYYYY } from '../../utils/timeUtils';
 import '../../styles/pending-requests.css';
 
 const PendingRequests = () => {
@@ -69,6 +70,11 @@ const PendingRequests = () => {
                                 <div className="request-details">
                                     <div className="request-name">{u.displayName || 'Unknown'}</div>
                                     <div className="request-email">{u.email}</div>
+                                    {u.lastLogin && (
+                                        <div className="request-time" style={{ fontSize: '11px', opacity: 0.6, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <RiTimeLine /> Requested: {formatDateDDMMYYYY(u.lastLogin)} at {convertTo12Hour(u.lastLogin.split('T')[1].split('.')[0])}
+                                        </div>
+                                    )}
                                     <div className="request-badge">Pending Approval</div>
                                 </div>
                             </div>

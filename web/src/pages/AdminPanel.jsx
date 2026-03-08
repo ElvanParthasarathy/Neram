@@ -11,7 +11,8 @@ import {
   RiComputerLine,
   RiArrowLeftLine,
   RiFlagLine,
-  RiFilePdfLine // <--- ADD THIS HERE
+  RiFilePdfLine,
+  RiInboxArchiveLine
 } from 'react-icons/ri';
 import { getHardcodedRole } from '../data/admins';
 
@@ -26,8 +27,8 @@ import AdminRoleManager from './admins/AdminRoleManager';
 import EventManager from './admins/EventManager';
 import ResourceManager from './admins/ResourceManager';
 import AdminDashboard from './admins/AdminDashboard';
-// import AdminHomeWrapper from './admins/AdminHomeWrapper';
 import PendingRequests from './admins/PendingRequests';
+import SemesterTransitionManager from './admins/SemesterTransitionManager';
 
 const AdminPanel = ({ user, userProfile }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -56,11 +57,11 @@ const AdminPanel = ({ user, userProfile }) => {
     let unauthorized = false;
 
     if (isFaculty) {
-      if (['structure', 'calendar', 'resources'].includes(activeModule)) unauthorized = true;
+      if (['structure', 'calendar', 'resources', 'archives'].includes(activeModule)) unauthorized = true;
     }
     else if (isRep) {
       // Reps can see 'roles' (Admins) as per request, but not 'users'.
-      if (['structure', 'calendar', 'resources', 'users'].includes(activeModule)) unauthorized = true;
+      if (['structure', 'calendar', 'resources', 'users', 'archives'].includes(activeModule)) unauthorized = true;
     }
 
     if (unauthorized) {
@@ -89,6 +90,7 @@ const AdminPanel = ({ user, userProfile }) => {
               {activeModule === 'resources' && 'Resources'}
               {activeModule === 'pending' && 'Pending Requests'}
               {activeModule === 'structure' && 'Structure'}
+              {activeModule === 'archives' && 'Semester Archive Tool'}
             </h1>
           </header>
         )}
@@ -97,11 +99,13 @@ const AdminPanel = ({ user, userProfile }) => {
         {activeModule === 'users' && <UserManagement />}
         {activeModule === 'roles' && <AdminRoleManager userProfile={userProfile} />}
         {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} />}
+
         {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} />}
         {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} />}
         {activeModule === 'calendar' && <CalendarManager />}
         {activeModule === 'resources' && <ResourceManager />}
         {activeModule === 'pending' && <PendingRequests />}
+        {activeModule === 'archives' && <SemesterTransitionManager user={user} userProfile={userProfile} />}
       </main>
     </div>
   );
