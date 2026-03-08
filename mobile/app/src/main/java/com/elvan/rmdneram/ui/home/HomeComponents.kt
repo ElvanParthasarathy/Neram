@@ -547,92 +547,82 @@ internal fun ScheduleSection(
         // Use Shared Logic for robust display (matches ScheduleScreen)
         val config = ScheduleLogic.calculateDisplayConfig(scheduleState)
 
-        when {
-            // Loading State (Priority 0)
-            isLoading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(HomeDimens.SkeletonHeight)
-                        .clip(HomeShapes.Item)
-                        .background(colors.surface),
-                    contentAlignment = Alignment.Center
-                ) {
-                    com.elvan.rmdneram.ui.components.ExpressiveDotsLoader(
-                        modifier = Modifier.width(48.dp),
-                        color = colors.textSecondary
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(HomeDimens.SkeletonHeight)
+                    .clip(HomeShapes.Item)
+                    .background(colors.surface),
+                contentAlignment = Alignment.Center
+            ) {
+                com.elvan.rmdneram.ui.components.ExpressiveDotsLoader(
+                    modifier = Modifier.width(48.dp),
+                    color = colors.textSecondary
+                )
+            }
+        } else {
+            var hasContent = false
+            
+            // A. Show Exam
+            if (config.showExamCard) {
+                val activeExam = scheduleState.activeExamPeriod
+                val todaySub = scheduleState.todayExam
+                if (activeExam != null && todaySub != null) {
+                    hasContent = true
+                    ExamCard(
+                        exam = activeExam,
+                        subject = todaySub,
+                        courses = masterData.courses,
+                        colors = colors
                     )
                 }
             }
-            
-            // Full Day Event (Priority 1)
-            config.showFullDayEvent -> {
+
+            // B. Full Day Event
+            if (config.showFullDayEvent) {
                 scheduleState.fullDayEvent?.let { event ->
+                    hasContent = true
                     FullDayEventCard(event = event, colors = colors)
-                    ClassesSuspendedNotice(
-                        title = "Classes Suspended",
-                        subtitle = config.suspensionReason.ifEmpty { "Day reserved for ${event.title}." },
-                        colors = colors
-                    )
                 }
             }
             
-            // Regular Flow (Priority 2: Mix of Exam, Timetable, etc.)
-            else -> {
-                var hasContent = false
-                
-                // A. Show Exam
-                if (config.showExamCard) {
-                    val activeExam = scheduleState.activeExamPeriod
-                    val todaySub = scheduleState.todayExam
-                    if (activeExam != null && todaySub != null) {
-                        hasContent = true
-                        ExamCard(
-                            exam = activeExam,
-                            subject = todaySub,
-                            courses = masterData.courses,
-                            colors = colors
-                        )
-                    }
-                }
-                
-                // B. Show Half Day (if applicable)
-                if (config.showHalfDayEvent) {
-                    scheduleState.halfDayEvent?.let { event ->
-                        hasContent = true
-                        HalfDayEventCard(event = event, colors = colors)
-                    }
-                }
-                
-                // C. Show Timetable
-                if (config.showTimetable) {
+            // C. Show Half Day (if applicable)
+            if (config.showHalfDayEvent) {
+                scheduleState.halfDayEvent?.let { event ->
                     hasContent = true
-                    TimetableCard(periods = scheduleState.periods, colors = colors)
+                    HalfDayEventCard(event = event, colors = colors)
+                }
+            }
+            
+            // D. Show Timetable
+            if (config.showTimetable) {
+                hasContent = true
+                TimetableCard(periods = scheduleState.periods, colors = colors)
+            }
+            
+            // E. Show Suspension Notice
+            if (config.showSuspensionNotice) {
+                hasContent = true
+                ClassesSuspendedNotice(
+                    title = "Classes Suspended",
+                    subtitle = config.suspensionReason,
+                    colors = colors
+                )
+            }
+            
+            // F. Empty State (If nothing shown above)
+            if (!hasContent) {
+                val displayStatus = if (scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true)) {
+                    "Holiday"
+                } else {
+                    scheduleState.scheduleStatus
                 }
                 
-                // D. Show Suspension Notice
-                if (config.showSuspensionNotice) {
-                    hasContent = true
-                    ClassesSuspendedNotice(
-                        title = "Classes Suspended",
-                        subtitle = config.suspensionReason,
-                        colors = colors
-                    )
-                }
-                
-                // E. Empty State (If nothing shown above)
-                if (!hasContent) {
-                    val displayStatus = if (scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true)) {
-                        "Holiday"
-                    } else {
-                        scheduleState.scheduleStatus
-                    }
-                    
-                    NoClassesCard(
-                        status = displayStatus,
-                        colors = colors
-                    )
-                }
+                NoClassesCard(
+                    status = displayStatus,
+                    colors = colors
+                )
             }
         }
     }
@@ -1112,6 +1102,7 @@ internal fun ClassesSuspendedNotice(
 internal fun UpdatesSection(
     sectionName: String,
     content: String,
+    rawContent: String,
     author: String,
     canEdit: Boolean,
     isSaving: Boolean,
@@ -1120,9 +1111,10 @@ internal fun UpdatesSection(
     colors: HomeColors,
     onSave: (String) -> Unit
 ) {
-    EditableSection(
+    com.elvan.rmdneram.ui.home.components.EditableSection(
         title = "Live Updates ($sectionName)",
         content = content,
+        rawContent = rawContent,
         author = author,
         emptyText = "No updates for this date.",
         canEdit = canEdit,

@@ -11,9 +11,14 @@
             ".read": "auth != null",
             ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin')"
         },
+        "faculties_directory": {
+            ".read": "auth != null",
+            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+        },
         "schedules": {
             ".read": "auth != null",
             "$batch": {
+                ".write": "auth != null && root.child('users/' + auth.uid + '/role').val() === 'super_admin'",
                 "$dept": {
                     "$section": {
                         ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
@@ -24,6 +29,7 @@
         "events": {
             ".read": "auth != null",
             "$batch": {
+                ".write": "auth != null && root.child('users/' + auth.uid + '/role').val() === 'super_admin'",
                 "$dept": {
                     "$section": {
                         ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
@@ -48,6 +54,14 @@
         "calendars": {
             ".read": "auth != null",
             ".write": "auth != null"
+        },
+        "archives": {
+            ".read": "auth != null",
+            ".write": "auth != null && root.child('users/' + auth.uid + '/role').val() === 'super_admin'"
+        },
+        "courses": {
+            ".read": "auth != null",
+            ".write": "auth != null && root.child('users/' + auth.uid + '/role').val() === 'super_admin'"
         },
         "$other": {
             ".read": false,

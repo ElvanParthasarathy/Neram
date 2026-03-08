@@ -250,6 +250,17 @@
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2) !important;
 }
 
+/* Fix option backgrounds for Select dropdowns (Dark mode white-out issue) */
+.exam-manager-container select option {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+html.dark .exam-manager-container select option {
+  background-color: #1C1C1E;
+  color: #ffffff;
+}
+
 /* Fix Native Date/Time Icons for Dark Mode Balance (scoped to exam manager) */
 .exam-manager-container input[type="time"]::-webkit-calendar-picker-indicator,
 .exam-manager-container input[type="date"]::-webkit-calendar-picker-indicator {

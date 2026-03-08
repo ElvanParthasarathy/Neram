@@ -13,7 +13,8 @@ import {
     RiCloseLine,
     RiArrowLeftSLine,
     RiTimeLine,
-    RiSettings3Line
+    RiSettings3Line,
+    RiInboxArchiveLine
 } from "react-icons/ri";
 import { getHardcodedRole } from '../data/admins';
 import ThemeToggle from './ThemeToggle';
@@ -118,7 +119,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
 
     const handleScheduleBack = () => {
         const params = { mod: 'schedules' };
-        if (schedLevel === 'editor') {
+        if (schedLevel === 'editor' || schedLevel === 'master') {
             params.slvl = 'secs'; params.sb = schedBatch; params.sd = schedDept;
         } else if (schedLevel === 'secs') {
             params.slvl = 'depts'; params.sb = schedBatch;
@@ -198,7 +199,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
                                 <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)', marginLeft: '-2px' }} />
                             </button>
-                        ) : ['users', 'roles', 'calendar', 'resources', 'structure', 'pending'].includes(activeModule) && (
+                        ) : ['users', 'roles', 'calendar', 'resources', 'structure', 'pending', 'archives'].includes(activeModule) && (
                             <button
                                 className="top-action-btn"
                                 onClick={() => setSearchParams({ mod: 'home' })}
@@ -290,6 +291,9 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                                     <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>System</div>
                                     <button onClick={() => handleNav('structure')} className={`menu-item ${activeModule === 'structure' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'structure' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'structure' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'structure' ? '600' : '500' }}>
                                         <RiListCheck style={{ fontSize: '20px' }} /> <span>Structure</span>
+                                    </button>
+                                    <button onClick={() => handleNav('archives')} className={`menu-item ${activeModule === 'archives' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'archives' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'archives' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'archives' ? '600' : '500' }}>
+                                        <RiInboxArchiveLine style={{ fontSize: '20px' }} /> <span>Archive Tool</span>
                                     </button>
                                 </>
                             )}

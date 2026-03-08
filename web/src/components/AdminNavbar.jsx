@@ -20,7 +20,8 @@ import {
   RiMenuUnfoldLine,
   RiListCheck,
   RiUser3Fill,
-  RiTimeLine
+  RiTimeLine,
+  RiInboxArchiveLine
 } from "react-icons/ri";
 import { getHardcodedRole } from "../data/admins";
 
@@ -176,10 +177,16 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
 
         {/* STRUCTURE - SUPER ADMIN ONLY */}
         {canViewStructure && (
-          <Link to="/?mod=structure" className={`admin-nav-link ${location.search.includes('mod=structure') ? "active" : ""}`}>
-            <RiListCheck className="admin-nav-icon" />
-            <span>Structure</span>
-          </Link>
+          <>
+            <Link to="/?mod=structure" className={`admin-nav-link ${location.search.includes('mod=structure') ? "active" : ""}`}>
+              <RiListCheck className="admin-nav-icon" />
+              <span>Structure</span>
+            </Link>
+            <Link to="/?mod=archives" className={`admin-nav-link ${location.search.includes('mod=archives') ? "active" : ""}`}>
+              <RiInboxArchiveLine className="admin-nav-icon" />
+              <span>Archive Tool</span>
+            </Link>
+          </>
         )}
 
         {/* PENDING REQUESTS - SUPER ADMIN ONLY (inside Academic group) */}

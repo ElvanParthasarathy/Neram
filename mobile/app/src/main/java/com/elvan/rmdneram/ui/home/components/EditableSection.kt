@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 fun EditableSection(
     title: String,
     content: String,
+    rawContent: String = content,
     author: String,
     emptyText: String,
     canEdit: Boolean,
@@ -46,7 +47,7 @@ fun EditableSection(
     onSave: (String) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
-    var editText by remember(content) { mutableStateOf(content) }
+    var editText by remember(rawContent) { mutableStateOf(rawContent) }
     var showOfflineDialog by remember { mutableStateOf(false) }
 
     // Use Crossfade for smooth transition between loading skeleton and actual content
@@ -125,6 +126,7 @@ fun EditableSection(
             EditableSectionContent(
                 title = title,
                 content = content,
+                rawContent = rawContent,
                 author = author,
                 emptyText = emptyText,
                 canEdit = canEdit,
@@ -148,6 +150,7 @@ fun EditableSection(
 private fun EditableSectionContent(
     title: String,
     content: String,
+    rawContent: String,
     author: String,
     emptyText: String,
     canEdit: Boolean,
@@ -208,7 +211,7 @@ private fun EditableSectionContent(
                         if (isOffline) {
                             onOfflineDialogChange(true)
                         } else {
-                            onEditTextChange(content)
+                            onEditTextChange(rawContent)
                             onEditingChange(true) 
                         }
                     },
