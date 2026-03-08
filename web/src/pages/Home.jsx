@@ -4,6 +4,7 @@ import { ref, update, onValue } from "firebase/database";
 import "../styles/home.css";
 import "../styles/schedule2.css"; // Ensure schedule styles are available
 import { PeriodRow, getPeriodDetails, periodTimes, DateSection, EventCard, ExamEventCard, NoticeCard } from "./Schedule"; // Import shared components
+import { convertTo12Hour } from "../utils/timeUtils";
 import {
     RiCalendarEventLine,
     RiCalendarLine,
@@ -99,19 +100,10 @@ const Home = ({
 
     const todayStr = formatDate(currentDate);
 
-    const convertTo12Hour = (t) => {
-        if (!t) return "";
-        const [hours, minutes] = t.split(":");
-        let h = parseInt(hours, 10);
-        const m = minutes || "00";
-        const ampm = h >= 12 ? "PM" : "AM";
-        h = h % 12 || 12;
-        return `${String(h).padStart(2, "0")}:${m} ${ampm}`;
-    };
-
     // ---------- LIVE UPDATE DATA ----------
     const liveUpdateData = sectionUpdates?.live?.[todayStr] || {};
-    let liveUpdateNote = liveUpdateData.note || "";
+    const rawNote = liveUpdateData.note || "";
+    let liveUpdateNote = rawNote;
     const liveUpdateAuthor = liveUpdateData.author || "";
 
     const generalData = sectionUpdates?.general || {};
@@ -147,7 +139,7 @@ const Home = ({
         const manualOrderEvent = eventsForDay.find((e) =>
             e.title.toLowerCase().includes("order")
         );
-        const weekdayName = currentDate.toLocaleDateString("en-US", {
+        const weekdayName = currentDate.toLocaleDateString("en-GB", {
             weekday: "long",
         });
         if (manualOrderEvent) {
@@ -197,7 +189,7 @@ const Home = ({
             setActiveExamToday(null);
         }
 
-        const weekdayName = currentDate.toLocaleDateString("en-US", {
+        const weekdayName = currentDate.toLocaleDateString("en-GB", {
             weekday: "long",
         });
         const hol = events.find((e) => e.title.toLowerCase().includes("holiday"));
@@ -378,7 +370,7 @@ const Home = ({
                                                     <div className="h2-event-details">
                                                         <p className="h2-event-title-text">{ev.title}</p>
                                                         <p className="h2-event-time-text">
-                                                            {ev.fullTime || "All Day"}
+                                                            {ev.fullTime || (ev.startTime && ev.endTime ? `${convertTo12Hour(ev.startTime)} - ${convertTo12Hour(ev.endTime)}` : "All Day")}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -402,7 +394,7 @@ const Home = ({
                                         <button
                                             className="h2-edit-trigger"
                                             onClick={() => {
-                                                setTempNote(liveUpdateNote);
+                                                setTempNote(rawNote);
                                                 setIsEditingNote(true);
                                             }}
                                         >
@@ -568,55 +560,64 @@ const Home = ({
                                     </div>
                                 ) : (
                                     <>
-                                        {/* 4a. FULL DAY EVENT */}
-                                        {fullDayEvent ? (
-                                            <>
-                                                <EventCard
-                                                    tag="TODAY'S EVENT"
-                                                    title={fullDayEvent.title}
-                                                    subtitle={fullDayEvent.description || "Full Day Event"}
-                                                    meta1="Full Day"
-                                                    meta1Icon={<RiTimeLine />}
-                                                />
-                                                <NoticeCard
-                                                    title="Classes Suspended"
-                                                    message={`Day reserved for ${fullDayEvent.title}.`}
-                                                />
-                                            </>
-                                        ) : (
-                                            <>
-                                                {/* 4b. EXAM CARD */}
-                                                {activeExamToday && (
-                                                    <ExamEventCard
-                                                        exam={{
-                                                            title: activeExamToday.title,
-                                                            subjectName: getSubjectName(activeExamToday.todaySub.code),
-                                                            todaySub: {
-                                                                ...activeExamToday.todaySub,
-                                                                startTime: convertTo12Hour(activeExamToday.todaySub.startTime),
-                                                                endTime: convertTo12Hour(activeExamToday.todaySub.endTime)
-                                                            }
-                                                        }}
-                                                    />
-                                                )}
+                                        {/* 4a. EXAM CARD */}
+                                        {activeExamToday && (
+                                            <ExamEventCard
+                                                exam={{
+                                                    title: activeExamToday.title,
+                                                    subjectName: getSubjectName(activeExamToday.todaySub.code),
+                                                    todaySub: {
+                                                        ...activeExamToday.todaySub,
+                                                        startTime: convertTo12Hour(activeExamToday.todaySub.startTime),
+                                                        endTime: convertTo12Hour(activeExamToday.todaySub.endTime)
+                                                    }
+                                                }}
+                                            />
+                                        )}
 
-                                                {/* 4c. HALF DAY */}
-                                                {halfDayEvent && !activeExamToday && (
-                                                    <EventCard
-                                                        tag="SPECIAL EVENT"
-                                                        title={halfDayEvent.title}
-                                                        subtitle={halfDayEvent.description || "Special Session"}
-                                                        meta1={`${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`}
-                                                        meta1Icon={<RiTimeLine />}
-                                                        meta2="Event"
-                                                        meta2Icon={<RiInformationLine />}
-                                                    />
-                                                )}
+                                        {/* 4b. FULL DAY EVENT */}
+                                        {fullDayEvent && (
+                                            <EventCard
+                                                tag="TODAY'S EVENT"
+                                                title={fullDayEvent.title}
+                                                subtitle={fullDayEvent.description || "Full Day Event"}
+                                                meta1="Full Day"
+                                                meta1Icon={<RiTimeLine />}
+                                            />
+                                        )}
 
-                                                {/* 4d. TIMETABLE or SUSPENDED (Kotlin List Style) */}
-                                                {!activeExamPeriod ||
-                                                    activeExamPeriod.type.includes("CT") ? (
-                                                    dayOrder && masterData.timetable?.[dayOrder] ? (
+                                        {/* 4c. HALF DAY */}
+                                        {halfDayEvent && (
+                                            <EventCard
+                                                tag="SPECIAL EVENT"
+                                                title={halfDayEvent.title}
+                                                subtitle={halfDayEvent.description || "Special Session"}
+                                                meta1={`${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`}
+                                                meta1Icon={<RiTimeLine />}
+                                                meta2="Event"
+                                                meta2Icon={<RiInformationLine />}
+                                            />
+                                        )}
+
+                                        {/* 4d. TIMETABLE or SUSPENDED */}
+                                        {(() => {
+                                            if (fullDayEvent && !isMajorExam) {
+                                                return (
+                                                    <NoticeCard
+                                                        title="Classes Suspended"
+                                                        message={`Day reserved for ${fullDayEvent.title}.`}
+                                                    />
+                                                );
+                                            } else if (activeExamPeriod && !activeExamPeriod.type.includes("CT")) {
+                                                return (
+                                                    <NoticeCard
+                                                        title="Classes Suspended"
+                                                        message={`Suspended for ${activeExamPeriod.title}.`}
+                                                    />
+                                                );
+                                            } else {
+                                                if (dayOrder && masterData.timetable?.[dayOrder]) {
+                                                    return (
                                                         <div className="h2-schedule-list">
                                                             {masterData.timetable[dayOrder].map((rawCode, index) => {
                                                                 const { entries, isLab } = getPeriodDetails(rawCode, masterData.courses);
@@ -631,22 +632,19 @@ const Home = ({
                                                                 );
                                                             })}
                                                         </div>
-                                                    ) : (
+                                                    );
+                                                } else {
+                                                    return (
                                                         <div className="h2-no-classes">
                                                             <p className="h2-no-classes-title">
                                                                 No classes scheduled.
                                                             </p>
                                                             <p className="h2-no-classes-sub">{scheduleStatus}</p>
                                                         </div>
-                                                    )
-                                                ) : (
-                                                    <NoticeCard
-                                                        title="Classes Suspended"
-                                                        message={`Suspended for ${activeExamPeriod.title}.`}
-                                                    />
-                                                )}
-                                            </>
-                                        )}
+                                                    );
+                                                }
+                                            }
+                                        })()}
                                     </>
                                 )}
                             </div>

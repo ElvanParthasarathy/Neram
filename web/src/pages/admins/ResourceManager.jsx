@@ -89,7 +89,7 @@ const ResourceManager = () => {
                                 </div>
                                 <div className="file-meta">
                                     <h4>{currentFile.name || 'Academic Calendar'}</h4>
-                                    <span>Last Updated: {new Date(currentFile.updatedAt).toLocaleDateString()}</span>
+                                    <span>Last Updated: {new Date(currentFile.updatedAt).toLocaleDateString('en-GB')}</span>
                                 </div>
                                 <a href={currentFile.originalUrl || currentFile.url} target="_blank" rel="noreferrer" className="btn-verify-link">
                                     <RiExternalLinkLine />

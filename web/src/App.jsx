@@ -273,7 +273,7 @@ function App() {
     let stop = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
     let days = [];
     const isAllDay = !event.start.dateTime;
-    const formatTime = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formatTime = (date) => date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
     while (isAllDay ? curr < stop : curr <= stop) {
       const dateStr = toLocalISO(curr);

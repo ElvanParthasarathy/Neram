@@ -12,6 +12,7 @@ import {
   RiArrowUpSLine,
   RiFilePdfLine
 } from 'react-icons/ri';
+import { convertTo12Hour } from "../utils/timeUtils";
 import { MdCalendarViewMonth, MdViewAgenda, MdCalendarToday } from "react-icons/md";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { db } from "../firebase";
@@ -456,7 +457,7 @@ const MobileScheduleView = ({ allEvents, currentMonth, onEventClick, onMonthChan
       {/* Month Navigation Header */}
       <div className="cal-mob-sched-nav-header">
         <div className="cal-mob-sched-title-text">
-          {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          {currentMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
         </div>
         <div className="cal-mob-sched-nav-actions">
           <button className="cal-mob-sched-nav-btn" onClick={() => handleNav(-1)}>
@@ -500,8 +501,8 @@ const MobileScheduleView = ({ allEvents, currentMonth, onEventClick, onMonthChan
                       {date.getDate()}
                     </div>
                     <div className="cal-mob-sched-date-text">
-                      <div className="cal-mob-sched-day">{date.toLocaleDateString('en-US', { weekday: 'long' })}</div>
-                      <div className="cal-mob-sched-month">{date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
+                      <div className="cal-mob-sched-day">{date.toLocaleDateString('en-GB', { weekday: 'long' })}</div>
+                      <div className="cal-mob-sched-month">{date.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div>
                     </div>
                   </div>
 
@@ -719,8 +720,8 @@ const MobileCalendar = ({ globalData, userProfile, activeProfile }) => {
               {/* MONTH VIEW: GRID + AGENDA */}
               <div className="cal-mob-month-title">
                 {currentMonth.getFullYear() === new Date().getFullYear()
-                  ? currentMonth.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
-                  : currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()
+                  ? currentMonth.toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()
+                  : currentMonth.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }).toUpperCase()
                 }
               </div>
 
@@ -743,7 +744,7 @@ const MobileCalendar = ({ globalData, userProfile, activeProfile }) => {
               <div className="cal-mob-header">
                 <div className="cal-mob-date-display">
                   <span className="cal-mob-day-num">{selectedDate.getDate()}</span>
-                  <span className="cal-mob-day-name">{selectedDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</span>
+                  <span className="cal-mob-day-name">{selectedDate.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase()}</span>
                 </div>
                 <button className="cal-mob-refresh-btn" onClick={() => window.location.reload()}>
                   <RiEmotionHappyLine />
@@ -914,8 +915,8 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
                   {d.getDate()}
                 </div>
                 <div>
-                  <div className="cal-sched-day">{d.toLocaleDateString('en-US', { weekday: 'long' })}</div>
-                  <div className="cal-sched-monthyr">{d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
+                  <div className="cal-sched-day">{d.toLocaleDateString('en-GB', { weekday: 'long' })}</div>
+                  <div className="cal-sched-monthyr">{d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</div>
                 </div>
               </div>
               <div className="cal-sched-events">
@@ -924,7 +925,7 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
                     <div className="cal-sched-strip" style={{ backgroundColor: getEventColor(e.title) }}></div>
                     <div>
                       <div className="cal-sched-title">{e.title}</div>
-                      <div className="cal-sched-time">{e.fullTime || "Full Day"}</div>
+                      <div className="cal-sched-time">{convertTo12Hour(e.fullTime || "Full Day")}</div>
                     </div>
                   </div>
                 ))}
@@ -963,7 +964,7 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
               <div className="cal-agenda-dot" style={{ backgroundColor: getEventColor(e.title) }}></div>
               <div>
                 <div className="cal-agenda-title">{e.title}</div>
-                <div className="cal-agenda-time">{e.fullTime || "All Day Event"}</div>
+                <div className="cal-agenda-time">{convertTo12Hour(e.fullTime || "All Day Event")}</div>
               </div>
             </div>
           )) : (
@@ -1023,7 +1024,7 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
               <RiArrowLeftSLine />
             </button>
             <span className="cal-month-label">
-              {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              {currentMonth.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}
             </span>
             <button className="cal-nav-btn" onClick={() => handleMonthChange(1)}>
               <RiArrowRightSLine />
@@ -1078,8 +1079,8 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
             <div className="cal-sidebar-inner">
               <div className="cal-agenda-header">
                 <h3>
-                  {selectedDate.toLocaleDateString('en-US', { weekday: 'short' })},{' '}
-                  {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  {selectedDate.toLocaleDateString('en-GB', { weekday: 'short' })},{' '}
+                  {selectedDate.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' })}
                 </h3>
                 {toISO(new Date()) === toISO(selectedDate) && (
                   <span className="cal-today-badge">TODAY</span>
@@ -1100,8 +1101,8 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
         <div className="cal-shutter-body">
           <div className="cal-shutter-header">
             <div>
-              <h2>{selectedDate.toLocaleDateString('en-US', { weekday: 'long' })}</h2>
-              <p>{selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <h2>{selectedDate.toLocaleDateString('en-GB', { weekday: 'long' })}</h2>
+              <p>{selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
             <a href={officialDocUrl} target="_blank" rel="noopener noreferrer" className="cal-doc-btn-round">
               <RiDownloadLine />

@@ -3,6 +3,7 @@ import { db } from "../firebase";
 import { ref, onValue } from "firebase/database";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { convertTo12Hour } from "../utils/timeUtils";
 
 import {
   RiCalendarEventLine,
@@ -21,8 +22,8 @@ import {
 const daysOrder = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const shortDays = ["Tue", "Wed", "Thu", "Fri", "Sat"];
 export const periodTimes = [
-  "9:00 - 9:50", "9:50 - 10:40", "10:50 - 11:40", "11:40 - 12:30",
-  "1:30 - 2:20", "2:20 - 3:10", "3:20 - 4:10", "4:10 - 5:00"
+  "09:00 - 09:50 AM", "09:50 - 10:40 AM", "10:50 - 11:40 AM", "11:40 - 12:30 PM",
+  "01:30 - 02:20 PM", "02:20 - 03:10 PM", "03:20 - 04:10 PM", "04:10 - 05:00 PM"
 ];
 
 /** Clean subject name (remove Lab Integrated, etc.) */
@@ -129,7 +130,7 @@ const formatDate = (dateStr) => {
 };
 
 export const formatDateLong = (date) => {
-  return date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  return date.toLocaleDateString("en-GB", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 };
 
 const toISODate = (date) => {
@@ -295,7 +296,7 @@ export const ExamEventCard = ({ exam }) => (
         <h3>{exam.title}</h3>
         <p><strong>{exam.todaySub.code}</strong>: {exam.subjectName}</p>
         <div className="s2-event-meta">
-          <span className="s2-meta-chip"><RiTimeLine /> {exam.todaySub.startTime} - {exam.todaySub.endTime}</span>
+          <span className="s2-meta-chip"><RiTimeLine /> {convertTo12Hour(exam.todaySub.startTime)} - {convertTo12Hour(exam.todaySub.endTime)}</span>
           {exam.todaySub.portion && (
             <span className="s2-meta-chip"><RiFilePaperLine /> {exam.todaySub.portion}</span>
           )}
@@ -398,7 +399,7 @@ const ExamScheduleCard = ({ exam, courses }) => (
               {sub.code}: {getCleanSubjectName(sub.code, courses)}
             </div>
             <div className="s2-exam-time-portion">
-              <span>{sub.startTime} - {sub.endTime}</span>
+              <span>{convertTo12Hour(sub.startTime)} - {convertTo12Hour(sub.endTime)}</span>
               {sub.portion && <span>  •  {sub.portion}</span>}
             </div>
           </div>
@@ -470,7 +471,7 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
 
   // Weekly overview
   const [selectedDay, setSelectedDay] = useState(() => {
-    const today = new Date().toLocaleDateString("en-US", { weekday: "long" });
+    const today = new Date().toLocaleDateString("en-GB", { weekday: "long" });
     return daysOrder.includes(today) ? today : "Tuesday";
   });
 
@@ -729,7 +730,7 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
                     tag="SPECIAL EVENT"
                     title={halfDayEvent.title}
                     subtitle={halfDayEvent.description || "Special Session"}
-                    meta1={`${halfDayEvent.startTime || "09:00"} - ${halfDayEvent.endTime || "12:00"}`}
+                    meta1={`${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`}
                     meta2="Event"
                   />
                 )}

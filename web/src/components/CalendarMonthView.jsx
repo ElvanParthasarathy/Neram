@@ -4,12 +4,12 @@ import { ref, onValue } from "firebase/database"; //
 
 function CalendarMonthView() {
   const [allEvents, setAllEvents] = useState([]); // Dynamic storage
-  const [viewDate, setViewDate] = useState(new Date()); 
+  const [viewDate, setViewDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
 
   // 1. Fetch live events from Firebase
   useEffect(() => {
-    const batch = localStorage.getItem('userBatch') || '2024'; 
+    const batch = localStorage.getItem('userBatch') || '2024';
     const calendarRef = ref(db, `calendars/${batch}/events`);
 
     const unsubscribe = onValue(calendarRef, (snapshot) => {
@@ -19,7 +19,7 @@ function CalendarMonthView() {
       setLoading(false);
     });
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, []);
 
   // 2. Navigation logic
@@ -49,8 +49,8 @@ function CalendarMonthView() {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
         <button onClick={handlePrev}>Prev</button>
-        <strong> 
-          {viewDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })} 
+        <strong>
+          {viewDate.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
         </strong>
         <button onClick={handleNext}>Next</button>
       </div>

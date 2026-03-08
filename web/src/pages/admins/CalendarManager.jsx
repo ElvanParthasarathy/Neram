@@ -52,7 +52,7 @@ const CalendarManager = () => {
     let days = [];
     const isAllDay = !event.start.dateTime;
 
-    const formatTime = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formatTime = (date) => date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
     while (isAllDay ? curr < stop : curr <= stop) {
       const dateStr = toLocalISO(curr);
@@ -241,7 +241,7 @@ const CalendarManager = () => {
             <div className="calendar-editable-list settings-card">
               <nav className="table-navigation">
                 <button className="nav-btn" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}>Prev</button>
-                <h4 className="current-month-display">{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h4>
+                <h4 className="current-month-display">{viewDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h4>
                 <button className="nav-btn" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}>Next</button>
               </nav>
 
@@ -263,7 +263,7 @@ const CalendarManager = () => {
                             {displayDate}
                           </div>
                           <div className="day-cell">
-                            {new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' })}
+                            {new Date(dateStr).toLocaleDateString('en-GB', { weekday: 'short' })}
                           </div>
                           <div className="events-cell">
                             <div className="events-list-vertical">

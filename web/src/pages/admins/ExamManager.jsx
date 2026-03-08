@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { convertTo12Hour } from '../../utils/timeUtils';
 import { useSearchParams } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, update } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 // Using Native Browser Date Inputs
 import {
     RiTrophyLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine,
@@ -90,6 +93,8 @@ const ExamManager = ({ user, userProfile }) => {
         }
     }, [isRep, userProfile]);
 
+    const sectionsForDeptStr = Array.isArray(hierarchy[path.batch]?.[path.dept]) ? hierarchy[path.batch][path.dept].join(',') : '';
+
     // --- FETCH DEPT DATA (Aggregation) ---
     useEffect(() => {
         if (viewLevel === 'editor' && path.dept) {
@@ -99,13 +104,18 @@ const ExamManager = ({ user, userProfile }) => {
 
                 const allCoursesMap = {};
                 const examsMap = {};
-                const sectionIds = Object.keys(deptData).filter(k => k !== 'initialized' && typeof deptData[k] === 'object');
+                let sectionIds = sectionsForDeptStr ? sectionsForDeptStr.split(',') : [];
+                if (sectionIds.length === 0) {
+                    sectionIds = Object.keys(deptData).filter(k => k !== 'initialized' && k !== '_master' && typeof deptData[k] === 'object');
+                }
+
+                // Aggregate Courses from Master definitions instead of using Section-level faculty overrides
+                if (deptData._master && deptData._master.courses) {
+                    deptData._master.courses.forEach(c => allCoursesMap[c.code] = c);
+                }
 
                 sectionIds.forEach(secId => {
                     const secData = deptData[secId] || {};
-
-                    // Aggregate Courses
-                    (secData.courses || []).forEach(c => allCoursesMap[c.code] = c);
 
                     // Aggregate Exams
                     const secExams = secData.exams || [];
@@ -157,13 +167,20 @@ const ExamManager = ({ user, userProfile }) => {
             });
             return () => unsub();
         }
-    }, [viewLevel, path.batch, path.dept]);
+    }, [viewLevel, path.batch, path.dept, sectionsForDeptStr]);
 
     // --- DATE/TIME HELPERS ---
     const parseDate = (dateStr) => {
         if (!dateStr) return null;
         const [y, m, d] = dateStr.split('-').map(Number);
         return new Date(y, m - 1, d);
+    };
+    const toLocalISO = (date) => {
+        if (!date) return '';
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
     };
     // to24h definition removed
     const to24hHelper = (time) => {
@@ -178,20 +195,7 @@ const ExamManager = ({ user, userProfile }) => {
         }
         return time;
     };
-    const to12h = (time) => {
-        if (!time) return "";
-        const match = time.match(/(\d+):(\d+)/);
-        if (!match) return time;
-        let [_, hours, minutes] = match;
-        hours = parseInt(hours, 10);
-        let modifier = 'AM';
-        if (hours >= 12) {
-            modifier = 'PM';
-            if (hours > 12) hours -= 12;
-        }
-        if (hours === 0) hours = 12;
-        return `${String(hours).padStart(2, '0')}:${minutes} ${modifier}`;
-    };
+    const to12h = (time) => convertTo12Hour(time);
 
     const getSubjectName = (code) => masterData.courses.find(c => c.code === code)?.name || "Unknown Subject";
 
@@ -206,13 +210,15 @@ const ExamManager = ({ user, userProfile }) => {
 
                 if (!isDelete) {
                     // Filter subjects meant for this section (Common or specifically this section)
-                    const secSubjects = examObj.subjects.filter(sub => sub.scope === 'Common' || sub.scope === secId || sub.scopes?.includes(secId))
-                        .map(sub => {
-                            const cleanSub = { ...sub };
-                            delete cleanSub.scope;
-                            delete cleanSub.scopes;
-                            return cleanSub;
-                        });
+                    const secSubjects = examObj.subjects.filter(sub => {
+                        const scopeStr = sub.scope || 'Common';
+                        return scopeStr === 'Common' || scopeStr.split(',').map(s => s.trim()).includes(secId);
+                    }).map(sub => {
+                        const cleanSub = { ...sub };
+                        delete cleanSub.scope;
+                        delete cleanSub.scopes;
+                        return cleanSub;
+                    });
 
                     // Even if no subjects apply, we push the exam shell? Usually better to only push if there are subjects.
                     // Let's push anyway to keep structure consistent if title/dates matter.
@@ -318,12 +324,12 @@ const ExamManager = ({ user, userProfile }) => {
 
                             <div className="field">
                                 <label>Show From</label>
-                                <input type="date" value={newExam.startDate || ''} onChange={(e) => setNewExam({ ...newExam, startDate: e.target.value })} className="custom-datepicker-input" />
+                                <DatePicker selected={parseDate(newExam.startDate)} onChange={(date) => setNewExam({ ...newExam, startDate: toLocalISO(date) })} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
                             </div>
 
                             <div className="field">
                                 <label>Show Until</label>
-                                <input type="date" value={newExam.endDate || ''} onChange={(e) => setNewExam({ ...newExam, endDate: e.target.value })} className="custom-datepicker-input" />
+                                <DatePicker selected={parseDate(newExam.endDate)} onChange={(date) => setNewExam({ ...newExam, endDate: toLocalISO(date) })} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
                             </div>
                         </div>
 
@@ -332,7 +338,7 @@ const ExamManager = ({ user, userProfile }) => {
                                 <div key={idx} className="exam-subject-row professional">
                                     <div className="input-group-vertical">
                                         <label>Date</label>
-                                        <input type="date" value={sub.date || ''} onChange={(e) => { let s = [...newExam.subjects]; s[idx].date = e.target.value; setNewExam({ ...newExam, subjects: s }); }} className="custom-datepicker-input" />
+                                        <DatePicker selected={parseDate(sub.date)} onChange={(date) => { let s = [...newExam.subjects]; s[idx].date = toLocalISO(date); setNewExam({ ...newExam, subjects: s }); }} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
                                     </div>
                                     <div className="input-group-vertical variant-code">
                                         <label>Subject</label>
@@ -348,6 +354,9 @@ const ExamManager = ({ user, userProfile }) => {
                                         <select value={sub.scope} onChange={e => { let s = [...newExam.subjects]; s[idx].scope = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
                                             <option value="Common">Common (All Secs)</option>
                                             {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                                            {sub.scope && sub.scope !== 'Common' && !masterData.sections.includes(sub.scope) && (
+                                                <option value={sub.scope}>{sub.scope} (Mixed)</option>
+                                            )}
                                         </select>
                                     </div>
 
@@ -400,9 +409,9 @@ const ExamManager = ({ user, userProfile }) => {
                                                 <input className="edit-title-input" value={currentData.title} onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })} />
                                                 <div className="date-group">
                                                     <label>Range:</label>
-                                                    <input type="date" value={currentData.startDate || ''} onChange={(e) => setEditBuffer({ ...editBuffer, startDate: e.target.value })} className="inline-datepicker" />
+                                                    <DatePicker selected={parseDate(currentData.startDate)} onChange={(date) => setEditBuffer({ ...editBuffer, startDate: toLocalISO(date) })} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="inline-datepicker" />
                                                     <span>to</span>
-                                                    <input type="date" value={currentData.endDate || ''} onChange={(e) => setEditBuffer({ ...editBuffer, endDate: e.target.value })} className="inline-datepicker" />
+                                                    <DatePicker selected={parseDate(currentData.endDate)} onChange={(date) => setEditBuffer({ ...editBuffer, endDate: toLocalISO(date) })} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="inline-datepicker" />
                                                 </div>
                                             </div>
                                         ) : (
@@ -437,7 +446,7 @@ const ExamManager = ({ user, userProfile }) => {
                                                     <>
                                                         <div className="input-group-vertical">
                                                             <label>Date</label>
-                                                            <input type="date" value={s.date || ''} onChange={(e) => { let subs = [...editBuffer.subjects]; subs[i].date = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} className="custom-datepicker-input" />
+                                                            <DatePicker selected={parseDate(s.date)} onChange={(date) => { let subs = [...editBuffer.subjects]; subs[i].date = toLocalISO(date); setEditBuffer({ ...editBuffer, subjects: subs }); }} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
                                                         </div>
                                                         <div className="input-group-vertical variant-code">
                                                             <label>Subject</label>
@@ -453,6 +462,9 @@ const ExamManager = ({ user, userProfile }) => {
                                                             <select value={s.scope} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].scope = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
                                                                 <option value="Common">Common (All Secs)</option>
                                                                 {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                                                                {s.scope && s.scope !== 'Common' && !masterData.sections.includes(s.scope) && (
+                                                                    <option value={s.scope}>{s.scope} (Mixed)</option>
+                                                                )}
                                                             </select>
                                                         </div>
 

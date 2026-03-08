@@ -17,8 +17,8 @@ android {
         applicationId = "com.elvan.neram"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 6
+        versionName = "1.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -47,6 +47,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            ndk.debugSymbolLevel = "FULL"
         }
     }
     compileOptions {
@@ -107,7 +108,6 @@ dependencies {
     implementation(libs.firebase.database.ktx)
 
     implementation(libs.firebase.firestore.ktx)
-    implementation(libs.firebase.messaging.ktx)
     
     // DataStore (Preferences)
     implementation(libs.androidx.datastore.preferences)
