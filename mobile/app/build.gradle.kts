@@ -17,8 +17,8 @@ android {
         applicationId = "com.elvan.neram"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.5"
+        versionCode = 7
+        versionName = "1.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -63,6 +63,9 @@ android {
         compose = true
     }
     packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "META-INF/DEPENDENCIES"
@@ -149,7 +152,7 @@ dependencies {
 
     // PDF Viewer
     // PDF Viewer
-    implementation("com.github.mhiew:android-pdf-viewer:3.2.0-beta.1")
+    implementation("io.github.oothp:android-pdf-viewer:3.2.0-beta06")
 
     // Natkati / Fossify Integration
     implementation(libs.fossify.commons)

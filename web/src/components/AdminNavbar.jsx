@@ -21,7 +21,8 @@ import {
   RiListCheck,
   RiUser3Fill,
   RiTimeLine,
-  RiInboxArchiveLine
+  RiInboxArchiveLine,
+  RiScanLine
 } from "react-icons/ri";
 import { getHardcodedRole } from "../data/admins";
 

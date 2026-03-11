@@ -13,6 +13,7 @@
     "@emailjs/browser": "^4.4.1",
     "@fontsource-variable/inter": "^5.2.8",
     "@react-oauth/google": "^0.13.4",
+    "cropperjs": "^1.6.2",
     "firebase": "^12.7.0",
     "framer-motion": "^12.23.26",
     "pdfjs-dist": "^5.4.624",
@@ -21,7 +22,8 @@
     "react-dom": "^19.2.0",
     "react-icons": "^5.5.0",
     "react-phone-input-2": "^2.15.1",
-    "react-router-dom": "^7.10.1"
+    "react-router-dom": "^7.10.1",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

@@ -14,7 +14,8 @@ import {
     RiArrowLeftSLine,
     RiTimeLine,
     RiSettings3Line,
-    RiInboxArchiveLine
+    RiInboxArchiveLine,
+    RiScanLine
 } from "react-icons/ri";
 import { getHardcodedRole } from '../data/admins';
 import ThemeToggle from './ThemeToggle';
@@ -277,7 +278,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                                     <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
                                     <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Academic</div>
                                     <button onClick={() => handleNav('calendar')} className={`menu-item ${activeModule === 'calendar' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'calendar' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'calendar' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'calendar' ? '600' : '500' }}>
-                                        <RiCalendarEventLine style={{ fontSize: '20px' }} /> <span>Calendar Editor</span>
+                                        <RiCalendarEventLine style={{ fontSize: '20px' }} /> <span>Calendar</span>
                                     </button>
                                     <button onClick={() => handleNav('resources')} className={`menu-item ${activeModule === 'resources' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'resources' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'resources' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'resources' ? '600' : '500' }}>
                                         <RiFilePdfLine style={{ fontSize: '20px' }} /> <span>Resources</span>

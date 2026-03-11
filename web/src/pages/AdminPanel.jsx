@@ -17,7 +17,6 @@ import {
 import { getHardcodedRole } from '../data/admins';
 
 // Import sub-components
-// Import sub-components
 import StructureManager from './admins/StructureManager';
 import UserManagement from './admins/UserManagement';
 import ScheduleManager from './admins/ScheduleManager';

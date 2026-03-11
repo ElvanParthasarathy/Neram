@@ -131,10 +131,11 @@ export const useSectionData = (activeProfile) => {
             console.error("Updates sync error:", error);
         });
 
-        runGlobalCalendarSync(batch);
+        // LEGACY: Google Calendar API sync disabled — Elvan Agazhi now powers calendar data
+        // runGlobalCalendarSync(batch);
 
         return () => { unsubCal(); unsubSched(); unsubUpdates(); };
-    }, [activeProfile?.batch, activeProfile?.department, activeProfile?.section, runGlobalCalendarSync]);
+    }, [activeProfile?.batch, activeProfile?.department, activeProfile?.section]);
 
     return globalData;
 };

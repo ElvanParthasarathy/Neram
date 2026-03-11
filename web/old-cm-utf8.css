@@ -1,0 +1,495 @@
+﻿/* ==========================================================================
+   CALENDAR MANAGER (MASTER STYLESHEET)
+   ========================================================================== */
+
+.calendar-manager-container {
+    width: 100%;
+    max-width: 100%;
+    padding-bottom: 40px;
+}
+
+/* 1. EXPLORER NAVIGATION */
+.calendar-manager-container .explorer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0 20px 0;
+    border-bottom: 1px solid var(--mac-divider);
+    margin-bottom: 30px;
+}
+
+.calendar-manager-container .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+}
+
+.calendar-manager-container .back-btn-minimal {
+    background: transparent;
+    border: 1px solid var(--mac-divider);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mac-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .back-btn-minimal:hover {
+    background: var(--mac-selection-bg);
+}
+
+.calendar-manager-container .crumb-static {
+    color: var(--mac-text);
+    font-weight: 700;
+}
+
+/* 2. EXPLORER GRID (BATCH SELECTION) */
+.calendar-manager-container .explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.calendar-manager-container .explorer-card {
+    background: var(--mac-sidebar-bg);
+    border: none;
+    border-radius: 32px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.calendar-manager-container .explorer-card:hover {
+    transform: translateY(-4px);
+    background: var(--mac-selection-hover);
+}
+
+.calendar-manager-container .card-icon {
+    font-size: 48px;
+    color: var(--mac-blue);
+    margin-bottom: 20px;
+}
+
+.calendar-manager-container .card-info h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: var(--mac-text);
+}
+
+.calendar-manager-container .card-info p {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    margin: 0;
+}
+
+/* 3. WORKSPACE LAYOUT */
+/* 3. WORKSPACE LAYOUT */
+.calendar-manager-container .calendar-admin-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* ==========================================================
+   4. NEW MAC-INSPIRED TOP HEADER (API CONFIGURATION)
+   ========================================================== */
+.calendar-manager-container .cm-desktop-header {
+    background: var(--mac-card-bg);
+    border: var(--mac-card-border);
+    border-radius: 24px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.calendar-manager-container .cm-header-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.calendar-manager-container .cm-header-title {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.calendar-manager-container .google-icon {
+    font-size: 32px;
+    color: var(--mac-text);
+    background: var(--mac-bg-secondary);
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--mac-divider);
+}
+
+.calendar-manager-container .cm-header-title h3 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mac-text);
+}
+
+.calendar-manager-container .cm-header-title p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    font-weight: 500;
+}
+
+.calendar-manager-container .cm-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.calendar-manager-container .cm-divider-vert {
+    width: 1px;
+    height: 24px;
+    background: var(--mac-divider);
+    margin: 0 4px;
+}
+
+/* Dropdown Config Area */
+.calendar-manager-container .cm-config-dropdown {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-manager-container .cm-config-dropdown.active {
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--mac-divider);
+}
+
+.calendar-manager-container .cm-config-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.calendar-manager-container .cm-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calendar-manager-container .cm-input-group label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--mac-text-secondary);
+    letter-spacing: 0.5px;
+}
+
+.calendar-manager-container .cm-input-group input {
+    width: 100%;
+    height: 44px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    border-radius: 12px;
+    padding: 0 16px;
+    color: var(--mac-text);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.calendar-manager-container .cm-input-group input:focus {
+    border-color: var(--mac-blue);
+    background: var(--mac-bg-primary);
+    box-shadow: 0 0 0 3px rgba(0, 113, 255, 0.1);
+}
+
+.calendar-manager-container .cm-config-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+/* ==========================================================
+   5. MAIN CALENDAR GRID & LIST
+   ========================================================== */
+.calendar-manager-container .calendar-editable-list {
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    border: var(--mac-card-border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.calendar-manager-container .table-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--mac-divider);
+    background: var(--mac-bg-secondary);
+}
+
+.calendar-manager-container .nav-btn {
+    background: var(--mac-card-bg);
+    border: 1px solid var(--mac-divider);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mac-text);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .nav-btn:hover {
+    background: var(--mac-blue);
+    color: #FFFFFF;
+    border-color: var(--mac-blue);
+}
+
+.calendar-manager-container .current-month-display {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mac-text);
+    margin: 0;
+}
+
+/* ==========================================================
+   6. RESPONSIVE EVENT LIST CARDS
+   ========================================================== */
+.calendar-manager-container .admin-table-wrapper {
+    padding: 24px;
+}
+
+.calendar-manager-container .calendar-table {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Hide legacy headers on mobile; styled gracefully on desktop */
+.calendar-manager-container .calendar-thead {
+    display: none;
+}
+
+.calendar-manager-container .calendar-tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Desktop Grid/Masonry Optimization */
+@media (min-width: 900px) {
+    .calendar-manager-container .calendar-tbody {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+        align-items: start;
+    }
+}
+
+.calendar-manager-container .calendar-tr {
+    display: flex;
+    flex-direction: column;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    border-radius: 20px;
+    padding: 20px;
+    gap: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.calendar-manager-container .calendar-tr:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+}
+
+.calendar-manager-container .date-cell {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--mac-text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.calendar-manager-container .day-cell {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-blue);
+    margin-top: -10px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.calendar-manager-container .events-list-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* 7. EVENT PILLS */
+.calendar-manager-container .event-item-pill {
+    background: var(--mac-card-bg);
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--mac-divider);
+    border-left: 4px solid var(--mac-blue);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .event-item-pill:hover {
+    background: var(--mac-selection-bg);
+}
+
+/* Dark mode tweak */
+html.dark .calendar-manager-container .event-item-pill {
+    background: #1C1C1E;
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+.calendar-manager-container .event-item-pill strong {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--mac-text);
+}
+
+.calendar-manager-container .event-item-pill span {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    font-weight: 600;
+}
+
+/* 8. BUTTONS & SHARED STYLES */
+.calendar-manager-container .btn-modify-mini {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    color: var(--mac-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 18px;
+}
+
+.calendar-manager-container .btn-modify-mini:hover {
+    background: var(--mac-selection-bg);
+    border-color: var(--mac-text-secondary);
+}
+
+.calendar-manager-container .btn-save-settings {
+    background: var(--mac-blue);
+    color: #FFFFFF;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .btn-save-settings:hover {
+    background: var(--mac-blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
+}
+
+.calendar-manager-container .btn-safety {
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    color: var(--mac-text);
+    padding: 10px 16px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calendar-manager-container .btn-safety:hover {
+    background: var(--mac-selection-bg);
+}
+
+.calendar-manager-container .btn-safety.push {
+    color: #FF3B30;
+    background: rgba(255, 59, 48, 0.05);
+    border-color: rgba(255, 59, 48, 0.1);
+}
+
+.calendar-manager-container .btn-safety.push:hover {
+    background: #FF3B30;
+    color: #FFFFFF;
+}
+
+/* 9. MOBILE RESPONSIVENESS */
+@media (max-width: 900px) {
+    .calendar-manager-container .cm-header-top-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .calendar-manager-container .cm-header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .calendar-manager-container .btn-safety {
+        flex: 1;
+        min-width: 48%;
+        /* Allows two buttons per row on small screens */
+    }
+
+    .calendar-manager-container .cm-divider-vert {
+        display: none;
+    }
+
+    .calendar-manager-container .cm-config-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-manager-container .admin-table-wrapper {
+        padding: 16px;
+    }
+}

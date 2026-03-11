@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elvan Agazhi - PDF Column OCR Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #161922;
+            --bg-card: #1c1f2e;
+            --bg-card-hover: #242839;
+            --bg-input: #1a1d2b;
+            --border: #2a2e3f;
+            --border-focus: #6366f1;
+            --text-primary: #e8eaed;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .app-layout {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ─── Header ─── */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 52px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            z-index: 100;
+        }
+
+        .app-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #6366f1, #a78bfa);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .brand-icon svg {
+            width: 16px;
+            height: 16px;
+            stroke: white;
+            fill: none;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: -0.3px;
+        }
+
+        .brand-tag {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* ─── Main ─── */
+        .app-main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ─── Sidebar ─── */
+        .sidebar {
+            width: 340px;
+            flex-shrink: 0;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 5px;
+        }
+
+        .sidebar-section {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .section-label .step-num {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            font-size: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* File Input */
+        .file-drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-drop-zone:hover {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .file-drop-zone input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-drop-zone .icon {
+            width: 36px;
+            height: 36px;
+            margin: 0 auto 8px;
+            border-radius: 9px;
+            background: var(--bg-card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-drop-zone .icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--accent);
+            fill: none;
+        }
+
+        .file-drop-zone .label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .file-drop-zone .sublabel {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .file-name-display {
+            font-size: 11px;
+            color: var(--success);
+            margin-top: 6px;
+            font-weight: 500;
+            display: none;
+        }
+
+        /* Page Nav */
+        .page-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .page-nav button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .page-nav button:hover:not(:disabled) {
+            background: var(--bg-card-hover);
+            color: var(--accent);
+        }
+
+        .page-nav button:disabled {
+            opacity: 0.25;
+            cursor: default;
+        }
+
+        .page-nav button svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .page-nav .page-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .page-nav .page-info strong {
+            color: var(--text-primary);
+        }
+
+        /* Selects & Checkboxes */
+        .select-styled {
+            width: 100%;
+            padding: 9px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+
+        .select-styled:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 11px;
+            font-weight: 600;
+            font-size: 12px;
+            font-family: inherit;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary svg {
+            width: 15px;
+            height: 15px;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-extract {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            color: white;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-extract:hover:not(:disabled) {
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-batch {
+            background: linear-gradient(135deg, #059669, #34d399);
+            color: white;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.25);
+        }
+
+        .btn-batch:hover:not(:disabled) {
+            box-shadow: 0 6px 25px rgba(5, 150, 105, 0.4);
+            transform: translateY(-1px);
+        }
+
+        /* Progress */
+        .progress-container {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .progress-bar-track {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #a78bfa);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Batch Progress */
+        .batch-progress {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .batch-progress.active {
+            display: block;
+        }
+
+        .batch-page-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .batch-overall-track {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .batch-overall-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #059669, #34d399);
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .batch-sub-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Output */
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .output-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .output-textarea {
+            flex: 1;
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 11px;
+            line-height: 1.7;
+            resize: none;
+            outline: none;
+        }
+
+        .output-textarea:focus {
+            border-color: var(--border-focus);
+        }
+
+        .output-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-small {
+            padding: 4px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-small.visible {
+            display: inline-flex;
+        }
+
+        .btn-small:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-small svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .output-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ─── Workspace ─── */
+        .workspace {
+            flex: 1;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .workspace-empty {
+            text-align: center;
+            max-width: 360px;
+        }
+
+        .workspace-empty .empty-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .workspace-empty .empty-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke: var(--text-muted);
+            fill: none;
+        }
+
+        .workspace-empty h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .workspace-empty p {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .pdf-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            max-width: calc(100% - 40px);
+            max-height: calc(100% - 40px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .pdf-container.active {
+            display: block;
+        }
+
+        .pdf-container canvas {
+            display: none;
+        }
+
+        .pdf-container img {
+            display: block;
+            max-width: 100%;
+        }
+
+        /* Loading */
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 17, 23, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 14px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay .loading-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Cropper overrides */
+        .cropper-view-box {
+            outline-color: var(--accent);
+        }
+
+        .cropper-line {
+            background-color: var(--accent);
+        }
+
+        .cropper-point {
+            background-color: var(--accent);
+        }
+
+        .cropper-modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .tip-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 9px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 8px;
+            font-size: 11px;
+            color: var(--warning);
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .tip-badge svg {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
+        }
+
+        /* ════════════════════════════════════════════
+           COMPARISON MODAL
+        ════════════════════════════════════════════ */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop.active {
+            display: flex;
+        }
+
+        .modal {
+            width: 94vw;
+            max-width: 1400px;
+            height: 88vh;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .modal-page-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .modal-close:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .modal-close svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .modal-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .modal-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-pane+.modal-pane {
+            border-left: 1px solid var(--border);
+        }
+
+        .modal-pane-header {
+            padding: 10px 16px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+            flex-shrink: 0;
+        }
+
+        .modal-pane-content {
+            flex: 1;
+            overflow: auto;
+            padding: 16px;
+        }
+
+        .modal-pane-content img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .modal-pane-content pre {
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .modal-nav-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .modal-nav-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .modal-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .modal-nav-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .modal-page-dots {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .page-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .page-dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 6px var(--accent-glow);
+        }
+
+        .page-dot.done {
+            background: var(--success);
+        }
+
+        /* Status badge inside modal */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .status-badge.ok {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3a3f55;
+        }
+
+        /* ════════════════════════════════════════════
+           CALENDAR BUILDER MODAL
+        ════════════════════════════════════════════ */
+        .cal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            display: none;
+            flex-direction: column;
+        }
+
+        .cal-backdrop.active {
+            display: flex;
+        }
+
+        .cal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+        }
+
+        .cal-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .cal-header-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .cal-header-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .cal-header-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .cal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--bg-primary);
+        }
+
+        .cal-month-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .cal-month-header {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 700;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(167, 139, 250, 0.08));
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .cal-month-content {
+            display: flex;
+            min-height: 300px;
+        }
+
+        .cal-image-pane {
+            width: 320px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            overflow: auto;
+            padding: 12px;
+            background: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .cal-image-pane img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            cursor: zoom-in;
+        }
+
+        .cal-image-pane .pane-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .cal-table-pane {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .cal-month-header .month-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cal-month-header .month-name svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--accent);
+            fill: none;
+        }
+
+        .cal-month-stats {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .cal-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .cal-table thead th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cal-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.1s;
+        }
+
+        .cal-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .cal-table tbody tr:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .cal-table tbody tr.is-holiday {
+            background: rgba(239, 68, 68, 0.06);
+        }
+
+        .cal-table tbody tr.is-holiday:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .cal-table td {
+            padding: 8px 14px;
+            vertical-align: middle;
+        }
+
+        .cal-table td.date-col {
+            width: 50px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .cal-table td.day-col {
+            width: 60px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .cal-table td.wd-col {
+            width: 40px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .cal-table td.wd-col.no-wd {
+            color: var(--danger);
+            font-style: italic;
+        }
+
+        .cal-table td.event-col {
+            color: var(--text-primary);
+        }
+
+        .cal-table td input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: inherit;
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            padding: 4px 6px;
+            border-radius: 4px;
+            width: 100%;
+            outline: none;
+            transition: all 0.15s;
+        }
+
+        .cal-table td input:hover {
+            border-color: var(--border);
+        }
+
+        .cal-table td input:focus {
+            border-color: var(--accent);
+            background: var(--bg-input);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        .cal-table td input.event-input {
+            min-width: 200px;
+        }
+
+        .holiday-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--danger);
+        }
+
+        .working-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(99, 102, 241, 0.12);
+            color: var(--accent);
+        }
+
+        .btn-cal {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .btn-cal:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-cal.primary {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-cal.primary:hover {
+            box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-cal svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* Next button in sidebar */
+        .btn-next {
+            width: 100%;
+            padding: 11px;
+            font-weight: 600;
+            font-size: 12px;
+            font-family: inherit;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin-top: 10px;
+            transition: all 0.2s ease;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: #1c1f2e;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+        }
+
+        .btn-next.visible {
+            display: flex;
+        }
+
+        .btn-next:hover {
+            box-shadow: 0 6px 25px rgba(245, 158, 11, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-next svg {
+            width: 15px;
+            height: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-name">Elvan Agazhi</div>
+                    <div class="brand-tag">PDF Column Cropper &amp; OCR</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="app-main">
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+
+                <!-- Upload -->
+                <div class="sidebar-section">
+                    <div class="section-label"><span class="step-num">1</span> Load Document</div>
+                    <div class="file-drop-zone" id="dropZone">
+                        <input type="file" id="fileInput" accept="application/pdf">
+                        <div class="icon">
+                            <svg viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
+                        </div>
+                        <div class="label">Click to upload PDF</div>
+                        <div class="sublabel">or drag and drop</div>
+                        <div class="file-name-display" id="fileName"></div>
+                    </div>
+                </div>
+
+                <!-- Page Nav -->
+                <div class="sidebar-section" id="pageControlsContainer" style="display:none;">
+                    <div class="section-label"><span class="step-num">2</span> Navigate</div>
+                    <div class="page-nav">
+                        <button id="prevBtn" disabled>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <span class="page-info">Page <strong id="pageNum">0</strong> / <span
+                                id="pageCount">0</span></span>
+                        <button id="nextBtn" disabled>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- OCR Controls -->
+                <div class="sidebar-section" id="ocrControlsContainer" style="display:none;">
+                    <div class="section-label"><span class="step-num">3</span> Extract</div>
+
+                    <div class="tip-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Crop a single column, then extract
+                    </div>
+
+                    <label
+                        style="font-size:11px;color:var(--text-muted);font-weight:600;display:block;margin-bottom:5px;">OCR
+                        Mode</label>
+                    <select id="psmSelect" class="select-styled">
+                        <option value="4" selected>Single column varying sizes</option>
+                        <option value="6">Uniform block of text</option>
+                        <option value="3">Fully automatic</option>
+                        <option value="11">Sparse text / Scrape all</option>
+                    </select>
+
+                    <label class="checkbox-row">
+                        <input type="checkbox" id="cleanTextToggle" checked>
+                        Auto-clean &amp; format output
+                    </label>
+
+                    <!-- Single Page Extract -->
+                    <button class="btn-primary btn-extract" id="extractBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <span id="extractBtnText">Extract This Page</span>
+                    </button>
+
+                    <!-- Multi-Page Extract -->
+                    <button class="btn-primary btn-batch" id="batchBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        <span id="batchBtnText">Extract ALL Pages</span>
+                    </button>
+
+                    <!-- Single page progress -->
+                    <div class="progress-container" id="ocrStatusContainer">
+                        <div class="progress-info">
+                            <span id="ocrStatusText">Initializing...</span>
+                            <span id="ocrStatusPercent">0%</span>
+                        </div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" id="ocrProgressBar"></div>
+                        </div>
+                    </div>
+
+                    <!-- Batch progress -->
+                    <div class="batch-progress" id="batchProgress">
+                        <div class="batch-page-label">
+                            <span id="batchPageLabel">Page 0 / 0</span>
+                            <span id="batchOverallPercent">0%</span>
+                        </div>
+                        <div class="batch-overall-track">
+                            <div class="batch-overall-fill" id="batchOverallFill"></div>
+                        </div>
+                        <div class="batch-sub-label" id="batchSubLabel">Initializing...</div>
+                    </div>
+                </div>
+
+                <!-- Output -->
+                <div class="sidebar-section output-box" style="flex:1;display:flex;flex-direction:column;">
+                    <div class="output-header">
+                        <div class="section-label" style="margin-bottom:0;"><span class="step-num">4</span> Result</div>
+                        <div class="output-btns">
+                            <button class="btn-small" id="compareBtn" title="Compare extracted data page by page">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                Compare
+                            </button>
+                            <button class="btn-small" id="copyBtn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                    <textarea class="output-textarea" id="outputText" placeholder="Extracted text will appear here..."
+                        readonly></textarea>
+                    <button class="btn-next" id="nextBtn2">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                        Next → Build Calendar
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Workspace -->
+            <section class="workspace" id="workspaceArea">
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="spinner"></div>
+                    <div class="loading-text" id="loadingText">Processing PDF...</div>
+                </div>
+                <div class="workspace-empty" id="emptyState">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <h3>No Document Loaded</h3>
+                    <p>Upload a PDF to render it here. Crop a column and extract text via OCR.</p>
+                </div>
+                <div class="pdf-container" id="pdfWrapper">
+                    <canvas id="pdfCanvas"></canvas>
+                    <img id="pdfImage" src="" alt="PDF Page">
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- ═══ Comparison Modal ═══ -->
+    <div class="modal-backdrop" id="modalBackdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">Page-by-Page Comparison</div>
+                    <div class="modal-page-info" id="modalPageInfo">Page 1 / 1</div>
+                </div>
+                <button class="modal-close" id="modalClose">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-pane">
+                    <div class="modal-pane-header">📄 Cropped Image</div>
+                    <div class="modal-pane-content" id="modalImagePane"></div>
+                </div>
+                <div class="modal-pane">
+                    <div class="modal-pane-header">📝 Extracted Text <span class="status-badge ok"
+                            style="margin-left:8px;">OCR Result</span></div>
+                    <div class="modal-pane-content" id="modalTextPane"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-nav-btn" id="modalPrev">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Previous
+                </button>
+                <div class="modal-page-dots" id="modalDots"></div>
+                <button class="modal-nav-btn" id="modalNext">
+                    Next
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Calendar Builder Modal ═══ -->
+    <div class="cal-backdrop" id="calBackdrop">
+        <div class="cal-header">
+            <div class="cal-header-left">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"
+                    style="width:22px;height:22px">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <div>
+                    <div class="cal-header-title">Academic Calendar Builder</div>
+                    <div class="cal-header-sub">Edit any cell below. Changes are live.</div>
+                </div>
+            </div>
+            <div class="cal-header-right">
+                <button class="btn-cal" id="calExportBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export RTDB JSON
+                </button>
+                <button class="btn-cal" id="calCloseBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Close
+                </button>
+            </div>
+        </div>
+        <div class="cal-body" id="calBody"></div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        let pdfDoc = null, currentPage = 1, totalPages = 0, cropper = null;
+        const PDF_SCALE = 3.0;   // Display scale
+        const OCR_SCALE = 6.0;   // Internal OCR scale (higher = more pixels = better accuracy)
+
+        // Per-page results for batch mode
+        let batchResults = []; // [{pageNum, imageDataURL, text}]
+
+        const $ = id => document.getElementById(id);
+        const fileInput = $('fileInput'), dropZone = $('dropZone'), fileNameEl = $('fileName');
+        const prevBtn = $('prevBtn'), nextBtn = $('nextBtn');
+        const pageNumEl = $('pageNum'), pageCountEl = $('pageCount');
+        const pdfCanvas = $('pdfCanvas'), pdfCtx = pdfCanvas.getContext('2d');
+        const pdfImage = $('pdfImage'), pdfWrapper = $('pdfWrapper');
+        const emptyState = $('emptyState'), loadingOverlay = $('loadingOverlay'), loadingText = $('loadingText');
+        const workspaceArea = $('workspaceArea');
+        const pageControlsContainer = $('pageControlsContainer'), ocrControlsContainer = $('ocrControlsContainer');
+        const extractBtn = $('extractBtn'), extractBtnText = $('extractBtnText');
+        const batchBtn = $('batchBtn'), batchBtnText = $('batchBtnText');
+        const ocrStatusContainer = $('ocrStatusContainer');
+        const ocrStatusText = $('ocrStatusText'), ocrStatusPercent = $('ocrStatusPercent'), ocrProgressBar = $('ocrProgressBar');
+        const batchProgress = $('batchProgress');
+        const batchPageLabel = $('batchPageLabel'), batchOverallPercent = $('batchOverallPercent');
+        const batchOverallFill = $('batchOverallFill'), batchSubLabel = $('batchSubLabel');
+        const psmSelect = $('psmSelect'), cleanTextToggle = $('cleanTextToggle');
+        const outputText = $('outputText'), copyBtn = $('copyBtn'), compareBtn = $('compareBtn');
+
+        // Modal elements
+        const modalBackdrop = $('modalBackdrop'), modalClose = $('modalClose');
+        const modalPageInfo = $('modalPageInfo');
+        const modalImagePane = $('modalImagePane'), modalTextPane = $('modalTextPane');
+        const modalPrev = $('modalPrev'), modalNext = $('modalNext'), modalDots = $('modalDots');
+        let modalCurrentPage = 0;
+
+        // ─── File Input ───
+        fileInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                fileNameEl.textContent = '✓ ' + file.name;
+                fileNameEl.style.display = 'block';
+                const reader = new FileReader();
+                reader.onload = evt => loadPDF(new Uint8Array(evt.target.result));
+                reader.readAsArrayBuffer(file);
+            } else if (file) { alert('Please select a valid PDF file.'); }
+        });
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = 'var(--accent)'; });
+        dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'var(--border)'; });
+        dropZone.addEventListener('drop', e => {
+            e.preventDefault(); dropZone.style.borderColor = 'var(--border)';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                fileNameEl.textContent = '✓ ' + file.name; fileNameEl.style.display = 'block';
+                const reader = new FileReader();
+                reader.onload = evt => loadPDF(new Uint8Array(evt.target.result));
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        // ─── PDF ───
+        async function loadPDF(data) {
+            showLoading('Parsing document...'); emptyState.style.display = 'none'; pdfWrapper.classList.remove('active');
+            batchResults = [];
+            try {
+                pdfDoc = await pdfjsLib.getDocument({ data }).promise;
+                totalPages = pdfDoc.numPages; pageCountEl.textContent = totalPages;
+                pageControlsContainer.style.display = ''; ocrControlsContainer.style.display = '';
+                currentPage = 1; await renderPage(currentPage);
+            } catch (err) { console.error(err); alert('Could not load PDF.'); hideLoading(); }
+        }
+
+        async function renderPage(num) {
+            showLoading(`Rendering page ${num}...`); pageNumEl.textContent = num; updateNavButtons();
+            try {
+                const page = await pdfDoc.getPage(num);
+                const vp = page.getViewport({ scale: PDF_SCALE });
+                pdfCanvas.width = vp.width; pdfCanvas.height = vp.height;
+                await page.render({ canvasContext: pdfCtx, viewport: vp }).promise;
+                pdfImage.src = pdfCanvas.toDataURL('image/png');
+                pdfImage.onload = () => { initCropper(); pdfWrapper.classList.add('active'); emptyState.style.display = 'none'; hideLoading(); };
+            } catch (err) { console.error(err); hideLoading(); }
+        }
+
+        function initCropper() {
+            if (cropper) cropper.destroy();
+            cropper = new Cropper(pdfImage, {
+                viewMode: 1, dragMode: 'crop', background: true,
+                zoomable: true, rotatable: false, scalable: false,
+                autoCrop: false, toggleDragModeOnDblclick: false,
+            });
+        }
+
+        prevBtn.onclick = () => { if (currentPage > 1) renderPage(--currentPage); };
+        nextBtn.onclick = () => { if (currentPage < totalPages) renderPage(++currentPage); };
+        function updateNavButtons() { prevBtn.disabled = currentPage <= 1; nextBtn.disabled = currentPage >= totalPages; }
+        function showLoading(t) { loadingText.textContent = t; loadingOverlay.classList.add('active'); }
+        function hideLoading() { loadingOverlay.classList.remove('active'); }
+
+        // ─── Internal Upscale (invisible to user, improves OCR) ───
+        function upscaleCanvas(srcCanvas, factor) {
+            if (factor <= 1) return srcCanvas;
+            const c = document.createElement('canvas');
+            c.width = Math.round(srcCanvas.width * factor);
+            c.height = Math.round(srcCanvas.height * factor);
+            const ctx = c.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(srcCanvas, 0, 0, c.width, c.height);
+            return c;
+        }
+
+        // ─── Image Preprocessing ───
+        function preprocessCanvas(srcCanvas) {
+            const c = document.createElement('canvas');
+            c.width = srcCanvas.width; c.height = srcCanvas.height;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(srcCanvas, 0, 0);
+            const imgData = ctx.getImageData(0, 0, c.width, c.height);
+            const px = imgData.data;
+            const w = c.width, h = c.height;
+            const bin = new Uint8Array(w * h);
+            const thr = 160;
+            for (let i = 0; i < px.length; i += 4) {
+                bin[i / 4] = (0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2]) < thr ? 1 : 0;
+            }
+            const mask = new Uint8Array(w * h);
+            const lineLen = 50;
+            for (let y = 0; y < h; y++) { let rs = -1; for (let x = 0; x <= w; x++) { if (x < w && bin[y * w + x]) { if (rs === -1) rs = x; } else { if (rs !== -1) { if (x - rs > lineLen) for (let k = rs; k < x; k++)mask[y * w + k] = 1; rs = -1; } } } }
+            for (let x = 0; x < w; x++) { let rs = -1; for (let y = 0; y <= h; y++) { if (y < h && bin[y * w + x]) { if (rs === -1) rs = y; } else { if (rs !== -1) { if (y - rs > lineLen) for (let k = rs; k < y; k++)mask[k * w + x] = 1; rs = -1; } } } }
+            for (let i = 0; i < w * h; i++) { const cl = (bin[i] === 1 && mask[i] === 0) ? 0 : 255; const idx = i * 4; px[idx] = px[idx + 1] = px[idx + 2] = cl; px[idx + 3] = 255; }
+            ctx.putImageData(imgData, 0, 0);
+            return c;
+        }
+
+        // ─── Text Cleanup ───
+        function cleanExtractedText(raw) {
+            let lines = raw.split('\n').map(l => {
+                l = l.replace(/^[\|\[\]\(\)\{\}]+\s*/g, '');
+                l = l.replace(/\s*[\|\[\]\(\)\{\}]+$/g, '');
+                l = l.replace(/\s{2,}/g, '  ');
+                return l.trim();
+            }).filter(l => l.length > 0).filter(l => l.replace(/[\s\|\[\]\(\)\{\}\-\_\.\,\:]/g, '').length >= 1);
+            return lines.join('\n');
+        }
+
+        // ─── Single Page Extract ───
+        extractBtn.addEventListener('click', async () => {
+            if (!cropper) return;
+            const cd = cropper.getData();
+            if (Math.round(cd.width) === 0 || Math.round(cd.height) === 0) {
+                alert('Please draw a crop box around the column you want to extract.'); return;
+            }
+            const croppedCanvas = cropper.getCroppedCanvas({ imageSmoothingEnabled: false, imageSmoothingQuality: 'high' });
+            if (!croppedCanvas) return;
+            // Internally upscale 2x for sharper OCR (invisible to user)
+            const upscaled = upscaleCanvas(croppedCanvas, 2);
+            const processed = preprocessCanvas(upscaled);
+
+            extractBtn.disabled = true; extractBtnText.textContent = 'Processing...';
+            batchBtn.disabled = true;
+            ocrStatusContainer.classList.add('active'); outputText.value = '';
+            copyBtn.classList.remove('visible'); compareBtn.classList.remove('visible');
+
+            try {
+                const worker = await Tesseract.createWorker('eng', 1, {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            const pct = Math.round(m.progress * 100);
+                            ocrStatusText.textContent = 'Extracting...'; ocrStatusPercent.textContent = pct + '%'; ocrProgressBar.style.width = pct + '%';
+                        } else { ocrStatusText.textContent = m.status.charAt(0).toUpperCase() + m.status.slice(1); }
+                    }
+                });
+                await worker.setParameters({ tessedit_pageseg_mode: psmSelect.value, preserve_interword_spaces: '1' });
+                const { data: { text } } = await worker.recognize(processed);
+                let result = cleanTextToggle.checked ? cleanExtractedText(text) : text;
+                outputText.value = result.trim() || 'No text found.';
+                if (result.trim()) copyBtn.classList.add('visible');
+                await worker.terminate();
+            } catch (err) { console.error(err); outputText.value = 'OCR Error: ' + err.message; }
+            finally {
+                extractBtn.disabled = false; batchBtn.disabled = false;
+                extractBtnText.textContent = 'Extract This Page';
+                ocrStatusContainer.classList.remove('active'); ocrProgressBar.style.width = '0%';
+            }
+        });
+
+        // ─── Multi-Page Batch Extract ───
+        batchBtn.addEventListener('click', async () => {
+            if (!cropper) return;
+            const cd = cropper.getData();
+            if (Math.round(cd.width) === 0 || Math.round(cd.height) === 0) {
+                alert('Please draw a crop box on the current page first. The same crop will be applied to all pages.'); return;
+            }
+
+            // Get crop coordinates relative to the image's natural (display-scale) dimensions
+            const cropData = cropper.getData();
+            // Scale factor to convert display-scale coords to OCR-scale coords
+            const scaleFactor = OCR_SCALE / PDF_SCALE;
+
+            extractBtn.disabled = true; batchBtn.disabled = true;
+            batchBtnText.textContent = 'Processing...';
+            batchProgress.classList.add('active');
+            outputText.value = ''; copyBtn.classList.remove('visible'); compareBtn.classList.remove('visible'); nextBtn2.classList.remove('visible');
+            batchResults = [];
+
+            let worker;
+            try {
+                // Create one worker for all pages
+                worker = await Tesseract.createWorker('eng', 1);
+                await worker.setParameters({ tessedit_pageseg_mode: psmSelect.value, preserve_interword_spaces: '1' });
+
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+
+                for (let p = 1; p <= totalPages; p++) {
+                    const overallPct = Math.round(((p - 1) / totalPages) * 100);
+                    batchPageLabel.textContent = `Page ${p} / ${totalPages}`;
+                    batchOverallPercent.textContent = overallPct + '%';
+                    batchOverallFill.style.width = overallPct + '%';
+                    batchSubLabel.textContent = `Rendering page ${p} at high-res...`;
+
+                    // Render page at HIGH resolution (OCR_SCALE) for sharp text
+                    const page = await pdfDoc.getPage(p);
+                    const vp = page.getViewport({ scale: OCR_SCALE });
+                    tempCanvas.width = vp.width; tempCanvas.height = vp.height;
+                    await page.render({ canvasContext: tempCtx, viewport: vp }).promise;
+
+                    // Crop the same region at the higher resolution
+                    const cx = Math.round(cropData.x * scaleFactor);
+                    const cy = Math.round(cropData.y * scaleFactor);
+                    const cw = Math.round(cropData.width * scaleFactor);
+                    const ch = Math.round(cropData.height * scaleFactor);
+
+                    const cropCanvas = document.createElement('canvas');
+                    cropCanvas.width = cw; cropCanvas.height = ch;
+                    const cropCtx = cropCanvas.getContext('2d');
+                    cropCtx.drawImage(tempCanvas, cx, cy, cw, ch, 0, 0, cw, ch);
+
+                    // Save cropped image for comparison (at display size for modal)
+                    const croppedDataURL = cropCanvas.toDataURL('image/png');
+
+                    // Preprocess the high-res crop
+                    const processed = preprocessCanvas(cropCanvas);
+
+                    batchSubLabel.textContent = `OCR on page ${p}...`;
+
+                    // Recognize
+                    const { data: { text } } = await worker.recognize(processed);
+                    let cleaned = cleanTextToggle.checked ? cleanExtractedText(text) : text;
+
+                    batchResults.push({
+                        pageNum: p,
+                        imageDataURL: croppedDataURL,
+                        text: cleaned
+                    });
+
+                    // Update progress
+                    const donePct = Math.round((p / totalPages) * 100);
+                    batchOverallPercent.textContent = donePct + '%';
+                    batchOverallFill.style.width = donePct + '%';
+                }
+
+                await worker.terminate();
+
+                // Combine all text into output
+                let combined = '';
+                for (const r of batchResults) {
+                    combined += `──── Page ${r.pageNum} ────\n${r.text}\n\n`;
+                }
+                outputText.value = combined.trim();
+                copyBtn.classList.add('visible');
+                compareBtn.classList.add('visible');
+                nextBtn2.classList.add('visible');
+
+                batchSubLabel.textContent = 'Done! All pages processed.';
+
+            } catch (err) {
+                console.error(err);
+                outputText.value = 'Batch OCR Error: ' + err.message;
+                if (worker) try { await worker.terminate(); } catch (e) { }
+            } finally {
+                extractBtn.disabled = false; batchBtn.disabled = false;
+                batchBtnText.textContent = 'Extract ALL Pages';
+                setTimeout(() => { batchProgress.classList.remove('active'); }, 2000);
+            }
+        });
+
+        // ─── Copy ───
+        copyBtn.onclick = () => {
+            if (!outputText.value) return;
+            navigator.clipboard.writeText(outputText.value).then(() => {
+                const orig = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Copied!';
+                copyBtn.style.borderColor = 'var(--success)'; copyBtn.style.color = 'var(--success)';
+                setTimeout(() => { copyBtn.innerHTML = orig; copyBtn.style.borderColor = ''; copyBtn.style.color = ''; }, 2000);
+            }).catch(() => { outputText.select(); document.execCommand('copy'); });
+        };
+
+        // ═══════════════════════════════════════════
+        // COMPARISON MODAL
+        // ═══════════════════════════════════════════
+        compareBtn.onclick = () => {
+            if (batchResults.length === 0) return;
+            modalCurrentPage = 0;
+            openModal();
+        };
+
+        function openModal() {
+            renderModalPage();
+            renderDots();
+            modalBackdrop.classList.add('active');
+        }
+
+        modalClose.onclick = () => { modalBackdrop.classList.remove('active'); };
+        modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) modalBackdrop.classList.remove('active'); });
+
+        modalPrev.onclick = () => {
+            if (modalCurrentPage > 0) { modalCurrentPage--; renderModalPage(); renderDots(); }
+        };
+        modalNext.onclick = () => {
+            if (modalCurrentPage < batchResults.length - 1) { modalCurrentPage++; renderModalPage(); renderDots(); }
+        };
+
+        // Keyboard nav in modal
+        document.addEventListener('keydown', e => {
+            if (!modalBackdrop.classList.contains('active')) return;
+            if (e.key === 'Escape') modalBackdrop.classList.remove('active');
+            if (e.key === 'ArrowLeft' && modalCurrentPage > 0) { modalCurrentPage--; renderModalPage(); renderDots(); }
+            if (e.key === 'ArrowRight' && modalCurrentPage < batchResults.length - 1) { modalCurrentPage++; renderModalPage(); renderDots(); }
+        });
+
+        function renderModalPage() {
+            const r = batchResults[modalCurrentPage];
+            modalPageInfo.textContent = `Page ${r.pageNum} / ${totalPages}`;
+            modalImagePane.innerHTML = `<img src="${r.imageDataURL}" alt="Page ${r.pageNum} crop">`;
+            modalTextPane.innerHTML = `<pre>${escapeHtml(r.text || '(No text extracted)')}</pre>`;
+            modalPrev.disabled = modalCurrentPage === 0;
+            modalNext.disabled = modalCurrentPage === batchResults.length - 1;
+        }
+
+        function renderDots() {
+            let html = '';
+            for (let i = 0; i < batchResults.length; i++) {
+                const cls = i === modalCurrentPage ? 'active' : 'done';
+                html += `<div class="page-dot ${cls}" data-idx="${i}" title="Page ${batchResults[i].pageNum}"></div>`;
+            }
+            modalDots.innerHTML = html;
+            modalDots.querySelectorAll('.page-dot').forEach(dot => {
+                dot.onclick = () => { modalCurrentPage = parseInt(dot.dataset.idx); renderModalPage(); renderDots(); };
+            });
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ─── Resize ───
+        window.addEventListener('resize', () => {
+            if (pdfWrapper.classList.contains('active')) pdfWrapper.style.maxWidth = (workspaceArea.offsetWidth - 40) + 'px';
+        });
+
+        // ═══════════════════════════════════════════
+        // CALENDAR BUILDER
+        // ═══════════════════════════════════════════
+        const nextBtn2 = $('nextBtn2');
+        const calBackdrop = $('calBackdrop');
+        const calBody = $('calBody');
+        const calCloseBtn = $('calCloseBtn');
+        const calExportBtn = $('calExportBtn');
+
+        let parsedCalendar = []; // [{month, year, rows: [{date, day, workingDay, event, isHoliday}]}]
+
+        nextBtn2.onclick = () => {
+            if (batchResults.length === 0) return;
+            parsedCalendar = parseAllPages(batchResults);
+            renderCalendar(parsedCalendar, batchResults);
+            calBackdrop.classList.add('active');
+        };
+
+        calCloseBtn.onclick = () => { calBackdrop.classList.remove('active'); };
+
+        // ─── Parser ───
+        const MONTHS = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+        const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
+        const DAY_SHORT = { 'MONDAY': 'MON', 'TUESDAY': 'TUE', 'WEDNESDAY': 'WED', 'THURSDAY': 'THU', 'FRIDAY': 'FRI', 'SATURDAY': 'SAT', 'SUNDAY': 'SUN' };
+
+        function parseAllPages(results) {
+            const months = [];
+            for (let i = 0; i < results.length; i++) {
+                const parsed = parsePage(results[i].text);
+                if (parsed && parsed.rows.length > 0) {
+                    parsed.sourceIdx = i; // track which batch result this came from
+                    months.push(parsed);
+                }
+            }
+            return months;
+        }
+
+        function parsePage(rawText) {
+            const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length === 0) return null;
+
+            let monthName = '', year = '';
+            let dataLines = [];
+
+            for (const line of lines) {
+                // Try to detect month header
+                const upperLine = line.toUpperCase();
+                if (!monthName) {
+                    for (const m of MONTHS) {
+                        if (upperLine.includes(m)) {
+                            monthName = m;
+                            // Extract year (4 digits)
+                            const yrMatch = line.match(/(20\d{2})/);
+                            if (yrMatch) year = yrMatch[1];
+                            break;
+                        }
+                    }
+                    if (monthName) continue;
+                }
+
+                // Skip header-like lines
+                if (upperLine.includes('DATE') && upperLine.includes('DAY')) continue;
+                if (upperLine.includes('NO.') || upperLine.includes('WORKING') && upperLine.includes('DAYS') && !upperLine.match(/^\d/)) continue;
+                if (upperLine.includes('CUMULATIVE')) continue;
+                if (upperLine.includes('B.E.') || upperLine.includes('B.TECH')) continue;
+
+                dataLines.push(line);
+            }
+
+            if (!monthName) {
+                // Fallback: just call it by page number
+                monthName = 'UNKNOWN';
+                year = '';
+            }
+
+            const rows = [];
+            for (const line of dataLines) {
+                const parsed = parseDataLine(line);
+                if (parsed) {
+                    // parseDataLine returns an array (may contain 1 or 2 entries)
+                    for (const entry of parsed) rows.push(entry);
+                }
+            }
+
+            // Post-process: auto-fill blank working days between commencement and model exam
+            postProcessRows(rows);
+
+            return { month: monthName, year, rows };
+        }
+
+        // ─── Post-Processing: Auto-fill Working Days ───
+        function postProcessRows(rows) {
+            // Find start: first row with a working day number OR "Commencement" event
+            let startIdx = -1;
+            for (let i = 0; i < rows.length; i++) {
+                const ev = rows[i].event.toUpperCase();
+                if (rows[i].workingDay || ev.includes('COMMENCEMENT')) {
+                    startIdx = i;
+                    break;
+                }
+            }
+            if (startIdx === -1) return; // no working days found
+
+            // Find end: first row with "Model" in the event (model exam)
+            let endIdx = rows.length;
+            for (let i = startIdx; i < rows.length; i++) {
+                const ev = rows[i].event.toUpperCase();
+                if (ev.includes('MODEL')) {
+                    endIdx = i;
+                    break;
+                }
+            }
+
+            // Between start and end, fill blank-event rows that have a working day number
+            for (let i = startIdx; i < endIdx; i++) {
+                if (rows[i].workingDay && !rows[i].event) {
+                    rows[i].event = 'Working Day';
+                }
+            }
+
+            // ─── Auto-number FIA/SIA entries ───
+            // Find consecutive groups of FIA or SIA and number them if missing
+            autoNumberAssessments(rows, 'FIA');
+            autoNumberAssessments(rows, 'SIA');
+        }
+
+        function autoNumberAssessments(rows, prefix) {
+            // Collect all indices where the event starts with the prefix (FIA or SIA)
+            let groups = []; // [{startIdx, endIdx}]
+            let i = 0;
+            while (i < rows.length) {
+                const ev = rows[i].event.trim();
+                if (ev.toUpperCase().startsWith(prefix)) {
+                    // Start of a group
+                    let groupStart = i;
+                    while (i < rows.length && rows[i].event.trim().toUpperCase().startsWith(prefix)) {
+                        i++;
+                    }
+                    groups.push({ start: groupStart, end: i });
+                } else {
+                    i++;
+                }
+            }
+
+            // For each group, normalize format
+            for (const g of groups) {
+                for (let j = g.start; j < g.end; j++) {
+                    let ev = rows[j].event.trim();
+                    // Check if it has a number like "SIA - 3" or "SIA Subject 3"
+                    const numMatch = ev.match(/^(FIA|SIA)\s*(?:-\s*|Subject\s*)(\d+)/i);
+                    if (numMatch) {
+                        // Has number → "SIA Subject 6"
+                        rows[j].event = `${prefix} Subject ${numMatch[2]}`;
+                    } else {
+                        // No number → "SIA Exam"
+                        rows[j].event = `${prefix} Exam`;
+                    }
+                }
+            }
+        }
+
+        // Day-order pattern: "Monday Order", "Tuesday Order", etc.
+        const DAY_ORDER_REGEX = /\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+Order\s*$/i;
+
+        function parseDataLine(line) {
+            // Expected patterns:
+            // "1 MON 36 Working Day - Wednesday Order"
+            // "1 MON 36 Second Internal Assessment Test - 6 Wednesday Order"
+            // "5 FRI Milad -un-Nabi - Holiday"
+            // "7 SUN Holiday"
+            // "1 MON 36 Commencement of ODD Semester Classes Saturday Order"
+            const tokens = line.split(/\s+/);
+            if (tokens.length < 2) return null;
+
+            let date = '', day = '', workingDay = '', event = '', isHoliday = false;
+
+            let idx = 0;
+
+            // First token should be a date number (1-31)
+            if (/^\d{1,2}$/.test(tokens[0])) {
+                date = tokens[0];
+                idx = 1;
+            } else {
+                return null; // Not a data line
+            }
+
+            // Next token should be a day name
+            if (idx < tokens.length) {
+                const upper = tokens[idx].toUpperCase();
+                const found = DAYS.find(d => upper === d || upper.startsWith(d));
+                if (found) {
+                    day = DAY_SHORT[found] || found;
+                    if (day.length > 3) day = day.substring(0, 3);
+                    idx++;
+                } else {
+                    return null; // Not a valid day
+                }
+            }
+
+            // Next: if it's a number, it's a working day count
+            if (idx < tokens.length && /^\d{1,3}$/.test(tokens[idx])) {
+                workingDay = tokens[idx];
+                idx++;
+            }
+
+            // Rest is the event description
+            event = tokens.slice(idx).join(' ').trim();
+
+            // ─── Shorten assessment names ───
+            // "First Internal Assessment Test - 1" → "FIA - 1"
+            // "First Internal Assessment Subject - 2" → "FIA - 2"
+            // Handles OCR misspellings and "Test"/"Subject" variations
+            event = event.replace(/\b[Ff][iI1][rR][sS][tT]?\S*\s+[Ii]nternal\s+[Aa]ss[eo]ss?ment\s+(?:[Tt]est|[Ss]ubject)\b/gi, 'FIA');
+            event = event.replace(/\b[Ss][eE][cC][oO]nd\S*\s+[Ii]nternal\s+[Aa]ss[eo]ss?ment\s+(?:[Tt]est|[Ss]ubject)\b/gi, 'SIA');
+            // Also handle without "Test"/"Subject"
+            event = event.replace(/\b[Ff][iI1][rR][sS][tT]?\S*\s+[Ii]nternal\s+[Aa]ss[eo]ss?ment\b/gi, 'FIA');
+            event = event.replace(/\b[Ss][eE][cC][oO]nd\S*\s+[Ii]nternal\s+[Aa]ss[eo]ss?ment\b/gi, 'SIA');
+
+            // ─── Split multi-event lines ───
+            // Detect day-order suffix like "Wednesday Order", "Saturday Order"
+            const dayOrderMatch = event.match(DAY_ORDER_REGEX);
+            let entries = [];
+
+            if (dayOrderMatch) {
+                const orderDay = dayOrderMatch[1]; // e.g. "Wednesday"
+                const orderText = `Working Day - ${orderDay} Order`;
+                // Remove the day-order suffix from the main event
+                let mainEvent = event.replace(DAY_ORDER_REGEX, '').trim();
+                // Clean trailing separators like " -" or " ,"
+                mainEvent = mainEvent.replace(/[\s\-\,]+$/, '').trim();
+
+                if (mainEvent && mainEvent.toUpperCase() !== 'WORKING DAY') {
+                    // Two events: the main event + working day order
+                    const mainIsHoliday = mainEvent.toUpperCase().includes('HOLIDAY');
+                    entries.push({ date, day, workingDay, event: mainEvent, isHoliday: mainIsHoliday });
+                    entries.push({ date: '', day: '', workingDay: '', event: orderText, isHoliday: false });
+                } else {
+                    // Just a working day order (e.g. "Working Day - Wednesday Order")
+                    entries.push({ date, day, workingDay, event: orderText, isHoliday: false });
+                }
+            } else {
+                // Only mark as holiday if the text EXPLICITLY says "Holiday"
+                const eventUpper = event.toUpperCase();
+                if (eventUpper.includes('HOLIDAY')) {
+                    isHoliday = true;
+                }
+
+                entries.push({ date, day, workingDay, event, isHoliday });
+            }
+
+            return entries;
+        }
+
+        // ─── Render Calendar Tables ───
+        function renderCalendar(calendar, results) {
+            let html = '';
+            for (let mi = 0; mi < calendar.length; mi++) {
+                const m = calendar[mi];
+                const workingCount = m.rows.filter(r => r.workingDay).length;
+                const holidayCount = m.rows.filter(r => r.isHoliday).length;
+                const titleCase = m.month.charAt(0) + m.month.slice(1).toLowerCase();
+                const imgSrc = (results && m.sourceIdx !== undefined && results[m.sourceIdx]) ? results[m.sourceIdx].imageDataURL : '';
+
+                html += `<div class="cal-month-block">
+                    <div class="cal-month-header">
+                        <div class="month-name">
+                            <svg viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            ${titleCase} ${m.year}
+                        </div>
+                        <div class="cal-month-stats">
+                            <span class="working-tag">${workingCount} working</span>
+                            &nbsp;
+                            <span class="holiday-tag">${holidayCount} holidays</span>
+                        </div>
+                    </div>
+                    <div class="cal-month-content">
+                        <div class="cal-image-pane">
+                            <div class="pane-label">📄 Original Crop</div>
+                            ${imgSrc ? `<img src="${imgSrc}" alt="Page ${mi + 1} crop">` : '<div style="color:var(--text-muted);font-size:12px">No image</div>'}
+                        </div>
+                        <div class="cal-table-pane">
+                    <table class="cal-table">
+                        <thead>
+                            <tr>
+                                <th style="width:50px">Date</th>
+                                <th style="width:60px">Day</th>
+                                <th style="width:50px">WD#</th>
+                                <th>Event / Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                for (let ri = 0; ri < m.rows.length; ri++) {
+                    const r = m.rows[ri];
+                    const rowClass = r.isHoliday ? 'is-holiday' : '';
+                    const wdClass = r.workingDay ? '' : 'no-wd';
+                    const wdDisplay = r.workingDay || '—';
+
+                    html += `<tr class="${rowClass}">
+                        <td class="date-col"><input type="text" value="${escapeAttr(r.date)}" data-m="${mi}" data-r="${ri}" data-f="date" style="width:40px;text-align:center"></td>
+                        <td class="day-col"><input type="text" value="${escapeAttr(r.day)}" data-m="${mi}" data-r="${ri}" data-f="day" style="width:50px"></td>
+                        <td class="wd-col ${wdClass}"><input type="text" value="${escapeAttr(wdDisplay === '—' ? '' : wdDisplay)}" data-m="${mi}" data-r="${ri}" data-f="workingDay" style="width:40px;text-align:center" placeholder="—"></td>
+                        <td class="event-col"><input type="text" class="event-input" value="${escapeAttr(r.event)}" data-m="${mi}" data-r="${ri}" data-f="event"></td>
+                    </tr>`;
+                }
+
+                html += `</tbody></table></div></div></div>`;
+            }
+
+            calBody.innerHTML = html;
+
+            // Attach live edit listeners
+            calBody.querySelectorAll('input').forEach(inp => {
+                inp.addEventListener('input', e => {
+                    const mi = parseInt(e.target.dataset.m);
+                    const ri = parseInt(e.target.dataset.r);
+                    const field = e.target.dataset.f;
+                    if (parsedCalendar[mi] && parsedCalendar[mi].rows[ri]) {
+                        parsedCalendar[mi].rows[ri][field] = e.target.value;
+                    }
+                });
+            });
+        }
+
+        function escapeAttr(str) {
+            return String(str).replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ─── RTDB JSON Export ───
+        const MONTH_NUM = {
+            JANUARY: '01', FEBRUARY: '02', MARCH: '03', APRIL: '04', MAY: '05', JUNE: '06',
+            JULY: '07', AUGUST: '08', SEPTEMBER: '09', OCTOBER: '10', NOVEMBER: '11', DECEMBER: '12'
+        };
+
+        function generateGroupId() {
+            // Generate a random ID similar to Google Calendar event IDs
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let id = '';
+            for (let i = 0; i < 26; i++) id += chars[Math.floor(Math.random() * chars.length)];
+            return id;
+        }
+
+        function getFullTime(title) {
+            const upper = title.toUpperCase();
+            // Working Day entries (including day orders) and Commencement → timed
+            if (upper.startsWith('WORKING DAY') || upper.includes('COMMENCEMENT')) {
+                return '08:30 AM - 03:00 PM';
+            }
+            // Everything else (Holiday, FIA, SIA, Model, Symposium, etc.) → All Day
+            return 'All Day';
+        }
+
+        function buildRTDBEvents(calendar) {
+            const events = [];
+
+            for (const m of calendar) {
+                const monthNum = MONTH_NUM[m.month] || '01';
+                const yr = m.year || '2026';
+
+                // Build flat list of {isoDate, title, fullTime} for this month
+                const monthEntries = [];
+                for (const r of m.rows) {
+                    if (!r.date) continue; // skip sub-rows (day-order splits with empty date, they share parent's date)
+                    const dd = String(r.date).padStart(2, '0');
+                    const isoDate = `${yr}-${monthNum}-${dd}`;
+
+                    // Main event
+                    monthEntries.push({ isoDate, title: r.event || 'Working Day', fullTime: getFullTime(r.event || 'Working Day') });
+                }
+
+                // Also process split entries (rows with empty date use previous row's date)
+                let lastDate = '';
+                for (const r of m.rows) {
+                    if (r.date) {
+                        const dd = String(r.date).padStart(2, '0');
+                        lastDate = `${yr}-${monthNum}-${dd}`;
+                    } else if (lastDate && r.event) {
+                        // Sub-entry (day-order split) → separate event on same date
+                        monthEntries.push({ isoDate: lastDate, title: r.event, fullTime: getFullTime(r.event) });
+                    }
+                }
+
+                // Sort by date
+                monthEntries.sort((a, b) => a.isoDate.localeCompare(b.isoDate));
+
+                // Assign groupIds: consecutive entries with the same title share a groupId
+                let currentGroupId = generateGroupId();
+                let prevTitle = null;
+
+                for (const entry of monthEntries) {
+                    if (entry.title !== prevTitle) {
+                        currentGroupId = generateGroupId();
+                    }
+                    prevTitle = entry.title;
+
+                    events.push({
+                        date: entry.isoDate,
+                        fullTime: entry.fullTime,
+                        groupId: currentGroupId,
+                        id: `${currentGroupId}_${entry.isoDate}`,
+                        title: entry.title
+                    });
+                }
+            }
+
+            // Sort all events by date
+            events.sort((a, b) => a.date.localeCompare(b.date));
+
+            return events;
+        }
+
+        calExportBtn.onclick = () => {
+            const events = buildRTDBEvents(parsedCalendar);
+            const jsonStr = JSON.stringify(events, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'academic_calendar_rtdb.json'; a.click();
+            URL.revokeObjectURL(url);
+        };
+    </script>
+</body>
+
+</html>

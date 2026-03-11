@@ -1,0 +1,1109 @@
+/* ==========================================================================
+   ELVAN AGAZHI — PDF OCR + Calendar Builder (Admin Panel Module)
+   Scoped under .ea-container to avoid style conflicts.
+   Uses the app's --mac-* CSS variable system for seamless theme integration.
+   ========================================================================== */
+
+/* ─── Layout ─── */
+.ea-container {
+    display: flex;
+    height: calc(100vh - 80px);
+    width: 100%;
+    overflow: hidden;
+    border-radius: 24px;
+    border: var(--mac-card-border);
+    background: var(--mac-card-bg);
+}
+
+/* ─── Sidebar ─── */
+.ea-sidebar {
+    width: 360px;
+    flex-shrink: 0;
+    background: var(--mac-sidebar-bg);
+    border-right: 1px solid var(--mac-divider);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.ea-sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.ea-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ea-sidebar::-webkit-scrollbar-thumb {
+    background: var(--mac-divider);
+    border-radius: 5px;
+}
+
+.ea-sidebar-section {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--mac-divider);
+}
+
+.ea-sidebar-section:last-child {
+    border-bottom: none;
+}
+
+.ea-section-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--mac-text-secondary);
+    margin-bottom: 12px;
+}
+
+.ea-step-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--mac-blue);
+    color: #fff;
+    font-size: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+/* ─── File Drop Zone ─── */
+.ea-file-drop {
+    border: 2px dashed var(--mac-divider);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.ea-file-drop:hover {
+    border-color: var(--mac-blue);
+    background: rgba(0, 113, 255, 0.04);
+}
+
+.ea-file-drop input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.ea-file-drop .ea-drop-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    border-radius: 12px;
+    background: var(--mac-bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--mac-blue);
+}
+
+.ea-file-drop .ea-drop-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.ea-file-drop .ea-drop-sublabel {
+    font-size: 11px;
+    color: var(--mac-text-secondary);
+    margin-top: 4px;
+}
+
+.ea-file-name {
+    font-size: 11px;
+    color: #30D158;
+    margin-top: 8px;
+    font-weight: 600;
+    display: none;
+}
+
+.ea-file-name.visible {
+    display: block;
+}
+
+/* ─── Page Nav ─── */
+.ea-page-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--mac-bg-secondary);
+    border-radius: 12px;
+    padding: 6px;
+}
+
+.ea-page-nav button {
+    background: none;
+    border: none;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    font-size: 16px;
+}
+
+.ea-page-nav button:hover:not(:disabled) {
+    background: var(--mac-selection-bg);
+    color: var(--mac-blue);
+}
+
+.ea-page-nav button:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+.ea-page-nav .ea-page-info {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    font-weight: 600;
+}
+
+.ea-page-nav .ea-page-info strong {
+    color: var(--mac-text);
+}
+
+/* ─── OCR Controls ─── */
+.ea-tip-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    border-radius: 10px;
+    font-size: 11px;
+    color: #F59E0B;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    font-weight: 500;
+}
+
+.ea-select {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    border-radius: 10px;
+    color: var(--mac-text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.ea-select:focus {
+    border-color: var(--mac-blue);
+    box-shadow: 0 0 0 3px rgba(0, 113, 255, 0.1);
+}
+
+.ea-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    margin-top: 12px;
+    font-weight: 500;
+}
+
+.ea-checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--mac-blue);
+    cursor: pointer;
+}
+
+/* ─── Action Buttons ─── */
+.ea-btn {
+    width: 100%;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: inherit;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+    transition: all 0.2s ease;
+}
+
+.ea-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.ea-btn svg,
+.ea-btn .ea-btn-icon {
+    font-size: 15px;
+}
+
+.ea-btn-extract {
+    background: var(--mac-blue);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0, 113, 255, 0.2);
+}
+
+.ea-btn-extract:hover:not(:disabled) {
+    box-shadow: 0 6px 24px rgba(0, 113, 255, 0.35);
+    transform: translateY(-1px);
+}
+
+.ea-btn-batch {
+    background: #30D158;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(48, 209, 88, 0.2);
+}
+
+.ea-btn-batch:hover:not(:disabled) {
+    box-shadow: 0 6px 24px rgba(48, 209, 88, 0.35);
+    transform: translateY(-1px);
+}
+
+.ea-btn-next {
+    background: #FF9F0A;
+    color: #1c1c1e;
+    box-shadow: 0 4px 14px rgba(255, 159, 10, 0.2);
+    display: none;
+}
+
+.ea-btn-next.visible {
+    display: flex;
+}
+
+.ea-btn-next:hover {
+    box-shadow: 0 6px 24px rgba(255, 159, 10, 0.35);
+    transform: translateY(-1px);
+}
+
+/* ─── Progress ─── */
+.ea-progress {
+    margin-top: 12px;
+    display: none;
+}
+
+.ea-progress.active {
+    display: block;
+}
+
+.ea-progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--mac-text-secondary);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.ea-progress-track {
+    width: 100%;
+    height: 4px;
+    background: var(--mac-bg-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ea-progress-fill {
+    height: 100%;
+    background: var(--mac-blue);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Batch progress */
+.ea-batch-progress {
+    margin-top: 14px;
+    display: none;
+}
+
+.ea-batch-progress.active {
+    display: block;
+}
+
+.ea-batch-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--mac-blue);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.ea-batch-track {
+    width: 100%;
+    height: 6px;
+    background: var(--mac-bg-secondary);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.ea-batch-fill {
+    height: 100%;
+    background: #30D158;
+    border-radius: 6px;
+    width: 0%;
+    transition: width 0.4s ease;
+}
+
+.ea-batch-sub {
+    font-size: 10px;
+    color: var(--mac-text-secondary);
+    font-weight: 500;
+}
+
+/* ─── Output ─── */
+.ea-output-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.ea-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ea-output-btns {
+    display: flex;
+    gap: 6px;
+}
+
+.ea-output-textarea {
+    flex: 1;
+    width: 100%;
+    min-height: 120px;
+    padding: 14px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    border-radius: 14px;
+    color: var(--mac-text);
+    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.ea-output-textarea:focus {
+    border-color: var(--mac-blue);
+}
+
+.ea-output-textarea::placeholder {
+    color: var(--mac-text-secondary);
+}
+
+.ea-btn-small {
+    padding: 5px 12px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    border-radius: 50px;
+    color: var(--mac-text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s ease;
+}
+
+.ea-btn-small.visible {
+    display: inline-flex;
+}
+
+.ea-btn-small:hover {
+    border-color: var(--mac-blue);
+    color: var(--mac-blue);
+}
+
+.ea-btn-small svg {
+    font-size: 12px;
+}
+
+/* ─── Workspace (PDF Viewer) ─── */
+.ea-workspace {
+    flex: 1;
+    background: var(--mac-bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 24px;
+}
+
+.ea-workspace-empty {
+    text-align: center;
+    max-width: 360px;
+}
+
+.ea-workspace-empty .ea-empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: var(--mac-card-bg);
+    border: 1px solid var(--mac-divider);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    font-size: 28px;
+    color: var(--mac-text-secondary);
+}
+
+.ea-workspace-empty h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--mac-text);
+}
+
+.ea-workspace-empty p {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    line-height: 1.6;
+}
+
+.ea-pdf-container {
+    background: var(--mac-card-bg);
+    border: 1px solid var(--mac-divider);
+    border-radius: 14px;
+    overflow: hidden;
+    display: none;
+    max-width: calc(100% - 40px);
+    max-height: calc(100% - 40px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+}
+
+html.dark .ea-pdf-container {
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.ea-pdf-container.active {
+    display: block;
+}
+
+.ea-pdf-container canvas {
+    display: none;
+}
+
+.ea-pdf-container img {
+    display: block;
+    max-width: 100%;
+}
+
+/* Loading overlay */
+.ea-loading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 50;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+html.dark .ea-loading-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.ea-loading-overlay.active {
+    display: flex;
+}
+
+.ea-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--mac-divider);
+    border-top-color: var(--mac-blue);
+    border-radius: 50%;
+    animation: ea-spin 0.8s linear infinite;
+    margin-bottom: 14px;
+}
+
+@keyframes ea-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.ea-loading-overlay .ea-loading-text {
+    font-size: 13px;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Cropper overrides — scoped */
+.ea-container .cropper-view-box {
+    outline-color: var(--mac-blue);
+}
+
+.ea-container .cropper-line {
+    background-color: var(--mac-blue);
+}
+
+.ea-container .cropper-point {
+    background-color: var(--mac-blue);
+}
+
+.ea-container .cropper-modal {
+    background-color: rgba(0, 0, 0, 0.45);
+}
+
+/* ─── Comparison Modal ─── */
+.ea-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.ea-modal-backdrop.active {
+    display: flex;
+}
+
+.ea-modal {
+    width: 94vw;
+    max-width: 1400px;
+    height: 88vh;
+    background: var(--mac-sidebar-bg);
+    border: 1px solid var(--mac-divider);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.ea-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--mac-divider);
+    flex-shrink: 0;
+}
+
+.ea-modal-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--mac-text);
+}
+
+.ea-modal-page-info {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    font-weight: 600;
+}
+
+.ea-modal-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--mac-divider);
+    background: var(--mac-bg-secondary);
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    font-size: 16px;
+}
+
+.ea-modal-close:hover {
+    border-color: #FF3B30;
+    color: #FF3B30;
+}
+
+.ea-modal-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.ea-modal-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.ea-modal-pane+.ea-modal-pane {
+    border-left: 1px solid var(--mac-divider);
+}
+
+.ea-modal-pane-header {
+    padding: 12px 18px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--mac-text-secondary);
+    border-bottom: 1px solid var(--mac-divider);
+    background: var(--mac-bg-secondary);
+    flex-shrink: 0;
+}
+
+.ea-modal-pane-content {
+    flex: 1;
+    overflow: auto;
+    padding: 18px;
+}
+
+.ea-modal-pane-content img {
+    max-width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--mac-divider);
+}
+
+.ea-modal-pane-content pre {
+    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--mac-text);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.ea-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-top: 1px solid var(--mac-divider);
+    flex-shrink: 0;
+}
+
+.ea-modal-nav-btn {
+    padding: 8px 20px;
+    border-radius: 50px;
+    border: 1px solid var(--mac-divider);
+    background: var(--mac-bg-secondary);
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+}
+
+.ea-modal-nav-btn:hover:not(:disabled) {
+    border-color: var(--mac-blue);
+    color: var(--mac-blue);
+}
+
+.ea-modal-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.ea-modal-nav-btn svg {
+    font-size: 14px;
+}
+
+.ea-modal-dots {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.ea-page-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mac-divider);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.ea-page-dot.active {
+    background: var(--mac-blue);
+    box-shadow: 0 0 6px rgba(0, 113, 255, 0.3);
+}
+
+.ea-page-dot.done {
+    background: #30D158;
+}
+
+/* ─── Calendar Builder Modal ─── */
+.ea-cal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    display: none;
+    flex-direction: column;
+}
+
+.ea-cal-backdrop.active {
+    display: flex;
+}
+
+.ea-cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--mac-divider);
+    background: var(--mac-sidebar-bg);
+    flex-shrink: 0;
+}
+
+.ea-cal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.ea-cal-header-icon {
+    font-size: 24px;
+    color: var(--mac-blue);
+}
+
+.ea-cal-header-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--mac-text);
+}
+
+.ea-cal-header-sub {
+    font-size: 11px;
+    color: var(--mac-text-secondary);
+    font-weight: 500;
+}
+
+.ea-cal-header-right {
+    display: flex;
+    gap: 10px;
+}
+
+.ea-cal-btn {
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid var(--mac-divider);
+    background: var(--mac-bg-secondary);
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+}
+
+.ea-cal-btn:hover {
+    border-color: var(--mac-blue);
+    color: var(--mac-blue);
+}
+
+.ea-cal-btn.primary {
+    background: var(--mac-blue);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(0, 113, 255, 0.2);
+}
+
+.ea-cal-btn.primary:hover {
+    box-shadow: 0 6px 24px rgba(0, 113, 255, 0.35);
+}
+
+.ea-cal-btn svg {
+    font-size: 14px;
+}
+
+.ea-cal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px;
+    background: var(--mac-bg-primary);
+}
+
+/* Month blocks */
+.ea-cal-month-block {
+    background: var(--mac-sidebar-bg);
+    border: 1px solid var(--mac-divider);
+    border-radius: 20px;
+    margin-bottom: 28px;
+    overflow: hidden;
+}
+
+.ea-cal-month-header {
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 800;
+    background: var(--mac-selection-bg, rgba(0, 113, 255, 0.06));
+    border-bottom: 1px solid var(--mac-divider);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--mac-text);
+}
+
+.ea-cal-month-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ea-cal-month-name svg {
+    font-size: 20px;
+    color: var(--mac-blue);
+}
+
+.ea-cal-month-stats {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ea-cal-month-content {
+    display: flex;
+    min-height: 300px;
+}
+
+.ea-cal-image-pane {
+    width: 320px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--mac-divider);
+    overflow: auto;
+    padding: 14px;
+    background: var(--mac-bg-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ea-cal-image-pane img {
+    max-width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--mac-divider);
+    cursor: zoom-in;
+}
+
+.ea-cal-pane-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--mac-text-secondary);
+    margin-bottom: 10px;
+}
+
+.ea-cal-table-pane {
+    flex: 1;
+    overflow: auto;
+}
+
+/* Calendar table */
+.ea-cal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.ea-cal-table thead th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--mac-text-secondary);
+    background: var(--mac-bg-secondary);
+    border-bottom: 1px solid var(--mac-divider);
+}
+
+.ea-cal-table tbody tr {
+    border-bottom: 1px solid var(--mac-divider);
+    transition: background 0.1s;
+}
+
+.ea-cal-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.ea-cal-table tbody tr:hover {
+    background: var(--mac-selection-bg);
+}
+
+.ea-cal-table tbody tr.is-holiday {
+    background: rgba(255, 59, 48, 0.05);
+}
+
+.ea-cal-table tbody tr.is-holiday:hover {
+    background: rgba(255, 59, 48, 0.1);
+}
+
+.ea-cal-table td {
+    padding: 8px 16px;
+    vertical-align: middle;
+}
+
+.ea-cal-table td.ea-date-col {
+    width: 50px;
+    font-weight: 800;
+    color: var(--mac-text);
+}
+
+.ea-cal-table td.ea-day-col {
+    width: 60px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+}
+
+.ea-cal-table td.ea-wd-col {
+    width: 40px;
+    text-align: center;
+    font-weight: 800;
+    color: var(--mac-blue);
+}
+
+.ea-cal-table td.ea-wd-col.no-wd {
+    color: #FF3B30;
+    font-style: italic;
+}
+
+.ea-cal-table td.ea-event-col {
+    color: var(--mac-text);
+}
+
+.ea-cal-table td input {
+    background: transparent;
+    border: 1px solid transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    padding: 5px 8px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+    transition: all 0.15s;
+}
+
+.ea-cal-table td input:hover {
+    border-color: var(--mac-divider);
+}
+
+.ea-cal-table td input:focus {
+    border-color: var(--mac-blue);
+    background: var(--mac-bg-secondary);
+    box-shadow: 0 0 0 2px rgba(0, 113, 255, 0.1);
+}
+
+.ea-cal-table td input.ea-event-input {
+    min-width: 200px;
+}
+
+/* Tags */
+.ea-holiday-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255, 59, 48, 0.1);
+    color: #FF3B30;
+}
+
+.ea-working-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(0, 113, 255, 0.08);
+    color: var(--mac-blue);
+}
+
+/* ─── Responsiveness ─── */
+@media (max-width: 900px) {
+    .ea-container {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 80px);
+        border-radius: 0;
+        border: none;
+    }
+
+    .ea-sidebar {
+        width: 100%;
+        max-height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid var(--mac-divider);
+    }
+
+    .ea-workspace {
+        min-height: 50vh;
+    }
+
+    .ea-cal-month-content {
+        flex-direction: column;
+    }
+
+    .ea-cal-image-pane {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--mac-divider);
+        max-height: 200px;
+    }
+
+    .ea-modal-body {
+        flex-direction: column;
+    }
+
+    .ea-modal-pane+.ea-modal-pane {
+        border-left: none;
+        border-top: 1px solid var(--mac-divider);
+    }
+}

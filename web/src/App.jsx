@@ -447,9 +447,10 @@ function App() {
       console.error("Updates sync error:", error);
     });
 
-    runGlobalCalendarSync(batch);
+    // LEGACY: Google Calendar API sync disabled — Elvan Agazhi now powers calendar data
+    // runGlobalCalendarSync(batch);
     return () => { unsubCal(); unsubSched(); unsubUpdates(); };
-  }, [activeProfile, runGlobalCalendarSync]);
+  }, [activeProfile]);
 
   return (
     <BrowserRouter>
