@@ -720,18 +720,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         _uiFlags.update { it.copy(isSyncing = true) }
         
         viewModelScope.launch {
-            // 1. Run Google Calendar sync (fetches from API, pushes to Firebase if changed)
-            try {
-                repository.runGoogleCalendarSync(profile.batch)
-            } catch (e: Exception) {
-                // Google Calendar sync is optional - don't fail the refresh
-                android.util.Log.w("HomeViewModel", "Google Calendar sync failed: ${e.message}")
-            }
-            
-            // 2. Force network refresh (re-attach listeners)
+            // Force network refresh (re-attach Firebase listeners)
             repository.refreshHomeData(profile.uid, profile.batch, profile.department, profile.section)
             
-            // 3. Keep spinner for at least 1.5s visual feedback
+            // Keep spinner for at least 1.5s visual feedback
             kotlinx.coroutines.delay(1500)
             _uiFlags.update { it.copy(isSyncing = false) }
         }
