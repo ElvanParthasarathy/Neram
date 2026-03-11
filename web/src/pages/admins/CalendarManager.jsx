@@ -82,8 +82,14 @@ const CalendarManager = () => {
   const fileInputRef = useRef(null);
 
   // --- LIVE EDITOR LOGIC ---
-  const handleLiveEventChange = (id, newTitle) => {
-    setLiveFlatEvents(prev => prev.map(ev => ev.id === id ? { ...ev, title: newTitle } : ev));
+  const handleLiveEventChange = (id, updates) => {
+    setLiveFlatEvents(prev => prev.map(ev => ev.id === id ? { ...ev, ...updates } : ev));
+  };
+
+  const handleDeleteLiveEvent = (id) => {
+    if (window.confirm('Delete this event?')) {
+      setLiveFlatEvents(prev => prev.filter(ev => ev.id !== id));
+    }
   };
 
   const handleExportLiveJSON = () => {
@@ -209,7 +215,13 @@ const CalendarManager = () => {
       const updated = [...prev];
       if (updated[mi] && updated[mi].rows[ri]) {
         updated[mi] = { ...updated[mi], rows: [...updated[mi].rows] };
-        updated[mi].rows[ri] = { ...updated[mi].rows[ri], [field]: value };
+
+        // Handle row deletion natively in Builder if user requested
+        if (field === '_DELETE_ROW' && value === true) {
+          updated[mi].rows.splice(ri, 1);
+        } else {
+          updated[mi].rows[ri] = { ...updated[mi].rows[ri], [field]: value };
+        }
       }
       return updated;
     });
@@ -413,7 +425,7 @@ const CalendarManager = () => {
                           <div className="calendar-thead">
                             <div className="date-cell hd">Date</div>
                             <div className="day-cell hd">Day</div>
-                            <div className="events-cell hd">Events</div>
+                            <div className="events-cell hd">Events & Descriptions</div>
                           </div>
                           <div className="calendar-tbody">
                             {Object.keys(liveGroupedByDate).sort().map((dateStr) => {
@@ -431,14 +443,38 @@ const CalendarManager = () => {
                                   <div className="events-cell">
                                     <div className="events-list-vertical">
                                       {liveGroupedByDate[dateStr].map((event, i) => (
-                                        <div key={event.id || i} className="event-item-pill">
+                                        <div key={event.id || i} className="event-item-pill" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', width: '100%' }}>
                                           <input
                                             className="inline-edit-input"
                                             value={event.title}
-                                            onChange={e => handleLiveEventChange(event.id, e.target.value)}
+                                            onChange={e => handleLiveEventChange(event.id, { title: e.target.value })}
                                             placeholder="Event title..."
+                                            style={{ flex: 2, background: 'transparent', border: 'none', color: 'var(--mac-text)', minWidth: 150 }}
                                           />
-                                          <span>{event.fullTime}</span>
+                                          <input
+                                            className="inline-edit-input"
+                                            value={event.fullTime || ''}
+                                            onChange={e => handleLiveEventChange(event.id, { fullTime: e.target.value })}
+                                            placeholder="All Day"
+                                            style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '2px 6px', color: 'var(--mac-text-secondary)', fontSize: '12px', minWidth: 100 }}
+                                          />
+                                          <select
+                                            value={event.type || 'FullDay'}
+                                            onChange={e => handleLiveEventChange(event.id, { type: e.target.value })}
+                                            style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, padding: '2px', fontSize: '12px', width: 90 }}
+                                          >
+                                            <option value="FullDay" style={{ color: '#000' }}>FullDay</option>
+                                            <option value="HalfDay" style={{ color: '#000' }}>HalfDay</option>
+                                            <option value="Holiday" style={{ color: '#000' }}>Holiday</option>
+                                            <option value="None" style={{ color: '#000' }}>None</option>
+                                          </select>
+                                          <button
+                                            onClick={() => handleDeleteLiveEvent(event.id)}
+                                            style={{ background: 'transparent', border: 'none', color: '#ff453a', cursor: 'pointer', padding: '4px', display: 'flex' }}
+                                            title="Delete Event"
+                                          >
+                                            <RiCloseLine size={16} />
+                                          </button>
                                         </div>
                                       ))}
                                     </div>

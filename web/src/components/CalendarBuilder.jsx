@@ -111,7 +111,10 @@ const CalendarBuilder = ({
                                                 <th style={{ width: 50 }}>Date</th>
                                                 <th style={{ width: 60 }}>Day</th>
                                                 <th style={{ width: 50 }}>WD#</th>
-                                                <th>Event / Description</th>
+                                                <th>Event Title</th>
+                                                <th style={{ width: 140 }}>Time (fullTime)</th>
+                                                <th style={{ width: 100 }}>Type</th>
+                                                <th style={{ width: 40, textAlign: 'center' }}>⚙️</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -149,8 +152,44 @@ const CalendarBuilder = ({
                                                                 type="text"
                                                                 className="ea-event-input"
                                                                 defaultValue={escapeAttr(r.event)}
+                                                                placeholder="Event Title..."
                                                                 onChange={(e) => onCellChange(mi, ri, 'event', e.target.value)}
                                                             />
+                                                        </td>
+                                                        <td className="ea-time-col">
+                                                            <input
+                                                                type="text"
+                                                                className="ea-event-input"
+                                                                defaultValue={escapeAttr(r.fullTime || '')}
+                                                                placeholder="All Day"
+                                                                style={{ fontSize: 12, opacity: 0.8 }}
+                                                                onChange={(e) => onCellChange(mi, ri, 'fullTime', e.target.value)}
+                                                            />
+                                                        </td>
+                                                        <td className="ea-type-col">
+                                                            <select
+                                                                defaultValue={r.type || 'FullDay'}
+                                                                style={{ background: 'transparent', color: 'inherit', border: 'none', outline: 'none', width: '100%', fontSize: 12, cursor: 'pointer' }}
+                                                                onChange={(e) => onCellChange(mi, ri, 'type', e.target.value)}
+                                                            >
+                                                                <option value="" style={{ color: '#000' }}>None</option>
+                                                                <option value="FullDay" style={{ color: '#000' }}>FullDay</option>
+                                                                <option value="HalfDay" style={{ color: '#000' }}>HalfDay</option>
+                                                                <option value="Holiday" style={{ color: '#000' }}>Holiday</option>
+                                                            </select>
+                                                        </td>
+                                                        <td style={{ textAlign: 'center' }}>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (window.confirm('Delete this event row?')) {
+                                                                        onCellChange?.(mi, ri, '_DELETE_ROW', true);
+                                                                    }
+                                                                }}
+                                                                style={{ background: 'transparent', color: '#ff453a', border: 'none', cursor: 'pointer', padding: 4 }}
+                                                                title="Delete Row"
+                                                            >
+                                                                <RiCloseLine size={16} />
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 );

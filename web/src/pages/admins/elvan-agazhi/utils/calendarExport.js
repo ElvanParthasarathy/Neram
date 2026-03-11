@@ -27,7 +27,7 @@ function getFullTime(title) {
 /**
  * Convert parsed calendar data into a flat array of RTDB-ready event objects.
  * @param {Array} calendar  from parseAllPages()
- * @returns {Array<{date, fullTime, groupId, id, title}>}
+ * @returns {Array<{date, fullTime, groupId, id, title, type}>}
  */
 export function buildRTDBEvents(calendar) {
     const events = [];
@@ -45,7 +45,12 @@ export function buildRTDBEvents(calendar) {
             const isoDate = `${yr}-${monthNum}-${dd}`;
 
             if (r.event && r.event.trim() !== '') {
-                monthEntries.push({ isoDate, title: r.event.trim(), fullTime: getFullTime(r.event) });
+                monthEntries.push({
+                    isoDate,
+                    title: r.event.trim(),
+                    fullTime: r.fullTime || getFullTime(r.event),
+                    type: r.type || 'FullDay'
+                });
             }
         }
 
@@ -56,7 +61,12 @@ export function buildRTDBEvents(calendar) {
                 const dd = String(r.date).padStart(2, '0');
                 lastDate = `${yr}-${monthNum}-${dd}`;
             } else if (lastDate && r.event && r.event.trim() !== '') {
-                monthEntries.push({ isoDate: lastDate, title: r.event.trim(), fullTime: getFullTime(r.event) });
+                monthEntries.push({
+                    isoDate: lastDate,
+                    title: r.event.trim(),
+                    fullTime: r.fullTime || getFullTime(r.event),
+                    type: r.type || 'FullDay'
+                });
             }
         }
 
@@ -75,6 +85,7 @@ export function buildRTDBEvents(calendar) {
             events.push({
                 date: entry.isoDate,
                 fullTime: entry.fullTime,
+                type: entry.type,
                 groupId: currentGroupId,
                 id: `${currentGroupId}_${entry.isoDate}`,
                 title: entry.title
