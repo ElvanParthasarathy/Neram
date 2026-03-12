@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import SettingsHub from "./settings/SettingsHub";
 import DisplaySettings from "./settings/DisplaySettings";
-import NotificationSettings from "./settings/NotificationSettings";
 import StorageSettings from "./settings/StorageSettings";
 import SecuritySettings from "./settings/SecuritySettings";
 import UserDirectoryView from "./settings/UserDirectoryView";
@@ -154,7 +153,6 @@ const Settings2 = ({ userProfile }) => {
         switch (effectiveView) {
             case "profile": return <ProfileView userProfile={userProfile} onBack={goHub} />;
             case "display": return <DisplaySettings onBack={goHub} />;
-            case "notifications": return <NotificationSettings onBack={goHub} />;
             case "storage": return <StorageSettings userProfile={userProfile} onBack={goHub} />;
             case "security": return <SecuritySettings onBack={goHub} />;
             case "directory": return <UserDirectoryView onBack={goHub} subPath={subPath} />;

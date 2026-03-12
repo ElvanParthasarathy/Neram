@@ -194,11 +194,15 @@ const CalendarManager = () => {
       const dayStr = currentDate.toLocaleDateString('en-US', { weekday: 'short' }).substring(0, 3);
       const dateStr = String(currentDate.getDate()).padStart(2, '0');
 
+      const isWorking = !isSunday;
+
       monthBlock.rows.push({
         date: dateStr,
         day: dayStr,
-        workingDay: isSunday ? '' : String(currentWorkingDay++),
-        event: isSunday ? 'Sunday' : '',
+        workingDay: isWorking ? String(currentWorkingDay++) : '',
+        event: isSunday ? 'Sunday' : 'Working Day',
+        fullTime: isWorking ? '08:20 AM - 03:00 PM' : 'All Day',
+        type: isWorking ? 'FullDay' : 'Holiday',
         isHoliday: isSunday,
         fullDateObj: new Date(currentDate)
       });

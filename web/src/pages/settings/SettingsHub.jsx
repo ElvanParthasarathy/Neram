@@ -61,7 +61,6 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                     desc="Manage cached content"
                     onClick={() => onNavigate("storage")}
                 />
-
             </SettingsGroup>
 
             <div className="s2-spacer-sm" />

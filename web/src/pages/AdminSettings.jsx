@@ -4,7 +4,6 @@ import "../styles/settings2.css";
 // Reuse Student Components
 import SettingsHub from "./settings/SettingsHub";
 import DisplaySettings from "./settings/DisplaySettings";
-import NotificationSettings from "./settings/NotificationSettings"; // Keep if needed, though mostly placeholder
 import StorageSettings from "./settings/StorageSettings";
 import SecuritySettings from "./settings/SecuritySettings";
 import UserDirectoryView from "./settings/UserDirectoryView";
@@ -129,8 +128,6 @@ const AdminSettings = ({ userProfile }) => {
                 return <AdminProfile onBack={goHub} />;
             case "display":
                 return <DisplaySettings onBack={goHub} />;
-            case "notifications":
-                return <NotificationSettings onBack={goHub} />;
             case "storage":
                 const adminContext = JSON.parse(localStorage.getItem('admin_dashboard_context') || '{}');
                 const storageProfile = {

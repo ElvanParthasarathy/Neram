@@ -19,7 +19,7 @@ function generateGroupId() {
 function getFullTime(title) {
     const upper = title.toUpperCase();
     if (upper.startsWith('WORKING DAY') || upper.includes('COMMENCEMENT')) {
-        return '08:30 AM - 03:00 PM';
+        return '08:20 AM - 03:00 PM';
     }
     return 'All Day';
 }
@@ -48,7 +48,7 @@ export function buildRTDBEvents(calendar) {
                 monthEntries.push({
                     isoDate,
                     title: r.event.trim(),
-                    fullTime: r.fullTime || getFullTime(r.event),
+                    fullTime: r.fullTime || 'All Day',
                     type: r.type || 'FullDay'
                 });
             }
@@ -64,7 +64,7 @@ export function buildRTDBEvents(calendar) {
                 monthEntries.push({
                     isoDate: lastDate,
                     title: r.event.trim(),
-                    fullTime: r.fullTime || getFullTime(r.event),
+                    fullTime: r.fullTime || 'All Day',
                     type: r.type || 'FullDay'
                 });
             }

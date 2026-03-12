@@ -12,7 +12,7 @@ import {
     RiCalendarEventLine,
     RiFilePdfLine,
     RiGlobalLine,
-
+    RiNotification3Line,
     RiUser3Fill,
     RiMenuFoldLine,
     RiMenuUnfoldLine
@@ -112,6 +112,10 @@ const StudentSidebar = ({ user, userProfile, isAdmin }) => {
 
                 {/* RESOURCES */}
                 <div className="nav-group-label">Resources</div>
+                <Link to="/notifications" replace className={`admin-nav-link ${location.pathname === "/notifications" ? "active" : ""}`}>
+                    <RiNotification3Line className="admin-nav-icon" />
+                    <span>Notifications</span>
+                </Link>
                 <Link to="/college-sites" replace className={`admin-nav-link ${location.pathname === "/college-sites" ? "active" : ""}`}>
                     <RiGlobalLine className="admin-nav-icon" />
                     <span>Sites</span>

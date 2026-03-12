@@ -184,7 +184,7 @@ const ExamManager = ({ user, userProfile }) => {
     };
     // to24h definition removed
     const to24hHelper = (time) => {
-        if (!time) return "08:30";
+        if (!time) return "08:20";
         const match = time.match(/(\d+):(\d+)\s*(AM|PM)/i);
         if (match) {
             let [_, hours, minutes, modifier] = match;
@@ -252,7 +252,7 @@ const ExamManager = ({ user, userProfile }) => {
     const startEditing = (ex) => {
         const migratedSubjects = (ex.subjects || []).map(s => ({
             ...s,
-            startTime: to24hHelper(s.startTime || (s.time ? s.time.split('-')[0].trim() : '08:30')),
+            startTime: to24hHelper(s.startTime || (s.time ? s.time.split('-')[0].trim() : '08:20')),
             endTime: to24hHelper(s.endTime || (s.time ? s.time.split('-')[1].trim() : '11:30')),
             portion: s.portion || PORTION_DEFAULTS[ex.type] || 'Full Syllabus',
             scope: s.scope || 'Common'
@@ -382,7 +382,7 @@ const ExamManager = ({ user, userProfile }) => {
                                     ...newExam,
                                     subjects: [...newExam.subjects, {
                                         date: '', code: '',
-                                        startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:30',
+                                        startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
                                         endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
                                         portion: PORTION_DEFAULTS[newExam.type],
                                         scope: 'Common'
@@ -514,7 +514,7 @@ const ExamManager = ({ user, userProfile }) => {
                                                 ...editBuffer,
                                                 subjects: [...editBuffer.subjects, {
                                                     date: '', code: '',
-                                                    startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:30',
+                                                    startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
                                                     endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
                                                     portion: PORTION_DEFAULTS[editBuffer.type],
                                                     scope: 'Common'
