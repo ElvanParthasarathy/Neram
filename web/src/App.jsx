@@ -5,6 +5,7 @@ import { db, auth } from "./firebase";
 import { ref, onValue, get, set } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import "@fontsource-variable/inter";
+import { NotificationProvider } from './components/NotificationProvider';
 
 // Styles
 import "./App.css";
@@ -454,11 +455,13 @@ function App() {
 
   return (
     <BrowserRouter>
-      <AppContent
-        user={user} isAdminUser={isAdminUser} isMobile={isMobile}
-        loading={loading} showForcedSetup={showForcedSetup}
-        globalData={globalData} dbUserProfile={dbUserProfile} activeProfile={activeProfile}
-      />
+      <NotificationProvider globalData={globalData} userProfile={dbUserProfile}>
+        <AppContent
+          user={user} isAdminUser={isAdminUser} isMobile={isMobile}
+          loading={loading} showForcedSetup={showForcedSetup}
+          globalData={globalData} dbUserProfile={dbUserProfile} activeProfile={activeProfile}
+        />
+      </NotificationProvider>
     </BrowserRouter>
   );
 }
