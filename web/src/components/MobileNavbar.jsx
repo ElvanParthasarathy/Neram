@@ -145,12 +145,6 @@ const IconArrowLeft = (props) => (
   </svg>
 );
 
-const IconBell = (props) => (
-  <svg {...props} viewBox="0 0 24 24" fill="none">
-    <path d="M12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22ZM18 16V11C18 7.93 16.36 5.36 13.5 4.68V4C13.5 3.17 12.83 2.5 12 2.5C11.17 2.5 10.5 3.17 10.5 4V4.68C7.63 5.36 6 7.92 6 11V16L4 18V19H20V18L18 16ZM16 17H8V11C8 8.52 9.51 6.5 12 6.5C14.49 6.5 16 8.52 16 11V17Z" fill="currentColor" />
-  </svg>
-);
-
 const IconSettings = (props) => (
   <svg {...props} viewBox="0 0 24 24" fill="currentColor">
     <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.49-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
@@ -459,15 +453,10 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
           ) : ['/settings', '/college-sites'].includes(location.pathname) ? (
             null
           ) : (
-            <>
-              <button className="top-back-btn" onClick={() => navigate('/notifications')} style={{ marginRight: '8px' }}>
-                <IconBell style={{ width: '22px', height: '22px' }} />
-              </button>
-              {/* Standard 3-Dot Menu */}
-              <button className="top-back-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                <IconDots style={{ width: '24px', height: '24px' }} />
-              </button>
-            </>
+            /* Standard 3-Dot Menu */
+            <button className="top-back-btn" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <IconDots style={{ width: '24px', height: '24px' }} />
+            </button>
           )}
         </div>
       </div>

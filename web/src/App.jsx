@@ -5,7 +5,6 @@ import { db, auth } from "./firebase";
 import { ref, onValue, get, set } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
 import "@fontsource-variable/inter";
-import { NotificationProvider } from './components/NotificationProvider';
 
 // Styles
 import "./App.css";
@@ -32,7 +31,6 @@ import WelcomePage from "./pages/WelcomePage";
 import Settings2 from "./pages/Settings2";
 import AdminPanel from "./pages/AdminPanel";
 import Notes from "./pages/Notes";
-import NotificationsPage from "./pages/Notifications";
 import SplashScreen from "./components/SplashScreen";
 
 // --- UTILITY HELPERS ---
@@ -179,7 +177,6 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
                     <Route path="/calendar" element={<Calendar isMobile={isMobile} isAdmin={isAdminUser} globalData={globalData} userProfile={dbUserProfile} activeProfile={activeProfile} />} />
                     <Route path="/notes" element={<Notes />} />
                     <Route path="/college-sites" element={<CollegeSites />} />
-                    <Route path="/notifications" element={<NotificationsPage />} />
 
                     <Route path="/settings" element={<Settings2 userProfile={dbUserProfile} />} />
 
@@ -457,13 +454,11 @@ function App() {
 
   return (
     <BrowserRouter>
-      <NotificationProvider globalData={globalData} userProfile={dbUserProfile}>
-        <AppContent
-          user={user} isAdminUser={isAdminUser} isMobile={isMobile}
-          loading={loading} showForcedSetup={showForcedSetup}
-          globalData={globalData} dbUserProfile={dbUserProfile} activeProfile={activeProfile}
-        />
-      </NotificationProvider>
+      <AppContent
+        user={user} isAdminUser={isAdminUser} isMobile={isMobile}
+        loading={loading} showForcedSetup={showForcedSetup}
+        globalData={globalData} dbUserProfile={dbUserProfile} activeProfile={activeProfile}
+      />
     </BrowserRouter>
   );
 }
