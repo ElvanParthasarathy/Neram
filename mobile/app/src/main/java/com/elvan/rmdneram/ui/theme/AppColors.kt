@@ -13,6 +13,9 @@ object AppColors {
     val Orange = Color(0xFFFF9800)
     val Green = Color(0xFF4CAF50)
     val Red = Color(0xFFF44336)
+    val Teal = Color(0xFF009688)
+    val Yellow = Color(0xFFFFC107)
+    val Pink = Color(0xFFE91E63)
     
     // === Google Brand Color ===
     val GoogleBlue = Color(0xFF4285F4)

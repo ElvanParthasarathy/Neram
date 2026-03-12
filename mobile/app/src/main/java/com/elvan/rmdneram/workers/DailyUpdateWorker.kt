@@ -32,7 +32,11 @@ class DailyUpdateWorker(
             val settingsPrefs = applicationContext.getSharedPreferences("notification_settings", Context.MODE_PRIVATE)
 
             // Read Notification Settings
-            val dailyBriefingEnabled = settingsPrefs.getBoolean("daily_briefing", true)
+            val dailyUpdateEnabled = settingsPrefs.getBoolean("daily_update", true)
+            val generalNoticeEnabled = settingsPrefs.getBoolean("general_notice", true)
+            val classScheduleEnabled = settingsPrefs.getBoolean("class_schedule", true)
+            val labRemindersEnabled = settingsPrefs.getBoolean("lab_reminders", true)
+            val studyRemindersEnabled = settingsPrefs.getBoolean("study_reminders", true)
             val examAlertsEnabled = settingsPrefs.getBoolean("exam_alerts", true)
             val eventRemindersEnabled = settingsPrefs.getBoolean("event_reminders", true)
 
@@ -102,36 +106,69 @@ class DailyUpdateWorker(
                 }
             }
 
+             // 1. Identify Exam Types for Today
+            val examsToday = exams.filter { it.subjects.any { s -> s.date == todayDateStr } }
+            val tomorrow = today.plusDays(1)
+            val tomorrowStr = tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
+            fun isMajor(title: String) = title.lowercase().let { t -> t.contains("sia") || t.contains("internal") || t.contains("model") || t.contains("semester") || t.contains("fia") }
+            fun isPractical(title: String) = title.lowercase().let { t -> t.contains("practical") || t.contains("lab") || t.contains("iesw") }
+            fun isCycle(title: String) = title.lowercase().let { t -> t.contains("cycle") || t.contains("ct") }
+
+            val isMajorExamToday = examsToday.any { isMajor(it.title) || isMajor(it.type) } || 
+                                   todaysEvents.any { isMajor(it.title) }
+            
+            val isPracticalExamToday = examsToday.any { isPractical(it.title) || isPractical(it.type) } ||
+                                        todaysEvents.any { isPractical(it.title) }
+
+            val isCycleTestToday = examsToday.any { isCycle(it.title) || isCycle(it.type) } ||
+                                    todaysEvents.any { isCycle(it.title) }
+                                   
+            val hasAnyExamToday = isMajorExamToday || isPracticalExamToday || isCycleTestToday
+
              // Automated Messages Logic (Lab & Exam)
             val automatedNotices = mutableListOf<String>()
             
             if (!isHoliday) {
-                // Check for Lab
-                val periods = timetable[dayKey] ?: emptyList()
-                val hasLab = periods.any { code ->
-                     // Check course name/title for "Lab" or if batch matches
-                     if (code.contains("/")) {
-                         code.split("/").any { part -> checkIsLab(part.trim(), courses, batch) }
-                     } else {
-                         checkIsLab(code.trim(), courses, batch)
-                     }
+                // Lab Logic
+                if (labRemindersEnabled) {
+                    val periods = timetable[dayKey] ?: emptyList()
+                    val labsToday = mutableListOf<Pair<String, String>>()
+                    
+                    periods.forEach { code ->
+                        val codes = if (code.contains("/")) code.split("/") else listOf(code)
+                        codes.forEach { part ->
+                            val trimmed = part.trim()
+                            val parts = trimmed.split(" ")
+                            val pureCode = parts.first()
+                            val suffix = parts.getOrNull(1) ?: ""
+                            val isBatchSuffix = suffix.matches(Regex("^[A-Za-z]\\d+$"))
+                            
+                            if (isBatchSuffix) {
+                                val course = courses.find { it.code == trimmed } ?: courses.find { it.code == pureCode }
+                                if (course != null) {
+                                    labsToday.add(suffix to course.name)
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (labsToday.isNotEmpty() && !isMajorExamToday) {
+                        labsToday.distinctBy { it.first + it.second }.forEach { (batchSuffix, subjectName) ->
+                            val cleanedName = getCleanSubjectName(subjectName)
+                            automatedNotices.add("Lab for Batch $batchSuffix: $cleanedName")
+                        }
+                        automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
+                    } else if (isPracticalExamToday) {
+                        automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
+                    }
                 }
                 
-                if (hasLab) {
-                    automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
-                }
-                
-                // Check for Today's Exam
-                val activeExamPeriod = exams.find { todayDateStr >= it.startDate && todayDateStr <= it.endDate }
-                val hasExamToday = activeExamPeriod?.subjects?.any { it.date == todayDateStr } == true
-                
-                if (hasExamToday) {
+                // Study Well Logic
+                if (studyRemindersEnabled && hasAnyExamToday) {
                     automatedNotices.add("📖 Study well for the test! Score well and get full marks! All the best! 🎯")
                 }
             }
-
-
-
 
 
             // 5. Fetch Data from Firebase (Single Fetch Optimization)
@@ -142,14 +179,14 @@ class DailyUpdateWorker(
             val sectionSnapshot = updatesRef.get().await()
             
             // A. Daily Update Logic (With Deduplication)
-            if (dailyBriefingEnabled) {
+            if (dailyUpdateEnabled) {
                 val dailyUpdateSnapshot = sectionSnapshot.child("daily_update").child(todayDateStr)
                 
                 // Get Firebase Note
                 var note = if (dailyUpdateSnapshot.exists()) dailyUpdateSnapshot.child("note").value?.toString() ?: "" else ""
                 val author = if (dailyUpdateSnapshot.exists()) dailyUpdateSnapshot.child("author").value?.toString() ?: "" else ""
                 
-                // Append Automated Notices
+                // Append Automated Notices if enabled
                 if (automatedNotices.isNotEmpty()) {
                     val comboNotice = automatedNotices.joinToString("\n\n")
                     note = if (note.isBlank()) comboNotice else "$note\n\n$comboNotice"
@@ -165,10 +202,42 @@ class DailyUpdateWorker(
                             "Daily Update ($todayDateStr)",
                             "$note" + if (author.isNotBlank()) " - $author" else "",
                             NotificationHelper.CHANNEL_ID_DAILY,
-                            notificationId = 1001
+                            notificationId = 1001 // Consistent ID will overwrite previous ones
                         )
                         // Save the content we just showed to prevent repeating it
                         prefs.edit().putString("last_daily_update_content", note).apply()
+                    }
+                }
+            } else if (automatedNotices.isNotEmpty()) { // If daily update is disabled, but automated notices are generated
+                 val comboNotice = automatedNotices.joinToString("\n\n")
+                 val lastDailyContent = prefs.getString("last_daily_update_content", "")
+                 if (lastDailyContent != comboNotice) {
+                     NotificationHelper.showNotification(
+                         applicationContext,
+                         "Automated Reminders",
+                         comboNotice,
+                         NotificationHelper.CHANNEL_ID_DAILY,
+                         notificationId = 1001 
+                     )
+                     prefs.edit().putString("last_daily_update_content", comboNotice).apply()
+                 }
+            }
+
+            if (generalNoticeEnabled) {
+                val generalText = sectionSnapshot.child("general_text").value?.toString() ?: ""
+                val generalAuthor = sectionSnapshot.child("general_author").value?.toString() ?: ""
+                if (generalText.isNotBlank()) {
+                    val lastGeneralContent = prefs.getString("last_general_notice_content", "")
+                    
+                    if (lastGeneralContent != generalText) {
+                         NotificationHelper.showNotification(
+                            applicationContext,
+                            "General Notice",
+                            "$generalText" + if (generalAuthor.isNotBlank()) " - $generalAuthor" else "",
+                            NotificationHelper.CHANNEL_ID_DAILY,
+                            notificationId = 2002
+                        )
+                        prefs.edit().putString("last_general_notice_content", generalText).apply()
                     }
                 }
             }
@@ -179,18 +248,21 @@ class DailyUpdateWorker(
                     val tomorrowStr = tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     
                     exams.forEach { exam ->
-                        val subjectTomorrow = exam.subjects.find { it.date == tomorrowStr }
-                        if (subjectTomorrow != null) {
-                            val title = "Exam Tomorrow: ${subjectTomorrow.code}"
-                            val message = "Prepare for ${subjectTomorrow.code}. Time: ${subjectTomorrow.startTime} - ${subjectTomorrow.endTime}"
+                        // 1. Notify for Today
+                        val subjectToday = exam.subjects.find { it.date == todayDateStr }
+                        if (subjectToday != null) {
+                            val courseName = courses.find { it.code == subjectToday.code }?.name ?: subjectToday.code
+                            val title = "Exam Today: $courseName"
+                            val message = "Best of luck for $courseName! Time: ${subjectToday.startTime} - ${subjectToday.endTime}"
+                            val nId = (todayDateStr + title).hashCode()
                             
-                            if (prefs.getString("last_exam_notif", "") != title) {
+                            if (prefs.getString("last_exam_today_notif", "") != title) {
                                 NotificationHelper.showNotification(
                                     applicationContext,
                                     title,
                                     message,
                                     NotificationHelper.CHANNEL_ID_EXAMS,
-                                    notificationId = subjectTomorrow.code.hashCode()
+                                    notificationId = nId
                                 )
                                 val notifDao = db.notificationDao()
                                 val notif = NotificationEntity(
@@ -200,7 +272,27 @@ class DailyUpdateWorker(
                                     type = "exam"
                                 )
                                 notifDao.insertNotification(notif)
-                                prefs.edit().putString("last_exam_notif", title).apply()
+                                prefs.edit().putString("last_exam_today_notif", title).apply()
+                            }
+                        }
+
+                        // 2. Notify for Tomorrow
+                        val subjectTomorrow = exam.subjects.find { it.date == tomorrowStr }
+                        if (subjectTomorrow != null) {
+                            val courseName = courses.find { it.code == subjectTomorrow.code }?.name ?: subjectTomorrow.code
+                            val title = "Exam Tomorrow: $courseName"
+                            val message = "Prepare for $courseName. Time: ${subjectTomorrow.startTime} - ${subjectTomorrow.endTime}"
+                            val nId = (todayDateStr + title).hashCode()
+
+                            if (prefs.getString("last_exam_tomorrow_notif", "") != title) {
+                                NotificationHelper.showNotification(
+                                    applicationContext,
+                                    title,
+                                    message,
+                                    NotificationHelper.CHANNEL_ID_EXAMS,
+                                    notificationId = nId
+                                )
+                                prefs.edit().putString("last_exam_tomorrow_notif", title).apply()
                             }
                         }
                     }
@@ -211,11 +303,17 @@ class DailyUpdateWorker(
 
                 if (eventRemindersEnabled && todaysEvents.isNotEmpty()) {
                     val eventTitles = todaysEvents.joinToString(", ") { it.title }
-                    val isEventHoliday = todaysEvents.any { 
-                        it.type == "Holiday" || it.type == "FullDay" || 
-                        it.title.lowercase().contains("holiday")
+                    val isExamEvent = todaysEvents.any { 
+                        val t = it.title.lowercase()
+                        t.contains("sia") || t.contains("internal") || t.contains("model") || 
+                        t.contains("cycle") || t.contains("semester") || t.contains("fia") ||
+                        t.contains("practical") || t.contains("lab")
                     }
-                    val title = if (isEventHoliday) "Holiday Today" else "Today's Event"
+                    val title = when {
+                        isHoliday -> "Holiday Today"
+                        isExamEvent -> "Exam Today"
+                        else -> "Today's Event"
+                    }
                     
                     if (prefs.getString("last_event_notif_date", "") != todayDateStr) {
                          NotificationHelper.showNotification(
@@ -237,9 +335,9 @@ class DailyUpdateWorker(
                     }
                 }
 
-                // 2. Timetable (Only if NOT a holiday)
-                
-                if (dailyBriefingEnabled && !isHoliday) {
+                // D. Timetable Logic: Suppress only if Major Exam or Practical Exam
+                val suppressSchedule = isMajorExamToday || isPracticalExamToday
+                if (classScheduleEnabled && !isHoliday && !suppressSchedule) {
                     // Use calculated dayKey and timetable
                     val periods = timetable[dayKey]
                     if (!periods.isNullOrEmpty()) {
@@ -298,9 +396,19 @@ class DailyUpdateWorker(
         }
     }
     
+    // Helper to clean subject names for display
+    private fun getCleanSubjectName(name: String): String {
+        var cleaned = name.replace(Regex("\\s*\\(.*?\\)"), "").trim()
+        val terms = listOf("Lab Integrated", "Integrated Lab", "Integrated", "Lab")
+        terms.forEach { term ->
+            cleaned = cleaned.replace(Regex("\\s*$term", RegexOption.IGNORE_CASE), "").trim()
+        }
+        return cleaned.replace(Regex("[-\\s/]+$"), "")
+    }
+
     // Helper to check for Lab — matches HomeViewModel batch suffix pattern
     // A period is a lab ONLY if the timetable entry has a batch suffix (A1, B2, C3, etc.)
-    private fun checkIsLab(code: String, courses: List<com.elvan.rmdneram.data.model.Course>, batch: String): Boolean {
+    private fun checkIsLab(code: String, courses: List<com.elvan.rmdneram.data.model.Course>, batchSuffix: String): Boolean {
         val trimmedCode = code.trim()
         val parts = trimmedCode.split(" ")
         val pureCode = parts.first()

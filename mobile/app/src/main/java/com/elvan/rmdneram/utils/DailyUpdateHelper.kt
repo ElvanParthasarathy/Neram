@@ -21,29 +21,29 @@ object DailyUpdateHelper {
     private const val TAG = "DailyUpdateHelper"
 
     suspend fun processDailyUpdates(context: Context, dateOverride: String? = null) {
-        Log.d(TAG, "Starting to process daily notifications")
-        NotificationHelper.showNotification(
-            context,
-            "Debug",
-            "processDailyUpdates started testing " + (dateOverride ?: "today"),
-            NotificationHelper.CHANNEL_ID_DAILY,
-            9999
-        )
-        
-        try {
-            val today = if (dateOverride != null) {
-                try {
-                    LocalDate.parse(dateOverride)
-                } catch (e: Exception) {
-                    LocalDate.now()
-                }
-            } else {
+        val today = if (dateOverride != null) {
+            try {
+                LocalDate.parse(dateOverride.trim())
+            } catch (e: Exception) {
                 LocalDate.now()
             }
+        } else {
+            LocalDate.now()
+        }
+        val todayDateStr = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        
+        Log.d(TAG, "Starting to process: $todayDateStr (Override: $dateOverride)")
+        
+
+        try {
             val settingsPrefs = context.getSharedPreferences("notification_settings", Context.MODE_PRIVATE)
 
             // Read Notification Settings
-            val dailyBriefingEnabled = settingsPrefs.getBoolean("daily_briefing", true)
+            val dailyUpdateEnabled = settingsPrefs.getBoolean("daily_update", true)
+            val generalNoticeEnabled = settingsPrefs.getBoolean("general_notice", true)
+            val classScheduleEnabled = settingsPrefs.getBoolean("class_schedule", true)
+            val labRemindersEnabled = settingsPrefs.getBoolean("lab_reminders", true)
+            val studyRemindersEnabled = settingsPrefs.getBoolean("study_reminders", true)
             val examAlertsEnabled = settingsPrefs.getBoolean("exam_alerts", true)
             val eventRemindersEnabled = settingsPrefs.getBoolean("event_reminders", true)
 
@@ -107,7 +107,6 @@ object DailyUpdateHelper {
             }
             
             val calendarEvents = globalEvents + liveSectionEvents
-            val todayDateStr = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             val todaysEvents = calendarEvents.filter { it.date == todayDateStr }
             
             // Calculate Day Order / Schedule Status
@@ -136,27 +135,67 @@ object DailyUpdateHelper {
                 }
             }
 
+            val tomorrow = today.plusDays(1)
+            val tomorrowStr = tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            
+            // 1. Identify Exam Types for Today
+            val examsToday = exams.filter { it.subjects.any { s -> s.date == todayDateStr } }
+            
+            fun isMajor(title: String) = title.lowercase().let { t -> t.contains("sia") || t.contains("internal") || t.contains("model") || t.contains("semester") || t.contains("fia") }
+            fun isPractical(title: String) = title.lowercase().let { t -> t.contains("practical") || t.contains("lab") || t.contains("iesw") }
+            fun isCycle(title: String) = title.lowercase().let { t -> t.contains("cycle") || t.contains("ct") }
+
+            val isMajorExamToday = examsToday.any { isMajor(it.title) || isMajor(it.type) } || 
+                                   todaysEvents.any { isMajor(it.title) }
+            
+            val isPracticalExamToday = examsToday.any { isPractical(it.title) || isPractical(it.type) } ||
+                                        todaysEvents.any { isPractical(it.title) }
+
+            val isCycleTestToday = examsToday.any { isCycle(it.title) || isCycle(it.type) } ||
+                                    todaysEvents.any { isCycle(it.title) }
+                                   
+            val hasAnyExamToday = isMajorExamToday || isPracticalExamToday || isCycleTestToday
+
             // Automated Messages Logic (Lab & Exam)
             val automatedNotices = mutableListOf<String>()
             
             if (!isHoliday) {
-                val periods = timetable[dayKey] ?: emptyList()
-                val hasLab = periods.any { code ->
-                     if (code.contains("/")) {
-                         code.split("/").any { part -> checkIsLab(part.trim(), courses, batch) }
-                     } else {
-                         checkIsLab(code.trim(), courses, batch)
-                     }
+                // Lab Logic
+                if (labRemindersEnabled) {
+                    val periods = timetable[dayKey] ?: emptyList()
+                    val labsToday = mutableListOf<Pair<String, String>>()
+                    
+                    periods.forEach { code ->
+                        val codes = if (code.contains("/")) code.split("/") else listOf(code)
+                        codes.forEach { part ->
+                            val trimmed = part.trim()
+                            val parts = trimmed.split(" ")
+                            val pureCode = parts.first()
+                            val suffix = parts.getOrNull(1) ?: ""
+                            val isBatchSuffix = suffix.matches(Regex("^[A-Za-z]\\d+$"))
+                            
+                            if (isBatchSuffix) {
+                                val course = courses.find { it.code == trimmed } ?: courses.find { it.code == pureCode }
+                                if (course != null) {
+                                    labsToday.add(suffix to course.name)
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (labsToday.isNotEmpty() && !isMajorExamToday) {
+                        labsToday.distinctBy { it.first + it.second }.forEach { (batchSuffix, subjectName) ->
+                            val cleanedName = getCleanSubjectName(subjectName)
+                            automatedNotices.add("Lab for Batch $batchSuffix: $cleanedName")
+                        }
+                        automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
+                    } else if (isPracticalExamToday) {
+                        automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
+                    }
                 }
                 
-                if (hasLab) {
-                    automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
-                }
-                
-                val activeExamPeriod = exams.find { todayDateStr >= it.startDate && todayDateStr <= it.endDate }
-                val hasExamToday = activeExamPeriod?.subjects?.any { it.date == todayDateStr } == true
-                
-                if (hasExamToday) {
+                // Study Well Logic
+                if (studyRemindersEnabled && hasAnyExamToday) {
                     automatedNotices.add("📖 Study well for the test! Score well and get full marks! All the best! 🎯")
                 }
             }
@@ -165,8 +204,8 @@ object DailyUpdateHelper {
             val updatesRef = database.getReference("updates/$batch/$dept/$section")
             val sectionSnapshot = updatesRef.get().await()
             
-            // A. Daily Update Logic
-            if (dailyBriefingEnabled) {
+            // A. Daily Update & General Notice
+            if (dailyUpdateEnabled) {
                 val dailyUpdateSnapshot = sectionSnapshot.child("daily_update").child(todayDateStr)
                 
                 var note = if (dailyUpdateSnapshot.exists()) dailyUpdateSnapshot.child("note").value?.toString() ?: "" else ""
@@ -183,11 +222,22 @@ object DailyUpdateHelper {
                         "Daily Update ($todayDateStr)",
                         "$note" + if (author.isNotBlank()) " - $author" else "",
                         NotificationHelper.CHANNEL_ID_DAILY,
-                        notificationId = 1001 // Consistent ID will overwrite previous ones
+                        notificationId = 1001 
                     )
                 }
+            } else if (automatedNotices.isNotEmpty()) {
+                // If daily update is off from firebase, but we still have automated notices (labs/study), show them as an automated update
+                val comboNotice = automatedNotices.joinToString("\n\n")
+                NotificationHelper.showNotification(
+                    context,
+                    "Automated Reminders",
+                    comboNotice,
+                    NotificationHelper.CHANNEL_ID_DAILY,
+                    notificationId = 1001 
+                )
+            }
 
-                // General Notice Logic
+            if (generalNoticeEnabled) {
                 val generalText = sectionSnapshot.child("general_text").value?.toString() ?: ""
                 val generalAuthor = sectionSnapshot.child("general_author").value?.toString() ?: ""
                 if (generalText.isNotBlank()) {
@@ -201,11 +251,14 @@ object DailyUpdateHelper {
                 }
             }
 
+
             // B. Exam Alerts
             if (examAlertsEnabled) {
                 val examsData = masterData.exams
                 val tomorrow = today.plusDays(1)
                 val tomorrowStr = tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                
+                Log.d(TAG, "Processing ${examsData.size} exams for Today: $todayDateStr, Tomorrow: $tomorrowStr")
 
                 examsData.forEach { exam ->
                     // 1. Notify for Today
@@ -214,13 +267,15 @@ object DailyUpdateHelper {
                         val courseName = courses.find { it.code == subjectToday.code }?.name ?: subjectToday.code
                         val title = "Exam Today: $courseName"
                         val message = "Best of luck for $courseName! Time: ${subjectToday.startTime} - ${subjectToday.endTime}"
+                        val nId = (todayDateStr + title).hashCode()
                         
+                        Log.d(TAG, "Showing Exam Today: $title with ID: $nId")
                         NotificationHelper.showNotification(
                             context,
                             title,
                             message,
                             NotificationHelper.CHANNEL_ID_EXAMS,
-                            notificationId = subjectToday.code.hashCode() + 1
+                            notificationId = nId
                         )
                     }
 
@@ -230,13 +285,15 @@ object DailyUpdateHelper {
                         val courseName = courses.find { it.code == subjectTomorrow.code }?.name ?: subjectTomorrow.code
                         val title = "Exam Tomorrow: $courseName"
                         val message = "Prepare for $courseName. Time: ${subjectTomorrow.startTime} - ${subjectTomorrow.endTime}"
-                        
+                        val nId = (todayDateStr + title).hashCode()
+
+                        Log.d(TAG, "Showing Exam Tomorrow: $title with ID: $nId")
                         NotificationHelper.showNotification(
                             context,
                             title,
                             message,
                             NotificationHelper.CHANNEL_ID_EXAMS,
-                            notificationId = subjectTomorrow.code.hashCode()
+                            notificationId = nId
                         )
                     }
                 }
@@ -250,10 +307,14 @@ object DailyUpdateHelper {
                     val isFullDay = type == "FullDay"
                     val isHalfDay = type == "HalfDay"
                     
+                    val isExamEvent = event.title.lowercase().let { 
+                        it.contains("sia") || it.contains("internal") || it.contains("model") || 
+                        it.contains("cycle") || it.contains("semester") || it.contains("fia") ||
+                        it.contains("practical") || it.contains("lab")
+                    }
                     val title = when {
                         isHoliday -> "Holiday Today"
-                        isFullDay -> "Full Day Event Today"
-                        isHalfDay -> "Half Day Event Today"
+                        isExamEvent -> "Exam Today"
                         else -> "Today's Event"
                     }
                     
@@ -273,8 +334,9 @@ object DailyUpdateHelper {
                 }
             }
 
-            // D. Timetable Logic (Only if NOT a holiday)
-            if (dailyBriefingEnabled && !isHoliday) {
+            // D. Timetable Logic: Suppress only if Major Exam or Practical Exam
+            val suppressSchedule = isMajorExamToday || isPracticalExamToday
+            if (classScheduleEnabled && !isHoliday && !suppressSchedule) {
                 val periods = timetable[dayKey]
                 if (!periods.isNullOrEmpty()) {
                     val subjects = periods.map { code ->
@@ -306,6 +368,15 @@ object DailyUpdateHelper {
         }
     }
     
+    private fun getCleanSubjectName(name: String): String {
+        var cleaned = name.replace(Regex("\\s*\\(.*?\\)"), "").trim()
+        val terms = listOf("Lab Integrated", "Integrated Lab", "Integrated", "Lab")
+        terms.forEach { term ->
+            cleaned = cleaned.replace(Regex("\\s*$term", RegexOption.IGNORE_CASE), "").trim()
+        }
+        return cleaned.replace(Regex("[-\\s/]+$"), "")
+    }
+
     private fun checkIsLab(code: String, courses: List<com.elvan.rmdneram.data.model.Course>, batch: String): Boolean {
         val trimmedCode = code.trim()
         val parts = trimmedCode.split(" ")

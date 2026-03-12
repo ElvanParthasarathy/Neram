@@ -12,14 +12,27 @@ import java.util.Calendar
 object AlarmScheduler {
     private const val TAG = "AlarmScheduler"
 
-    // The times we want the alarm to trigger
-    private val ALARM_TIMES = listOf(
-        Pair(5, 30),
-        Pair(6, 30),
-        Pair(7, 30)
-    )
+    private fun getAlarmTimes(context: Context): List<Pair<Int, Int>> {
+        val prefs = context.getSharedPreferences("notification_settings", Context.MODE_PRIVATE)
+        val useCustom = prefs.getBoolean("use_custom_times", false)
+
+        return if (useCustom) {
+            listOf(
+                Pair(prefs.getInt("custom_time_1_hour", 5), prefs.getInt("custom_time_1_minute", 30)),
+                Pair(prefs.getInt("custom_time_2_hour", 6), prefs.getInt("custom_time_2_minute", 30)),
+                Pair(prefs.getInt("custom_time_3_hour", 7), prefs.getInt("custom_time_3_minute", 30))
+            )
+        } else {
+            listOf(
+                Pair(5, 30),
+                Pair(6, 30),
+                Pair(7, 30)
+            )
+        }
+    }
 
     fun scheduleDailyAlarm(context: Context) {
+        val alarmTimes = getAlarmTimes(context)
         try {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, DailyAlarmReceiver::class.java).apply {
@@ -39,7 +52,7 @@ object AlarmScheduler {
             
             var nextAlarmTime: Calendar? = null
             
-            for ((hour, minute) in ALARM_TIMES) {
+            for ((hour, minute) in alarmTimes) {
                 val candidateTime = Calendar.getInstance().apply {
                     timeInMillis = System.currentTimeMillis()
                     set(Calendar.HOUR_OF_DAY, hour)
@@ -57,7 +70,7 @@ object AlarmScheduler {
             
             // If all slots have passed today, schedule for the first slot tomorrow
             if (nextAlarmTime == null) {
-                val (firstHour, firstMinute) = ALARM_TIMES.first()
+                val (firstHour, firstMinute) = alarmTimes.first()
                 nextAlarmTime = Calendar.getInstance().apply {
                     timeInMillis = System.currentTimeMillis()
                     add(Calendar.DAY_OF_YEAR, 1)
