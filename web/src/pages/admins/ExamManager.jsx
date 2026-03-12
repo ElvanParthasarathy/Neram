@@ -361,8 +361,8 @@ const ExamManager = ({ user, userProfile }) => {
                                     </div>
 
                                     <div className="input-group-vertical variant-portion">
-                                        <label>Portion</label>
-                                        <input list="portion-presets" value={sub.portion} onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }} placeholder="Portion..." />
+                                        <label>{newExam.type === 'Practical' ? 'Batch / Lab Details' : 'Portion'}</label>
+                                        <input list="portion-presets" value={sub.portion} onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }} placeholder={newExam.type === 'Practical' ? "Batch (e.g. A2, Morning)..." : "Portion..."} />
                                     </div>
                                     <div className="input-group-vertical"><label>Start</label><input type="time" value={sub.startTime} onChange={e => { let s = [...newExam.subjects]; s[idx].startTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
                                     <div className="input-group-vertical"><label>End</label><input type="time" value={sub.endTime} onChange={e => { let s = [...newExam.subjects]; s[idx].endTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
@@ -469,8 +469,8 @@ const ExamManager = ({ user, userProfile }) => {
                                                         </div>
 
                                                         <div className="input-group-vertical variant-portion">
-                                                            <label>Portion</label>
-                                                            <input list="portion-presets" value={s.portion} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} />
+                                                            <label>{editBuffer.type === 'Practical' ? 'Batch / Lab Details' : 'Portion'}</label>
+                                                            <input list="portion-presets" value={s.portion} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} placeholder={editBuffer.type === 'Practical' ? "Batch Name..." : "Portion..."} />
                                                         </div>
                                                         <div className="input-group-vertical"><label>Start</label><input type="time" value={s.startTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
                                                         <div className="input-group-vertical"><label>End</label><input type="time" value={s.endTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
@@ -486,7 +486,12 @@ const ExamManager = ({ user, userProfile }) => {
                                                         </div>
                                                         <div className="view-cell subject-cell">
                                                             <label>Subject</label>
-                                                            <span><strong>{s.code}</strong>: {getSubjectName(s.code)}</span>
+                                                            <span>
+                                                                <strong>{s.code}</strong>: {getSubjectName(s.code)}
+                                                                {ex.type === 'Practical' && s.portion && (
+                                                                    <span className="practical-batch-inline"> ({s.portion})</span>
+                                                                )}
+                                                            </span>
                                                         </div>
                                                         <div className="view-cell portion-cell" style={{ maxWidth: '100px' }}>
                                                             <label>Scope</label>

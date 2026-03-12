@@ -813,6 +813,13 @@ html.dark .exam-subject-row.professional.view-mode {
   width: fit-content;
 }
 
+.practical-batch-inline {
+  color: var(--mac-blue);
+  font-weight: 500;
+  font-size: 0.9em;
+  opacity: 0.9;
+}
+
 /* --- 6. REFINED MINI BUTTONS --- */
 .btn-edit-mini,
 .btn-del-mini,
