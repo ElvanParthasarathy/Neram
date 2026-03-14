@@ -62,8 +62,9 @@ const AboutPage = ({ onBack }) => (
                     icon={<RiMegaphoneLine />}
                     color="orange"
                     title="Campus Announcements"
-                    desc="Get instant notifications for news, circulars, and announcements from the college."
+                    desc="Stay updated with news, circulars, and announcements from the college."
                 />
+
                 <SettingsDivider />
                 <FeatureItem
                     icon={<RiWifiOffLine />}

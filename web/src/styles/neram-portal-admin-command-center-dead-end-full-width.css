@@ -61,14 +61,14 @@
     gap: 4px;
     background: rgba(0, 0, 0, 0.04);
     padding: 4px;
-    border-radius: 10px;
+    border-radius: 100px;
   }
 
   .shifter-item {
     padding: 6px 14px;
     border: none;
     background: transparent;
-    border-radius: 7px;
+    border-radius: 100px;
     font-size: 13px;
     font-weight: 600;
     color: var(--mac-text-secondary);

@@ -20,6 +20,8 @@
 @import './styles/forced-setup-modal-premium-sequoia-theme-full-block.css';
 @import './styles/2-11-desktop-date-of-birth-selector-3-column-glass.css';
 @import './styles/notes.css';
+@import './styles/skeletons.css';
+
 
 /* Mobile Top Padding Standardization */
 @media (max-width: 768px) {

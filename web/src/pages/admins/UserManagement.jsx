@@ -11,6 +11,8 @@ import {
 } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import "../../styles/user-management.css";
+import { AdminPageSkeleton } from '../../components/AdminSkeletons';
+
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -225,7 +227,12 @@ const UserManagement = () => {
     return <RiMailLine className="provider-icon email" title="Email Account" />;
   };
 
-  if (loading) return <div className="admin-loader">Syncing User Database...</div>;
+  if (loading) return (
+    <div className="admin-subpage">
+      <AdminPageSkeleton />
+    </div>
+  );
+
 
   // --- MODAL JSX CONTENT ---
   const modalContent = selectedUser ? (

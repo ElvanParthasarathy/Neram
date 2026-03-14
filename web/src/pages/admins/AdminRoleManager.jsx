@@ -14,6 +14,8 @@ import {
   RiGoogleFill
 } from 'react-icons/ri';
 import "../../styles/user-management.css";
+import { AdminPageSkeleton } from '../../components/AdminSkeletons';
+
 
 const AdminRoleManager = ({ userProfile }) => {
   const [users, setUsers] = useState({});
@@ -164,7 +166,12 @@ const AdminRoleManager = ({ userProfile }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  if (loading) return <div className="admin-loader">Syncing Admin Directory...</div>;
+  if (loading) return (
+    <div className="admin-subpage">
+      <AdminPageSkeleton type="grid" />
+    </div>
+  );
+
 
   return (
     <div className="admin-subpage">
@@ -297,15 +304,6 @@ const AdminRoleManager = ({ userProfile }) => {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          {viewLevel !== 'promote' && (
-            <button
-              className="explorer-back-btn"
-              onClick={() => { setViewLevel('promote'); }}
-              style={{ background: 'var(--mac-blue)', color: 'white', border: 'none' }}
-            >
-              + Promote
-            </button>
-          )}
           {((selectedCategory === 'Student Admins' && viewLevel !== 'batches') ||
             (selectedCategory === 'Faculty Admins' && viewLevel !== 'depts') ||
             (viewLevel === 'promote')) && (
@@ -320,6 +318,13 @@ const AdminRoleManager = ({ userProfile }) => {
       {viewLevel === 'batches' && (
         <div className="explorer-view animate-fade-in">
           <div className="explorer-grid">
+            <div className="explorer-card" onClick={() => { setSearchTerm(''); setViewLevel('promote'); }}>
+              <RiShieldUserLine className="card-icon" />
+              <div className="card-info">
+                <h3>Promote Admin</h3>
+                <p>Add new staff/student admin</p>
+              </div>
+            </div>
             {Object.keys(hierarchy).sort().reverse().map(batch => (
               <div key={batch} className="explorer-card" onClick={() => { setDrillPath(prev => ({ ...prev, batch })); setViewLevel('depts'); }}>
                 <RiTeamLine className="card-icon" />
@@ -337,6 +342,15 @@ const AdminRoleManager = ({ userProfile }) => {
       {viewLevel === 'depts' && (
         <div className="explorer-view animate-fade-in">
           <div className="explorer-grid">
+            {!drillPath.dept && (
+              <div className="explorer-card" onClick={() => { setSearchTerm(''); setViewLevel('promote'); }}>
+                <RiShieldUserLine className="card-icon" />
+                <div className="card-info">
+                  <h3>Promote Admin</h3>
+                  <p>Add new staff/student admin</p>
+                </div>
+              </div>
+            )}
             {(() => {
               const depts = selectedCategory === 'Faculty Admins'
                 ? Array.from(new Set(Object.values(users).filter(u => u.role === 'faculty' && u.department).map(u => u.department)))

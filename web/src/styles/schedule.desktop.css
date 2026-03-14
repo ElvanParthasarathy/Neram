@@ -134,7 +134,7 @@
         display: inline-flex;
         background: rgba(0, 0, 0, 0.05);
         padding: 4px;
-        border-radius: 12px;
+        border-radius: 100px;
         margin-top: 16px;
         gap: 4px;
     }
@@ -143,7 +143,7 @@
         border: none;
         background: transparent;
         padding: 8px 20px;
-        border-radius: 9px;
+        border-radius: 100px;
         font-size: 13px;
         font-weight: 600;
         color: var(--mac-text-secondary);
@@ -296,7 +296,7 @@
         background: #1C1C1E;
         /* Match Dashboard Pills in Dark Mode */
         padding: 4px;
-        border-radius: 40px;
+        border-radius: 100px;
         margin-bottom: 30px;
         gap: 4px;
         border: none !important;
@@ -307,7 +307,7 @@
         border: none;
         background: transparent;
         padding: 10px 24px;
-        border-radius: 34px;
+        border-radius: 100px;
         font-size: 14px;
         font-weight: 700;
         color: #8E8E93;
@@ -1420,4 +1420,437 @@
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+/* ====================================================================
+   MASTER WORKSPACE V2 (2-Panel Layout)
+   ==================================================================== */
+.master-workspace-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 32px;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 60px;
+}
+
+@media (max-width: 1100px) {
+    .master-workspace-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        max-width: 800px;
+    }
+}
+
+.premium-card {
+    background: var(--mac-sidebar-bg) !important;
+    border: none !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-flexible {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.card-subtitle {
+    font-size: 13px;
+    color: var(--mac-text-secondary);
+    margin: 4px 0 0 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Add Item Bar Pill */
+.add-item-bar-pill {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: var(--mac-card-bg) !important;
+    padding: 8px 8px 8px 16px;
+    border-radius: 100px;
+    border: none;
+    margin-bottom: 24px;
+    transition: all 0.2s ease;
+}
+
+.add-item-bar-pill:focus-within {
+    background: var(--mac-selection-hover) !important;
+    box-shadow: none !important;
+}
+
+.input-pill-wrap {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+}
+
+.pill-input {
+    background: transparent;
+    border: none;
+    color: var(--mac-text);
+    font-size: 14px;
+    font-weight: 500;
+    padding: 4px 0;
+    width: 120px;
+}
+
+.pill-input.grow {
+    width: auto;
+    flex: 1;
+}
+
+.pill-input:focus {
+    outline: none;
+}
+
+.divider-v {
+    width: 1px;
+    height: 20px;
+    background: var(--mac-divider);
+}
+
+.pill-add-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--mac-blue);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: transform 0.2s ease;
+}
+
+.pill-add-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Master Header Aesthetic (Home Style) */
+.master-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 5;
+}
+
+.uppercase-header {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text) !important;
+    letter-spacing: -0.2px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    text-transform: none !important;
+}
+
+/* Header Actions Alignment */
+.master-header-row .header-actions {
+    display: flex;
+    align-items: center;
+}
+
+.pill-group-row {
+    display: flex !important;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Edit Trigger & Done (Solid Primary) */
+.master-header-row .role-header-pill.active {
+    background: #007AFF !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2) !important;
+}
+
+.master-header-row .role-header-pill.active:hover {
+    background: #0066D6 !important;
+}
+
+/* Secondary Actions (Cancel) */
+.master-header-row .role-header-pill.secondary {
+    background: var(--mac-card-bg) !important;
+    color: var(--mac-text) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.master-header-row .role-header-pill.secondary:hover {
+    background: var(--mac-selection-hover) !important;
+}
+
+.master-header-row .role-header-pill {
+    line-height: 1;
+    padding: 10px 20px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: none !important;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+
+.master-header-row .role-header-pill:hover {
+    transform: scale(0.96) !important;
+}
+
+.role-pill.danger {
+    background: #FF3B30;
+    box-shadow: 0 4px 12px rgba(255, 59, 48, 0.2);
+}
+
+.role-pill.danger:hover {
+    background: #E0352B;
+    box-shadow: 0 8px 16px rgba(255, 59, 48, 0.3);
+}
+/* Removed :not(.active) gray override to keep Edit List button blue */
+
+.individual-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.master-item-card {
+    background: var(--mac-card-bg);
+    border: none;
+    border-radius: 24px;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.master-item-card:hover {
+    background: var(--mac-selection-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.master-item-card.editing {
+    border-radius: 24px;
+    padding: 24px;
+    background: var(--mac-sidebar-bg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.item-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+}
+
+.course-code-badge {
+    background: var(--mac-blue-15);
+    color: var(--mac-blue);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 800;
+    min-width: 90px;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+.course-name-text {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--mac-text);
+    letter-spacing: -0.01em;
+}
+
+.pill-inline-edit {
+    background: var(--mac-bg-secondary);
+    border: none;
+    color: var(--mac-blue);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.master-item-card:hover .pill-inline-edit {
+    opacity: 1;
+}
+
+.bulk-action-footer-card {
+    margin-top: 24px;
+    padding: 20px 32px;
+    border-radius: 24px;
+    background: var(--mac-sidebar-bg);
+    border: none;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Pill Edit Row */
+.pill-edit-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.pill-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.pill-action-btn {
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.pill-action-btn.save {
+    background: var(--mac-blue);
+    color: white;
+}
+
+.pill-action-btn.cancel {
+    background: var(--mac-divider);
+    color: var(--mac-text);
+}
+
+/* Bulk Footer */
+.bulk-action-footer {
+    margin-top: 24px;
+    padding: 16px;
+    border-radius: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--mac-bg-secondary);
+}
+
+.bulk-action-footer.danger {
+    background: rgba(255, 59, 48, 0.05);
+    border: 1px solid rgba(255, 59, 48, 0.2);
+}
+
+/* Sidebar Styles */
+.sidebar-card {
+    padding: 24px;
+    border-radius: 20px;
+}
+
+.sidebar-card.gray-tint {
+    background: var(--mac-bg-secondary);
+}
+
+.sidebar-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: var(--mac-text);
+}
+
+.hub-info-box p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--mac-text-secondary);
+    margin-bottom: 20px;
+}
+
+.role-config-block .mac-label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    margin-bottom: 12px;
+}
+
+.role-display-pill {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--mac-card-bg);
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.role-display-pill:hover {
+    background: var(--mac-selection-hover);
+    transform: translateY(-2px);
+}
+
+.role-display-pill .value {
+    font-weight: 600;
+    color: var(--mac-blue);
+}
+
+.role-display-pill .edit-hint {
+    opacity: 0.3;
+}
+
+.role-hint {
+    font-size: 11px;
+    color: var(--mac-text-secondary);
+    margin-top: 12px;
+    font-style: italic;
+}
+
+.mac-select-pill {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 100px;
+    background: var(--mac-bg-secondary);
+    border: 1px solid var(--mac-divider);
+    color: var(--mac-text);
+    font-size: 14px;
+}
+
+/* Empty Placeholder */
+.empty-placeholder {
+    padding: 40px;
+    text-align: center;
+    color: var(--mac-text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.empty-placeholder svg {
+    font-size: 48px;
+    opacity: 0.2;
 }

@@ -500,10 +500,10 @@ const StructureManager = () => {
           </button>
         </div>
 
-        <nav className="folder-tabs" style={{ marginBottom: '-1px' }}>
-          <button className={activeTab === 'tree' ? 'active' : ''} onClick={() => setActiveTab('tree')}><RiAddLine style={{ display: 'none' }} /> Academic Tree</button>
-          <button className={activeTab === 'faculty' ? 'active' : ''} onClick={() => setActiveTab('faculty')}><RiAddLine style={{ display: 'none' }} /> Faculty Directory</button>
-        </nav>
+        <div className="role-pill-switcher" style={{ marginBottom: '-1px' }}>
+          <button className={`role-pill ${activeTab === 'tree' ? 'active' : ''}`} onClick={() => setActiveTab('tree')}>Academic Tree</button>
+          <button className={`role-pill ${activeTab === 'faculty' ? 'active' : ''}`} onClick={() => setActiveTab('faculty')}>Faculty Directory</button>
+        </div>
       </header>
 
       <div className="admin-grid-layout" style={{ paddingTop: '24px' }}>

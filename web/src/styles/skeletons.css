@@ -1,0 +1,101 @@
+/* ==========================================================================
+   PREMIUM MAC SKELETON LOADERS
+   ========================================================================== */
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+}
+
+html.dark .skeleton {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    animation: skeleton-shimmer 1.5s infinite;
+}
+
+html.dark .skeleton::after {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.05),
+        transparent
+    );
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Specialized Skeleton Shapes */
+.skeleton-circle {
+    border-radius: 50%;
+}
+
+.skeleton-text {
+    height: 14px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.skeleton-title {
+    height: 20px;
+    width: 60%;
+    margin-bottom: 12px;
+}
+
+.skeleton-card {
+    height: 100px;
+    width: 100%;
+    border-radius: 24px;
+    margin-bottom: 16px;
+}
+
+.skeleton-explorer-card {
+    height: 90px;
+    width: 100%;
+    border-radius: 12px;
+}
+
+.skeleton-user-card {
+    height: 120px;
+    width: 100%;
+    border-radius: 20px;
+}
+
+/* Syncing Admin Database centered loader placeholder */
+.admin-skeleton-page {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.directory-skeleton-item {
+    display: flex;
+    align-items: center;
+    padding: 20px 16px;
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    gap: 16px;
+}

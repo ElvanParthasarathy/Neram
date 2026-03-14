@@ -46,6 +46,11 @@
     z-index: 0;
 }
 
+html.dark .s2-view-tabs .s2-tab-indicator {
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+
 .s2-view-tabs .s2-tab-indicator.exams {
     transform: translateX(100%);
 }

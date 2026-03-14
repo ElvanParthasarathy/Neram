@@ -315,18 +315,22 @@
     display: flex;
     background: rgba(0, 0, 0, 0.15);
     /* Darker container background */
-    padding: 3px;
-    border-radius: 12px;
+    border-radius: 100px;
     gap: 4px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     /* Match macOS divider */
+}
+
+html.dark .role-pill-switcher {
+    background: var(--mac-card-bg) !important;
+    border: none !important;
 }
 
 .role-pill {
     border: none;
     background: transparent;
     padding: 8px 24px;
-    border-radius: 10px;
+    border-radius: 100px;
     font-size: 13.5px;
     font-weight: 600;
     color: var(--mac-text-secondary);
@@ -344,6 +348,16 @@
     color: #FFFFFF;
     /* High contrast white for active */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .role-pill.active {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.role-pill:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 html:not(.dark) .role-pill-switcher {

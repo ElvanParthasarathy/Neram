@@ -30,7 +30,7 @@ const ThemeToggle = ({ asMenuItem = false }) => {
       display: flex;
       align-items: center;
       background: rgba(120, 120, 128, 0.12);
-      border-radius: 10px;
+      border-radius: 100px;
       padding: 2px;
       height: 36px;
       width: 100%;
@@ -40,8 +40,8 @@ const ThemeToggle = ({ asMenuItem = false }) => {
     }
 
     html.dark .theme-slider-container {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.05);
+      background: var(--mac-card-bg) !important;
+      border: none !important;
     }
 
     .slider-thumb {
@@ -51,15 +51,15 @@ const ThemeToggle = ({ asMenuItem = false }) => {
       bottom: 2px;
       width: calc((100% - 4px) / 3);
       background: #FFFFFF;
-      border-radius: 8px;
+      border-radius: 100px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.12);
       transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
       z-index: 1;
     }
 
     html.dark .slider-thumb {
-      background: #636366;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      background: rgba(255, 255, 255, 0.06) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
     }
 
     .slider-option {

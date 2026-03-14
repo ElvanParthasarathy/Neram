@@ -81,9 +81,15 @@
     transition: all 0.15s ease;
 }
 
-.cal-nav-btn:hover {
-    background: var(--mac-selection-hover);
+html.dark .cal-nav-btn {
+    background: #000000 !important;
 }
+
+html.dark .cal-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+
 
 .cal-nav-btn:active {
     transform: scale(0.94);
@@ -113,9 +119,15 @@
     transition: all 0.15s ease;
 }
 
-.cal-today-btn:hover {
-    background: var(--mac-selection-hover);
+html.dark .cal-today-btn {
+    background: #000000 !important;
 }
+
+html.dark .cal-today-btn:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+
 
 .cal-toolbar-right {
     display: flex;
@@ -129,6 +141,14 @@
     border-radius: 999px;
     padding: 3px;
 }
+
+html.dark .cal-view-toggle {
+    background: #000000 !important;
+}
+
+
+
+
 
 .cal-view-toggle button {
     padding: 6px 16px;
@@ -150,6 +170,13 @@
     color: var(--mac-text);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
+
+html.dark .cal-view-toggle button.active {
+    background: #1E1E1E !important;
+    color: #fff;
+}
+
+
 
 .cal-view-toggle button svg {
     font-size: 14px;
@@ -598,6 +625,13 @@ html.dark .cal-agenda-card {
     color: var(--mac-text);
     flex-shrink: 0;
 }
+
+html.dark .cal-sched-num {
+    background: var(--mac-card-bg) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+
 
 .cal-sched-num.today {
     background: var(--mac-blue);

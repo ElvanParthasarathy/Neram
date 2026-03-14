@@ -138,10 +138,10 @@
     gap: 12px;
     text-decoration: none;
     color: var(--mac-text);
-    padding: 8px 12px;
-    border-radius: 10px;
+    padding: 12px 20px;
+    border-radius: 100px;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 13.5px;
     transition: all 0.1s ease;
     cursor: pointer;
     user-select: none;
@@ -182,8 +182,8 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    padding: 10px 16px;
-    border-radius: 12px;
+    padding: 12px 20px;
+    border-radius: 100px;
     color: #FF3B30;
     font-weight: 700;
     font-size: 13.5px;

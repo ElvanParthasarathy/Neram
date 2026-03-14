@@ -58,9 +58,13 @@ html.dark .site-link-card {
 }
 
 .site-link-card:hover {
-    background: var(--mac-selection-hover);
     transform: translateY(-2px);
 }
+
+html.dark .site-link-card:hover {
+    background: var(--mac-selection-hover);
+}
+
 
 .site-icon {
     font-size: 32px;

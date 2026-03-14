@@ -9,7 +9,7 @@ import {
     RiLayoutGridLine, RiSave3Line, RiBookOpenLine,
     RiUserVoiceLine, RiAddLine, RiDeleteBin6Line, RiEditLine,
     RiCloseLine, RiCheckLine, RiArrowLeftLine, RiUserLine,
-    RiGlobalLine, RiLinksLine, RiRefreshLine
+    RiGlobalLine, RiLinksLine, RiRefreshLine, RiShieldUserLine
 } from 'react-icons/ri';
 
 // --- IMPORT UTILS & SHARED ---
@@ -646,232 +646,194 @@ const ScheduleManager = ({ user, userProfile }) => {
 
             {/* MASTER EDITOR WORKSPACE */}
             {viewLevel === 'master' && (
-                <div className="explorer-content">
-                    {/* MASTER CONFIGURATION */}
-                    <div className="master-config-panel settings-card" style={{ border: '2px solid var(--mac-blue-15)', width: '100%', maxWidth: '900px', margin: '0 auto' }}>
-                        <h2 className="editor-title" style={{ color: 'var(--mac-blue)' }}><RiGlobalLine /> {path.dept} Master Settings</h2>
-                        <p style={{ opacity: 0.7, marginBottom: '20px', fontSize: '13px' }}>Define Department-wide courses, faculties, and roles here. They will be available in all sections.</p>
-
-                        <div className="master-section">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                                <h3 style={{ margin: 0 }}><RiBookOpenLine /> Master Course List</h3>
-                                {masterData.courses.length > 0 && (
-                                    isMasterEditMode ? (
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                className="btn-add-mini"
-                                                onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); }}
-                                                style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid var(--border-color)' }}
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                className="btn-add-mini"
-                                                onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); }}
-                                                style={{ background: 'var(--mac-blue)', color: '#fff' }}
-                                            >
-                                                Done
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            className="btn-add-mini"
-                                            onClick={() => setIsMasterEditMode(true)}
-                                            style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)' }}
-                                        >
-                                            Edit List
-                                        </button>
-                                    )
-                                )}
-                            </div>
-
-                            {(isMasterEditMode || masterData.courses.length === 0) && (
-                                <div className="add-item-bar inline">
-                                    <input placeholder="Ex: CS101" value={newMasterCourse.code} onChange={e => setNewMasterCourse({ ...newMasterCourse, code: e.target.value })} style={{ flex: 1 }} />
-                                    <input placeholder="Course Name" value={newMasterCourse.name} onChange={e => setNewMasterCourse({ ...newMasterCourse, name: e.target.value })} style={{ flex: 2 }} />
-                                    <button className="btn-add-mini" onClick={handleAddMasterCourse}><RiAddLine /></button>
+                <div className="explorer-content animate-fade-in">
+                    <div className="master-workspace-grid">
+                        {/* LEFT COLUMN: COURSE MANAGEMENT */}
+                        <div className="master-main-col">
+                            <div className="master-header-row animate-fade-in">
+                                <div className="h2-section-title uppercase-header">
+                                    Master Course List
                                 </div>
-                            )}
+                                <div className="header-actions">
+                                        {masterData.courses.length > 0 && (
+                                            isMasterEditMode ? (
+                                                <div className="pill-group-row">
+                                                    <button
+                                                        className="role-header-pill secondary"
+                                                        onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        className="role-header-pill active"
+                                                        onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); }}
+                                                    >
+                                                        Done
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    className="role-header-pill active"
+                                                    onClick={() => setIsMasterEditMode(true)}
+                                                >
+                                                    <RiEditLine style={{ marginRight: '6px' }} /> Edit List
+                                                </button>
+                                            )
+                                        )}
+                                    </div>
+                                </div>
 
-                            <div className="counselor-items-v2" style={{ marginTop: '16px' }}>
+                                {(isMasterEditMode || masterData.courses.length === 0) && (
+                                    <div className="add-item-bar-pill">
+                                        <div className="input-pill-wrap">
+                                            <input
+                                                className="pill-input"
+                                                placeholder="Code (Ex: EC601)"
+                                                value={newMasterCourse.code}
+                                                onChange={e => setNewMasterCourse({ ...newMasterCourse, code: e.target.value })}
+                                            />
+                                            <div className="divider-v" />
+                                            <input
+                                                className="pill-input grow"
+                                                placeholder="Course Name"
+                                                value={newMasterCourse.name}
+                                                onChange={e => setNewMasterCourse({ ...newMasterCourse, name: e.target.value })}
+                                            />
+                                        </div>
+                                        <button className="pill-add-btn" onClick={handleAddMasterCourse}>
+                                            <RiAddLine />
+                                        </button>
+                                    </div>
+                                )}
+
+                            <div className="master-items-container individual-cards">
                                 {masterData.courses.map((c, i) => (
-                                    <div key={i} className={`counselor-item-row ${editingMasterCourseIdx === i ? 'editing' : ''}`}>
+                                    <div key={i} className={`settings-card master-item-card ${editingMasterCourseIdx === i ? 'editing' : ''}`}>
                                         {editingMasterCourseIdx === i ? (
-                                            <div className="inline-edit-pill-wrap" style={{ display: 'flex', gap: '8px', width: '100%', flexDirection: 'column' }}>
-                                                <div style={{ display: 'flex', gap: '8px', alignSelf: 'stretch' }}>
+                                            <div className="pill-edit-row">
+                                                <div className="input-pill-wrap">
                                                     <input
                                                         autoFocus
+                                                        className="pill-input"
                                                         placeholder="Code"
                                                         value={tempMasterCourse.code}
                                                         onChange={(e) => setTempMasterCourse({ ...tempMasterCourse, code: e.target.value })}
-                                                        style={{ flex: 1, minWidth: 0 }}
+                                                    />
+                                                    <div className="divider-v" />
+                                                    <input
+                                                        className="pill-input grow"
+                                                        placeholder="Name"
+                                                        value={tempMasterCourse.name}
+                                                        onChange={(e) => setTempMasterCourse({ ...tempMasterCourse, name: e.target.value })}
                                                     />
                                                 </div>
-                                                <input
-                                                    placeholder="Name"
-                                                    value={tempMasterCourse.name}
-                                                    onChange={(e) => setTempMasterCourse({ ...tempMasterCourse, name: e.target.value })}
-                                                    style={{ flex: 2 }}
-                                                />
-                                                <div className="edit-pill-actions">
-                                                    <button className="action-btn action-edit" onClick={handleUpdateMasterCourse}><RiCheckLine /> <span className="action-label">Save</span></button>
-                                                    <button className="action-btn" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--mac-text)' }} onClick={() => setEditingMasterCourseIdx(null)}><RiCloseLine /> <span className="action-label">Cancel</span></button>
+                                                <div className="pill-actions">
+                                                    <button className="pill-action-btn save" onClick={handleUpdateMasterCourse} title="Save"><RiCheckLine /></button>
+                                                    <button className="pill-action-btn cancel" onClick={() => setEditingMasterCourseIdx(null)} title="Cancel"><RiCloseLine /></button>
                                                 </div>
                                             </div>
                                         ) : (
                                             <>
-                                                <div className="counselor-name-chip" style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1 }}>
+                                                <div className="item-content">
                                                     {isMasterDeleteMode && (
                                                         <input
                                                             type="checkbox"
+                                                            className="mac-checkbox"
                                                             checked={selectedMasterCourses.includes(i)}
                                                             onChange={() => handleToggleMasterCourseSelect(i)}
-                                                            style={{ cursor: 'pointer', transform: 'scale(1.2)' }}
                                                         />
                                                     )}
-                                                    <strong style={{ color: 'var(--mac-blue)' }}>{c.code}</strong>
-                                                    <span>{c.name}</span>
+                                                    <div className="course-code-badge">{c.code}</div>
+                                                    <span className="course-name-text">{c.name}</span>
                                                 </div>
                                                 {isMasterEditMode && (
-                                                    <div className="counselor-row-actions">
-                                                        <button className="action-btn action-edit" onClick={() => { setEditingMasterCourseIdx(i); setTempMasterCourse(c); }}>
-                                                            <RiEditLine /> <span className="action-label">Edit</span>
-                                                        </button>
-                                                    </div>
+                                                    <button className="pill-inline-edit" onClick={() => { setEditingMasterCourseIdx(i); setTempMasterCourse(c); }}>
+                                                        <RiEditLine />
+                                                    </button>
                                                 )}
                                             </>
                                         )}
                                     </div>
                                 ))}
-                                {masterData.courses.length === 0 && <p className="empty-state">No master courses defined.</p>}
+                                {masterData.courses.length === 0 && (
+                                    <div className="settings-card empty-card-wrap">
+                                        <div className="empty-placeholder">
+                                            <RiBookOpenLine />
+                                            <p>No master courses defined yet.</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {isMasterEditMode && (
-                                <div className="bulk-actions-bar" style={{ display: 'flex', justifyContent: isMasterDeleteMode ? 'space-between' : 'flex-end', alignItems: 'center', padding: '12px', background: isMasterDeleteMode ? 'rgba(255, 59, 48, 0.05)' : 'transparent', borderRadius: '8px', marginTop: '16px', border: isMasterDeleteMode ? '1px solid rgba(255, 59, 48, 0.2)' : 'none' }}>
-                                    {isMasterDeleteMode ? (
-                                        <>
-                                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: 'var(--mac-text)' }}>
-                                                <input
-                                                    type="checkbox"
-                                                    onChange={handleSelectAllMasterCourses}
-                                                    checked={selectedMasterCourses.length === masterData.courses.length && masterData.courses.length > 0}
-                                                    style={{ transform: 'scale(1.2)' }}
-                                                />
-                                                <span>Select All</span>
-                                            </label>
-                                            <div style={{ display: 'flex', gap: '8px' }}>
-                                                <button
-                                                    onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); }}
-                                                    style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid var(--border-color)', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    onClick={handleBulkDeleteMasterCourses}
-                                                    style={{ background: '#FF3B30', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', opacity: selectedMasterCourses.length === 0 ? 0.5 : 1 }}
-                                                    disabled={selectedMasterCourses.length === 0}
-                                                >
-                                                    <RiDeleteBin6Line /> Delete ({selectedMasterCourses.length})
-                                                </button>
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <button
-                                            onClick={() => setIsMasterDeleteMode(true)}
-                                            style={{ background: 'rgba(255, 59, 48, 0.1)', color: '#FF3B30', border: 'none', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-                                        >
-                                            <RiDeleteBin6Line /> Delete Courses
-                                        </button>
-                                    )}
+                                <div className={`settings-card bulk-action-footer-card animate-slide-up ${isMasterDeleteMode ? 'danger' : ''}`}>
+                                    <div className={`bulk-action-footer ${isMasterDeleteMode ? 'danger' : ''}`} style={{ margin: 0, padding: 0, background: 'transparent' }}>
+                                        {isMasterDeleteMode ? (
+                                            <>
+                                                <label className="mac-checkbox-label">
+                                                    <input
+                                                        type="checkbox"
+                                                        className="mac-checkbox"
+                                                        onChange={handleSelectAllMasterCourses}
+                                                        checked={selectedMasterCourses.length === masterData.courses.length && masterData.courses.length > 0}
+                                                    />
+                                                    <span>Select All</span>
+                                                </label>
+                                                <div className="pill-group">
+                                                    <button className="role-pill" onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); }}>Cancel</button>
+                                                    <button className="role-pill danger active" onClick={handleBulkDeleteMasterCourses} disabled={selectedMasterCourses.length === 0}>
+                                                        <RiDeleteBin6Line /> Delete {selectedMasterCourses.length > 0 ? `(${selectedMasterCourses.length})` : ''}
+                                                    </button>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <button className="role-pill danger" onClick={() => setIsMasterDeleteMode(true)}>
+                                                <RiDeleteBin6Line /> Delete Courses
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="master-section" style={{ marginTop: '24px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                <h3><RiUserLine /> Faculty Directory ({globalFaculties.length})</h3>
-                                <a href="?mod=structure" className="btn-add-mini" style={{ textDecoration: 'none', background: 'var(--mac-card-bg)', border: '1px solid var(--border-color)', color: 'var(--mac-text)', fontSize: '12px' }}>
-                                    <RiLinksLine /> Manage in Structure
-                                </a>
-                            </div>
-
-                            <div className="counselor-items-v2">
-                                <div style={{
-                                    padding: '16px',
-                                    background: 'var(--mac-blue-15)',
-                                    border: '1px solid var(--mac-blue-30)',
-                                    borderRadius: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    color: 'var(--mac-text)'
-                                }}>
-                                    <RiUserVoiceLine style={{ fontSize: '24px', color: 'var(--mac-blue)' }} />
-                                    <div>
-                                        <h4 style={{ margin: '0 0 4px 0', fontSize: '14px' }}>Faculty Management Hub</h4>
-                                        <p style={{ margin: 0, fontSize: '13px', opacity: 0.8 }}>
-                                            Faculties are now managed centrally in the Structure Settings. You can map them to courses in the Sections view.
-                                        </p>
-                                    </div>
+                        {/* RIGHT COLUMN: SIDEBAR CONFIG */}
+                        <div className="master-side-col">
+                            <div className="settings-card sidebar-card gray-tint">
+                                <h3 className="sidebar-section-title"><RiUserVoiceLine /> Faculty Hub</h3>
+                                <div className="hub-info-box">
+                                    <p>Faculties are managed centrally in the <strong>Structure Manager</strong>. Map them to courses in specific sections.</p>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="master-section" style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--border-color)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                                <h3 style={{ margin: 0 }}><RiTeamLine /> Central Roles</h3>
-                                {!isRolesEditMode && (
-                                    <button
-                                        className="btn-add-mini"
-                                        onClick={() => { setIsRolesEditMode(true); setTempCoordinator(masterData.coordinator || ''); }}
-                                        style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)' }}
-                                    >
-                                        Edit Roles
-                                    </button>
-                                )}
-                            </div>
-
-                            <div className="field">
-                                <label style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--mac-text)', opacity: 0.7, marginBottom: '8px', display: 'block' }}>Year Coordinator</label>
-
-                                {isRolesEditMode ? (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                        <select
-                                            value={tempCoordinator}
-                                            onChange={e => setTempCoordinator(e.target.value)}
-                                            style={{ flex: 1, minWidth: '200px', maxWidth: '300px' }}
-                                        >
-                                            <option value="">-- Unassigned --</option>
-                                            {globalFaculties.map(f => <option key={f} value={f}>{f}</option>)}
-                                        </select>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                className="action-btn action-edit"
-                                                onClick={() => handleSetCoordinator(tempCoordinator)}
-                                                style={{ padding: '6px 12px', height: '100%' }}
-                                                disabled={tempCoordinator === masterData.coordinator}
+                            <div className="settings-card sidebar-card mt-24">
+                                <h3 className="sidebar-section-title"><RiShieldUserLine /> Administration</h3>
+                                <div className="role-config-block">
+                                    <label className="mac-label">Year Coordinator</label>
+                                    {isRolesEditMode ? (
+                                        <div className="edit-role-stack">
+                                            <select
+                                                className="mac-select-pill"
+                                                value={tempCoordinator}
+                                                onChange={e => setTempCoordinator(e.target.value)}
                                             >
-                                                <RiCheckLine /> <span className="action-label">Save</span>
-                                            </button>
-                                            <button
-                                                className="action-btn"
-                                                onClick={() => setIsRolesEditMode(false)}
-                                                style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--mac-text)', padding: '6px 12px', height: '100%' }}
-                                            >
-                                                <RiCloseLine /> <span className="action-label">Cancel</span>
-                                            </button>
+                                                <option value="">-- Unassigned --</option>
+                                                {globalFaculties.map(f => <option key={f} value={f}>{f}</option>)}
+                                            </select>
+                                            <div className="pill-group full-width mt-12">
+                                                <button className="role-pill flex-1" onClick={() => setIsRolesEditMode(false)}>Cancel</button>
+                                                <button className="role-pill active flex-1" onClick={() => handleSetCoordinator(tempCoordinator)} disabled={tempCoordinator === masterData.coordinator}>Save</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="counselor-name-chip" style={{ display: 'inline-flex', padding: '10px 16px', borderRadius: '8px', background: 'var(--mac-card-bg)', border: '1px solid var(--border-color)', minWidth: '250px' }}>
-                                        {masterData.coordinator ? (
-                                            <span style={{ color: 'var(--mac-blue)', fontWeight: 600 }}>{masterData.coordinator}</span>
-                                        ) : (
-                                            <span style={{ color: 'var(--mac-text)', opacity: 0.5, fontStyle: 'italic' }}>Not Assigned</span>
-                                        )}
-                                    </div>
-                                )}
-                                <p className="hint" style={{ marginTop: '8px' }}>Changes sync to ALL sections instantly.</p>
+                                    ) : (
+                                        <div className="role-display-pill" onClick={() => { setIsRolesEditMode(true); setTempCoordinator(masterData.coordinator || ''); }}>
+                                            <div className="user-info">
+                                                <span className="value">{masterData.coordinator || 'Not Assigned'}</span>
+                                            </div>
+                                            <RiEditLine className="edit-hint" />
+                                        </div>
+                                    )}
+                                    <p className="role-hint">This role has department-wide oversight permissions.</p>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -7,6 +7,8 @@ import {
     RiArrowRightSLine,
 } from "react-icons/ri";
 import { SubHeader } from "./SettingsShared";
+import { DirectorySkeleton, AdminPageSkeleton } from "../../components/AdminSkeletons";
+
 
 const DirectoryFolderItem = ({ name, onClick }) => (
     <button className="s2-dir-folder" onClick={onClick}>
@@ -163,10 +165,9 @@ const UserDirectoryView = ({ onBack }) => {
             <SubHeader title={getTitle()} onBack={handleBack} />
 
             {hierarchyLoading ? (
-                <div className="s2-dir-loading">
-                    <div className="spinner-mac big"></div>
-                </div>
+                <DirectorySkeleton />
             ) : level === 0 ? (
+
                 <>
                     <div className="s2-section-label">Select Batch</div>
                     <div className="s2-dir-list">
@@ -211,10 +212,9 @@ const UserDirectoryView = ({ onBack }) => {
                         {usersLoading ? "Loading..." : `${users.length} Student${users.length !== 1 ? "s" : ""}`}
                     </div>
                     {usersLoading ? (
-                        <div className="s2-dir-loading">
-                            <div className="spinner-mac big"></div>
-                        </div>
+                        <AdminPageSkeleton />
                     ) : users.length === 0 ? (
+
                         <div className="s2-dir-empty">
                             No users found in this section.
                         </div>

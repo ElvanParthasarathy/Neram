@@ -78,7 +78,7 @@
     width: 100%;
     background: #FFFFFF;
     border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    border-radius: 100px;
     padding: 10px 14px;
     font-size: 14px;
     font-weight: 500;
@@ -160,7 +160,7 @@
     font-size: 13px;
     font-weight: 500;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 100px;
     border: none;
     cursor: pointer;
     transition: background 0.2s;
@@ -176,7 +176,7 @@
     font-size: 13px;
     font-weight: 500;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 100px;
     border: 1px solid rgba(255, 59, 48, 0.2);
     cursor: pointer;
     transition: all 0.2s;
