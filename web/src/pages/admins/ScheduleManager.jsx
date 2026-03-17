@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import { db } from "../../firebase";
-import { ref, onValue, set, update } from "firebase/database";
+import { ref, onValue, set, update, get } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
 import {
     RiCalendarScheduleLine, RiArrowRightSLine, RiTeamLine,
     RiLayoutGridLine, RiSave3Line, RiBookOpenLine,
-    RiUserVoiceLine, RiAddLine, RiDeleteBin6Line, RiEditLine,
+    RiUserVoiceLine, RiAddLine, RiDeleteBin6Fill, RiEditLine,
     RiCloseLine, RiCheckLine, RiArrowLeftLine, RiUserLine,
     RiGlobalLine, RiLinksLine, RiRefreshLine, RiShieldUserLine
 } from 'react-icons/ri';
@@ -196,113 +196,107 @@ const ScheduleManager = ({ user, userProfile }) => {
 
     // Fetch Master Data (at SECS view - Dept level)
     useEffect(() => {
-        if ((viewLevel === 'secs' || viewLevel === 'editor') && path.dept) {
-            // 1. Fetch Master Data
-            const masterRef = ref(db, `schedules/${path.batch}/${path.dept}/_master`);
-            const unsubMaster = onValue(masterRef, (snap) => {
-                const data = snap.val() || { courses: [], coordinator: '' };
-                setMasterData({
-                    courses: data.courses || [],
-                    coordinator: data.coordinator || ''
-                });
-            });
-
-            // 2. Fetch all sections to aggregate existing data (so old data is not lost)
+        if ((viewLevel === 'secs' || viewLevel === 'editor' || viewLevel === 'master') && path.dept) {
+            // We only need ONE listener for the entire department level to avoid race conditions.
             const deptSchedulesRef = ref(db, `schedules/${path.batch}/${path.dept}`);
+            
             const unsubData = onValue(deptSchedulesRef, (snap) => {
-                if (snap.exists()) {
-                    const deptData = snap.val();
-                    let aggregatedCourses = [];
-                    let aggregatedFaculties = new Set();
+                const deptData = snap.exists() ? snap.val() : {};
+                const actualMaster = deptData._master || { courses: [], coordinator: '' };
 
-                    // Helper to safely split and add faculty names
-                    const addFacultyNames = (nameStr) => {
-                        if (!nameStr) return;
-                        // Split by '&', 'and', '/', ','
-                        const parts = nameStr.split(/&|\band\b|\/|,/i);
-                        parts.forEach(p => {
-                            const trimmed = p.trim();
-                            if (trimmed) aggregatedFaculties.add(trimmed);
+                // 1. Set Master Data strictly based on what is in DB right now
+                setMasterData({
+                    courses: actualMaster.courses || [],
+                    coordinator: actualMaster.coordinator || ''
+                });
+
+                // 2. Fetch all sections to aggregate existing data (so old data is not lost)
+                let aggregatedCourses = [];
+                let aggregatedFaculties = new Set();
+
+                // Helper to safely split and add faculty names
+                const addFacultyNames = (nameStr) => {
+                    if (!nameStr) return;
+                    // Split by '&', 'and', '/', ','
+                    const parts = nameStr.split(/&|\band\b|\/|,/i);
+                    parts.forEach(p => {
+                        const trimmed = p.trim();
+                        if (trimmed) aggregatedFaculties.add(trimmed);
+                    });
+                };
+
+                // Loop through all sections (skip _master)
+                Object.keys(deptData).forEach(secKey => {
+                    if (secKey === '_master') return;
+                    const sec = deptData[secKey];
+
+                    // Aggregate Courses
+                    if (sec.courses && Array.isArray(sec.courses)) {
+                        sec.courses.forEach(c => {
+                            // Add course code/name if we haven't seen this code yet
+                            if (!aggregatedCourses.find(ac => ac.code === c.code)) {
+                                aggregatedCourses.push({ code: c.code, name: c.name });
+                            }
+                            addFacultyNames(c.faculty);
                         });
+                    }
+
+                    // Aggregate Faculty from Counselors & Coordinators
+                    if (sec.counseling) {
+                        if (sec.counseling.counselors) {
+                            sec.counseling.counselors.forEach(c => addFacultyNames(c));
+                        }
+                        if (sec.counseling.coordinators) {
+                            Object.values(sec.counseling.coordinators).forEach(name => {
+                                addFacultyNames(name);
+                            });
+                        }
+                    }
+                });
+
+                // We now have aggregated items from the wild. 
+                // We merge them WITH the explicit master data using a one-time save structure if missing.
+                const currentMasterCourses = actualMaster.courses || [];
+                const currentCourseCodes = new Set(currentMasterCourses.map(c => c.code));
+                const newCourses = aggregatedCourses.filter(c => c.code && !currentCourseCodes.has(c.code));
+
+                // If there are new courses, auto-save to master and prevent race loop
+                if (newCourses.length > 0) {
+                    const updatedMaster = {
+                        ...actualMaster,
+                        courses: [...currentMasterCourses, ...newCourses]
                     };
+                    set(ref(db, `schedules/${path.batch}/${path.dept}/_master`), updatedMaster)
+                        .catch(err => console.error("Auto-sync master data failed:", err));
+                }
 
-                    // Loop through all sections (skip _master)
-                    Object.keys(deptData).forEach(secKey => {
-                        if (secKey === '_master') return;
-                        const sec = deptData[secKey];
+                // One-Time Global Migration for Faculties
+                if (actualMaster.faculties && Array.isArray(actualMaster.faculties)) {
+                    actualMaster.faculties.forEach(f => addFacultyNames(f));
+                }
 
-                        // Aggregate Courses
-                        if (sec.courses && Array.isArray(sec.courses)) {
-                            sec.courses.forEach(c => {
-                                // Add course code/name if we haven't seen this code yet
-                                if (!aggregatedCourses.find(ac => ac.code === c.code)) {
-                                    aggregatedCourses.push({ code: c.code, name: c.name });
-                                }
-                                addFacultyNames(c.faculty);
-                            });
-                        }
+                if (aggregatedFaculties.size > 0) {
+                    get(ref(db, `faculties_directory/${path.dept}`)).then(snap => {
+                        const currentGlobal = new Set(snap.exists() ? snap.val() : []);
+                        let isDirty = false;
 
-                        // Aggregate Faculty from Counselors & Coordinators
-                        if (sec.counseling) {
-                            if (sec.counseling.counselors) {
-                                sec.counseling.counselors.forEach(c => addFacultyNames(c));
-                            }
-                            if (sec.counseling.coordinators) {
-                                Object.values(sec.counseling.coordinators).forEach(name => {
-                                    addFacultyNames(name);
-                                });
-                            }
-                        }
-                    });
-
-                    // We now have aggregated items from the wild. 
-                    // We need to merge them WITH the explicit master data using a one-time save structure if missing.
-                    // We do this silently in the background so the user's master list auto-updates.
-
-                    setMasterData(currentMaster => {
-                        const currentCourseCodes = new Set(currentMaster.courses.map(c => c.code));
-                        const newCourses = aggregatedCourses.filter(c => !currentCourseCodes.has(c.code));
-
-                        // If there are new courses, auto-save to master
-                        if (newCourses.length > 0) {
-                            const updatedMaster = {
-                                ...currentMaster,
-                                courses: [...currentMaster.courses, ...newCourses]
-                            };
-                            set(ref(db, `schedules/${path.batch}/${path.dept}/_master`), updatedMaster);
-                            return updatedMaster;
-                        }
-                        return currentMaster;
-                    });
-
-                    // One-Time Global Migration for Faculties
-                    // Take the old 'master.faculties' AND the aggregated section faculties and push them global
-                    if (deptData._master && deptData._master.faculties && Array.isArray(deptData._master.faculties)) {
-                        deptData._master.faculties.forEach(f => addFacultyNames(f));
-                    }
-
-                    if (aggregatedFaculties.size > 0) {
-                        get(ref(db, `faculties_directory/${path.dept}`)).then(snap => {
-                            const currentGlobal = new Set(snap.exists() ? snap.val() : []);
-                            let isDirty = false;
-
-                            aggregatedFaculties.forEach(f => {
-                                if (!currentGlobal.has(f)) {
-                                    currentGlobal.add(f);
-                                    isDirty = true;
-                                }
-                            });
-
-                            if (isDirty) {
-                                const newGlobalList = Array.from(currentGlobal).sort();
-                                set(ref(db, `faculties_directory/${path.dept}`), newGlobalList);
+                        aggregatedFaculties.forEach(f => {
+                            if (!currentGlobal.has(f)) {
+                                currentGlobal.add(f);
+                                isDirty = true;
                             }
                         });
-                    }
+
+                        if (isDirty) {
+                            const newGlobalList = Array.from(currentGlobal).sort();
+                            set(ref(db, `faculties_directory/${path.dept}`), newGlobalList)
+                                .catch(err => console.error("Auto-sync faculty failed:", err));
+                        }
+                    });
                 }
             });
 
-            return () => { unsubMaster(); unsubData(); };
+            return () => { unsubData(); };
         }
     }, [viewLevel, path.batch, path.dept]);
 
@@ -598,10 +592,17 @@ const ScheduleManager = ({ user, userProfile }) => {
                     )}
 
                     <div className="breadcrumb-list">
-                        <span className="crumb-btn" onClick={() => updateLevel('batches', { batch: '', dept: '', sec: '' })}>Schedule</span>
-                        {path.batch && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-btn" onClick={() => updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
-                        {path.dept && <><RiArrowRightSLine className="crumb-sep" /> <span className={viewLevel === 'secs' ? "crumb-static" : "crumb-btn"} onClick={() => updateLevel('secs', { sec: '' })}>{path.dept} Sections</span></>}
-                        {path.sec && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-static">{path.sec === '_master' ? 'Master Config' : `Sec ${path.sec}`}</span></>}
+                        <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '', sec: '' })}>Schedule</span>
+                        
+                        {/* Mobile Truncation Ellipsis (Hidden on Desktop) */}
+                        <span className="crumb-ellipsis-container">
+                            <RiArrowRightSLine className="crumb-sep" />
+                            <span className="crumb-static">...</span>
+                        </span>
+
+                        {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className="crumb-btn level-batch" onClick={() => updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
+                        {path.dept && <><RiArrowRightSLine className="crumb-sep level-dept-sep" /> <span className={`level-dept ${viewLevel === 'secs' ? "crumb-static" : "crumb-btn"}`} onClick={() => updateLevel('secs', { sec: '' })}>{path.dept}</span></>}
+                        {path.sec && <><RiArrowRightSLine className="crumb-sep level-sec-sep" /> <span className="crumb-static level-sec">{path.sec === '_master' ? 'Master' : `Sec ${path.sec}`}</span></>}
                     </div>
                 </div>
             </header>
@@ -651,8 +652,9 @@ const ScheduleManager = ({ user, userProfile }) => {
                         {/* LEFT COLUMN: COURSE MANAGEMENT */}
                         <div className="master-main-col">
                             <div className="master-header-row animate-fade-in">
-                                <div className="h2-section-title uppercase-header">
-                                    Master Course List
+                                <div className="master-header-title-wrap">
+                                    <RiBookOpenLine className="header-title-icon" />
+                                    <h2 className="master-header-title">Master Course List</h2>
                                 </div>
                                 <div className="header-actions">
                                         {masterData.courses.length > 0 && (
@@ -660,13 +662,13 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                 <div className="pill-group-row">
                                                     <button
                                                         className="role-header-pill secondary"
-                                                        onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); }}
+                                                        onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); setEditingMasterCourseIdx(null); }}
                                                     >
                                                         Cancel
                                                     </button>
                                                     <button
                                                         className="role-header-pill active"
-                                                        onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); }}
+                                                        onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); setEditingMasterCourseIdx(null); }}
                                                     >
                                                         Done
                                                     </button>
@@ -684,24 +686,32 @@ const ScheduleManager = ({ user, userProfile }) => {
                                 </div>
 
                                 {(isMasterEditMode || masterData.courses.length === 0) && (
-                                    <div className="add-item-bar-pill">
-                                        <div className="input-pill-wrap">
-                                            <input
-                                                className="pill-input"
-                                                placeholder="Code (Ex: EC601)"
-                                                value={newMasterCourse.code}
-                                                onChange={e => setNewMasterCourse({ ...newMasterCourse, code: e.target.value })}
-                                            />
-                                            <div className="divider-v" />
-                                            <input
-                                                className="pill-input grow"
-                                                placeholder="Course Name"
-                                                value={newMasterCourse.name}
-                                                onChange={e => setNewMasterCourse({ ...newMasterCourse, name: e.target.value })}
-                                            />
+                                    <div className="master-add-card-premium animate-slide-down">
+                                        <div className="add-card-title-row">
+                                            <span>Enter New Course Details</span>
                                         </div>
-                                        <button className="pill-add-btn" onClick={handleAddMasterCourse}>
-                                            <RiAddLine />
+                                        <div className="add-card-grid">
+                                            <div className="add-input-section">
+                                                <label className="add-input-label">SUBJECT CODE</label>
+                                                <input
+                                                    className="premium-add-input"
+                                                    placeholder="EX: 22CS601"
+                                                    value={newMasterCourse.code}
+                                                    onChange={e => setNewMasterCourse({ ...newMasterCourse, code: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="add-input-section grow">
+                                                <label className="add-input-label">SUBJECT NAME</label>
+                                                <input
+                                                    className="premium-add-input"
+                                                    placeholder="Enter full subject title..."
+                                                    value={newMasterCourse.name}
+                                                    onChange={e => setNewMasterCourse({ ...newMasterCourse, name: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <button className="premium-add-submit-btn" onClick={handleAddMasterCourse}>
+                                            <RiAddLine /> Add Subject to List
                                         </button>
                                     </div>
                                 )}
@@ -711,25 +721,30 @@ const ScheduleManager = ({ user, userProfile }) => {
                                     <div key={i} className={`settings-card master-item-card ${editingMasterCourseIdx === i ? 'editing' : ''}`}>
                                         {editingMasterCourseIdx === i ? (
                                             <div className="pill-edit-row">
-                                                <div className="input-pill-wrap">
-                                                    <input
-                                                        autoFocus
-                                                        className="pill-input"
-                                                        placeholder="Code"
-                                                        value={tempMasterCourse.code}
-                                                        onChange={(e) => setTempMasterCourse({ ...tempMasterCourse, code: e.target.value })}
-                                                    />
-                                                    <div className="divider-v" />
-                                                    <input
-                                                        className="pill-input grow"
-                                                        placeholder="Name"
-                                                        value={tempMasterCourse.name}
-                                                        onChange={(e) => setTempMasterCourse({ ...tempMasterCourse, name: e.target.value })}
-                                                    />
+                                                <div className="edit-item-fields">
+                                                    <div className="edit-field">
+                                                        <label className="edit-label">SUBJECT CODE</label>
+                                                        <input
+                                                            autoFocus
+                                                            className="edit-input-field"
+                                                            placeholder="Code"
+                                                            value={tempMasterCourse.code}
+                                                            onChange={(e) => setTempMasterCourse({ ...tempMasterCourse, code: e.target.value })}
+                                                        />
+                                                    </div>
+                                                    <div className="edit-field">
+                                                        <label className="edit-label">SUBJECT NAME</label>
+                                                        <input
+                                                            className="edit-input-field"
+                                                            placeholder="Name"
+                                                            value={tempMasterCourse.name}
+                                                            onChange={(e) => setTempMasterCourse({ ...tempMasterCourse, name: e.target.value })}
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <div className="pill-actions">
-                                                    <button className="pill-action-btn save" onClick={handleUpdateMasterCourse} title="Save"><RiCheckLine /></button>
-                                                    <button className="pill-action-btn cancel" onClick={() => setEditingMasterCourseIdx(null)} title="Cancel"><RiCloseLine /></button>
+                                                    <button className="pill-action-btn cancel" onClick={() => setEditingMasterCourseIdx(null)}>Cancel</button>
+                                                    <button className="pill-action-btn save" onClick={handleUpdateMasterCourse}>Save Changes</button>
                                                 </div>
                                             </div>
                                         ) : (
@@ -743,8 +758,10 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                             onChange={() => handleToggleMasterCourseSelect(i)}
                                                         />
                                                     )}
+                                                <div className="item-text-stack">
                                                     <div className="course-code-badge">{c.code}</div>
                                                     <span className="course-name-text">{c.name}</span>
+                                                </div>
                                                 </div>
                                                 {isMasterEditMode && (
                                                     <button className="pill-inline-edit" onClick={() => { setEditingMasterCourseIdx(i); setTempMasterCourse(c); }}>
@@ -766,47 +783,64 @@ const ScheduleManager = ({ user, userProfile }) => {
                             </div>
 
                             {isMasterEditMode && (
-                                <div className={`settings-card bulk-action-footer-card animate-slide-up ${isMasterDeleteMode ? 'danger' : ''}`}>
-                                    <div className={`bulk-action-footer ${isMasterDeleteMode ? 'danger' : ''}`} style={{ margin: 0, padding: 0, background: 'transparent' }}>
+                                    <div className={`bulk-action-footer-premium animate-slide-up ${isMasterDeleteMode ? 'danger-mode' : ''}`}>
                                         {isMasterDeleteMode ? (
-                                            <>
-                                                <label className="mac-checkbox-label">
-                                                    <input
-                                                        type="checkbox"
-                                                        className="mac-checkbox"
-                                                        onChange={handleSelectAllMasterCourses}
-                                                        checked={selectedMasterCourses.length === masterData.courses.length && masterData.courses.length > 0}
-                                                    />
-                                                    <span>Select All</span>
-                                                </label>
+                                            <div className="bulk-delete-action-row">
+                                                <div className="bulk-delete-info">
+                                                    <div className="info-icon">
+                                                        <RiDeleteBin6Fill />
+                                                    </div>
+                                                    <div className="bulk-delete-text">
+                                                        <span className="bulk-delete-title">
+                                                            {selectedMasterCourses.length === 0 ? "Select Items" : `${selectedMasterCourses.length} Selected`}
+                                                        </span>
+                                                        <span className="bulk-delete-desc">Choose courses to delete</span>
+                                                    </div>
+                                                </div>
                                                 <div className="pill-group">
-                                                    <button className="role-pill" onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); }}>Cancel</button>
-                                                    <button className="role-pill danger active" onClick={handleBulkDeleteMasterCourses} disabled={selectedMasterCourses.length === 0}>
-                                                        <RiDeleteBin6Line /> Delete {selectedMasterCourses.length > 0 ? `(${selectedMasterCourses.length})` : ''}
+                                                    <button
+                                                        className="premium-pill-btn primary"
+                                                        onClick={handleSelectAllMasterCourses}
+                                                    >
+                                                        {selectedMasterCourses.length === masterData.courses.length && masterData.courses.length > 0 ? 'Deselect All' : 'Select All'}
+                                                    </button>
+                                                    <button className="premium-pill-btn secondary" onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); }}>Cancel</button>
+                                                    <button className="premium-pill-btn danger" onClick={handleBulkDeleteMasterCourses} disabled={selectedMasterCourses.length === 0}>
+                                                        Delete
                                                     </button>
                                                 </div>
-                                            </>
+                                            </div>
                                         ) : (
-                                            <button className="role-pill danger" onClick={() => setIsMasterDeleteMode(true)}>
-                                                <RiDeleteBin6Line /> Delete Courses
-                                            </button>
+                                            <div className="bulk-delete-start-row">
+                                                <div className="bulk-delete-info">
+                                                    <div className="info-icon">
+                                                        <RiBookOpenLine />
+                                                    </div>
+                                                    <div className="bulk-delete-text">
+                                                        <span className="bulk-delete-title">Manage Master List</span>
+                                                        <span className="bulk-delete-desc">Select and remove multiple courses at once</span>
+                                                    </div>
+                                                </div>
+                                                <button className="premium-pill-btn danger" onClick={() => setIsMasterDeleteMode(true)}>
+                                                    <RiDeleteBin6Fill /> Delete
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
-                                </div>
                             )}
                         </div>
 
                         {/* RIGHT COLUMN: SIDEBAR CONFIG */}
                         <div className="master-side-col">
-                            <div className="settings-card sidebar-card gray-tint">
-                                <h3 className="sidebar-section-title"><RiUserVoiceLine /> Faculty Hub</h3>
+                            <div className="settings-card sidebar-card">
+                                <h3 className="sidebar-section-title"><RiUserVoiceLine className="hub-title-icon" /> Faculty Hub</h3>
                                 <div className="hub-info-box">
-                                    <p>Faculties are managed centrally in the <strong>Structure Manager</strong>. Map them to courses in specific sections.</p>
+                                    <p>Faculties are managed centrally in the <span className="inline-badge">Structure Manager</span>. Map them to courses in specific sections.</p>
                                 </div>
                             </div>
 
                             <div className="settings-card sidebar-card mt-24">
-                                <h3 className="sidebar-section-title"><RiShieldUserLine /> Administration</h3>
+                                <h3 className="sidebar-section-title"><RiShieldUserLine className="admin-title-icon" /> Administration</h3>
                                 <div className="role-config-block">
                                     <label className="mac-label">Year Coordinator</label>
                                     {isRolesEditMode ? (
@@ -820,8 +854,8 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                 {globalFaculties.map(f => <option key={f} value={f}>{f}</option>)}
                                             </select>
                                             <div className="pill-group full-width mt-12">
-                                                <button className="role-pill flex-1" onClick={() => setIsRolesEditMode(false)}>Cancel</button>
-                                                <button className="role-pill active flex-1" onClick={() => handleSetCoordinator(tempCoordinator)} disabled={tempCoordinator === masterData.coordinator}>Save</button>
+                                                <button className="premium-pill-btn secondary flex-1" onClick={() => setIsRolesEditMode(false)}>Cancel</button>
+                                                <button className="premium-pill-btn primary flex-1" onClick={() => handleSetCoordinator(tempCoordinator)} disabled={tempCoordinator === masterData.coordinator}>Save</button>
                                             </div>
                                         </div>
                                     ) : (
