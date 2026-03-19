@@ -1489,7 +1489,7 @@
 /* Premium Course Adder Card */
 .master-add-card-premium {
     background: var(--mac-sidebar-bg) !important;
-    border: 1px solid var(--mac-border);
+    border: none;
     border-radius: 24px;
     padding: 24px;
     margin-bottom: 32px;
@@ -1502,7 +1502,6 @@
 
 .master-add-card-premium:focus-within {
     background: var(--mac-card-bg) !important;
-    box-shadow: 0 12px 48px rgba(0, 122, 255, 0.1);
 }
 
 .add-card-title-row {
@@ -1767,94 +1766,6 @@
 }
 /* Removed :not(.active) gray override to keep Edit List button blue */
 
-.individual-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 12px;
-}
-
-.master-item-card {
-    background: var(--mac-card-bg);
-    border: none;
-    border-radius: 24px;
-    padding: 18px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: none !important;
-}
-
-.master-item-card:hover {
-    background: var(--mac-selection-hover);
-}
-
-.master-item-card.editing {
-    border-radius: 24px;
-    padding: 24px;
-    background: var(--mac-sidebar-bg);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-.item-content {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex: 1;
-}
-
-.item-text-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    flex: 1;
-}
-
-.course-code-badge {
-    color: var(--mac-blue) !important;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    background: none !important;
-    padding: 0 !important;
-    margin: 0;
-    opacity: 1;
-}
-
-.course-name-text {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--mac-text);
-    letter-spacing: -0.1px;
-    line-height: 1.4;
-}
-
-.pill-inline-edit {
-    background: var(--mac-blue) !important;
-    border: none;
-    color: white !important;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    opacity: 0;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.master-item-card:hover .pill-inline-edit {
-    opacity: 1;
-}
-
-.pill-inline-edit:hover {
-    filter: brightness(1.1);
-}
-
 /* Premium Bulk Action Footer */
 .bulk-action-footer-premium {
     margin-top: 24px;
@@ -1984,12 +1895,14 @@
     background: #E0352B;
 }
 
-.premium-pill-btn.danger:disabled {
-    background: var(--mac-bg-secondary);
-    color: var(--mac-text-secondary);
-    box-shadow: none;
+.premium-pill-btn:disabled {
+    background: var(--mac-bg-secondary) !important;
+    color: var(--mac-text-secondary) !important;
+    opacity: 0.5;
     cursor: not-allowed;
-    opacity: 0.6;
+    pointer-events: none;
+    box-shadow: none;
+    filter: saturate(0.5);
 }
 
 .pill-group {
@@ -2358,3 +2271,311 @@
         padding: 12px 24px;
     }
 }
+
+@media (max-width: 900px) {
+    .split-master-view { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .add-item-bar.inline { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+    .add-item-bar.inline input, .add-item-bar.inline select { width: 100% !important; flex: none !important; }
+    .add-item-bar.inline button { width: 100% !important; justify-content: center !important; margin-top: 5px !important; }
+    
+    .inline-edit-pill-wrap { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+    .inline-edit-pill-wrap input, .inline-edit-pill-wrap select { width: 100% !important; flex: none !important; }
+    .edit-pill-actions { width: 100% !important; flex-direction: row !important; gap: 8px !important; display: flex !important; }
+    .edit-pill-actions button { flex: 1 !important; justify-content: center !important; margin: 0 !important; }
+    
+    .s2-mapping-card { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; padding: 24px !important; margin-bottom: 16px !important; background: var(--mac-card-bg) !important; }
+    .s2-mapping-card .card-header-row { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+    .s2-mapping-card .code-badge { font-size: 12px !important; display: inline-block !important; margin-bottom: 2px !important; }
+    .s2-mapping-card .course-name { font-size: 15px !important; line-height: 1.2 !important; }
+    
+    .s2-mapping-pill { font-size: 12px !important; padding: 6px 12px !important; }
+    .pill-row { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; width: 100% !important; }
+    
+    .card-actions-area { width: 100% !important; flex-direction: row !important; gap: 8px !important; display: flex !important; margin-left: 0 !important; }
+    .card-actions-area button { flex: 1 !important; justify-content: center !important; margin: 0 !important; }
+    
+    .edit-list-btn { border: none !important; background: var(--mac-selection-bg) !important; color: var(--mac-blue) !important; padding: 8px 16px !important; border-radius: 100px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 6px !important; transition: all 0.2s !important; }
+    .edit-list-btn:hover { background: var(--mac-blue-15) !important; transform: scale(1.05) !important; }
+    
+    .role-editor-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+    .role-input { width: 100% !important; }
+    .role-input select { width: 100% !important; min-width: 0 !important; }
+    
+    .field { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+    .field select { width: 100% !important; max-width: none !important; }
+}
+
+
+@media (max-width: 900px) {
+    .split-master-view { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .add-item-bar.inline { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+    .add-item-bar.inline input, .add-item-bar.inline select { width: 100% !important; flex: none !important; }
+    .add-item-bar.inline button { width: 100% !important; justify-content: center !important; margin-top: 5px !important; }
+    
+    .inline-edit-pill-wrap { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+    .inline-edit-pill-wrap input, .inline-edit-pill-wrap select { width: 100% !important; flex: none !important; }
+    .edit-pill-actions { width: 100% !important; flex-direction: row !important; gap: 8px !important; display: flex !important; }
+    .edit-pill-actions button { flex: 1 !important; justify-content: center !important; margin: 0 !important; }
+    
+    .edit-list-btn { border: none !important; background: var(--mac-selection-bg) !important; color: var(--mac-blue) !important; padding: 8px 16px !important; border-radius: 100px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 6px !important; transition: all 0.2s !important; }
+    .edit-list-btn:hover { background: var(--mac-blue-15) !important; transform: scale(1.05) !important; }
+    
+    .role-editor-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+    .role-input { width: 100% !important; }
+    .role-input select { width: 100% !important; min-width: 0 !important; }
+    
+    .field { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+    .field select { width: 100% !important; max-width: none !important; }
+}
+
+/* ==========================================================================
+   GLOBAL S2 MAPPING CARD STYLES
+   These apply globally to both Desktop & Mobile outside the min-width wrapper
+   ========================================================================== */
+.s2-mapping-card {
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+
+.s2-mapping-card:hover {
+    background: var(--mac-selection-hover);
+}
+
+.s2-mapping-card.editing {
+    border-radius: 24px;
+    padding: 24px;
+    background: var(--mac-sidebar-bg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.s2-mapping-card .card-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.s2-mapping-card .card-header-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.s2-mapping-card .code-badge {
+    display: inline-block;
+    color: var(--mac-blue);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.s2-mapping-card .course-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--mac-text);
+    line-height: 1.2;
+}
+
+.s2-mapping-card .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.s2-mapping-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-size: 10.5px;
+    font-weight: 600;
+}
+
+.s2-mapping-pill svg {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.s2-mapping-pill.faculty {
+    background: rgba(0, 122, 255, 0.08); /* Light blue */
+    color: var(--mac-blue);
+}
+
+.s2-mapping-pill.periods {
+    background: rgba(255, 149, 0, 0.08); /* Light orange */
+    color: #B25000;
+}
+
+.s2-mapping-card .card-actions-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+html.dark .s2-mapping-card {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+html.dark .s2-mapping-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Clean mobile layout overrides without needing crazy !important hacks */
+@media (max-width: 768px) {
+    .s2-mapping-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    
+    .s2-mapping-card .code-badge {
+        font-size: 12px;
+    }
+    
+    .s2-mapping-card .course-name {
+        font-size: 15px;
+    }
+    
+    .s2-mapping-pill { 
+        font-size: 12px; 
+        padding: 6px 12px; 
+    }
+    
+    .s2-mapping-card .pill-row { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 8px; 
+        width: 100%; 
+    }
+    
+    .s2-mapping-card .card-actions-area { 
+        width: 100%; 
+        flex-direction: row; 
+        gap: 8px; 
+    }
+    
+    .s2-mapping-card .card-actions-area button { 
+        flex: 1; 
+        justify-content: center; 
+        margin: 0; 
+    }
+    
+    .pill-inline-edit {
+        opacity: 1 !important;
+    }
+}
+
+/* ==========================================================================
+   GLOBAL MASTER ITEM CARD & INLINE EDIT STYLES
+   ========================================================================== */
+.individual-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.master-item-card {
+    background: var(--mac-card-bg);
+    border: none;
+    border-radius: 24px;
+    padding: 18px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none !important;
+}
+
+.master-item-card:hover {
+    background: var(--mac-selection-hover);
+}
+
+.master-item-card.editing {
+    border-radius: 24px;
+    padding: 24px;
+    background: var(--mac-sidebar-bg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.item-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.item-text-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    flex: 1;
+}
+
+.course-code-badge {
+    color: var(--mac-blue) !important;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: none !important;
+    padding: 0 !important;
+    margin: 0;
+    opacity: 1;
+}
+
+.course-name-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--mac-text);
+    letter-spacing: -0.1px;
+    line-height: 1.4;
+}
+
+.pill-inline-edit {
+    background: var(--mac-blue) !important;
+    border: none;
+    color: white !important;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.master-item-card:hover .pill-inline-edit {
+    opacity: 1;
+}
+
+.pill-inline-edit:hover {
+    filter: brightness(1.1);
+}
+

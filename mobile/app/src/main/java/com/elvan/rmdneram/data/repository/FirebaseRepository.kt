@@ -337,13 +337,28 @@ class FirebaseRepository(private val context: Context) {
                 
                 val subjects = examSnapshot.child("subjects").children.mapNotNull { subSnapshot ->
                     try {
+                        // Parse batches for practical exams
+                        val batches = subSnapshot.child("batches").children.mapNotNull { batchSnap ->
+                            try {
+                                PracticalBatch(
+                                    label = batchSnap.child("label").getValue<String>() ?: "",
+                                    section = batchSnap.child("section").getValue<String>() ?: "",
+                                    date = batchSnap.child("date").getValue<String>() ?: "",
+                                    startTime = batchSnap.child("startTime").getValue<String>() ?: "",
+                                    endTime = batchSnap.child("endTime").getValue<String>() ?: "",
+                                    registerRange = batchSnap.child("registerRange").getValue<String>() ?: "",
+                                    totalCount = batchSnap.child("totalCount").getValue<String>() ?: ""
+                                )
+                            } catch (e: Exception) { null }
+                        }
                         // Manual parsing to avoid type mismatch crashes
                         ExamSubject(
                             date = subSnapshot.child("date").getValue<String>() ?: "",
                             code = subSnapshot.child("code").getValue<String>() ?: "",
                             startTime = subSnapshot.child("startTime").getValue<String>() ?: "",
                             endTime = subSnapshot.child("endTime").getValue<String>() ?: "",
-                            portion = subSnapshot.child("portion").getValue<String>() ?: ""
+                            portion = subSnapshot.child("portion").getValue<String>() ?: "",
+                            batches = batches
                         )
                     } catch (e: Exception) { null }
                 }
@@ -368,7 +383,40 @@ class FirebaseRepository(private val context: Context) {
         }
         val counseling = CounselingData(counselors, coordinators)
         
-        return MasterData(courses, timetable.toImmutableMap(), exams, counseling)
+        // Parse special classes data
+        val specialClassesSnapshot = snapshot.child("specialClasses")
+        val specialClasses = specialClassesSnapshot.children.mapNotNull { scSnap ->
+            try {
+                val scDate = scSnap.child("date").getValue<String>() ?: ""
+                val typeTitle = scSnap.child("typeTitle").getValue<String>() ?: ""
+                val title = scSnap.child("title").getValue<String>() ?: ""
+                val desc = scSnap.child("desc").getValue<String>() ?: ""
+                
+                val batches = scSnap.child("batches").children.mapNotNull { bSnap ->
+                    try {
+                        SpecialClassBatch(
+                            circleLabel = bSnap.child("circleLabel").getValue<String>() ?: "",
+                            startTime = bSnap.child("startTime").getValue<String>() ?: "",
+                            endTime = bSnap.child("endTime").getValue<String>() ?: "",
+                            subjectCode = bSnap.child("subjectCode").getValue<String>() ?: "",
+                            subjectName = bSnap.child("subjectName").getValue<String>() ?: "",
+                            faculty = bSnap.child("faculty").getValue<String>() ?: ""
+                        )
+                    } catch (e: Exception) { null }
+                }
+                
+                SpecialClass(
+                    id = scSnap.key ?: "",
+                    date = scDate,
+                    typeTitle = typeTitle,
+                    title = title,
+                    desc = desc,
+                    batches = batches
+                )
+            } catch (e: Exception) { null }
+        }.toImmutableList()
+        
+        return MasterData(courses, timetable.toImmutableMap(), exams, specialClasses, counseling)
     }
     
     // ==================== CALENDAR EVENTS ====================

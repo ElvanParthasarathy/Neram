@@ -22,7 +22,8 @@ import {
   RiUser3Fill,
   RiTimeLine,
   RiInboxArchiveLine,
-  RiScanLine
+  RiScanLine,
+  RiComputerLine
 } from "react-icons/ri";
 import { getHardcodedRole } from "../data/admins";
 
@@ -159,6 +160,10 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
         <Link to="/?mod=events" className={`admin-nav-link ${location.search.includes('mod=events') ? "active" : ""}`}>
           <RiFlagLine className="admin-nav-icon" />
           <span>Events</span>
+        </Link>
+        <Link to="/?mod=special_classes" className={`admin-nav-link ${location.search.includes('mod=special_classes') ? "active" : ""}`}>
+          <RiComputerLine className="admin-nav-icon" />
+          <span>Special Classes</span>
         </Link>
 
         {/* GROUP 3: ACADEMIC - SUPER ADMIN ONLY */}

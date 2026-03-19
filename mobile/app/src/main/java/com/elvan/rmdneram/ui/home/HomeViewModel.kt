@@ -55,6 +55,8 @@ data class ScheduleState(
     val periods: ImmutableList<PeriodDisplayData> = persistentListOf(),
     val activeExamPeriod: ExamSchedule? = null,
     val todayExam: ExamSubject? = null,
+    val todayBatches: ImmutableList<TodayBatchGroup> = persistentListOf(),
+    val todaySpecialClass: SpecialClass? = null,
     val fullDayEvent: CalendarEvent? = null,
     val halfDayEvent: CalendarEvent? = null
 )
@@ -228,6 +230,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val periods: List<PeriodDisplayData> = emptyList(),
         val activeExamPeriod: ExamSchedule? = null,
         val todayExam: ExamSubject? = null,
+        val todayBatches: List<TodayBatchGroup> = emptyList(),
+        val todaySpecialClass: SpecialClass? = null,
         val fullDayEvent: CalendarEvent? = null,
         val halfDayEvent: CalendarEvent? = null
     )
@@ -243,6 +247,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 periods = (cached.periods).toImmutableList(),
                 activeExamPeriod = cached.activeExamPeriod,
                 todayExam = cached.todayExam,
+                todayBatches = (cached.todayBatches).toImmutableList(),
+                todaySpecialClass = cached.todaySpecialClass,
                 fullDayEvent = cached.fullDayEvent,
                 halfDayEvent = cached.halfDayEvent
             )
@@ -444,14 +450,38 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val activeExamPeriod = masterData.exams.find { exam ->
             dateStr >= exam.startDate && dateStr <= exam.endDate
         }
-        val todayExam = activeExamPeriod?.subjects?.find { it.date == dateStr }
+        
+        var todayExam: ExamSubject? = null
+        var todayBatches: ImmutableList<TodayBatchGroup> = persistentListOf()
+        
+        if (activeExamPeriod != null) {
+            if (activeExamPeriod.type.equals("Practical", ignoreCase = true)) {
+                // Collect today's practical batches across all subjects
+                val batchesForToday = activeExamPeriod.subjects.mapNotNull { sub ->
+                    val matchingBatches = sub.batches.filter { it.date == dateStr }
+                    if (matchingBatches.isNotEmpty()) {
+                        val courseName = masterData.courses.find { it.code == sub.code }?.name ?: sub.code
+                        val cleanName = courseName.replace(Regex("\\s*\\(.*?\\)"), "").replace(Regex("\\s*Lab.*|\\s*Integrated.*", RegexOption.IGNORE_CASE), "").trimEnd('-', ' ', '/')
+                        TodayBatchGroup(sub.code, cleanName, matchingBatches)
+                    } else null
+                }
+                if (batchesForToday.isNotEmpty()) {
+                    todayBatches = batchesForToday.toImmutableList()
+                }
+            } else {
+                todayExam = activeExamPeriod.subjects.find { it.date == dateStr }
+            }
+        }
         
         // Check for full-day or half-day events
         val fullDayEvent = currentEvents.find { it.type == "FullDay" }
         val halfDayEvent = currentEvents.find { it.type == "HalfDay" }
         
+        // Detect special class for today
+        val todaySpecialClass = masterData.specialClasses.find { it.date == dateStr }
+        
         // Resolve day order
-        val (dayOrder, scheduleStatus) = resolveDayOrder(date, currentEvents)
+        val (dayOrder, scheduleStatus) = resolveDayOrder(date, currentEvents, todaySpecialClass)
         
         // Build period list
         val periods = if (dayOrder.isNotEmpty()) {
@@ -469,12 +499,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             persistentListOf()
         }
         
+        // Schedule state is ready
         ScheduleState(
             dayOrder = dayOrder,
             scheduleStatus = scheduleStatus,
             periods = periods,
             activeExamPeriod = activeExamPeriod,
             todayExam = todayExam,
+            todayBatches = todayBatches,
+            todaySpecialClass = todaySpecialClass,
             fullDayEvent = fullDayEvent,
             halfDayEvent = halfDayEvent
         )
@@ -511,7 +544,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam
         
         val hasLabToday = !classesSuspended && schedule.periods.any { it.isLab }
-        val hasExamToday = schedule.todayExam != null
+        val hasExamToday = schedule.todayExam != null || schedule.todayBatches.isNotEmpty() || schedule.todaySpecialClass != null
         
         val rawNote = visibleServerUpdate?.note ?: ""
         var finalNote = rawNote
@@ -551,7 +584,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Resolve day order based on calendar events
      */
-    private fun resolveDayOrder(date: LocalDate, events: List<CalendarEvent>): Pair<String, String> {
+    private fun resolveDayOrder(date: LocalDate, events: List<CalendarEvent>, specialClass: SpecialClass? = null): Pair<String, String> {
+        if (specialClass != null) {
+            return "SPECIAL" to "Special Schedule: ${specialClass.typeTitle}"
+        }
+
         val weekday = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
         
         val holidayEvent = events.find { it.isHoliday() }

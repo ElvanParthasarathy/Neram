@@ -1,6 +1,54 @@
-﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :admin:preBuild UP-TO-DATE
+> Task :admin:preDebugBuild UP-TO-DATE
+> Task :admin:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :admin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :admin:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :admin:generateDebugResValues UP-TO-DATE
+> Task :admin:generateDebugResources UP-TO-DATE
+> Task :admin:processDebugGoogleServices UP-TO-DATE
+> Task :admin:mergeDebugResources UP-TO-DATE
+> Task :admin:packageDebugResources UP-TO-DATE
+> Task :admin:processDebugNavigationResources UP-TO-DATE
+> Task :admin:parseDebugLocalResources UP-TO-DATE
+> Task :admin:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :admin:checkDebugAarMetadata UP-TO-DATE
+> Task :admin:compileDebugNavigationResources UP-TO-DATE
+> Task :admin:mapDebugSourceSetPaths UP-TO-DATE
+> Task :admin:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :admin:extractDeepLinksDebug UP-TO-DATE
+> Task :admin:processDebugMainManifest UP-TO-DATE
+> Task :admin:processDebugManifest UP-TO-DATE
+> Task :admin:processDebugManifestForPackage UP-TO-DATE
+> Task :admin:processDebugResources UP-TO-DATE
+> Task :admin:compileDebugKotlin UP-TO-DATE
+> Task :admin:javaPreCompileDebug UP-TO-DATE
+> Task :admin:compileDebugJavaWithJavac UP-TO-DATE
+> Task :admin:mergeDebugShaders UP-TO-DATE
+> Task :admin:compileDebugShaders NO-SOURCE
+> Task :admin:generateDebugAssets UP-TO-DATE
+> Task :admin:mergeDebugAssets UP-TO-DATE
+> Task :admin:compressDebugAssets UP-TO-DATE
+> Task :admin:processDebugJavaRes UP-TO-DATE
+> Task :admin:mergeDebugJavaResource UP-TO-DATE
+> Task :admin:checkDebugDuplicateClasses UP-TO-DATE
+> Task :admin:desugarDebugFileDependencies UP-TO-DATE
+> Task :admin:mergeExtDexDebug UP-TO-DATE
+> Task :admin:mergeLibDexDebug UP-TO-DATE
+> Task :admin:dexBuilderDebug UP-TO-DATE
+> Task :admin:mergeProjectDexDebug UP-TO-DATE
+> Task :admin:mergeDebugJniLibFolders UP-TO-DATE
+> Task :admin:mergeDebugNativeLibs NO-SOURCE
+> Task :admin:stripDebugDebugSymbols NO-SOURCE
+> Task :admin:validateSigningDebug UP-TO-DATE
+> Task :admin:writeDebugAppMetadata UP-TO-DATE
+> Task :admin:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :admin:packageDebug UP-TO-DATE
+> Task :admin:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :admin:assembleDebug UP-TO-DATE
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :app:checkDebugAarMetadata UP-TO-DATE
 > Task :app:processDebugNavigationResources UP-TO-DATE
 > Task :app:compileDebugNavigationResources UP-TO-DATE
@@ -36,37 +84,107 @@
 > Task :app:kspDebugKotlin
 
 > Task :app:compileDebugKotlin
-.\gradlew : e: file:///D:/Projects/Neram/mobile/app/src/main/
-java/com/elvan/rmdneram/ui/calendar/CalendarLayout.kt:403:29 
-Unresolved reference 'OfficialDocumentsSection'.
-At line:1 char:1
-+ .\gradlew installDebug 2>&1 | Out-File -FilePath 
-build_output3.txt -E ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (e: file:///D:/P 
-   ...umentsSection'.:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elv
-an/rmdneram/ui/calendar/CalendarLayout.kt:515:2 Syntax 
-error: Expecting '}'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/MainActivity.kt:135:83 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/MainActivity.kt:158:32 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/MainActivity.kt:159:32 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/MainActivity.kt:293:18 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/MainActivity.kt:294:15 'fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Unit' is deprecated. This method has been deprecated in favor of using the Activity Result API
+      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt
+      contracts for common intents available in
+      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for
+      testing, and allow receiving results in separate, testable classes independent from your
+      activity. Use
+      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
+      with the appropriate {@link ActivityResultContract} and handling the result in the
+      {@link ActivityResultCallback#onActivityResult(Object) callback}.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/data/local/NeramDatabase.kt:49:18 'fun fallbackToDestructiveMigration(): RoomDatabase.Builder<NeramDatabase>' is deprecated. Replace by overloaded version with parameter to indicate if all tables should be dropped or not.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:70:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:119:24 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:160:38 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/MainScreen.kt:210:17 Duplicate branch condition in 'when'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/alerts/FullScreenAlertActivity.kt:106:44 'static field FLAG_SHOW_WHEN_LOCKED: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/alerts/FullScreenAlertActivity.kt:107:44 'static field FLAG_TURN_SCREEN_ON: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/alerts/FullScreenAlertActivity.kt:109:44 'static field FLAG_DISMISS_KEYGUARD: Int' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/LoginScreen.kt:21:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/LoginScreen.kt:85:20 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/LoginScreen.kt:116:34 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/SignupScreen.kt:21:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/SignupScreen.kt:113:20 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/SignupScreen.kt:166:34 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarComponents.kt:176:85 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarComponents.kt:298:97 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarComponents.kt:395:17 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarComponents.kt:729:25 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarComponents.kt:807:85 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarComponents.kt:947:85 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarComponents.kt:1209:85 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarLayout.kt:393:64 'val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/calendar/CalendarLayout.kt:414:64 'val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/common/ScheduleLogic.kt:64:98 Unnecessary safe call on a non-null receiver of type 'ExamSchedule'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeLayout.kt:100:96 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeScreen.kt:141:151 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:682:17 Condition is always 'true'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:686:17 Condition is always 'true'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/navigation/TopMenuBar.kt:318:32 'val Icons.Outlined.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.ArrowBack.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/notes/NotesComponents.kt:211:64 'val Icons.Filled.OpenInNew: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.OpenInNew.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/notes/NotesLayout.kt:65:38 'val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/notifications/NotificationScreen.kt:118:44 'fun rememberSwipeToDismissBoxState(initialValue: SwipeToDismissBoxValue = ..., confirmValueChange: (SwipeToDismissBoxValue) -> Boolean = ..., positionalThreshold: (Float) -> Float = ...): SwipeToDismissBoxState' is deprecated. confirmValueChange is deprecated without replacement. Rather than relying on a callback to veto state changes, the anchor set should not include disallowed anchors. See androidx.compose.foundation.samples.AnchoredDraggableDynamicAnchorsSample for an example of using dynamic anchors over confirmValueChange.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:132:20 Unnecessary safe call on a non-null receiver of type 'DatabaseReference'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:132:56 Unnecessary non-null assertion (!!) on a non-null receiver of type '<anonymous>'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:154:25 Unnecessary safe call on a non-null receiver of type 'DatabaseReference'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:154:66 Unnecessary non-null assertion (!!) on a non-null receiver of type '<anonymous>'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:291:45 Unnecessary safe call on a non-null receiver of type 'FirebaseUser'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:641:36 'val Icons.Outlined.Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.Logout.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:794:42 'val Icons.Outlined.Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.Logout.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/schedule/ScheduleHelpers.kt:119:13 Condition is always 'true'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/schedule/ScheduleHelpers.kt:124:13 Condition is always 'true'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/AboutAppScreen.kt:155:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/AboutAppScreen.kt:162:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/AboutAppScreen.kt:169:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/AboutAppScreen.kt:176:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/CollegeSitesScreen.kt:130:44 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ComplaintScreen.kt:166:38 'val Icons.Filled.Message: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Message.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ComplaintScreen.kt:247:40 'val Icons.Filled.Send: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Send.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ContactScreen.kt:146:40 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ContactScreen.kt:261:44 'val Icons.Filled.Send: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Send.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/DisplaySettingsScreen.kt:130:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/LinkedAccountsScreen.kt:95:33 Unnecessary safe call on a non-null receiver of type 'FirebaseUser'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:139:39 'val Icons.Outlined.Article: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.Article.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:152:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:168:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:184:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:200:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:216:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:232:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:248:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:293:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/NotificationSettingsScreen.kt:343:21 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:42:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:517:24 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:560:50 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:751:24 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:793:38 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:839:33 Unnecessary safe call on a non-null receiver of type 'FirebaseUser'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:1168:24 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:1210:50 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SettingsScreen.kt:114:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SettingsScreen.kt:124:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SettingsScreen.kt:150:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SettingsScreen.kt:175:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SettingsScreen.kt:208:43 'val Icons.Outlined.Logout: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.Logout.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/UserDirectoryScreen.kt:87:21 Unnecessary safe call on a non-null receiver of type 'DatabaseReference'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/UserDirectoryScreen.kt:87:62 Unnecessary non-null assertion (!!) on a non-null receiver of type '<anonymous>'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/UserDirectoryScreen.kt:90:30 Unnecessary safe call on a non-null receiver of type '<anonymous>'.
+w: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/UserDirectoryScreen.kt:90:50 Unnecessary safe call on a non-null receiver of type 'DatabaseReference'.
 
-> Task :app:compileDebugKotlin FAILED
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
 
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-Execution failed for task ':app:compileDebugKotlin'.
-> A failure occurred while executing org.jetbrains.kotlin.com
-pilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompi
-lerWorkAction
-   > Compilation error. See log for more details
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
-> Get more help at https://help.gradle.org.
-
-BUILD FAILED in 31s
-32 actionable tasks: 2 executed, 30 up-to-date
+BUILD SUCCESSFUL in 39s
+76 actionable tasks: 5 executed, 71 up-to-date

@@ -10,7 +10,34 @@ data class MasterData(
     val courses: List<Course> = emptyList(),
     val timetable: Map<String, List<String>> = emptyMap(), // "Monday" -> ["CS101", "MA102", ...]
     val exams: List<ExamSchedule> = emptyList(),
+    val specialClasses: List<SpecialClass> = emptyList(),
     val counseling: CounselingData = CounselingData()
+)
+
+/**
+ * Special Class configuration (overrides holidays/suspensions)
+ */
+@Immutable
+data class SpecialClass(
+    val id: String = "",
+    val date: String = "",
+    val typeTitle: String = "",
+    val title: String = "",
+    val desc: String = "",
+    val batches: List<SpecialClassBatch> = emptyList()
+)
+
+/**
+ * Individual batch/period within a special class
+ */
+@Immutable
+data class SpecialClassBatch(
+    val circleLabel: String = "",
+    val startTime: String = "",
+    val endTime: String = "",
+    val subjectCode: String = "",
+    val subjectName: String = "",
+    val faculty: String = ""
 )
 
 /**
@@ -48,7 +75,32 @@ data class ExamSubject(
     val code: String = "",
     val startTime: String = "",
     val endTime: String = "",
-    val portion: String = ""
+    val portion: String = "",
+    val batches: List<PracticalBatch> = emptyList()
+)
+
+/**
+ * Practical exam batch entry (label, section, date, time, register range)
+ */
+@Immutable
+data class PracticalBatch(
+    val label: String = "",
+    val section: String = "",
+    val date: String = "",
+    val startTime: String = "",
+    val endTime: String = "",
+    val registerRange: String = "",
+    val totalCount: String = ""
+)
+
+/**
+ * Grouped practical batches for a specific subject today
+ */
+@Immutable
+data class TodayBatchGroup(
+    val code: String = "",
+    val subjectName: String = "",
+    val batches: List<PracticalBatch> = emptyList()
 )
 
 /**

@@ -46,6 +46,20 @@ html.dark {
    /* Shadow adjustments */
    --mac-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
 
+   /* Material 3 Expressive Tokens */
+   --m3-surface-container: #1D1B20;
+   --m3-surface-container-high: #2B2930;
+   --m3-primary: #D0BCFF;
+   --m3-on-primary: #381E72;
+   --m3-primary-container: #4F378B;
+   --m3-on-primary-container: #EADDFF;
+   --m3-secondary-container: #332D41;
+   --m3-on-secondary-container: #E8DEF8;
+   --m3-tertiary-container: #492532;
+   --m3-on-tertiary-container: #FFD8E4;
+   --m3-error-container: #8C1D18;
+   --m3-on-error-container: #F9DEDC;
+
    color-scheme: dark;
 }
 

@@ -153,10 +153,9 @@ fun HomeMainLayout(
                                     if (events.isNotEmpty()) {
                                         GroupedEventsCard(events = events, colors = colors)
                                     } else {
-                                        Text(
-                                            text = AppStrings.Home.regularWorkingDay(lang),
-                                            style = HomeTypography.EmptyState,
-                                            color = colors.textSecondary
+                                        EmptyEventCard(
+                                            message = "No events declared",
+                                            colors = colors
                                         )
                                     }
                                 }

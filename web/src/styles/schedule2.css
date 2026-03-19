@@ -460,7 +460,9 @@ html.dark .s2-view-tabs .s2-tab-indicator {
     user-select: none;
 }
 
-.s2-collapsible-header:hover .s2-collapsible-icon {
+.s2-collapsible-header:hover .s2-collapsible-icon,
+.s2-exam-header:hover .s2-collapsible-icon,
+.s2-prac-date-header:hover .s2-collapsible-icon {
     background: var(--mac-selection-hover);
     color: var(--mac-text);
 }
@@ -644,6 +646,287 @@ html.dark .s2-day-tabs {
     color: var(--mac-text-secondary);
     padding: 8px 0;
 }
+
+/* --- 12b. PRACTICAL EXAM STYLES (distinct from standard exam) --- */
+
+/* Subject group in ExamScheduleCard */
+.s2-prac-group {
+    padding: 12px 0;
+}
+
+.s2-prac-group + .s2-prac-group {
+    border-top: 1px solid var(--mac-divider);
+}
+
+.s2-prac-subject-group + .s2-prac-subject-group {
+    border-top: 1px solid var(--mac-divider);
+    padding-top: 8px;
+    margin-top: 4px;
+}
+
+.s2-prac-subject-hdr {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.s2-prac-code {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--mac-blue);
+}
+
+.s2-prac-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.s2-prac-scope {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: rgba(255, 149, 0, 0.1);
+    color: var(--mac-warning-text, #ff9500);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* Batch list container */
+.s2-prac-batch-list-circle {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 4px;
+}
+
+/* Date grouping */
+.s2-prac-date-group {
+    margin-top: 12px;
+}
+
+.s2-prac-date-group + .s2-prac-date-group {
+    margin-top: 16px;
+}
+
+.s2-prac-date-header {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--mac-text);
+    padding: 8px 16px;
+    background: var(--mac-bg-secondary);
+    border-radius: 100px;
+    letter-spacing: 0.2px;
+    border: none;
+}
+
+html.dark .s2-prac-date-header {
+    background: #1E1E1E;
+}
+
+/* Single batch item */
+.s2-prac-batch {
+    padding: 8px 0;
+}
+
+.s2-prac-batch + .s2-prac-batch {
+    border-top: 1px dashed var(--mac-divider);
+}
+
+.s2-prac-batch-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.s2-prac-batch-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 100px;
+    background: var(--mac-blue);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.s2-prac-batch-date {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.s2-prac-batch-time {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+}
+
+/* Register range row */
+.s2-prac-batch-reg {
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    font-variant-numeric: tabular-nums;
+}
+
+.s2-prac-reg-label {
+    font-weight: 700;
+    color: var(--mac-blue);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* === 12c. TODAY'S PRACTICAL CARD (COMPLETELY NEW DESIGN) === */
+.s2-prac-today-card {
+    background: var(--mac-card-bg);
+    border: 1px solid rgba(0, 122, 255, 0.15);
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 30px rgba(0, 122, 255, 0.06);
+}
+
+.s2-prac-today-header {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 3px double var(--mac-divider);
+}
+
+.s2-prac-today-tag {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--mac-blue);
+    margin-bottom: 8px;
+}
+
+.s2-prac-today-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0;
+    color: var(--mac-text);
+    letter-spacing: -0.3px;
+}
+
+.s2-prac-today-body {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.s2-prac-today-subject-block {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.s2-prac-today-subject-title {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-left: 4px;
+}
+
+.s2-prac-today-code {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--mac-blue);
+}
+
+.s2-prac-today-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.s2-prac-today-batch-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.s2-prac-today-batch-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 20px;
+    background: var(--mac-bg-secondary);
+    border-radius: 16px;
+    border-left: 4px solid var(--mac-blue);
+}
+
+.s2-prac-today-batch-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.s2-prac-today-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 26px;
+    min-width: 36px;
+    padding: 0 12px;
+    background: var(--mac-blue);
+    color: #fff;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.s2-prac-today-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.s2-prac-today-reg-range {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--mac-text-secondary);
+    padding-left: 50px; /* Align with text after badge */
+    font-variant-numeric: tabular-nums;
+    line-height: 1.5;
+}
+
+/* Mobile: stack batch details */
+@media (max-width: 768px) {
+    .s2-prac-batch-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .s2-prac-today-batch-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .s2-prac-today-reg-range {
+        padding-left: 0;
+        margin-top: 4px;
+    }
+}
+
 
 /* --- 13. COURSE DIRECTORY (matches Kotlin CourseDirectoryTable) --- */
 .s2-course-list {

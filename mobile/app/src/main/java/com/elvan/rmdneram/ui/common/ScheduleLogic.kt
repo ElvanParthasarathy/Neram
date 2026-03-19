@@ -10,6 +10,7 @@ import com.elvan.rmdneram.ui.home.ScheduleState
 data class ScheduleDisplayConfig(
     val showFullDayEvent: Boolean = false,
     val showExamCard: Boolean = false,
+    val showSpecialClass: Boolean = false,
     val showHalfDayEvent: Boolean = false,
     val showTimetable: Boolean = false,
     val showSuspensionNotice: Boolean = false,
@@ -24,27 +25,41 @@ object ScheduleLogic {
     fun calculateDisplayConfig(state: ScheduleState): ScheduleDisplayConfig {
         var showFullDay = false
         var showExam = false
+        var showSpecialClass = false
         var showHalfDay = false
         var showTimetable = false
         var showSuspended = false
         var suspensionReason = ""
 
-        // 1. Full Day Event
+        // 1. Special Class (Dominant Override)
+        if (state.todaySpecialClass != null) {
+            return ScheduleDisplayConfig(
+                showFullDayEvent = false,
+                showExamCard = false,
+                showSpecialClass = true,
+                showHalfDayEvent = false,
+                showTimetable = false,
+                showSuspensionNotice = true,
+                suspensionReason = "Classes suspended due to ${state.todaySpecialClass.typeTitle}."
+            )
+        }
+
+        // 2. Full Day Event
         if (state.fullDayEvent != null) {
             showFullDay = true
         }
 
-        // 2. Today's Exam
-        if (state.todayExam != null) {
+        // 3. Today's Exam
+        if (state.todayExam != null || state.todayBatches.isNotEmpty()) {
             showExam = true
         }
 
-        // 3. Half Day Event
+        // 4. Half Day Event
         if (state.halfDayEvent != null) {
             showHalfDay = true
         }
 
-        // 4. Timetable vs Suspension
+        // 5. Timetable vs Suspension
         val isExamPeriod = state.activeExamPeriod != null
         val isCycleTestPeriod = state.activeExamPeriod?.type?.contains("CT") == true
         val hasPeriods = state.periods.isNotEmpty()
@@ -62,6 +77,7 @@ object ScheduleLogic {
         return ScheduleDisplayConfig(
             showFullDayEvent = showFullDay,
             showExamCard = showExam,
+            showSpecialClass = showSpecialClass,
             showHalfDayEvent = showHalfDay,
             showTimetable = showTimetable,
             showSuspensionNotice = showSuspended,

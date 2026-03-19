@@ -28,6 +28,7 @@ import ResourceManager from './admins/ResourceManager';
 import AdminDashboard from './admins/AdminDashboard';
 import PendingRequests from './admins/PendingRequests';
 import SemesterTransitionManager from './admins/SemesterTransitionManager';
+import SpecialClassManager from './admins/SpecialClassManager';
 
 const AdminPanel = ({ user, userProfile }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,6 +91,7 @@ const AdminPanel = ({ user, userProfile }) => {
               {activeModule === 'pending' && 'Pending Requests'}
               {activeModule === 'structure' && 'Structure'}
               {activeModule === 'archives' && 'Semester Archive Tool'}
+              {activeModule === 'special_classes' && 'Special Classes'}
             </h1>
           </header>
         )}
@@ -105,6 +107,7 @@ const AdminPanel = ({ user, userProfile }) => {
         {activeModule === 'resources' && <ResourceManager />}
         {activeModule === 'pending' && <PendingRequests />}
         {activeModule === 'archives' && <SemesterTransitionManager user={user} userProfile={userProfile} />}
+        {activeModule === 'special_classes' && <SpecialClassManager user={user} userProfile={userProfile} />}
       </main>
     </div>
   );

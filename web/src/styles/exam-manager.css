@@ -1010,3 +1010,202 @@ html.dark .exam-subject-row.professional.view-mode {
 .animate-pop-in {
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+/* ==========================================================================
+   PRACTICAL SUBJECT CARDS
+   ========================================================================== */
+
+/* --- Card wrapper — flat, no nesting --- */
+.practical-subject-card {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--mac-divider);
+  background: transparent;
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+.practical-subject-card:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* --- Header (Subject + Scope + Remove) — always vertical --- */
+.practical-header-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--mac-divider);
+}
+
+.practical-header-row .input-group-vertical {
+  width: 100%;
+}
+
+.practical-header-row .practical-remove-btn {
+  align-self: flex-start;
+  width: auto !important;
+  height: 36px !important;
+  padding: 0 18px !important;
+  border-radius: 50px !important;
+}
+
+/* --- Batch table → always card layout (no horizontal table) --- */
+.practical-batch-wrap {
+  overflow: visible;
+}
+
+/* Hide the real table structure, use block layout */
+.practical-batch-table {
+  display: block;
+  width: 100%;
+  font-size: 13px;
+}
+
+.practical-batch-table thead {
+  display: none;
+}
+
+.practical-batch-table tbody {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.practical-batch-table tbody tr {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 14px 0;
+  border-bottom: 1px dashed var(--mac-divider);
+  background: transparent;
+  border-radius: 0;
+}
+
+.practical-batch-table tbody tr:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* Each td is a labeled field */
+.practical-batch-table td {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Show label via data-label */
+.practical-batch-table td[data-label]:not([data-label=""])::before {
+  content: attr(data-label);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--mac-text-secondary);
+}
+
+/* Delete button cell — span full width at bottom */
+.practical-batch-table td.batch-action-cell {
+  grid-column: 1 / -1;
+  align-items: flex-start;
+}
+
+/* --- View card (published mode) --- */
+.practical-view-card {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--mac-divider);
+}
+
+.practical-view-card:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.practical-view-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.practical-view-header strong {
+  font-size: 14px;
+}
+
+.practical-view-name {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.portion-badge.scope-common {
+  background: rgba(40, 200, 64, 0.1);
+  color: var(--mac-success-text, #28c840);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.portion-badge.scope-specific {
+  background: rgba(255, 149, 0, 0.1);
+  color: var(--mac-warning-text, #ff9500);
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+/* View mode card rows */
+.practical-batch-table.view-mode tbody tr {
+  padding: 14px 16px;
+}
+
+.practical-batch-table.view-mode td {
+  font-size: 13px;
+  color: var(--mac-text);
+}
+
+/* --- Mobile (≤900px): single column --- */
+@media (max-width: 900px) {
+  .practical-subject-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .practical-header-row {
+    gap: 10px;
+  }
+
+  /* Single column on mobile */
+  .practical-batch-table tbody tr {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .practical-batch-table td.batch-action-cell {
+    grid-column: 1;
+  }
+
+  /* Full-width inputs on mobile */
+  .practical-batch-table td input,
+  .practical-batch-table td select {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+
+  .practical-view-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

@@ -9,6 +9,7 @@ import {
     RiLayoutGridLine, RiSave3Line, RiBookOpenLine,
     RiUserVoiceLine, RiAddLine, RiDeleteBin6Fill, RiEditLine,
     RiCloseLine, RiCheckLine, RiArrowLeftLine, RiUserLine,
+    RiDeleteBin6Line,
     RiGlobalLine, RiLinksLine, RiRefreshLine, RiShieldUserLine
 } from 'react-icons/ri';
 
@@ -675,11 +676,11 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                 </div>
                                             ) : (
                                                 <button
-                                                    className="role-header-pill active"
-                                                    onClick={() => setIsMasterEditMode(true)}
-                                                >
-                                                    <RiEditLine style={{ marginRight: '6px' }} /> Edit List
-                                                </button>
+                                                     className="edit-list-btn"
+                                                     onClick={() => setIsMasterEditMode(true)}
+                                                 >
+                                                     <RiEditLine style={{ marginRight: '6px' }} /> Edit List
+                                                 </button>
                                             )
                                         )}
                                     </div>
@@ -855,7 +856,7 @@ const ScheduleManager = ({ user, userProfile }) => {
                                             </select>
                                             <div className="pill-group full-width mt-12">
                                                 <button className="premium-pill-btn secondary flex-1" onClick={() => setIsRolesEditMode(false)}>Cancel</button>
-                                                <button className="premium-pill-btn primary flex-1" onClick={() => handleSetCoordinator(tempCoordinator)} disabled={tempCoordinator === masterData.coordinator}>Save</button>
+                                                <button className="premium-pill-btn primary flex-1" onClick={() => handleSetCoordinator(tempCoordinator)} disabled={(tempCoordinator || '') === (masterData.coordinator || '')}>Save</button>
                                             </div>
                                         </div>
                                     ) : (
@@ -896,25 +897,24 @@ const ScheduleManager = ({ user, userProfile }) => {
                                         isMappedEditMode ? (
                                             <div style={{ display: 'flex', gap: '8px' }}>
                                                 <button
-                                                    className="btn-add-mini"
+                                                    className="edit-list-btn"
                                                     onClick={() => { setSelectedMappedCourses([]); setIsMappedDeleteMode(false); setIsMappedEditMode(false); }}
-                                                    style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid var(--border-color)' }}
+                                                    style={{ background: 'var(--mac-bg-secondary)', color: 'var(--mac-text-secondary)', padding: '6px 14px' }}
                                                 >
                                                     Cancel
                                                 </button>
                                                 <button
-                                                    className="btn-add-mini"
+                                                    className="edit-list-btn"
                                                     onClick={() => { setSelectedMappedCourses([]); setIsMappedDeleteMode(false); setIsMappedEditMode(false); }}
-                                                    style={{ background: 'var(--mac-blue)', color: '#fff' }}
+                                                    style={{ background: 'var(--mac-blue)', color: '#fff', padding: '6px 14px' }}
                                                 >
                                                     Done
                                                 </button>
                                             </div>
                                         ) : (
                                             <button
-                                                className="btn-add-mini"
+                                                className="edit-list-btn"
                                                 onClick={() => setIsMappedEditMode(true)}
-                                                style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)' }}
                                             >
                                                 Edit List
                                             </button>
@@ -923,52 +923,74 @@ const ScheduleManager = ({ user, userProfile }) => {
                                 </div>
 
                                 {(isMappedEditMode || (sectionData.courses || []).length === 0) && (
-                                    <div className="add-item-bar settings-card" style={{ background: 'var(--mac-blue-15)', border: 'none', flexDirection: 'column', alignItems: 'stretch' }}>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <select value={newMappedCourse.code} onChange={e => setNewMappedCourse({ ...newMappedCourse, code: e.target.value })} style={{ flex: 2 }}>
-                                                <option value="">-- Select Master Course --</option>
-                                                {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
-                                            </select>
-                                            <input type="number" placeholder="Periods" value={newMappedCourse.periods} onChange={e => setNewMappedCourse({ ...newMappedCourse, periods: e.target.value })} style={{ flex: 1 }} />
+                                    <div className="s2-mapping-card" style={{ background: 'var(--mac-blue-5)', border: '1px dashed var(--mac-blue-20)', marginBottom: '24px', flexDirection: 'column', alignItems: 'stretch', padding: '20px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                                            <div className="code-badge" style={{ background: 'var(--mac-blue)', color: 'white' }}><RiAddLine /></div>
+                                            <span style={{ fontWeight: 700, color: 'var(--mac-text)' }}>Add New Course Mapping</span>
                                         </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
-                                            {newMappedCourse.faculties.map((fac, idx) => (
-                                                <div key={idx} style={{ display: 'flex', gap: '8px' }}>
-                                                    <select
-                                                        value={fac}
-                                                        onChange={e => {
-                                                            const newFacs = [...newMappedCourse.faculties];
-                                                            newFacs[idx] = e.target.value;
-                                                            setNewMappedCourse({ ...newMappedCourse, faculties: newFacs });
-                                                            handleCrossDeptFacultySelect(e.target.value);
-                                                        }}
-                                                        style={{ flex: 1 }}
-                                                    >
-                                                        {renderFacultyOptions()}
-                                                    </select>
-                                                    {idx > 0 && (
-                                                        <button className="action-btn action-delete" onClick={() => {
-                                                            const newFacs = newMappedCourse.faculties.filter((_, i) => i !== idx);
-                                                            setNewMappedCourse({ ...newMappedCourse, faculties: newFacs });
-                                                        }} style={{ padding: '0 8px' }}>
-                                                            <RiDeleteBin6Line />
-                                                        </button>
-                                                    )}
-                                                    {idx === newMappedCourse.faculties.length - 1 && (
-                                                        <button className="btn-save-master" onClick={() => setNewMappedCourse({ ...newMappedCourse, faculties: [...newMappedCourse.faculties, ''] })} style={{ padding: '0 8px', minWidth: 'auto' }}>
-                                                            <RiAddLine /> Add Faculty
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            ))}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <select
+                                                    value={newMappedCourse.code}
+                                                    onChange={(e) => setNewMappedCourse({ ...newMappedCourse, code: e.target.value })}
+                                                    style={{ flex: 2 }}
+                                                >
+                                                    <option value="">-- Select Course --</option>
+                                                    {masterData.courses.map(mc => <option key={mc.code} value={mc.code}>{mc.code} - {mc.name}</option>)}
+                                                </select>
+                                                <input
+                                                    type="number"
+                                                    placeholder="Prds"
+                                                    value={newMappedCourse.periods}
+                                                    onChange={(e) => setNewMappedCourse({ ...newMappedCourse, periods: e.target.value })}
+                                                    style={{ flex: 1, minWidth: '80px' }}
+                                                />
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                {newMappedCourse.faculties.map((fac, idx) => (
+                                                    <div key={idx} style={{ display: 'flex', gap: '8px' }}>
+                                                        <select
+                                                            value={fac}
+                                                            onChange={(e) => {
+                                                                const newFacs = [...newMappedCourse.faculties];
+                                                                newFacs[idx] = e.target.value;
+                                                                setNewMappedCourse({ ...newMappedCourse, faculties: newFacs });
+                                                                handleCrossDeptFacultySelect(e.target.value);
+                                                            }}
+                                                            style={{ flex: 1 }}
+                                                        >
+                                                            {renderFacultyOptions()}
+                                                        </select>
+
+                                                        {idx > 0 && (
+                                                            <button className="action-btn action-delete" onClick={() => {
+                                                                const newFacs = newMappedCourse.faculties.filter((_, i) => i !== idx);
+                                                                setNewMappedCourse({ ...newMappedCourse, faculties: newFacs });
+                                                            }} style={{ padding: '0 8px' }}>
+                                                                <RiDeleteBin6Line />
+                                                            </button>
+                                                        )}
+
+                                                        {idx === newMappedCourse.faculties.length - 1 && (
+                                                            <button className="btn-save-master" onClick={() => setNewMappedCourse({ ...newMappedCourse, faculties: [...newMappedCourse.faculties, ''] })} style={{ padding: '0 8px', minWidth: 'auto' }}>
+                                                                <RiAddLine /> Add Faculty
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <button className="btn-add" onClick={handleMapCourse} style={{ marginTop: '12px', background: 'var(--mac-blue)', color: 'white', borderRadius: '12px' }}>
+                                                <RiAddLine /> Map Course
+                                            </button>
                                         </div>
-                                        <button className="btn-add" onClick={handleMapCourse} style={{ marginTop: '12px' }}><RiAddLine /> Map Course</button>
                                     </div>
                                 )}
 
                                 <div className="counselor-items-v2">
                                     {(sectionData.courses || []).map((c, i) => (
-                                        <div key={i} className={`counselor-item-row ${editingMappedCourseIdx === i ? 'editing' : ''}`}>
+                                        <div key={i} className={`s2-mapping-card ${editingMappedCourseIdx === i ? 'editing' : ''}`}>
                                             {editingMappedCourseIdx === i ? (
                                                 <div className="inline-edit-pill-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
                                                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -1030,25 +1052,28 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                 </div>
                                             ) : (
                                                 <>
-                                                    <div className="counselor-name-chip" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                                        {isMappedDeleteMode && (
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={selectedMappedCourses.includes(i)}
-                                                                onChange={() => handleToggleMappedCourseSelect(i)}
-                                                                style={{ cursor: 'pointer', transform: 'scale(1.2)' }}
-                                                            />
-                                                        )}
-                                                        <strong style={{ color: 'var(--mac-text)' }}>{c.code}</strong>
-                                                        <span>{c.name}</span>
+                                                    {isMappedDeleteMode && (
+                                                        <input
+                                                            type="checkbox"
+                                                            className="mac-checkbox"
+                                                            checked={selectedMappedCourses.includes(i)}
+                                                            onChange={() => handleToggleMappedCourseSelect(i)}
+                                                        />
+                                                    )}
+                                                    <div className="card-main-content">
+                                                        <div className="card-header-row">
+                                                            <div className="code-badge">{c.code}</div>
+                                                            <span className="course-name">{c.name}</span>
+                                                        </div>
+                                                        <div className="pill-row">
+                                                            <span className="s2-mapping-pill faculty"><RiUserLine /> {c.faculty}</span>
+                                                            <span className="s2-mapping-pill periods"><RiCalendarScheduleLine /> {c.periods} Prds</span>
+                                                        </div>
                                                     </div>
-                                                    <div className="mapped-meta" style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: '8px', paddingRight: '16px' }}>
-                                                        <span className="pill faculty-pill"><RiUserLine /> {c.faculty}</span>
-                                                        <span className="pill periods-pill">{c.periods} Prds</span>
-                                                    </div>
+
                                                     {isMappedEditMode && (
-                                                        <div className="counselor-row-actions">
-                                                            <button className="action-btn action-edit" onClick={() => {
+                                                        <div className="card-actions-area">
+                                                            <button className="pill-inline-edit" onClick={() => {
                                                                 const facParts = parseFaculties(c.faculty);
                                                                 setEditingMappedCourseIdx(i);
                                                                 setTempMappedCourse({
@@ -1056,7 +1081,7 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                                     faculties: facParts
                                                                 });
                                                             }}>
-                                                                <RiEditLine /> <span className="action-label">Edit</span>
+                                                                <RiEditLine />
                                                             </button>
                                                         </div>
                                                     )}
@@ -1185,41 +1210,31 @@ const ScheduleManager = ({ user, userProfile }) => {
                         {/* --- COUNSELING / ROLES TAB --- */}
                         {activeTab === 'counseling' && (
                             <div className="counseling-manager settings-card">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <h3 className="section-title" style={{ margin: 0 }}><RiTeamLine /> Section Roles</h3>
-                                    {!isSectionRolesEditMode ? (
-                                        <button
-                                            className="btn-add-mini"
-                                            onClick={() => {
-                                                setIsSectionRolesEditMode(true);
-                                                setTempSectionRoles({
-                                                    "Class Advisor": sectionData.counseling.coordinators?.["Class Advisor"] || '',
-                                                    "Chairperson": sectionData.counseling.coordinators?.["Chairperson"] || ''
-                                                });
-                                            }}
-                                            style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)' }}
-                                        >
-                                            Edit Roles
-                                        </button>
-                                    ) : (
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                className="btn-add-mini"
-                                                onClick={() => setIsSectionRolesEditMode(false)}
-                                                style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid var(--border-color)' }}
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                className="btn-add-mini"
-                                                onClick={handleSaveSectionRoles}
-                                                style={{ background: 'var(--mac-blue)', color: '#fff' }}
-                                            >
-                                                Save
-                                            </button>
-                                        </div>
-                                    )}
+                                    <span style={{ fontSize: '13px', opacity: 0.6, background: 'var(--mac-blue-15)', color: 'var(--mac-blue)', padding: '4px 10px', borderRadius: '100px', fontWeight: 600 }}>Sec {path.sec}</span>
                                 </div>
+                                {!isSectionRolesEditMode ? (
+                                    <button
+                                        className="premium-pill-btn secondary"
+                                        onClick={() => {
+                                            setIsSectionRolesEditMode(true);
+                                            setTempSectionRoles({
+                                                "Class Advisor": sectionData.counseling.coordinators?.["Class Advisor"] || '',
+                                                "Chairperson": sectionData.counseling.coordinators?.["Chairperson"] || ''
+                                            });
+                                        }}
+                                    >
+                                        <RiEditLine /> Edit Roles
+                                    </button>
+                                ) : (
+                                    <div className="pill-group" style={{ display: 'flex', gap: '8px' }}>
+                                        <button className="premium-pill-btn secondary" onClick={() => setIsSectionRolesEditMode(false)}>Cancel</button>
+                                        <button className="premium-pill-btn primary" onClick={handleSaveSectionRoles}>Save</button>
+                                    </div>
+                                )}
+                            </div>
 
                                 <div className="role-editor-row locked">
                                     <div className="role-label">
@@ -1250,12 +1265,9 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                 {renderFacultyOptions()}
                                             </select>
                                         ) : (
-                                            <div className="counselor-name-chip" style={{ display: 'inline-flex', padding: '10px 16px', borderRadius: '8px', background: 'var(--mac-card-bg)', border: '1px solid var(--border-color)', minWidth: '250px' }}>
-                                                {sectionData.counseling.coordinators?.["Class Advisor"] ? (
-                                                    <span style={{ color: 'var(--mac-text)', fontWeight: 500 }}>{sectionData.counseling.coordinators?.["Class Advisor"]}</span>
-                                                ) : (
-                                                    <span style={{ color: 'var(--mac-text)', opacity: 0.5, fontStyle: 'italic' }}>Not Assigned</span>
-                                                )}
+                                            <div className="s2-mapping-pill faculty" style={{ fontSize: '14px', padding: '10px 20px' }}>
+                                                <RiUserLine />
+                                                <span>{sectionData.counseling.coordinators?.["Class Advisor"] || 'Not Assigned'}</span>
                                             </div>
                                         )}
                                     </div>
@@ -1280,12 +1292,9 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                 {renderFacultyOptions()}
                                             </select>
                                         ) : (
-                                            <div className="counselor-name-chip" style={{ display: 'inline-flex', padding: '10px 16px', borderRadius: '8px', background: 'var(--mac-card-bg)', border: '1px solid var(--border-color)', minWidth: '250px' }}>
-                                                {sectionData.counseling.coordinators?.["Chairperson"] ? (
-                                                    <span style={{ color: 'var(--mac-text)', fontWeight: 500 }}>{sectionData.counseling.coordinators?.["Chairperson"]}</span>
-                                                ) : (
-                                                    <span style={{ color: 'var(--mac-text)', opacity: 0.5, fontStyle: 'italic' }}>Not Assigned</span>
-                                                )}
+                                            <div className="s2-mapping-pill faculty" style={{ fontSize: '14px', padding: '10px 20px' }}>
+                                                <RiUserLine />
+                                                <span>{sectionData.counseling.coordinators?.["Chairperson"] || 'Not Assigned'}</span>
                                             </div>
                                         )}
                                     </div>
@@ -1335,7 +1344,7 @@ const ScheduleManager = ({ user, userProfile }) => {
 
                                     <div className="counselor-items-v2" style={{ marginTop: '16px' }}>
                                         {(sectionData.counseling.counselors || []).map((c, i) => (
-                                            <div key={i} className={`counselor-item-row ${editingCounselorIdx === i ? 'editing' : ''}`}>
+                                            <div key={i} className={`s2-mapping-card ${editingCounselorIdx === i ? 'editing' : ''}`}>
                                                 {editingCounselorIdx === i ? (
                                                     <div className="inline-edit-pill-wrap">
                                                         <select
@@ -1353,22 +1362,24 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                     </div>
                                                 ) : (
                                                     <>
-                                                        <div className="counselor-name-chip" style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                                            {isCounselorDeleteMode && (
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={selectedCounselors.includes(i)}
-                                                                    onChange={() => handleToggleCounselorSelect(i)}
-                                                                    style={{ cursor: 'pointer', transform: 'scale(1.2)' }}
-                                                                />
-                                                            )}
-                                                            <RiUserVoiceLine style={{ opacity: 0.7 }} />
-                                                            <span style={{ color: 'var(--mac-text)' }}>{c}</span>
+                                                        {isCounselorDeleteMode && (
+                                                            <input
+                                                                type="checkbox"
+                                                                className="mac-checkbox"
+                                                                checked={selectedCounselors.includes(i)}
+                                                                onChange={() => handleToggleCounselorSelect(i)}
+                                                            />
+                                                        )}
+                                                        <div className="card-main-content">
+                                                            <div className="card-header-row">
+                                                                <RiUserVoiceLine style={{ color: 'var(--mac-blue)' }} />
+                                                                <span className="course-name">{c}</span>
+                                                            </div>
                                                         </div>
                                                         {isCounselorEditMode && (
-                                                            <div className="counselor-row-actions">
-                                                                <button className="action-btn action-edit" onClick={() => { setEditingCounselorIdx(i); setTempCounselor(c); }}>
-                                                                    <RiEditLine /> <span className="action-label">Edit</span>
+                                                            <div className="card-actions-area">
+                                                                <button className="pill-inline-edit" onClick={() => { setEditingCounselorIdx(i); setTempCounselor(c); }}>
+                                                                    <RiEditLine />
                                                                 </button>
                                                             </div>
                                                         )}
@@ -1433,18 +1444,11 @@ const ScheduleManager = ({ user, userProfile }) => {
          .split-master-view { display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
          .master-config-panel { padding: 24px; }
          .pill-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-         .pill { display: inline-flex; alignItems: center; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; background: var(--mac-bg-secondary); }
-         .pill button { background: none; border: none; font-size: 16px; margin-left: 8px; color: var(--mac-text-secondary); cursor: pointer; display: flex; align-items: center; }
-         .pill button:hover { color: var(--mac-danger); }
-         .course-pill { background: rgba(0, 122, 255, 0.1); color: var(--mac-blue); border: 1px solid rgba(0, 122, 255, 0.2); }
-         .faculty-pill { background: rgba(88, 86, 214, 0.1); color: var(--mac-purple); border: 1px solid rgba(88, 86, 214, 0.2); }
-         .periods-pill { background: rgba(255, 149, 0, 0.1); color: var(--mac-warning-text); border: 1px solid rgba(255, 149, 0, 0.2); }
          
          .list-item-card.view-only { display: flex; justify-content: space-between; align-items: center; padding: 16px; }
          .mapped-info { display: flex; flex-direction: column; gap: 4px; }
          .mapped-info strong { font-size: 15px; color: var(--mac-text); }
          .mapped-info span { font-size: 13px; color: var(--mac-text-secondary); }
-         .mapped-meta { display: flex; gap: 8px; flex: 1; justify-content: flex-end; padding-right: 16px; }
          
          .role-editor-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--border-color); }
          .role-editor-row:last-child { border-bottom: none; }
@@ -1453,33 +1457,6 @@ const ScheduleManager = ({ user, userProfile }) => {
          .role-label span { font-size: 12px; color: var(--mac-text-secondary); }
          .role-input select { min-width: 250px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--mac-bg-secondary); color: var(--mac-text); }
          .role-input select:focus { border-color: var(--mac-blue); outline: none; }
-         
-         @media (max-width: 900px) {
-            .split-master-view { grid-template-columns: 1fr; }
-         }
-         
-         @media (max-width: 768px) {
-            .add-item-bar.inline { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
-            .add-item-bar.inline input, .add-item-bar.inline select { width: 100% !important; flex: none !important; }
-            .add-item-bar.inline button { width: 100% !important; justify-content: center !important; margin-top: 5px !important; }
-            
-            .inline-edit-pill-wrap { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
-            .inline-edit-pill-wrap input, .inline-edit-pill-wrap select { width: 100% !important; flex: none !important; }
-            .edit-pill-actions { width: 100% !important; flex-direction: row !important; gap: 8px !important; display: flex !important; }
-            .edit-pill-actions button { flex: 1 !important; justify-content: center !important; margin: 0 !important; }
-            
-            .counselor-name-chip { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
-            .counselor-item-row { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
-            .counselor-row-actions { width: 100% !important; flex-direction: row !important; gap: 8px !important; display: flex !important; margin-left: 0 !important; }
-            .counselor-row-actions button { flex: 1 !important; justify-content: center !important; margin: 0 !important; }
-            
-            .role-editor-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
-            .role-input { width: 100% !important; }
-            .role-input select { width: 100% !important; min-width: 0 !important; }
-            
-            .field { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
-            .field select { width: 100% !important; max-width: none !important; }
-         }
       `}</style>
         </div >
     );

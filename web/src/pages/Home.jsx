@@ -14,6 +14,7 @@ import {
     RiTrophyLine,
     RiEditLine,
     RiUserVoiceLine,
+    RiComputerLine,
 } from "react-icons/ri";
 
 /* =====================================================================
@@ -50,6 +51,7 @@ const Home = ({
 
     const [activeExamPeriod, setActiveExamPeriod] = useState(null);
     const [activeExamToday, setActiveExamToday] = useState(null);
+    const [activeSpecialClass, setActiveSpecialClass] = useState(null);
 
     // Editing state
     const [isEditingNote, setIsEditingNote] = useState(false);
@@ -117,9 +119,9 @@ const Home = ({
     const currentExamPeriod = masterData.exams?.find(
         (ex) => todayStr >= ex.startDate && todayStr <= ex.endDate
     );
-    const isExamToday = currentExamPeriod?.subjects?.some(
-        (s) => s.date === todayStr
-    );
+    const isExamToday = currentExamPeriod?.type === 'Practical'
+        ? currentExamPeriod?.subjects?.some(s => (s.batches || []).some(b => b.date === todayStr))
+        : currentExamPeriod?.subjects?.some(s => s.date === todayStr);
     const examTitle = currentExamPeriod?.title?.toLowerCase() || "";
     const isCycleTest = examTitle.includes("cycle test");
     const isMajorExam = currentExamPeriod && !isCycleTest;
@@ -183,11 +185,25 @@ const Home = ({
         );
         setActiveExamPeriod(cp || null);
         if (cp) {
-            const sub = cp.subjects?.find((s) => s.date === todayStr);
-            setActiveExamToday(sub ? { ...cp, todaySub: sub } : null);
+            if (cp.type === 'Practical') {
+                const todayBatches = (cp.subjects || []).map(sub => {
+                    const matchingBatches = (sub.batches || []).filter(b => b.date === todayStr);
+                    if (matchingBatches.length === 0) return null;
+                    return { code: sub.code, subjectName: getSubjectName(sub.code), batches: matchingBatches };
+                }).filter(Boolean);
+                setActiveExamToday(todayBatches.length > 0 ? { ...cp, todayBatches, subjectName: todayBatches[0]?.subjectName } : null);
+            } else {
+                const sub = cp.subjects?.find((s) => s.date === todayStr);
+                setActiveExamToday(sub ? { ...cp, todaySub: sub } : null);
+            }
         } else {
             setActiveExamToday(null);
         }
+
+        // --- Special Classes Detection ---
+        const scList = masterData.specialClasses || [];
+        const todaySC = scList.find(sc => sc.date === todayStr);
+        setActiveSpecialClass(todaySC || null);
 
         const weekdayName = currentDate.toLocaleDateString("en-GB", {
             weekday: "long",
@@ -199,7 +215,10 @@ const Home = ({
 
         let ro = "";
         let rs = "";
-        if (hol) {
+        if (todaySC) {
+            ro = "SPECIAL";
+            rs = `Classes suspended due to ${todaySC.title || todaySC.typeTitle}.`;
+        } else if (hol) {
             ro = "";
             rs = "Holiday";
         } else if (manual) {
@@ -379,7 +398,12 @@ const Home = ({
                                             </React.Fragment>
                                         ))
                                     ) : (
-                                        <div className="h2-empty-events">Regular Working Day</div>
+                                        <div className="h2-event-row" style={{ opacity: 0.8 }}>
+                                            <div className="h2-event-bar" style={{ backgroundColor: 'var(--mac-border)' }} />
+                                            <div className="h2-event-details" style={{ justifyContent: 'center' }}>
+                                                <p className="h2-event-title-text" style={{ color: 'var(--mac-secondary)' }}>No events declared</p>
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -560,10 +584,20 @@ const Home = ({
                                     </div>
                                 ) : (
                                     <>
-                                        {/* 4a. EXAM CARD */}
+                                        {/* 4a. SPECIAL CLASS CARD */}
+                                        {activeSpecialClass && (
+                                            <ExamEventCard specialClass={activeSpecialClass} />
+                                        )}
+
+                                        {/* 4b. EXAM CARD */}
                                         {activeExamToday && (
                                             <ExamEventCard
-                                                exam={{
+                                                exam={activeExamToday.type === 'Practical' ? {
+                                                    title: activeExamToday.title,
+                                                    type: activeExamToday.type,
+                                                    todayBatches: activeExamToday.todayBatches,
+                                                    subjectName: activeExamToday.subjectName
+                                                } : {
                                                     title: activeExamToday.title,
                                                     subjectName: getSubjectName(activeExamToday.todaySub.code),
                                                     todaySub: {
@@ -601,7 +635,14 @@ const Home = ({
 
                                         {/* 4d. TIMETABLE or SUSPENDED */}
                                         {(() => {
-                                            if (fullDayEvent && !isMajorExam) {
+                                            if (activeSpecialClass) {
+                                                return (
+                                                    <NoticeCard
+                                                        title="Classes Suspended"
+                                                        message={`Classes suspended due to ${activeSpecialClass.title || activeSpecialClass.typeTitle}.`}
+                                                    />
+                                                );
+                                            } else if (fullDayEvent && !isMajorExam) {
                                                 return (
                                                     <NoticeCard
                                                         title="Classes Suspended"

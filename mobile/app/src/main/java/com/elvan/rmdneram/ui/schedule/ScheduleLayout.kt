@@ -331,7 +331,7 @@ fun ScheduleMainLayout(
                             }
 
                             val (upcomingExams, finishedExams) = remember(otherExams, targetDate) {
-                                otherExams.partition { exam ->
+                                val (upcoming, finished) = otherExams.partition { exam ->
                                     try {
                                         if (exam.startDate.isNotEmpty()) {
                                             val start = java.time.LocalDate.parse(exam.startDate)
@@ -344,6 +344,10 @@ fun ScheduleMainLayout(
                                         false
                                     }
                                 }
+                                Pair(
+                                    upcoming.sortedBy { it.startDate },
+                                    finished.sortedByDescending { it.endDate.ifEmpty { it.startDate } }
+                                )
                             }
 
                             Column {
@@ -358,7 +362,7 @@ fun ScheduleMainLayout(
                                     )
                                     ongoingExams.forEach { exam ->
                                         Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
-                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors)
+                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = true, viewDate = targetDate)
                                         }
                                     }
                                 } else {
@@ -394,7 +398,7 @@ fun ScheduleMainLayout(
                                     )
                                     upcomingExams.forEach { exam ->
                                         Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
-                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors)
+                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = false, viewDate = targetDate)
                                         }
                                     }
                                 }
@@ -448,7 +452,7 @@ fun ScheduleMainLayout(
                                             Column {
                                                 finishedExams.forEach { exam ->
                                                     Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
-                                                        ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors)
+                                                        ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = false, viewDate = targetDate)
                                                     }
                                                 }
                                                 Spacer(modifier = Modifier.height(16.dp))

@@ -1,6 +1,54 @@
-﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :admin:preBuild UP-TO-DATE
+> Task :admin:preDebugBuild UP-TO-DATE
+> Task :admin:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :admin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :admin:dataBindingMergeDependencyArtifactsDebug UP-TO-DATE
+> Task :admin:generateDebugResValues UP-TO-DATE
+> Task :admin:generateDebugResources UP-TO-DATE
+> Task :admin:processDebugGoogleServices UP-TO-DATE
+> Task :admin:mergeDebugResources UP-TO-DATE
+> Task :admin:packageDebugResources UP-TO-DATE
+> Task :admin:processDebugNavigationResources UP-TO-DATE
+> Task :admin:parseDebugLocalResources UP-TO-DATE
+> Task :admin:dataBindingGenBaseClassesDebug UP-TO-DATE
+> Task :admin:checkDebugAarMetadata UP-TO-DATE
+> Task :admin:compileDebugNavigationResources UP-TO-DATE
+> Task :admin:mapDebugSourceSetPaths UP-TO-DATE
+> Task :admin:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :admin:extractDeepLinksDebug UP-TO-DATE
+> Task :admin:processDebugMainManifest UP-TO-DATE
+> Task :admin:processDebugManifest UP-TO-DATE
+> Task :admin:processDebugManifestForPackage UP-TO-DATE
+> Task :admin:processDebugResources UP-TO-DATE
+> Task :admin:compileDebugKotlin UP-TO-DATE
+> Task :admin:javaPreCompileDebug UP-TO-DATE
+> Task :admin:compileDebugJavaWithJavac UP-TO-DATE
+> Task :admin:mergeDebugShaders UP-TO-DATE
+> Task :admin:compileDebugShaders NO-SOURCE
+> Task :admin:generateDebugAssets UP-TO-DATE
+> Task :admin:mergeDebugAssets UP-TO-DATE
+> Task :admin:compressDebugAssets UP-TO-DATE
+> Task :admin:processDebugJavaRes UP-TO-DATE
+> Task :admin:mergeDebugJavaResource UP-TO-DATE
+> Task :admin:checkDebugDuplicateClasses UP-TO-DATE
+> Task :admin:desugarDebugFileDependencies UP-TO-DATE
+> Task :admin:mergeExtDexDebug UP-TO-DATE
+> Task :admin:mergeLibDexDebug UP-TO-DATE
+> Task :admin:dexBuilderDebug UP-TO-DATE
+> Task :admin:mergeProjectDexDebug UP-TO-DATE
+> Task :admin:mergeDebugJniLibFolders UP-TO-DATE
+> Task :admin:mergeDebugNativeLibs NO-SOURCE
+> Task :admin:stripDebugDebugSymbols NO-SOURCE
+> Task :admin:validateSigningDebug UP-TO-DATE
+> Task :admin:writeDebugAppMetadata UP-TO-DATE
+> Task :admin:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :admin:packageDebug UP-TO-DATE
+> Task :admin:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :admin:assembleDebug UP-TO-DATE
 > Task :app:preBuild UP-TO-DATE
 > Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :app:checkDebugAarMetadata UP-TO-DATE
 > Task :app:processDebugNavigationResources UP-TO-DATE
 > Task :app:compileDebugNavigationResources UP-TO-DATE
@@ -17,41 +65,32 @@
 > Task :app:processDebugManifest UP-TO-DATE
 > Task :app:processDebugManifestForPackage UP-TO-DATE
 > Task :app:processDebugResources UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
 > Task :app:kspDebugKotlin
-
 > Task :app:compileDebugKotlin
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/LoginScreen.kt:46:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/LoginScreen.kt:72:24 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/auth/LoginScreen.kt:106:34 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:599:17 Condition is always 'true'.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/HomeViewModel.kt:603:17 Condition is always 'true'.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/home/components/PlacementModal.kt:112:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/navigation/TopMenuBar.kt:262:32 'val Icons.Outlined.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.ArrowBack.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/notes/NotesScreen.kt:80:47 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/notes/NotesScreen.kt:178:13 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/notes/NotesScreen.kt:313:47 'val Icons.Filled.OpenInNew: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.OpenInNew.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:248:44 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:768:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:800:25 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/profile/ProfileScreen.kt:1323:31 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/schedule/ScheduleScreen.kt:1152:13 Condition is always 'true'.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/schedule/ScheduleScreen.kt:1157:13 Condition is always 'true'.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/CollegeSitesScreen.kt:39:137 'val Icons.Outlined.MenuBook: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Outlined.MenuBook.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/CollegeSitesScreen.kt:78:40 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/CollegeSitesScreen.kt:160:40 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ComplaintScreen.kt:106:36 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ComplaintScreen.kt:161:38 'val Icons.Filled.Message: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Message.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ComplaintScreen.kt:242:40 'val Icons.Filled.Send: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Send.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ContactScreen.kt:68:36 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ContactScreen.kt:109:40 'val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/ContactScreen.kt:189:44 'val Icons.Filled.Send: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.Send.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/DeveloperInfoScreen.kt:64:36 'val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/DisplaySettingsScreen.kt:112:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:39:8 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:611:24 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SecuritySettingsScreen.kt:652:34 'class GoogleSignIn : Any' is deprecated. Deprecated in Java.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SettingsScreen.kt:137:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
-w: file:///D:/Projects/React/Neram/mobile/app/src/main/java/com/elvan/rmdneram/ui/screens/SettingsScreen.kt:177:17 'fun Divider(modifier: Modifier = ..., thickness: Dp = ..., color: Color = ...): Unit' is deprecated. Renamed to HorizontalDivider.
+> Task :app:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
 
-BUILD SUCCESSFUL in 29s
-18 actionable tasks: 2 executed, 16 up-to-date
+BUILD SUCCESSFUL in 30s
+76 actionable tasks: 5 executed, 71 up-to-date

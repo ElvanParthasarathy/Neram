@@ -23,6 +23,11 @@ const PORTION_DEFAULTS = {
     'Semester': 'Full Syllabus'
 };
 
+const newBlankPracticalSubject = () => ({
+    code: '', scope: 'Common',
+    batches: [{ label: '', section: '', date: '', startTime: '08:30', endTime: '10:30', registerRange: '', totalCount: '' }]
+});
+
 const ExamManager = ({ user, userProfile }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const hasAutoNavigated = useRef(false);
@@ -209,31 +214,53 @@ const ExamManager = ({ user, userProfile }) => {
                 const existingSecExams = (masterData.rawDeptData[secId]?.exams || []).filter(e => e.id !== examObj.id);
 
                 if (!isDelete) {
-                    // Filter subjects meant for this section (Common or specifically this section)
-                    const secSubjects = examObj.subjects.filter(sub => {
-                        const scopeStr = sub.scope || 'Common';
-                        return scopeStr === 'Common' || scopeStr.split(',').map(s => s.trim()).includes(secId);
-                    }).map(sub => {
-                        const cleanSub = { ...sub };
-                        delete cleanSub.scope;
-                        delete cleanSub.scopes;
-                        return cleanSub;
-                    });
+                    let secSubjects;
 
-                    // Even if no subjects apply, we push the exam shell? Usually better to only push if there are subjects.
-                    // Let's push anyway to keep structure consistent if title/dates matter.
-                    const newSecExam = {
-                        id: examObj.id,
-                        type: examObj.type,
-                        title: examObj.title,
-                        startDate: examObj.startDate,
-                        endDate: examObj.endDate,
-                        subjects: secSubjects
-                    };
+                    if (examObj.type === 'Practical') {
+                        secSubjects = examObj.subjects
+                            .filter(sub => {
+                                const scopeStr = sub.scope || 'Common';
+                                return scopeStr === 'Common' || scopeStr.split(',').map(s => s.trim()).includes(secId);
+                            })
+                            .map(sub => {
+                                // Filter batches for this section
+                                // If scope is Common, include all batches
+                                // If scope is specific, filter batches where batch.section matches or is empty
+                                const filteredBatches = sub.scope === 'Common'
+                                    ? sub.batches
+                                    : sub.batches.filter(b => !b.section || b.section === secId);
+                                return {
+                                    code: sub.code,
+                                    scope: sub.scope,
+                                    batches: filteredBatches
+                                };
+                            });
+                    } else {
+                        secSubjects = examObj.subjects
+                            .filter(sub => {
+                                const scopeStr = sub.scope || 'Common';
+                                return scopeStr === 'Common' || scopeStr.split(',').map(s => s.trim()).includes(secId);
+                            })
+                            .map(sub => {
+                                const cleanSub = { ...sub };
+                                delete cleanSub.scope;
+                                delete cleanSub.scopes;
+                                return cleanSub;
+                            });
+                    }
 
-                    updates[`schedules/${path.batch}/${path.dept}/${secId}/exams`] = [...existingSecExams, newSecExam];
+                    updates[`schedules/${path.batch}/${path.dept}/${secId}/exams`] = [
+                        ...existingSecExams,
+                        {
+                            id: examObj.id,
+                            type: examObj.type,
+                            title: examObj.title,
+                            startDate: examObj.startDate,
+                            endDate: examObj.endDate,
+                            subjects: secSubjects
+                        }
+                    ];
                 } else {
-                    // Delete mode
                     updates[`schedules/${path.batch}/${path.dept}/${secId}/exams`] = existingSecExams;
                 }
             });
@@ -244,20 +271,46 @@ const ExamManager = ({ user, userProfile }) => {
     };
 
     const handleTypeChange = (newType) => {
-        const defaultPortion = PORTION_DEFAULTS[newType] || 'Full Syllabus';
-        const updatedSubjects = newExam.subjects.map(s => ({ ...s, portion: defaultPortion }));
-        setNewExam({ ...newExam, type: newType, subjects: updatedSubjects });
+        if (newType === 'Practical') {
+            setNewExam({ ...newExam, type: newType, subjects: [] });
+        } else {
+            const defaultPortion = PORTION_DEFAULTS[newType] || 'Full Syllabus';
+            const updatedSubjects = newExam.subjects.map(s => ({ ...s, portion: defaultPortion }));
+            setNewExam({ ...newExam, type: newType, subjects: updatedSubjects });
+        }
     };
 
     const startEditing = (ex) => {
-        const migratedSubjects = (ex.subjects || []).map(s => ({
-            ...s,
-            startTime: to24hHelper(s.startTime || (s.time ? s.time.split('-')[0].trim() : '08:20')),
-            endTime: to24hHelper(s.endTime || (s.time ? s.time.split('-')[1].trim() : '11:30')),
-            portion: s.portion || PORTION_DEFAULTS[ex.type] || 'Full Syllabus',
-            scope: s.scope || 'Common'
-        }));
-        setEditBuffer({ ...ex, subjects: migratedSubjects });
+        if (ex.type === 'Practical') {
+            const migratedSubjects = (ex.subjects || []).map(s => {
+                // Already new shape
+                if (s.batches) return { ...s };
+                // Old flat shape — migrate into single batch row
+                return {
+                    code: s.code,
+                    scope: s.scope || 'Common',
+                    batches: [{
+                        label: s.portion || '',
+                        section: '',
+                        date: s.date || '',
+                        startTime: to24hHelper(s.startTime || '08:30'),
+                        endTime: to24hHelper(s.endTime || '10:30'),
+                        registerRange: '',
+                        totalCount: ''
+                    }]
+                };
+            });
+            setEditBuffer({ ...ex, subjects: migratedSubjects });
+        } else {
+            const migratedSubjects = (ex.subjects || []).map(s => ({
+                ...s,
+                startTime: to24hHelper(s.startTime || (s.time ? s.time.split('-')[0].trim() : '08:20')),
+                endTime: to24hHelper(s.endTime || (s.time ? s.time.split('-')[1].trim() : '11:30')),
+                portion: s.portion || PORTION_DEFAULTS[ex.type] || 'Full Syllabus',
+                scope: s.scope || 'Common'
+            }));
+            setEditBuffer({ ...ex, subjects: migratedSubjects });
+        }
         setEditingExamId(ex.id);
     };
 
@@ -273,6 +326,167 @@ const ExamManager = ({ user, userProfile }) => {
         const readyExam = { ...newExam, id: Date.now() };
         syncCentralExamToDB(readyExam);
         setNewExam({ type: 'CT1', title: '', startDate: '', endDate: '', subjects: [] });
+    };
+
+    // ---- PRACTICAL SUBJECT CARD (used in creator + edit mode) ----
+    const renderPracticalSubjectEditor = (sub, subIdx, examState, setExamState) => {
+        const isCommon = sub.scope === 'Common';
+
+        const updateSub = (field, value) => {
+            const subs = [...examState.subjects];
+            subs[subIdx] = { ...subs[subIdx], [field]: value };
+            setExamState({ ...examState, subjects: subs });
+        };
+
+        const updateBatch = (bIdx, field, value) => {
+            const subs = [...examState.subjects];
+            const batches = [...subs[subIdx].batches];
+            batches[bIdx] = { ...batches[bIdx], [field]: value };
+            subs[subIdx] = { ...subs[subIdx], batches };
+            setExamState({ ...examState, subjects: subs });
+        };
+
+        const addBatch = () => {
+            const subs = [...examState.subjects];
+            const last = subs[subIdx].batches.at(-1);
+            subs[subIdx].batches = [...subs[subIdx].batches, {
+                label: '', section: '',
+                date: last?.date || '',
+                startTime: last?.startTime || '08:30',
+                endTime: last?.endTime || '10:30',
+                registerRange: '', totalCount: ''
+            }];
+            setExamState({ ...examState, subjects: subs });
+        };
+
+        const removeBatch = (bIdx) => {
+            const subs = [...examState.subjects];
+            subs[subIdx].batches = subs[subIdx].batches.filter((_, i) => i !== bIdx);
+            setExamState({ ...examState, subjects: subs });
+        };
+
+        const removeSub = () => {
+            showConfirm("Remove Subject?", `Remove ${getSubjectName(sub.code)}?`, () => {
+                setExamState({ ...examState, subjects: examState.subjects.filter((_, i) => i !== subIdx) });
+            });
+        };
+
+        return (
+            <div key={subIdx} className="practical-subject-card">
+                {/* Subject header row */}
+                <div className="practical-header-row">
+                    <div className="input-group-vertical variant-code">
+                        <label>Subject</label>
+                        <select value={sub.code} onChange={e => updateSub('code', e.target.value)}>
+                            <option value="">Select Course</option>
+                            {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
+                        </select>
+                    </div>
+                    <div className="input-group-vertical variant-scope">
+                        <label>Scope</label>
+                        <select value={sub.scope} onChange={e => updateSub('scope', e.target.value)}>
+                            <option value="Common">Common (All Secs)</option>
+                            {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                        </select>
+                    </div>
+                    <button className="btn-del-mini practical-remove-btn" onClick={removeSub}><RiDeleteBin6Line /> Remove</button>
+                </div>
+
+                {/* Batch rows */}
+                <div className="practical-batch-wrap">
+                    <table className="practical-batch-table">
+                        <thead>
+                            <tr>
+                                <th>Batch</th>
+                                {!isCommon && <th>Section</th>}
+                                <th>Date</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Register Range</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {sub.batches.map((b, bIdx) => (
+                                <tr key={bIdx}>
+                                    <td data-label="Batch">
+                                        <input value={b.label} onChange={e => updateBatch(bIdx, 'label', e.target.value)} placeholder="A, A1..." />
+                                    </td>
+                                    {!isCommon && (
+                                        <td data-label="Section">
+                                            <select value={b.section} onChange={e => updateBatch(bIdx, 'section', e.target.value)}>
+                                                <option value="">—</option>
+                                                {masterData.sections.map(sec => <option key={sec} value={sec}>{sec}</option>)}
+                                            </select>
+                                        </td>
+                                    )}
+                                    <td data-label="Date">
+                                        <DatePicker
+                                            selected={parseDate(b.date)}
+                                            onChange={date => updateBatch(bIdx, 'date', toLocalISO(date))}
+                                            dateFormat="dd/MM/yyyy"
+                                            placeholderText="dd/mm/yyyy"
+                                            className="custom-datepicker-input"
+                                        />
+                                    </td>
+                                    <td data-label="Start"><input type="time" value={b.startTime} onChange={e => updateBatch(bIdx, 'startTime', e.target.value)} /></td>
+                                    <td data-label="End"><input type="time" value={b.endTime} onChange={e => updateBatch(bIdx, 'endTime', e.target.value)} /></td>
+                                    <td data-label="Reg. Range"><input value={b.registerRange} onChange={e => updateBatch(bIdx, 'registerRange', e.target.value)} placeholder="111523104001–4032" /></td>
+                                    <td data-label="Total"><input type="number" value={b.totalCount} onChange={e => updateBatch(bIdx, 'totalCount', e.target.value)} placeholder="32" /></td>
+                                    <td data-label="" className="batch-action-cell">
+                                        <button className="btn-del-mini" onClick={() => {
+                                            showConfirm("Remove Batch?", `Remove batch ${b.label}?`, () => removeBatch(bIdx));
+                                        }}><RiDeleteBin6Line /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <button className="btn-add-line" style={{ marginTop: '8px' }} onClick={addBatch}><RiAddLine /> Add Batch Row</button>
+            </div>
+        );
+    };
+
+    // ---- PRACTICAL VIEW MODE (published card) ----
+    const renderPracticalSubjectView = (sub, examType) => {
+        const isCommon = sub.scope === 'Common';
+        return (
+            <div className="practical-view-card">
+                <div className="practical-view-header">
+                    <strong>{sub.code}</strong>
+                    <span className="practical-view-name">— {getSubjectName(sub.code)}</span>
+                    <span className={`portion-badge ${isCommon ? 'scope-common' : 'scope-specific'}`}>{sub.scope}</span>
+                </div>
+                <div className="practical-batch-wrap">
+                    <table className="practical-batch-table view-mode">
+                        <thead>
+                            <tr>
+                                <th>Batch</th>
+                                {!isCommon && <th>Section</th>}
+                                <th>Date</th>
+                                <th>Time</th>
+                                {(sub.batches || []).some(b => b.registerRange) && <th>Register Range</th>}
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(sub.batches || []).map((b, i) => (
+                                <tr key={i}>
+                                    <td data-label="Batch"><strong>{b.label}</strong></td>
+                                    {!isCommon && <td data-label="Section">{b.section || '—'}</td>}
+                                    <td data-label="Date">{parseDate(b.date)?.toLocaleDateString('en-GB') || b.date}</td>
+                                    <td data-label="Time">{to12h(b.startTime)} – {to12h(b.endTime)}</td>
+                                    {(sub.batches || []).some(b => b.registerRange) && <td data-label="Reg. Range">{b.registerRange || '—'}</td>}
+                                    <td data-label="Total">{b.totalCount || '—'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -334,61 +548,69 @@ const ExamManager = ({ user, userProfile }) => {
                         </div>
 
                         <div className="subject-mapping-section">
-                            {newExam.subjects.map((sub, idx) => (
-                                <div key={idx} className="exam-subject-row professional">
-                                    <div className="input-group-vertical">
-                                        <label>Date</label>
-                                        <DatePicker selected={parseDate(sub.date)} onChange={(date) => { let s = [...newExam.subjects]; s[idx].date = toLocalISO(date); setNewExam({ ...newExam, subjects: s }); }} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
-                                    </div>
-                                    <div className="input-group-vertical variant-code">
-                                        <label>Subject</label>
-                                        <select value={sub.code} onChange={e => { let s = [...newExam.subjects]; s[idx].code = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
-                                            <option value="">Select Course</option>
-                                            {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
-                                        </select>
-                                    </div>
-
-                                    {/* SCOPE SELECTOR */}
-                                    <div className="input-group-vertical variant-scope">
-                                        <label>Scope</label>
-                                        <select value={sub.scope} onChange={e => { let s = [...newExam.subjects]; s[idx].scope = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
-                                            <option value="Common">Common (All Secs)</option>
-                                            {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
-                                            {sub.scope && sub.scope !== 'Common' && !masterData.sections.includes(sub.scope) && (
-                                                <option value={sub.scope}>{sub.scope} (Mixed)</option>
-                                            )}
-                                        </select>
-                                    </div>
-
-                                    <div className="input-group-vertical variant-portion">
-                                        <label>{newExam.type === 'Practical' ? 'Batch / Lab Details' : 'Portion'}</label>
-                                        <input list="portion-presets" value={sub.portion} onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }} placeholder={newExam.type === 'Practical' ? "Batch (e.g. A2, Morning)..." : "Portion..."} />
-                                    </div>
-                                    <div className="input-group-vertical"><label>Start</label><input type="time" value={sub.startTime} onChange={e => { let s = [...newExam.subjects]; s[idx].startTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
-                                    <div className="input-group-vertical"><label>End</label><input type="time" value={sub.endTime} onChange={e => { let s = [...newExam.subjects]; s[idx].endTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
-                                    <button className="btn-del-mini" onClick={() => {
-                                        showConfirm("Delete Subject?", `Remove ${getSubjectName(sub.code)}?`, () => setNewExam({ ...newExam, subjects: newExam.subjects.filter((_, i) => i !== idx) }));
-                                    }}><RiDeleteBin6Line /></button>
-                                </div>
-                            ))}
-
-                            <datalist id="portion-presets">
-                                {[...new Set(Object.values(PORTION_DEFAULTS))].map(p => <option key={p} value={p} />)}
-                            </datalist>
-
-                            <button className="btn-add-line" onClick={() => {
-                                const lastSub = newExam.subjects[newExam.subjects.length - 1];
-                                setNewExam({
-                                    ...newExam,
-                                    subjects: [...newExam.subjects, {
-                                        date: '', code: '',
-                                        startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
-                                        endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
-                                        portion: PORTION_DEFAULTS[newExam.type],
-                                        scope: 'Common'
-                                    }]
-                                });
-                            }}><RiAddLine /> Add Subject Day</button>
+                            {newExam.type === 'Practical' ? (
+                                <>
+                                    {newExam.subjects.map((sub, idx) =>
+                                        renderPracticalSubjectEditor(sub, idx, newExam, setNewExam)
+                                    )}
+                                    <button className="btn-add-line" onClick={() =>
+                                        setNewExam({ ...newExam, subjects: [...newExam.subjects, newBlankPracticalSubject()] })
+                                    }><RiAddLine /> Add Subject</button>
+                                </>
+                            ) : (
+                                <>
+                                    {newExam.subjects.map((sub, idx) => (
+                                        <div key={idx} className="exam-subject-row professional">
+                                            <div className="input-group-vertical">
+                                                <label>Date</label>
+                                                <DatePicker selected={parseDate(sub.date)} onChange={(date) => { let s = [...newExam.subjects]; s[idx].date = toLocalISO(date); setNewExam({ ...newExam, subjects: s }); }} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
+                                            </div>
+                                            <div className="input-group-vertical variant-code">
+                                                <label>Subject</label>
+                                                <select value={sub.code} onChange={e => { let s = [...newExam.subjects]; s[idx].code = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
+                                                    <option value="">Select Course</option>
+                                                    {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="input-group-vertical variant-scope">
+                                                <label>Scope</label>
+                                                <select value={sub.scope} onChange={e => { let s = [...newExam.subjects]; s[idx].scope = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
+                                                    <option value="Common">Common (All Secs)</option>
+                                                    {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                                                    {sub.scope && sub.scope !== 'Common' && !masterData.sections.includes(sub.scope) && (
+                                                        <option value={sub.scope}>{sub.scope} (Mixed)</option>
+                                                    )}
+                                                </select>
+                                            </div>
+                                            <div className="input-group-vertical variant-portion">
+                                                <label>Portion</label>
+                                                <input list="portion-presets" value={sub.portion} onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }} placeholder="Portion..." />
+                                            </div>
+                                            <div className="input-group-vertical"><label>Start</label><input type="time" value={sub.startTime} onChange={e => { let s = [...newExam.subjects]; s[idx].startTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
+                                            <div className="input-group-vertical"><label>End</label><input type="time" value={sub.endTime} onChange={e => { let s = [...newExam.subjects]; s[idx].endTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
+                                            <button className="btn-del-mini" onClick={() => {
+                                                showConfirm("Delete Subject?", `Remove ${getSubjectName(sub.code)}?`, () => setNewExam({ ...newExam, subjects: newExam.subjects.filter((_, i) => i !== idx) }));
+                                            }}><RiDeleteBin6Line /></button>
+                                        </div>
+                                    ))}
+                                    <datalist id="portion-presets">
+                                        {[...new Set(Object.values(PORTION_DEFAULTS))].map(p => <option key={p} value={p} />)}
+                                    </datalist>
+                                    <button className="btn-add-line" onClick={() => {
+                                        const lastSub = newExam.subjects[newExam.subjects.length - 1];
+                                        setNewExam({
+                                            ...newExam,
+                                            subjects: [...newExam.subjects, {
+                                                date: '', code: '',
+                                                startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
+                                                endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
+                                                portion: PORTION_DEFAULTS[newExam.type],
+                                                scope: 'Common'
+                                            }]
+                                        });
+                                    }}><RiAddLine /> Add Subject Day</button>
+                                </>
+                            )}
                             <button className="btn-save-master publish-btn" onClick={handlePublish}>Publish to All Sections</button>
                         </div>
                     </div>
@@ -440,93 +662,90 @@ const ExamManager = ({ user, userProfile }) => {
                                     </header>
 
                                     <div className="published-subjects-container">
-                                        {(currentData.subjects || []).map((s, i) => (
-                                            <div key={i} className={`exam-subject-row ${isEditing ? 'professional editing' : 'professional view-mode'}`}>
-                                                {isEditing ? (
-                                                    <>
-                                                        <div className="input-group-vertical">
-                                                            <label>Date</label>
-                                                            <DatePicker selected={parseDate(s.date)} onChange={(date) => { let subs = [...editBuffer.subjects]; subs[i].date = toLocalISO(date); setEditBuffer({ ...editBuffer, subjects: subs }); }} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
-                                                        </div>
-                                                        <div className="input-group-vertical variant-code">
-                                                            <label>Subject</label>
-                                                            <select value={s.code} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].code = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
-                                                                <option value="">Select</option>
-                                                                {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {getSubjectName(c.code)}</option>)}
-                                                            </select>
-                                                        </div>
-
-                                                        {/* SCOPE SELECTOR */}
-                                                        <div className="input-group-vertical variant-scope">
-                                                            <label>Scope</label>
-                                                            <select value={s.scope} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].scope = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
-                                                                <option value="Common">Common (All Secs)</option>
-                                                                {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
-                                                                {s.scope && s.scope !== 'Common' && !masterData.sections.includes(s.scope) && (
-                                                                    <option value={s.scope}>{s.scope} (Mixed)</option>
-                                                                )}
-                                                            </select>
-                                                        </div>
-
-                                                        <div className="input-group-vertical variant-portion">
-                                                            <label>{editBuffer.type === 'Practical' ? 'Batch / Lab Details' : 'Portion'}</label>
-                                                            <input list="portion-presets" value={s.portion} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} placeholder={editBuffer.type === 'Practical' ? "Batch Name..." : "Portion..."} />
-                                                        </div>
-                                                        <div className="input-group-vertical"><label>Start</label><input type="time" value={s.startTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
-                                                        <div className="input-group-vertical"><label>End</label><input type="time" value={s.endTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
-                                                        <button className="btn-del-mini" onClick={() => {
-                                                            showConfirm("Remove Day?", "Remove this subject day?", () => { let subs = editBuffer.subjects.filter((_, idx) => idx !== i); setEditBuffer({ ...editBuffer, subjects: subs }); });
-                                                        }}><RiDeleteBin6Line /></button>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <div className="view-cell date-cell">
-                                                            <label>Date</label>
-                                                            <span>{parseDate(s.date)?.toLocaleDateString('en-GB') || s.date}</span>
-                                                        </div>
-                                                        <div className="view-cell subject-cell">
-                                                            <label>Subject</label>
-                                                            <span>
-                                                                <strong>{s.code}</strong>: {getSubjectName(s.code)}
-                                                                {ex.type === 'Practical' && s.portion && (
-                                                                    <span className="practical-batch-inline"> ({s.portion})</span>
-                                                                )}
-                                                            </span>
-                                                        </div>
-                                                        <div className="view-cell portion-cell" style={{ maxWidth: '100px' }}>
-                                                            <label>Scope</label>
-                                                            <span className="portion-badge" style={{ background: s.scope === 'Common' ? 'rgba(40,200,64,0.1)' : 'rgba(255,149,0,0.1)', color: s.scope === 'Common' ? 'var(--mac-success-text)' : 'var(--mac-warning-text)' }}>
-                                                                {s.scope}
-                                                            </span>
-                                                        </div>
-                                                        <div className="view-cell time-cell">
-                                                            <label>Time</label>
-                                                            <span>{to12h(s.startTime)} - {to12h(s.endTime)}</span>
-                                                        </div>
-                                                        <div className="view-cell portion-cell">
-                                                            <label>Portion</label>
-                                                            <span className="portion-badge">{s.portion}</span>
-                                                        </div>
-                                                    </>
+                                        {ex.type === 'Practical' ? (
+                                            isEditing ? (
+                                                <>
+                                                    {editBuffer.subjects.map((s, i) =>
+                                                        renderPracticalSubjectEditor(s, i, editBuffer, setEditBuffer)
+                                                    )}
+                                                    <button className="btn-add-line" onClick={() =>
+                                                        setEditBuffer({ ...editBuffer, subjects: [...editBuffer.subjects, newBlankPracticalSubject()] })
+                                                    }><RiAddLine /> Add Subject</button>
+                                                </>
+                                            ) : (
+                                                (currentData.subjects || []).map((s, i) =>
+                                                    renderPracticalSubjectView(s, ex.type)
+                                                )
+                                            )
+                                        ) : (
+                                            <>
+                                                {(currentData.subjects || []).map((s, i) => (
+                                                    <div key={i} className={`exam-subject-row ${isEditing ? 'professional editing' : 'professional view-mode'}`}>
+                                                        {isEditing ? (
+                                                            <>
+                                                                <div className="input-group-vertical">
+                                                                    <label>Date</label>
+                                                                    <DatePicker selected={parseDate(s.date)} onChange={(date) => { let subs = [...editBuffer.subjects]; subs[i].date = toLocalISO(date); setEditBuffer({ ...editBuffer, subjects: subs }); }} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
+                                                                </div>
+                                                                <div className="input-group-vertical variant-code">
+                                                                    <label>Subject</label>
+                                                                    <select value={s.code} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].code = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
+                                                                        <option value="">Select</option>
+                                                                        {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {getSubjectName(c.code)}</option>)}
+                                                                    </select>
+                                                                </div>
+                                                                <div className="input-group-vertical variant-scope">
+                                                                    <label>Scope</label>
+                                                                    <select value={s.scope} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].scope = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
+                                                                        <option value="Common">Common (All Secs)</option>
+                                                                        {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                                                                        {s.scope && s.scope !== 'Common' && !masterData.sections.includes(s.scope) && (
+                                                                            <option value={s.scope}>{s.scope} (Mixed)</option>
+                                                                        )}
+                                                                    </select>
+                                                                </div>
+                                                                <div className="input-group-vertical variant-portion">
+                                                                    <label>Portion</label>
+                                                                    <input list="portion-presets" value={s.portion} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} placeholder="Portion..." />
+                                                                </div>
+                                                                <div className="input-group-vertical"><label>Start</label><input type="time" value={s.startTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
+                                                                <div className="input-group-vertical"><label>End</label><input type="time" value={s.endTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
+                                                                <button className="btn-del-mini" onClick={() => {
+                                                                    showConfirm("Remove Day?", "Remove this subject day?", () => { let subs = editBuffer.subjects.filter((_, idx) => idx !== i); setEditBuffer({ ...editBuffer, subjects: subs }); });
+                                                                }}><RiDeleteBin6Line /></button>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div className="view-cell date-cell"><label>Date</label><span>{parseDate(s.date)?.toLocaleDateString('en-GB') || s.date}</span></div>
+                                                                <div className="view-cell subject-cell"><label>Subject</label><span><strong>{s.code}</strong>: {getSubjectName(s.code)}</span></div>
+                                                                <div className="view-cell portion-cell" style={{ maxWidth: '100px' }}>
+                                                                    <label>Scope</label>
+                                                                    <span className="portion-badge" style={{ background: s.scope === 'Common' ? 'rgba(40,200,64,0.1)' : 'rgba(255,149,0,0.1)', color: s.scope === 'Common' ? 'var(--mac-success-text)' : 'var(--mac-warning-text)' }}>{s.scope}</span>
+                                                                </div>
+                                                                <div className="view-cell time-cell"><label>Time</label><span>{to12h(s.startTime)} - {to12h(s.endTime)}</span></div>
+                                                                <div className="view-cell portion-cell"><label>Portion</label><span className="portion-badge">{s.portion}</span></div>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                                {isEditing && (
+                                                    <button className="btn-add-line" onClick={() => {
+                                                        const lastSub = editBuffer.subjects[editBuffer.subjects.length - 1];
+                                                        setEditBuffer({
+                                                            ...editBuffer,
+                                                            subjects: [...editBuffer.subjects, {
+                                                                date: '', code: '',
+                                                                startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
+                                                                endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
+                                                                portion: PORTION_DEFAULTS[editBuffer.type],
+                                                                scope: 'Common'
+                                                            }]
+                                                        });
+                                                    }}><RiAddLine /> Add Subject Day</button>
                                                 )}
-                                            </div>
-                                        ))}
+                                            </>
+                                        )}
                                     </div>
-                                    {isEditing && (
-                                        <button className="btn-add-line" onClick={() => {
-                                            const lastSub = editBuffer.subjects[editBuffer.subjects.length - 1];
-                                            setEditBuffer({
-                                                ...editBuffer,
-                                                subjects: [...editBuffer.subjects, {
-                                                    date: '', code: '',
-                                                    startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
-                                                    endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
-                                                    portion: PORTION_DEFAULTS[editBuffer.type],
-                                                    scope: 'Common'
-                                                }]
-                                            });
-                                        }}><RiAddLine /> Add Subject Day</button>
-                                    )}
                                 </div>
                             );
                         })}

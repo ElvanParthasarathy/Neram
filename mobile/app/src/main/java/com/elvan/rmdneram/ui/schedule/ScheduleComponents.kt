@@ -50,6 +50,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.ui.draw.rotate
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import java.time.LocalDate
 
 /**
  * ScheduleComponents - All reusable UI components for Schedule screen
@@ -580,122 +588,393 @@ fun ScheduleTable(periods: List<PeriodDisplayData>, colors: HomeColors, isMini: 
 }
 
 @Composable
-fun ExamScheduleCard(exam: ExamSchedule, courses: List<Course>, colors: HomeColors) {
+fun ExamScheduleCard(
+    exam: ExamSchedule,
+    courses: List<Course>,
+    colors: HomeColors,
+    defaultExpanded: Boolean = false,
+    viewDate: LocalDate? = null
+) {
+    var isExpanded by remember { mutableStateOf(defaultExpanded) }
+    val isPractical = exam.type == "Practical"
+
+    // Date range subtitle
+    val dateRange = if (exam.startDate.isNotEmpty() && exam.endDate.isNotEmpty()) {
+        "${DateTimeUtils.formatDateForDisplay(exam.startDate)} — ${DateTimeUtils.formatDateForDisplay(exam.endDate)}"
+    } else ""
+
+    // Chevron rotation animation
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "chevron"
+    )
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = HomeShapes.Card,
         color = colors.surface,
         shadowElevation = 0.dp
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            // Header Row
+        Column {
+            // ── Clickable Header ──
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { isExpanded = !isExpanded }
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Default.EmojiEvents,
-                        contentDescription = null,
-                        tint = colors.accent,
-                        modifier = Modifier.size(24.dp)
+                Icon(
+                    Icons.Default.EmojiEvents,
+                    contentDescription = null,
+                    tint = colors.accent,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = exam.title,
+                        style = HomeTypography.SectionTitle,
+                        color = colors.textPrimary
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
+                    if (dateRange.isNotEmpty()) {
                         Text(
-                            text = exam.title,
-                            style = HomeTypography.SectionTitle,
-                            color = colors.textPrimary
+                            text = dateRange,
+                            style = HomeTypography.FacultyName,
+                            color = colors.textSecondary
                         )
+                    }
+                }
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    tint = colors.textSecondary,
+                    modifier = Modifier.rotate(chevronRotation)
+                )
+            }
+
+            // ── Collapsible Body ──
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+                    if (isPractical) {
+                        // Practical exam: date-grouped batches
+                        PracticalExamContent(
+                            exam = exam,
+                            courses = courses,
+                            colors = colors,
+                            viewDate = viewDate
+                        )
+                    } else {
+                        // Standard exam: numbered subject list
+                        StandardExamContent(
+                            exam = exam,
+                            courses = courses,
+                            colors = colors
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ── Standard Exam Body (numbered subject rows) ──
+@Composable
+private fun StandardExamContent(
+    exam: ExamSchedule,
+    courses: List<Course>,
+    colors: HomeColors
+) {
+    exam.subjects.forEachIndexed { index, sub ->
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Surface(
+                modifier = Modifier.size(26.dp),
+                shape = CircleShape,
+                color = colors.accent
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = (index + 1).toString(),
+                        style = HomeTypography.CellHour.copy(fontSize = 12.sp),
+                        color = Color.White,
+                        fontWeight = FontWeight.ExtraBold,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = DateTimeUtils.formatDateForDisplay(sub.date),
+                    style = HomeTypography.CourseCode,
+                    color = colors.textPrimary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${sub.code}: ${getSubjectName(sub.code, courses)}",
+                    style = HomeTypography.CourseName.copy(fontWeight = FontWeight.SemiBold),
+                    color = colors.accent
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "${DateTimeUtils.formatTimeForDisplay(sub.startTime)} - ${DateTimeUtils.formatTimeForDisplay(sub.endTime)}",
+                        style = HomeTypography.FacultyName,
+                        color = colors.textSecondary
+                    )
+                    if (sub.portion.isNotEmpty()) {
                         Text(
-                            text = exam.type,
+                            text = "  •  ${sub.portion}",
                             style = HomeTypography.FacultyName,
                             color = colors.textSecondary
                         )
                     }
                 }
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Exam subjects - with numbered circles
-            exam.subjects.forEachIndexed { index, sub ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    // Number Circle
-                    Surface(
-                        modifier = Modifier.size(26.dp),
-                        shape = CircleShape,
-                        color = colors.accent
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text(
-                                text = (index + 1).toString(),
-                                style = HomeTypography.CellHour.copy(fontSize = 12.sp),
-                                color = Color.White,
-                                fontWeight = FontWeight.ExtraBold,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.width(12.dp))
-                    
-                    // Subject Details Column
-                    Column(modifier = Modifier.weight(1f)) {
-                        // Date
-                        Text(
-                            text = DateTimeUtils.formatDateForDisplay(sub.date),
-                            style = HomeTypography.CourseCode,
-                            color = colors.textPrimary
+        }
+    }
+    if (exam.subjects.isEmpty()) {
+        Text(
+            text = "No subjects scheduled",
+            style = HomeTypography.FacultyName,
+            color = colors.textSecondary,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+    }
+}
+
+// ── Practical Exam Body (date-grouped batches) ──
+private data class PracFlatBatch(
+    val subCode: String,
+    val subName: String,
+    val idx: Int,
+    val batch: PracticalBatch
+)
+
+@Composable
+private fun PracticalExamContent(
+    exam: ExamSchedule,
+    courses: List<Course>,
+    colors: HomeColors,
+    viewDate: LocalDate? = null
+) {
+    // Flatten all batches and group by date → subject
+    val dateGroups = remember(exam) {
+        val allEntries = mutableListOf<PracFlatBatch>()
+        exam.subjects.forEach { sub ->
+            sub.batches.forEachIndexed { j, b ->
+                allEntries.add(
+                    PracFlatBatch(
+                        subCode = sub.code,
+                        subName = getSubjectName(sub.code, courses),
+                        idx = j,
+                        batch = b
+                    )
+                )
+            }
+        }
+        // Group by date
+        allEntries.groupBy { it.batch.date.ifEmpty { "Unknown" } }
+    }
+
+    val sortedDateGroups = remember(dateGroups, viewDate) {
+        val todayStr = viewDate?.toString() ?: ""
+        dateGroups.entries.sortedWith { a, b ->
+            val dateA = a.key
+            val dateB = b.key
+            val scoreA = when {
+                dateA == todayStr -> 0
+                dateA > todayStr -> 1
+                else -> 2 // Past dates
+            }
+            val scoreB = when {
+                dateB == todayStr -> 0
+                dateB > todayStr -> 1
+                else -> 2
+            }
+            if (scoreA != scoreB) scoreA.compareTo(scoreB) else dateA.compareTo(dateB)
+        }
+    }
+
+    sortedDateGroups.forEach { entry ->
+        val date = entry.key
+        val entries = entry.value
+        // Sub-group by subject code
+        val subGroups = entries.groupBy { it.subCode }
+
+        val isToday = try {
+            viewDate != null && date == viewDate.toString()
+        } catch (_: Exception) { false }
+
+        PracDateGroup(
+            date = date,
+            subGroups = subGroups,
+            colors = colors,
+            defaultOpen = isToday
+        )
+    }
+
+    if (dateGroups.isEmpty()) {
+        Text(
+            text = "No batches scheduled",
+            style = HomeTypography.FacultyName,
+            color = colors.textSecondary,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+    }
+}
+
+// ── Collapsible Date Group for Practicals ──
+@Composable
+private fun PracDateGroup(
+    date: String,
+    subGroups: Map<String, List<PracFlatBatch>>,
+    colors: HomeColors,
+    defaultOpen: Boolean = false
+) {
+    var isOpen by remember(defaultOpen) { mutableStateOf(defaultOpen) }
+    val chevronRotation by animateFloatAsState(
+        targetValue = if (isOpen) 180f else 0f,
+        label = "dateChevron"
+    )
+    val isDark = colors.surface.luminance() < 0.5f
+    val pillBg = if (isDark) colors.textSecondary.copy(alpha = 0.12f) else colors.background
+
+    Column(modifier = Modifier.padding(bottom = 8.dp)) {
+        // Pill-styled date header
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { isOpen = !isOpen },
+            shape = RoundedCornerShape(100),
+            color = pillBg
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = DateTimeUtils.formatDateForDisplay(date),
+                    style = HomeTypography.SectionTitle.copy(fontSize = 13.sp),
+                    color = colors.textPrimary
+                )
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = colors.textSecondary,
+                    modifier = Modifier.size(20.dp).rotate(chevronRotation)
+                )
+            }
+        }
+
+        // Collapsible content
+        AnimatedVisibility(
+            visible = isOpen,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Column(modifier = Modifier.padding(top = 16.dp)) {
+                var isFirst = true
+                subGroups.forEach { (code, flatBatches) ->
+                    if (!isFirst) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            color = colors.textSecondary.copy(alpha = 0.15f)
                         )
-                        
-                        Spacer(modifier = Modifier.height(6.dp))
-                        
-                        // Subject Code: Subject Name (slightly bold)
+                    }
+                    isFirst = false
+
+                    // Subject header
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = "${sub.code}: ${getSubjectName(sub.code, courses)}",
-                            style = HomeTypography.CourseName.copy(fontWeight = FontWeight.SemiBold),
+                            text = code,
+                            style = HomeTypography.CourseCode.copy(fontWeight = FontWeight.ExtraBold),
                             color = colors.accent
                         )
-                        
-                        Spacer(modifier = Modifier.height(4.dp))
-                        
-                        // Time + Portion/Unit (same row)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "${DateTimeUtils.formatTimeForDisplay(sub.startTime)} - ${DateTimeUtils.formatTimeForDisplay(sub.endTime)}",
-                                style = HomeTypography.FacultyName,
-                                color = colors.textSecondary
-                            )
-                            
-                            if (sub.portion.isNotEmpty()) {
+                        Text(
+                            text = flatBatches.firstOrNull()?.subName ?: "",
+                            style = HomeTypography.CourseName.copy(fontWeight = FontWeight.SemiBold),
+                            color = colors.textPrimary
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    // Batch rows
+                    flatBatches.forEach { fb ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            // Circle label (A, B, C...)
+                            Surface(
+                                modifier = Modifier.size(26.dp),
+                                shape = CircleShape,
+                                color = colors.accent
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = fb.batch.label.ifEmpty {
+                                            ('A' + fb.idx).toString()
+                                        },
+                                        style = HomeTypography.CellHour.copy(fontSize = 11.sp),
+                                        color = Color.White,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "  •  ${sub.portion}",
-                                    style = HomeTypography.FacultyName,
-                                    color = colors.textSecondary
+                                    text = "${DateTimeUtils.formatTimeForDisplay(fb.batch.startTime)} - ${DateTimeUtils.formatTimeForDisplay(fb.batch.endTime)}",
+                                    style = HomeTypography.CourseCode,
+                                    color = colors.accent
                                 )
+                                if (fb.batch.registerRange.isNotEmpty()) {
+                                    Text(
+                                        text = fb.batch.registerRange,
+                                        style = HomeTypography.CourseName.copy(fontSize = 11.sp),
+                                        color = colors.textPrimary,
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    )
+                                }
+                                if (fb.batch.totalCount.isNotEmpty()) {
+                                    Text(
+                                        text = "${fb.batch.totalCount} Students",
+                                        style = HomeTypography.FacultyName,
+                                        color = colors.textSecondary,
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
-            
-            // Empty state
-            if (exam.subjects.isEmpty()) {
-                Text(
-                    text = "No subjects scheduled",
-                    style = HomeTypography.FacultyName,
-                    color = colors.textSecondary,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                )
             }
         }
     }

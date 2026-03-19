@@ -15,6 +15,7 @@ import {
   RiArrowLeftSLine,
   RiArrowRightSLine,
   RiArrowDownSLine,
+  RiComputerLine,
 } from "react-icons/ri";
 
 // ======================= HELPER FUNCTIONS =======================
@@ -93,10 +94,22 @@ const processCourse = (course, batch, originalCode) => {
 
 /** Calculate display config (port of ScheduleLogic.kt) */
 const calculateDisplayConfig = (state) => {
+  if (state.activeSpecialClass) {
+    return {
+      showSpecialClass: true,
+      showFullDayEvent: false,
+      showExamCard: false, 
+      showHalfDayEvent: false,
+      showTimetable: false,
+      showSuspensionNotice: true,
+      suspensionReason: `Classes suspended due to ${state.activeSpecialClass.typeTitle}.`
+    };
+  }
+
   if (state.fullDayEvent) {
     return {
       showFullDayEvent: true, showExamCard: false, showHalfDayEvent: false,
-      showTimetable: false, showSuspensionNotice: false,
+      showTimetable: false, showSuspensionNotice: false, showSpecialClass: false,
       suspensionReason: `Day reserved for ${state.fullDayEvent.title}.`
     };
   }
@@ -118,7 +131,15 @@ const calculateDisplayConfig = (state) => {
     suspensionReason = `Regular classes are suspended during the ${state.activeExamPeriod.title} period.`;
   }
 
-  return { showFullDayEvent: false, showExamCard: showExam, showHalfDayEvent: showHalfDay, showTimetable, showSuspensionNotice: showSuspended, suspensionReason };
+  return {
+    showFullDayEvent: !state.fullDayEvent ? false : true,
+    showExamCard: showExam,
+    showHalfDayEvent: showHalfDay,
+    showTimetable,
+    showSuspensionNotice: showSuspended,
+    showSpecialClass: !!state.activeSpecialClass,
+    suspensionReason
+  };
 };
 
 /** Format date for display */
@@ -287,24 +308,118 @@ export const EventCard = ({ tag, title, subtitle, meta1, meta2, meta1Icon, meta2
 );
 
 /** Exam event card (same blue card but with trophy icon) */
-export const ExamEventCard = ({ exam }) => (
-  <div className="s2-event-card s2-fade-in">
-    <div className="s2-event-tag">TODAY'S EXAM</div>
-    <div className="s2-event-content">
-      <RiTrophyLine className="s2-event-icon" />
-      <div className="s2-event-info">
-        <h3>{exam.title}</h3>
-        <p><strong>{exam.todaySub.code}</strong>: {exam.subjectName}</p>
-        <div className="s2-event-meta">
-          <span className="s2-meta-chip"><RiTimeLine /> {convertTo12Hour(exam.todaySub.startTime)} - {convertTo12Hour(exam.todaySub.endTime)}</span>
-          {exam.todaySub.portion && (
-            <span className="s2-meta-chip"><RiFilePaperLine /> {exam.todaySub.portion}</span>
-          )}
+export const ExamEventCard = ({ exam, specialClass }) => {
+  if (specialClass) {
+    return (
+      <div className="s2-prac-today-cards">
+        <div style={{ marginBottom: '0' }}>
+          {/* Blue header card */}
+          <div className="s2-event-card s2-fade-in" style={{ marginBottom: '12px' }}>
+            <div className="s2-event-tag">{specialClass.typeTitle?.toUpperCase() || "SPECIAL CLASS"}</div>
+            <div className="s2-event-content">
+              <RiComputerLine className="s2-event-icon" />
+              <div className="s2-event-info">
+                <h3>{specialClass.title || "Scheduled for Today"}</h3>
+                <p>{specialClass.desc || "Special classroom session or online meeting"}</p>
+              </div>
+            </div>
+          </div>
+          {/* Individual class cards */}
+          <div className="s2-schedule-list">
+            {(specialClass.batches || []).map((b, j) => (
+              <div key={j} className="s2-period-row">
+                <div className="s2-period-num">{b.circleLabel || (j + 1)}</div>
+                <div className="s2-period-details">
+                  <div className="s2-period-entry">
+                    <div className="s2-course-code-row">
+                      <span className="s2-course-code">
+                        {convertTo12Hour(b.startTime)} - {convertTo12Hour(b.endTime)}
+                      </span>
+                    </div>
+                    <div className="s2-course-name" style={{ marginTop: '4px' }}>
+                      {b.subjectName}
+                    </div>
+                    <div className="s2-faculty" style={{ marginTop: '2px' }}>
+                      {b.faculty} {b.subjectCode ? `• ${b.subjectCode}` : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const isPractical = exam?.type === 'Practical';
+
+  if (isPractical && exam?.todayBatches) {
+    return (
+      <div className="s2-prac-today-cards">
+        {exam.todayBatches.map((tb, i) => (
+          <div key={i} style={{ marginBottom: i < exam.todayBatches.length - 1 ? '24px' : '0' }}>
+            {/* Blue header card — same style as standard exam */}
+            <div className="s2-event-card s2-fade-in" style={{ marginBottom: '12px' }}>
+              <div className="s2-event-tag">TODAY'S PRACTICAL EXAM</div>
+              <div className="s2-event-content">
+                <RiTrophyLine className="s2-event-icon" />
+                <div className="s2-event-info">
+                  <h3>{exam.title}</h3>
+                  <p><strong>{tb.code}</strong>: {tb.subjectName}</p>
+                </div>
+              </div>
+            </div>
+            {/* Individual batch cards for this subject — PeriodRow style */}
+            <div className="s2-schedule-list">
+              {tb.batches.map((b, j) => (
+                <div key={j} className="s2-period-row">
+                  <div className="s2-period-num">{b.label || String.fromCharCode(65 + j)}</div>
+                  <div className="s2-period-details">
+                    <div className="s2-period-entry">
+                      <div className="s2-course-code-row">
+                        <span className="s2-course-code">
+                          {convertTo12Hour(b.startTime)} - {convertTo12Hour(b.endTime)}
+                        </span>
+                      </div>
+                      {b.registerRange && (
+                        <div className="s2-course-name" style={{ marginTop: '4px' }}>
+                          {b.registerRange}
+                        </div>
+                      )}
+                      <div className="s2-faculty" style={{ marginTop: '2px' }}>
+                        {b.totalCount ? `${b.totalCount} Students` : ''}{b.totalCount ? ' • ' : ''}{tb.code}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="s2-event-card s2-fade-in">
+      <div className="s2-event-tag">TODAY'S EXAM</div>
+      <div className="s2-event-content">
+        <RiTrophyLine className="s2-event-icon" />
+        <div className="s2-event-info">
+          <h3>{exam.title}</h3>
+          <p><strong>{exam.todaySub?.code}</strong>: {exam.subjectName}</p>
+          <div className="s2-event-meta">
+            <span className="s2-meta-chip"><RiTimeLine /> {convertTo12Hour(exam.todaySub?.startTime)} - {convertTo12Hour(exam.todaySub?.endTime)}</span>
+            {exam.todaySub?.portion && (
+              <span className="s2-meta-chip"><RiFilePaperLine /> {exam.todaySub.portion}</span>
+            )}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 /** Notice card (suspension) */
 export const NoticeCard = ({ title, message }) => (
@@ -379,37 +494,135 @@ const DayTabsRow = ({ selectedDay, onDaySelected }) => {
   );
 };
 
-/** Exam schedule card */
-const ExamScheduleCard = ({ exam, courses }) => (
-  <div className="s2-exam-card s2-fade-in">
-    <div className="s2-exam-header">
-      <RiTrophyLine className="s2-exam-header-icon" />
-      <div>
-        <h3 className="s2-exam-title">{exam.title}</h3>
-        <p className="s2-exam-type">{exam.type}</p>
+/** Collapsible date group for practical exams */
+const PracDateGroup = ({ date, subGroups, defaultOpen = false }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  useEffect(() => { setIsOpen(defaultOpen); }, [defaultOpen]);
+  return (
+    <div className="s2-prac-date-group">
+      <div className="s2-prac-date-header" onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span>{formatDate(date)}</span>
+        <div className={`s2-collapsible-icon ${isOpen ? 'open' : ''}`} style={{ fontSize: '16px' }}>
+          <RiArrowDownSLine />
+        </div>
       </div>
-    </div>
-    {exam.subjects && exam.subjects.length > 0 ? (
-      exam.subjects.map((sub, i) => (
-        <div key={i} className="s2-exam-subject-row">
-          <div className="s2-period-num">{i + 1}</div>
-          <div style={{ flex: 1 }}>
-            <div className="s2-exam-date">{formatDate(sub.date)}</div>
-            <div className="s2-exam-code-name">
-              {sub.code}: {getCleanSubjectName(sub.code, courses)}
-            </div>
-            <div className="s2-exam-time-portion">
-              <span>{convertTo12Hour(sub.startTime)} - {convertTo12Hour(sub.endTime)}</span>
-              {sub.portion && <span>  •  {sub.portion}</span>}
-            </div>
+      <div className={`s2-collapsible-body-anim ${isOpen ? 'open' : ''}`}>
+        <div className="s2-collapsible-body-inner">
+          <div className="s2-collapsible-body-content" style={{ padding: '20px 0 8px 0' }}>
+            {Object.entries(subGroups).map(([code, { name, batches }], si) => (
+              <div key={si} className="s2-prac-subject-group">
+                <div className="s2-prac-subject-hdr" style={{ marginBottom: '10px', padding: '0 8px' }}>
+                  <span className="s2-prac-code">{code}</span>
+                  <span className="s2-prac-name">{name}</span>
+                </div>
+                <div className="s2-prac-batch-list-circle">
+                  {batches.map((b, bi) => (
+                    <div key={bi} className="s2-period-row" style={{ marginBottom: '4px', padding: '8px 8px' }}>
+                      <div className="s2-period-num">{b.label || String.fromCharCode(65 + b.idx)}</div>
+                      <div className="s2-period-details">
+                        <div className="s2-period-entry">
+                          <div className="s2-course-code-row">
+                            <span className="s2-course-code">{convertTo12Hour(b.startTime)} - {convertTo12Hour(b.endTime)}</span>
+                          </div>
+                          {b.registerRange && (
+                            <div className="s2-course-name" style={{ fontSize: '11.5px', color: 'var(--mac-text)', marginTop: '3px' }}>{b.registerRange}</div>
+                          )}
+                          {b.totalCount && (
+                            <div className="s2-faculty" style={{ marginTop: '2px' }}>{b.totalCount} Students</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))
-    ) : (
-      <p className="s2-exam-empty">No subjects scheduled</p>
-    )}
-  </div>
-);
+      </div>
+    </div>
+  );
+};
+
+/** Exam schedule card — collapsible */
+const ExamScheduleCard = ({ exam, courses, defaultExpanded = false, viewDate }) => {
+  const [isOpen, setIsOpen] = useState(defaultExpanded);
+  const isPractical = exam.type === 'Practical';
+  const dateRange = exam.startDate && exam.endDate
+    ? `${formatDate(exam.startDate)} — ${formatDate(exam.endDate)}`
+    : '';
+
+  return (
+    <div className="s2-exam-card s2-fade-in" style={{ marginBottom: '10px' }}>
+      <div className="s2-exam-header" onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer', marginBottom: isOpen ? undefined : 0 }}>
+        <RiTrophyLine className="s2-exam-header-icon" />
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 className="s2-exam-title" style={{ margin: 0 }}>{exam.title}</h3>
+          </div>
+          {dateRange && <p className="s2-exam-type" style={{ marginTop: '2px' }}>{dateRange}</p>}
+        </div>
+        <div className={`s2-collapsible-icon ${isOpen ? 'open' : ''}`} style={{ marginLeft: '8px' }}>
+          <RiArrowDownSLine />
+        </div>
+      </div>
+
+      <div className={`s2-collapsible-body-anim ${isOpen ? 'open' : ''}`}>
+        <div className="s2-collapsible-body-inner">
+          <div className="s2-collapsible-body-content" style={{ padding: '0' }}>
+            {exam.subjects && exam.subjects.length > 0 ? (
+              isPractical ? (
+                (() => {
+                  const allEntries = [];
+                  (exam.subjects || []).forEach(sub => {
+                    (sub.batches || []).forEach((b, j) => {
+                      allEntries.push({ ...b, subCode: sub.code, subName: getCleanSubjectName(sub.code, courses), idx: j });
+                    });
+                  });
+                  const dateGroups = {};
+                  allEntries.forEach(e => { const d = e.date || 'Unknown'; if (!dateGroups[d]) dateGroups[d] = []; dateGroups[d].push(e); });
+                  const todayStr = viewDate ? toISODate(viewDate) : "";
+                  const sortedGroups = Object.entries(dateGroups).sort((a, b) => {
+                    const dateA = a[0];
+                    const dateB = b[0];
+                    const scoreA = dateA === todayStr ? 0 : dateA > todayStr ? 1 : 2;
+                    const scoreB = dateB === todayStr ? 0 : dateB > todayStr ? 1 : 2;
+                    if (scoreA !== scoreB) return scoreA - scoreB;
+                    return dateA.localeCompare(dateB);
+                  });
+                  
+                  return sortedGroups.map(([date, entries], gi) => {
+                    const subGroups = {};
+                    entries.forEach(e => { if (!subGroups[e.subCode]) subGroups[e.subCode] = { name: e.subName, batches: [] }; subGroups[e.subCode].batches.push(e); });
+                    return (
+                      <PracDateGroup key={gi} date={date} subGroups={subGroups} defaultOpen={viewDate ? date === todayStr : false} />
+                    );
+                  });
+                })()
+              ) : (
+                exam.subjects.map((sub, i) => (
+                  <div key={i} className="s2-exam-subject-row">
+                    <div className="s2-period-num">{i + 1}</div>
+                    <div style={{ flex: 1 }}>
+                      <div className="s2-exam-date">{formatDate(sub.date)}</div>
+                      <div className="s2-exam-code-name">{sub.code}: {getCleanSubjectName(sub.code, courses)}</div>
+                      <div className="s2-exam-time-portion">
+                        <span>{convertTo12Hour(sub.startTime)} - {convertTo12Hour(sub.endTime)}</span>
+                        {sub.portion && <span>  •  {sub.portion}</span>}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )
+            ) : (
+              <p className="s2-exam-empty">No subjects scheduled</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 /** Course directory list */
 const CourseDirectory = ({ courses }) => (
@@ -509,8 +722,18 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
     setActiveExamPeriod(currentPeriod || null);
 
     if (currentPeriod) {
-      const subToday = currentPeriod.subjects?.find(s => s.date === todayStr);
-      setActiveExamToday(subToday ? { ...currentPeriod, todaySub: subToday, subjectName: getCleanSubjectName(subToday.code, masterData.courses) } : null);
+      if (currentPeriod.type === 'Practical') {
+        // Practical: find subjects with batches matching today
+        const todayBatches = (currentPeriod.subjects || []).map(sub => {
+          const matchingBatches = (sub.batches || []).filter(b => b.date === todayStr);
+          if (matchingBatches.length === 0) return null;
+          return { code: sub.code, subjectName: getCleanSubjectName(sub.code, masterData.courses), batches: matchingBatches };
+        }).filter(Boolean);
+        setActiveExamToday(todayBatches.length > 0 ? { ...currentPeriod, todayBatches, subjectName: todayBatches[0]?.subjectName } : null);
+      } else {
+        const subToday = currentPeriod.subjects?.find(s => s.date === todayStr);
+        setActiveExamToday(subToday ? { ...currentPeriod, todaySub: subToday, subjectName: getCleanSubjectName(subToday.code, masterData.courses) } : null);
+      }
     } else {
       setActiveExamToday(null);
     }
@@ -518,8 +741,12 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
     // Day order
     const holidayEvent = gEvents.find(e => e.title.toLowerCase().includes("holiday"));
     const orderEvent = gEvents.find(e => e.title.toLowerCase().includes("order"));
+    const specialClassToday = (masterData.specialClasses || []).find(sc => sc.date === todayStr);
 
-    if (holidayEvent) {
+    if (specialClassToday) {
+      setTodayNote(`Special Schedule: ${specialClassToday.typeTitle}`);
+      setDayOrder("SPECIAL");
+    } else if (holidayEvent) {
       setTodayNote(`Holiday: ${holidayEvent.title}`);
       setDayOrder("");
     } else if (orderEvent) {
@@ -554,32 +781,41 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
     });
   }, [dayOrder, masterData]);
 
+  // Detect special class for current date
+  const activeSpecialClass = useMemo(() => {
+    const todayStr = toISODate(currentDate);
+    return (masterData.specialClasses || []).find(sc => sc.date === todayStr);
+  }, [masterData.specialClasses, currentDate]);
+
   // Schedule display config
-  const scheduleState = { fullDayEvent, halfDayEvent, todayExam: activeExamToday, activeExamPeriod, periods: todayPeriods };
+  const scheduleState = {
+    fullDayEvent,
+    halfDayEvent,
+    todayExam: activeExamToday,
+    activeExamPeriod,
+    activeSpecialClass,
+    periods: todayPeriods
+  };
   const displayConfig = calculateDisplayConfig(scheduleState);
 
-  // Exam partitioning for exams tab
   const { ongoingExams, upcomingExams, finishedExams } = useMemo(() => {
     const todayStr = toISODate(currentDate);
     const allExams = masterData.exams || [];
-
-    const ongoing = [];
-    const upcoming = [];
-    const finished = [];
-
+    const ongoing = [], upcoming = [], finished = [];
     allExams.forEach(exam => {
       try {
         if (exam.startDate && exam.endDate) {
           if (todayStr >= exam.startDate && todayStr <= exam.endDate) ongoing.push(exam);
           else if (todayStr < exam.startDate) upcoming.push(exam);
           else finished.push(exam);
-        } else {
-          finished.push(exam);
-        }
-      } catch { finished.push(exam); }
+        } else finished.push(exam);
+    } catch { finished.push(exam); }
     });
-
-    return { ongoingExams: ongoing, upcomingExams: upcoming, finishedExams: finished };
+    return {
+      ongoingExams: ongoing,
+      upcomingExams: upcoming.sort((a, b) => (a.startDate || "").localeCompare(b.startDate || "")),
+      finishedExams: finished.sort((a, b) => (b.endDate || b.startDate || "").localeCompare(a.endDate || a.startDate || ""))
+    };
   }, [masterData.exams, currentDate]);
 
   const isLoading = isSyncing || (activeProfile?.section && areEventsLoading);
@@ -719,6 +955,11 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
                   </>
                 )}
 
+                {/* Special Class Card */}
+                {displayConfig.showSpecialClass && activeSpecialClass && (
+                  <ExamEventCard specialClass={activeSpecialClass} />
+                )}
+
                 {/* Exam Card */}
                 {displayConfig.showExamCard && activeExamToday && (
                   <ExamEventCard exam={activeExamToday} />
@@ -764,55 +1005,49 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
 
       {/* =================== EXAMS TAB =================== */}
       {activeTab === "exams" && (
-        <div key={`exams-${toISODate(currentDate)}`} className={`${slideAnim} s2-desktop-layout`}>
+        <div key={toISODate(currentDate)} className={`${slideAnim} s2-desktop-layout`}>
 
-          {/* LEFT COLUMN: UPCOMING & FINISHED (Now on Left) */}
+          {/* LEFT COLUMN: UPCOMING & FINISHED */}
           <div className="s2-desktop-side">
             {/* Upcoming */}
             {upcomingExams.length > 0 && (
-              <>
-                <h2 className="s2-section-title" style={{ padding: "0 0 8px" }}>Upcoming Exams</h2>
+              <div style={{ marginBottom: '20px' }}>
+                <h2 className="s2-section-title" style={{ padding: '0 0 8px' }}>Upcoming Exams</h2>
                 {upcomingExams.map((exam, i) => (
-                  <ExamScheduleCard key={i} exam={exam} courses={masterData.courses || []} />
+                  <ExamScheduleCard key={i} exam={exam} courses={masterData.courses || []} defaultExpanded={false} viewDate={currentDate} />
                 ))}
-                <div className="s2-spacer-md" />
-              </>
+              </div>
             )}
 
-            {/* Finished (Collapsible) */}
+            {/* Finished */}
             {finishedExams.length > 0 && (
               <Collapsible title="Finished Exams">
                 {finishedExams.map((exam, i) => (
-                  <ExamScheduleCard key={i} exam={exam} courses={masterData.courses || []} />
+                  <ExamScheduleCard key={i} exam={exam} courses={masterData.courses || []} defaultExpanded={false} viewDate={currentDate} />
                 ))}
-                <div className="s2-spacer-md" />
               </Collapsible>
             )}
 
-            {/* Spacer if empty side to maintain layout integrity if needed */}
             {upcomingExams.length === 0 && finishedExams.length === 0 && (
               <div className="s2-spacer-lg" />
             )}
           </div>
 
-          {/* RIGHT COLUMN: ONGOING EXAMS (Now on Right) */}
+          {/* RIGHT COLUMN: ONGOING */}
           <div className="s2-desktop-main">
             {ongoingExams.length > 0 ? (
               <>
-                <h2 className="s2-section-title" style={{ padding: "0 0 8px" }}>Ongoing Exams</h2>
+                <h2 className="s2-section-title" style={{ padding: '0 0 8px' }}>Ongoing Exams</h2>
                 {ongoingExams.map((exam, i) => (
-                  <ExamScheduleCard key={i} exam={exam} courses={masterData.courses || []} />
+                  <ExamScheduleCard key={i} exam={exam} courses={masterData.courses || []} defaultExpanded={true} viewDate={currentDate} />
                 ))}
               </>
             ) : (
-              <>
-                <EmptyCard message={
-                  (upcomingExams.length > 0 || finishedExams.length > 0)
-                    ? "No ongoing exams"
-                    : "No exam timetables published for this section."
-                } />
-                <div className="s2-spacer-lg" />
-              </>
+              <EmptyCard message={
+                (upcomingExams.length > 0 || finishedExams.length > 0)
+                  ? "No ongoing exams"
+                  : "No exam timetables published for this section."
+              } />
             )}
           </div>
 

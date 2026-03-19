@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -16,8 +17,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
@@ -564,18 +567,38 @@ internal fun ScheduleSection(
         } else {
             var hasContent = false
             
+            // 0. Special Class
+            if (config.showSpecialClass && scheduleState.todaySpecialClass != null) {
+                hasContent = true
+                SpecialClassMiniCard(
+                    specialClass = scheduleState.todaySpecialClass,
+                    colors = colors
+                )
+            }
+            
             // A. Show Exam
             if (config.showExamCard) {
                 val activeExam = scheduleState.activeExamPeriod
                 val todaySub = scheduleState.todayExam
-                if (activeExam != null && todaySub != null) {
-                    hasContent = true
-                    ExamCard(
-                        exam = activeExam,
-                        subject = todaySub,
-                        courses = masterData.courses,
-                        colors = colors
-                    )
+                val todayBatches = scheduleState.todayBatches
+                
+                if (activeExam != null) {
+                    if (todaySub != null) {
+                        hasContent = true
+                        ExamCard(
+                            exam = activeExam,
+                            subject = todaySub,
+                            courses = masterData.courses,
+                            colors = colors
+                        )
+                    } else if (todayBatches.isNotEmpty()) {
+                        hasContent = true
+                        PracticalExamMiniCard(
+                            exam = activeExam,
+                            batchGroups = todayBatches,
+                            colors = colors
+                        )
+                    }
                 }
             }
 
@@ -864,6 +887,161 @@ internal fun ExamCard(
 }
 
 /**
+ * Practical Exam Mini Card - Matches web Dashboard practical exam layout
+ */
+@Composable
+internal fun PracticalExamMiniCard(
+    exam: ExamSchedule,
+    batchGroups: List<TodayBatchGroup>,
+    colors: HomeColors
+) {
+    Column(
+        modifier = Modifier.padding(bottom = HomeDimens.SpacingXl),
+        verticalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+    ) {
+        batchGroups.forEach { group ->
+            // Blue header card - matching standard ExamCard style
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = HomeDimens.SpacingSm),
+                shape = HomeShapes.Card,
+                colors = CardDefaults.cardColors(containerColor = colors.accent)
+            ) {
+                Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
+                    Text(
+                        text = "TODAY'S PRACTICAL EXAM",
+                        style = HomeTypography.ExamTag,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
+                    
+                    Row(
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.EmojiEvents,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.9f),
+                            modifier = Modifier
+                                .size(HomeDimens.IconSizeXxl)
+                                .padding(top = HomeDimens.SpacingXxxs)
+                        )
+                        
+                        Column {
+                            Text(
+                                text = exam.title,
+                                style = HomeTypography.ExamTitle,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "${group.code}: ${group.subjectName}",
+                                style = HomeTypography.ExamSubtitle,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Timetable Card for the individual batches
+            val batchPeriods = group.batches.mapIndexed { index, batch ->
+                val timeStr = "${DateTimeUtils.formatTimeForDisplay(batch.startTime)} - ${DateTimeUtils.formatTimeForDisplay(batch.endTime)}"
+                val facultyInfo = buildString {
+                    if (batch.totalCount.isNotEmpty()) append("${batch.totalCount} Students")
+                    if (batch.totalCount.isNotEmpty() && group.code.isNotEmpty()) append(" • ")
+                    if (group.code.isNotEmpty()) append(group.code)
+                }
+                PeriodDisplayData(
+                    number = index + 1,
+                    time = "",
+                    entries = listOf(
+                        PeriodSubEntry(
+                            code = timeStr,
+                            name = batch.registerRange,
+                            faculty = facultyInfo
+                        )
+                    ),
+                    isLab = false // We don't need the generic LAB badge here since we use the circle letter
+                )
+            }
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(HomeDimens.SpacingLg)
+            ) {
+                batchPeriods.forEachIndexed { index, period ->
+                    val batchInitial = group.batches.getOrNull(index)?.label?.takeIf { it.isNotEmpty() } 
+                        ?: (65 + index).toChar().toString() // A, B, C... fallback
+                        
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(HomeDimens.TimetableRowRadius),
+                        color = colors.surface
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = HomeDimens.TimetableRowPaddingH, vertical = HomeDimens.TimetableRowPaddingV),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            // Circle Label
+                            Surface(
+                                modifier = Modifier.size(HomeDimens.IconSizeLg),
+                                shape = CircleShape,
+                                color = colors.accent
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = batchInitial,
+                                        style = HomeTypography.CellHour,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.width(HomeDimens.Spacing10))
+                        
+                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(HomeDimens.Spacing10)) {
+                                period.entries.forEach { entry ->
+                                    Column {
+                                        Text(
+                                            text = entry.code,
+                                            style = HomeTypography.CourseCode,
+                                            color = colors.accent
+                                        )
+                                        
+                                        if (entry.name.isNotEmpty()) {
+                                            Spacer(modifier = Modifier.height(HomeDimens.SpacingXxxs))
+                                            Text(
+                                                text = entry.name,
+                                                style = HomeTypography.CourseName,
+                                                color = colors.textPrimary
+                                            )
+                                        }
+                                        
+                                        if (entry.faculty.isNotEmpty()) {
+                                            Spacer(modifier = Modifier.height(HomeDimens.SpacingXxxs))
+                                            Text(
+                                                text = entry.faculty,
+                                                style = HomeTypography.FacultyName,
+                                                color = colors.textSecondary
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
  * Meta Chip for exam cards
  */
 @Composable
@@ -997,6 +1175,45 @@ internal fun TimetableCard(
         }
     }
 }
+}
+
+/**
+ * Empty Event Card - Used when no academic events are present today
+ */
+@Composable
+internal fun EmptyEventCard(
+    message: String,
+    colors: HomeColors
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(bottom = HomeDimens.SpacingSm),
+        shape = HomeShapes.Item,
+        color = colors.surface
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = HomeDimens.CardPaddingHorizontal, vertical = HomeDimens.CardPaddingVertical),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Adaptive "White-like" indicator bar for empty state
+            Box(
+                modifier = Modifier
+                    .width(HomeDimens.PillIndicatorWidth)
+                    .height(HomeDimens.PillIndicatorHeight)
+                    .clip(RoundedCornerShape(HomeDimens.SmallRadius))
+                    .background(colors.textSecondary.copy(alpha = 0.2f))
+            )
+            
+            Spacer(modifier = Modifier.width(HomeDimens.SpacingXl))
+            
+            Text(
+                text = message,
+                style = HomeTypography.PillTitle,
+                color = colors.textSecondary
+            )
+        }
+    }
 }
 
 /**
@@ -1244,3 +1461,155 @@ fun rememberStatusBarHeight(): Dp {
 
 
 
+@Composable
+internal fun SpecialClassMiniCard(
+    specialClass: SpecialClass,
+    colors: HomeColors
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = HomeDimens.SpacingXl),
+        verticalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+    ) {
+        // 1. Blue header card - matching standard ExamCard style
+        Card(
+            modifier = Modifier.fillMaxWidth().padding(bottom = HomeDimens.SpacingSm),
+            shape = HomeShapes.Card,
+            colors = CardDefaults.cardColors(containerColor = colors.accent)
+        ) {
+            Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
+                Text(
+                    text = specialClass.typeTitle.uppercase(),
+                    style = HomeTypography.ExamTag,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+                
+                Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
+                
+                Row(
+                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Computer,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.9f),
+                        modifier = Modifier
+                            .size(HomeDimens.IconSizeXxl)
+                            .padding(top = HomeDimens.SpacingXxxs)
+                    )
+                    
+                    Column {
+                        Text(
+                            text = if (specialClass.title.isNotEmpty()) specialClass.title else "Scheduled for Today",
+                            style = HomeTypography.ExamTitle,
+                            color = Color.White
+                        )
+                        Text(
+                            text = if (specialClass.desc.isNotEmpty()) specialClass.desc else "Special classroom session or online meeting",
+                            style = HomeTypography.ExamSubtitle,
+                            color = Color.White.copy(alpha = 0.9f)
+                        )
+                    }
+                }
+            }
+        }
+
+        // 2. Timetable Cards for individual batches using exact Practical row styling
+        if (specialClass.batches.isNotEmpty()) {
+            val batchPeriods = specialClass.batches.mapIndexed { index, batch ->
+                val timeStr = "${DateTimeUtils.formatTimeForDisplay(batch.startTime)} - ${DateTimeUtils.formatTimeForDisplay(batch.endTime)}"
+                val facultyInfo = buildString {
+                    if (batch.faculty.isNotEmpty()) append(batch.faculty)
+                    if (batch.faculty.isNotEmpty() && batch.subjectCode.isNotEmpty()) append(" • ")
+                    if (batch.subjectCode.isNotEmpty()) append(batch.subjectCode)
+                }
+                PeriodDisplayData(
+                    number = index + 1,
+                    time = "",
+                    entries = listOf(
+                        PeriodSubEntry(
+                            code = timeStr,
+                            name = batch.subjectName,
+                            faculty = facultyInfo
+                        )
+                    ),
+                    isLab = false
+                )
+            }
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(HomeDimens.SpacingLg)
+            ) {
+                batchPeriods.forEachIndexed { index, period ->
+                    val batchInitial = specialClass.batches.getOrNull(index)?.circleLabel?.takeIf { it.isNotEmpty() } 
+                        ?: (index + 1).toString()
+                        
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(HomeDimens.TimetableRowRadius),
+                        color = colors.surface
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = HomeDimens.TimetableRowPaddingH, vertical = HomeDimens.TimetableRowPaddingV),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            // Circle Label
+                            Surface(
+                                modifier = Modifier.size(HomeDimens.IconSizeLg),
+                                shape = CircleShape,
+                                color = colors.accent
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = batchInitial,
+                                        style = HomeTypography.CellHour,
+                                        color = Color.White,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.width(HomeDimens.Spacing10))
+                        
+                            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(HomeDimens.Spacing10)) {
+                                period.entries.forEach { entry ->
+                                    Column {
+                                        Text(
+                                            text = entry.code,
+                                            style = HomeTypography.CourseCode,
+                                            color = colors.accent
+                                        )
+                                        
+                                        if (entry.name.isNotEmpty()) {
+                                            Spacer(modifier = Modifier.height(HomeDimens.SpacingXxxs))
+                                            Text(
+                                                text = entry.name,
+                                                style = HomeTypography.CourseName,
+                                                color = colors.textPrimary
+                                            )
+                                        }
+                                        
+                                        if (entry.faculty.isNotEmpty()) {
+                                            Spacer(modifier = Modifier.height(HomeDimens.SpacingXxxs))
+                                            Text(
+                                                text = entry.faculty,
+                                                style = HomeTypography.FacultyName,
+                                                color = colors.textSecondary
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
