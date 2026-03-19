@@ -148,8 +148,11 @@ object DailyUpdateHelper {
             val isMajorExamToday = examsToday.any { isMajor(it.title) || isMajor(it.type) } || 
                                    todaysEvents.any { isMajor(it.title) }
             
-            val isPracticalExamToday = examsToday.any { isPractical(it.title) || isPractical(it.type) } ||
-                                        todaysEvents.any { isPractical(it.title) }
+            val isPracticalExamToday = exams.any { it.subjects.any { s -> s.batches.any { b -> b.date == todayDateStr } } } ||
+                                    examsToday.any { isPractical(it.title) || isPractical(it.type) } ||
+                                    todaysEvents.any { isPractical(it.title) }
+
+            val isSpecialClassToday = masterData.specialClasses.any { it.date == todayDateStr }
 
             val isCycleTestToday = examsToday.any { isCycle(it.title) || isCycle(it.type) } ||
                                     todaysEvents.any { isCycle(it.title) }
@@ -439,8 +442,8 @@ object DailyUpdateHelper {
                 }
             }
 
-            // D. Timetable Logic: Suppress only if Major Exam or Practical Exam
-            val suppressSchedule = isMajorExamToday || isPracticalExamToday
+            // D. Timetable Logic: Suppress if Major Exam, Practical Exam, or Special Class
+            val suppressSchedule = isMajorExamToday || isPracticalExamToday || isSpecialClassToday
             if (classScheduleEnabled && !isHoliday && !suppressSchedule) {
                 val periods = timetable[dayKey]
                 if (!periods.isNullOrEmpty()) {
