@@ -162,38 +162,40 @@ object DailyUpdateHelper {
             // Automated Messages Logic (Lab & Exam)
             val automatedNotices = mutableListOf<String>()
             
-            if (!isHoliday) {
+            if (!isHoliday && !isSpecialClassToday) {
                 // Lab Logic
                 if (labRemindersEnabled) {
-                    val periods = timetable[dayKey] ?: emptyList()
-                    val labsToday = mutableListOf<Pair<String, String>>()
-                    
-                    periods.forEach { code ->
-                        val codes = if (code.contains("/")) code.split("/") else listOf(code)
-                        codes.forEach { part ->
-                            val trimmed = part.trim()
-                            val parts = trimmed.split(" ")
-                            val pureCode = parts.first()
-                            val suffix = parts.getOrNull(1) ?: ""
-                            val isBatchSuffix = suffix.matches(Regex("^[A-Za-z]\\d+$"))
-                            
-                            if (isBatchSuffix) {
-                                val course = courses.find { it.code == trimmed } ?: courses.find { it.code == pureCode }
-                                if (course != null) {
-                                    labsToday.add(suffix to course.name)
+                    if (isPracticalExamToday || isMajorExamToday) {
+                        automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
+                    } else {
+                        val periods = timetable[dayKey] ?: emptyList()
+                        val labsToday = mutableListOf<Pair<String, String>>()
+                        
+                        periods.forEach { code ->
+                            val codes = if (code.contains("/")) code.split("/") else listOf(code)
+                            codes.forEach { part ->
+                                val trimmed = part.trim()
+                                val parts = trimmed.split(" ")
+                                val pureCode = parts.first()
+                                val suffix = parts.getOrNull(1) ?: ""
+                                val isBatchSuffix = suffix.matches(Regex("^[A-Za-z]\\d+$"))
+                                
+                                if (isBatchSuffix) {
+                                    val course = courses.find { it.code == trimmed } ?: courses.find { it.code == pureCode }
+                                    if (course != null) {
+                                        labsToday.add(suffix to course.name)
+                                    }
                                 }
                             }
                         }
-                    }
-                    
-                    if (labsToday.isNotEmpty() && !isMajorExamToday) {
-                        labsToday.distinctBy { it.first + it.second }.forEach { (batchSuffix, subjectName) ->
-                            val cleanedName = getCleanSubjectName(subjectName)
-                            automatedNotices.add("Lab for Batch $batchSuffix: $cleanedName")
+                        
+                        if (labsToday.isNotEmpty()) {
+                            labsToday.distinctBy { it.first + it.second }.forEach { (batchSuffix, subjectName) ->
+                                val cleanedName = getCleanSubjectName(subjectName)
+                                automatedNotices.add("Lab for Batch $batchSuffix: $cleanedName")
+                            }
+                            automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
                         }
-                        automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
-                    } else if (isPracticalExamToday) {
-                        automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
                     }
                 }
                 
