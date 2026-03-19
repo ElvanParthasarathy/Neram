@@ -248,7 +248,7 @@ class DailyUpdateWorker(
                     val tomorrowStr = tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     
                     exams.forEach { exam ->
-                        // 1. Notify for Today
+                        // 1. Regular Exams (date on subject level)
                         val subjectToday = exam.subjects.find { it.date == todayDateStr }
                         if (subjectToday != null) {
                             val courseName = courses.find { it.code == subjectToday.code }?.name ?: subjectToday.code
@@ -276,7 +276,6 @@ class DailyUpdateWorker(
                             }
                         }
 
-                        // 2. Notify for Tomorrow
                         val subjectTomorrow = exam.subjects.find { it.date == tomorrowStr }
                         if (subjectTomorrow != null) {
                             val courseName = courses.find { it.code == subjectTomorrow.code }?.name ?: subjectTomorrow.code
@@ -295,6 +294,116 @@ class DailyUpdateWorker(
                                 prefs.edit().putString("last_exam_tomorrow_notif", title).apply()
                             }
                         }
+
+                        // 2. Practical Exams (date on batch level)
+                        exam.subjects.forEach { sub ->
+                            if (sub.batches.isNotEmpty()) {
+                                val courseName = courses.find { it.code == sub.code }?.name ?: sub.code
+                                
+                                // Today's practical batches
+                                val todayBatches = sub.batches.filter { it.date == todayDateStr }
+                                if (todayBatches.isNotEmpty()) {
+                                    val batchDetails = todayBatches.joinToString("\n") { b ->
+                                        val batchLabel = if (b.label.isNotBlank()) "Batch ${b.label}" else ""
+                                        val timeStr = if (b.startTime.isNotBlank()) "${b.startTime} - ${b.endTime}" else ""
+                                        val regStr = if (b.registerRange.isNotBlank()) "Reg: ${b.registerRange}" else ""
+                                        val countStr = if (b.totalCount.isNotBlank()) "${b.totalCount} Students" else ""
+                                        listOf(batchLabel, timeStr, regStr, countStr)
+                                            .filter { it.isNotBlank() }
+                                            .joinToString(" • ")
+                                    }
+                                    val title = "Practical Exam Today: $courseName"
+                                    val message = "${exam.title}\n$batchDetails"
+                                    val nId = (todayDateStr + "prac" + sub.code).hashCode()
+                                    
+                                    val pracKey = "last_prac_today_${sub.code}"
+                                    if (prefs.getString(pracKey, "") != title) {
+                                        NotificationHelper.showNotification(
+                                            applicationContext,
+                                            title,
+                                            message,
+                                            NotificationHelper.CHANNEL_ID_EXAMS,
+                                            notificationId = nId
+                                        )
+                                        db.notificationDao().insertNotification(
+                                            NotificationEntity(
+                                                title = title,
+                                                message = message,
+                                                timestamp = System.currentTimeMillis(),
+                                                type = "exam"
+                                            )
+                                        )
+                                        prefs.edit().putString(pracKey, title).apply()
+                                    }
+                                }
+                                
+                                // Tomorrow's practical batches
+                                val tomorrowBatches = sub.batches.filter { it.date == tomorrowStr }
+                                if (tomorrowBatches.isNotEmpty()) {
+                                    val batchDetails = tomorrowBatches.joinToString("\n") { b ->
+                                        val batchLabel = if (b.label.isNotBlank()) "Batch ${b.label}" else ""
+                                        val timeStr = if (b.startTime.isNotBlank()) "${b.startTime} - ${b.endTime}" else ""
+                                        val regStr = if (b.registerRange.isNotBlank()) "Reg: ${b.registerRange}" else ""
+                                        val countStr = if (b.totalCount.isNotBlank()) "${b.totalCount} Students" else ""
+                                        listOf(batchLabel, timeStr, regStr, countStr)
+                                            .filter { it.isNotBlank() }
+                                            .joinToString(" • ")
+                                    }
+                                    val title = "Practical Exam Tomorrow: $courseName"
+                                    val message = "${exam.title}\n$batchDetails"
+                                    val nId = (todayDateStr + "practmrw" + sub.code).hashCode()
+                                    
+                                    val pracKey = "last_prac_tmrw_${sub.code}"
+                                    if (prefs.getString(pracKey, "") != title) {
+                                        NotificationHelper.showNotification(
+                                            applicationContext,
+                                            title,
+                                            message,
+                                            NotificationHelper.CHANNEL_ID_EXAMS,
+                                            notificationId = nId
+                                        )
+                                        prefs.edit().putString(pracKey, title).apply()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // B2. Special Class Alerts
+                val specialClasses = masterData.specialClasses
+                val todaySpecialClass = specialClasses.find { it.date == todayDateStr }
+                if (todaySpecialClass != null) {
+                    val specialKey = "last_special_${todaySpecialClass.id}"
+                    if (prefs.getString(specialKey, "") != todayDateStr) {
+                        val batchInfo = todaySpecialClass.batches.joinToString("\n") { b ->
+                            val timeStr = if (b.startTime.isNotBlank()) "${b.startTime} - ${b.endTime}" else ""
+                            val subStr = if (b.subjectName.isNotBlank()) b.subjectName else b.subjectCode
+                            val facStr = if (b.faculty.isNotBlank()) "Faculty: ${b.faculty}" else ""
+                            listOf(subStr, timeStr, facStr).filter { it.isNotBlank() }.joinToString(" • ")
+                        }
+                        val title = todaySpecialClass.typeTitle.ifBlank { "Special Class" } + " Today"
+                        val message = if (todaySpecialClass.title.isNotBlank()) {
+                            "${todaySpecialClass.title}\n$batchInfo"
+                        } else batchInfo
+                        val nId = (todayDateStr + "special" + todaySpecialClass.id).hashCode()
+                        
+                        NotificationHelper.showNotification(
+                            applicationContext,
+                            title,
+                            message,
+                            NotificationHelper.CHANNEL_ID_EXAMS,
+                            notificationId = nId
+                        )
+                        db.notificationDao().insertNotification(
+                            NotificationEntity(
+                                title = title,
+                                message = message,
+                                timestamp = System.currentTimeMillis(),
+                                type = "special_class"
+                            )
+                        )
+                        prefs.edit().putString(specialKey, todayDateStr).apply()
                     }
                 }
                 
