@@ -171,7 +171,7 @@ object DailyUpdateHelper {
                 if (labRemindersEnabled) {
                     if (isPracticalExamToday) {
                         automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
-                    } else if (!isMajorExamToday && !isCycleTestToday) {
+                    } else if (!isMajorExamToday) {
                         val periods = timetable[dayKey] ?: emptyList()
                         val labsToday = mutableListOf<Pair<String, String>>()
                         
