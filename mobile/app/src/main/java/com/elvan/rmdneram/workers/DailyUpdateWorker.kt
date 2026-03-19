@@ -376,11 +376,17 @@ class DailyUpdateWorker(
                 if (todaySpecialClass != null) {
                     val specialKey = "last_special_${todaySpecialClass.id}"
                     if (prefs.getString(specialKey, "") != todayDateStr) {
-                        val batchInfo = todaySpecialClass.batches.joinToString("\n") { b ->
-                            val timeStr = if (b.startTime.isNotBlank()) "${b.startTime} - ${b.endTime}" else ""
+                        val batchInfo = todaySpecialClass.batches.joinToString("\n\n") { b ->
                             val subStr = if (b.subjectName.isNotBlank()) b.subjectName else b.subjectCode
-                            val facStr = if (b.faculty.isNotBlank()) "Faculty: ${b.faculty}" else ""
-                            listOf(subStr, timeStr, facStr).filter { it.isNotBlank() }.joinToString(" • ")
+                            val timeStr = if (b.startTime.isNotBlank()) "${b.startTime} - ${b.endTime}" else ""
+                            val facStr = if (b.faculty.isNotBlank()) b.faculty else ""
+                            
+                            val lines = mutableListOf<String>()
+                            if (subStr.isNotBlank()) {
+                                lines.add(if (facStr.isNotBlank()) "$subStr ($facStr)" else subStr)
+                            }
+                            if (timeStr.isNotBlank()) lines.add(timeStr)
+                            lines.joinToString("\n")
                         }
                         val title = todaySpecialClass.typeTitle.ifBlank { "Special Class" } + " Today"
                         val message = if (todaySpecialClass.title.isNotBlank()) {
