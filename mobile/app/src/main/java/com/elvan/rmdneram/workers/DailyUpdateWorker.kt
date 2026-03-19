@@ -111,7 +111,11 @@ class DailyUpdateWorker(
             val tomorrow = today.plusDays(1)
             val tomorrowStr = tomorrow.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
-            fun isMajor(title: String) = title.lowercase().let { t -> t.contains("sia") || t.contains("internal") || t.contains("model") || t.contains("semester") || t.contains("fia") }
+            fun isMajor(title: String) = title.lowercase().let { t -> 
+                t.contains("sia") || t.contains("internal") || t.contains("model") || 
+                t.contains("semester") || t.contains("fia") || 
+                t.split(" ", "-", "/").any { it == "ia" }
+            }
             fun isPractical(title: String) = title.lowercase().let { t -> t.contains("practical") || t.contains("lab") || t.contains("iesw") }
             fun isCycle(title: String) = title.lowercase().let { t -> t.contains("cycle") || t.contains("ct") }
 
@@ -135,9 +139,9 @@ class DailyUpdateWorker(
             if (!isHoliday && !isSpecialClassToday) {
                 // Lab Logic
                 if (labRemindersEnabled) {
-                    if (isPracticalExamToday || isMajorExamToday) {
+                    if (isPracticalExamToday) {
                         automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
-                    } else {
+                    } else if (!isMajorExamToday && !isCycleTestToday) {
                         val periods = timetable[dayKey] ?: emptyList()
                         val labsToday = mutableListOf<Pair<String, String>>()
                         
@@ -183,7 +187,7 @@ class DailyUpdateWorker(
             // Fetch everything under the section node once
             val sectionSnapshot = updatesRef.get().await()
             
-            // A. Daily Update Logic (With Deduplication)
+            // A. Daily Update & General Notice
             if (dailyUpdateEnabled) {
                 val dailyUpdateSnapshot = sectionSnapshot.child("daily_update").child(todayDateStr)
                 

@@ -141,7 +141,11 @@ object DailyUpdateHelper {
             // 1. Identify Exam Types for Today
             val examsToday = exams.filter { it.subjects.any { s -> s.date == todayDateStr } }
             
-            fun isMajor(title: String) = title.lowercase().let { t -> t.contains("sia") || t.contains("internal") || t.contains("model") || t.contains("semester") || t.contains("fia") }
+            fun isMajor(title: String) = title.lowercase().let { t -> 
+                t.contains("sia") || t.contains("internal") || t.contains("model") || 
+                t.contains("semester") || t.contains("fia") || 
+                t.split(" ", "-", "/").any { it == "ia" }
+            }
             fun isPractical(title: String) = title.lowercase().let { t -> t.contains("practical") || t.contains("lab") || t.contains("iesw") }
             fun isCycle(title: String) = title.lowercase().let { t -> t.contains("cycle") || t.contains("ct") }
 
@@ -165,9 +169,9 @@ object DailyUpdateHelper {
             if (!isHoliday && !isSpecialClassToday) {
                 // Lab Logic
                 if (labRemindersEnabled) {
-                    if (isPracticalExamToday || isMajorExamToday) {
+                    if (isPracticalExamToday) {
                         automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
-                    } else {
+                    } else if (!isMajorExamToday && !isCycleTestToday) {
                         val periods = timetable[dayKey] ?: emptyList()
                         val labsToday = mutableListOf<Pair<String, String>>()
                         
