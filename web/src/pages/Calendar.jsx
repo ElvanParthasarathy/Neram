@@ -64,7 +64,7 @@ const EVENT_POSITION = {
 const useCalendarData = (globalData, selectedDate, currentMonth) => {
   const allEvents = useMemo(() => {
     const events = globalData?.allCalendar || [];
-    return [...events].sort((a, b) => a.date.localeCompare(b.date));
+    return [...events].sort((a, b) => (a.startDate || a.date).localeCompare(b.startDate || b.date));
   }, [globalData]);
 
   const toISO = (date) => {
@@ -81,7 +81,7 @@ const useCalendarData = (globalData, selectedDate, currentMonth) => {
 
     // 1. Expand events into daily entries
     allEvents.forEach(event => {
-      const start = new Date(event.date);
+      const start = new Date(event.startDate || event.date);
       const end = event.endDate ? new Date(event.endDate) : start;
       const diffDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
@@ -100,7 +100,7 @@ const useCalendarData = (globalData, selectedDate, currentMonth) => {
     // 2. Group Consecutive Events
     const consecutiveGroups = [];
     const eventsByTitle = {};
-    const sortedAll = [...allEvents].sort((a, b) => a.date.localeCompare(b.date));
+    const sortedAll = [...allEvents].sort((a, b) => (a.startDate || a.date).localeCompare(b.startDate || b.date));
 
     sortedAll.forEach(e => {
       const title = e.title;
@@ -117,8 +117,8 @@ const useCalendarData = (globalData, selectedDate, currentMonth) => {
           currentGroup.push(e);
         } else {
           const lastEvent = currentGroup[currentGroup.length - 1];
-          const lastDate = new Date(lastEvent.date);
-          const currDate = new Date(e.date);
+          const lastDate = new Date(lastEvent.startDate || lastEvent.date);
+          const currDate = new Date(e.startDate || e.date);
           const diff = (currDate - lastDate) / (1000 * 60 * 60 * 24);
 
           if (diff <= 1) {
@@ -135,7 +135,7 @@ const useCalendarData = (globalData, selectedDate, currentMonth) => {
     // 3. Transform groups into allocatable entities
     const allocGroups = consecutiveGroups.map((group, idx) => {
       const firstEvent = group[0];
-      const start = new Date(firstEvent.date);
+      const start = new Date(firstEvent.startDate || firstEvent.date);
       // Logic for end date of group needed adjustment? 
       // Simplified: Find min start and max end of all events in group if needed, 
       // but consecutive logic implies linear sequence.
@@ -145,7 +145,7 @@ const useCalendarData = (globalData, selectedDate, currentMonth) => {
 
       // Recalculating duration based on group start/end
       const lastEvent = group[group.length - 1];
-      const endStr = lastEvent.endDate || lastEvent.date;
+      const endStr = lastEvent.endDate || lastEvent.startDate || lastEvent.date;
       const end = new Date(endStr);
       const duration = Math.floor((end - start) / 86400000) + 1;
 
@@ -417,14 +417,15 @@ const MobileScheduleView = ({ allEvents, currentMonth, onEventClick, onMonthChan
   const grouped = useMemo(() => {
     // FILTER: Only show events for the current month
     const monthEvents = allEvents.filter(e => {
-      const d = new Date(e.date);
+      const d = new Date(e.startDate || e.date);
       return d.getMonth() === currentMonth.getMonth() && d.getFullYear() === currentMonth.getFullYear();
     });
 
     const groups = {};
     monthEvents.forEach(e => {
-      if (!groups[e.date]) groups[e.date] = [];
-      groups[e.date].push(e);
+      const startDStr = e.startDate || e.date;
+      if (!groups[startDStr]) groups[startDStr] = [];
+      groups[startDStr].push(e);
     });
     return Object.keys(groups).sort().map(date => ({
       date,
@@ -673,7 +674,9 @@ const MobileCalendar = ({ globalData, userProfile, activeProfile }) => {
     const dateToView = new Date(selectedDate);
     dateToView.setDate(selectedDate.getDate() + offset);
     const ds = toISO(dateToView);
-    const events = allEvents.filter(e => e.date === ds);
+    const events = allEvents.filter(e => {
+      return ds >= (e.startDate || e.date) && ds <= (e.endDate || e.startDate || e.date);
+    });
 
     return (
       <div className="cal-mob-agenda-list" style={{ width: '100%', minHeight: '200px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -893,12 +896,13 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
 
   const renderScheduleView = () => {
     const monthEvents = allEvents.filter(e => {
-      const d = new Date(e.date);
+      const d = new Date(e.startDate || e.date);
       return d.getMonth() === currentMonth.getMonth() && d.getFullYear() === currentMonth.getFullYear();
     });
     const grouped = monthEvents.reduce((acc, event) => {
-      if (!acc[event.date]) acc[event.date] = [];
-      acc[event.date].push(event);
+      const dStr = event.startDate || event.date;
+      if (!acc[dStr]) acc[dStr] = [];
+      acc[dStr].push(event);
       return acc;
     }, {});
     const sortedDates = Object.keys(grouped).sort();
@@ -943,7 +947,10 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
   };
 
   const renderAgendaContent = () => {
-    const todaysEvents = allEvents.filter(e => e.date === toISO(selectedDate));
+    const todaysEvents = allEvents.filter(e => {
+      const selISO = toISO(selectedDate);
+      return selISO >= (e.startDate || e.date) && selISO <= (e.endDate || e.startDate || e.date);
+    });
     return (
       <AnimatePresence mode="popLayout" initial={false} custom={agendaDirection}>
         <motion.div

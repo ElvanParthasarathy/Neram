@@ -115,10 +115,6 @@ html.dark .s2-view-tabs .s2-tab-indicator {
     box-sizing: border-box;
 }
 
-.s2-mobile-date-input {
-    display: none;
-}
-
 .s2-date-nav-group {
     display: flex;
     align-items: center;
@@ -1198,26 +1194,10 @@ html.dark .s2-prac-date-header {
         z-index: 0;
     }
 
-    .s2-mobile-date-input:active~.s2-calendar-trigger-btn,
     .s2-calendar-trigger-btn:active {
         transform: scale(0.92);
         background: rgba(0, 0, 0, 0.1);
         border-radius: 50%;
-    }
-
-    .s2-mobile-date-input {
-        display: block;
-        position: absolute;
-        top: -10px;
-        left: -10px;
-        right: -10px;
-        bottom: -10px;
-        width: auto;
-        height: auto;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 10;
-        -webkit-appearance: none;
     }
 
     /* Stack columns in Kotlin order:

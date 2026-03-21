@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { auth, db } from "../../firebase";
 import { ref, onValue, update } from "firebase/database";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../utils/timeUtils";
+import HybridDateInput from '../../components/HybridDateInput';
 import {
     RiUser3Line,
     RiRefreshLine,
@@ -51,6 +55,7 @@ const ProfileView = ({ userProfile, onBack }) => {
     const user = auth.currentUser;
     const [formData, setFormData] = useState({});
     const [editingField, setEditingField] = useState(null);
+    const [isMobile, setIsMobile] = useState(window.matchMedia("(max-width: 768px)").matches);
     const [hierarchy, setHierarchy] = useState({});
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -75,6 +80,12 @@ const ProfileView = ({ userProfile, onBack }) => {
     const getBatches = () => hierarchy ? Object.keys(hierarchy).sort() : [];
     const getDepartments = (batch) => (hierarchy && hierarchy[batch]) ? Object.keys(hierarchy[batch]).filter(d => d !== 'initialized').sort() : [];
     const getSections = (batch, dept) => (hierarchy && hierarchy[batch] && hierarchy[batch][dept]) ? Object.values(hierarchy[batch][dept]).sort() : [];
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const handleSave = (field, overrideValue) => {
         if (!user?.uid) return;
@@ -199,10 +210,11 @@ const ProfileView = ({ userProfile, onBack }) => {
                     <div className="s2-complaint-field">
                         <div className="s2-complaint-label">Date of Birth</div>
                         <div className="s2-date-input-wrap">
-                            <input className="s2-complaint-input s2-date-input" type="date"
-                                value={formData.birthday || ""}
-                                onChange={e => setFormData(d => ({ ...d, birthday: e.target.value }))} />
-                            <RiCalendarLine className="s2-date-icon" />
+                            <HybridDateInput
+                                value={formData.birthday}
+                                onChange={(val) => setFormData(d => ({ ...d, birthday: val }))}
+                                inputClass="s2-complaint-input"
+                            />
                         </div>
                     </div>
                 </ProfileField>

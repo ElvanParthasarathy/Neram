@@ -291,65 +291,7 @@
     }
 
     /* --- 3. EDITOR WORKSPACE & TABS (PILL SWITCHER) --- */
-    .editor-tabs {
-        display: inline-flex;
-        background: #1C1C1E;
-        /* Match Dashboard Pills in Dark Mode */
-        padding: 4px;
-        border-radius: 100px;
-        margin-bottom: 30px;
-        gap: 4px;
-        border: none !important;
-        box-shadow: none !important;
-    }
 
-    .editor-tabs button {
-        border: none;
-        background: transparent;
-        padding: 10px 24px;
-        border-radius: 100px;
-        font-size: 14px;
-        font-weight: 700;
-        color: #8E8E93;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1);
-        letter-spacing: -0.2px;
-    }
-
-    .editor-tabs button svg {
-        font-size: 18px;
-        color: #8E8E93;
-    }
-
-    .editor-tabs button.active {
-        background: var(--mac-selection-bg);
-        /* Use Dashboard Selection Color */
-        color: var(--mac-blue);
-    }
-
-    .editor-tabs button.active svg {
-        color: var(--mac-blue);
-    }
-
-    .editor-tabs button:hover:not(.active) {
-        background: var(--mac-selection-hover);
-        color: var(--mac-text);
-    }
-
-    /* Light Mode Adaptation for Pill */
-    html:not(.dark) .editor-tabs {
-        background: var(--mac-bg-secondary);
-        box-shadow: none;
-    }
-
-    html:not(.dark) .editor-tabs button.active {
-        background: var(--mac-card-bg);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        color: var(--mac-blue);
-    }
 
     /* --- 4. TIMETABLE BUILDER --- */
     .timetable-builder {
@@ -1231,8 +1173,10 @@
     }
 
     .tt-day-title {
-        font-size: 20px;
-        font-weight: 800;
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--mac-text);
         margin: 0;
     }
 
@@ -1248,16 +1192,17 @@
     }
 
     .tt-period-card {
-        background: var(--mac-sidebar-bg);
-        border: 1px solid var(--mac-divider);
+        background: var(--mac-card-bg);
+        border: none;
         border-radius: 16px;
         padding: 16px;
         transition: all 0.2s ease;
     }
 
     .tt-period-card.editing {
-        border-color: rgba(0, 122, 255, 0.3);
-        background: var(--mac-card-bg);
+        background: var(--mac-sidebar-bg);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     }
 
     .tt-period-label {
@@ -1270,14 +1215,18 @@
     }
 
     .tt-period-value {
-        font-size: 15px;
+        display: inline-flex;
+        align-items: center;
+        font-size: 13px;
         font-weight: 600;
         color: var(--mac-text);
-        padding: 10px 14px;
+        padding: 8px 18px;
         background: var(--mac-bg-secondary);
-        border-radius: 10px;
+        border-radius: 100px;
         min-height: 20px;
         word-break: break-word;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .tt-empty {
@@ -1287,13 +1236,13 @@
 
     .tt-period-input {
         width: 100%;
-        height: 44px;
+        height: 34px;
         background: var(--mac-bg-secondary);
-        border: 1.5px solid var(--mac-divider);
-        border-radius: 10px;
-        padding: 0 14px;
+        border: 1.5px solid transparent;
+        border-radius: 100px;
+        padding: 0 18px;
         color: var(--mac-text);
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 500;
         box-sizing: border-box;
         transition: border-color 0.2s ease;
@@ -1304,6 +1253,7 @@
         outline: none;
         box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
     }
+
 
 }
 
@@ -1542,8 +1492,9 @@
     }
     
     .premium-add-submit-btn {
-        height: 44px;
+        height: 34px;
         font-size: 13px;
+        padding: 0 16px;
     }
 }
 
@@ -1568,10 +1519,10 @@
 
 .premium-add-input {
     background: var(--mac-bg-secondary) !important;
-    border: 1.5px solid var(--mac-border) !important;
-    border-radius: 100px;
+    border: 1px solid var(--mac-border) !important;
+    border-radius: 100px !important;
     padding: 12px 20px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
     color: var(--mac-text);
     width: 100%;
@@ -1590,21 +1541,21 @@
     color: white;
     border: none;
     border-radius: 100px;
-    height: 48px;
+    height: 36px;
+    padding: 0 20px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .premium-add-submit-btn:hover {
     filter: brightness(1.05);
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.2);
 }
 
 .premium-add-submit-btn:active {
@@ -1692,10 +1643,10 @@
 }
 
 .master-header-title {
-    font-size: 20px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--mac-text) !important;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.01em;
     margin: 0;
     line-height: 1;
 }
@@ -1745,9 +1696,14 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
+    min-width: 80px;
+    height: 36px;
+    box-sizing: border-box;
     gap: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
+    outline: none;
 }
 
 .master-header-row .role-header-pill:hover {
@@ -1909,6 +1865,15 @@
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.pill-group.full-width {
+    width: 100%;
+}
+
+.pill-group.full-width .premium-pill-btn {
+    flex: 1;
+    justify-content: center;
 }
 
 .bulk-action-footer-premium.danger-mode .premium-pill-btn.secondary {
@@ -2230,7 +2195,6 @@
         flex-direction: column;
         align-items: stretch;
         gap: 20px;
-        padding: 0 16px;
     }
 
     .master-header-title-wrap {
@@ -2256,7 +2220,7 @@
     .bulk-action-footer-premium .premium-pill-btn {
         width: 100%;
         justify-content: center;
-        padding: 14px 24px;
+        padding: 10px 24px;
     }
 
     .pill-group {
@@ -2268,7 +2232,7 @@
     .pill-group .premium-pill-btn {
         width: 100%;
         justify-content: center;
-        padding: 12px 24px;
+        padding: 10px 24px;
     }
 }
 
@@ -2297,7 +2261,7 @@
     .card-actions-area { width: 100% !important; flex-direction: row !important; gap: 8px !important; display: flex !important; margin-left: 0 !important; }
     .card-actions-area button { flex: 1 !important; justify-content: center !important; margin: 0 !important; }
     
-    .edit-list-btn { border: none !important; background: var(--mac-selection-bg) !important; color: var(--mac-blue) !important; padding: 8px 16px !important; border-radius: 100px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 6px !important; transition: all 0.2s !important; }
+    .edit-list-btn { border: none !important; background: var(--mac-card-bg) !important; color: var(--mac-blue) !important; padding: 8px 16px !important; border-radius: 100px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 6px !important; transition: all 0.2s !important; }
     .edit-list-btn:hover { background: var(--mac-blue-15) !important; transform: scale(1.05) !important; }
     
     .role-editor-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
@@ -2323,7 +2287,7 @@
     .edit-pill-actions { width: 100% !important; flex-direction: row !important; gap: 8px !important; display: flex !important; }
     .edit-pill-actions button { flex: 1 !important; justify-content: center !important; margin: 0 !important; }
     
-    .edit-list-btn { border: none !important; background: var(--mac-selection-bg) !important; color: var(--mac-blue) !important; padding: 8px 16px !important; border-radius: 100px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 6px !important; transition: all 0.2s !important; }
+    .edit-list-btn { border: none !important; background: var(--mac-card-bg) !important; color: var(--mac-blue) !important; padding: 8px 16px !important; border-radius: 100px !important; font-size: 13px !important; font-weight: 600 !important; cursor: pointer !important; display: flex !important; align-items: center !important; gap: 6px !important; transition: all 0.2s !important; }
     .edit-list-btn:hover { background: var(--mac-blue-15) !important; transform: scale(1.05) !important; }
     
     .role-editor-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
@@ -2350,11 +2314,17 @@
     border: none;
 }
 
-.s2-mapping-card:hover {
+.s2-mapping-card:not(.add-mapping-container):not(.editing):hover {
     background: var(--mac-selection-hover);
 }
 
+.s2-mapping-card.add-mapping-container:hover {
+    background: var(--mac-card-bg);
+}
+
 .s2-mapping-card.editing {
+    flex-direction: column !important;
+    align-items: stretch !important;
     border-radius: 24px;
     padding: 24px;
     background: var(--mac-sidebar-bg);
@@ -2403,11 +2373,13 @@
 .s2-mapping-pill {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 4px 12px;
+    gap: 8px;
+    padding: 8px 18px;
     border-radius: 100px;
-    font-size: 10.5px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    transition: all 0.2s ease;
 }
 
 .s2-mapping-pill svg {
@@ -2436,22 +2408,24 @@ html.dark .s2-mapping-card {
     border-color: rgba(255, 255, 255, 0.08);
 }
 
-html.dark .s2-mapping-card:hover {
+html.dark .s2-mapping-card:not(.add-mapping-container):not(.editing):hover {
     background: rgba(255, 255, 255, 0.05);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 /* Clean mobile layout overrides without needing crazy !important hacks */
 @media (max-width: 768px) {
-    .s2-mapping-card {
-        flex-direction: column;
-        align-items: flex-start;
+    .s2-mapping-card,
+    .master-item-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
         padding: 24px;
         gap: 12px;
         margin-bottom: 16px;
     }
     
-    .s2-mapping-card .code-badge {
+    .s2-mapping-card .code-badge,
+    .master-item-card .course-code-badge {
         font-size: 12px;
     }
     
@@ -2485,6 +2459,10 @@ html.dark .s2-mapping-card:hover {
     
     .pill-inline-edit {
         opacity: 1 !important;
+        width: 100% !important;
+        height: 34px !important;
+        border-radius: 100px !important;
+        margin-top: 8px;
     }
 }
 
@@ -2526,6 +2504,37 @@ html.dark .s2-mapping-card:hover {
     align-items: center;
     gap: 16px;
     flex: 1;
+}
+
+.mac-checkbox {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    cursor: pointer;
+    accent-color: var(--mac-blue);
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.edit-list-btn {
+    border: none;
+    background: var(--mac-card-bg);
+    color: var(--mac-blue);
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.edit-list-btn:hover {
+    background: var(--mac-blue-15);
+    transform: scale(1.03);
 }
 
 .item-text-stack {
@@ -2571,7 +2580,8 @@ html.dark .s2-mapping-card:hover {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.master-item-card:hover .pill-inline-edit {
+.master-item-card:hover .pill-inline-edit,
+.s2-mapping-card:hover .pill-inline-edit {
     opacity: 1;
 }
 
@@ -2579,3 +2589,679 @@ html.dark .s2-mapping-card:hover {
     filter: brightness(1.1);
 }
 
+
+.section-title-premium {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--mac-text);
+    margin: 0;
+}
+
+/* --- GLOBAL PILL SWITCHER TABS (EDITOR WORKSPACE) --- */
+.editor-tabs {
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 4px;
+    border-radius: 100px;
+    margin-bottom: 30px;
+    gap: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+html.dark .editor-tabs {
+    background: var(--mac-card-bg);
+    border: none;
+}
+
+.editor-tabs button {
+    border: none;
+    background: transparent;
+    padding: 8px 24px;
+    border-radius: 100px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.editor-tabs button svg {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.editor-tabs button.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #FFFFFF;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .editor-tabs button.active {
+    background: rgba(255, 255, 255, 0.06);
+    color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.editor-tabs button:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--mac-text);
+}
+
+html:not(.dark) .editor-tabs {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+html:not(.dark) .editor-tabs button.active {
+    background: #FFFFFF;
+    color: var(--mac-text);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+@media (max-width: 768px) {
+    .editor-tabs {
+        display: flex; /* Full width flex on mobile */
+        margin-bottom: 20px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+        scrollbar-width: none;
+    }
+    .editor-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .editor-tabs button {
+        padding: 8px 16px;
+        font-size: 12.5px;
+        flex-shrink: 0;
+    }
+}
+
+/* =====================================================================
+   SECTION ROLES & COUNSELORS — BRAND NEW DESIGN SYSTEM (sr-* / cr-*)
+   ===================================================================== */
+
+/* === Tab Wrapper === */
+.sr-tab-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* === Shared Card Base === */
+.sr-card, .cr-card {
+    background: var(--mac-card-bg);
+    border-radius: 20px;
+    padding: 28px;
+    border: none;
+}
+
+/* === Section Roles Card === */
+
+/* Header */
+.sr-header, .cr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.sr-header-left, .cr-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sr-header-icon, .cr-header-icon {
+    font-size: 20px;
+    color: var(--mac-blue);
+    flex-shrink: 0;
+}
+
+.sr-title, .cr-title {
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--mac-text);
+    margin: 0;
+}
+
+.sr-sec-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--mac-blue);
+    background: var(--mac-blue-15);
+    padding: 3px 10px;
+    border-radius: 100px;
+}
+
+.cr-count-badge {
+    font-size: 12px;
+    font-weight: 700;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100px;
+    background: var(--mac-blue-15);
+    color: var(--mac-blue);
+}
+
+/* Action Buttons */
+.sr-tab-wrapper .sr-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: var(--mac-card-bg);
+    color: var(--mac-text);
+    transition: all 0.2s cubic-bezier(.4,0,.2,1);
+    box-shadow: none;
+    outline: none;
+    line-height: 1;
+}
+
+.sr-tab-wrapper .sr-action-btn:hover {
+    background: var(--mac-card-bg);
+    filter: brightness(0.9);
+    transform: translateY(-1px);
+}
+
+.sr-tab-wrapper .sr-action-btn svg {
+    font-size: 15px;
+}
+
+.sr-tab-wrapper .sr-action-btn.sr-save {
+    background: var(--mac-blue);
+    color: #fff;
+}
+
+.sr-tab-wrapper .sr-action-btn.sr-save:hover {
+    background: #2997FF;
+    filter: none;
+}
+
+.sr-tab-wrapper .sr-action-btn.sr-cancel {
+    background: var(--mac-card-bg);
+    color: var(--mac-text-secondary);
+}
+
+.sr-tab-wrapper .sr-action-btn.sr-cancel:hover {
+    background: rgba(0,0,0,0.05);
+    filter: none;
+}
+
+.sr-tab-wrapper .sr-action-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* --- Two-Column Layout for Counseling Tab --- */
+.sr-split-view {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 24px;
+    align-items: start;
+}
+
+.sr-split-view > .sr-column:nth-child(1) { order: 2; } /* Section Roles on Right */
+.sr-split-view > .sr-column:nth-child(2) { order: 1; } /* Counselors on Left */
+
+.sr-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Section Header (above individual role cards) */
+.sr-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 4px 0 8px;
+}
+
+/* Individual Role Card */
+.sr-role-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    padding: 18px 24px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sr-role-card:hover:not(.sr-locked) {
+    background: var(--mac-selection-hover);
+}
+
+.sr-role-card.sr-locked {
+    opacity: 0.8;
+}
+
+.sr-role-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.sr-role-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mac-text);
+}
+
+.sr-role-hint {
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+    opacity: 0.8;
+}
+
+.sr-role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    background: var(--mac-blue-15);
+    color: var(--mac-blue);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    width: 100%;
+    justify-content: flex-start;
+    min-width: 0;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.sr-badge-icon {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* Role Select (edit mode) */
+.sr-select {
+    padding: 10px 20px;
+    border-radius: 100px;
+    border: none;
+    background: var(--mac-bg-secondary);
+    color: var(--mac-text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    width: 100%;
+    min-width: 0;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.sr-select:focus {
+    background: var(--mac-selection-hover);
+}
+
+.sr-select option {
+    background: var(--mac-card-bg);
+    color: var(--mac-text);
+}
+
+/* === Counselors Card === */
+
+/* Add Counselor Card */
+.cr-add-card {
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cr-add-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.cr-add-header .code-badge {
+    background: var(--mac-blue);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.cr-add-header span {
+    font-weight: 700;
+    color: var(--mac-text);
+    font-size: 15px;
+}
+
+.cr-add-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cr-add-bar .sr-select {
+    flex: 1;
+    max-width: none;
+}
+
+.cr-add-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 100px;
+    border: none;
+    background: var(--mac-blue);
+    color: #fff;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.cr-add-btn:hover {
+    background: #2997FF;
+}
+
+/* === Counselors Section === */
+
+/* Individual Counselor Card (matches s2-mapping-card exactly) */
+.cr-person-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--mac-card-bg);
+    border-radius: 24px;
+    padding: 18px 24px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cr-person-card:hover:not(.cr-editing) {
+    background: var(--mac-selection-hover);
+}
+
+.cr-person-card.cr-editing {
+    border-radius: 24px;
+    padding: 24px;
+}
+
+.cr-person-card.cr-selected {
+    background: rgba(0,122,255,0.08);
+}
+
+.cr-person-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.cr-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 100px;
+    background: var(--mac-blue-15);
+    color: var(--mac-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.cr-person-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--mac-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Action Buttons within Cards (Match mapping-inline-edit) */
+.cr-edit-btn {
+    background: var(--mac-blue) !important;
+    border: none;
+    color: white !important;
+    width: 36px;
+    height: 36px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+}
+
+.cr-person-card:hover .cr-edit-btn {
+    opacity: 1;
+}
+
+.cr-edit-btn:hover {
+    filter: brightness(1.1);
+}
+
+/* Edit Wrap (inline editing) */
+.cr-edit-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.cr-edit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.cr-edit-actions .sr-action-btn {
+    flex: 1;
+    justify-content: center;
+}
+
+/* Empty State */
+.cr-empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--mac-text-secondary);
+    font-size: 14px;
+    opacity: 0.6;
+    font-style: italic;
+}
+
+/* Bulk Delete Bar */
+.cr-bulk-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-top: 16px;
+    transition: all 0.2s ease;
+}
+
+.cr-bulk-bar.cr-bulk-active {
+    background: rgba(255, 59, 48, 0.05);
+    border: 1px solid rgba(255, 59, 48, 0.15);
+    justify-content: space-between;
+}
+
+.cr-select-all {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--mac-text);
+}
+
+.cr-select-all input {
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+.cr-delete-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: none;
+    background: rgba(255, 59, 48, 0.08);
+    color: #FF3B30;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cr-delete-trigger:hover {
+    background: rgba(255, 59, 48, 0.15);
+}
+
+.cr-delete-confirm {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 100px;
+    border: none;
+    background: #FF3B30;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cr-delete-confirm:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.cr-delete-confirm:hover:not(:disabled) {
+    background: #E0342C;
+}
+
+/* === Light Mode Overrides === */
+html:not(.dark) .sr-tab-wrapper .sr-action-btn:hover {
+    filter: brightness(0.93);
+}
+
+html:not(.dark) .sr-tab-wrapper .sr-action-btn.sr-cancel {
+    background: var(--mac-card-bg);
+}
+
+html:not(.dark) .sr-tab-wrapper .sr-action-btn.sr-cancel:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+html:not(.dark) .sr-role-item:hover {
+    background: rgba(0,0,0,0.02);
+}
+
+html:not(.dark) .sr-role-item.sr-locked {
+    background: rgba(0,0,0,0.02);
+}
+
+html:not(.dark) .sr-select {
+    background: rgba(0,0,0,0.05);
+}
+
+html:not(.dark) .cr-person:hover:not(.cr-editing) {
+    background: rgba(0,0,0,0.02);
+}
+
+html:not(.dark) .cr-person.cr-editing {
+    background: rgba(0,122,255,0.04);
+}
+
+html:not(.dark) .cr-edit-btn {
+    background: rgba(0,0,0,0.04);
+}
+
+html:not(.dark) .cr-bulk-bar.cr-bulk-active {
+    background: rgba(255, 59, 48, 0.03);
+}
+
+/* === Mobile Overrides for Counselors & Roles (Matching Mapping Cards) === */
+@media (max-width: 768px) {
+    .sr-split-view {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .sr-split-view > .sr-column:nth-child(1) { order: unset; }
+    .sr-split-view > .sr-column:nth-child(2) { order: unset; }
+    
+    .sr-card, .cr-card { padding: 20px; border-radius: 16px; }
+    .sr-header, .cr-header { margin-bottom: 16px; }
+    
+    /* Apply column layout to Role and Counselor cards */
+    .sr-role-card,
+    .cr-person-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 24px;
+        gap: 12px;
+        border-radius: 20px;
+    }
+
+    /* Make the info/avatar section full width */
+    .cr-person-info, .sr-role-info {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+
+    /* Stretch the blue edit button across the bottom, visible by default */
+    .cr-edit-btn {
+        opacity: 1 !important;
+        width: 100% !important;
+        height: 34px !important;
+        border-radius: 100px !important;
+        margin-top: 8px;
+    }
+
+    .sr-role-badge, .sr-select { width: 100%; min-width: 0; justify-content: center; }
+    .cr-add-bar { flex-direction: column; align-items: stretch; }
+    .cr-add-btn { width: 100%; height: 40px; border-radius: 100px; margin-top: 4px; }
+    .cr-edit-wrap { gap: 10px; width: 100%; }
+    .cr-edit-actions { flex-direction: column; width: 100%; }
+    .cr-edit-actions .sr-action-btn { flex: 1; width: 100%; }
+}

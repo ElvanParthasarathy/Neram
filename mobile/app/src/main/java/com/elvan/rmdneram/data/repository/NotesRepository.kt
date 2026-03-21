@@ -8,7 +8,21 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import org.jsoup.Jsoup
 
+import javax.net.ssl.*
+import java.security.cert.X509Certificate
+
 class NotesRepository {
+
+    private fun getUnsafeJsoupConnection(url: String): org.jsoup.Connection {
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        })
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, trustAllCerts, java.security.SecureRandom())
+        return Jsoup.connect(url).sslSocketFactory(sslContext.socketFactory)
+    }
 
     fun fetchNotes(deptCode: String): Flow<Result<List<NotesSemester>>> = flow {
         try {
@@ -25,7 +39,7 @@ class NotesRepository {
             }
             
             val url = "https://rmd.ac.in/dept/$urlSegment/notes.html"
-            val doc = Jsoup.connect(url).get()
+            val doc = getUnsafeJsoupConnection(url).get()
             
             val semesters = mutableListOf<NotesSemester>()
             

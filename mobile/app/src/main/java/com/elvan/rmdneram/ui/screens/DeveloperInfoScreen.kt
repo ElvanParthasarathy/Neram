@@ -135,15 +135,7 @@ fun DeveloperInfoScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Button(
-                    onClick = { 
-                        try {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://jaiprakashpartha.vercel.app/"))
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    },
+                    onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://jaiprakashpartha.vercel.app/") },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colors.accent, // Changed from White
                         contentColor = Color.White      // Changed from accent
@@ -204,29 +196,13 @@ fun DeveloperInfoScreen(
                 label = "linkedin.com/in/jaiprakashpartha",
                 color = AppColors.LinkedIn,
                 iconTint = Color.Unspecified, // Use original colors
-                onClick = {
-                     try {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.linkedin.com/in/jaiprakashpartha"))
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent)
-                     } catch (e: Exception) {
-                         e.printStackTrace()
-                     }
-                }
+                onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://www.linkedin.com/in/jaiprakashpartha") }
             )
             ContactItem(
                 icon = ImageVector.vectorResource(id = R.drawable.ic_github),
                 label = "github.com/elvanparthasarathy",
                 color = colors.textPrimary, // Dynamic Black/White
-                onClick = {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/elvanparthasarathy"))
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
+                onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://github.com/elvanparthasarathy") }
             )
             ContactItem(
                 icon = Icons.Default.LocationOn,

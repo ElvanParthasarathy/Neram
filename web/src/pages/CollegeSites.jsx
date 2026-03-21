@@ -7,7 +7,7 @@ const CollegeSites = () => {
   const links = [
     {
       name: "RMD College Website",
-      url: "https://rmd.ac.in/",
+      url: "http://rmd.ac.in/",
       description: "Official RMD college website.",
       icon: "ri-building-4-fill"
     },

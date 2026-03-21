@@ -12,6 +12,9 @@ interface MasterDataDao {
     @Query("SELECT * FROM master_data WHERE id = 'master_schedule'")
     fun getMasterData(): Flow<MasterDataEntity?>
 
+    @Query("SELECT * FROM master_data WHERE id = :id LIMIT 1")
+    suspend fun getMasterDataById(id: String): MasterDataEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMasterData(data: MasterDataEntity)
 

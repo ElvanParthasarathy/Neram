@@ -329,6 +329,10 @@ const MobileNavbar = ({ isAdmin, activeTab, onTabClick }) => {
       window.dispatchEvent(new Event('neram-go-hub'));
       return;
     }
+    if (navOverride?.customBackEvent) {
+      window.dispatchEvent(new Event(navOverride.customBackEvent));
+      return;
+    }
     window.history.back();
   };
 

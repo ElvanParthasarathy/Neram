@@ -135,8 +135,7 @@ fun ContactScreen(
                     .clip(HomeShapes.Pill)
                     .background(colors.accent)
                     .clickable {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://jaiprakashpartha.vercel.app/"))
-                        context.startActivity(intent)
+                        com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://jaiprakashpartha.vercel.app/")
                     }
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
@@ -162,10 +161,10 @@ fun ContactScreen(
                 context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:jaiprakashpartha@gmail.com")))
             }
             ContactItem(Icons.Default.Link, "/in/jaiprakashpartha", colors) {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://linkedin.com/in/jaiprakashpartha")))
+                com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://linkedin.com/in/jaiprakashpartha")
             }
             ContactItem(Icons.Outlined.Code, "/elvanparthasarathy", colors) {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/elvanparthasarathy")))
+                com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://github.com/elvanparthasarathy")
             }
             ContactItem(Icons.Outlined.LocationOn, "Arani, Tamil Nadu - 632317\n(Currently in Chennai)", colors, clickable = false) {}
         }

@@ -3,6 +3,7 @@ package com.elvan.rmdneram.ui.notes
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.*
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -30,6 +31,8 @@ fun NotesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val path by viewModel.path.collectAsState()
+    val notesMode by viewModel.notesMode.collectAsState()
+    val drivePath by viewModel.drivePath.collectAsState()
     val colors = rememberHomeColors()
     val context = LocalContext.current
     val lang = LocalAppLanguage.current
@@ -38,21 +41,13 @@ fun NotesScreen(
 
     val depts = listOf("ECE", "AIML", "CSBS", "CSE", "IT", "SNH")
 
-    // Back logic
-    BackHandler(enabled = path.isNotEmpty()) {
+    // Back navigation behavior
+    BackHandler(enabled = if (notesMode == "folder") drivePath.size > 1 else path.isNotEmpty()) {
         viewModel.navigateUp()
     }
 
     fun openUrl(url: String) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            // Handle error silently or show toast if needed
-            android.util.Log.e("NotesScreen", "Failed to open URL: $url", e)
-        }
+        com.elvan.rmdneram.utils.IntentUtils.openUrl(context, url)
     }
     
     // Not Uploaded Dialog
@@ -72,17 +67,31 @@ fun NotesScreen(
         )
     }
 
+    // Derived path display
+    val currentPathDisplay = if (notesMode == "folder") {
+        drivePath.map { it.name }.drop(1)
+    } else {
+        path
+    }
+
     NotesMainLayout(
         uiState = uiState,
-        path = path,
+        path = currentPathDisplay,
         rootFolders = depts,
         colors = colors,
-        onBackClick = { 
-            if (path.isEmpty()) onBack() else viewModel.navigateUp() 
+        notesMode = notesMode,
+        onBackClick = {
+            if (notesMode == "folder") {
+                if (drivePath.size == 1) onBack() else viewModel.navigateUp()
+            } else {
+                if (path.isEmpty()) onBack() else viewModel.navigateUp()
+            }
         },
         onFolderClick = { viewModel.enterFolder(it) },
         onFileClick = { openUrl(it) },
         onNotUploaded = { showNotUploadedDialog = true },
-        onRetry = { viewModel.navigateUp() }
+        onRetry = { viewModel.navigateUp() },
+        onDriveFolderClick = { viewModel.enterDriveFolder(it) },
+        onDriveFileClick = { openUrl(it.link) }
     )
 }

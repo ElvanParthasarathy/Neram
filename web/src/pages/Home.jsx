@@ -127,14 +127,17 @@ const Home = ({
     const isMajorExam = currentExamPeriod && !isCycleTest;
 
     let hasLabToday = false;
-    const eventsForDay = allCalendar?.filter((e) => e.date === todayStr) || [];
+    const eventsForDay = allCalendar?.filter((e) => todayStr >= (e.startDate || e.date) && todayStr <= (e.endDate || e.date)) || [];
     const holidayEvent = eventsForDay.find((e) =>
         e.title.toLowerCase().includes("holiday")
     );
     const fullDayEvt = eventsForDay.find((e) => e.type === "FullDay");
 
-    // Kotlin parity: classes are suspended on holidays, full-day events, or major exams
-    const classesSuspended = !!holidayEvent || !!fullDayEvt || isMajorExam;
+    const scListSync = masterData.specialClasses || [];
+    const specialClassToday = scListSync.find(sc => sc.date === todayStr);
+
+    // Kotlin parity: classes are suspended on holidays, full-day events, or major exams, and special classes
+    const classesSuspended = !!holidayEvent || !!fullDayEvt || isMajorExam || !!specialClassToday;
 
     if (!classesSuspended) {
         let tempOrder = "";
@@ -161,6 +164,11 @@ const Home = ({
         }
     }
 
+    const isPracticalExamToday = currentExamPeriod?.type === 'Practical' && isExamToday;
+    if (isPracticalExamToday) {
+        hasLabToday = true;
+    }
+
     const automatedNotices = [];
     if (hasLabToday)
         automatedNotices.push("📚 Bring Labcoats, Laptops & Lab Essentials");
@@ -177,7 +185,7 @@ const Home = ({
     // ---------- LOGIC RESOLUTION ----------
     useEffect(() => {
         if (!allCalendar || !masterData) return;
-        const events = allCalendar.filter((e) => e.date === todayStr);
+        const events = allCalendar.filter((e) => todayStr >= (e.startDate || e.date) && todayStr <= (e.endDate || e.date));
         setGlobalEvents(events);
 
         const cp = masterData.exams?.find(
@@ -254,7 +262,21 @@ const Home = ({
             const unsub = onValue(sRef, (snap) => {
                 const data = snap.val() || [];
                 const arr = Array.isArray(data) ? data : Object.values(data);
-                setSectionEvts(arr.filter((e) => e.date === todayStr));
+                const flattenedToday = [];
+                arr.forEach(group => {
+                    if (group.events && Array.isArray(group.events)) {
+                        group.events.forEach(ev => {
+                            if (ev.date === todayStr) {
+                                flattenedToday.push({ ...group, ...ev, title: ev.title || group.title });
+                            }
+                        });
+                    } else {
+                        if (todayStr >= (group.startDate || group.date) && todayStr <= (group.endDate || group.date)) {
+                            flattenedToday.push(group);
+                        }
+                    }
+                });
+                setSectionEvts(flattenedToday);
                 setAreEventsLoading(false);
             });
             return () => unsub();

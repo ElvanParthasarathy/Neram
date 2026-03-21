@@ -90,6 +90,7 @@ fun MainScreen(
     homeViewModel: HomeViewModel = viewModel()
 ) {
     var selectedTab by remember { mutableStateOf(NavTab.Home) }
+    val notesViewModel: com.elvan.rmdneram.ui.notes.NotesViewModel = viewModel()
     var currentScreen by remember { mutableStateOf("tabs") } // "tabs", "profile", "sites", "contact", "settings", "security", "admin", "pdf_viewer"
     var selectedPdfUrl by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -343,7 +344,7 @@ fun MainScreen(
                                     currentScreen = "pdf_viewer"
                                 }
                             )
-                            NavTab.Notes -> com.elvan.rmdneram.ui.notes.NotesScreen(onBack = { selectedTab = NavTab.Home }) 
+                            NavTab.Notes -> com.elvan.rmdneram.ui.notes.NotesScreen(onBack = { selectedTab = NavTab.Home }, viewModel = notesViewModel) 
                         }
                     }
                 }
@@ -491,11 +492,17 @@ fun MainScreen(
         )
         
         if (currentScreen == "tabs") {
+            // Dynamic Notes title — only adaptive for folder mode
+            val notesMode by notesViewModel.notesMode.collectAsState()
+            val notesDrivePath by notesViewModel.drivePath.collectAsState()
+            val notesFolderDisplay = notesDrivePath.map { it.name }.drop(1)
+            val isInsideNotesFolder = notesMode == "folder" && notesFolderDisplay.isNotEmpty()
+
             val title = when(selectedTab) {
                 NavTab.Home -> "Neram"
                 NavTab.Schedule -> "Schedule"
                 NavTab.Calendar -> "Calendar"
-                NavTab.Notes -> "Notes"
+                NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else "Notes"
             }
             
             TopMenuBar(
@@ -504,6 +511,10 @@ fun MainScreen(
                 userRole = uiState.userProfile?.role,
                 themeMode = uiState.themeMode,
                 onThemeModeChange = { mainViewModel.setThemeMode(it) },
+                onBack = if (selectedTab == NavTab.Notes && isInsideNotesFolder) {
+                    { notesViewModel.navigateUp() }
+                } else null,
+                isSmallTitle = selectedTab == NavTab.Notes && isInsideNotesFolder,
                 onNavigateToSettings = { 
                     settingsReferrer = "tabs"
                     currentScreen = "settings" 
@@ -511,8 +522,8 @@ fun MainScreen(
                 },
                 onNavigateToSites = { currentScreen = "sites" },
                 isOffline = uiState.isOffline,
-                showMenu = selectedTab != NavTab.Calendar, // Hide Menu on Calendar Screen
-                onNotificationsClick = if (selectedTab == NavTab.Calendar) null else { { currentScreen = "notifications" } },
+                showMenu = selectedTab != NavTab.Calendar && !isInsideNotesFolder,
+                onNotificationsClick = if (selectedTab == NavTab.Calendar || isInsideNotesFolder) null else { { currentScreen = "notifications" } },
                 unreadCount = unreadCount,
                 actions = {
                     if (selectedTab == NavTab.Calendar) {

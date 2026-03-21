@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { convertTo12Hour } from '../../utils/timeUtils';
+import { convertTo12Hour, formatDateDDMMYYYY } from '../../utils/timeUtils';
+import HybridDateInput from '../../components/HybridDateInput';
 import { useSearchParams } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, update } from "firebase/database";
@@ -10,7 +11,8 @@ import "react-datepicker/dist/react-datepicker.css";
 // Using Native Browser Date Inputs
 import {
     RiTrophyLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine,
-    RiSave3Line, RiAddLine, RiDeleteBin6Line, RiBookOpenLine, RiEditLine, RiCloseLine, RiArrowLeftLine
+    RiSave3Line, RiAddLine, RiDeleteBin6Line, RiDeleteBin6Fill, RiBookOpenLine, RiEditLine, RiCloseLine, RiArrowLeftLine, RiArrowDownSLine, RiArrowUpSLine,
+    RiCalendarEventLine, RiTimeLine, RiHashtag, RiGroupLine, RiFileCopyLine, RiCheckLine, RiExternalLinkLine, RiHistoryLine, RiRefreshLine, RiCalendarLine
 } from 'react-icons/ri';
 
 const PORTION_DEFAULTS = {
@@ -28,7 +30,7 @@ const newBlankPracticalSubject = () => ({
     batches: [{ label: '', date: '', startTime: '08:30', endTime: '10:30', registerRange: '', totalCount: '' }]
 });
 
-const ExamManager = ({ user, userProfile }) => {
+const ExamManager = ({ user, userProfile, isMobile }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const hasAutoNavigated = useRef(false);
 
@@ -69,6 +71,21 @@ const ExamManager = ({ user, userProfile }) => {
 
     const [editingExamId, setEditingExamId] = useState(null);
     const [editBuffer, setEditBuffer] = useState(null);
+    const [showCreator, setShowCreator] = useState(false);
+    const [expandedExams, setExpandedExams] = useState([]);
+    const [isEditListMode, setIsEditListMode] = useState(false);
+    const [isDeleteMode, setIsDeleteMode] = useState(false);
+    const [selectedExams, setSelectedExams] = useState([]);
+
+    // Auto-close editor if edit mode is toggled off
+    useEffect(() => {
+        if (!isEditListMode) {
+            setEditingExamId(null);
+            setEditBuffer(null);
+            setIsDeleteMode(false);
+            setSelectedExams([]);
+        }
+    }, [isEditListMode]);
 
     // --- CONFIRMATION MODAL STATE ---
     const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null });
@@ -109,9 +126,9 @@ const ExamManager = ({ user, userProfile }) => {
 
                 const allCoursesMap = {};
                 const examsMap = {};
-                let sectionIds = sectionsForDeptStr ? sectionsForDeptStr.split(',') : [];
+                let sectionIds = sectionsForDeptStr ? Array.from(new Set(sectionsForDeptStr.split(','))) : [];
                 if (sectionIds.length === 0) {
-                    sectionIds = Object.keys(deptData).filter(k => k !== 'initialized' && k !== '_master' && typeof deptData[k] === 'object');
+                    sectionIds = Array.from(new Set(Object.keys(deptData).filter(k => k !== 'initialized' && k !== '_master' && typeof deptData[k] === 'object')));
                 }
 
                 // Aggregate Courses from Master definitions instead of using Section-level faculty overrides
@@ -336,6 +353,33 @@ const ExamManager = ({ user, userProfile }) => {
         setEditingExamId(ex.id);
     };
 
+    const handleToggleExamSelect = (id) => {
+        setSelectedExams(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+    };
+
+    const handleSelectAllExams = () => {
+        const allIds = (masterData.exams || []).map(ex => ex.id);
+        if (selectedExams.length === allIds.length && allIds.length > 0) {
+            setSelectedExams([]);
+        } else {
+            setSelectedExams(allIds);
+        }
+    };
+
+    const handleBulkDeleteExams = async () => {
+        if (selectedExams.length === 0) return;
+        if (window.confirm(`Delete ${selectedExams.length} selected exam(s)?`)) {
+            for (const id of selectedExams) {
+                const examToDelete = masterData.exams.find(e => e.id === id);
+                if (examToDelete) {
+                    await syncCentralExamToDB(examToDelete, true);
+                }
+            }
+            setSelectedExams([]);
+            setIsDeleteMode(false);
+        }
+    };
+
     const saveEdit = () => {
         if (!editBuffer) return;
         syncCentralExamToDB(editBuffer);
@@ -435,13 +479,12 @@ const ExamManager = ({ user, userProfile }) => {
                                         <input value={b.label} onChange={e => updateBatch(bIdx, 'label', e.target.value)} placeholder={!isCommon ? sub.scope : ''} />
                                     </td>
                                     <td data-label="Date">
-                                        <DatePicker
-                                            selected={parseDate(b.date)}
-                                            onChange={date => updateBatch(bIdx, 'date', toLocalISO(date))}
-                                            dateFormat="dd/MM/yyyy"
-                                            placeholderText="dd/mm/yyyy"
-                                            className="custom-datepicker-input"
-                                        />
+                                        <div className="field">
+                                            <HybridDateInput
+                                                value={b.date}
+                                                onChange={(val) => updateBatch(bIdx, 'date', val)}
+                                            />
+                                        </div>
                                     </td>
                                     <td data-label="Start"><input type="time" value={b.startTime} onChange={e => updateBatch(bIdx, 'startTime', e.target.value)} /></td>
                                     <td data-label="End"><input type="time" value={b.endTime} onChange={e => updateBatch(bIdx, 'endTime', e.target.value)} /></td>
@@ -450,7 +493,7 @@ const ExamManager = ({ user, userProfile }) => {
                                     <td data-label="" className="batch-action-cell">
                                         <button className="btn-del-mini" onClick={() => {
                                             showConfirm("Remove Batch?", `Remove batch ${b.label || sub.scope}?`, () => removeBatch(bIdx));
-                                        }}><RiDeleteBin6Line /></button>
+                                        }}><RiDeleteBin6Line /> Remove</button>
                                     </td>
                                 </tr>
                             ))}
@@ -511,9 +554,16 @@ const ExamManager = ({ user, userProfile }) => {
                     )}
 
                     <div className="breadcrumb-list">
-                        <span className="crumb-btn" onClick={() => updateLevel('batches', { batch: '', dept: '' })}>Central Directory</span>
-                        {path.batch && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-btn" onClick={() => updateLevel('depts', { dept: '' })}>{path.batch}</span></>}
-                        {path.dept && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-static">{path.dept} Manager</span></>}
+                        <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '' })}>Exams</span>
+
+                        {/* Mobile Truncation Ellipsis */}
+                        <span className="crumb-ellipsis-container">
+                            <RiArrowRightSLine className="crumb-sep" />
+                            <span className="crumb-static">...</span>
+                        </span>
+
+                        {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className="crumb-btn level-batch" onClick={() => updateLevel('depts', { dept: '' })}>{path.batch}</span></>}
+                        {path.dept && <><RiArrowRightSLine className="crumb-sep level-dept-sep" /> <span className="crumb-static level-dept">{path.dept}</span></>}
                     </div>
                 </div>
             </header>
@@ -533,146 +583,234 @@ const ExamManager = ({ user, userProfile }) => {
                 </div>
             ) : (
                 <div className="exam-editor-workspace">
+                    {/* SECTION HEADER WITH EDIT LIST BUTTON */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h3 className="section-divider-title" style={{ margin: 0, border: 'none', color: 'var(--mac-text)', textTransform: 'none', fontSize: '15px', fontWeight: 700, padding: 0 }}>Exams</h3>
+                        {isEditListMode ? (
+                            <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
+                                <button
+                                    className="role-header-pill secondary"
+                                    onClick={() => { setIsEditListMode(false); setShowCreator(false); }}
+                                    style={{ minWidth: '90px' }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="role-header-pill active"
+                                    onClick={() => { setIsEditListMode(false); setShowCreator(false); }}
+                                    style={{ minWidth: '90px' }}
+                                >
+                                    Done
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                 className="edit-list-btn"
+                                 onClick={() => { setIsEditListMode(true); setShowCreator(true); }}
+                             >
+                                 <RiEditLine style={{ marginRight: '6px' }} /> Edit List
+                             </button>
+                        )}
+                    </div>
 
                     {/* 1. CREATOR SECTION */}
-                    <div className="settings-card exam-creator-card" style={{ border: '2px solid var(--mac-blue-15)' }}>
-                        <h2 className="editor-title" style={{ color: 'var(--mac-blue)' }}><RiTrophyLine /> Create Central Timetable</h2>
-                        <p style={{ opacity: 0.7, marginBottom: '20px', fontSize: '13px' }}>Changes published here will automatically distribute to <strong>all</strong> sections in {path.dept}.</p>
-                        <div className="exam-config-grid">
-                            <div className="field">
-                                <label>Exam Type</label>
-                                <select value={newExam.type} onChange={e => handleTypeChange(e.target.value)}>
-                                    {Object.keys(PORTION_DEFAULTS).map(k => <option key={k} value={k}>{k}</option>)}
-                                </select>
-                            </div>
-                            <div className="field"><label>Title</label><input value={newExam.title} onChange={e => setNewExam({ ...newExam, title: e.target.value })} placeholder="e.g. Model Exams" /></div>
+                    {isEditListMode && showCreator && (
+                    <>
+                        {/* BOX 1: Type / Title / Dates */}
+                        <div className="settings-card exam-creator-card" style={{ border: '2px solid var(--mac-blue-15)' }}>
+                            <h2 className="editor-title" style={{ color: 'var(--mac-blue)' }}><RiTrophyLine /> Create Exam</h2>
+                            <p style={{ opacity: 0.7, marginBottom: '20px', fontSize: '13px' }}>Changes published here will automatically distribute to <strong>all</strong> sections in {path.dept}.</p>
+                            <div className="exam-config-grid">
+                                <div className="field">
+                                    <label>Exam Type</label>
+                                    <select value={newExam.type} onChange={e => handleTypeChange(e.target.value)}>
+                                        {Object.keys(PORTION_DEFAULTS).map(k => <option key={k} value={k}>{k}</option>)}
+                                    </select>
+                                </div>
+                                <div className="field"><label>Title</label><input value={newExam.title} onChange={e => setNewExam({ ...newExam, title: e.target.value })} placeholder="e.g. Model Exams" /></div>
 
-                            <div className="field">
-                                <label>Show From</label>
-                                <DatePicker selected={parseDate(newExam.startDate)} onChange={(date) => setNewExam({ ...newExam, startDate: toLocalISO(date) })} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
-                            </div>
+                                <div className="field">
+                                    <label>Show From</label>
+                                    <HybridDateInput
+                                        value={newExam.startDate}
+                                        onChange={(val) => setNewExam({ ...newExam, startDate: val })}
+                                    />
+                                </div>
 
-                            <div className="field">
-                                <label>Show Until</label>
-                                <DatePicker selected={parseDate(newExam.endDate)} onChange={(date) => setNewExam({ ...newExam, endDate: toLocalISO(date) })} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
+                                <div className="field">
+                                    <label>Show Until</label>
+                                    <HybridDateInput
+                                        value={newExam.endDate}
+                                        onChange={(val) => setNewExam({ ...newExam, endDate: val })}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="subject-mapping-section">
-                            {newExam.type === 'Practical' ? (
-                                <>
-                                    {newExam.subjects.map((sub, idx) =>
-                                        renderPracticalSubjectEditor(sub, idx, newExam, setNewExam)
-                                    )}
-                                    <button className="btn-add-line" onClick={() =>
-                                        setNewExam({ ...newExam, subjects: [...newExam.subjects, newBlankPracticalSubject()] })
-                                    }><RiAddLine /> Add Subject</button>
-                                </>
-                            ) : (
-                                <>
-                                    {newExam.subjects.map((sub, idx) => (
-                                        <div key={idx} className="exam-subject-row professional">
-                                            <div className="input-group-vertical">
-                                                <label>Date</label>
-                                                <DatePicker selected={parseDate(sub.date)} onChange={(date) => { let s = [...newExam.subjects]; s[idx].date = toLocalISO(date); setNewExam({ ...newExam, subjects: s }); }} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
+                        {/* BOX 2: Type-specific subjects + actions */}
+                        <div className="settings-card exam-creator-card">
+                            <div className="subject-mapping-section">
+                                {newExam.type === 'Practical' ? (
+                                    <>
+                                        {newExam.subjects.map((sub, idx) =>
+                                            renderPracticalSubjectEditor(sub, idx, newExam, setNewExam)
+                                        )}
+                                        <button className="btn-add-line" onClick={() =>
+                                            setNewExam({ ...newExam, subjects: [...newExam.subjects, newBlankPracticalSubject()] })
+                                        }><RiAddLine /> Add Subject</button>
+                                    </>
+                                ) : (
+                                    <>
+                                        {newExam.subjects.map((sub, idx) => (
+                                            <div key={idx} className="exam-subject-row professional">
+                                                <div className="input-group-vertical">
+                                                    <label>Date</label>
+                                                    <HybridDateInput
+                                                        value={sub.date}
+                                                        onChange={(val) => { let s = [...newExam.subjects]; s[idx].date = val; setNewExam({ ...newExam, subjects: s }); }}
+                                                    />
+                                                </div>
+                                                <div className="input-group-vertical variant-code">
+                                                    <label>Subject</label>
+                                                    <select value={sub.code} onChange={e => { let s = [...newExam.subjects]; s[idx].code = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
+                                                        <option value="">Select Course</option>
+                                                        {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
+                                                    </select>
+                                                </div>
+                                                <div className="input-group-vertical variant-scope">
+                                                    <label>Scope</label>
+                                                    <select value={sub.scope} onChange={e => { let s = [...newExam.subjects]; s[idx].scope = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
+                                                        <option value="Common">Common (All Secs)</option>
+                                                        {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                                                        {sub.scope && sub.scope !== 'Common' && !masterData.sections.includes(sub.scope) && (
+                                                            <option value={sub.scope}>{sub.scope} (Mixed)</option>
+                                                        )}
+                                                    </select>
+                                                </div>
+                                                <div className="input-group-vertical variant-portion">
+                                                    <label>Portion</label>
+                                                    <input list="portion-presets" value={sub.portion} onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }} placeholder="Portion..." />
+                                                </div>
+                                                <div className="input-group-vertical"><label>Start</label><input type="time" value={sub.startTime} onChange={e => { let s = [...newExam.subjects]; s[idx].startTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
+                                                <div className="input-group-vertical"><label>End</label><input type="time" value={sub.endTime} onChange={e => { let s = [...newExam.subjects]; s[idx].endTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
+                                                <button className="btn-del-mini" onClick={() => {
+                                                    showConfirm("Delete Subject?", `Remove ${getSubjectName(sub.code)}?`, () => setNewExam({ ...newExam, subjects: newExam.subjects.filter((_, i) => i !== idx) }));
+                                                }}><RiDeleteBin6Line /></button>
                                             </div>
-                                            <div className="input-group-vertical variant-code">
-                                                <label>Subject</label>
-                                                <select value={sub.code} onChange={e => { let s = [...newExam.subjects]; s[idx].code = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
-                                                    <option value="">Select Course</option>
-                                                    {masterData.courses.map(c => <option key={c.code} value={c.code}>{c.code} - {c.name}</option>)}
-                                                </select>
-                                            </div>
-                                            <div className="input-group-vertical variant-scope">
-                                                <label>Scope</label>
-                                                <select value={sub.scope} onChange={e => { let s = [...newExam.subjects]; s[idx].scope = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
-                                                    <option value="Common">Common (All Secs)</option>
-                                                    {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
-                                                    {sub.scope && sub.scope !== 'Common' && !masterData.sections.includes(sub.scope) && (
-                                                        <option value={sub.scope}>{sub.scope} (Mixed)</option>
-                                                    )}
-                                                </select>
-                                            </div>
-                                            <div className="input-group-vertical variant-portion">
-                                                <label>Portion</label>
-                                                <input list="portion-presets" value={sub.portion} onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }} placeholder="Portion..." />
-                                            </div>
-                                            <div className="input-group-vertical"><label>Start</label><input type="time" value={sub.startTime} onChange={e => { let s = [...newExam.subjects]; s[idx].startTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
-                                            <div className="input-group-vertical"><label>End</label><input type="time" value={sub.endTime} onChange={e => { let s = [...newExam.subjects]; s[idx].endTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
-                                            <button className="btn-del-mini" onClick={() => {
-                                                showConfirm("Delete Subject?", `Remove ${getSubjectName(sub.code)}?`, () => setNewExam({ ...newExam, subjects: newExam.subjects.filter((_, i) => i !== idx) }));
-                                            }}><RiDeleteBin6Line /></button>
-                                        </div>
-                                    ))}
-                                    <datalist id="portion-presets">
-                                        {[...new Set(Object.values(PORTION_DEFAULTS))].map(p => <option key={p} value={p} />)}
-                                    </datalist>
-                                    <button className="btn-add-line" onClick={() => {
-                                        const lastSub = newExam.subjects[newExam.subjects.length - 1];
-                                        setNewExam({
-                                            ...newExam,
-                                            subjects: [...newExam.subjects, {
-                                                date: '', code: '',
-                                                startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
-                                                endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
-                                                portion: PORTION_DEFAULTS[newExam.type],
-                                                scope: 'Common'
-                                            }]
-                                        });
-                                    }}><RiAddLine /> Add Subject Day</button>
-                                </>
-                            )}
-                            <button className="btn-save-master publish-btn" onClick={handlePublish}>Publish to All Sections</button>
+                                        ))}
+                                        <datalist id="portion-presets">
+                                            {[...new Set(Object.values(PORTION_DEFAULTS))].map(p => <option key={p} value={p} />)}
+                                        </datalist>
+                                        <button className="btn-add-line" onClick={() => {
+                                            const lastSub = newExam.subjects[newExam.subjects.length - 1];
+                                            setNewExam({
+                                                ...newExam,
+                                                subjects: [...newExam.subjects, {
+                                                    date: '', code: '',
+                                                    startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
+                                                    endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
+                                                    portion: PORTION_DEFAULTS[newExam.type],
+                                                    scope: 'Common'
+                                                }]
+                                            });
+                                        }}><RiAddLine /> Add Subject Day</button>
+                                    </>
+                                )}
+                                {newExam.subjects.length > 0 && (
+                                    <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                                        <button className="btn-save-master" style={{ flex: 1, height: '36px', fontSize: '13px', padding: '0 18px', borderRadius: '50px' }} onClick={handlePublish}>Publish</button>
+                                        <button className="btn-cancel-mini" style={{ flex: 1, padding: '0 18px', height: '36px', fontSize: '13px', borderRadius: '50px' }} onClick={() => { setNewExam({ type: 'CT1', title: '', startDate: '', endDate: '', subjects: [] }); }}>Cancel</button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    </>
+                    )}
 
 
                     {/* 2. PUBLISHED SECTION */}
                     <div className="published-exams-section">
-                        <h3 className="section-divider-title">Active Central Timetables</h3>
+                        {/* The section title and edit list button were moved to the top */}
                         {(masterData.exams || []).map(ex => {
                             const isEditing = editingExamId === ex.id;
                             const currentData = isEditing ? editBuffer : ex;
 
                             return (
+                                <React.Fragment key={ex.id}>
+                                {isEditing && (
+                                    <div className="master-header-row pill-group-row desktop-edit-actions" style={{ justifyContent: 'flex-end', marginBottom: '8px' }}>
+                                        <button className="role-header-pill secondary" onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
+                                        <button className="role-header-pill active" onClick={saveEdit}>Save</button>
+                                    </div>
+                                )}
                                 <div key={ex.id} className={`settings-card published-exam-card ${isEditing ? 'editing-active' : ''}`}>
-                                    <header className="published-header">
+                                    <header 
+                                        className="published-header" 
+                                        style={{ alignItems: 'center', cursor: !isEditing ? 'pointer' : 'default' }}
+                                        onClick={(e) => {
+                                            if (isEditing) return;
+                                            if (e.target.closest('button') || e.target.closest('input')) return;
+                                            setExpandedExams(prev => prev.includes(ex.id) ? prev.filter(id => id !== ex.id) : [...prev, ex.id]);
+                                        }}
+                                    >
                                         {isEditing ? (
-                                            <div className="edit-meta-inputs">
+                                            <div className="edit-meta-inputs" style={{ flex: 1 }}>
+                                                <div className="mobile-edit-actions pill-group-row master-header-row" style={{ width: '100%', flexDirection: 'row', gap: '8px', marginBottom: '16px' }}>
+                                                    <button className="role-header-pill secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
+                                                    <button className="role-header-pill active" style={{ flex: 1, justifyContent: 'center' }} onClick={saveEdit}>Save</button>
+                                                </div>
                                                 <input className="edit-title-input" value={currentData.title} onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })} />
-                                                <div className="date-group">
-                                                    <label>Range:</label>
-                                                    <DatePicker selected={parseDate(currentData.startDate)} onChange={(date) => setEditBuffer({ ...editBuffer, startDate: toLocalISO(date) })} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="inline-datepicker" />
-                                                    <span>to</span>
-                                                    <DatePicker selected={parseDate(currentData.endDate)} onChange={(date) => setEditBuffer({ ...editBuffer, endDate: toLocalISO(date) })} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="inline-datepicker" />
+                                                <div className="exam-config-grid" style={{ marginTop: '20px', marginBottom: '0', paddingBottom: '0', borderBottom: 'none' }}>
+                                                    <div className="input-group-vertical">
+                                                        <label>Range From</label>
+                                                        <HybridDateInput value={currentData.startDate} onChange={(val) => setEditBuffer({ ...editBuffer, startDate: val })} />
+                                                    </div>
+                                                    <div className="input-group-vertical">
+                                                        <label>Range To</label>
+                                                        <HybridDateInput value={currentData.endDate} onChange={(val) => setEditBuffer({ ...editBuffer, endDate: val })} />
+                                                    </div>
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="pub-title-group">
-                                                <RiTrophyLine className="icon-main" style={{ color: 'var(--mac-blue)' }} />
-                                                <div>
-                                                    <h3>{ex.title} <span>({ex.type})</span></h3>
-                                                    <p>Visible: {parseDate(ex.startDate)?.toLocaleDateString('en-GB') || ex.startDate} to {parseDate(ex.endDate)?.toLocaleDateString('en-GB') || ex.endDate}</p>
+                                            <>
+                                                {isDeleteMode && (
+                                                    <input
+                                                        type="checkbox"
+                                                        className="mac-checkbox"
+                                                        style={{ marginRight: '16px', flexShrink: 0 }}
+                                                        checked={selectedExams.includes(ex.id)}
+                                                        onChange={(e) => { e.stopPropagation(); handleToggleExamSelect(ex.id); }}
+                                                    />
+                                                )}
+                                                <div className="pub-title-group" style={{ flex: 1 }}>
+                                                    <RiTrophyLine className="icon-main" style={{ color: 'var(--mac-blue)' }} />
+                                                    <div>
+                                                        <h3>{ex.title} <span>({ex.type})</span></h3>
+                                                        <p>Visible: {parseDate(ex.startDate)?.toLocaleDateString('en-GB') || ex.startDate} to {parseDate(ex.endDate)?.toLocaleDateString('en-GB') || ex.endDate}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </>
                                         )}
 
-                                        <div className="header-actions">
-                                            {isEditing ? (
-                                                <>
-                                                    <button className="btn-del-mini" onClick={() => {
-                                                        showConfirm("Delete Central Exam?", `Removes "${ex.title}" from ALL sections.`, () => syncCentralExamToDB(ex, true));
-                                                    }}><RiDeleteBin6Line /> Delete</button>
-                                                    <button className="btn-save-mini" onClick={saveEdit}>Save & Distribute</button>
-                                                    <button className="btn-cancel-mini" onClick={() => { setEditingExamId(null); setEditBuffer(null); }}>Cancel</button>
-                                                </>
-                                            ) : (
-                                                <button className="btn-edit-mini" onClick={() => startEditing(ex)}><RiEditLine /> Edit Central</button>
+                                        <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                                            {!isEditing && isEditListMode && !isMobile && (
+                                                <button className="pill-inline-edit" style={{ opacity: 1 }} onClick={(e) => { e.stopPropagation(); startEditing(ex); }}><RiEditLine /></button>
+                                            )}
+                                            {!isEditing && (
+                                                    <div className={`manager-collapsible-icon ${expandedExams.includes(ex.id) ? 'open' : ''}`}>
+                                                        <RiArrowDownSLine />
+                                                    </div>
                                             )}
                                         </div>
                                     </header>
 
-                                    <div className="published-subjects-container">
+                                    {!isEditing && isEditListMode && isMobile && (
+                                        <button className="pill-inline-edit" style={{ opacity: 1, margin: '0 auto 12px' }} onClick={(e) => { e.stopPropagation(); startEditing(ex); }}><RiEditLine /></button>
+                                    )}
+
+                                    <div className={`manager-collapsible-body-anim ${expandedExams.includes(ex.id) || isEditing ? 'open' : ''}`}>
+                                        <div className="manager-collapsible-body-inner">
+                                            <div className="published-subjects-container">
                                         {ex.type === 'Practical' ? (
                                             isEditing ? (
                                                 <>
@@ -696,7 +834,7 @@ const ExamManager = ({ user, userProfile }) => {
                                                             <>
                                                                 <div className="input-group-vertical">
                                                                     <label>Date</label>
-                                                                    <DatePicker selected={parseDate(s.date)} onChange={(date) => { let subs = [...editBuffer.subjects]; subs[i].date = toLocalISO(date); setEditBuffer({ ...editBuffer, subjects: subs }); }} dateFormat="dd/MM/yyyy" placeholderText="dd/mm/yyyy" className="custom-datepicker-input" />
+                                                                    <HybridDateInput value={s.date} onChange={(val) => { let subs = [...editBuffer.subjects]; subs[i].date = val; setEditBuffer({ ...editBuffer, subjects: subs }); }} />
                                                                 </div>
                                                                 <div className="input-group-vertical variant-code">
                                                                     <label>Subject</label>
@@ -757,9 +895,61 @@ const ExamManager = ({ user, userProfile }) => {
                                             </>
                                         )}
                                     </div>
+                                    </div>
+                                    </div>
                                 </div>
+                                </React.Fragment>
                             );
                         })}
+
+                    {/* BULK ACTION FOOTER */}
+                    {isEditListMode && (
+                        <div className={`bulk-action-footer-premium animate-slide-up ${isDeleteMode ? 'danger-mode' : ''}`}>
+                            {isDeleteMode ? (
+                                <div className="bulk-delete-action-row">
+                                    <div className="bulk-delete-info">
+                                        <div className="info-icon">
+                                            <RiDeleteBin6Fill />
+                                        </div>
+                                        <div className="bulk-delete-text">
+                                            <span className="bulk-delete-title">
+                                                {selectedExams.length === 0 ? "Select Items" : `${selectedExams.length} Selected`}
+                                            </span>
+                                            <span className="bulk-delete-desc">Choose exams to delete</span>
+                                        </div>
+                                    </div>
+                                    <div className="pill-group">
+                                        <button
+                                            className="premium-pill-btn primary"
+                                            onClick={handleSelectAllExams}
+                                        >
+                                            {selectedExams.length === (masterData.exams || []).length && (masterData.exams || []).length > 0 ? 'Deselect All' : 'Select All'}
+                                        </button>
+                                        <button className="premium-pill-btn secondary" onClick={() => { setSelectedExams([]); setIsDeleteMode(false); }}>Cancel</button>
+                                        <button className="premium-pill-btn danger" onClick={handleBulkDeleteExams} disabled={selectedExams.length === 0}>
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bulk-delete-start-row">
+                                    <div className="bulk-delete-info">
+                                        <div className="info-icon">
+                                            <RiTrophyLine />
+                                        </div>
+                                        <div className="bulk-delete-text">
+                                            <span className="bulk-delete-title">Manage Published Exams</span>
+                                            <span className="bulk-delete-desc">Select and remove multiple exams at once</span>
+                                        </div>
+                                    </div>
+                                    <button className="premium-pill-btn danger" onClick={() => setIsDeleteMode(true)}>
+                                        <RiDeleteBin6Fill /> Delete
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     </div>
                 </div>
             )}
@@ -774,8 +964,8 @@ const ExamManager = ({ user, userProfile }) => {
                         </div>
                         <p className="modal-message">{confirmModal.message}</p>
                         <div className="modal-footer">
-                            <button className="btn-modal-cancel" onClick={closeConfirm}>Keep It</button>
-                            <button className="btn-modal-confirm" onClick={() => { confirmModal.onConfirm(); closeConfirm(); }}>Confirm Delete</button>
+                            <button className="btn-modal-cancel" onClick={closeConfirm}>Cancel</button>
+                            <button className="btn-modal-confirm" onClick={() => { confirmModal.onConfirm(); closeConfirm(); }}>Delete</button>
                         </div>
                     </div>
                 </div>,

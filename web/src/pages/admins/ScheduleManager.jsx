@@ -660,16 +660,18 @@ const ScheduleManager = ({ user, userProfile }) => {
                                 <div className="header-actions">
                                         {masterData.courses.length > 0 && (
                                             isMasterEditMode ? (
-                                                <div className="pill-group-row">
+                                                <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
                                                     <button
                                                         className="role-header-pill secondary"
                                                         onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); setEditingMasterCourseIdx(null); }}
+                                                        style={{ minWidth: '90px' }}
                                                     >
                                                         Cancel
                                                     </button>
                                                     <button
                                                         className="role-header-pill active"
                                                         onClick={() => { setSelectedMasterCourses([]); setIsMasterDeleteMode(false); setIsMasterEditMode(false); setEditingMasterCourseIdx(null); }}
+                                                        style={{ minWidth: '90px' }}
                                                     >
                                                         Done
                                                     </button>
@@ -743,9 +745,9 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className="pill-actions">
-                                                    <button className="pill-action-btn cancel" onClick={() => setEditingMasterCourseIdx(null)}>Cancel</button>
-                                                    <button className="pill-action-btn save" onClick={handleUpdateMasterCourse}>Save Changes</button>
+                                                <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                                                    <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingMasterCourseIdx(null)}>Cancel</button>
+                                                    <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleUpdateMasterCourse}>Save Changes</button>
                                                 </div>
                                             </div>
                                         ) : (
@@ -879,9 +881,9 @@ const ScheduleManager = ({ user, userProfile }) => {
             {viewLevel === 'editor' && (
                 <div className="schedule-editor-workspace">
                     <nav className="editor-tabs box-flat">
-                        <button className={activeTab === 'courses' ? 'active' : ''} onClick={() => setActiveTab('courses')}><RiLinksLine /> Local Mapping</button>
-                        <button className={activeTab === 'timetable' ? 'active' : ''} onClick={() => setActiveTab('timetable')}><RiCalendarScheduleLine /> Timetable</button>
-                        <button className={activeTab === 'counseling' ? 'active' : ''} onClick={() => setActiveTab('counseling')}><RiUserVoiceLine /> Section Roles</button>
+                        <button className={activeTab === 'courses' ? 'active' : ''} onClick={() => setActiveTab('courses')}>Mapping</button>
+                        <button className={activeTab === 'timetable' ? 'active' : ''} onClick={() => setActiveTab('timetable')}>Timetable</button>
+                        <button className={activeTab === 'counseling' ? 'active' : ''} onClick={() => setActiveTab('counseling')}>Roles</button>
                     </nav>
 
                     <div className="tab-content-area">
@@ -891,7 +893,7 @@ const ScheduleManager = ({ user, userProfile }) => {
                             <div className="course-manager">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                                     <div className="mapping-instructions" style={{ margin: 0 }}>
-                                        <p style={{ margin: 0 }}>Map Master Courses to specific Faculties for Section {path.sec}.</p>
+                                        <h2 className="section-title-premium" style={{ margin: 0 }}>Course Faculty Mapper</h2>
                                     </div>
                                     {(sectionData.courses || []).length > 0 && (
                                         isMappedEditMode ? (
@@ -923,65 +925,71 @@ const ScheduleManager = ({ user, userProfile }) => {
                                 </div>
 
                                 {(isMappedEditMode || (sectionData.courses || []).length === 0) && (
-                                    <div className="s2-mapping-card" style={{ background: 'var(--mac-blue-5)', border: '1px dashed var(--mac-blue-20)', marginBottom: '24px', flexDirection: 'column', alignItems: 'stretch', padding: '20px' }}>
+                                    <div className="s2-mapping-card add-mapping-container" style={{ marginBottom: '24px', flexDirection: 'column', alignItems: 'stretch', padding: '20px' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                                             <div className="code-badge" style={{ background: 'var(--mac-blue)', color: 'white' }}><RiAddLine /></div>
                                             <span style={{ fontWeight: 700, color: 'var(--mac-text)' }}>Add New Course Mapping</span>
                                         </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                                 <select
+                                                    className="mac-select-pill"
                                                     value={newMappedCourse.code}
                                                     onChange={(e) => setNewMappedCourse({ ...newMappedCourse, code: e.target.value })}
-                                                    style={{ flex: 2 }}
+                                                    style={{ width: '100%' }}
                                                 >
                                                     <option value="">-- Select Course --</option>
                                                     {masterData.courses.map(mc => <option key={mc.code} value={mc.code}>{mc.code} - {mc.name}</option>)}
                                                 </select>
                                                 <input
+                                                    className="premium-add-input"
                                                     type="number"
                                                     placeholder="Prds"
                                                     value={newMappedCourse.periods}
                                                     onChange={(e) => setNewMappedCourse({ ...newMappedCourse, periods: e.target.value })}
-                                                    style={{ flex: 1, minWidth: '80px' }}
+                                                    style={{ width: '100%' }}
                                                 />
                                             </div>
 
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                                 {newMappedCourse.faculties.map((fac, idx) => (
-                                                    <div key={idx} style={{ display: 'flex', gap: '8px' }}>
-                                                        <select
-                                                            value={fac}
-                                                            onChange={(e) => {
-                                                                const newFacs = [...newMappedCourse.faculties];
-                                                                newFacs[idx] = e.target.value;
-                                                                setNewMappedCourse({ ...newMappedCourse, faculties: newFacs });
-                                                                handleCrossDeptFacultySelect(e.target.value);
-                                                            }}
-                                                            style={{ flex: 1 }}
-                                                        >
-                                                            {renderFacultyOptions()}
-                                                        </select>
-
-                                                        {idx > 0 && (
-                                                            <button className="action-btn action-delete" onClick={() => {
-                                                                const newFacs = newMappedCourse.faculties.filter((_, i) => i !== idx);
-                                                                setNewMappedCourse({ ...newMappedCourse, faculties: newFacs });
-                                                            }} style={{ padding: '0 8px' }}>
-                                                                <RiDeleteBin6Line />
-                                                            </button>
-                                                        )}
+                                                    <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%' }}>
+                                                            <select
+                                                                className="mac-select-pill"
+                                                                value={fac}
+                                                                onChange={(e) => {
+                                                                    const newFacs = [...newMappedCourse.faculties];
+                                                                    newFacs[idx] = e.target.value;
+                                                                    setNewMappedCourse({ ...newMappedCourse, faculties: newFacs });
+                                                                    handleCrossDeptFacultySelect(e.target.value);
+                                                                }}
+                                                                style={{ width: '100%' }}
+                                                            >
+                                                                {renderFacultyOptions()}
+                                                            </select>
+                                                        </div>
 
                                                         {idx === newMappedCourse.faculties.length - 1 && (
-                                                            <button className="btn-save-master" onClick={() => setNewMappedCourse({ ...newMappedCourse, faculties: [...newMappedCourse.faculties, ''] })} style={{ padding: '0 8px', minWidth: 'auto' }}>
-                                                                <RiAddLine /> Add Faculty
-                                                            </button>
+                                                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-start' }}>
+                                                                <button className="premium-pill-btn secondary" onClick={() => setNewMappedCourse({ ...newMappedCourse, faculties: [...newMappedCourse.faculties, ''] })} style={{ flex: 1, background: 'var(--mac-bg-secondary)', color: 'var(--mac-text)', border: '1px dashed var(--mac-border)', boxShadow: 'none', justifyContent: 'center' }}>
+                                                                    <RiAddLine /> Faculty
+                                                                </button>
+                                                                {newMappedCourse.faculties.length > 1 && (
+                                                                    <button className="premium-pill-btn danger" onClick={() => {
+                                                                        const newFacs = newMappedCourse.faculties.slice(0, -1);
+                                                                        setNewMappedCourse({ ...newMappedCourse, faculties: newFacs });
+                                                                    }} style={{ flex: 1, justifyContent: 'center' }}>
+                                                                        <RiDeleteBin6Line /> Option
+                                                                   </button>
+                                                                )}
+                                                            </div>
                                                         )}
                                                     </div>
                                                 ))}
                                             </div>
 
-                                            <button className="btn-add" onClick={handleMapCourse} style={{ marginTop: '12px', background: 'var(--mac-blue)', color: 'white', borderRadius: '12px' }}>
+                                            <button className="premium-pill-btn primary full-width" onClick={handleMapCourse} style={{ marginTop: '8px', justifyContent: 'center' }}>
                                                 <RiAddLine /> Map Course
                                             </button>
                                         </div>
@@ -992,62 +1000,72 @@ const ScheduleManager = ({ user, userProfile }) => {
                                     {(sectionData.courses || []).map((c, i) => (
                                         <div key={i} className={`s2-mapping-card ${editingMappedCourseIdx === i ? 'editing' : ''}`}>
                                             {editingMappedCourseIdx === i ? (
-                                                <div className="inline-edit-pill-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
-                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <select
-                                                            value={tempMappedCourse.code}
-                                                            onChange={(e) => setTempMappedCourse({ ...tempMappedCourse, code: e.target.value })}
-                                                            style={{ flex: 2 }}
-                                                        >
-                                                            <option value="">-- Code --</option>
-                                                            {masterData.courses.map(mc => <option key={mc.code} value={mc.code}>{mc.code}</option>)}
-                                                        </select>
-                                                        <input
-                                                            type="number"
-                                                            placeholder="Prds"
-                                                            value={tempMappedCourse.periods}
-                                                            onChange={(e) => setTempMappedCourse({ ...tempMappedCourse, periods: e.target.value })}
-                                                            style={{ flex: 1, minWidth: '60px' }}
-                                                        />
-                                                    </div>
+                                                <div className="inline-edit-pill-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%', padding: '4px 0', alignItems: 'stretch' }}>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch' }}>
+                                                            <select
+                                                                className="mac-select-pill"
+                                                                value={tempMappedCourse.code}
+                                                                onChange={(e) => setTempMappedCourse({ ...tempMappedCourse, code: e.target.value })}
+                                                                style={{ width: '100%' }}
+                                                            >
+                                                                <option value="">-- Select Course --</option>
+                                                                {masterData.courses.map(mc => <option key={mc.code} value={mc.code}>{mc.code} - {mc.name}</option>)}
+                                                            </select>
+                                                            <input
+                                                                className="premium-add-input"
+                                                                type="number"
+                                                                placeholder="Prds"
+                                                                value={tempMappedCourse.periods}
+                                                                onChange={(e) => setTempMappedCourse({ ...tempMappedCourse, periods: e.target.value })}
+                                                                style={{ width: '100%' }}
+                                                            />
+                                                        </div>
 
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                                        {tempMappedCourse.faculties.map((fac, facIdx) => (
-                                                            <div key={facIdx} style={{ display: 'flex', gap: '8px' }}>
-                                                                <select
-                                                                    value={fac}
-                                                                    onChange={(e) => {
-                                                                        const newFacs = [...tempMappedCourse.faculties];
-                                                                        newFacs[facIdx] = e.target.value;
-                                                                        setTempMappedCourse({ ...tempMappedCourse, faculties: newFacs });
-                                                                        handleCrossDeptFacultySelect(e.target.value);
-                                                                    }}
-                                                                    style={{ flex: 1 }}
-                                                                >
-                                                                    {renderFacultyOptions()}
-                                                                </select>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch' }}>
+                                                            {tempMappedCourse.faculties.map((fac, facIdx) => (
+                                                                <div key={facIdx} style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'stretch' }}>
+                                                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%' }}>
+                                                                        <select
+                                                                            className="mac-select-pill"
+                                                                            value={fac}
+                                                                            onChange={(e) => {
+                                                                                const newFacs = [...tempMappedCourse.faculties];
+                                                                                newFacs[facIdx] = e.target.value;
+                                                                                setTempMappedCourse({ ...tempMappedCourse, faculties: newFacs });
+                                                                                handleCrossDeptFacultySelect(e.target.value);
+                                                                            }}
+                                                                            style={{ width: '100%' }}
+                                                                        >
+                                                                            {renderFacultyOptions()}
+                                                                        </select>
+                                                                    </div>
 
-                                                                {facIdx > 0 && (
-                                                                    <button className="action-btn action-delete" onClick={() => {
-                                                                        const newFacs = tempMappedCourse.faculties.filter((_, idx) => idx !== facIdx);
-                                                                        setTempMappedCourse({ ...tempMappedCourse, faculties: newFacs });
-                                                                    }} style={{ padding: '0 8px' }}>
-                                                                        <RiDeleteBin6Line />
-                                                                    </button>
-                                                                )}
+                                                                    {facIdx === tempMappedCourse.faculties.length - 1 && (
+                                                                        <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                                                                            <button className="premium-pill-btn secondary" onClick={() => setTempMappedCourse({ ...tempMappedCourse, faculties: [...tempMappedCourse.faculties, ''] })} style={{ flex: 1, background: 'var(--mac-bg-secondary)', color: 'var(--mac-text)', border: '1px dashed var(--mac-border)', boxShadow: 'none', justifyContent: 'center' }}>
+                                                                                <RiAddLine /> Faculty
+                                                                            </button>
+                                                                            {tempMappedCourse.faculties.length > 1 && (
+                                                                                <button className="premium-pill-btn danger" onClick={() => {
+                                                                                    const newFacs = tempMappedCourse.faculties.slice(0, -1);
+                                                                                    setTempMappedCourse({ ...tempMappedCourse, faculties: newFacs });
+                                                                                }} style={{ flex: 1, justifyContent: 'center' }}>
+                                                                                    <RiDeleteBin6Line /> Option
+                                                                                </button>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ))}
+                                                        </div>
 
-                                                                {facIdx === tempMappedCourse.faculties.length - 1 && (
-                                                                    <button className="btn-save-master" onClick={() => setTempMappedCourse({ ...tempMappedCourse, faculties: [...tempMappedCourse.faculties, ''] })} style={{ padding: '0 8px', minWidth: 'auto' }}>
-                                                                        <RiAddLine /> Add Faculty
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-
-                                                    <div className="edit-pill-actions" style={{ justifyContent: 'flex-end', marginTop: '4px' }}>
-                                                        <button className="action-btn action-edit" onClick={handleUpdateMappedCourse}><RiCheckLine /> <span className="action-label">Save</span></button>
-                                                        <button className="action-btn" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--mac-text)' }} onClick={() => setEditingMappedCourseIdx(null)}><RiCloseLine /> <span className="action-label">Cancel</span></button>
+                                                    <div className="edit-pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '12px', justifyContent: 'center' }}>
+                                                        <button className="premium-pill-btn primary" onClick={handleUpdateMappedCourse} style={{ flex: 1, justifyContent: 'center' }}>
+                                                            <RiCheckLine /> Save
+                                                        </button>
+                                                        <button className="premium-pill-btn secondary" onClick={() => setEditingMappedCourseIdx(null)} style={{ flex: 1, justifyContent: 'center' }}>
+                                                            <RiCloseLine /> Cancel
+                                                        </button>
                                                     </div>
                                                 </div>
                                             ) : (
@@ -1093,41 +1111,48 @@ const ScheduleManager = ({ user, userProfile }) => {
                                 </div>
 
                                 {isMappedEditMode && (
-                                    <div className="bulk-actions-bar" style={{ display: 'flex', justifyContent: isMappedDeleteMode ? 'space-between' : 'flex-end', alignItems: 'center', padding: '12px', background: isMappedDeleteMode ? 'rgba(255, 59, 48, 0.05)' : 'transparent', borderRadius: '8px', marginTop: '16px', border: isMappedDeleteMode ? '1px solid rgba(255, 59, 48, 0.2)' : 'none' }}>
+                                    <div className={`bulk-action-footer-premium animate-slide-up ${isMappedDeleteMode ? 'danger-mode' : ''}`} style={{ marginTop: '24px' }}>
                                         {isMappedDeleteMode ? (
-                                            <>
-                                                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: 'var(--mac-text)' }}>
-                                                    <input
-                                                        type="checkbox"
-                                                        onChange={handleSelectAllMappedCourses}
-                                                        checked={selectedMappedCourses.length === (sectionData.courses?.length || 0) && (sectionData.courses?.length || 0) > 0}
-                                                        style={{ transform: 'scale(1.2)' }}
-                                                    />
-                                                    <span>Select All</span>
-                                                </label>
-                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                            <div className="bulk-delete-action-row">
+                                                <div className="bulk-delete-info">
+                                                    <div className="info-icon">
+                                                        <RiDeleteBin6Fill />
+                                                    </div>
+                                                    <div className="bulk-delete-text">
+                                                        <span className="bulk-delete-title">
+                                                            {selectedMappedCourses.length === 0 ? "Select Items" : `${selectedMappedCourses.length} Selected`}
+                                                        </span>
+                                                        <span className="bulk-delete-desc">Choose mapped courses to delete</span>
+                                                    </div>
+                                                </div>
+                                                <div className="pill-group">
                                                     <button
-                                                        onClick={() => { setSelectedMappedCourses([]); setIsMappedDeleteMode(false); }}
-                                                        style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid var(--border-color)', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
+                                                        className="premium-pill-btn primary"
+                                                        onClick={handleSelectAllMappedCourses}
                                                     >
-                                                        Cancel
+                                                        {selectedMappedCourses.length === (sectionData.courses?.length || 0) && (sectionData.courses?.length || 0) > 0 ? 'Deselect All' : 'Select All'}
                                                     </button>
-                                                    <button
-                                                        onClick={handleBulkDeleteMappedCourses}
-                                                        style={{ background: '#FF3B30', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', opacity: selectedMappedCourses.length === 0 ? 0.5 : 1 }}
-                                                        disabled={selectedMappedCourses.length === 0}
-                                                    >
-                                                        <RiDeleteBin6Line /> Delete ({selectedMappedCourses.length})
+                                                    <button className="premium-pill-btn secondary" onClick={() => { setSelectedMappedCourses([]); setIsMappedDeleteMode(false); }}>Cancel</button>
+                                                    <button className="premium-pill-btn danger" onClick={handleBulkDeleteMappedCourses} disabled={selectedMappedCourses.length === 0}>
+                                                        Delete
                                                     </button>
                                                 </div>
-                                            </>
+                                            </div>
                                         ) : (
-                                            <button
-                                                onClick={() => setIsMappedDeleteMode(true)}
-                                                style={{ background: 'rgba(255, 59, 48, 0.1)', color: '#FF3B30', border: 'none', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-                                            >
-                                                <RiDeleteBin6Line /> Delete Courses
-                                            </button>
+                                            <div className="bulk-delete-start-row">
+                                                <div className="bulk-delete-info">
+                                                    <div className="info-icon">
+                                                        <RiLinksLine />
+                                                    </div>
+                                                    <div className="bulk-delete-text">
+                                                        <span className="bulk-delete-title">Manage Local Mapping</span>
+                                                        <span className="bulk-delete-desc">Select and remove multiple mappings at once</span>
+                                                    </div>
+                                                </div>
+                                                <button className="premium-pill-btn danger" onClick={() => setIsMappedDeleteMode(true)}>
+                                                    <RiDeleteBin6Fill /> Delete Courses
+                                                </button>
+                                            </div>
                                         )}
                                     </div>
                                 )}
@@ -1140,34 +1165,28 @@ const ScheduleManager = ({ user, userProfile }) => {
                                 {(() => {
                                     const days = ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                                     const shortLabels = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                                    const selectedIndex = days.indexOf(editingDay);
-                                    const tabWidth = 100 / days.length;
                                     return (
-                                        <div className="s2-day-tabs">
-                                            <div
-                                                className="s2-day-indicator"
-                                                style={{ left: `calc(${selectedIndex * tabWidth}% + 5px)`, width: `calc(${tabWidth}% - 10px)` }}
-                                            />
+                                        <nav className="editor-tabs box-flat" style={{ display: 'flex', width: '100%', marginBottom: '24px' }}>
                                             {days.map((day, i) => (
-                                                <button key={day} className={editingDay === day ? 'active' : ''} onClick={() => setEditingDay(day)}>{shortLabels[i]}</button>
+                                                <button key={day} style={{ flex: 1, justifyContent: 'center', padding: '8px 0' }} className={editingDay === day ? 'active' : ''} onClick={() => setEditingDay(day)}>{shortLabels[i]}</button>
                                             ))}
-                                        </div>
+                                        </nav>
                                     );
                                 })()}
 
                                 <div className="tt-controls">
                                     <h3 className="tt-day-title">{editingDay}</h3>
                                     {!isEditingTimetable ? (
-                                        <button className="action-btn action-edit" onClick={startEditingTimetable}>
-                                            <RiEditLine /> <span className="action-label">Edit</span>
+                                        <button className="edit-list-btn" onClick={startEditingTimetable}>
+                                            <RiEditLine /> Edit
                                         </button>
                                     ) : (
                                         <div className="tt-edit-actions">
-                                            <button className="action-btn action-edit" onClick={saveTimetableEdit}>
-                                                <RiSave3Line /> <span className="action-label">Save</span>
+                                            <button className="premium-pill-btn primary" onClick={saveTimetableEdit}>
+                                                <RiSave3Line /> Save
                                             </button>
-                                            <button className="action-btn" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--mac-text)' }} onClick={() => setIsEditingTimetable(false)}>
-                                                <RiCloseLine /> <span className="action-label">Cancel</span>
+                                            <button className="premium-pill-btn secondary" onClick={() => setIsEditingTimetable(false)}>
+                                                <RiCloseLine /> Cancel
                                             </button>
                                         </div>
                                     )}
@@ -1182,11 +1201,10 @@ const ScheduleManager = ({ user, userProfile }) => {
                                 </datalist>
 
                                 <div className="tt-period-grid">
-                                    {[0, 1, 2, 3, 4, 5, 6, 7].map(idx => (
+                                    {[0, 1, 2, 3, 4, 5, 6].map(idx => (
                                         <div key={idx} className={`tt-period-card ${isEditingTimetable ? 'editing' : ''}`}>
                                             <div className="tt-period-label">
                                                 Period {idx + 1}
-                                                <span style={{ fontSize: '10px', opacity: 0.6, display: 'block', fontWeight: 400 }}>{periodTimes[idx]}</span>
                                             </div>
                                             {isEditingTimetable ? (
                                                 <input
@@ -1209,235 +1227,214 @@ const ScheduleManager = ({ user, userProfile }) => {
 
                         {/* --- COUNSELING / ROLES TAB --- */}
                         {activeTab === 'counseling' && (
-                            <div className="counseling-manager settings-card">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <h3 className="section-title" style={{ margin: 0 }}><RiTeamLine /> Section Roles</h3>
-                                    <span style={{ fontSize: '13px', opacity: 0.6, background: 'var(--mac-blue-15)', color: 'var(--mac-blue)', padding: '4px 10px', borderRadius: '100px', fontWeight: 600 }}>Sec {path.sec}</span>
-                                </div>
-                                {!isSectionRolesEditMode ? (
-                                    <button
-                                        className="premium-pill-btn secondary"
-                                        onClick={() => {
-                                            setIsSectionRolesEditMode(true);
-                                            setTempSectionRoles({
-                                                "Class Advisor": sectionData.counseling.coordinators?.["Class Advisor"] || '',
-                                                "Chairperson": sectionData.counseling.coordinators?.["Chairperson"] || ''
-                                            });
-                                        }}
-                                    >
-                                        <RiEditLine /> Edit Roles
-                                    </button>
-                                ) : (
-                                    <div className="pill-group" style={{ display: 'flex', gap: '8px' }}>
-                                        <button className="premium-pill-btn secondary" onClick={() => setIsSectionRolesEditMode(false)}>Cancel</button>
-                                        <button className="premium-pill-btn primary" onClick={handleSaveSectionRoles}>Save</button>
-                                    </div>
-                                )}
-                            </div>
-
-                                <div className="role-editor-row locked">
-                                    <div className="role-label">
-                                        <strong>Year Coordinator</strong>
-                                        <span>(Set centrally in Dept Master)</span>
-                                    </div>
-                                    <div className="role-value">
-                                        {sectionData.counseling.coordinators?.["Year Coordinator"] || "Not Assigned"}
-                                    </div>
-                                </div>
-
-                                <div className="role-editor-row">
-                                    <div className="role-label">
-                                        <strong>Class Advisor</strong>
-                                    </div>
-                                    <div className="role-input">
-                                        {isSectionRolesEditMode ? (
-                                            <select
-                                                value={tempSectionRoles["Class Advisor"] || ''}
-                                                onChange={e => {
-                                                    const val = e.target.value;
-                                                    handleCrossDeptFacultySelect(val);
-                                                    setTempSectionRoles(prev => ({ ...prev, "Class Advisor": val }));
-                                                }}
-                                                style={{ minWidth: '250px' }}
-                                            >
-                                                <option value="">-- Unassigned --</option>
-                                                {renderFacultyOptions()}
-                                            </select>
-                                        ) : (
-                                            <div className="s2-mapping-pill faculty" style={{ fontSize: '14px', padding: '10px 20px' }}>
-                                                <RiUserLine />
-                                                <span>{sectionData.counseling.coordinators?.["Class Advisor"] || 'Not Assigned'}</span>
+                            <div className="sr-tab-wrapper">
+                                <div className="sr-split-view">
+                                    {/* ----- LEFT COLUMN: SECTION ROLES ----- */}
+                                    <div className="sr-column">
+                                        {/* ===== SECTION ROLES — HEADER ROW ===== */}
+                                        <div className="sr-section-header">
+                                            <div className="sr-header-left">
+                                                <RiTeamLine className="sr-header-icon" />
+                                                <h3 className="sr-title">Section Roles</h3>
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="role-editor-row">
-                                    <div className="role-label">
-                                        <strong>Chairperson</strong>
-                                    </div>
-                                    <div className="role-input">
-                                        {isSectionRolesEditMode ? (
-                                            <select
-                                                value={tempSectionRoles["Chairperson"] || ''}
-                                                onChange={e => {
-                                                    const val = e.target.value;
-                                                    handleCrossDeptFacultySelect(val);
-                                                    setTempSectionRoles(prev => ({ ...prev, "Chairperson": val }));
-                                                }}
-                                                style={{ minWidth: '250px' }}
-                                            >
-                                                <option value="">-- Unassigned --</option>
-                                                {renderFacultyOptions()}
-                                            </select>
-                                        ) : (
-                                            <div className="s2-mapping-pill faculty" style={{ fontSize: '14px', padding: '10px 20px' }}>
-                                                <RiUserLine />
-                                                <span>{sectionData.counseling.coordinators?.["Chairperson"] || 'Not Assigned'}</span>
+                                            <div className="sr-header-right">
+                                                {!isSectionRolesEditMode ? (
+                                                    <button className="sr-action-btn" onClick={() => { setIsSectionRolesEditMode(true); setTempSectionRoles({ "Class Advisor": sectionData.counseling.coordinators?.["Class Advisor"] || '', "Chairperson": sectionData.counseling.coordinators?.["Chairperson"] || '' }); }}>
+                                                        <RiEditLine /> Edit Roles
+                                                    </button>
+                                                ) : (
+                                                    <div className="sr-action-group">
+                                                        <button className="sr-action-btn sr-cancel" onClick={() => setIsSectionRolesEditMode(false)}>Cancel</button>
+                                                        <button className="sr-action-btn sr-save" onClick={handleSaveSectionRoles}>Save</button>
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="counselors-list-manager" style={{ marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                        <h4 style={{ margin: 0, color: 'var(--mac-text)', fontSize: '15px' }}>Counselors</h4>
-                                        {(sectionData.counseling.counselors || []).length > 0 && (
-                                            isCounselorEditMode ? (
-                                                <div style={{ display: 'flex', gap: '8px' }}>
-                                                    <button
-                                                        className="btn-add-mini"
-                                                        onClick={() => { setSelectedCounselors([]); setIsCounselorDeleteMode(false); setIsCounselorEditMode(false); }}
-                                                        style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid var(--border-color)' }}
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <button
-                                                        className="btn-add-mini"
-                                                        onClick={() => { setSelectedCounselors([]); setIsCounselorDeleteMode(false); setIsCounselorEditMode(false); }}
-                                                        style={{ background: 'var(--mac-blue)', color: '#fff' }}
-                                                    >
-                                                        Done
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <button
-                                                    className="btn-add-mini"
-                                                    onClick={() => setIsCounselorEditMode(true)}
-                                                    style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)' }}
-                                                >
-                                                    Edit List
-                                                </button>
-                                            )
-                                        )}
-                                    </div>
-
-                                    {(isCounselorEditMode || (sectionData.counseling.counselors || []).length === 0) && (
-                                        <div className="add-item-bar inline">
-                                            <select value={newCounselor} onChange={e => { handleCrossDeptFacultySelect(e.target.value); setNewCounselor(e.target.value); }} style={{ flex: 1 }}>
-                                                {renderFacultyOptions()}
-                                            </select>
-                                            <button className="btn-add-mini" onClick={addCounselor}><RiAddLine /></button>
                                         </div>
-                                    )}
 
-                                    <div className="counselor-items-v2" style={{ marginTop: '16px' }}>
+                                        {/* Year Coordinator — individual card (locked) */}
+                                        <div className="sr-role-card sr-locked">
+                                            <div className="sr-role-info">
+                                                <span className="sr-role-name">Year Coordinator</span>
+                                                <span className="sr-role-hint">Set centrally in Dept Master</span>
+                                            </div>
+                                            <div className="sr-role-badge">
+                                                <RiUserLine className="sr-badge-icon" />
+                                                <span>{sectionData.counseling.coordinators?.["Year Coordinator"] || "Not Assigned"}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Class Advisor — individual card */}
+                                        <div className="sr-role-card">
+                                            <div className="sr-role-info">
+                                                <span className="sr-role-name">Class Advisor</span>
+                                            </div>
+                                            {isSectionRolesEditMode ? (
+                                                <select className="sr-select" value={tempSectionRoles["Class Advisor"] || ''} onChange={e => { handleCrossDeptFacultySelect(e.target.value); setTempSectionRoles(prev => ({ ...prev, "Class Advisor": e.target.value })); }}>
+                                                    <option value="">-- Unassigned --</option>
+                                                    {renderFacultyOptions()}
+                                                </select>
+                                            ) : (
+                                                <div className="sr-role-badge">
+                                                    <RiUserLine className="sr-badge-icon" />
+                                                    <span>{sectionData.counseling.coordinators?.["Class Advisor"] || 'Not Assigned'}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Chairperson — individual card */}
+                                        <div className="sr-role-card">
+                                            <div className="sr-role-info">
+                                                <span className="sr-role-name">Chairperson</span>
+                                            </div>
+                                            {isSectionRolesEditMode ? (
+                                                <select className="sr-select" value={tempSectionRoles["Chairperson"] || ''} onChange={e => { handleCrossDeptFacultySelect(e.target.value); setTempSectionRoles(prev => ({ ...prev, "Chairperson": e.target.value })); }}>
+                                                    <option value="">-- Unassigned --</option>
+                                                    {renderFacultyOptions()}
+                                                </select>
+                                            ) : (
+                                                <div className="sr-role-badge">
+                                                    <RiUserLine className="sr-badge-icon" />
+                                                    <span>{sectionData.counseling.coordinators?.["Chairperson"] || 'Not Assigned'}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* ----- RIGHT COLUMN: COUNSELORS ----- */}
+                                    <div className="sr-column">
+                                        {/* ===== COUNSELORS — HEADER ROW ===== */}
+                                        <div className="sr-section-header">
+                                            <div className="sr-header-left">
+                                                <RiUserVoiceLine className="cr-header-icon" />
+                                                <h3 className="sr-title">Counselors</h3>
+                                                <span className="cr-count-badge">{(sectionData.counseling.counselors || []).length}</span>
+                                            </div>
+                                            <div className="sr-header-right">
+                                                {(sectionData.counseling.counselors || []).length > 0 && (
+                                                    isCounselorEditMode ? (
+                                                        <div className="sr-action-group">
+                                                            <button className="sr-action-btn sr-cancel" onClick={() => { setSelectedCounselors([]); setIsCounselorDeleteMode(false); setIsCounselorEditMode(false); }}>Cancel</button>
+                                                            <button className="sr-action-btn sr-save" onClick={() => { setSelectedCounselors([]); setIsCounselorDeleteMode(false); setIsCounselorEditMode(false); }}>Done</button>
+                                                        </div>
+                                                    ) : (
+                                                        <button className="sr-action-btn" onClick={() => setIsCounselorEditMode(true)}>
+                                                            <RiEditLine /> Edit List
+                                                        </button>
+                                                    )
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Add Counselor Card */}
+                                        {(isCounselorEditMode || (sectionData.counseling.counselors || []).length === 0) && (
+                                            <div className="cr-add-card animate-slide-down">
+                                                <div className="cr-add-header">
+                                                    <div className="code-badge"><RiAddLine /></div>
+                                                    <span>Add New Counselor</span>
+                                                </div>
+                                                <div className="cr-add-bar">
+                                                    <select className="sr-select" value={newCounselor} onChange={e => { handleCrossDeptFacultySelect(e.target.value); setNewCounselor(e.target.value); }} style={{ flex: 1 }}>
+                                                        {renderFacultyOptions()}
+                                                    </select>
+                                                    <button className="cr-add-btn" onClick={addCounselor}><RiAddLine /></button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Individual Counselor Cards */}
                                         {(sectionData.counseling.counselors || []).map((c, i) => (
-                                            <div key={i} className={`s2-mapping-card ${editingCounselorIdx === i ? 'editing' : ''}`}>
+                                            <div key={i} className={`cr-person-card ${editingCounselorIdx === i ? 'cr-editing' : ''} ${selectedCounselors.includes(i) ? 'cr-selected' : ''}`}>
                                                 {editingCounselorIdx === i ? (
-                                                    <div className="inline-edit-pill-wrap">
-                                                        <select
-                                                            autoFocus
-                                                            value={tempCounselor}
-                                                            onChange={(e) => { handleCrossDeptFacultySelect(e.target.value); setTempCounselor(e.target.value); }}
-                                                            style={{ flex: 1 }}
-                                                        >
+                                                    <div className="cr-edit-wrap">
+                                                        <select className="sr-select" autoFocus value={tempCounselor} onChange={(e) => { handleCrossDeptFacultySelect(e.target.value); setTempCounselor(e.target.value); }} style={{ flex: 1 }}>
                                                             {renderFacultyOptions()}
                                                         </select>
-                                                        <div className="edit-pill-actions">
-                                                            <button className="action-btn action-edit" onClick={handleUpdateCounselor}><RiCheckLine /> <span className="action-label">Save</span></button>
-                                                            <button className="action-btn" style={{ background: 'rgba(255,255,255,0.08)', color: 'var(--mac-text)' }} onClick={() => setEditingCounselorIdx(null)}><RiCloseLine /> <span className="action-label">Cancel</span></button>
+                                                        <div className="cr-edit-actions" style={{ display: 'flex', gap: '12px', marginTop: '12px', justifyContent: 'center' }}>
+                                                            <button className="premium-pill-btn primary" onClick={handleUpdateCounselor} style={{ flex: 1, justifyContent: 'center' }}>
+                                                                <RiCheckLine /> Save
+                                                            </button>
+                                                            <button className="premium-pill-btn secondary" onClick={() => setEditingCounselorIdx(null)} style={{ flex: 1, justifyContent: 'center' }}>
+                                                                <RiCloseLine /> Cancel
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 ) : (
                                                     <>
                                                         {isCounselorDeleteMode && (
-                                                            <input
-                                                                type="checkbox"
-                                                                className="mac-checkbox"
-                                                                checked={selectedCounselors.includes(i)}
-                                                                onChange={() => handleToggleCounselorSelect(i)}
-                                                            />
+                                                            <input type="checkbox" className="mac-checkbox" checked={selectedCounselors.includes(i)} onChange={() => handleToggleCounselorSelect(i)} />
                                                         )}
-                                                        <div className="card-main-content">
-                                                            <div className="card-header-row">
-                                                                <RiUserVoiceLine style={{ color: 'var(--mac-blue)' }} />
-                                                                <span className="course-name">{c}</span>
-                                                            </div>
+                                                        <div className="cr-person-info">
+                                                            <div className="cr-avatar"><RiUserVoiceLine /></div>
+                                                            <span className="cr-person-name">{c}</span>
                                                         </div>
-                                                        {isCounselorEditMode && (
-                                                            <div className="card-actions-area">
-                                                                <button className="pill-inline-edit" onClick={() => { setEditingCounselorIdx(i); setTempCounselor(c); }}>
-                                                                    <RiEditLine />
-                                                                </button>
-                                                            </div>
+                                                        {isCounselorEditMode && !isCounselorDeleteMode && (
+                                                            <button className="cr-edit-btn" title="Edit Counselor" onClick={() => { setEditingCounselorIdx(i); setTempCounselor(c); }}>
+                                                                <RiEditLine />
+                                                            </button>
                                                         )}
                                                     </>
                                                 )}
                                             </div>
                                         ))}
-                                        {(sectionData.counseling.counselors?.length === 0 || !sectionData.counseling.counselors) &&
-                                            <p className="empty-state">No counselors assigned.</p>
-                                        }
-                                    </div>
 
-                                    {isCounselorEditMode && (
-                                        <div className="bulk-actions-bar" style={{ display: 'flex', justifyContent: isCounselorDeleteMode ? 'space-between' : 'flex-end', alignItems: 'center', padding: '12px', background: isCounselorDeleteMode ? 'rgba(255, 59, 48, 0.05)' : 'transparent', borderRadius: '8px', marginTop: '16px', border: isCounselorDeleteMode ? '1px solid rgba(255, 59, 48, 0.2)' : 'none' }}>
-                                            {isCounselorDeleteMode ? (
-                                                <>
-                                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', color: 'var(--mac-text)' }}>
-                                                        <input
-                                                            type="checkbox"
-                                                            onChange={handleSelectAllCounselors}
-                                                            checked={selectedCounselors.length === (sectionData.counseling.counselors?.length || 0) && (sectionData.counseling.counselors?.length || 0) > 0}
-                                                            style={{ transform: 'scale(1.2)' }}
-                                                        />
-                                                        <span>Select All</span>
-                                                    </label>
-                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <button
-                                                            onClick={() => { setSelectedCounselors([]); setIsCounselorDeleteMode(false); }}
-                                                            style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid var(--border-color)', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                        <button
-                                                            onClick={handleBulkDeleteCounselors}
-                                                            style={{ background: '#FF3B30', color: 'white', border: 'none', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', opacity: selectedCounselors.length === 0 ? 0.5 : 1 }}
-                                                            disabled={selectedCounselors.length === 0}
-                                                        >
-                                                            <RiDeleteBin6Line /> Delete ({selectedCounselors.length})
+                                        {(sectionData.counseling.counselors?.length === 0 || !sectionData.counseling.counselors) &&
+                                            <p className="cr-empty">No counselors assigned yet.</p>
+                                        }
+
+                                        {/* Bulk Delete Bar */}
+                                        {isCounselorEditMode && (
+                                            <div className={`bulk-action-footer-premium animate-slide-up ${isCounselorDeleteMode ? 'danger-mode' : ''}`} style={{ marginTop: '24px' }}>
+                                                {isCounselorDeleteMode ? (
+                                                    <div className="bulk-delete-action-row">
+                                                        <div className="bulk-delete-info">
+                                                            <div className="info-icon">
+                                                                <RiDeleteBin6Fill />
+                                                            </div>
+                                                            <div className="bulk-delete-text">
+                                                                <span className="bulk-delete-title">
+                                                                    {selectedCounselors.length === 0 ? "Select Items" : `${selectedCounselors.length} Selected`}
+                                                                </span>
+                                                                <span className="bulk-delete-desc">Choose counselors to delete</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="pill-group">
+                                                            <button
+                                                                className="premium-pill-btn primary"
+                                                                onClick={handleSelectAllCounselors}
+                                                            >
+                                                                {selectedCounselors.length === (sectionData.counseling.counselors?.length || 0) && (sectionData.counseling.counselors?.length || 0) > 0 ? 'Deselect All' : 'Select All'}
+                                                            </button>
+                                                            <button className="premium-pill-btn secondary" onClick={() => { setSelectedCounselors([]); setIsCounselorDeleteMode(false); }}>Cancel</button>
+                                                            <button className="premium-pill-btn danger" onClick={handleBulkDeleteCounselors} disabled={selectedCounselors.length === 0}>
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="bulk-delete-start-row">
+                                                        <div className="bulk-delete-info">
+                                                            <div className="info-icon">
+                                                                <RiUserVoiceLine />
+                                                            </div>
+                                                            <div className="bulk-delete-text">
+                                                                <span className="bulk-delete-title">Manage Counselors</span>
+                                                                <span className="bulk-delete-desc">Select and remove multiple counselors at once</span>
+                                                            </div>
+                                                        </div>
+                                                        <button className="premium-pill-btn danger" onClick={() => setIsCounselorDeleteMode(true)}>
+                                                            <RiDeleteBin6Line /> Delete Counselors
                                                         </button>
                                                     </div>
-                                                </>
-                                            ) : (
-                                                <button
-                                                    onClick={() => setIsCounselorDeleteMode(true)}
-                                                    style={{ background: 'rgba(255, 59, 48, 0.1)', color: '#FF3B30', border: 'none', padding: '6px 16px', borderRadius: '6px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-                                                >
-                                                    <RiDeleteBin6Line /> Delete Counselors
-                                                </button>
-                                            )}
-                                        </div>
-                                    )}
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
-            )
-            }
+            )}
 
             {/* --- ADDITION SPECIFIC CSS FOR MANAGERS --- */}
             <style>{`
@@ -1450,14 +1447,7 @@ const ScheduleManager = ({ user, userProfile }) => {
          .mapped-info strong { font-size: 15px; color: var(--mac-text); }
          .mapped-info span { font-size: 13px; color: var(--mac-text-secondary); }
          
-         .role-editor-row { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--border-color); }
-         .role-editor-row:last-child { border-bottom: none; }
-         .role-editor-row.locked { opacity: 0.7; background: var(--mac-bg-secondary); border-radius: 8px; margin-bottom: 16px; border: none; }
-         .role-label { display: flex; flex-direction: column; gap: 4px; }
-         .role-label span { font-size: 12px; color: var(--mac-text-secondary); }
-         .role-input select { min-width: 250px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--mac-bg-secondary); color: var(--mac-text); }
-         .role-input select:focus { border-color: var(--mac-blue); outline: none; }
-      `}</style>
+       `}</style>
         </div >
     );
 };

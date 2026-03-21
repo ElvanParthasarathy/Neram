@@ -541,10 +541,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val isHoliday = schedule.scheduleStatus.contains("Holiday", ignoreCase = true)
         val hasFullDayEvent = schedule.fullDayEvent != null
         val isMajorExam = schedule.activeExamPeriod != null && !schedule.activeExamPeriod.type.contains("CT")
-        val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam
+        val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam || schedule.todaySpecialClass != null
         
-        val hasLabToday = !classesSuspended && schedule.periods.any { it.isLab }
-        val hasExamToday = schedule.todayExam != null || schedule.todayBatches.isNotEmpty() || schedule.todaySpecialClass != null
+        val hasLabToday = (!classesSuspended && schedule.periods.any { it.isLab }) || (schedule.activeExamPeriod != null && schedule.activeExamPeriod.type.equals("Practical", ignoreCase = true) && schedule.todayBatches.isNotEmpty())
+        val hasExamToday = schedule.todayExam != null || schedule.todayBatches.isNotEmpty()
         
         val rawNote = visibleServerUpdate?.note ?: ""
         var finalNote = rawNote

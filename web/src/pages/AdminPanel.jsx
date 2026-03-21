@@ -29,8 +29,9 @@ import AdminDashboard from './admins/AdminDashboard';
 import PendingRequests from './admins/PendingRequests';
 import SemesterTransitionManager from './admins/SemesterTransitionManager';
 import SpecialClassManager from './admins/SpecialClassManager';
+import NotesManager from './admins/NotesManager';
 
-const AdminPanel = ({ user, userProfile }) => {
+const AdminPanel = ({ user, userProfile, isMobile }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const activeModule = searchParams.get('mod') || 'home';
@@ -88,6 +89,7 @@ const AdminPanel = ({ user, userProfile }) => {
               {activeModule === 'events' && 'Events'}
               {activeModule === 'calendar' && 'Calendar'}
               {activeModule === 'resources' && 'Resources'}
+              {activeModule === 'notes' && 'Notes Manager'}
               {activeModule === 'pending' && 'Pending Requests'}
               {activeModule === 'structure' && 'Structure'}
               {activeModule === 'archives' && 'Semester Archive Tool'}
@@ -99,15 +101,16 @@ const AdminPanel = ({ user, userProfile }) => {
         {activeModule === 'structure' && <StructureManager />}
         {activeModule === 'users' && <UserManagement />}
         {activeModule === 'roles' && <AdminRoleManager userProfile={userProfile} />}
-        {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} />}
+        {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} isMobile={isMobile} />}
 
-        {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} />}
-        {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} />}
+        {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+        {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} isMobile={isMobile} />}
         {activeModule === 'calendar' && <CalendarManager />}
         {activeModule === 'resources' && <ResourceManager />}
+        {activeModule === 'notes' && <NotesManager />}
         {activeModule === 'pending' && <PendingRequests />}
-        {activeModule === 'archives' && <SemesterTransitionManager user={user} userProfile={userProfile} />}
-        {activeModule === 'special_classes' && <SpecialClassManager user={user} userProfile={userProfile} />}
+        {activeModule === 'archives' && <SemesterTransitionManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+        {activeModule === 'special_classes' && <SpecialClassManager user={user} userProfile={userProfile} isMobile={isMobile} />}
       </main>
     </div>
   );

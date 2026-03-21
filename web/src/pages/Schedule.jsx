@@ -177,11 +177,21 @@ export const ViewTypeTabsRow = ({ activeTab, onTabSelected }) => (
 );
 
 /** Date navigation section — uses manually toggled inline calendar */
-export const DateSection = ({ date, onPrev, onNext, onDateChange }) => {
+export const DateSection = ({ date, onPrev, onNext, onDateChange, isMobile: isMobileProp }) => {
   const [calOpen, setCalOpen] = useState(false);
+  const [isMobileLocal, setIsMobileLocal] = useState(false);
+  const isMobile = isMobileProp !== undefined ? isMobileProp : isMobileLocal;
   const wrapperRef = useRef(null);
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
+
+  // Auto-detect mobile if prop not provided
+  useEffect(() => {
+    const check = () => setIsMobileLocal(window.matchMedia('(max-width: 768px)').matches);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Close on outside click
   useEffect(() => {
@@ -241,23 +251,28 @@ export const DateSection = ({ date, onPrev, onNext, onDateChange }) => {
       <div className="s2-calendar-divider" />
 
       <div className="s2-calendar-trigger-wrapper">
-        {/* Native Mobile Date Picker (Placed FIRST for CSS sibling selector) */}
         <input
           type="date"
           className="s2-mobile-date-input"
-          value={toISODateLocal(date)}
+          value={date.toISOString().split('T')[0]}
           onChange={(e) => {
-            if (e.target.valueAsDate) {
-              onDateChange(e.target.valueAsDate);
+            if (e.target.value) {
+              onDateChange(new Date(e.target.value));
             }
           }}
+          style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            opacity: 0, cursor: 'pointer', zIndex: 10,
+            width: '100%', height: '100%', display: isMobile ? 'block' : 'none'
+          }}
         />
-        <button className="s2-calendar-trigger-btn" onClick={() => setCalOpen(!calOpen)}>
+        <button className="s2-calendar-trigger-btn" onClick={() => !isMobile && setCalOpen(!calOpen)}>
           <RiCalendarEventLine />
         </button>
       </div>
 
-      {calOpen && (
+      {calOpen && !isMobile && (
         <div className="s2-calendar-dropdown">
           <DatePicker
             selected={date}
@@ -664,7 +679,7 @@ const EmptyCard = ({ message }) => (
 
 // ======================= MAIN COMPONENT =======================
 
-const Schedule = ({ globalData, userProfile, activeProfile }) => {
+const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
   const { masterData = {}, allCalendar = [], isSyncing } = globalData || {};
 
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -698,7 +713,21 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
       const unsub = onValue(sectionEventsRef, (snap) => {
         const data = snap.val() || [];
         const rawEvents = Array.isArray(data) ? data : Object.values(data);
-        setSectionEvents(rawEvents.filter(e => e.date === todayStr));
+        const flattenedToday = [];
+        rawEvents.forEach(group => {
+            if (group.events && Array.isArray(group.events)) {
+                group.events.forEach(ev => {
+                    if (ev.date === todayStr) {
+                        flattenedToday.push({ ...group, ...ev, title: ev.title || group.title });
+                    }
+                });
+            } else {
+                if (todayStr >= (group.startDate || group.date) && todayStr <= (group.endDate || group.date)) {
+                    flattenedToday.push(group);
+                }
+            }
+        });
+        setSectionEvents(flattenedToday);
         setAreEventsLoading(false);
       }, () => setAreEventsLoading(false));
       return () => unsub();
@@ -714,7 +743,7 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
     const todayStr = toISODate(currentDate);
 
     // Global events
-    const gEvents = allCalendar.filter(e => e.date === todayStr);
+    const gEvents = allCalendar.filter(e => todayStr >= (e.startDate || e.date) && todayStr <= (e.endDate || e.date));
     setGlobalEvents(gEvents);
 
     // Exam logic
@@ -861,6 +890,7 @@ const Schedule = ({ globalData, userProfile, activeProfile }) => {
           onPrev={goDatePrev}
           onNext={goDateNext}
           onDateChange={(d) => { setSlideAnim(""); setCurrentDate(d); }}
+          isMobile={isMobile}
         />
       </div>
       <div className="s2-spacer-md" />

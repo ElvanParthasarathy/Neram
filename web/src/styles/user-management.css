@@ -80,7 +80,29 @@
     transform: scale(0.96);
 }
 
-/* --- 2. SEARCH PILL --- */
+/* --- 2. EDIT TOGGLE --- */
+.edit-toggle-btn {
+    border: 1px solid var(--mac-border);
+    background: var(--mac-sidebar-bg);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    color: var(--mac-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.edit-toggle-btn:hover {
+    background: var(--mac-selection-hover);
+}
+
+/* --- 3. SEARCH PILL --- */
 .search-card {
     background: transparent !important;
     border: none !important;
@@ -392,4 +414,25 @@ html:not(.dark) .role-pill.active {
 .role-tag.admin {
     background: rgba(255, 149, 0, 0.1);
     color: #FF9500;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS
+   ========================================================================== */
+@media (max-width: 768px) {
+    .user-directory-grid {
+        padding-bottom: 120px; /* Ensure space for bottom nav in view-only mode */
+    }
+
+    .user-directory-grid.edit-mode {
+        padding-bottom: 20px !important; /* Let bulk-action-footer push the space */
+    }
+
+    .user-management-card {
+        margin-bottom: 0;
+    }
+
+    .bulk-action-footer-premium {
+        margin-bottom: 100px; /* Push above bottom nav bar */
+    }
 }

@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.shadow
@@ -61,6 +62,7 @@ fun TopMenuBar(
     onBack: (() -> Unit)? = null,
     onNotificationsClick: (() -> Unit)? = null, // Added Notification Action
     unreadCount: Int = 0,
+    isSmallTitle: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -110,9 +112,23 @@ fun TopMenuBar(
                 Column {
                     Text(
                         text = title,
-                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp), // Match Settings 28sp
+                        style = if (isSmallTitle) {
+                            HomeTypography.PageTitle.copy(
+                                fontSize = if (title.length > 20) 14.sp else 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                letterSpacing = 0.sp
+                            )
+                        } else {
+                            HomeTypography.PageTitle.copy(
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.ExtraBold,
+                                letterSpacing = (-1).sp
+                            )
+                        },
                         color = colors.textPrimary,
-                        modifier = Modifier.padding(top = if (subtitle == null) 8.dp else 0.dp) // Adjust padding if subtitle exists
+                        modifier = Modifier.padding(top = if (subtitle == null && !isSmallTitle) 8.dp else 0.dp),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     if (subtitle != null) {
                         Text(

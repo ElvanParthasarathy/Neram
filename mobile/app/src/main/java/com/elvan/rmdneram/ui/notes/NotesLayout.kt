@@ -14,8 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.HomeDimens
 import com.elvan.rmdneram.ui.home.rememberStatusBarHeight
@@ -29,11 +36,14 @@ fun NotesMainLayout(
     path: List<String>,
     rootFolders: List<String>,
     colors: HomeColors,
+    notesMode: String,
     onBackClick: () -> Unit,
     onFolderClick: (String) -> Unit,
     onFileClick: (String) -> Unit,
     onNotUploaded: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onDriveFolderClick: (com.elvan.rmdneram.data.model.DriveFolder) -> Unit = {},
+    onDriveFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit = {}
 ) {
     val statusBarHeight = rememberStatusBarHeight()
     val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop
@@ -43,75 +53,146 @@ fun NotesMainLayout(
             .fillMaxSize()
             .background(colors.background)
     ) {
-        // Back button row - only visible when inside folders (path not empty)
-        if (path.isNotEmpty()) {
-            Row(
+        if (notesMode == "folder") {
+            // FOLDER MODE: Header handled by TopMenuBar, content has slide animations
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    // Use exact top padding as base and add just a bit for spacing
-                    .padding(start = 24.dp, end = 12.dp, top = topPadding, bottom = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .padding(top = topPadding)
             ) {
-                // Circle Back Button (matching Calendar style)
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(colors.surface)
-                        .clickable { onBackClick() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Filled.KeyboardArrowLeft,
-                        contentDescription = "Back",
-                        tint = colors.textPrimary,
-                        modifier = Modifier.size(24.dp)
+                AnimatedContent(
+                    targetState = Pair(path.size, uiState),
+                    transitionSpec = {
+                        if (targetState.first > initialState.first) {
+                            slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
+                        } else if (targetState.first < initialState.first) {
+                            slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
+                        } else {
+                            fadeIn() togetherWith fadeOut()
+                        }
+                    },
+                    contentKey = { it.first },
+                    label = "ContentSlide"
+                ) { (_, animState) ->
+                    NotesContentView(
+                        uiState = animState,
+                        path = path,
+                        rootFolders = rootFolders,
+                        colors = colors,
+                        onFolderClick = onFolderClick,
+                        onFileClick = onFileClick,
+                        onNotUploaded = onNotUploaded,
+                        onRetry = onRetry,
+                        onDriveFolderClick = onDriveFolderClick,
+                        onDriveFileClick = onDriveFileClick
                     )
                 }
-                
-                Spacer(modifier = Modifier.width(12.dp))
-                
-                // Current folder name
-                Text(
-                    text = path.last(),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp
-                    ),
-                    color = colors.textPrimary
+            }
+        } else {
+            // FETCH MODE: Own chevron header, no animations
+            if (path.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 24.dp, end = 12.dp, top = topPadding, bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(colors.surface)
+                            .clickable { onBackClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Filled.KeyboardArrowLeft,
+                            contentDescription = "Back",
+                            tint = colors.textPrimary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = path.last(),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Medium,
+                            fontSize = if (path.last().length > 20) 14.sp else 16.sp,
+                            letterSpacing = 0.sp
+                        ),
+                        color = colors.textPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = if (path.isEmpty()) topPadding else 0.dp)
+            ) {
+                NotesContentView(
+                    uiState = uiState,
+                    path = path,
+                    rootFolders = rootFolders,
+                    colors = colors,
+                    onFolderClick = onFolderClick,
+                    onFileClick = onFileClick,
+                    onNotUploaded = onNotUploaded,
+                    onRetry = onRetry,
+                    onDriveFolderClick = onDriveFolderClick,
+                    onDriveFileClick = onDriveFileClick
                 )
             }
         }
+    }
+}
 
-        // Content
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = if (path.isEmpty()) topPadding else 0.dp)
-        ) {
-            if (path.isEmpty()) {
-                // ROOT: Main Dept List
-                FolderList(rootFolders, colors, onFolderClick)
-            } else {
-                // CONTENT: Based on UiState
-                when (val state = uiState) {
-                    is NotesUiState.Loading -> NotesLoadingView(colors)
-                    is NotesUiState.Error -> NotesErrorView(state.message, colors, onRetry)
-                    is NotesUiState.Browser -> {
-                        when (val content = state.content) {
-                            is NotesViewContent.Folders -> {
-                                FolderList(content.names, colors, onFolderClick)
-                            }
-                            is NotesViewContent.Files -> {
-                                FilesList(content.subjects, colors, onFileClick, onNotUploaded)
-                            }
-                            is NotesViewContent.Empty -> NotesEmptyView(colors)
-                        }
+/** Shared content renderer used by both folder and fetch modes */
+@Composable
+private fun NotesContentView(
+    uiState: NotesUiState,
+    path: List<String>,
+    rootFolders: List<String>,
+    colors: HomeColors,
+    onFolderClick: (String) -> Unit,
+    onFileClick: (String) -> Unit,
+    onNotUploaded: () -> Unit,
+    onRetry: () -> Unit,
+    onDriveFolderClick: (com.elvan.rmdneram.data.model.DriveFolder) -> Unit,
+    onDriveFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit
+) {
+    if (uiState is NotesUiState.Empty) {
+        FolderList(rootFolders, colors, onClick = onFolderClick)
+    } else {
+        when (val state = uiState) {
+            is NotesUiState.Loading -> NotesLoadingView(colors)
+            is NotesUiState.Error -> NotesErrorView(state.message, colors, onRetry)
+            is NotesUiState.Browser -> {
+                when (val content = state.content) {
+                    is NotesViewContent.Folders -> {
+                        FolderList(content.names, colors, onClick = onFolderClick)
                     }
-                    is NotesUiState.Empty -> {
-                        NotesEmptyView(colors)
+                    is NotesViewContent.Files -> {
+                        FilesList(content.subjects, colors, onLinkClick = onFileClick, onNotUploaded = onNotUploaded)
                     }
+                    is NotesViewContent.DriveView -> {
+                        DriveList(
+                            folders = content.folders,
+                            files = content.files,
+                            subjects = content.subjects,
+                            colors = colors,
+                            isRoot = path.isEmpty(),
+                            onFolderClick = onDriveFolderClick,
+                            onFileClick = onDriveFileClick
+                        )
+                    }
+                    is NotesViewContent.Empty -> NotesEmptyView(colors)
                 }
+            }
+            is NotesUiState.Empty -> {
+                NotesEmptyView(colors)
             }
         }
     }

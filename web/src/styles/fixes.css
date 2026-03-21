@@ -361,6 +361,10 @@
   transition: opacity 0.2s;
 }
 
+html.dark .native-picker-trigger {
+  color: var(--mac-text);
+}
+
 .native-picker-trigger:hover {
   opacity: 1;
 }
@@ -451,7 +455,7 @@ html.dark .phone-input-clean {
   color: white !important;
   height: 42px;
   padding: 0 24px;
-  border-radius: 50px !important;
+  border-radius: 12px !important;
   font-weight: 700;
   border: none;
   cursor: pointer;

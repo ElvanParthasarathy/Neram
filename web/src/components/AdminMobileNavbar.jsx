@@ -15,7 +15,8 @@ import {
     RiTimeLine,
     RiSettings3Line,
     RiInboxArchiveLine,
-    RiScanLine
+    RiScanLine,
+    RiFolderLine
 } from "react-icons/ri";
 import { getHardcodedRole } from '../data/admins';
 import ThemeToggle from './ThemeToggle';
@@ -108,6 +109,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         roles: 'Admins',
         calendar: 'Calendar',
         resources: 'Resources',
+        notes: 'Notes Manager',
         structure: 'Structure',
         pending: 'Pending Requests',
     }[activeModule] || 'Admin Panel';
@@ -200,7 +202,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
                                 <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)', marginLeft: '-2px' }} />
                             </button>
-                        ) : ['users', 'roles', 'calendar', 'resources', 'structure', 'pending', 'archives'].includes(activeModule) && (
+                        ) : ['users', 'roles', 'calendar', 'resources', 'notes', 'structure', 'pending', 'archives'].includes(activeModule) && (
                             <button
                                 className="top-action-btn"
                                 onClick={() => setSearchParams({ mod: 'home' })}
@@ -282,6 +284,9 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                                     </button>
                                     <button onClick={() => handleNav('resources')} className={`menu-item ${activeModule === 'resources' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'resources' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'resources' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'resources' ? '600' : '500' }}>
                                         <RiFilePdfLine style={{ fontSize: '20px' }} /> <span>Resources</span>
+                                    </button>
+                                    <button onClick={() => handleNav('notes')} className={`menu-item ${activeModule === 'notes' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'notes' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'notes' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'notes' ? '600' : '500' }}>
+                                        <RiFolderLine style={{ fontSize: '20px' }} /> <span>Notes Manager</span>
                                     </button>
                                 </>
                             )}

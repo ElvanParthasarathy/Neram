@@ -11,6 +11,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.HomeTypography
@@ -24,6 +26,7 @@ import com.elvan.rmdneram.ui.home.rememberHomeColors
 fun SecondaryTopBar(
     title: String,
     onBack: () -> Unit,
+    isSmallTitle: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -67,9 +70,23 @@ fun SecondaryTopBar(
             // Title
             Text(
                 text = title,
-                style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
+                style = if (isSmallTitle) {
+                    HomeTypography.PageTitle.copy(
+                        fontSize = if (title.length > 20) 14.sp else 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 0.sp
+                    )
+                } else {
+                    HomeTypography.PageTitle.copy(
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = (-1).sp
+                    )
+                },
                 color = colors.textPrimary,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
 
             // Actions Slot

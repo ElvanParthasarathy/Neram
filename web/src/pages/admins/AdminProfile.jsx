@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { auth, db } from "../../firebase";
 import { ref, update, onValue } from "firebase/database";
 import { updateProfile } from "firebase/auth";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../utils/timeUtils";
+import HybridDateInput from '../../components/HybridDateInput';
 import {
     RiUser3Line, RiBuilding4Line, RiShieldKeyholeLine, RiRefreshLine,
     RiArrowDownSLine, RiCalendarLine
@@ -13,6 +17,7 @@ const AdminProfile = ({ onBack }) => {
     const user = auth.currentUser;
     const [editing, setEditing] = useState({});
     const [hierarchy, setHierarchy] = useState({});
+    const [isMobile, setIsMobile] = useState(false);
 
     // State for Name Separation
     const [nameData, setNameData] = useState({ first: '', last: '' });
@@ -52,6 +57,16 @@ const AdminProfile = ({ onBack }) => {
             if (snap.exists()) setHierarchy(snap.val());
         });
     }, [user]);
+
+    // Detect mobile for hybrid date picker
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     // --- SMART TOGGLE EDIT ---
     const toggleEdit = (field) => {
@@ -215,10 +230,11 @@ const AdminProfile = ({ onBack }) => {
                     <div className="s2-complaint-field">
                         <div className="s2-complaint-label">Date of Birth</div>
                         <div className="s2-date-input-wrap">
-                            <input className="s2-complaint-input s2-date-input" type="date"
-                                value={formData.birthday || ""}
-                                onChange={e => setFormData({ ...formData, birthday: e.target.value })} />
-                            <RiCalendarLine className="s2-date-icon" />
+                            <HybridDateInput
+                                value={formData.birthday}
+                                onChange={(val) => setFormData({ ...formData, birthday: val })}
+                                inputClass="s2-complaint-input"
+                            />
                         </div>
                     </div>
                 </ProfileField>

@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { db } from "../../firebase";
-import { ref, onValue, update, remove } from "firebase/database";
+import { ref, onValue, update, push, set, remove } from "firebase/database";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../utils/timeUtils";
+import HybridDateInput from '../../components/HybridDateInput';
 import {
   RiUserSettingsLine, RiArrowLeftLine, RiUserLine, RiPhoneLine,
   RiSave3Line, RiCloseLine, RiMailLine, RiGoogleFill,
   RiDeleteBin6Line, RiHashtag, RiCake2Line, RiUserSharedLine,
   RiRefreshLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine,
-  RiCalendarEventLine
+  RiCalendarEventLine, RiCalendarLine
 } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import "../../styles/user-management.css";
@@ -22,6 +26,11 @@ const UserManagement = () => {
   const [hierarchy, setHierarchy] = useState({});
   const [loading, setLoading] = useState(true);
 
+  // Edit List & Bulk Delete States
+  const [isEditListMode, setIsEditListMode] = useState(false);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+
   // Hierarchy Navigation States
   const [viewLevel, setViewLevel] = useState('batches');
   const [currentPath, setCurrentPath] = useState({ batch: '', dept: '', sec: '' });
@@ -30,6 +39,7 @@ const UserManagement = () => {
   // UI States
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
 
   // Ref to store scroll position
   const scrollPos = useRef(0);
@@ -77,6 +87,16 @@ const UserManagement = () => {
       if (mainViewport) mainViewport.style.overflow = '';
     };
   }, [selectedUser]);
+
+  // Detect mobile for hybrid date picker
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // --- NAVIGATION LOGIC ---
   const handleDrillDown = (level, value) => {
@@ -143,49 +163,6 @@ const UserManagement = () => {
     });
   };
 
-  // --- DATE HELPERS: Bridge between DB (yyyy-mm-dd) and DatePicker (Date Object) ---
-  const parseDate = (dateStr) => {
-    if (!dateStr) return null;
-    const [y, m, d] = dateStr.split('-').map(Number);
-    return new Date(y, m - 1, d);
-  };
-
-  const formatDate = (dateObj) => {
-    if (!dateObj) return "";
-    const y = dateObj.getFullYear();
-    const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const d = String(dateObj.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  };
-
-  // --- HYBRID DOB LOGIC: AUTO-SLASH & NATIVE PICKER ---
-  const getDisplayDOB = (dobStr) => {
-    if (!dobStr) return "";
-    const [y, m, d] = dobStr.split('-');
-    return `${d}/${m}/${y}`;
-  };
-
-  const handleDOBInput = (val) => {
-    // 1. Clean and Filter
-    let clean = val.replace(/\D/g, '').slice(0, 8);
-
-    // 2. Auto-Slash Logic
-    let display = clean;
-    if (clean.length > 2) display = clean.slice(0, 2) + '/' + clean.slice(2);
-    if (clean.length > 4) display = display.slice(0, 5) + '/' + display.slice(5);
-
-    // 3. Sync to State (Back-Map to YYYY-MM-DD if complete)
-    if (clean.length === 8) {
-      const d = clean.slice(0, 2);
-      const m = clean.slice(2, 4);
-      const y = clean.slice(4, 8);
-      handleLocalChange('dob', `${y}-${m}-${d}`);
-    } else {
-      // Just update local display temp if needed, or keep partial
-      handleLocalChange('dob', display); // Temporary storage in dob for display
-    }
-  };
-
   const handleLocalChange = (field, value) => {
     setSelectedUser(prev => {
       const updated = { ...prev, [field]: value };
@@ -194,6 +171,58 @@ const UserManagement = () => {
       return updated;
     });
   };
+
+  // --- BULK DELETE HANDLERS ---
+  const handleToggleUserSelect = (uid) => {
+    setSelectedUsers(prev => prev.includes(uid) ? prev.filter(id => id !== uid) : [...prev, uid]);
+  };
+
+  const handleSelectAllUsers = () => {
+    const currentList = Object.entries(users).filter(([_, u]) => {
+      if (roleGroup === 'student') return u.batch === currentPath.batch && u.department === currentPath.dept && u.section === currentPath.sec;
+      if (roleGroup === 'faculty') return u.role === 'faculty' && u.department === currentPath.dept;
+      if (roleGroup === 'admin') return u.role === 'super_admin' || u.role === 'admin';
+      return false;
+    }).filter(([_, u]) =>
+      u.displayName?.toLowerCase().includes(searchTerm) ||
+      u.email?.toLowerCase().includes(searchTerm) ||
+      u.registerNo?.includes(searchTerm)
+    );
+
+    if (selectedUsers.length === currentList.length && currentList.length > 0) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(currentList.map(([uid]) => uid));
+    }
+  };
+
+  const handleBulkDeleteUsers = async () => {
+    if (!selectedUsers.length) return;
+    if (window.confirm(`Delete ${selectedUsers.length} user(s)? This action cannot be undone.`)) {
+      try {
+        const updates = {};
+        selectedUsers.forEach(uid => {
+          updates[`users/${uid}`] = null;
+        });
+        await update(ref(db), updates);
+        setSelectedUsers([]);
+        setIsDeleteMode(false);
+      } catch (err) {
+        alert("Error during bulk delete: " + err.message);
+      }
+    }
+  };
+
+  const currentDisplayListSize = Object.entries(users).filter(([_, u]) => {
+    if (roleGroup === 'student') return u.batch === currentPath.batch && u.department === currentPath.dept && u.section === currentPath.sec;
+    if (roleGroup === 'faculty') return u.role === 'faculty' && u.department === currentPath.dept;
+    if (roleGroup === 'admin') return u.role === 'super_admin' || u.role === 'admin';
+    return false;
+  }).filter(([_, u]) =>
+    u.displayName?.toLowerCase().includes(searchTerm) ||
+    u.email?.toLowerCase().includes(searchTerm) ||
+    u.registerNo?.includes(searchTerm)
+  ).length;
 
   // --- SAVE LOGIC (UPDATED TO SAVE SEPARATE NAMES) ---
   const handleFinalSave = async () => {
@@ -249,10 +278,10 @@ const UserManagement = () => {
         <div className="modal-scroll-body">
           <div className="modal-section photo-sync-area">
             <img src={selectedUser.photoURL || "/default-avatar.png"} className="modal-avatar-preview" alt="" />
-            <div className="sync-controls">
+            <div className="sync-controls" style={{ flex: 1 }}>
               <label>Profile Picture</label>
-              <button className="admin-btn-outline" onClick={() => alert("Re-sync success")}>
-                <RiRefreshLine /> Refresh Google Sync
+              <button className="admin-btn-outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => alert("Re-sync success")}>
+                <RiRefreshLine /> Sync
               </button>
             </div>
           </div>
@@ -290,28 +319,16 @@ const UserManagement = () => {
           </div>
 
           <div className="input-row">
-            <div className="field">
-              <label><RiCake2Line /> Date of Birth</label>
-              <div className="hybrid-date-field">
-                <input
-                  type="text"
-                  value={selectedUser.dob?.includes('-') ? getDisplayDOB(selectedUser.dob) : selectedUser.dob}
-                  onChange={e => handleDOBInput(e.target.value)}
-                  placeholder="DD/MM/YYYY"
-                  className="modal-input date-text-input"
-                  maxLength={10}
-                />
-                <div className="native-picker-trigger">
-                  <RiCalendarEventLine className="calendar-icon" />
-                  <input
-                    type="date"
-                    value={selectedUser.dob?.includes('-') ? selectedUser.dob : ""}
-                    onChange={e => handleLocalChange('dob', e.target.value)}
-                    className="hidden-native-picker"
-                  />
-                </div>
+              <div className="field">
+                <label><RiCake2Line /> Date of Birth</label>
+                    <div className="hybrid-date-field">
+                        <HybridDateInput
+                            value={selectedUser.dob}
+                            onChange={(val) => setSelectedUser({ ...selectedUser, dob: val })}
+                            inputClass="modal-input"
+                        />
+                    </div>
               </div>
-            </div>
             <div className="field">
               <label><RiUserSharedLine /> Gender</label>
               <select value={selectedUser.gender} onChange={e => handleLocalChange('gender', e.target.value)} className="modal-select">
@@ -325,7 +342,7 @@ const UserManagement = () => {
 
 
           {/* --- ROLE-SPECIFIC ACADEMIC FIELDS --- */}
-          {(selectedUser.role === 'student' || !selectedUser.role) && (
+          {selectedUser.role !== 'faculty' && (selectedUser.role === 'student' || selectedUser.role === 'rep' || !selectedUser.role || ((selectedUser.role === 'admin' || selectedUser.role === 'super_admin') && (selectedUser.batch || selectedUser.registerNo || selectedUser.section))) && (
             <>
               <div className="control-divider">Academic Assignment</div>
               <div className="field">
@@ -380,22 +397,45 @@ const UserManagement = () => {
             </>
           )}
 
-          {/* Super Admins see no academic assignment fields */}
         </div>
 
-        <div className="modal-footer">
-          <button className="btn-danger-outline" onClick={() => {
-            if (window.confirm("Delete record?")) {
-              remove(ref(db, `users/${selectedUser.uid}`));
-              setSelectedUser(null);
-            }
-          }}>
-            <RiDeleteBin6Line /> Delete
-          </button>
-          <div className="footer-actions">
-            <button className="btn-cancel" onClick={() => setSelectedUser(null)}>Cancel</button>
-            <button className="btn-save-master" onClick={handleFinalSave}>
-              <RiSave3Line /> Save
+        <div className="modal-footer" style={{ padding: '24px 30px 32px' }}>
+          <div className="footer-actions" style={{ display: 'flex', gap: '12px', width: '100%' }}>
+            <button 
+              onClick={() => setSelectedUser(null)}
+              style={{
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+                border: 'none',
+                height: '42px',
+                borderRadius: '100px',
+                flex: 1,
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleFinalSave}
+              style={{
+                background: 'var(--mac-blue, #007AFF)',
+                color: '#fff',
+                border: 'none',
+                height: '42px',
+                borderRadius: '100px',
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              Save
             </button>
           </div>
         </div>
@@ -413,6 +453,9 @@ const UserManagement = () => {
               setRoleGroup('student');
               setViewLevel('batches');
               setCurrentPath({ batch: '', dept: '', sec: '' });
+              setIsEditListMode(false);
+              setIsDeleteMode(false);
+              setSelectedUsers([]);
             }}
           >
             Students
@@ -423,6 +466,9 @@ const UserManagement = () => {
               setRoleGroup('faculty');
               setViewLevel('faculty_depts');
               setCurrentPath({ batch: '', dept: '', sec: '' });
+              setIsEditListMode(false);
+              setIsDeleteMode(false);
+              setSelectedUsers([]);
             }}
           >
             Faculty
@@ -432,6 +478,9 @@ const UserManagement = () => {
             onClick={() => {
               setRoleGroup('admin');
               setViewLevel('admin_list');
+              setIsEditListMode(false);
+              setIsDeleteMode(false);
+              setSelectedUsers([]);
             }}
           >
             Admins
@@ -450,11 +499,13 @@ const UserManagement = () => {
           {(roleGroup === 'student' || roleGroup === 'faculty') && currentPath.dept && <><RiArrowRightSLine /> <span className="crumb-static">{currentPath.dept}</span></>}
           {roleGroup === 'student' && currentPath.sec && <><RiArrowRightSLine /> <span className="crumb-static">Sec {currentPath.sec}</span></>}
         </div>
-        {viewLevel !== 'batches' && viewLevel !== 'faculty_depts' && viewLevel !== 'admin_list' && (
-          <button className="explorer-back-btn" onClick={navigateBack}>
-            <RiArrowLeftLine /> Back
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {viewLevel !== 'batches' && viewLevel !== 'faculty_depts' && viewLevel !== 'admin_list' && (
+            <button className="explorer-back-btn" onClick={navigateBack}>
+              <RiArrowLeftLine /> Back
+            </button>
+          )}
+        </div>
       </header>
 
       {(viewLevel === 'students' || viewLevel === 'faculty_members' || viewLevel === 'admin_list') && (
@@ -533,50 +584,135 @@ const UserManagement = () => {
 
         {/* --- DYNAMIC USER LIST (STUDENTS, FACULTY, ADMINS) --- */}
         {(viewLevel === 'students' || viewLevel === 'faculty_members' || viewLevel === 'admin_list') && (
-          <div className="user-directory-grid">
-            {Object.entries(users)
-              .filter(([_, u]) => {
-                if (roleGroup === 'student') {
-                  return u.batch === currentPath.batch && u.department === currentPath.dept && u.section === currentPath.sec;
-                }
-                if (roleGroup === 'faculty') {
-                  return u.role === 'faculty' && u.department === currentPath.dept;
-                }
-                if (roleGroup === 'admin') {
-                  return u.role === 'super_admin' || u.role === 'admin';
-                }
-                return false;
-              })
-              .filter(([_, u]) =>
-                u.displayName?.toLowerCase().includes(searchTerm) ||
-                u.email?.toLowerCase().includes(searchTerm) ||
-                u.registerNo?.includes(searchTerm)
-              )
-              .sort((a, b) => (a[1].displayName || "").localeCompare(b[1].displayName || ""))
-              .map(([uid, u]) => (
-                <div key={uid} className="user-management-card" onClick={() => openUserModal(u, uid)}>
-                  <div className="card-top">
-                    <img src={u.photoURL || "/default-avatar.png"} className="user-card-avatar" alt="" />
-                    {getProviderIcon(u)}
-                  </div>
-                  <div className="card-info">
-                    <h4 className="u-name">{u.displayName || 'Unnamed User'}</h4>
-                    <p className="u-email">{u.email}</p>
-                    <div className="u-badges">
-                      {roleGroup === 'student' ? (
-                        <span className="u-tag">{u.registerNo || 'No Reg No'}</span>
-                      ) : (
-                        <span className={`u-tag role-tag ${u.role}`}>
-                          {u.role === 'super_admin' ? 'Super Admin' :
-                            u.role === 'faculty' ? 'Faculty' : 'Admin'}
-                        </span>
-                      )}
+          <>
+            <div className="edit-list-toggle-row" style={{ 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              marginBottom: '20px', 
+              width: '100%', 
+              padding: '0 8px', 
+              boxSizing: 'border-box',
+              minHeight: '40px',
+              alignItems: 'center'
+            }}>
+              {isEditListMode ? (
+                <button className="edit-toggle-btn" onClick={() => {
+                  setIsEditListMode(false);
+                  setIsDeleteMode(false);
+                  setSelectedUsers([]);
+                }}>
+                  Cancel
+                </button>
+              ) : (
+                <button className="edit-toggle-btn" onClick={() => setIsEditListMode(true)}>
+                  Edit
+                </button>
+              )}
+            </div>
+
+            <div className={`user-directory-grid ${isEditListMode ? 'edit-mode' : ''}`}>
+              {Object.entries(users)
+                .filter(([_, u]) => {
+                  if (roleGroup === 'student') {
+                    return u.batch === currentPath.batch && u.department === currentPath.dept && u.section === currentPath.sec;
+                  }
+                  if (roleGroup === 'faculty') {
+                    return u.role === 'faculty' && u.department === currentPath.dept;
+                  }
+                  if (roleGroup === 'admin') {
+                    return u.role === 'super_admin' || u.role === 'admin';
+                  }
+                  return false;
+                })
+                .filter(([_, u]) =>
+                  u.displayName?.toLowerCase().includes(searchTerm) ||
+                  u.email?.toLowerCase().includes(searchTerm) ||
+                  u.registerNo?.includes(searchTerm)
+                )
+                .sort((a, b) => (a[1].displayName || "").localeCompare(b[1].displayName || ""))
+                .map(([uid, u]) => (
+                  <div key={uid} className="user-management-card" onClick={() => isEditListMode && !isDeleteMode && openUserModal(u, uid)}>
+                    {isEditListMode && isDeleteMode && (
+                        <input
+                            type="checkbox"
+                            className="mac-checkbox"
+                            checked={selectedUsers.includes(uid)}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={() => handleToggleUserSelect(uid)}
+                        />
+                    )}
+                    <div className="card-top">
+                      <img src={u.photoURL || "/default-avatar.png"} className="user-card-avatar" alt="" />
+                      {getProviderIcon(u)}
+                    </div>
+                    <div className="card-info">
+                      <h4 className="u-name">{u.displayName || 'Unnamed User'}</h4>
+                      <p className="u-email">{u.email}</p>
+                      <div className="u-badges">
+                        {roleGroup === 'student' ? (
+                          <span className="u-tag">{u.registerNo || 'No Reg No'}</span>
+                        ) : (
+                          <span className={`u-tag role-tag ${u.role}`}>
+                            {u.role === 'super_admin' ? 'Super Admin' :
+                              u.role === 'faculty' ? 'Faculty' : 'Admin'}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                ))}
+            </div>
+
+            {/* BULK ACTION FOOTER - only in Edit List mode */}
+            {isEditListMode && (
+                <div className={`bulk-action-footer-premium animate-slide-up ${isDeleteMode ? 'danger-mode' : ''}`}>
+                    {isDeleteMode ? (
+                        <div className="bulk-delete-action-row">
+                            <div className="bulk-delete-info">
+                                <div className="info-icon">
+                                    <RiDeleteBin6Line />
+                                </div>
+                                <div className="bulk-delete-text">
+                                    <span className="bulk-delete-title">
+                                        {selectedUsers.length === 0 ? "Select Items" : `${selectedUsers.length} Selected`}
+                                    </span>
+                                    <span className="bulk-delete-desc">Choose users to delete</span>
+                                </div>
+                            </div>
+                            <div className="pill-group">
+                                <button
+                                    className="premium-pill-btn primary"
+                                    onClick={handleSelectAllUsers}
+                                >
+                                    {selectedUsers.length === currentDisplayListSize && currentDisplayListSize > 0 ? 'Deselect All' : 'Select All'}
+                                </button>
+                                <button className="premium-pill-btn secondary" onClick={() => { setSelectedUsers([]); setIsDeleteMode(false); }}>Cancel</button>
+                                <button className="premium-pill-btn danger" onClick={handleBulkDeleteUsers} disabled={selectedUsers.length === 0}>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="bulk-delete-start-row">
+                            <div className="bulk-delete-info">
+                                <div className="info-icon">
+                                    <RiTeamLine />
+                                </div>
+                                <div className="bulk-delete-text">
+                                    <span className="bulk-delete-title">Manage Users</span>
+                                    <span className="bulk-delete-desc">Select and remove multiple users at once</span>
+                                </div>
+                            </div>
+                            <button className="premium-pill-btn danger" onClick={() => setIsDeleteMode(true)}>
+                                <RiDeleteBin6Line /> Delete
+                            </button>
+                        </div>
+                    )}
                 </div>
-              ))}
-          </div>
+            )}
+          </>
         )}
+
       </div>
 
       {/* RENDER THE MODAL OUTSIDE THE SCROLL FLOW USING PORTAL */}

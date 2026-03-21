@@ -1,20 +1,95 @@
 package com.elvan.rmdneram.ui.notes
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.elvan.rmdneram.data.model.NotesSemester
 import com.elvan.rmdneram.data.model.NotesSubject
 import com.elvan.rmdneram.data.repository.NotesRepository
+import com.elvan.rmdneram.data.local.NeramDatabase
+import com.elvan.rmdneram.data.local.entity.MasterDataEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.elvan.rmdneram.data.model.DriveFolder
+import com.elvan.rmdneram.data.model.DriveFile
+import com.elvan.rmdneram.data.model.DriveSubject
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
-class NotesViewModel : ViewModel() {
+class NotesViewModel(application: Application) : AndroidViewModel(application) {
+    
+    // Room DB for offline caching
+    private val db = NeramDatabase.getDatabase(application)
+    private val masterDataDao = db.masterDataDao()
 
     private val repository = NotesRepository()
+    
+    // Read cached mode from Room DB synchronously on init (microseconds)
+    private fun readCachedMode(): String {
+        return try {
+            runBlocking {
+                val entity = masterDataDao.getMasterDataById("notes_mode")
+                entity?.json ?: "fetch"
+            }
+        } catch (e: Exception) {
+            "fetch"
+        }
+    }
+
+    // Read cached drive folders from Room DB
+    private fun readCachedFolders(): List<DriveFolder> {
+        return try {
+            runBlocking {
+                val entity = masterDataDao.getMasterDataById("drive_folders")
+                if (entity != null) {
+                    val type = object : TypeToken<List<DriveFolder>>() {}.type
+                    Gson().fromJson(entity.json, type)
+                } else emptyList()
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    // Read cached drive files from Room DB
+    private fun readCachedFiles(): List<DriveFile> {
+        return try {
+            runBlocking {
+                val entity = masterDataDao.getMasterDataById("drive_files")
+                if (entity != null) {
+                    val type = object : TypeToken<List<DriveFile>>() {}.type
+                    Gson().fromJson(entity.json, type)
+                } else emptyList()
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+    
+    // Read cached drive subjects from Room DB
+    private fun readCachedSubjects(): List<DriveSubject> {
+        return try {
+            runBlocking {
+                val entity = masterDataDao.getMasterDataById("drive_subjects")
+                if (entity != null) {
+                    val type = object : TypeToken<List<DriveSubject>>() {}.type
+                    Gson().fromJson(entity.json, type)
+                } else emptyList()
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
     
     // UI State: Loading, Error, etc.
     private val _uiState = MutableStateFlow<NotesUiState>(NotesUiState.Empty)
@@ -24,6 +99,122 @@ class NotesViewModel : ViewModel() {
     // Empty = Root
     private val _path = MutableStateFlow<List<String>>(emptyList())
     val path = _path.asStateFlow()
+
+    // --- FOLDER MODE STATE ---
+    // Initialize everything from Room DB cache instantly
+    private val _notesMode = MutableStateFlow(readCachedMode())
+    private val _driveFolders = MutableStateFlow(readCachedFolders())
+    private val _driveFiles = MutableStateFlow(readCachedFiles())
+    private val _driveSubjects = MutableStateFlow(readCachedSubjects())
+    private val _drivePath = MutableStateFlow<List<DriveFolder>>(listOf(DriveFolder("root", "Notes Drive", "root")))
+    
+    val notesMode = _notesMode.asStateFlow()
+    val drivePath = _drivePath.asStateFlow()
+
+    init {
+        val firebaseDb = Firebase.database.reference
+        
+        firebaseDb.child("settings/notesMode").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val newMode = snapshot.getValue(String::class.java) ?: "fetch"
+                _notesMode.value = newMode
+                // Save to Room DB for instant offline startup
+                viewModelScope.launch {
+                    masterDataDao.insertMasterData(
+                        MasterDataEntity(id = "notes_mode", json = newMode)
+                    )
+                }
+                refreshDriveView()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        firebaseDb.child("notes_drive/folders").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<DriveFolder>()
+                for (child in snapshot.children) {
+                    val f = child.getValue(DriveFolder::class.java)
+                    if (f != null) list.add(f)
+                }
+                _driveFolders.value = list
+                // Cache to Room DB
+                viewModelScope.launch {
+                    masterDataDao.insertMasterData(
+                        MasterDataEntity(id = "drive_folders", json = Gson().toJson(list))
+                    )
+                }
+                if (_notesMode.value == "folder") refreshDriveView()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        firebaseDb.child("notes_drive/files").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<DriveFile>()
+                for (child in snapshot.children) {
+                    val f = child.getValue(DriveFile::class.java)
+                    if (f != null) list.add(f)
+                }
+                _driveFiles.value = list
+                // Cache to Room DB
+                viewModelScope.launch {
+                    masterDataDao.insertMasterData(
+                        MasterDataEntity(id = "drive_files", json = Gson().toJson(list))
+                    )
+                }
+                if (_notesMode.value == "folder") refreshDriveView()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        firebaseDb.child("notes_drive/subjects").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<DriveSubject>()
+                for (child in snapshot.children) {
+                    val id = child.key ?: ""
+                    val name = child.child("name").getValue(String::class.java) ?: ""
+                    val parentId = child.child("parentId").getValue(String::class.java) ?: ""
+                    val unitsMap = mutableMapOf<String, String>()
+                    for (unitChild in child.child("units").children) {
+                        unitsMap[unitChild.key ?: ""] = unitChild.getValue(String::class.java) ?: ""
+                    }
+                    list.add(DriveSubject(id = id, name = name, parentId = parentId, units = unitsMap))
+                }
+                _driveSubjects.value = list
+                viewModelScope.launch {
+                    masterDataDao.insertMasterData(
+                        MasterDataEntity(id = "drive_subjects", json = Gson().toJson(list))
+                    )
+                }
+                if (_notesMode.value == "folder") refreshDriveView()
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+        // Immediately set UI state based on cached mode — no flicker
+        refreshDriveView()
+    }
+
+    private fun refreshDriveView() {
+        if (_notesMode.value == "folder") {
+            val currentFolderId = _drivePath.value.last().id
+            val folders = _driveFolders.value.filter { it.parentId == currentFolderId }
+            val files = _driveFiles.value.filter { it.parentId == currentFolderId }
+            val subjects = _driveSubjects.value.filter { it.parentId == currentFolderId }
+            _uiState.value = NotesUiState.Browser(NotesViewContent.DriveView(folders, files, subjects))
+        } else {
+            if (_path.value.isEmpty()) {
+                _uiState.value = NotesUiState.Empty
+            } else {
+                updateViewFromCache()
+            }
+        }
+    }
+
+    fun enterDriveFolder(folder: DriveFolder) {
+        _drivePath.value = _drivePath.value + folder
+        refreshDriveView()
+    }
     
     // Cached data for the current root department (First item in path)
     private var _cachedSemesters: List<NotesSemester> = emptyList()
@@ -42,6 +233,14 @@ class NotesViewModel : ViewModel() {
     }
     
     fun navigateUp() {
+        if (_notesMode.value == "folder") {
+            if (_drivePath.value.size > 1) {
+                _drivePath.value = _drivePath.value.dropLast(1)
+                refreshDriveView()
+            }
+            return
+        }
+
         val currentPath = _path.value
         if (currentPath.isNotEmpty()) {
             _path.value = currentPath.dropLast(1)
@@ -202,6 +401,58 @@ class NotesViewModel : ViewModel() {
             }
         }
     }
+
+    // --- ADMIN ACTIONS ---
+    fun createFolder(name: String) {
+        val parentId = _drivePath.value.last().id
+        val ref = Firebase.database.reference.child("notes_drive/folders").push()
+        val folder = DriveFolder(id = ref.key ?: "", name = name, parentId = parentId)
+        ref.setValue(folder)
+    }
+
+    fun createFileLink(name: String, link: String) {
+        val parentId = _drivePath.value.last().id
+        val ref = Firebase.database.reference.child("notes_drive/files").push()
+        val file = DriveFile(id = ref.key ?: "", name = name, link = link, parentId = parentId)
+        ref.setValue(file)
+    }
+
+    fun saveSubject(name: String, units: Map<String, String>, subjectId: String? = null) {
+        val parentId = _drivePath.value.last().id
+        val ref = if (subjectId != null) {
+            Firebase.database.reference.child("notes_drive/subjects").child(subjectId)
+        } else {
+            Firebase.database.reference.child("notes_drive/subjects").push()
+        }
+        
+        val data = mutableMapOf<String, Any>(
+            "id" to (subjectId ?: ref.key ?: ""),
+            "name" to name,
+            "parentId" to parentId,
+            "units" to units
+        )
+        ref.setValue(data)
+    }
+
+    fun updateFolder(id: String, newName: String) {
+        Firebase.database.reference.child("notes_drive/folders").child(id).child("name").setValue(newName)
+    }
+
+    fun updateFile(id: String, newName: String, newLink: String) {
+        val ref = Firebase.database.reference.child("notes_drive/files").child(id)
+        ref.child("name").setValue(newName)
+        ref.child("link").setValue(newLink)
+    }
+
+    fun deleteItems(ids: List<String>) {
+        val db = Firebase.database.reference
+        ids.forEach { id ->
+            // Try to delete from all 3 nodes (one will match)
+            db.child("notes_drive/folders").child(id).removeValue()
+            db.child("notes_drive/subjects").child(id).removeValue()
+            db.child("notes_drive/files").child(id).removeValue()
+        }
+    }
 }
 
 sealed interface NotesUiState {
@@ -219,4 +470,5 @@ sealed interface NotesViewContent {
     data object Empty : NotesViewContent
     data class Folders(val names: List<String>) : NotesViewContent
     data class Files(val subjects: List<NotesSubject>) : NotesViewContent
+    data class DriveView(val folders: List<DriveFolder>, val files: List<DriveFile>, val subjects: List<DriveSubject> = emptyList()) : NotesViewContent
 }

@@ -77,17 +77,7 @@ fun CollegeSitesScreen(
                         .padding(horizontal = 20.dp, vertical = 6.dp)
                         .clip(HomeShapes.Item)
                         .background(colors.surface)
-                        .clickable {
-                            try {
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link.url))
-                                // Add FLAG_ACTIVITY_NEW_TASK for non-Activity usage context just in case, though LocalContext is usually Activity
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                context.startActivity(intent)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                android.widget.Toast.makeText(context, "Cannot open link: ${e.localizedMessage}", android.widget.Toast.LENGTH_LONG).show()
-                            }
-                        }
+                        .clickable { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, link.url) }
                 ) {
                     Row(
                         modifier = Modifier

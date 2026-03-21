@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { db } from "../../firebase";
-import { ref, onValue, set, get, remove } from "firebase/database";
+import { ref, onValue, set, remove, push } from "firebase/database";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../utils/timeUtils";
+import HybridDateInput from '../../components/HybridDateInput';
 import {
   RiCalendarEventLine, RiTeamLine, RiRefreshLine, RiAddCircleLine,
   RiFileList3Line, RiInformationLine, RiArrowLeftLine, RiScanLine, RiDeleteBin6Line, RiArrowRightSLine,
@@ -44,11 +48,24 @@ const CalendarManager = () => {
   const [manualCalendar, setManualCalendar] = useState([]);
   const [isManualPushing, setIsManualPushing] = useState(false);
 
+  // --- MOBILE DETECTION ---
+  const [isMobile, setIsMobile] = useState(false);
+
   // 1. Load batches on mount
   useEffect(() => {
     onValue(ref(db, 'academic_hierarchy'), (snap) => {
       setHierarchy(snap.val() || {});
     });
+  }, []);
+
+  // Mobile detection on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // 2. Load and Transform Events when entering Batch Workspace
@@ -276,11 +293,11 @@ const CalendarManager = () => {
           )}
 
           <div className="breadcrumb-list">
-            <span className="crumb-btn" onClick={() => { setViewLevel('batches'); setActiveTab('published'); }}>Calendar Datastore</span>
+            <span className="crumb-btn" onClick={() => { setViewLevel('batches'); setActiveTab('published'); }}>Calendars</span>
             {viewLevel === 'editor' && (
               <>
                 <RiArrowRightSLine className="crumb-sep" />
-                <span className="crumb-static">Batch {selectedBatch} Workspace</span>
+                <span className="crumb-static">Batch {selectedBatch}</span>
               </>
             )}
           </div>
@@ -505,41 +522,39 @@ const CalendarManager = () => {
             {/* TAB 3: MANUAL CALENDAR BUILDER */}
             {activeTab === 'manual' && (
               <div className="pc-manual-mode">
-                <div className="pc-manual-setup-card">
-                  <h3>Initialize Manual Calendar</h3>
-                  <p>Generate a blank working-day calendar for Batch {selectedBatch}.</p>
+                {!showManualBuilder ? (
+                  <div className="pc-manual-setup-card">
+                    <h3>Initialize Manual Calendar</h3>
+                    <p>Generate a blank working-day calendar for Batch {selectedBatch}.</p>
 
-                  <div className="pc-date-inputs">
-                    <div className="pc-input-group">
-                      <label>Start Date</label>
-                      <input
-                        type="date"
-                        value={manualStartDate}
-                        onChange={e => setManualStartDate(e.target.value)}
-                        className="pc-input"
-                      />
-                    </div>
-                    <div className="pc-input-group">
-                      <label>End Date</label>
-                      <input
-                        type="date"
-                        value={manualEndDate}
-                        onChange={e => setManualEndDate(e.target.value)}
-                        className="pc-input"
-                      />
+                    <div className="pc-date-inputs">
+                      <div className="field">
+                        <label>Start Date</label>
+                        <HybridDateInput
+                          value={manualStartDate}
+                          onChange={(val) => setManualStartDate(val)}
+                        />
+                      </div>
+
+                      <div className="field">
+                        <label>End Date</label>
+                        <HybridDateInput
+                          value={manualEndDate}
+                          onChange={(val) => setManualEndDate(val)}
+                        />
+                      </div>
                     </div>
 
                     <button
                       className="pc-btn-primary"
                       onClick={handleGenerateManual}
                       disabled={isBuilding}
+                      style={{ marginTop: '20px' }}
                     >
                       <RiAddCircleLine /> Generate Blank Table
                     </button>
                   </div>
-                </div>
-
-                {showManualBuilder && (
+                ) : (
                   <CalendarBuilder
                     isOpen={showManualBuilder}
                     onClose={() => setShowManualBuilder(false)}

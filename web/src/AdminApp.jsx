@@ -52,7 +52,7 @@ function AdminAppContent({ user, isAdminUser, isMobile, loading, dbUserProfile }
 
                     <main id="main-viewport" className="admin-content-area">
                         <Routes>
-                            <Route path="/" element={<AdminPanel user={user} userProfile={dbUserProfile} />} />
+                            <Route path="/" element={<AdminPanel user={user} userProfile={dbUserProfile} isMobile={isMobile} />} />
                             <Route path="/settings" element={<AdminSettings userProfile={dbUserProfile} />} />
                             <Route path="/admin" element={<Navigate to="/" replace />} />
                             <Route path="*" element={<Navigate to="/" replace />} />
