@@ -506,10 +506,10 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
     };
 
     // ---- PRACTICAL VIEW MODE (published card) ----
-    const renderPracticalSubjectView = (sub, examType) => {
+    const renderPracticalSubjectView = (sub, index, examType) => {
         const isCommon = sub.scope === 'Common';
         return (
-            <div className="practical-view-card">
+            <div key={index} className="practical-view-card">
                 <div className="practical-view-header">
                     <strong>{sub.code}</strong>
                     <span className="practical-view-name">— {getSubjectName(sub.code)}</span>
@@ -823,7 +823,7 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                                 </>
                                             ) : (
                                                 (currentData.subjects || []).map((s, i) =>
-                                                    renderPracticalSubjectView(s, ex.type)
+                                                    renderPracticalSubjectView(s, i, ex.type)
                                                 )
                                             )
                                         ) : (
