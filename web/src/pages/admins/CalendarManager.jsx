@@ -479,16 +479,7 @@ const CalendarManager = () => {
                                             placeholder="All Day"
                                             style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '2px 6px', color: 'var(--mac-text-secondary)', fontSize: '12px', minWidth: 100 }}
                                           />
-                                          <select
-                                            value={event.type || 'FullDay'}
-                                            onChange={e => handleLiveEventChange(event.id, { type: e.target.value })}
-                                            style={{ background: 'var(--mac-card-bg)', color: 'var(--mac-text)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, padding: '2px', fontSize: '12px', width: 90 }}
-                                          >
-                                            <option value="FullDay" style={{ color: '#000' }}>FullDay</option>
-                                            <option value="HalfDay" style={{ color: '#000' }}>HalfDay</option>
-                                            <option value="Holiday" style={{ color: '#000' }}>Holiday</option>
-                                            <option value="None" style={{ color: '#000' }}>None</option>
-                                          </select>
+
                                           <button
                                             onClick={() => handleDeleteLiveEvent(event.id)}
                                             style={{ background: 'transparent', border: 'none', color: '#ff453a', cursor: 'pointer', padding: '4px', display: 'flex' }}
