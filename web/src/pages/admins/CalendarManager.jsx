@@ -977,8 +977,7 @@ const CalendarManager = () => {
                                             {selectedEvents.length === spannedEvents.length && spannedEvents.length > 0 ? 'Deselect Month' : 'Select Month'}
                                         </button>
                                         <button 
-                                            className="premium-pill-btn danger" 
-                                            style={{ background: 'transparent', border: '1px solid var(--mac-red)', color: 'var(--mac-red)' }}
+                                            className="premium-pill-btn danger-outline" 
                                             onClick={handleDeleteLiveCalendar}
                                         >
                                             Clear All Months
