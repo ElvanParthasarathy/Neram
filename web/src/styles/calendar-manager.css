@@ -319,6 +319,28 @@
     gap: 8px;
 }
 
+@media (max-width: 768px) {
+    .compact-card-inner {
+        flex-wrap: wrap;
+    }
+    
+    .compact-details {
+        flex: 1 1 50%;
+    }
+
+    .compact-actions {
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    .compact-actions .pill-inline-edit {
+        width: 100% !important;
+        height: 34px !important;
+        border-radius: 100px !important;
+        opacity: 1 !important;
+    }
+}
+
 /* Polished Nav */
 /* Premium Month Shifter Toolbar */
 .nav-toolbar-shifter {
@@ -639,9 +661,10 @@
 }
 
 .pc-agazhi-wrapper {
-    flex: 1;
+    flex: 1 1 auto;
     overflow: hidden;
-    height: 100%;
+    height: calc(100vh - 160px);
+    min-height: 500px;
     display: flex;
 }
 

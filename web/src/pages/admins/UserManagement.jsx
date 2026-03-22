@@ -404,8 +404,8 @@ const UserManagement = () => {
             <button 
               onClick={() => setSelectedUser(null)}
               style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: '#fff',
+                background: 'var(--mac-button-bg, rgba(255, 255, 255, 0.1))',
+                color: 'var(--mac-text, #fff)',
                 border: 'none',
                 height: '42px',
                 borderRadius: '100px',

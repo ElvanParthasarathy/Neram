@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     RiUploadCloud2Line, RiArrowLeftSLine, RiArrowRightSLine,
     RiFlashlightLine, RiStackLine, RiFileCopyLine,
-    RiFileListLine, RiArrowRightLine, RiInformationLine
+    RiFileListLine, RiArrowRightLine, RiSettings4Line,
+    RiCheckLine, RiFilePdfLine, RiCropLine, RiDragMoveLine
 } from 'react-icons/ri';
 
 const OcrSidebar = ({
@@ -22,8 +23,11 @@ const OcrSidebar = ({
     outputText, showCopy, showCompare, showNext,
     onCopy, onCompare, onNext,
     // Show OCR controls
-    showOcrControls
+    showOcrControls,
+    // Drag mode
+    dragMode, onToggleDragMode
 }) => {
+    const [showSettings, setShowSettings] = useState(false);
 
     const handleDrop = (e) => {
         e.preventDefault();
@@ -37,132 +41,118 @@ const OcrSidebar = ({
         else if (file) alert('Please select a valid PDF file.');
     };
 
-    return (
-        <aside className="ea-sidebar">
-            {/* Step 1: Upload */}
-            <div className="ea-sidebar-section">
-                <div className="ea-section-label">
-                    <span className="ea-step-num">1</span> Load Document
-                </div>
-                <div className="ea-file-drop" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
-                    <input type="file" accept="application/pdf" onChange={handleFileInput} />
-                    <div className="ea-drop-icon"><RiUploadCloud2Line /></div>
-                    <div className="ea-drop-label">Click to upload PDF</div>
-                    <div className="ea-drop-sublabel">or drag and drop</div>
-                    <div className={`ea-file-name ${fileName ? 'visible' : ''}`}>✓ {fileName}</div>
-                </div>
-            </div>
+    const isProcessing = singleProgress || batchProgress;
+    const progressPercent = batchProgress?.overallPercent || singleProgress?.progress || 0;
+    const progressLabel = batchProgress 
+        ? `Page ${batchProgress.currentPage}/${batchProgress.totalPages}` 
+        : singleProgress?.status || '';
 
-            {/* Step 2: Page Nav */}
-            {showPageControls && (
-                <div className="ea-sidebar-section">
-                    <div className="ea-section-label">
-                        <span className="ea-step-num">2</span> Navigate
-                    </div>
-                    <div className="ea-page-nav">
+    return (
+        <div className="ea-toolbar">
+            {/* Left: File + Nav */}
+            <div className="ea-toolbar-group">
+                <div className="ea-file-zone" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
+                    <input type="file" accept="application/pdf" onChange={handleFileInput} />
+                    {fileName ? (
+                        <div className="ea-file-loaded">
+                            <RiFilePdfLine className="ea-file-icon" />
+                            <span className="ea-file-label">{fileName}</span>
+                        </div>
+                    ) : (
+                        <div className="ea-file-empty">
+                            <RiUploadCloud2Line />
+                            <span>Upload PDF</span>
+                        </div>
+                    )}
+                </div>
+
+                {showPageControls && (
+                    <div className="ea-nav-pill">
                         <button onClick={onPrevPage} disabled={currentPage <= 1}>
                             <RiArrowLeftSLine />
                         </button>
-                        <span className="ea-page-info">
-                            Page <strong>{currentPage}</strong> / {totalPages}
+                        <span className="ea-nav-label">
+                            <strong>{currentPage}</strong> / {totalPages}
                         </span>
                         <button onClick={onNextPage} disabled={currentPage >= totalPages}>
                             <RiArrowRightSLine />
                         </button>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Step 3: OCR Controls */}
-            {showOcrControls && (
-                <div className="ea-sidebar-section">
-                    <div className="ea-section-label">
-                        <span className="ea-step-num">3</span> Extract
-                    </div>
-
-                    <div className="ea-tip-badge">
-                        <RiInformationLine />
-                        Crop a single column, then extract
-                    </div>
-
-                    <label style={{ fontSize: '11px', color: 'var(--mac-text-secondary)', fontWeight: 700, display: 'block', marginBottom: 6 }}>
-                        OCR Mode
-                    </label>
-                    <select className="ea-select" value={psmMode} onChange={(e) => onPsmChange(e.target.value)}>
-                        <option value="4">Single column varying sizes</option>
-                        <option value="6">Uniform block of text</option>
-                        <option value="3">Fully automatic</option>
-                        <option value="11">Sparse text / Scrape all</option>
-                    </select>
-
-                    <label className="ea-checkbox-row">
-                        <input type="checkbox" checked={cleanText} onChange={onCleanTextToggle} />
-                        Auto-clean &amp; format output
-                    </label>
-
-                    {/* Single page button */}
-                    <button className="ea-btn ea-btn-extract" disabled={isExtracting} onClick={onExtractSingle}>
-                        <RiFlashlightLine />
-                        <span>{isExtracting ? 'Processing...' : 'Extract This Page'}</span>
+                {/* Move/Crop toggle */}
+                {showPageControls && (
+                    <button
+                        className={`ea-action-btn ${dragMode === 'crop' ? 'ea-action-primary' : 'ea-action-ghost'}`}
+                        onClick={onToggleDragMode}
+                        title={dragMode === 'crop' ? 'Switch to Move mode' : 'Switch to Crop mode'}
+                    >
+                        {dragMode === 'crop' ? <RiCropLine /> : <RiDragMoveLine />}
+                        <span>{dragMode === 'crop' ? 'Crop' : 'Move'}</span>
                     </button>
-
-                    {/* Batch button */}
-                    <button className="ea-btn ea-btn-batch" disabled={isExtracting} onClick={onExtractBatch}>
-                        <RiStackLine />
-                        <span>{isExtracting ? 'Processing...' : 'Extract ALL Pages'}</span>
-                    </button>
-
-                    {/* Single progress */}
-                    <div className={`ea-progress ${singleProgress ? 'active' : ''}`}>
-                        <div className="ea-progress-info">
-                            <span>{singleProgress?.status || 'Initializing...'}</span>
-                            <span>{singleProgress?.progress || 0}%</span>
-                        </div>
-                        <div className="ea-progress-track">
-                            <div className="ea-progress-fill" style={{ width: `${singleProgress?.progress || 0}%` }}></div>
-                        </div>
-                    </div>
-
-                    {/* Batch progress */}
-                    <div className={`ea-batch-progress ${batchProgress ? 'active' : ''}`}>
-                        <div className="ea-batch-label">
-                            <span>Page {batchProgress?.currentPage || 0} / {batchProgress?.totalPages || 0}</span>
-                            <span>{batchProgress?.overallPercent || 0}%</span>
-                        </div>
-                        <div className="ea-batch-track">
-                            <div className="ea-batch-fill" style={{ width: `${batchProgress?.overallPercent || 0}%` }}></div>
-                        </div>
-                        <div className="ea-batch-sub">{batchProgress?.subLabel || 'Initializing...'}</div>
-                    </div>
-                </div>
-            )}
-
-            {/* Step 4: Output */}
-            <div className="ea-sidebar-section ea-output-section" style={{ flex: 1 }}>
-                <div className="ea-output-header">
-                    <div className="ea-section-label" style={{ marginBottom: 0 }}>
-                        <span className="ea-step-num">4</span> Result
-                    </div>
-                    <div className="ea-output-btns">
-                        <button className={`ea-btn-small ${showCompare ? 'visible' : ''}`} onClick={onCompare} title="Compare extracted data page by page">
-                            <RiFileListLine /> Compare
-                        </button>
-                        <button className={`ea-btn-small ${showCopy ? 'visible' : ''}`} onClick={onCopy}>
-                            <RiFileCopyLine /> Copy
-                        </button>
-                    </div>
-                </div>
-                <textarea
-                    className="ea-output-textarea"
-                    value={outputText}
-                    readOnly
-                    placeholder="Extracted text will appear here..."
-                />
-                <button className={`ea-btn ea-btn-next ${showNext ? 'visible' : ''}`} onClick={onNext}>
-                    <RiArrowRightLine /> Next → Build Calendar
-                </button>
+                )}
             </div>
-        </aside>
+
+            {/* Center: Actions */}
+            {showOcrControls && (
+                <div className="ea-toolbar-group ea-toolbar-center">
+                    <button 
+                        className="ea-action-btn ea-action-primary" 
+                        disabled={isExtracting} 
+                        onClick={onExtractSingle}
+                    >
+                        <RiFlashlightLine />
+                        <span>{isExtracting && singleProgress ? 'Extracting...' : 'Extract Page'}</span>
+                    </button>
+
+                    <button 
+                        className="ea-action-btn ea-action-success" 
+                        disabled={isExtracting} 
+                        onClick={onExtractBatch}
+                    >
+                        <RiStackLine />
+                        <span>{isExtracting && batchProgress ? 'Processing...' : 'Extract All'}</span>
+                    </button>
+
+                    <button 
+                        className={`ea-action-btn ea-action-ghost ${showSettings ? 'active' : ''}`}
+                        onClick={() => setShowSettings(!showSettings)}
+                    >
+                        <RiSettings4Line />
+                    </button>
+
+                    {/* Inline settings dropdown */}
+                    {showSettings && (
+                        <div className="ea-settings-dropdown">
+                            <label className="ea-settings-label">OCR Mode</label>
+                            <select className="ea-settings-select" value={psmMode} onChange={(e) => onPsmChange(e.target.value)}>
+                                <option value="4">Single column</option>
+                                <option value="6">Uniform block</option>
+                                <option value="3">Auto detect</option>
+                                <option value="11">Sparse text</option>
+                            </select>
+                            <label className="ea-settings-check" onClick={onCleanTextToggle}>
+                                <span className={`ea-check-box ${cleanText ? 'checked' : ''}`}>
+                                    {cleanText && <RiCheckLine />}
+                                </span>
+                                Auto-clean output
+                            </label>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Progress bar – appears inline */}
+            {isProcessing && (
+                <div className="ea-toolbar-progress">
+                    <div className="ea-progress-bar">
+                        <div className="ea-progress-fill" style={{ width: `${progressPercent}%` }}></div>
+                    </div>
+                    <span className="ea-progress-label">{progressLabel} — {progressPercent}%</span>
+                </div>
+            )}
+
+        </div>
     );
 };
 

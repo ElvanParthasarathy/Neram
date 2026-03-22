@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { RiFileLine } from 'react-icons/ri';
+import { RiFileTextLine, RiCropLine } from 'react-icons/ri';
 
 const PdfWorkspace = ({ pdfImageSrc, isLoading, loadingText, onCropperReady }) => {
     const imageRef = useRef(null);
@@ -17,13 +17,15 @@ const PdfWorkspace = ({ pdfImageSrc, isLoading, loadingText, onCropperReady }) =
 
             cropperRef.current = new Cropper(imageRef.current, {
                 viewMode: 1,
-                dragMode: 'crop',
+                dragMode: 'move',
                 background: true,
                 zoomable: true,
+                zoomOnWheel: true,
+                zoomOnTouch: true,
                 rotatable: false,
                 scalable: false,
                 autoCrop: false,
-                toggleDragModeOnDblclick: false,
+                toggleDragModeOnDblclick: true,
             });
 
             if (onCropperReady) onCropperReady(cropperRef.current);
@@ -40,17 +42,24 @@ const PdfWorkspace = ({ pdfImageSrc, isLoading, loadingText, onCropperReady }) =
     return (
         <section className="ea-workspace">
             {/* Loading overlay */}
-            <div className={`ea-loading-overlay ${isLoading ? 'active' : ''}`}>
-                <div className="ea-spinner"></div>
-                <div className="ea-loading-text">{loadingText || 'Processing...'}</div>
-            </div>
+            {isLoading && (
+                <div className="ea-loading-overlay active">
+                    <div className="ea-loading-card">
+                        <div className="ea-spinner"></div>
+                        <div className="ea-loading-text">{loadingText || 'Processing...'}</div>
+                    </div>
+                </div>
+            )}
 
             {/* Empty state */}
             {!pdfImageSrc && !isLoading && (
                 <div className="ea-workspace-empty">
-                    <div className="ea-empty-icon"><RiFileLine /></div>
-                    <h3>No Document Loaded</h3>
-                    <p>Upload a PDF to render it here. Crop a column and extract text via OCR.</p>
+                    <div className="ea-empty-visual">
+                        <RiFileTextLine className="ea-empty-icon-main" />
+                        <RiCropLine className="ea-empty-icon-sub" />
+                    </div>
+                    <h3>Upload a PDF to get started</h3>
+                    <p>Load your academic calendar PDF, crop a column, and extract events using OCR.</p>
                 </div>
             )}
 

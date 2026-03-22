@@ -19,9 +19,9 @@ function generateGroupId() {
 function getFullTime(title) {
     const upper = title.toUpperCase();
     if (upper.startsWith('WORKING DAY') || upper.includes('COMMENCEMENT')) {
-        return '08:20 AM - 03:00 PM';
+        return '08:30 AM - 03:00 PM';
     }
-    return 'All Day';
+    return '';
 }
 
 /**
@@ -37,37 +37,34 @@ export function buildRTDBEvents(calendar) {
         const yr = m.year || '2026';
 
         const monthEntries = [];
-
-        // Main entries (rows with date)
-        for (const r of m.rows) {
-            if (!r.date) continue;
-            const dd = String(r.date).padStart(2, '0');
-            const isoDate = `${yr}-${monthNum}-${dd}`;
-
-            if (r.event && r.event.trim() !== '') {
-                monthEntries.push({
-                    isoDate,
-                    title: r.event.trim(),
-                    fullTime: r.fullTime || 'All Day',
-                    type: r.type || 'FullDay'
-                });
-            }
-        }
-
-        // Sub-entries (rows with empty date use previous row's date)
         let lastDate = '';
+
+        // Single pass: handle both dated rows and sub-entries (empty date = inherits previous)
         for (const r of m.rows) {
+            let isoDate = '';
+
             if (r.date) {
                 const dd = String(r.date).padStart(2, '0');
-                lastDate = `${yr}-${monthNum}-${dd}`;
-            } else if (lastDate && r.event && r.event.trim() !== '') {
-                monthEntries.push({
-                    isoDate: lastDate,
-                    title: r.event.trim(),
-                    fullTime: r.fullTime || 'All Day',
-                    type: r.type || 'FullDay'
-                });
+                isoDate = `${yr}-${monthNum}-${dd}`;
+                lastDate = isoDate;
+            } else if (lastDate) {
+                isoDate = lastDate;
             }
+
+            if (!isoDate) continue;
+
+            const eventText = (r.event || '').trim();
+            if (!eventText) continue;
+
+            const upper = eventText.toUpperCase();
+            const defaultType = (upper.startsWith('WORKING DAY') || upper.includes('COMMENCEMENT')) ? 'Custom' : 'FullDay';
+
+            monthEntries.push({
+                isoDate,
+                title: eventText,
+                fullTime: r.fullTime || getFullTime(eventText),
+                type: r.type || defaultType
+            });
         }
 
         monthEntries.sort((a, b) => a.isoDate.localeCompare(b.isoDate));

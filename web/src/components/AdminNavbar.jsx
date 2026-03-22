@@ -171,13 +171,9 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
         {canViewExtras && (
           <>
             <div className="nav-group-label">Academic</div>
-            <Link to="/?mod=calendar" className={`admin-nav-link ${location.search.includes('mod=calendar') && !location.search.includes('calendar2') ? "active" : ""}`}>
+            <Link to="/?mod=calendar" className={`admin-nav-link ${location.search.includes('mod=calendar') ? "active" : ""}`}>
               <RiCalendarEventLine className="admin-nav-icon" />
               <span>Calendar</span>
-            </Link>
-            <Link to="/?mod=calendar2" className={`admin-nav-link ${location.search.includes('mod=calendar2') ? "active" : ""}`}>
-              <RiCalendarEventLine className="admin-nav-icon" />
-              <span>Calendar V2</span>
             </Link>
             <Link to="/?mod=resources" className={`admin-nav-link ${location.search.includes('mod=resources') ? "active" : ""}`}>
               <RiFilePdfLine className="admin-nav-icon" />

@@ -1,330 +1,347 @@
 /* ==========================================================================
-   ELVAN AGAZHI — PDF OCR + Calendar Builder (Admin Panel Module)
-   Scoped under .ea-container to avoid style conflicts.
-   Uses the app's --mac-* CSS variable system for seamless theme integration.
+   ELVAN AGAZHI — PDF OCR + Calendar Builder
+   REDESIGN v3: Compact toolbar + full-bleed workspace
    ========================================================================== */
 
-/* ─── Layout ─── */
+/* ─── Container ─── */
 .ea-container {
     display: flex;
-    height: calc(100vh - 80px);
-    width: 100%;
-    overflow: hidden;
-    border-radius: 24px;
-    border: var(--mac-card-border);
-    background: var(--mac-card-bg);
-}
-
-/* ─── Sidebar ─── */
-.ea-sidebar {
-    width: 360px;
-    flex-shrink: 0;
-    background: var(--mac-sidebar-bg);
-    border-right: 1px solid var(--mac-divider);
-    display: flex;
     flex-direction: column;
-    overflow-y: auto;
-}
-
-.ea-sidebar::-webkit-scrollbar {
-    width: 5px;
-}
-
-.ea-sidebar::-webkit-scrollbar-track {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     background: transparent;
+    gap: 0;
 }
 
-.ea-sidebar::-webkit-scrollbar-thumb {
-    background: var(--mac-divider);
-    border-radius: 5px;
-}
-
-.ea-sidebar-section {
-    padding: 16px 18px;
-    border-bottom: 1px solid var(--mac-divider);
-}
-
-.ea-sidebar-section:last-child {
-    border-bottom: none;
-}
-
-.ea-section-label {
+/* ==========================================================================
+   TOOLBAR (replaces sidebar)
+   ========================================================================== */
+.ea-toolbar {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--mac-text-secondary);
-    margin-bottom: 12px;
-}
-
-.ea-step-num {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--mac-blue);
-    color: #fff;
-    font-size: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-}
-
-/* ─── File Drop Zone ─── */
-.ea-file-drop {
-    border: 2px dashed var(--mac-divider);
+    padding: 10px 16px;
+    background: var(--mac-card-bg);
+    border: var(--mac-card-border);
     border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    flex-shrink: 0;
+    flex-wrap: wrap;
     position: relative;
+}
+
+.ea-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.ea-toolbar-center {
+    flex: 0 0 auto;
+}
+
+.ea-toolbar-right {
+    margin-left: auto;
+}
+
+/* ─── File Upload Zone ─── */
+.ea-file-zone {
+    position: relative;
+    cursor: pointer;
+    border-radius: 12px;
     overflow: hidden;
+    transition: all 0.2s ease;
 }
 
-.ea-file-drop:hover {
-    border-color: var(--mac-blue);
-    background: rgba(0, 113, 255, 0.04);
-}
-
-.ea-file-drop input {
+.ea-file-zone input {
     position: absolute;
     inset: 0;
     opacity: 0;
     cursor: pointer;
+    z-index: 2;
 }
 
-.ea-file-drop .ea-drop-icon {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 10px;
-    border-radius: 12px;
-    background: var(--mac-bg-secondary);
+.ea-file-empty {
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
+    padding: 8px 18px;
+    background: var(--mac-selection-bg);
+    border: 1.5px dashed var(--mac-divider);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mac-text-secondary);
+    transition: all 0.2s ease;
+}
+
+.ea-file-empty svg {
     font-size: 18px;
     color: var(--mac-blue);
 }
 
-.ea-file-drop .ea-drop-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--mac-text);
+.ea-file-zone:hover .ea-file-empty {
+    border-color: var(--mac-blue);
+    background: rgba(0, 99, 229, 0.04);
+    color: var(--mac-blue);
 }
 
-.ea-file-drop .ea-drop-sublabel {
-    font-size: 11px;
-    color: var(--mac-text-secondary);
-    margin-top: 4px;
-}
-
-.ea-file-name {
-    font-size: 11px;
-    color: #30D158;
-    margin-top: 8px;
-    font-weight: 600;
-    display: none;
-}
-
-.ea-file-name.visible {
-    display: block;
-}
-
-/* ─── Page Nav ─── */
-.ea-page-nav {
+.ea-file-loaded {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: var(--mac-bg-secondary);
-    border-radius: 12px;
-    padding: 6px;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(48, 209, 88, 0.08);
+    border: 1.5px solid rgba(48, 209, 88, 0.2);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #30D158;
 }
 
-.ea-page-nav button {
+.ea-file-icon {
+    font-size: 16px;
+}
+
+.ea-file-label {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ─── Page Nav Pill ─── */
+.ea-nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--mac-selection-bg);
+    border-radius: 100px;
+    padding: 4px;
+}
+
+.ea-nav-pill button {
     background: none;
     border: none;
     color: var(--mac-text-secondary);
     cursor: pointer;
     width: 32px;
     height: 32px;
-    border-radius: 10px;
+    border-radius: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 18px;
     transition: all 0.15s ease;
-    font-size: 16px;
 }
 
-.ea-page-nav button:hover:not(:disabled) {
-    background: var(--mac-selection-bg);
+.ea-nav-pill button:hover:not(:disabled) {
+    background: var(--mac-card-bg);
     color: var(--mac-blue);
 }
 
-.ea-page-nav button:disabled {
+.ea-nav-pill button:disabled {
     opacity: 0.25;
     cursor: default;
 }
 
-.ea-page-nav .ea-page-info {
+.ea-nav-label {
     font-size: 13px;
     color: var(--mac-text-secondary);
     font-weight: 600;
+    padding: 0 6px;
+    min-width: 50px;
+    text-align: center;
 }
 
-.ea-page-nav .ea-page-info strong {
+.ea-nav-label strong {
     color: var(--mac-text);
 }
 
-/* ─── OCR Controls ─── */
-.ea-tip-badge {
+/* ─── Action Buttons ─── */
+.ea-action-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 12px;
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.15);
-    border-radius: 10px;
-    font-size: 11px;
-    color: #F59E0B;
-    line-height: 1.5;
-    margin-bottom: 14px;
-    font-weight: 500;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-.ea-select {
+.ea-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.ea-action-btn svg {
+    font-size: 16px;
+}
+
+.ea-action-primary {
+    background: var(--mac-blue);
+    color: #fff;
+}
+
+.ea-action-primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.ea-action-success {
+    background: #30D158;
+    color: #fff;
+}
+
+.ea-action-success:hover:not(:disabled) {
+    filter: brightness(1.1);
+}
+
+.ea-action-accent {
+    background: rgba(255, 159, 10, 0.12);
+    color: #E8900C;
+}
+
+html.dark .ea-action-accent {
+    background: rgba(255, 159, 10, 0.15);
+    color: #FF9F0A;
+}
+
+.ea-action-accent:hover {
+    background: rgba(255, 159, 10, 0.2);
+}
+
+.ea-action-ghost {
+    background: var(--mac-selection-bg);
+    color: var(--mac-text-secondary);
+}
+
+.ea-action-ghost:hover {
+    background: var(--mac-selection-hover);
+    color: var(--mac-text);
+}
+
+.ea-action-ghost.active {
+    background: rgba(0, 99, 229, 0.08);
+    color: var(--mac-blue);
+}
+
+/* ─── Settings Dropdown ─── */
+.ea-settings-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: var(--mac-card-bg);
+    border: var(--mac-card-border);
+    border-radius: 16px;
+    padding: 16px;
+    width: 240px;
+    z-index: 100;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    animation: ea-dropdown-in 0.2s ease;
+}
+
+html.dark .ea-settings-dropdown {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes ea-dropdown-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ea-settings-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--mac-text-secondary);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.ea-settings-select {
     width: 100%;
-    padding: 10px 14px;
-    background: var(--mac-bg-secondary);
+    padding: 10px 12px;
+    background: var(--mac-selection-bg);
     border: 1px solid var(--mac-divider);
     border-radius: 10px;
     color: var(--mac-text);
     font-size: 13px;
     font-family: inherit;
     outline: none;
-    appearance: none;
     cursor: pointer;
+    margin-bottom: 12px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
+    background-position: right 10px center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-.ea-select:focus {
-    border-color: var(--mac-blue);
-    box-shadow: 0 0 0 3px rgba(0, 113, 255, 0.1);
+.ea-settings-select option {
+    background: var(--mac-card-bg);
+    color: var(--mac-text);
+    padding: 8px;
 }
 
-.ea-checkbox-row {
+html.dark .ea-settings-select {
+    background-color: #2a2a2e;
+    color: #fff;
+}
+
+html.dark .ea-settings-select option {
+    background: #2a2a2e;
+    color: #fff;
+}
+
+.ea-settings-check {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 500;
     color: var(--mac-text-secondary);
     cursor: pointer;
-    margin-top: 12px;
-    font-weight: 500;
 }
 
-.ea-checkbox-row input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: var(--mac-blue);
-    cursor: pointer;
-}
-
-/* ─── Action Buttons ─── */
-.ea-btn {
-    width: 100%;
-    padding: 12px;
-    font-weight: 700;
-    font-size: 13px;
-    font-family: inherit;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
+.ea-check-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--mac-divider);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    margin-top: 12px;
-    transition: all 0.2s ease;
+    font-size: 14px;
+    transition: all 0.15s ease;
+    color: #fff;
 }
 
-.ea-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.ea-btn svg,
-.ea-btn .ea-btn-icon {
-    font-size: 15px;
-}
-
-.ea-btn-extract {
+.ea-check-box.checked {
     background: var(--mac-blue);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(0, 113, 255, 0.2);
+    border-color: var(--mac-blue);
 }
 
-.ea-btn-extract:hover:not(:disabled) {
-    box-shadow: 0 6px 24px rgba(0, 113, 255, 0.35);
-    transform: translateY(-1px);
-}
-
-.ea-btn-batch {
-    background: #30D158;
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(48, 209, 88, 0.2);
-}
-
-.ea-btn-batch:hover:not(:disabled) {
-    box-shadow: 0 6px 24px rgba(48, 209, 88, 0.35);
-    transform: translateY(-1px);
-}
-
-.ea-btn-next {
-    background: #FF9F0A;
-    color: #1c1c1e;
-    box-shadow: 0 4px 14px rgba(255, 159, 10, 0.2);
-    display: none;
-}
-
-.ea-btn-next.visible {
+/* ─── Inline Progress ─── */
+.ea-toolbar-progress {
     display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 4px;
+    min-width: 180px;
 }
 
-.ea-btn-next:hover {
-    box-shadow: 0 6px 24px rgba(255, 159, 10, 0.35);
-    transform: translateY(-1px);
-}
-
-/* ─── Progress ─── */
-.ea-progress {
-    margin-top: 12px;
-    display: none;
-}
-
-.ea-progress.active {
-    display: block;
-}
-
-.ea-progress-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--mac-text-secondary);
-    margin-bottom: 6px;
-    font-weight: 600;
-}
-
-.ea-progress-track {
-    width: 100%;
+.ea-progress-bar {
+    flex: 1;
     height: 4px;
-    background: var(--mac-bg-secondary);
+    background: var(--mac-selection-bg);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -333,183 +350,87 @@
     height: 100%;
     background: var(--mac-blue);
     border-radius: 4px;
-    width: 0%;
     transition: width 0.3s ease;
 }
 
-/* Batch progress */
-.ea-batch-progress {
-    margin-top: 14px;
-    display: none;
-}
-
-.ea-batch-progress.active {
-    display: block;
-}
-
-.ea-batch-label {
+.ea-progress-label {
     font-size: 11px;
-    font-weight: 700;
-    color: var(--mac-blue);
-    margin-bottom: 6px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.ea-batch-track {
-    width: 100%;
-    height: 6px;
-    background: var(--mac-bg-secondary);
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 4px;
-}
-
-.ea-batch-fill {
-    height: 100%;
-    background: #30D158;
-    border-radius: 6px;
-    width: 0%;
-    transition: width 0.4s ease;
-}
-
-.ea-batch-sub {
-    font-size: 10px;
+    font-weight: 600;
     color: var(--mac-text-secondary);
-    font-weight: 500;
+    white-space: nowrap;
 }
 
-/* ─── Output ─── */
-.ea-output-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-}
-
-.ea-output-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.ea-output-btns {
-    display: flex;
-    gap: 6px;
-}
-
-.ea-output-textarea {
-    flex: 1;
-    width: 100%;
-    min-height: 120px;
-    padding: 14px;
-    background: var(--mac-bg-secondary);
-    border: 1px solid var(--mac-divider);
-    border-radius: 14px;
-    color: var(--mac-text);
-    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
-    font-size: 11px;
-    line-height: 1.7;
-    resize: none;
-    outline: none;
-    box-sizing: border-box;
-}
-
-.ea-output-textarea:focus {
-    border-color: var(--mac-blue);
-}
-
-.ea-output-textarea::placeholder {
-    color: var(--mac-text-secondary);
-}
-
-.ea-btn-small {
-    padding: 5px 12px;
-    background: var(--mac-bg-secondary);
-    border: 1px solid var(--mac-divider);
-    border-radius: 50px;
-    color: var(--mac-text-secondary);
-    font-size: 11px;
-    font-weight: 700;
-    font-family: inherit;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    gap: 5px;
-    transition: all 0.15s ease;
-}
-
-.ea-btn-small.visible {
-    display: inline-flex;
-}
-
-.ea-btn-small:hover {
-    border-color: var(--mac-blue);
-    color: var(--mac-blue);
-}
-
-.ea-btn-small svg {
-    font-size: 12px;
-}
-
-/* ─── Workspace (PDF Viewer) ─── */
+/* ==========================================================================
+   PDF WORKSPACE
+   ========================================================================== */
 .ea-workspace {
     flex: 1;
-    background: var(--mac-bg-primary);
+    background: var(--mac-card-bg);
+    border: var(--mac-card-border);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    padding: 24px;
+    margin-top: 12px;
+    min-height: 0;
 }
 
+/* ─── Empty State ─── */
 .ea-workspace-empty {
     text-align: center;
     max-width: 360px;
+    padding: 48px 24px;
 }
 
-.ea-workspace-empty .ea-empty-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 18px;
-    background: var(--mac-card-bg);
-    border: 1px solid var(--mac-divider);
+.ea-empty-visual {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 18px;
-    font-size: 28px;
+}
+
+.ea-empty-icon-main {
+    font-size: 40px;
     color: var(--mac-text-secondary);
+    opacity: 0.3;
+}
+
+.ea-empty-icon-sub {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 22px;
+    color: var(--mac-blue);
+    background: var(--mac-card-bg);
+    border-radius: 8px;
+    padding: 2px;
 }
 
 .ea-workspace-empty h3 {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin: 0 0 8px;
     color: var(--mac-text);
 }
 
 .ea-workspace-empty p {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--mac-text-secondary);
     line-height: 1.6;
+    margin: 0;
 }
 
+/* ─── PDF Container ─── */
 .ea-pdf-container {
-    background: var(--mac-card-bg);
-    border: 1px solid var(--mac-divider);
-    border-radius: 14px;
     overflow: hidden;
     display: none;
-    max-width: calc(100% - 40px);
-    max-height: calc(100% - 40px);
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
-}
-
-html.dark .ea-pdf-container {
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    height: 100%;
 }
 
 .ea-pdf-container.active {
@@ -525,50 +446,55 @@ html.dark .ea-pdf-container {
     max-width: 100%;
 }
 
-/* Loading overlay */
+/* ─── Loading Overlay ─── */
 .ea-loading-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
     z-index: 50;
     display: none;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    border-radius: 16px;
 }
 
 html.dark .ea-loading-overlay {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.7);
 }
 
 .ea-loading-overlay.active {
     display: flex;
 }
 
+.ea-loading-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 32px;
+}
+
 .ea-spinner {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: 3px solid var(--mac-divider);
     border-top-color: var(--mac-blue);
     border-radius: 50%;
-    animation: ea-spin 0.8s linear infinite;
-    margin-bottom: 14px;
+    animation: ea-spin 0.7s linear infinite;
 }
 
 @keyframes ea-spin {
-    to {
-        transform: rotate(360deg);
-    }
+    to { transform: rotate(360deg); }
 }
 
-.ea-loading-overlay .ea-loading-text {
-    font-size: 13px;
-    color: #fff;
+.ea-loading-text {
+    font-size: 14px;
+    color: var(--mac-text);
     font-weight: 600;
 }
 
-/* Cropper overrides — scoped */
+/* ─── Cropper Overrides ─── */
 .ea-container .cropper-view-box {
     outline-color: var(--mac-blue);
 }
@@ -582,16 +508,18 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-container .cropper-modal {
-    background-color: rgba(0, 0, 0, 0.45);
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
-/* ─── Comparison Modal ─── */
+/* ==========================================================================
+   COMPARISON MODAL
+   ========================================================================== */
 .ea-modal-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 2000;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(10px);
+    z-index: 2147483647 !important;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(16px);
     display: none;
     align-items: center;
     justify-content: center;
@@ -602,16 +530,21 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-modal {
-    width: 94vw;
-    max-width: 1400px;
-    height: 88vh;
-    background: var(--mac-sidebar-bg);
-    border: 1px solid var(--mac-divider);
+    width: 90vw;
+    max-width: 1200px;
+    max-height: calc(100vh - 100px);
+    height: 80vh;
+    background: var(--mac-card-bg);
+    border: var(--mac-card-border);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.15);
+}
+
+html.dark .ea-modal {
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
 }
 
 .ea-modal-header {
@@ -624,7 +557,7 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-modal-title {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 800;
     color: var(--mac-text);
 }
@@ -639,8 +572,8 @@ html.dark .ea-loading-overlay {
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    border: 1px solid var(--mac-divider);
-    background: var(--mac-bg-secondary);
+    border: none;
+    background: var(--mac-selection-bg);
     color: var(--mac-text-secondary);
     cursor: pointer;
     display: flex;
@@ -651,7 +584,7 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-modal-close:hover {
-    border-color: #FF3B30;
+    background: rgba(255, 59, 48, 0.1);
     color: #FF3B30;
 }
 
@@ -659,6 +592,7 @@ html.dark .ea-loading-overlay {
     flex: 1;
     display: flex;
     overflow: hidden;
+    min-height: 0;
 }
 
 .ea-modal-pane {
@@ -666,9 +600,11 @@ html.dark .ea-loading-overlay {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0;
+    min-width: 0;
 }
 
-.ea-modal-pane+.ea-modal-pane {
+.ea-modal-pane + .ea-modal-pane {
     border-left: 1px solid var(--mac-divider);
 }
 
@@ -680,7 +616,7 @@ html.dark .ea-loading-overlay {
     letter-spacing: 0.8px;
     color: var(--mac-text-secondary);
     border-bottom: 1px solid var(--mac-divider);
-    background: var(--mac-bg-secondary);
+    background: var(--mac-selection-bg);
     flex-shrink: 0;
 }
 
@@ -692,7 +628,7 @@ html.dark .ea-loading-overlay {
 
 .ea-modal-pane-content img {
     max-width: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid var(--mac-divider);
 }
 
@@ -715,10 +651,10 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-modal-nav-btn {
-    padding: 8px 20px;
-    border-radius: 50px;
-    border: 1px solid var(--mac-divider);
-    background: var(--mac-bg-secondary);
+    padding: 9px 18px;
+    border-radius: 100px;
+    border: none;
+    background: var(--mac-selection-bg);
     color: var(--mac-text-secondary);
     cursor: pointer;
     font-size: 12px;
@@ -731,7 +667,7 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-modal-nav-btn:hover:not(:disabled) {
-    border-color: var(--mac-blue);
+    background: rgba(0, 99, 229, 0.08);
     color: var(--mac-blue);
 }
 
@@ -761,20 +697,21 @@ html.dark .ea-loading-overlay {
 
 .ea-page-dot.active {
     background: var(--mac-blue);
-    box-shadow: 0 0 6px rgba(0, 113, 255, 0.3);
 }
 
 .ea-page-dot.done {
     background: #30D158;
 }
 
-/* ─── Calendar Builder Modal ─── */
+/* ==========================================================================
+   CALENDAR BUILDER MODAL
+   ========================================================================== */
 .ea-cal-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 2100;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(12px);
+    z-index: 2147483647 !important;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(16px);
     display: none;
     flex-direction: column;
 }
@@ -787,25 +724,25 @@ html.dark .ea-loading-overlay {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 28px;
+    padding: 14px 24px;
     border-bottom: 1px solid var(--mac-divider);
-    background: var(--mac-sidebar-bg);
+    background: var(--mac-card-bg);
     flex-shrink: 0;
 }
 
 .ea-cal-header-left {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
 .ea-cal-header-icon {
-    font-size: 24px;
+    font-size: 22px;
     color: var(--mac-blue);
 }
 
 .ea-cal-header-title {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 800;
     color: var(--mac-text);
 }
@@ -818,14 +755,14 @@ html.dark .ea-loading-overlay {
 
 .ea-cal-header-right {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .ea-cal-btn {
-    padding: 10px 20px;
-    border-radius: 50px;
-    border: 1px solid var(--mac-divider);
-    background: var(--mac-bg-secondary);
+    padding: 9px 18px;
+    border-radius: 100px;
+    border: none;
+    background: var(--mac-selection-bg);
     color: var(--mac-text-secondary);
     cursor: pointer;
     font-size: 13px;
@@ -838,19 +775,17 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-cal-btn:hover {
-    border-color: var(--mac-blue);
+    background: rgba(0, 99, 229, 0.08);
     color: var(--mac-blue);
 }
 
 .ea-cal-btn.primary {
     background: var(--mac-blue);
     color: #fff;
-    border-color: transparent;
-    box-shadow: 0 4px 14px rgba(0, 113, 255, 0.2);
 }
 
 .ea-cal-btn.primary:hover {
-    box-shadow: 0 6px 24px rgba(0, 113, 255, 0.35);
+    filter: brightness(1.08);
 }
 
 .ea-cal-btn svg {
@@ -859,25 +794,30 @@ html.dark .ea-loading-overlay {
 
 .ea-cal-body {
     flex: 1;
-    overflow-y: auto;
-    padding: 28px;
-    background: var(--mac-bg-primary);
+    overflow: hidden;
+    padding: 0;
+    background: var(--mac-card-bg);
+    display: flex;
+    flex-direction: column;
 }
 
-/* Month blocks */
+/* ─── Month Blocks ─── */
 .ea-cal-month-block {
-    background: var(--mac-sidebar-bg);
-    border: 1px solid var(--mac-divider);
-    border-radius: 20px;
-    margin-bottom: 28px;
+    background: var(--mac-card-bg);
+    border: none;
+    border-radius: 0;
+    margin-bottom: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
 }
 
 .ea-cal-month-header {
-    padding: 14px 24px;
-    font-size: 15px;
+    padding: 14px 20px;
+    font-size: 14px;
     font-weight: 800;
-    background: var(--mac-selection-bg, rgba(0, 113, 255, 0.06));
+    background: var(--mac-selection-bg);
     border-bottom: 1px solid var(--mac-divider);
     display: flex;
     align-items: center;
@@ -892,7 +832,7 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-cal-month-name svg {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--mac-blue);
 }
 
@@ -905,19 +845,23 @@ html.dark .ea-loading-overlay {
 
 .ea-cal-month-content {
     display: flex;
-    min-height: 300px;
+    min-height: 280px;
 }
 
 .ea-cal-image-pane {
-    width: 320px;
+    width: 280px;
     flex-shrink: 0;
     border-right: 1px solid var(--mac-divider);
     overflow: auto;
     padding: 14px;
-    background: var(--mac-bg-secondary);
+    background: var(--mac-selection-bg);
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
 }
 
 .ea-cal-image-pane img {
@@ -941,7 +885,7 @@ html.dark .ea-loading-overlay {
     overflow: auto;
 }
 
-/* Calendar table */
+/* ─── Calendar Table ─── */
 .ea-cal-table {
     width: 100%;
     border-collapse: collapse;
@@ -949,20 +893,23 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-cal-table thead th {
-    padding: 10px 16px;
+    padding: 14px 12px;
     text-align: left;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.8px;
     color: var(--mac-text-secondary);
-    background: var(--mac-bg-secondary);
-    border-bottom: 1px solid var(--mac-divider);
+    background: var(--mac-card-bg);
+    border-bottom: 2px solid var(--mac-divider);
+    position: sticky;
+    top: 0;
+    z-index: 2;
 }
 
 .ea-cal-table tbody tr {
-    border-bottom: 1px solid var(--mac-divider);
-    transition: background 0.1s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.15s ease;
 }
 
 .ea-cal-table tbody tr:last-child {
@@ -974,32 +921,33 @@ html.dark .ea-loading-overlay {
 }
 
 .ea-cal-table tbody tr.is-holiday {
-    background: rgba(255, 59, 48, 0.05);
+    background: rgba(255, 59, 48, 0.03);
 }
 
 .ea-cal-table tbody tr.is-holiday:hover {
-    background: rgba(255, 59, 48, 0.1);
+    background: rgba(255, 59, 48, 0.07);
 }
 
 .ea-cal-table td {
-    padding: 8px 16px;
+    padding: 10px 12px;
     vertical-align: middle;
 }
 
 .ea-cal-table td.ea-date-col {
-    width: 50px;
+    width: 60px;
     font-weight: 800;
+    font-size: 15px;
     color: var(--mac-text);
 }
 
 .ea-cal-table td.ea-day-col {
-    width: 60px;
+    width: 90px;
     font-weight: 600;
     color: var(--mac-text-secondary);
 }
 
 .ea-cal-table td.ea-wd-col {
-    width: 40px;
+    width: 60px;
     text-align: center;
     font-weight: 800;
     color: var(--mac-blue);
@@ -1019,39 +967,94 @@ html.dark .ea-loading-overlay {
     border: 1px solid transparent;
     color: inherit;
     font-family: inherit;
-    font-size: inherit;
+    font-size: 14px;
     font-weight: inherit;
-    padding: 5px 8px;
+    padding: 8px 12px;
     border-radius: 8px;
     width: 100%;
     outline: none;
-    transition: all 0.15s;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .ea-cal-table td input:hover {
-    border-color: var(--mac-divider);
+    background: rgba(125, 125, 125, 0.05);
+    border-color: rgba(125, 125, 125, 0.1);
 }
 
 .ea-cal-table td input:focus {
     border-color: var(--mac-blue);
-    background: var(--mac-bg-secondary);
-    box-shadow: 0 0 0 2px rgba(0, 113, 255, 0.1);
+    background: var(--mac-selection-bg);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+}
+
+.ea-cal-table td input[type="time"] {
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--mac-text);
+}
+
+.ea-cal-table td select.ea-type-select {
+    background: transparent;
+    color: var(--mac-text);
+    border: 1px solid transparent;
+    outline: none;
+    width: 100%;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    appearance: none;
+}
+
+.ea-cal-table td select.ea-type-select:hover {
+    background: rgba(125, 125, 125, 0.05);
+    border-color: rgba(125, 125, 125, 0.1);
+}
+
+.ea-cal-table td select.ea-type-select:focus {
+    border-color: var(--mac-blue);
+    background: var(--mac-selection-bg);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
 }
 
 .ea-cal-table td input.ea-event-input {
-    min-width: 200px;
+    min-width: 130px;
+    font-weight: 600;
 }
 
-/* Tags */
+/* ─── Buttons ─── */
+.ea-row-delete-btn {
+    background: transparent;
+    color: var(--mac-text-secondary);
+    border: none;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.ea-row-delete-btn:hover {
+    background: rgba(255, 59, 48, 0.15);
+    color: #ff3b30;
+}
+
+/* ─── Tags ─── */
 .ea-holiday-tag {
     display: inline-flex;
     align-items: center;
     gap: 3px;
     padding: 3px 10px;
-    border-radius: 50px;
+    border-radius: 100px;
     font-size: 10px;
     font-weight: 700;
-    background: rgba(255, 59, 48, 0.1);
+    background: rgba(255, 59, 48, 0.08);
     color: #FF3B30;
 }
 
@@ -1059,28 +1062,58 @@ html.dark .ea-loading-overlay {
     display: inline-flex;
     align-items: center;
     padding: 3px 10px;
-    border-radius: 50px;
+    border-radius: 100px;
     font-size: 10px;
     font-weight: 700;
-    background: rgba(0, 113, 255, 0.08);
+    background: rgba(0, 99, 229, 0.06);
     color: var(--mac-blue);
 }
 
-/* ─── Responsiveness ─── */
+/* ==========================================================================
+   LEGACY COMPAT (classes referenced in old sidebar but no longer used)
+   ========================================================================== */
+.ea-sidebar { display: none; }
+.ea-sidebar-section { display: none; }
+.ea-section-label { display: none; }
+.ea-step-num { display: none; }
+.ea-file-drop { display: none; }
+.ea-select { display: none; }
+.ea-checkbox-row { display: none; }
+.ea-btn { display: none; }
+.ea-btn-extract { display: none; }
+.ea-btn-batch { display: none; }
+.ea-btn-next { display: none; }
+.ea-btn-small { display: none; }
+.ea-progress { display: none; }
+.ea-batch-progress { display: none; }
+.ea-output-section { display: none; }
+.ea-output-textarea { display: none; }
+.ea-output-header { display: none; }
+.ea-output-btns { display: none; }
+.ea-tip-badge { display: none; }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
 @media (max-width: 900px) {
-    .ea-container {
-        flex-direction: column;
-        height: auto;
-        min-height: calc(100vh - 80px);
-        border-radius: 0;
-        border: none;
+    .ea-toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 12px;
     }
 
-    .ea-sidebar {
+    .ea-toolbar-right {
+        margin-left: 0;
         width: 100%;
-        max-height: 50vh;
-        border-right: none;
-        border-bottom: 1px solid var(--mac-divider);
+        justify-content: flex-end;
+    }
+
+    .ea-action-btn span {
+        display: none;
+    }
+
+    .ea-action-btn {
+        padding: 8px 12px;
     }
 
     .ea-workspace {
@@ -1102,7 +1135,7 @@ html.dark .ea-loading-overlay {
         flex-direction: column;
     }
 
-    .ea-modal-pane+.ea-modal-pane {
+    .ea-modal-pane + .ea-modal-pane {
         border-left: none;
         border-top: 1px solid var(--mac-divider);
     }

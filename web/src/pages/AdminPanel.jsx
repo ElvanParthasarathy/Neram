@@ -21,7 +21,6 @@ import StructureManager from './admins/StructureManager';
 import UserManagement from './admins/UserManagement';
 import ScheduleManager from './admins/ScheduleManager';
 import CalendarManager from './admins/CalendarManager';
-import CalendarManager2 from './admins/CalendarManager2';
 import ExamManager from './admins/ExamManager';
 import AdminRoleManager from './admins/AdminRoleManager';
 import EventManager from './admins/EventManager';
@@ -107,7 +106,6 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
         {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} isMobile={isMobile} />}
         {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} isMobile={isMobile} />}
         {activeModule === 'calendar' && <CalendarManager />}
-        {activeModule === 'calendar2' && <CalendarManager2 />}
         {activeModule === 'resources' && <ResourceManager />}
         {activeModule === 'notes' && <NotesManager />}
         {activeModule === 'pending' && <PendingRequests />}

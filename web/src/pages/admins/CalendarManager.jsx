@@ -279,6 +279,7 @@ const CalendarManager = () => {
         allNewEntries.push({
           date: dStr,
           fullTime: batchEv.fullTime,
+          type: batchEv.type || 'FullDay',
           groupId: groupId,
           id: `${groupId}_${dStr}`,
           title: batchEv.title
@@ -375,6 +376,7 @@ const CalendarManager = () => {
         newEvents.push({
           date: dStr,
           fullTime: spanInfo.fullTime,
+          type: spanInfo.type || 'FullDay',
           groupId: gId,
           id: `${gId}_${dStr}`,
           title: spanInfo.title
@@ -461,7 +463,7 @@ const CalendarManager = () => {
     <div className="pc-container admin-subpage">
 
       {/* 1. HEADER WITH BREADCRUMBS */}
-      <header className="explorer-header focus-mode" style={{ background: 'transparent', padding: '0 0 20px 0', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', height: 'auto', marginBottom: 0 }}>
+      <header className="explorer-header focus-mode" style={{ background: 'transparent', padding: '0 0 20px 0', borderBottom: '1px solid var(--mac-divider)', height: 'auto', marginBottom: 0 }}>
         <div className="breadcrumb-nav">
           {viewLevel === 'editor' && (
             <button className="explorer-back-btn" onClick={() => { setViewLevel('batches'); setActiveTab('published'); }} style={{ marginRight: '12px' }}>
@@ -560,7 +562,7 @@ const CalendarManager = () => {
                     {/* EXPORTING LOADING OVERLAY */}
                     {isExporting && (
                       <div className="ea-cal-backdrop" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}>
-                        <div className="settings-card" style={{ padding: '30px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', background: 'var(--mac-card-bg)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div className="settings-card" style={{ padding: '30px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', background: 'var(--mac-card-bg)', border: '1px solid var(--mac-divider)' }}>
                           <RiRefreshLine className="spin" style={{ fontSize: '32px', color: 'var(--mac-blue)' }} />
                           <h3 style={{ margin: 0 }}>Creating JSON Backup...</h3>
                           <p style={{ margin: 0, color: 'var(--mac-text-secondary)', fontSize: '14px' }}>Please wait while the file is compiled.</p>
@@ -751,8 +753,8 @@ const CalendarManager = () => {
                             <React.Fragment key={spanId}>
                               {isEditing && !isMobile && (
                                   <div className="master-header-row pill-group-row desktop-edit-actions" style={{ justifyContent: 'flex-end', marginBottom: '8px' }}>
-                                      <button className="role-header-pill secondary" onClick={cancelEditing}>Cancel</button>
-                                      <button className="role-header-pill active" onClick={() => saveEdit(span.startDate, span.endDate, span.title)}>Save</button>
+                                      <button className="premium-pill-btn secondary" onClick={cancelEditing}>Cancel</button>
+                                      <button className="premium-pill-btn primary" onClick={() => saveEdit(span.startDate, span.endDate, span.title)}>Save</button>
                                   </div>
                               )}
                               <div className={`settings-card published-exam-card compact-card ${isEditing ? 'editing-active' : ''}`}>
@@ -791,8 +793,8 @@ const CalendarManager = () => {
                                       <div className="event-editor-card exam-manager-container" style={{ padding: '0 0 24px 0', borderBottom: '1px solid var(--mac-divider)', marginBottom: '24px' }}>
                                           {isMobile && (
                                               <div className="mobile-edit-actions" style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-                                                  <button className="role-header-pill secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={cancelEditing}>Cancel</button>
-                                                  <button className="role-header-pill active" style={{ flex: 1, justifyContent: 'center' }} onClick={() => saveEdit(span.startDate, span.endDate, span.title)}>Save</button>
+                                                  <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={cancelEditing}>Cancel</button>
+                                                  <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => saveEdit(span.startDate, span.endDate, span.title)}>Save</button>
                                               </div>
                                           )}
                                           
@@ -971,19 +973,19 @@ const CalendarManager = () => {
                                     </div>
                                     <div className="pill-group">
                                         <button
-                                            className="premium-pill-btn primary"
+                                            className="premium-pill-btn tinted-primary"
                                             onClick={handleSelectAllEvents}
                                         >
-                                            {selectedEvents.length === spannedEvents.length && spannedEvents.length > 0 ? 'Deselect Month' : 'Select Month'}
+                                            {selectedEvents.length === spannedEvents.length && spannedEvents.length > 0 ? 'Deselect All' : 'Select All'}
                                         </button>
                                         <button 
-                                            className="premium-pill-btn danger-outline" 
+                                            className="premium-pill-btn tinted-danger" 
                                             onClick={handleDeleteLiveCalendar}
                                         >
-                                            Clear All Months
+                                            Wipe All
                                         </button>
                                         <button className="premium-pill-btn secondary" onClick={() => { setSelectedEvents([]); setIsDeleteMode(false); }}>Cancel</button>
-                                        <button className="premium-pill-btn danger" onClick={handleBulkDeleteEvents} disabled={selectedEvents.length === 0}>
+                                        <button className="premium-pill-btn tinted-danger" onClick={handleBulkDeleteEvents} disabled={selectedEvents.length === 0}>
                                             Delete
                                         </button>
                                     </div>

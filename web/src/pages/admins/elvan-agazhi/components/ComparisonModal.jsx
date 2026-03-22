@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine } from 'react-icons/ri';
 
 function escapeHtml(str) {
@@ -31,7 +32,7 @@ const ComparisonModal = ({ isOpen, onClose, batchResults, totalPages, currentInd
 
     const r = batchResults[currentIndex];
 
-    return (
+    return createPortal(
         <div className={`ea-modal-backdrop ${isOpen ? 'active' : ''}`} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
             <div className="ea-modal">
                 {/* Header */}
@@ -79,7 +80,8 @@ const ComparisonModal = ({ isOpen, onClose, batchResults, totalPages, currentInd
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

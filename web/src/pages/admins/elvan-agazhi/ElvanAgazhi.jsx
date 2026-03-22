@@ -18,6 +18,7 @@ import '../../../styles/elvan-agazhi.css';
 // Firebase
 import { db } from '../../../firebase';
 import { ref, set, get } from 'firebase/database';
+import { RiFileListLine, RiFileCopyLine, RiArrowRightLine } from 'react-icons/ri';
 
 const ElvanAgazhi = ({ preselectedBatch }) => {
     // ─── PDF State ───
@@ -31,6 +32,15 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
 
     // ─── Cropper ───
     const cropperRef = useRef(null);
+    const [dragMode, setDragMode] = useState('move');
+
+    const toggleDragMode = useCallback(() => {
+        const newMode = dragMode === 'move' ? 'crop' : 'move';
+        setDragMode(newMode);
+        if (cropperRef.current) {
+            cropperRef.current.setDragMode(newMode);
+        }
+    }, [dragMode]);
 
     // ─── OCR State ───
     const [psmMode, setPsmMode] = useState('4');
@@ -302,6 +312,8 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
                 onCompare={handleCompare}
                 onNext={handleNext}
                 showOcrControls={totalPages > 0}
+                dragMode={dragMode}
+                onToggleDragMode={toggleDragMode}
             />
 
             {/* PDF Workspace */}
@@ -311,6 +323,32 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
                 loadingText={loadingText}
                 onCropperReady={handleCropperReady}
             />
+
+            {/* Bottom Output Actions */}
+            {(showCompare || showCopy || showNext) && (
+                <div className="ea-toolbar ea-bottom-bar" style={{ marginTop: '10px', justifyContent: 'flex-end' }}>
+                    <div className="ea-toolbar-group">
+                        {showCompare && (
+                            <button className="ea-action-btn ea-action-ghost" onClick={handleCompare}>
+                                <RiFileListLine />
+                                <span>Compare</span>
+                            </button>
+                        )}
+                        {showCopy && (
+                            <button className="ea-action-btn ea-action-ghost" onClick={handleCopy}>
+                                <RiFileCopyLine />
+                                <span>Copy</span>
+                            </button>
+                        )}
+                        {showNext && (
+                            <button className="ea-action-btn ea-action-accent" onClick={handleNext}>
+                                <span>Build Calendar</span>
+                                <RiArrowRightLine />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Comparison Modal */}
             <ComparisonModal
