@@ -5,15 +5,53 @@
 
 .pc-container {
     padding: 24px 32px;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     gap: 24px;
-    background: var(--mac-bg-primary, #000);
+    background: transparent !important; /* Matches global app background */
     color: var(--mac-text, #fff);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     box-sizing: border-box;
-    overflow: hidden;
+    /* Common scroll enabled */
+    accent-color: var(--mac-blue);
+}
+
+.mac-input.pill {
+    border-radius: 100px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+.mac-label.indented {
+    padding-left: 20px !important;
+}
+
+.event-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
+
+.pill-group-stack {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px;
+    border-radius: 40px; /* Large pill shape for vertical stack */
+    gap: 4px;
+    align-items: center;
+}
+
+@media (max-width: 900px) {
+    .pc-container {
+        padding: 16px 12px; /* Less padding on mobile for free-floating cards */
+    }
+    .event-edit-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
 }
 
 /* Header */
@@ -59,7 +97,7 @@
     background: rgba(255, 255, 255, 0.05);
     padding: 4px;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: none;
 }
 
 .pc-tab-btn {
@@ -90,22 +128,22 @@
 /* Content Area */
 .pc-content-area {
     flex: 1;
-    overflow: hidden;
     position: relative;
+    /* Common scroll: removed overflow: hidden */
 }
 
 /* Layout for Published Viewer */
 .pc-layout {
     display: flex;
     gap: 24px;
-    height: 100%;
+    height: auto; /* Common scroll: height auto */
 }
 
 .pc-sidebar {
     width: 260px;
-    background: var(--mac-card-bg, #1C1C1E);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
+    background: var(--mac-sidebar-bg, #1C1C1E);
+    border: none;
+    border-radius: 24px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -170,18 +208,15 @@
 /* Workspace (Table Area) */
 .pc-workspace {
     flex: 1;
-    background: var(--mac-card-bg, #1C1C1E);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    /* Common scroll: Background and overflow removed */
 }
 
 .pc-live-view {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: auto; /* Common scroll: height auto */
 }
 
 .pc-live-header {
@@ -205,19 +240,131 @@
 }
 
 .pc-stat-pill {
-    background: rgba(48, 209, 88, 0.15);
-    color: #30D158;
-    padding: 6px 14px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 500;
-    border: 1px solid rgba(48, 209, 88, 0.3);
+    display: none; /* Removed as requested, auto-recognise handles this */
 }
+
+/* Compact Card Redesign */
+.published-exam-card.compact-card {
+    padding: 16px 24px !important;
+    margin-bottom: 24px !important; /* Match master list spacing */
+    border-radius: 24px !important; /* Match master list radius */
+    background: var(--mac-sidebar-bg) !important; /* Match master list card color */
+    border: none !important;
+    transition: all 0.2s ease;
+}
+
+.published-exam-card.compact-card:not(.editing-active):hover {
+    background: var(--mac-selection-hover) !important;
+}
+
+.compact-card-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.compact-date-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 45px;
+    height: 45px;
+    background: rgba(10, 132, 255, 0.1);
+    color: var(--mac-blue);
+    border-radius: 14px; /* More rounded to match 24px outer card */
+    font-weight: 700;
+}
+
+.compact-date-badge .day-num {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.compact-date-badge .month-name {
+    font-size: 10px;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+.compact-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.compact-details h3 {
+    margin: 0 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: var(--mac-text) !important;
+}
+
+.compact-details .time-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--mac-text-secondary);
+}
+
+.compact-details .time-badge-mini {
+    color: var(--mac-blue);
+    font-weight: 600;
+}
+
+.compact-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Polished Nav */
+/* Premium Month Shifter Toolbar */
+.nav-toolbar-shifter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--mac-card-bg); /* Absolute color match with cards */
+    padding: 8px 12px;
+    border-radius: 24px; /* Match cards border radius */
+    margin-bottom: 24px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.nav-shifter-btn {
+    background: rgba(128, 128, 128, 0.08); /* More visible in both light/dark modes */
+    border: none;
+    color: var(--mac-text);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%; /* Circle button as requested */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-shifter-btn:hover {
+    background: var(--mac-blue);
+    color: white;
+}
+
+.nav-shifter-month {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text);
+}
+
 
 /* Live Table */
 .pc-table-wrapper {
     flex: 1;
-    overflow-y: auto;
+    /* Common scroll: removed overflow-y: auto */
 }
 
 .pc-table {
@@ -313,10 +460,10 @@
 }
 
 .pc-manual-setup-card {
-    background: var(--mac-card-bg, #1C1C1E);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--mac-sidebar-bg, #1C1C1E);
+    border: none;
     padding: 40px;
-    border-radius: 20px;
+    border-radius: 32px; /* For larger centered cards, match explorer radius */
     width: 100%;
     max-width: 500px;
     text-align: center;
@@ -358,14 +505,14 @@
 
 .pc-input {
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: none;
     color: white;
     padding: 14px 16px;
     border-radius: 12px;
     font-size: 15px;
     font-family: inherit;
     outline: none;
-    transition: border-color 0.2s;
+    transition: background 0.2s;
     color-scheme: dark;
 }
 
@@ -425,15 +572,15 @@
 }
 
 .pc-explorer-card {
-    background: var(--mac-card-bg, #1C1C1E);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 24px;
+    background: var(--mac-sidebar-bg, #1C1C1E);
+    border: none;
+    border-radius: 32px; /* Match explorer card radius */
+    padding: 32px 24px;
     display: flex;
     align-items: center;
     gap: 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .pc-explorer-card:hover {
@@ -487,12 +634,8 @@
 .pc-workspace-full {
     display: flex;
     flex-direction: column;
-    height: 100%;
     width: 100%;
-    background: var(--mac-card-bg);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    overflow: hidden;
+    /* Free-floating: removed background and border-radius */
 }
 
 .pc-agazhi-wrapper {
@@ -522,7 +665,7 @@
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 0; /* Green padding removed as requested */
     box-sizing: border-box;
 }
 
@@ -540,11 +683,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--mac-divider);
-    background: var(--mac-card-bg);
-    border-radius: 20px;
-    margin-bottom: 20px;
+    padding: 12px 0; /* Reduced padding for free header */
+    margin-bottom: 24px;
+    width: 100%;
 }
 
 .pc-live-view .nav-btn {
@@ -605,7 +746,7 @@
     display: flex;
     flex-direction: column;
     background: var(--mac-bg-secondary);
-    border: 1px solid var(--mac-divider);
+    border: none;
     border-radius: 20px;
     padding: 20px;
     gap: 12px;
@@ -646,7 +787,7 @@
     background: var(--mac-card-bg);
     padding: 12px 16px;
     border-radius: 14px;
-    border: 1px solid var(--mac-divider);
+    border: none;
     border-left: 4px solid var(--mac-blue);
     display: flex;
     flex-direction: column;

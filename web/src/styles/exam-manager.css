@@ -520,7 +520,7 @@ html.light .exam-manager-container textarea {
   background: var(--mac-sidebar-bg);
 }
 
-.published-exam-card:hover .pill-inline-edit {
+.published-exam-card:not(.editing-active):hover .pill-inline-edit {
   opacity: 1;
 }
 
