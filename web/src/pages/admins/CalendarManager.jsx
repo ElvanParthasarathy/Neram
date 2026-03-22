@@ -8,7 +8,7 @@ import HybridDateInput from '../../components/HybridDateInput';
 import {
   RiCalendarEventLine, RiTeamLine, RiRefreshLine, RiAddCircleLine,
   RiFileList3Line, RiInformationLine, RiArrowLeftLine, RiScanLine, RiDeleteBin6Line, RiArrowRightSLine,
-  RiDownloadCloud2Line, RiUploadCloud2Line, RiCloseLine
+  RiDownloadCloud2Line, RiUploadCloud2Line, RiCloseLine, RiEditLine, RiArrowDownSLine, RiAddLine
 } from 'react-icons/ri';
 
 // --- SHARED COMPONENTS ---
@@ -47,6 +47,11 @@ const CalendarManager = () => {
   const [showManualBuilder, setShowManualBuilder] = useState(false);
   const [manualCalendar, setManualCalendar] = useState([]);
   const [isManualPushing, setIsManualPushing] = useState(false);
+
+  const [isEditListMode, setIsEditListMode] = useState(false);
+  const [editingDateStr, setEditingDateStr] = useState(null);
+  const [editBuffer, setEditBuffer] = useState([]);
+  const [expandedDates, setExpandedDates] = useState([]);
 
   // --- MOBILE DETECTION ---
   const [isMobile, setIsMobile] = useState(false);
@@ -99,15 +104,26 @@ const CalendarManager = () => {
   const fileInputRef = useRef(null);
 
   // --- LIVE EDITOR LOGIC ---
-  const handleLiveEventChange = (id, updates) => {
-    setLiveFlatEvents(prev => prev.map(ev => ev.id === id ? { ...ev, ...updates } : ev));
+  const startEditing = (dateStr, groupedEvents) => {
+    setEditingDateStr(dateStr);
+    setEditBuffer(groupedEvents[dateStr].map(ev => ({ ...ev })));
   };
 
-  const handleDeleteLiveEvent = (id) => {
-    if (window.confirm('Delete this event?')) {
-      setLiveFlatEvents(prev => prev.filter(ev => ev.id !== id));
-    }
+  const cancelEditing = () => {
+    setEditingDateStr(null);
+    setEditBuffer([]);
   };
+
+  const saveEdit = () => {
+    setLiveFlatEvents(prev => {
+      const filtered = prev.filter(ev => ev.date !== editingDateStr);
+      return [...filtered, ...editBuffer];
+    });
+    setEditingDateStr(null);
+    setEditBuffer([]);
+  };
+
+
 
   const handleExportLiveJSON = () => {
     if (liveFlatEvents.length === 0) return alert('No events to export');
@@ -433,69 +449,168 @@ const CalendarManager = () => {
                       </div>
                     </div>
 
-                    {/* RESTORED OLD VISUAL GRID WITH INLINE EDITING */}
-                    <div className="calendar-editable-list">
-                      <nav className="table-navigation">
-                        <button className="nav-btn" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}>Prev</button>
-                        <h4 className="current-month-display">{viewDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h4>
-                        <button className="nav-btn" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}>Next</button>
-                      </nav>
+                    {/* PUBLISHED VERTICAL CARDS WITH INLINE EDITING */}
+                    <div className="calendar-editable-list" style={{ marginTop: '20px' }}>
+                      <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                        <nav className="table-navigation" style={{ marginBottom: 0, paddingBottom: 0, borderBottom: 'none' }}>
+                          <button className="nav-btn" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}>Prev</button>
+                          <h4 className="current-month-display">{viewDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h4>
+                          <button className="nav-btn" onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}>Next</button>
+                        </nav>
+                        <button 
+                          className={`pill-inline-edit ${isEditListMode ? 'active' : ''}`} 
+                          onClick={() => setIsEditListMode(!isEditListMode)}
+                        >
+                          <RiEditLine /> {isEditListMode ? 'Done' : 'Edit List'}
+                        </button>
+                      </div>
 
-                      <div className="admin-table-wrapper">
-                        <div className="calendar-table">
-                          <div className="calendar-thead">
-                            <div className="date-cell hd">Date</div>
-                            <div className="day-cell hd">Day</div>
-                            <div className="events-cell hd">Events & Descriptions</div>
+                      <div className="published-exams-section">
+                        {Object.keys(liveGroupedByDate).sort().map((dateStr) => {
+                          const [year, month, day] = dateStr.includes('-') ? dateStr.split('-') : [viewDate.getFullYear(), viewDate.getMonth() + 1, dateStr];
+                          const displayDate = `${day}/${month}/${year}`;
+                          const dayName = new Date(dateStr.includes('-') ? dateStr : `${year}-${month}-${day}`).toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase();
+                          const isEditing = editingDateStr === dateStr;
+                          const currentEvents = isEditing ? editBuffer : liveGroupedByDate[dateStr];
+                          const isExpanded = expandedDates.includes(dateStr);
+
+                          return (
+                            <React.Fragment key={dateStr}>
+                              {isEditing && !isMobile && (
+                                  <div className="master-header-row pill-group-row desktop-edit-actions" style={{ justifyContent: 'flex-end', marginBottom: '8px' }}>
+                                      <button className="role-header-pill secondary" onClick={cancelEditing}>Cancel</button>
+                                      <button className="role-header-pill active" onClick={saveEdit}>Save</button>
+                                  </div>
+                              )}
+                              <div className={`settings-card published-exam-card ${isEditing ? 'editing-active' : ''}`}>
+                                  <header 
+                                      className="published-header" 
+                                      style={{ alignItems: 'center', cursor: !isEditing ? 'pointer' : 'default' }}
+                                      onClick={(e) => {
+                                          if (isEditing) return;
+                                          if (e.target.closest('button') || e.target.closest('input')) return;
+                                          setExpandedDates(prev => prev.includes(dateStr) ? prev.filter(d => d !== dateStr) : [...prev, dateStr]);
+                                      }}
+                                  >
+                                      {isEditing ? (
+                                          <div className="edit-meta-inputs" style={{ flex: 1 }}>
+                                              {isMobile && (
+                                                  <div className="mobile-edit-actions pill-group-row master-header-row" style={{ width: '100%', flexDirection: 'row', gap: '8px', marginBottom: '16px' }}>
+                                                      <button className="role-header-pill secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={cancelEditing}>Cancel</button>
+                                                      <button className="role-header-pill active" style={{ flex: 1, justifyContent: 'center' }} onClick={saveEdit}>Save</button>
+                                                  </div>
+                                              )}
+                                              <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--mac-text)' }}>
+                                                {displayDate} <span style={{ color: 'var(--mac-blue)', marginLeft: '8px' }}>{dayName}</span>
+                                              </div>
+                                          </div>
+                                      ) : (
+                                          <>
+                                              <div className="pub-title-group" style={{ flex: 1 }}>
+                                                  <RiCalendarEventLine className="icon-main" style={{ color: 'var(--mac-blue)' }} />
+                                                  <div>
+                                                      <h3>{displayDate}</h3>
+                                                      <p style={{ color: 'var(--mac-blue)', fontWeight: 600, fontSize: '12px' }}>{dayName}</p>
+                                                  </div>
+                                              </div>
+                                          </>
+                                      )}
+
+                                      <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                                          {!isEditing && isEditListMode && !isMobile && (
+                                              <button className="pill-inline-edit" style={{ opacity: 1 }} onClick={(e) => { e.stopPropagation(); startEditing(dateStr, liveGroupedByDate); }}><RiEditLine /></button>
+                                          )}
+                                          {!isEditing && (
+                                                  <div className={`manager-collapsible-icon ${isExpanded ? 'open' : ''}`}>
+                                                      <RiArrowDownSLine />
+                                                  </div>
+                                          )}
+                                      </div>
+                                  </header>
+
+                                  {!isEditing && isEditListMode && isMobile && (
+                                      <button className="pill-inline-edit" style={{ opacity: 1, margin: '0 auto 12px' }} onClick={(e) => { e.stopPropagation(); startEditing(dateStr, liveGroupedByDate); }}><RiEditLine /></button>
+                                  )}
+
+                                  <div className={`manager-collapsible-body-anim ${isExpanded || isEditing ? 'open' : ''}`}>
+                                      <div className="manager-collapsible-body-inner">
+                                          <div className="published-subjects-container">
+                                              {currentEvents.map((ev, i) => (
+                                                  <div key={ev.id || i} className={`exam-subject-row ${isEditing ? 'professional editing' : 'professional view-mode'}`}>
+                                                      {isEditing ? (
+                                                          <>
+                                                              <div className="input-group-vertical" style={{ flex: 2 }}>
+                                                                  <label>Event Title</label>
+                                                                  <input 
+                                                                      value={ev.title || ''} 
+                                                                      onChange={e => {
+                                                                          const newBuf = [...editBuffer];
+                                                                          newBuf[i].title = e.target.value;
+                                                                          setEditBuffer(newBuf);
+                                                                      }} 
+                                                                      placeholder="Event Title..." 
+                                                                  />
+                                                              </div>
+                                                              <div className="input-group-vertical" style={{ flex: 1 }}>
+                                                                  <label>Time</label>
+                                                                  <input 
+                                                                      value={ev.fullTime || ''} 
+                                                                      onChange={e => {
+                                                                          const newBuf = [...editBuffer];
+                                                                          newBuf[i].fullTime = e.target.value;
+                                                                          setEditBuffer(newBuf);
+                                                                      }} 
+                                                                      placeholder="All Day" 
+                                                                  />
+                                                              </div>
+                                                              <button className="btn-del-mini" onClick={() => {
+                                                                  if(window.confirm("Remove this event?")) {
+                                                                      setEditBuffer(editBuffer.filter((_, idx) => idx !== i));
+                                                                  }
+                                                              }}><RiDeleteBin6Line /></button>
+                                                          </>
+                                                      ) : (
+                                                          <>
+                                                              <div className="sub-info-group" style={{ flex: 2 }}>
+                                                                  <strong className="sub-code" style={{ fontSize: '14px' }}>{ev.title || "Untitled Event"}</strong>
+                                                              </div>
+                                                              <div className="sub-meta-group" style={{ flex: 1, justifyContent: 'flex-end' }}>
+                                                                  <span className="time-badge">{ev.fullTime || "All Day"}</span>
+                                                              </div>
+                                                          </>
+                                                      )}
+                                                  </div>
+                                              ))}
+                                              
+                                              {isEditing && (
+                                                  <button className="btn-add-line" style={{ marginTop: '12px' }} onClick={() => {
+                                                      setEditBuffer([...editBuffer, {
+                                                          id: `temp-${Date.now()}`,
+                                                          date: dateStr,
+                                                          title: '',
+                                                          fullTime: '',
+                                                          type: 'FullDay'
+                                                      }]);
+                                                  }}>
+                                                      <RiAddLine /> Add Event Row
+                                                  </button>
+                                              )}
+                                              {!isEditing && currentEvents.length === 0 && (
+                                                  <div style={{ padding: '16px', color: 'var(--mac-text-secondary)', fontSize: '13px', textAlign: 'center' }}>No events for this date.</div>
+                                              )}
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                            </React.Fragment>
+                          );
+                        })}
+                        {Object.keys(liveGroupedByDate).length === 0 && (
+                          <div className="pc-empty-state">
+                            <RiInformationLine />
+                            <p>No calendar data published for {viewDate.toLocaleString('default', { month: 'long', year: 'numeric' })}.</p>
                           </div>
-                          <div className="calendar-tbody">
-                            {Object.keys(liveGroupedByDate).sort().map((dateStr) => {
-                              const [year, month, day] = dateStr.includes('-') ? dateStr.split('-') : [viewDate.getFullYear(), viewDate.getMonth() + 1, dateStr];
-                              const displayDate = `${day}/${month}/${year}`;
-
-                              return (
-                                <div key={dateStr} className="calendar-tr">
-                                  <div className="date-cell">
-                                    {displayDate}
-                                  </div>
-                                  <div className="day-cell">
-                                    {new Date(dateStr.includes('-') ? dateStr : `${year}-${month}-${day}`).toLocaleDateString('en-GB', { weekday: 'short' })}
-                                  </div>
-                                  <div className="events-cell">
-                                    <div className="events-list-vertical">
-                                      {liveGroupedByDate[dateStr].map((event, i) => (
-                                        <div key={event.id || i} className="event-item-pill" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', width: '100%' }}>
-                                          <input
-                                            className="inline-edit-input"
-                                            value={event.title}
-                                            onChange={e => handleLiveEventChange(event.id, { title: e.target.value })}
-                                            placeholder="Event title..."
-                                            style={{ flex: 2, background: 'transparent', border: 'none', color: 'var(--mac-text)', minWidth: 150 }}
-                                          />
-                                          <input
-                                            className="inline-edit-input"
-                                            value={event.fullTime || ''}
-                                            onChange={e => handleLiveEventChange(event.id, { fullTime: e.target.value })}
-                                            placeholder="All Day"
-                                            style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 4, padding: '2px 6px', color: 'var(--mac-text-secondary)', fontSize: '12px', minWidth: 100 }}
-                                          />
-
-                                          <button
-                                            onClick={() => handleDeleteLiveEvent(event.id)}
-                                            style={{ background: 'transparent', border: 'none', color: '#ff453a', cursor: 'pointer', padding: '4px', display: 'flex' }}
-                                            title="Delete Event"
-                                          >
-                                            <RiCloseLine size={16} />
-                                          </button>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   </>
