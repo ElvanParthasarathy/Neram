@@ -85,25 +85,66 @@ object DailyUpdateHelper {
             val database = FirebaseDatabase.getInstance()
             val eventsRef = database.getReference("events/$batch/$dept/$section")
             val eventsSnapshot = eventsRef.get().await()
-            val liveSectionEvents = eventsSnapshot.children.mapNotNull { child ->
+            val liveSectionEvents = mutableListOf<com.elvan.rmdneram.data.model.CalendarEvent>()
+            for (child in eventsSnapshot.children) {
                 try {
-                    val rawDate = child.child("date").getValue(String::class.java) ?: ""
-                    val normalizedDate = if (rawDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
-                        val parts = rawDate.split("-")
-                        "${parts[2]}-${parts[1]}-${parts[0]}"
-                    } else { rawDate }
-                    com.elvan.rmdneram.data.model.CalendarEvent(
-                        id = child.key ?: "",
-                        title = child.child("title").getValue(String::class.java) ?: "",
-                        date = normalizedDate,
-                        type = child.child("type").getValue(String::class.java) ?: "",
-                        startTime = child.child("startTime").getValue(String::class.java),
-                        endTime = child.child("endTime").getValue(String::class.java),
-                        description = child.child("description").getValue(String::class.java),
-                        fullTime = child.child("fullTime").getValue(String::class.java),
-                        isSection = true
-                    )
-                } catch(e: Exception) { null }
+                    val eventsArray = child.child("events")
+                    
+                    if (eventsArray.exists() && eventsArray.childrenCount > 0) {
+                        // NEW FORMAT: Grouped multi-day event with sub-events array
+                        val groupId = child.child("id").value?.toString() ?: child.key ?: ""
+                        val groupTitle = child.child("title").getValue(String::class.java) ?: ""
+                        
+                        for (subEvent in eventsArray.children) {
+                            val rawDate = subEvent.child("date").getValue(String::class.java) ?: ""
+                            val normalizedDate = if (rawDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
+                                val parts = rawDate.split("-")
+                                "${parts[2]}-${parts[1]}-${parts[0]}"
+                            } else { rawDate }
+                            
+                            if (normalizedDate.isNotBlank()) {
+                                liveSectionEvents.add(
+                                    com.elvan.rmdneram.data.model.CalendarEvent(
+                                        id = "${groupId}_${normalizedDate}",
+                                        title = subEvent.child("title").getValue(String::class.java) ?: groupTitle,
+                                        date = normalizedDate,
+                                        groupId = groupId,
+                                        type = subEvent.child("type").getValue(String::class.java) ?: "",
+                                        startTime = subEvent.child("startTime").getValue(String::class.java),
+                                        endTime = subEvent.child("endTime").getValue(String::class.java),
+                                        description = subEvent.child("description").getValue(String::class.java),
+                                        fullTime = subEvent.child("fullTime").getValue(String::class.java),
+                                        isSection = true
+                                    )
+                                )
+                            }
+                        }
+                    } else {
+                        // OLD FORMAT: Flat single event (backward compat)
+                        val rawDate = child.child("date").getValue(String::class.java)
+                            ?: child.child("startDate").getValue(String::class.java) ?: ""
+                        val normalizedDate = if (rawDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
+                            val parts = rawDate.split("-")
+                            "${parts[2]}-${parts[1]}-${parts[0]}"
+                        } else { rawDate }
+                        
+                        if (normalizedDate.isNotBlank()) {
+                            liveSectionEvents.add(
+                                com.elvan.rmdneram.data.model.CalendarEvent(
+                                    id = child.key ?: "",
+                                    title = child.child("title").getValue(String::class.java) ?: "",
+                                    date = normalizedDate,
+                                    type = child.child("type").getValue(String::class.java) ?: "",
+                                    startTime = child.child("startTime").getValue(String::class.java),
+                                    endTime = child.child("endTime").getValue(String::class.java),
+                                    description = child.child("description").getValue(String::class.java),
+                                    fullTime = child.child("fullTime").getValue(String::class.java),
+                                    isSection = true
+                                )
+                            )
+                        }
+                    }
+                } catch(e: Exception) { /* skip */ }
             }
             
             val calendarEvents = globalEvents + liveSectionEvents

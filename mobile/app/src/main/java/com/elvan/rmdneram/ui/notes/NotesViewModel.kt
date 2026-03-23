@@ -205,6 +205,11 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             if (_path.value.isEmpty()) {
                 _uiState.value = NotesUiState.Empty
+            } else if (_cachedSemesters.isEmpty()) {
+                // Cold-start recovery: path is set but semesters aren't loaded yet.
+                // Re-trigger a fetch for the root dept so we don't show an empty screen.
+                val rootDept = _path.value[0]
+                loadNotes(rootDept)
             } else {
                 updateViewFromCache()
             }

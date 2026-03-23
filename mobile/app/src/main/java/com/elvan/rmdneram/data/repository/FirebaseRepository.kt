@@ -722,31 +722,72 @@ class FirebaseRepository(private val context: Context) {
         val ref = database.getReference("events/$batch/$dept/$section")
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val events = snapshot.children.mapNotNull { child ->
+                val events = mutableListOf<CalendarEvent>()
+                
+                for (child in snapshot.children) {
                     try {
-                        val rawDate = child.child("date").getValue<String>() ?: ""
-                        // Normalize DD-MM-YYYY to YYYY-MM-DD if needed
-                        val normalizedDate = if (rawDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
-                            val parts = rawDate.split("-")
-                            "${parts[2]}-${parts[1]}-${parts[0]}"
+                        val eventsArray = child.child("events")
+                        
+                        if (eventsArray.exists() && eventsArray.childrenCount > 0) {
+                            // NEW FORMAT: Grouped multi-day event with sub-events array
+                            val groupId = child.child("id").value?.toString() ?: child.key ?: ""
+                            val groupTitle = child.child("title").getValue<String>() ?: ""
+                            
+                            for (subEvent in eventsArray.children) {
+                                val rawDate = subEvent.child("date").getValue<String>() ?: ""
+                                val normalizedDate = if (rawDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
+                                    val parts = rawDate.split("-")
+                                    "${parts[2]}-${parts[1]}-${parts[0]}"
+                                } else {
+                                    rawDate
+                                }
+                                
+                                if (normalizedDate.isNotBlank()) {
+                                    events.add(
+                                        CalendarEvent(
+                                            id = "${groupId}_${normalizedDate}",
+                                            title = subEvent.child("title").getValue<String>() ?: groupTitle,
+                                            date = normalizedDate,
+                                            groupId = groupId,
+                                            type = subEvent.child("type").getValue<String>() ?: "",
+                                            startTime = subEvent.child("startTime").getValue<String>(),
+                                            endTime = subEvent.child("endTime").getValue<String>(),
+                                            description = subEvent.child("description").getValue<String>(),
+                                            fullTime = subEvent.child("fullTime").getValue<String>(),
+                                            isSection = true
+                                        )
+                                    )
+                                }
+                            }
                         } else {
-                            rawDate
-                        }
+                            // OLD FORMAT: Flat single event (backward compat)
+                            val rawDate = child.child("date").getValue<String>()
+                                ?: child.child("startDate").getValue<String>() ?: ""
+                            val normalizedDate = if (rawDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
+                                val parts = rawDate.split("-")
+                                "${parts[2]}-${parts[1]}-${parts[0]}"
+                            } else {
+                                rawDate
+                            }
 
-                        CalendarEvent(
-                            id = child.key ?: "",
-                            title = child.child("title").getValue<String>() ?: "",
-                            date = normalizedDate,
-                            type = child.child("type").getValue<String>() ?: "",
-                            startTime = child.child("startTime").getValue<String>(),
-                            endTime = child.child("endTime").getValue<String>(),
-                            description = child.child("description").getValue<String>(),
-                            fullTime = child.child("fullTime").getValue<String>(),
-                            isSection = true // Section Events (Event Manager)
-                        )
+                            if (normalizedDate.isNotBlank()) {
+                                events.add(
+                                    CalendarEvent(
+                                        id = child.key ?: "",
+                                        title = child.child("title").getValue<String>() ?: "",
+                                        date = normalizedDate,
+                                        type = child.child("type").getValue<String>() ?: "",
+                                        startTime = child.child("startTime").getValue<String>(),
+                                        endTime = child.child("endTime").getValue<String>(),
+                                        description = child.child("description").getValue<String>(),
+                                        fullTime = child.child("fullTime").getValue<String>(),
+                                        isSection = true
+                                    )
+                                )
+                            }
+                        }
                     } catch (e: Exception) {
                         Log.e(TAG, "Parsing Error: ${e.message}")
-                        null
                     }
                 }
                 
