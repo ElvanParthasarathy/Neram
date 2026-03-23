@@ -57,6 +57,8 @@ fun SettingsScreen(
     onNavigateToCalendarSettings: () -> Unit,
     onNavigateToUserDirectory: () -> Unit,
     onNavigateToAboutApp: () -> Unit,
+    onNavigateToManagementTeam: () -> Unit,
+    onNavigateToAboutRMK: () -> Unit,
     onNavigateToNotifications: () -> Unit = {},
     onLogout: () -> Unit = {},
     scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()
@@ -160,13 +162,29 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-
-
-            Spacer(modifier = Modifier.height(16.dp))
             
             // 4. Settings Group: About
             SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
+                SettingsListItem(
+                    icon = Icons.Outlined.Group,
+                    iconBgColor = AppColors.Purple,
+                    title = "Management Team",
+                    description = "Founders & Board of Directors",
+                    onClick = onNavigateToManagementTeam,
+                    textColor = colors.textPrimary,
+                    subTextColor = colors.textSecondary
+                )
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                SettingsListItem(
+                    icon = Icons.Outlined.AccountBalance,
+                    iconBgColor = AppColors.Green,
+                    title = "About RMK Group",
+                    description = "Vision, Mission & Identity",
+                    onClick = onNavigateToAboutRMK,
+                    textColor = colors.textPrimary,
+                    subTextColor = colors.textSecondary
+                )
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
                 SettingsListItem(
                     icon = Icons.Outlined.Info,
                     iconBgColor = AppColors.Blue,

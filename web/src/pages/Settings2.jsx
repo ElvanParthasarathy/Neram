@@ -12,6 +12,7 @@ import FeedbackView from "./settings/FeedbackView";
 import DeveloperPage from "./settings/DeveloperPage";
 import AboutPage from "./settings/AboutPage";
 import AboutRMKPage from "./settings/AboutRMKPage";
+import FoundersPage from "./settings/FoundersPage";
 
 /* ── Welcome placeholder for empty detail panel ── */
 const SettingsWelcome = () => (
@@ -118,6 +119,7 @@ const Settings2 = ({ userProfile }) => {
                 directory: 'User Directory',
                 complaints: 'Report Issue',
                 developer: 'About Developer',
+                founders: 'Management Team',
                 rmk: 'About RMK Group',
                 about: 'About App'
             };
@@ -160,6 +162,7 @@ const Settings2 = ({ userProfile }) => {
             case "directory": return <UserDirectoryView onBack={goHub} subPath={subPath} />;
             case "complaints": return <FeedbackView userProfile={userProfile} onBack={goHub} />;
             case "developer": return <DeveloperPage onBack={goHub} />;
+            case "founders": return <FoundersPage onBack={goHub} />;
             case "rmk": return <AboutRMKPage onBack={goHub} />;
             case "about": return <AboutPage onBack={goHub} />;
             default:

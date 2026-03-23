@@ -8,8 +8,9 @@ import {
     RiUser3Line,
     RiFeedbackLine,
     RiCodeSSlashLine,
-    RiInformationLine,
     RiBuilding4Line,
+    RiUserStarLine,
+    RiInformationLine,
     RiUser3Fill,
     RiLogoutBoxRLine,
 } from "react-icons/ri";
@@ -94,10 +95,18 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
             {/* Group 4: About */}
             <SettingsGroup>
                 <SettingsItem
+                    icon={<RiUserStarLine />}
+                    iconColor="purple"
+                    title="Management Team"
+                    desc="Founders & Board of Directors"
+                    onClick={() => onNavigate("founders")}
+                />
+                <SettingsDivider />
+                <SettingsItem
                     icon={<RiBuilding4Line />}
                     iconColor="green"
                     title="About RMK Group"
-                    desc="Management, Vision & Mission"
+                    desc="Vision, Mission & Identity"
                     onClick={() => onNavigate("rmk")}
                 />
                 <SettingsDivider />

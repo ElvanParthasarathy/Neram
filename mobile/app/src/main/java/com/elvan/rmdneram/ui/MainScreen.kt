@@ -51,6 +51,8 @@ import com.elvan.rmdneram.ui.screens.LinkedAccountsScreen
 import com.elvan.rmdneram.ui.screens.ComplaintScreen
 import com.elvan.rmdneram.ui.screens.DeveloperInfoScreen
 import com.elvan.rmdneram.ui.screens.AboutAppScreen
+import com.elvan.rmdneram.ui.screens.AboutRMKScreen
+import com.elvan.rmdneram.ui.screens.ManagementTeamScreen
 import com.elvan.rmdneram.ui.screens.StorageSettingsScreen
 import com.elvan.rmdneram.ui.screens.NotificationSettingsScreen
 import com.elvan.rmdneram.ui.screens.LanguageSettingsScreen
@@ -196,6 +198,8 @@ fun MainScreen(
                 "developer" -> currentScreen = "settings"
                 "language" -> currentScreen = "settings"
                 "about_app" -> currentScreen = "settings"
+                "about_rmk" -> currentScreen = "settings"
+                "management_team" -> currentScreen = "settings"
                 "calendar_settings" -> currentScreen = "settings"
                 "linked_accounts" -> currentScreen = "security"
                 "user_directory" -> {
@@ -250,6 +254,8 @@ fun MainScreen(
             "notifications" -> "Notifications"
             "notification_settings" -> "Notification Settings"
             "pdf_viewer" -> "Document"
+            "about_rmk" -> "About RMK Group"
+            "management_team" -> "Management Team"
             else -> ""
         }
     }
@@ -374,6 +380,8 @@ fun MainScreen(
                     onNavigateToCalendarSettings = { currentScreen = "calendar_settings" },
                     onNavigateToUserDirectory = { currentScreen = "user_directory" },
                     onNavigateToAboutApp = { currentScreen = "about_app" },
+                    onNavigateToManagementTeam = { currentScreen = "management_team" },
+                    onNavigateToAboutRMK = { currentScreen = "about_rmk" },
                     onNavigateToNotifications = { currentScreen = "notification_settings" },
                     onLogout = onLogout,
                     scrollState = settingsScrollState
@@ -394,6 +402,8 @@ fun MainScreen(
                 )
                 "developer" -> DeveloperInfoScreen(onBack = { currentScreen = "settings" })
                 "about_app" -> AboutAppScreen(onBack = { currentScreen = "settings" })
+                "about_rmk" -> AboutRMKScreen(onBack = { currentScreen = "settings" })
+                "management_team" -> ManagementTeamScreen(onBack = { currentScreen = "settings" })
                 "storage" -> StorageSettingsScreen(
                     onCleanupClick = { homeViewModel.cleanupStorage() },
                     onCleanupRangeClick = { start, end -> homeViewModel.cleanupStorageRange(start, end) },
@@ -641,7 +651,8 @@ fun MainScreen(
                     // Navigate back based on current screen
                     when (currentScreen) {
                         "security", "display", "storage", "complaint", "developer", 
-                        "language", "calendar_settings", "profile", "notification_settings" -> currentScreen = "settings"
+                        "language", "calendar_settings", "profile", "notification_settings",
+                        "about_app", "about_rmk", "management_team" -> currentScreen = "settings"
                         "linked_accounts" -> currentScreen = "security"
                         "user_directory" -> {
                              if (userDirectoryPath.isNotEmpty()) {
