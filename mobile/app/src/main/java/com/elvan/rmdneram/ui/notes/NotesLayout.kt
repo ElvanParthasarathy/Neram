@@ -48,6 +48,8 @@ fun NotesMainLayout(
     val statusBarHeight = rememberStatusBarHeight()
     val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop
 
+    val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,31 +63,34 @@ fun NotesMainLayout(
                     .padding(top = topPadding)
             ) {
                 AnimatedContent(
-                    targetState = Pair(path.size, uiState),
+                    targetState = Pair(path, uiState),
                     transitionSpec = {
-                        if (targetState.first > initialState.first) {
+                        if (targetState.first.size > initialState.first.size) {
                             slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
-                        } else if (targetState.first < initialState.first) {
+                        } else if (targetState.first.size < initialState.first.size) {
                             slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
                         } else {
                             fadeIn() togetherWith fadeOut()
                         }
                     },
-                    contentKey = { it.first },
+                    contentKey = { it.first.joinToString("/") },
                     label = "ContentSlide"
-                ) { (_, animState) ->
-                    NotesContentView(
-                        uiState = animState,
-                        path = path,
-                        rootFolders = rootFolders,
-                        colors = colors,
-                        onFolderClick = onFolderClick,
-                        onFileClick = onFileClick,
-                        onNotUploaded = onNotUploaded,
-                        onRetry = onRetry,
-                        onDriveFolderClick = onDriveFolderClick,
-                        onDriveFileClick = onDriveFileClick
-                    )
+                ) { (animPath, animState) ->
+                    val pathKey = animPath.joinToString("/")
+                    saveableStateHolder.SaveableStateProvider(pathKey) {
+                        NotesContentView(
+                            uiState = animState,
+                            path = animPath,
+                            rootFolders = rootFolders,
+                            colors = colors,
+                            onFolderClick = onFolderClick,
+                            onFileClick = onFileClick,
+                            onNotUploaded = onNotUploaded,
+                            onRetry = onRetry,
+                            onDriveFolderClick = onDriveFolderClick,
+                            onDriveFileClick = onDriveFileClick
+                        )
+                    }
                 }
             }
         } else {
@@ -132,18 +137,21 @@ fun NotesMainLayout(
                     .fillMaxSize()
                     .padding(top = if (path.isEmpty()) topPadding else 0.dp)
             ) {
-                NotesContentView(
-                    uiState = uiState,
-                    path = path,
-                    rootFolders = rootFolders,
-                    colors = colors,
-                    onFolderClick = onFolderClick,
-                    onFileClick = onFileClick,
-                    onNotUploaded = onNotUploaded,
-                    onRetry = onRetry,
-                    onDriveFolderClick = onDriveFolderClick,
-                    onDriveFileClick = onDriveFileClick
-                )
+                val pathKey = path.joinToString("/")
+                saveableStateHolder.SaveableStateProvider(pathKey) {
+                    NotesContentView(
+                        uiState = uiState,
+                        path = path,
+                        rootFolders = rootFolders,
+                        colors = colors,
+                        onFolderClick = onFolderClick,
+                        onFileClick = onFileClick,
+                        onNotUploaded = onNotUploaded,
+                        onRetry = onRetry,
+                        onDriveFolderClick = onDriveFolderClick,
+                        onDriveFileClick = onDriveFileClick
+                    )
+                }
             }
         }
     }
