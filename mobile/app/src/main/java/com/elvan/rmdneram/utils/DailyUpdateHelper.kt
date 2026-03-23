@@ -103,10 +103,13 @@ object DailyUpdateHelper {
                             } else { rawDate }
                             
                             if (normalizedDate.isNotBlank()) {
+                                val subTitle = subEvent.child("title").getValue(String::class.java) ?: ""
+                                val finalTitle = if (subTitle.isNotBlank()) subTitle else groupTitle
+                                
                                 liveSectionEvents.add(
                                     com.elvan.rmdneram.data.model.CalendarEvent(
                                         id = "${groupId}_${normalizedDate}",
-                                        title = subEvent.child("title").getValue(String::class.java) ?: groupTitle,
+                                        title = finalTitle,
                                         date = normalizedDate,
                                         groupId = groupId,
                                         type = subEvent.child("type").getValue(String::class.java) ?: "",

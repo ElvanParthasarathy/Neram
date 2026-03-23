@@ -743,10 +743,13 @@ class FirebaseRepository(private val context: Context) {
                                 }
                                 
                                 if (normalizedDate.isNotBlank()) {
+                                    val subTitle = subEvent.child("title").getValue<String>() ?: ""
+                                    val finalTitle = if (subTitle.isNotBlank()) subTitle else groupTitle
+                                    
                                     events.add(
                                         CalendarEvent(
                                             id = "${groupId}_${normalizedDate}",
-                                            title = subEvent.child("title").getValue<String>() ?: groupTitle,
+                                            title = finalTitle,
                                             date = normalizedDate,
                                             groupId = groupId,
                                             type = subEvent.child("type").getValue<String>() ?: "",
