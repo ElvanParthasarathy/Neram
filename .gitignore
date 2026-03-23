@@ -26,3 +26,14 @@ dist-ssr
 ...
 *.sw?
 .env
+.antigravity*
+
+# Build and Gradle files
+**/build/
+**/.gradle/
+**/local.properties
+**/*.apk
+**/*.aab
+**/node_modules/
+**/dist/
+**/dist-ssr/
