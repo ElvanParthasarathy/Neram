@@ -164,7 +164,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
                                 <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)', marginLeft: '-2px' }} />
                             </button>
-                        ) : ['users', 'roles', 'calendar', 'resources', 'notes', 'structure', 'pending', 'archives', 'special_classes'].includes(activeModule) && (
+                        ) : activeModule !== 'home' && (
                             <button
                                 className="top-action-btn"
                                 onClick={() => navigate(-1)}
