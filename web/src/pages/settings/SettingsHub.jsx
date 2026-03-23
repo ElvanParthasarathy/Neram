@@ -9,6 +9,7 @@ import {
     RiFeedbackLine,
     RiCodeSSlashLine,
     RiInformationLine,
+    RiBuilding4Line,
     RiUser3Fill,
     RiLogoutBoxRLine,
 } from "react-icons/ri";
@@ -92,6 +93,14 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
 
             {/* Group 4: About */}
             <SettingsGroup>
+                <SettingsItem
+                    icon={<RiBuilding4Line />}
+                    iconColor="green"
+                    title="About RMK Group"
+                    desc="Management, Vision & Mission"
+                    onClick={() => onNavigate("rmk")}
+                />
+                <SettingsDivider />
                 <SettingsItem
                     icon={<RiInformationLine />}
                     iconColor="blue"

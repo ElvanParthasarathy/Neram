@@ -10,6 +10,7 @@ import UserDirectoryView from "./settings/UserDirectoryView";
 import FeedbackView from "./settings/FeedbackView";
 import DeveloperPage from "./settings/DeveloperPage";
 import AboutPage from "./settings/AboutPage";
+import AboutRMKPage from "./settings/AboutRMKPage";
 
 // Admin Specific
 import AdminProfile from "./admins/AdminProfile";
@@ -89,6 +90,7 @@ const AdminSettings = ({ userProfile }) => {
                 directory: 'User Directory',
                 complaints: 'Report Issue',
                 developer: 'About Developer',
+                rmk: 'About RMK Group',
                 about: 'About App'
             };
             const title = titles[currentView] || 'Settings';
@@ -145,6 +147,8 @@ const AdminSettings = ({ userProfile }) => {
                 return <FeedbackView userProfile={userProfile} onBack={goHub} />;
             case "developer":
                 return <DeveloperPage onBack={goHub} />;
+            case "rmk":
+                return <AboutRMKPage onBack={goHub} />;
             case "about":
                 return <AboutPage onBack={goHub} />;
             default:
