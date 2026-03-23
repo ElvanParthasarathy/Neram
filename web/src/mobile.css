@@ -1793,6 +1793,17 @@
     gap: 8px;
   }
 
+  .bulk-action-footer-premium {
+    position: fixed !important;
+    bottom: 24px;
+    left: 12px;
+    right: 12px;
+    width: calc(100% - 24px) !important;
+    z-index: 1000 !important;
+    box-sizing: border-box;
+    margin-top: 0 !important;
+  }
+
   .breadcrumb-nav {
     font-size: 12px;
     gap: 4px;

@@ -109,11 +109,27 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     const schedLevel = searchParams.get('slvl');
     const isInScheduleDeep = activeModule === 'schedules' && schedLevel && schedLevel !== 'batches';
 
-    // Exam Manager deep view detection
-    const examLevel = searchParams.get('elvl');
-    const isInExamDeep = activeModule === 'exams' && examLevel && examLevel !== 'batches';
+    // Exam Manager & Event Manager deep view detection
+    const examEventLevel = searchParams.get('elvl');
+    const isInExamDeep = (activeModule === 'exams' || activeModule === 'events') && examEventLevel && examEventLevel !== 'batches';
 
-    const isDeepView = isInScheduleDeep || isInExamDeep;
+    // Special Class deep view
+    const scLevel = searchParams.get('sclvl');
+    const isInScDeep = activeModule === 'special_classes' && scLevel && scLevel !== 'batches';
+
+    // Notes Manager deep view
+    let isInNotesDeep = false;
+    try {
+        const nfpBase = searchParams.get('nfp');
+        const nfpPath = nfpBase ? JSON.parse(decodeURIComponent(nfpBase)) : [];
+        isInNotesDeep = activeModule === 'notes' && nfpPath.length > 1;
+    } catch (e) {}
+
+    // Users deep view
+    const ulvl = searchParams.get('ulvl');
+    const isInUsersDeep = activeModule === 'users' && ulvl && !['batches', 'faculty_depts', 'admin_list'].includes(ulvl);
+
+    const isDeepView = isInScheduleDeep || isInExamDeep || isInScDeep || isInNotesDeep || isInUsersDeep;
     const handleDeepBack = () => navigate(-1);
 
     // Determine current settings title

@@ -12,8 +12,10 @@ import {
     RiFolderTransferLine,
     RiCloseLine,
     RiArrowRightSLine,
+    RiArrowLeftLine,
     RiGlobalLine,
-    RiFolderLine
+    RiFolderLine,
+    RiMore2Fill
 } from 'react-icons/ri';
 import '../../styles/notes-manager.css';
 
@@ -36,6 +38,9 @@ const NotesManager = () => {
         }, { replace: false });
     };
     const [loading, setLoading] = useState(true);
+
+    // Edit List mode (like ExamManager)
+    const [isEditListMode, setIsEditListMode] = useState(false);
 
     // Selection
     const [selected, setSelected] = useState(new Set());
@@ -257,8 +262,14 @@ const NotesManager = () => {
     const isSubject = (id) => Object.values(subjects).some(s => s.id === id);
     const isFile = (id) => Object.values(files).some(f => f.id === id);
 
-    const openActionSheet = (item) => {
-        setActionSheet({ item });
+    const openActionSheet = (item, e) => {
+        let rect = null;
+        if (e && e.currentTarget && e.type === 'click') {
+            rect = e.currentTarget.getBoundingClientRect();
+        } else if (e && e.clientX) {
+            rect = { bottom: e.clientY - 8, right: e.clientX, left: e.clientX, top: e.clientY - 8 };
+        }
+        setActionSheet({ item, rect });
         if (!selected.has(item.id)) setSelected(new Set([item.id]));
     };
 
@@ -298,55 +309,83 @@ const NotesManager = () => {
                 </button>
             </div>
 
-            {/* ─── Path Bar (Samsung-style breadcrumb) ─── */}
-            <div className="nm-path-bar">
-                {currentPath.map((p, i) => (
-                    <React.Fragment key={p.id}>
-                        {i > 0 && <RiArrowRightSLine className="nm-path-sep" />}
-                        <span
-                            className={`nm-path-item ${i === currentPath.length - 1 ? 'active' : ''}`}
-                            onClick={() => i < currentPath.length - 1 && navigateToIndex(i)}
+            {/* ─── Standard Explorer Header ─── */}
+            <header className="explorer-header focus-mode" style={{ marginBottom: '12px', marginTop: 0 }}>
+                <div className="breadcrumb-nav">
+                    {currentPath.length > 1 && (
+                        <button className="explorer-back-btn" onClick={() => navigateToIndex(currentPath.length - 2)}>
+                            <RiArrowLeftLine /> Back
+                        </button>
+                    )}
+                    <div className="breadcrumb-list">
+                        {currentPath.map((p, i) => (
+                            <React.Fragment key={p.id}>
+                                {i > 0 && (
+                                    <span className="crumb-ellipsis-container">
+                                        <RiArrowRightSLine className="crumb-sep" />
+                                    </span>
+                                )}
+                                <span
+                                    className={`crumb-btn ${i === 0 ? 'level-root' : ''} ${i === currentPath.length - 1 ? 'active' : ''}`}
+                                    onClick={() => i < currentPath.length - 1 && navigateToIndex(i)}
+                                >
+                                    {p.name}
+                                </span>
+                            </React.Fragment>
+                        ))}
+                    </div>
+                </div>
+            </header>
+
+            {/* ─── Edit List Header (like ExamManager) ─── */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 className="section-divider-title" style={{ margin: 0, border: 'none', color: 'var(--mac-text)', textTransform: 'none', fontSize: '15px', fontWeight: 700, padding: 0 }}>Contents</h3>
+                {isEditListMode ? (
+                    <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
+                        <button
+                            className="role-header-pill secondary"
+                            onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); }}
+                            style={{ minWidth: '90px' }}
                         >
-                            {p.name}
-                        </span>
-                    </React.Fragment>
-                ))}
+                            Cancel
+                        </button>
+                        <button
+                            className="role-header-pill active"
+                            onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); }}
+                            style={{ minWidth: '90px' }}
+                        >
+                            Done
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        className="edit-list-btn"
+                        onClick={() => setIsEditListMode(true)}
+                    >
+                        <RiEdit2Line style={{ marginRight: '6px' }} /> Edit List
+                    </button>
+                )}
             </div>
 
-            {/* ─── Desktop Toolbar (hidden on mobile, shown on desktop) ─── */}
-            <div className="nm-desktop-toolbar">
-                <button className="nm-desk-btn" onClick={() => { setCreatingFolder(true); setNewFolderName(''); }}>
-                    <RiAddLine /> Folder
-                </button>
-                <button className="nm-desk-btn" onClick={() => openFileModal()}>
-                    <RiAddLine /> Link
-                </button>
-                <button className="nm-desk-btn accent" onClick={() => openSubjectModal()}>
-                    <RiAddLine /> Subject
-                </button>
-            </div>
-
-            {/* ─── Selection Bar ─── */}
-            {selected.size > 0 && (
-                <div className="nm-sel-strip">
-                    <span className="nm-sel-strip-count">{selected.size} selected</span>
-                    <button className="nm-sel-strip-btn all" onClick={selectAll}>All</button>
-                    <button className="nm-sel-strip-btn move" onClick={() => setMoveModal({ ids: [...selected] })}>
-                        Move
+            {/* ─── Desktop Toolbar (only in edit mode) ─── */}
+            {isEditListMode && (
+                <div className="nm-desktop-toolbar">
+                    <button className="nm-desk-btn" onClick={() => { setCreatingFolder(true); setNewFolderName(''); }}>
+                        <RiAddLine /> Folder
                     </button>
-                    <button className="nm-sel-strip-btn delete" onClick={() => deleteItems([...selected])}>
-                        Delete
+                    <button className="nm-desk-btn" onClick={() => openFileModal()}>
+                        <RiAddLine /> Link
                     </button>
-                    <button className="nm-sel-strip-btn clear" onClick={clearSelection}>
-                        ✕
+                    <button className="nm-desk-btn accent" onClick={() => openSubjectModal()}>
+                        <RiAddLine /> Subject
                     </button>
                 </div>
             )}
 
             {/* ─── File List ─── */}
             <div className="nm-file-list">
-                {/* Inline new folder */}
-                {creatingFolder && (
+                {/* Inline new folder (edit mode only) */}
+                {isEditListMode && creatingFolder && (
                     <div className="nm-new-folder-inline">
                         <div className="nm-file-icon folder"><RiFolderFill /></div>
                         <input
@@ -370,20 +409,34 @@ const NotesManager = () => {
                         className={`nm-file-row ${selected.has(folder.id) ? 'selected' : ''} ${dragId === folder.id ? 'dragging' : ''} ${dragOverId === folder.id ? 'drag-over' : ''}`}
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
-                            navigateTo(folder);
+                            if (isEditListMode) {
+                                toggleSelect(folder.id, e);
+                            } else {
+                                navigateTo(folder);
+                            }
                         }}
-                        onContextMenu={(e) => { e.preventDefault(); openActionSheet(folder); }}
-                        draggable
-                        onDragStart={(e) => onDragStart(e, folder.id)}
-                        onDragOver={(e) => onDragOver(e, folder.id)}
-                        onDragLeave={onDragLeave}
-                        onDrop={(e) => onDrop(e, folder)}
-                        onDragEnd={onDragEnd}
+                        onContextMenu={(e) => { if (isEditListMode) { e.preventDefault(); openActionSheet(folder, e); } }}
+                        draggable={isEditListMode}
+                        onDragStart={isEditListMode ? (e) => onDragStart(e, folder.id) : undefined}
+                        onDragOver={isEditListMode ? (e) => onDragOver(e, folder.id) : undefined}
+                        onDragLeave={isEditListMode ? onDragLeave : undefined}
+                        onDrop={isEditListMode ? (e) => onDrop(e, folder) : undefined}
+                        onDragEnd={isEditListMode ? onDragEnd : undefined}
                     >
+                        {isEditListMode && (
+                            <input
+                                type="checkbox"
+                                className="mac-checkbox"
+                                style={{ margin: '0 4px 0 0', flexShrink: 0 }}
+                                checked={selected.has(folder.id)}
+                                onChange={(e) => { e.stopPropagation(); toggleSelect(folder.id, e); }}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        )}
                         <div className="nm-file-icon folder"><RiFolderFill /></div>
                         <div className="nm-file-info">
                             <div className="nm-file-name">
-                                {renamingId === folder.id ? (
+                                {isEditListMode && renamingId === folder.id ? (
                                     <input
                                         value={renameValue}
                                         onChange={e => setRenameValue(e.target.value)}
@@ -397,7 +450,12 @@ const NotesManager = () => {
                             <div className="nm-file-meta">Folder</div>
                         </div>
                         <div className="nm-file-end">
-                            <RiArrowRightSLine className="nm-file-chevron" />
+                            {isEditListMode && (
+                                <button className="nm-file-more-btn" onClick={(e) => { e.stopPropagation(); openActionSheet(folder, e); }}>
+                                    <RiMore2Fill />
+                                </button>
+                            )}
+                            {!isEditListMode && <RiArrowRightSLine className="nm-file-chevron" />}
                         </div>
                     </div>
                 ))}
@@ -409,17 +467,31 @@ const NotesManager = () => {
                         className={`nm-file-row ${selected.has(subject.id) ? 'selected' : ''} ${dragId === subject.id ? 'dragging' : ''}`}
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
-                            openSubjectModal(subject);
+                            if (isEditListMode) {
+                                toggleSelect(subject.id, e);
+                            } else {
+                                openSubjectModal(subject);
+                            }
                         }}
-                        onContextMenu={(e) => { e.preventDefault(); openActionSheet(subject); }}
-                        draggable
-                        onDragStart={(e) => onDragStart(e, subject.id)}
-                        onDragEnd={onDragEnd}
+                        onContextMenu={(e) => { if (isEditListMode) { e.preventDefault(); openActionSheet(subject, e); } }}
+                        draggable={isEditListMode}
+                        onDragStart={isEditListMode ? (e) => onDragStart(e, subject.id) : undefined}
+                        onDragEnd={isEditListMode ? onDragEnd : undefined}
                     >
+                        {isEditListMode && (
+                            <input
+                                type="checkbox"
+                                className="mac-checkbox"
+                                style={{ margin: '0 4px 0 0', flexShrink: 0 }}
+                                checked={selected.has(subject.id)}
+                                onChange={(e) => { e.stopPropagation(); toggleSelect(subject.id, e); }}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        )}
                         <div className="nm-file-icon subject"><RiBookOpenFill /></div>
                         <div className="nm-file-info">
                             <div className="nm-file-name">
-                                {renamingId === subject.id ? (
+                                {isEditListMode && renamingId === subject.id ? (
                                     <input
                                         value={renameValue}
                                         onChange={e => setRenameValue(e.target.value)}
@@ -433,6 +505,11 @@ const NotesManager = () => {
                             <div className="nm-file-meta">{Object.keys(subject.units || {}).length} units</div>
                         </div>
                         <div className="nm-file-end">
+                            {isEditListMode && (
+                                <button className="nm-file-more-btn" onClick={(e) => { e.stopPropagation(); openActionSheet(subject, e); }}>
+                                    <RiMore2Fill />
+                                </button>
+                            )}
                             <span className="nm-file-badge units">{Object.keys(subject.units || {}).length} Units</span>
                         </div>
                     </div>
@@ -445,17 +522,31 @@ const NotesManager = () => {
                         className={`nm-file-row ${selected.has(file.id) ? 'selected' : ''} ${dragId === file.id ? 'dragging' : ''}`}
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
-                            openFileModal(file);
+                            if (isEditListMode) {
+                                toggleSelect(file.id, e);
+                            } else {
+                                if (file.link) window.open(file.link, '_blank');
+                            }
                         }}
-                        onContextMenu={(e) => { e.preventDefault(); openActionSheet(file); }}
-                        draggable
-                        onDragStart={(e) => onDragStart(e, file.id)}
-                        onDragEnd={onDragEnd}
+                        onContextMenu={(e) => { if (isEditListMode) { e.preventDefault(); openActionSheet(file, e); } }}
+                        draggable={isEditListMode}
+                        onDragStart={isEditListMode ? (e) => onDragStart(e, file.id) : undefined}
+                        onDragEnd={isEditListMode ? onDragEnd : undefined}
                     >
+                        {isEditListMode && (
+                            <input
+                                type="checkbox"
+                                className="mac-checkbox"
+                                style={{ margin: '0 4px 0 0', flexShrink: 0 }}
+                                checked={selected.has(file.id)}
+                                onChange={(e) => { e.stopPropagation(); toggleSelect(file.id, e); }}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        )}
                         <div className="nm-file-icon link"><RiLinkM /></div>
                         <div className="nm-file-info">
                             <div className="nm-file-name">
-                                {renamingId === file.id ? (
+                                {isEditListMode && renamingId === file.id ? (
                                     <input
                                         value={renameValue}
                                         onChange={e => setRenameValue(e.target.value)}
@@ -469,6 +560,11 @@ const NotesManager = () => {
                             <div className="nm-file-meta">{file.link ? 'External Link' : 'No link'}</div>
                         </div>
                         <div className="nm-file-end">
+                            {isEditListMode && (
+                                <button className="nm-file-more-btn" onClick={(e) => { e.stopPropagation(); openActionSheet(file, e); }}>
+                                    <RiMore2Fill />
+                                </button>
+                            )}
                             {file.link && <span className="nm-file-badge link-type">Link</span>}
                         </div>
                     </div>
@@ -486,41 +582,88 @@ const NotesManager = () => {
                 )}
             </div>
 
-            {/* ─── FAB (Mobile only — Samsung style) ─── */}
-            {fabOpen && <div className="nm-fab-backdrop" onClick={() => setFabOpen(false)} />}
+            {/* ─── FAB (Mobile only — edit mode only) ─── */}
+            {isEditListMode && (
+                <>
+                    {fabOpen && <div className="nm-fab-backdrop" onClick={() => setFabOpen(false)} />}
 
-            {fabOpen && (
-                <div className="nm-fab-menu">
-                    <div className="nm-fab-option" onClick={handleFabSubject}>
-                        <button className="nm-fab-option-btn subject-btn"><RiBookOpenFill /></button>
-                        <span className="nm-fab-option-label">Subject</span>
-                    </div>
-                    <div className="nm-fab-option" onClick={handleFabLink}>
-                        <button className="nm-fab-option-btn link-btn"><RiLinkM /></button>
-                        <span className="nm-fab-option-label">Link</span>
-                    </div>
-                    <div className="nm-fab-option" onClick={handleFabFolder}>
-                        <button className="nm-fab-option-btn folder-btn"><RiFolderFill /></button>
-                        <span className="nm-fab-option-label">Folder</span>
+                    {fabOpen && (
+                        <div className="nm-fab-menu">
+                            <div className="nm-fab-option" onClick={handleFabSubject}>
+                                <button className="nm-fab-option-btn subject-btn"><RiBookOpenFill /></button>
+                                <span className="nm-fab-option-label">Subject</span>
+                            </div>
+                            <div className="nm-fab-option" onClick={handleFabLink}>
+                                <button className="nm-fab-option-btn link-btn"><RiLinkM /></button>
+                                <span className="nm-fab-option-label">Link</span>
+                            </div>
+                            <div className="nm-fab-option" onClick={handleFabFolder}>
+                                <button className="nm-fab-option-btn folder-btn"><RiFolderFill /></button>
+                                <span className="nm-fab-option-label">Folder</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <button className={`nm-fab ${fabOpen ? 'open' : ''}`} onClick={() => setFabOpen(!fabOpen)}>
+                        <RiAddLine />
+                    </button>
+                </>
+            )}
+
+            {/* ─── Bulk Action Footer ─── */}
+            {isEditListMode && (
+                <div className="bulk-action-footer-premium animate-slide-up danger-mode nm-compact-footer" style={{
+                    position: 'fixed',
+                    bottom: '24px',
+                    left: '12px',
+                    right: '12px',
+                    width: 'calc(100% - 24px)',
+                    maxWidth: '600px',
+                    margin: '0 auto',
+                    zIndex: 1000
+                }}>
+                    <div className="bulk-delete-action-row">
+                        <div className="bulk-delete-info">
+                            <div className="info-icon selected">
+                                <RiFolderLine />
+                            </div>
+                            <div className="bulk-delete-text">
+                                <span className="bulk-delete-title">{selected.size} Selected</span>
+                                <span className="bulk-delete-desc">Options for chosen items</span>
+                            </div>
+                        </div>
+                        <div className="pill-group">
+                            <button className="premium-pill-btn primary" onClick={selectAll}>All</button>
+                            <button className="premium-pill-btn secondary" onClick={() => setMoveModal({ ids: [...selected] })}>Move</button>
+                            <button className="premium-pill-btn danger" onClick={() => deleteItems([...selected])}>Delete</button>
+                            <button className="premium-pill-btn secondary" onClick={clearSelection} style={{ padding: '0 12px' }}>
+                                <RiCloseLine style={{ fontSize: '18px' }} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
 
-            <button className={`nm-fab ${fabOpen ? 'open' : ''}`} onClick={() => setFabOpen(!fabOpen)}>
-                <RiAddLine />
-            </button>
-
-            {/* ─── Action Sheet (long-press / context menu) ─── */}
-            {actionSheet && (
-                <div className="nm-action-sheet-overlay" onClick={() => setActionSheet(null)}>
-                    <div className="nm-action-sheet" onClick={e => e.stopPropagation()}>
+            {/* ─── Action Sheet (edit mode only) ─── */}
+            {isEditListMode && actionSheet && (
+                <div 
+                    className="nm-action-sheet-overlay" 
+                    onClick={() => setActionSheet(null)}
+                    style={window.innerWidth >= 768 ? { alignItems: 'flex-start', backgroundColor: 'transparent' } : {}}
+                >
+                    <div 
+                        className="nm-action-sheet" 
+                        onClick={e => e.stopPropagation()}
+                        style={window.innerWidth >= 768 && actionSheet.rect ? {
+                            position: 'absolute',
+                            top: `${actionSheet.rect.bottom + 8}px`,
+                            left: `${Math.min(actionSheet.rect.right - 220, window.innerWidth - 240)}px`,
+                            margin: 0,
+                            maxWidth: '220px'
+                        } : {}}
+                    >
                         <div className="nm-action-sheet-handle" />
 
-                        {isFolder(actionSheet.item.id) && (
-                            <div className="nm-action-item" onClick={() => { navigateTo(actionSheet.item); setActionSheet(null); }}>
-                                <RiFolderFill /> Open Folder
-                            </div>
-                        )}
                         {isSubject(actionSheet.item.id) && (
                             <div className="nm-action-item" onClick={() => { openSubjectModal(actionSheet.item); setActionSheet(null); }}>
                                 <RiEdit2Line /> Edit Subject

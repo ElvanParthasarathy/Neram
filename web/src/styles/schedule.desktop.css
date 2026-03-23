@@ -1729,11 +1729,16 @@
     border-radius: 24px;
     background: var(--mac-sidebar-bg);
     border: 1px solid var(--mac-border);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); /* Stronger shadow since it floats now */
     display: flex;
     flex-direction: column;
     justify-content: center;
     transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    
+    /* Make it always visible at bottom of viewport */
+    position: sticky;
+    bottom: 24px;
+    z-index: 100;
 }
 
 .bulk-action-footer-premium.danger-mode {

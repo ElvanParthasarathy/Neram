@@ -13,7 +13,7 @@ import {
   RiRefreshLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine,
   RiCalendarEventLine, RiCalendarLine
 } from 'react-icons/ri';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import "../../styles/user-management.css";
 import { AdminPageSkeleton } from '../../components/AdminSkeletons';
 
@@ -31,10 +31,30 @@ const UserManagement = () => {
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
 
-  // Hierarchy Navigation States
-  const [viewLevel, setViewLevel] = useState('batches');
-  const [currentPath, setCurrentPath] = useState({ batch: '', dept: '', sec: '' });
-  const [roleGroup, setRoleGroup] = useState('student'); // 'student' | 'faculty' | 'admin'
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Hierarchy Navigation States (Now URL-driven)
+  const viewLevel = searchParams.get('ulvl') || 'batches';
+  const roleGroup = searchParams.get('urg') || 'student';
+  const currentPath = {
+    batch: searchParams.get('ub') || '',
+    dept: searchParams.get('ud') || '',
+    sec: searchParams.get('us') || ''
+  };
+
+  const updateParams = (updates) => {
+    const params = {
+      mod: 'users',
+      ulvl: viewLevel,
+      urg: roleGroup,
+      ub: currentPath.batch,
+      ud: currentPath.dept,
+      us: currentPath.sec,
+      ...updates
+    };
+    Object.keys(params).forEach(key => !params[key] && delete params[key]);
+    setSearchParams(params, { replace: false });
+  };
 
   // UI States
   const [selectedUser, setSelectedUser] = useState(null);
@@ -100,27 +120,26 @@ const UserManagement = () => {
 
   // --- NAVIGATION LOGIC ---
   const handleDrillDown = (level, value) => {
-    setCurrentPath(prev => ({ ...prev, [level]: value }));
-    if (level === 'batch') setViewLevel('depts');
+    const nextPath = { ...currentPath, [level]: value };
+    let nextLevel = viewLevel;
+    
+    if (level === 'batch') nextLevel = 'depts';
     if (level === 'dept') {
-      if (roleGroup === 'faculty') setViewLevel('faculty_members');
-      else setViewLevel('secs');
+      if (roleGroup === 'faculty') nextLevel = 'faculty_members';
+      else nextLevel = 'secs';
     }
-    if (level === 'sec') setViewLevel('students');
+    if (level === 'sec') nextLevel = 'students';
+    
+    updateParams({ ulvl: nextLevel, ub: nextPath.batch, ud: nextPath.dept, us: nextPath.sec });
   };
 
-  const navigateBack = () => {
-    if (viewLevel === 'students') setViewLevel('secs');
-    else if (viewLevel === 'secs') setViewLevel('depts');
-    else if (viewLevel === 'depts') setViewLevel('batches');
-    else if (viewLevel === 'faculty_members') setViewLevel('faculty_depts');
-  };
+  const navigateBack = () => navigate(-1);
 
   const resetToRoot = () => {
-    setCurrentPath({ batch: '', dept: '', sec: '' });
-    setViewLevel('batches');
-    setRoleGroup('student');
+    updateParams({ ulvl: 'batches', urg: 'student', ub: '', ud: '', us: '' });
   };
+
+  const setViewLevel = (lvl) => updateParams({ ulvl: lvl });
 
   // --- LOGIC: Handle User Selection (UPDATED SMART NAME) ---
   const openUserModal = (u, uid) => {
@@ -450,9 +469,7 @@ const UserManagement = () => {
           <button
             className={`role-pill ${roleGroup === 'student' ? 'active' : ''}`}
             onClick={() => {
-              setRoleGroup('student');
-              setViewLevel('batches');
-              setCurrentPath({ batch: '', dept: '', sec: '' });
+              updateParams({ urg: 'student', ulvl: 'batches', ub: '', ud: '', us: '' });
               setIsEditListMode(false);
               setIsDeleteMode(false);
               setSelectedUsers([]);
@@ -463,9 +480,7 @@ const UserManagement = () => {
           <button
             className={`role-pill ${roleGroup === 'faculty' ? 'active' : ''}`}
             onClick={() => {
-              setRoleGroup('faculty');
-              setViewLevel('faculty_depts');
-              setCurrentPath({ batch: '', dept: '', sec: '' });
+              updateParams({ urg: 'faculty', ulvl: 'faculty_depts', ub: '', ud: '', us: '' });
               setIsEditListMode(false);
               setIsDeleteMode(false);
               setSelectedUsers([]);
@@ -476,8 +491,7 @@ const UserManagement = () => {
           <button
             className={`role-pill ${roleGroup === 'admin' ? 'active' : ''}`}
             onClick={() => {
-              setRoleGroup('admin');
-              setViewLevel('admin_list');
+              updateParams({ urg: 'admin', ulvl: 'admin_list', ub: '', ud: '', us: '' });
               setIsEditListMode(false);
               setIsDeleteMode(false);
               setSelectedUsers([]);
