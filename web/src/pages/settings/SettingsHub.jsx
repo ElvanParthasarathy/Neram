@@ -86,24 +86,7 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
 
             <div className="s2-spacer-sm" />
 
-            {/* Group 3: Support */}
-            <SettingsGroup>
-                <SettingsItem
-                    icon={<RiFeedbackLine />}
-                    iconColor="orange"
-                    title="Complaints"
-                    desc="Send feedback & reports"
-                    onClick={() => onNavigate("complaints")}
-                />
-                <SettingsDivider />
-                <SettingsItem
-                    icon={<RiCodeSSlashLine />}
-                    iconColor="green"
-                    title="About Developer"
-                    desc="Elvan Parthasarathy"
-                    onClick={() => onNavigate("developer")}
-                />
-            </SettingsGroup>
+
 
             <div className="s2-spacer-sm" />
 

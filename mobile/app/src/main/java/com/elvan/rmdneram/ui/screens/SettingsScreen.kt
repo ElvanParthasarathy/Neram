@@ -161,29 +161,7 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 3. Settings Group: Support
-            SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                SettingsListItem(
-                    icon = Icons.Outlined.Feedback,
-                    iconBgColor = AppColors.Orange,
-                    title = AppStrings.Settings.complaints(lang),
-                    description = AppStrings.Settings.complaintsDesc(lang),
-                    onClick = onNavigateToComplaint,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
 
-                SettingsListItem(
-                    icon = Icons.Outlined.Code,
-                    iconBgColor = AppColors.Green,
-                    title = AppStrings.Settings.aboutDeveloper(lang),
-                    description = "Elvan Parthasarathy",
-                    onClick = onNavigateToDeveloper,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
             

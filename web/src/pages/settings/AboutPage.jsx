@@ -32,9 +32,11 @@ const AboutPage = ({ onBack }) => (
                 <div className="s2-about-card-title">What is Neram?</div>
                 <div className="s2-about-desc">
                     Neram (<span className="s2-tamil">நேரம்</span>, meaning 'Time') is a sleek, all-in-one campus
-                    companion app designed specifically for RMD Engineering
-                    College students. It brings together everything you need to
+                    companion app designed specifically for RMK Group of
+                    Institutions students. It brings together everything you need to
                     stay organized and informed throughout your academic day.
+                    <br /><br />
+                    This application was developed by Jaiprakash Parthasarathy, a student from the ECE Department of RMD Engineering College.
                 </div>
             </div>
         </SettingsGroup>

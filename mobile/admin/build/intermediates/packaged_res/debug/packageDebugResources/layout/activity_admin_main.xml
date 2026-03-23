@@ -67,18 +67,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:letterSpacing="0.15"
-                android:text="FROM"
+                android:text="RMK"
                 android:textColor="@color/splash_text_secondary"
-                android:textSize="11sp" />
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Elvan Parthasarathy"
-                android:textColor="@color/splash_accent_blue"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="2dp"
+                android:text="Group of Institutions"
+                android:textColor="@color/splash_text_secondary"
+                android:textSize="12sp"
+                android:alpha="0.6" />
         </LinearLayout>
     </FrameLayout>
 

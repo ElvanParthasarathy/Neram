@@ -18,55 +18,81 @@
     overflow-x: hidden;
 }
 
-/* ─── Mode Banner (compact) ─── */
-.nm-mode-banner {
+/* ─── Unified Header Toolbar ─── */
+.nm-header-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 20px;
-    margin: 0 0 10px;
-    border-radius: 20px;
-    background: var(--mac-sidebar-bg);
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 20px;
+    margin-top: 0;
 }
 
-.nm-mode-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.nm-mode-dot.fetch { background: var(--mac-blue); }
-.nm-mode-dot.folder { background: var(--mac-traffic-green, #34c759); }
-
-.nm-mode-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--mac-text-secondary);
+.nm-header-nav {
     flex: 1;
     min-width: 0;
 }
 
-.nm-mode-label strong {
-    color: var(--mac-text);
-    font-weight: 600;
+.nm-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
-.nm-mode-switch {
-    all: unset;
+.nm-action-pill {
+    min-width: 70px;
+    padding: 6px 12px;
     font-size: 13px;
-    font-weight: 600;
-    color: var(--mac-blue);
-    cursor: pointer;
-    white-space: nowrap;
-    padding: 6px 14px;
-    border-radius: 100px;
-    -webkit-tap-highlight-color: transparent;
-    transition: background 0.15s;
 }
 
-.nm-mode-switch:active {
-    background: rgba(0, 122, 255, 0.1);
+/* ─── Role Header Pills (Cancel/Done) ─── */
+.role-header-pill {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.role-header-pill.secondary {
+    background: var(--mac-bg-secondary, rgba(120, 120, 128, 0.12));
+    color: var(--mac-text);
+}
+
+.role-header-pill.active {
+    background: var(--mac-blue);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.role-header-pill:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+.nm-btn-edit {
+    margin: 0;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.nm-btn-edit svg {
+    margin-right: 4px;
+}
+
+/* ─── Action Sheet Enhanced (Selected Mode) ─── */
+.nm-action-item.selected-mode {
+    background: color-mix(in srgb, var(--mac-blue) 8%, transparent);
+    color: var(--mac-blue);
+    font-weight: 600;
 }
 
 /* ─── Breadcrumb (Samsung-style path bar) ─── */
@@ -108,11 +134,52 @@
     background: transparent;
 }
 
-.nm-path-sep {
+.crumb-btn {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--mac-text-secondary, #8E8E93);
+    cursor: pointer;
+    white-space: nowrap;
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.crumb-btn:hover {
+    background: var(--mac-selection-hover);
+    color: var(--mac-text);
+}
+
+.crumb-sep {
+    font-size: 16px;
+    opacity: 0.5;
     color: var(--mac-text-secondary);
-    opacity: 0.3;
-    font-size: 18px;
-    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.crumb-static {
+    font-weight: 700;
+    color: var(--mac-text);
+    padding: 6px 12px;
+    white-space: nowrap;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.breadcrumb-list {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 /* ─── Selection Bar (Samsung-style) ─── */
@@ -403,13 +470,13 @@
 }
 
 .nm-fab-option-label {
-    background: var(--mac-card-bg);
+    background: var(--mac-sidebar-bg, #ffffff);
     color: var(--mac-text);
     font-size: 13px;
-    font-weight: 600;
-    padding: 8px 14px;
-    border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--mac-border);
     white-space: nowrap;
 }
 
@@ -423,9 +490,13 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     -webkit-tap-highlight-color: transparent;
     transition: transform 0.15s;
+    background: var(--mac-sidebar-bg, #ffffff);
+    color: var(--mac-blue);
+    position: relative;
+    overflow: hidden;
 }
 
 .nm-fab-option-btn:active {
@@ -433,25 +504,37 @@
 }
 
 .nm-fab-option-btn.folder-btn {
-    background: rgba(0, 122, 255, 0.15);
-    color: var(--mac-blue);
+    background: rgba(0, 122, 255, 0.15) !important;
+    color: var(--mac-blue) !important;
 }
 
 .nm-fab-option-btn.link-btn {
-    background: rgba(255, 149, 0, 0.15);
-    color: var(--mac-warning-text, #ff9500);
+    background: rgba(255, 149, 0, 0.15) !important;
+    color: var(--mac-warning-text, #ff9500) !important;
 }
 
 .nm-fab-option-btn.subject-btn {
-    background: rgba(52, 199, 89, 0.15);
-    color: var(--mac-traffic-green, #34c759);
+    background: rgba(52, 199, 89, 0.15) !important;
+    color: var(--mac-traffic-green, #34c759) !important;
+}
+
+.nm-fab-option-btn.select-btn {
+    background: rgba(0, 122, 255, 0.15) !important;
+    color: var(--mac-blue) !important;
+}
+
+.nm-fab-option-btn.danger-btn {
+    background: rgba(255, 59, 48, 0.15) !important;
+    color: var(--mac-traffic-red, #FF3B30) !important;
 }
 
 /* FAB backdrop */
 .nm-fab-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 498;
     animation: nmFadeIn 0.15s ease;
 }
@@ -496,9 +579,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 60px 24px;
+    padding: 100px 24px;
     text-align: center;
     gap: 8px;
+    grid-column: 1 / -1;
+    width: 100%;
 }
 
 .nm-empty-folder-icon {
@@ -525,7 +610,7 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 9000;
+    z-index: 999999;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -607,7 +692,7 @@
     background: rgba(0, 0, 0, 0.55);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    z-index: 9500;
+    z-index: 999999;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -619,7 +704,8 @@
     max-width: 540px;
     background: var(--mac-card-bg);
     border-radius: 24px 24px 0 0;
-    max-height: 90vh;
+    max-height: 100dvh;
+    height: auto;
     overflow-y: auto;
     animation: nmSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     overscroll-behavior: contain;
@@ -668,7 +754,7 @@
 .nm-modal-footer {
     display: flex;
     gap: 10px;
-    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 12px));
+    padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 24px));
     border-top: 1px solid var(--mac-border);
     position: sticky;
     bottom: 0;
@@ -752,11 +838,8 @@
 .nm-unit-row {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
-    padding: 12px;
-    background: var(--mac-bg-secondary);
-    border-radius: 12px;
+    gap: 12px;
+    margin-bottom: 20px;
     position: relative;
 }
 
@@ -764,28 +847,26 @@
     margin-bottom: 0;
 }
 
-.nm-unit-row .nm-field-input {
-    background: var(--mac-card-bg);
-}
-
-.nm-unit-remove-btn {
+.nm-unit-remove-pill {
     all: unset;
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 4px;
+    background: rgba(255, 59, 48, 0.1);
     color: var(--mac-traffic-red, #FF3B30);
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     cursor: pointer;
-    font-size: 14px;
+    transition: background 0.1s;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.nm-unit-remove-btn:active {
-    background: rgba(255, 59, 48, 0.1);
+.nm-unit-remove-pill:active {
+    background: rgba(255, 59, 48, 0.2);
 }
 
 .nm-add-unit-btn {
@@ -795,20 +876,21 @@
     justify-content: center;
     gap: 6px;
     width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1.5px dashed var(--mac-border);
-    font-size: 14px;
+    padding: 16px;
+    border-radius: 100px;
+    background: rgba(0, 122, 255, 0.1);
+    font-size: 15px;
     font-weight: 600;
     color: var(--mac-blue);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
     margin-top: 4px;
+    transition: background 0.1s;
 }
 
 .nm-add-unit-btn:active {
-    background: rgba(0, 122, 255, 0.05);
+    background: rgba(0, 122, 255, 0.2);
 }
 
 /* ─── Move Modal List ─── */
@@ -820,21 +902,23 @@
 .nm-move-option {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 14px 4px;
+    gap: 14px;
+    padding: 14px 16px;
     cursor: pointer;
     font-size: 15px;
     font-weight: 500;
-    border-bottom: 1px solid color-mix(in srgb, var(--mac-border) 50%, transparent);
+    border-radius: 16px;
+    margin-bottom: 4px;
     -webkit-tap-highlight-color: transparent;
+    transition: all 0.2s;
 }
 
 .nm-move-option:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
 }
 
-.nm-move-option:active {
-    background: color-mix(in srgb, var(--mac-blue) 8%, transparent);
+.nm-move-option:active, .nm-move-option.selected {
+    background: color-mix(in srgb, var(--mac-blue) 10%, transparent);
 }
 
 .nm-move-option svg {

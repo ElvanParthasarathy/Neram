@@ -382,20 +382,22 @@ fun SplashScreen(isDarkTheme: Boolean = false) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "FROM",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    letterSpacing = 2.sp,
-                    color = textSecondary
+                text = "RMK",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = textSecondary,
+                    letterSpacing = 3.sp
                 )
             )
             
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             
             Text(
-                text = "Elvan Parthasarathy",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    color = accentBlue
+                text = "Group of Institutions",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    letterSpacing = 1.5.sp,
+                    color = textSecondary.copy(alpha = 0.6f),
+                    fontWeight = FontWeight.Normal
                 )
             )
         }

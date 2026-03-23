@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, set, push, remove, update } from "firebase/database";
@@ -17,7 +18,9 @@ import {
     RiFolderLine,
     RiMore2Fill,
     RiDeleteBin6Line,
-    RiCheckDoubleFill
+    RiCheckDoubleFill,
+    RiSettings4Line,
+    RiCheckLine
 } from 'react-icons/ri';
 import '../../styles/notes-manager.css';
 
@@ -77,10 +80,29 @@ const NotesManager = () => {
     
     // Move modal
     const [moveModal, setMoveModal] = useState(null);
+
+    // Settings modal
+    const [settingsModal, setSettingsModal] = useState(false);
+    const [tempMode, setTempMode] = useState('fetch');
     
     // Drag state (desktop)
     const [dragId, setDragId] = useState(null);
     const [dragOverId, setDragOverId] = useState(null);
+
+    // Confirmation modal state (like ExamManager)
+    const [confirmModal, setConfirmModal] = useState({ show: false, title: '', message: '', onConfirm: null });
+
+    const showConfirm = (title, message, onConfirm) => {
+        setConfirmModal({ show: true, title, message, onConfirm });
+    };
+    const closeConfirm = () => setConfirmModal({ ...confirmModal, show: false });
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const currentFolderId = currentPath[currentPath.length - 1].id;
 
@@ -99,10 +121,7 @@ const NotesManager = () => {
     // Clear selection on path change
     useEffect(() => { setSelected(new Set()); setActionSheet(null); setFabOpen(false); }, [currentFolderId]);
 
-    // Focus new folder input
-    useEffect(() => {
-        if (creatingFolder && newFolderRef.current) newFolderRef.current.focus();
-    }, [creatingFolder]);
+    // Focus handled by autoFocus in modal
 
     // --- DATA ---
     const currentFolders = Object.entries(folders)
@@ -153,8 +172,9 @@ const NotesManager = () => {
     };
 
     // --- CRUD ---
-    const toggleMode = async () => {
-        await set(ref(db, 'settings/notesMode'), notesMode === 'fetch' ? 'folder' : 'fetch');
+    const updateMode = async (newMode) => {
+        if (newMode === notesMode) return;
+        await set(ref(db, 'settings/notesMode'), newMode);
     };
 
     const createFolder = async (name) => {
@@ -166,16 +186,21 @@ const NotesManager = () => {
     };
 
     const deleteItems = async (ids) => {
-        if (!window.confirm(`Delete ${ids.length} item(s)?`)) return;
-        for (const id of ids) {
-            const fKey = Object.entries(folders).find(([, f]) => f.id === id)?.[0];
-            const sKey = Object.entries(subjects).find(([, s]) => s.id === id)?.[0];
-            const fiKey = Object.entries(files).find(([, f]) => f.id === id)?.[0];
-            if (fKey) await remove(ref(db, `notes_drive/folders/${fKey}`));
-            if (sKey) await remove(ref(db, `notes_drive/subjects/${sKey}`));
-            if (fiKey) await remove(ref(db, `notes_drive/files/${fiKey}`));
-        }
-        setSelected(new Set());
+        showConfirm(
+            "Delete Items?",
+            `Are you sure you want to delete ${ids.length} item(s)? This action cannot be undone.`,
+            async () => {
+                for (const id of ids) {
+                    const fKey = Object.entries(folders).find(([, f]) => f.id === id)?.[0];
+                    const sKey = Object.entries(subjects).find(([, s]) => s.id === id)?.[0];
+                    const fiKey = Object.entries(files).find(([, f]) => f.id === id)?.[0];
+                    if (fKey) await remove(ref(db, `notes_drive/folders/${fKey}`));
+                    if (sKey) await remove(ref(db, `notes_drive/subjects/${sKey}`));
+                    if (fiKey) await remove(ref(db, `notes_drive/files/${fiKey}`));
+                }
+                setSelected(new Set());
+            }
+        );
     };
 
     const renameItem = async (id) => {
@@ -315,19 +340,10 @@ const NotesManager = () => {
 
     return (
         <div className="notes-manager">
-            {/* ─── Mode Banner (compact) ─── */}
-            <div className="nm-mode-banner">
-                <div className={`nm-mode-dot ${notesMode === 'fetch' ? 'fetch' : 'folder'}`} />
-                <span className="nm-mode-label">
-                    <strong>{notesMode === 'fetch' ? 'RMD Fetch' : 'Folder Mode'}</strong> · {notesMode === 'fetch' ? 'Live rmd.ac.in' : 'Custom folders'}
-                </span>
-                <button className="nm-mode-switch" onClick={toggleMode}>
-                    Switch
-                </button>
-            </div>
 
-            {/* ─── Standard Explorer Header ─── */}
-            <header className="explorer-header focus-mode" style={{ marginBottom: '12px', marginTop: 0 }}>
+
+            {/* ─── Breadcrumb Navigation (EXAM MANAGER STYLE) ─── */}
+            <header className="explorer-header focus-mode" style={{ marginBottom: '20px', marginTop: 0 }}>
                 <div className="breadcrumb-nav">
                     {currentPath.length > 1 && (
                         <button className="explorer-back-btn" onClick={() => navigateToIndex(currentPath.length - 2)}>
@@ -335,53 +351,73 @@ const NotesManager = () => {
                         </button>
                     )}
                     <div className="breadcrumb-list">
-                        {currentPath.map((p, i) => (
-                            <React.Fragment key={p.id}>
-                                {i > 0 && (
-                                    <span className="crumb-ellipsis-container">
-                                        <RiArrowRightSLine className="crumb-sep" />
-                                    </span>
-                                )}
-                                <span
-                                    className={`crumb-btn ${i === 0 ? 'level-root' : ''} ${i === currentPath.length - 1 ? 'active' : ''}`}
-                                    onClick={() => i < currentPath.length - 1 && navigateToIndex(i)}
-                                >
-                                    {p.name}
-                                </span>
-                            </React.Fragment>
-                        ))}
+                        <span className="crumb-btn level-root" onClick={() => navigateToIndex(0)}>{currentPath[0].name}</span>
+
+                        {(isMobile && currentPath.length > 2) && (
+                            <span className="crumb-ellipsis-container">
+                                <RiArrowRightSLine className="crumb-sep" />
+                                <span className="crumb-static">...</span>
+                            </span>
+                        )}
+
+                        {!isMobile ? (
+                            currentPath.slice(1).map((p, i) => (
+                                <React.Fragment key={p.id}>
+                                    <RiArrowRightSLine className="crumb-sep" />
+                                    {i === currentPath.slice(1).length - 1 ? (
+                                        <span className="crumb-static">{p.name}</span>
+                                    ) : (
+                                        <span className="crumb-btn" onClick={() => navigateToIndex(i + 1)}>{p.name}</span>
+                                    )}
+                                </React.Fragment>
+                            ))
+                        ) : (
+                            currentPath.length > 1 && (
+                                <>
+                                    <RiArrowRightSLine className="crumb-sep" />
+                                    <span className="crumb-static">{currentPath[currentPath.length - 1].name}</span>
+                                </>
+                            )
+                        )}
                     </div>
                 </div>
             </header>
 
-            {/* ─── Edit List Header (like ExamManager) ─── */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 className="section-divider-title" style={{ margin: 0, border: 'none', color: 'var(--mac-text)', textTransform: 'none', fontSize: '15px', fontWeight: 700, padding: 0 }}>Contents</h3>
-                {isEditListMode ? (
-                    <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
-                        <button
-                            className="role-header-pill secondary"
-                            onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); setIsSelectionMode(false); }}
-                            style={{ minWidth: '90px' }}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            className="role-header-pill active"
-                            onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); setIsSelectionMode(false); }}
-                            style={{ minWidth: '90px' }}
-                        >
-                            Done
-                        </button>
-                    </div>
-                ) : (
-                    <button
-                        className="edit-list-btn"
-                        onClick={() => setIsEditListMode(true)}
+            {/* ─── Actions Toolbar (Row 2) ─── */}
+            <div className="nm-header-row" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '16px', gap: '10px' }}>
+                <div className="nm-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <button 
+                        className="nm-file-more-btn" 
+                        style={{ background: 'var(--mac-sidebar-bg)', color: 'var(--mac-text)', width: '36px', height: '36px', flexShrink: 0 }}
+                        onClick={() => { setTempMode(notesMode); setSettingsModal(true); }}
                     >
-                        <RiEdit2Line style={{ marginRight: '6px' }} /> Edit List
+                        <RiSettings4Line />
                     </button>
-                )}
+                    
+                    {isEditListMode ? (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                                className="role-header-pill secondary nm-action-pill"
+                                onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); setIsSelectionMode(false); }}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="role-header-pill active nm-action-pill"
+                                onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); setIsSelectionMode(false); }}
+                            >
+                                Done
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            className="edit-list-btn nm-btn-edit"
+                            onClick={() => setIsEditListMode(true)}
+                        >
+                            <RiEdit2Line /> Edit
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* ─── Desktop Toolbar (only in edit mode) ─── */}
@@ -395,18 +431,15 @@ const NotesManager = () => {
                             <button className="nm-desk-btn" onClick={() => openFileModal()}>
                                 <RiAddLine /> Link
                             </button>
-                            <button className="nm-desk-btn accent" onClick={() => openSubjectModal()}>
+                            <button className="nm-desk-btn" onClick={() => openSubjectModal()}>
                                 <RiAddLine /> Subject
                             </button>
-                            <button className="nm-desk-btn" onClick={() => setIsSelectionMode(true)} style={{ marginLeft: 'auto', background: 'var(--mac-blue)', color: 'white', border: 'none' }}>
+                            <button className="nm-desk-btn" onClick={() => setIsSelectionMode(true)} style={{ background: 'var(--mac-blue)', color: 'white', border: 'none', marginLeft: '6px' }}>
                                 <RiCheckDoubleFill /> Select Items
                             </button>
                         </>
                     ) : (
                         <>
-                            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--mac-text)', marginRight: 'auto' }}>
-                                {selected.size === 0 ? "Select items to modify" : `${selected.size} Selected`}
-                            </span>
                             <button className="nm-desk-btn" onClick={selectAll}>
                                 {selected.size === totalItems && totalItems > 0 ? 'Deselect All' : 'Select All'}
                             </button>
@@ -419,6 +452,9 @@ const NotesManager = () => {
                             <button className="nm-desk-btn danger" onClick={() => deleteItems([...selected])} disabled={selected.size === 0} style={{ color: 'var(--mac-traffic-red)' }}>
                                 Delete
                             </button>
+                            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--mac-text)', marginLeft: 'auto' }}>
+                                {selected.size === 0 ? "Select items to modify" : `${selected.size} Selected`}
+                            </span>
                         </>
                     )}
                 </div>
@@ -426,23 +462,6 @@ const NotesManager = () => {
 
             {/* ─── File List ─── */}
             <div className="nm-file-list">
-                {/* Inline new folder (edit mode only) */}
-                {isEditListMode && creatingFolder && (
-                    <div className="nm-new-folder-inline">
-                        <div className="nm-file-icon folder"><RiFolderFill /></div>
-                        <input
-                            ref={newFolderRef}
-                            value={newFolderName}
-                            onChange={e => setNewFolderName(e.target.value)}
-                            placeholder="Folder name..."
-                            onKeyDown={e => {
-                                if (e.key === 'Enter') createFolder(newFolderName);
-                                if (e.key === 'Escape') setCreatingFolder(false);
-                            }}
-                            onBlur={() => { if (newFolderName.trim()) createFolder(newFolderName); else setCreatingFolder(false); }}
-                        />
-                    </div>
-                )}
 
                 {/* Folders */}
                 {currentFolders.map(folder => (
@@ -478,16 +497,7 @@ const NotesManager = () => {
                         <div className="nm-file-icon folder"><RiFolderFill /></div>
                         <div className="nm-file-info">
                             <div className="nm-file-name">
-                                {isEditListMode && renamingId === folder.id ? (
-                                    <input
-                                        value={renameValue}
-                                        onChange={e => setRenameValue(e.target.value)}
-                                        onKeyDown={e => { if (e.key === 'Enter') renameItem(folder.id); if (e.key === 'Escape') setRenamingId(null); }}
-                                        onBlur={() => renameItem(folder.id)}
-                                        autoFocus
-                                        onClick={e => e.stopPropagation()}
-                                    />
-                                ) : folder.name}
+                                {folder.name}
                             </div>
                             <div className="nm-file-meta">Folder</div>
                         </div>
@@ -533,16 +543,7 @@ const NotesManager = () => {
                         <div className="nm-file-icon subject"><RiBookOpenFill /></div>
                         <div className="nm-file-info">
                             <div className="nm-file-name">
-                                {isEditListMode && renamingId === subject.id ? (
-                                    <input
-                                        value={renameValue}
-                                        onChange={e => setRenameValue(e.target.value)}
-                                        onKeyDown={e => { if (e.key === 'Enter') renameItem(subject.id); if (e.key === 'Escape') setRenamingId(null); }}
-                                        onBlur={() => renameItem(subject.id)}
-                                        autoFocus
-                                        onClick={e => e.stopPropagation()}
-                                    />
-                                ) : subject.name}
+                                {subject.name}
                             </div>
                             <div className="nm-file-meta">{Object.keys(subject.units || {}).length} units</div>
                         </div>
@@ -588,16 +589,7 @@ const NotesManager = () => {
                         <div className="nm-file-icon link"><RiLinkM /></div>
                         <div className="nm-file-info">
                             <div className="nm-file-name">
-                                {isEditListMode && renamingId === file.id ? (
-                                    <input
-                                        value={renameValue}
-                                        onChange={e => setRenameValue(e.target.value)}
-                                        onKeyDown={e => { if (e.key === 'Enter') renameItem(file.id); if (e.key === 'Escape') setRenamingId(null); }}
-                                        onBlur={() => renameItem(file.id)}
-                                        autoFocus
-                                        onClick={e => e.stopPropagation()}
-                                    />
-                                ) : file.name}
+                                {file.name}
                             </div>
                             <div className="nm-file-meta">{file.link ? 'External Link' : 'No link'}</div>
                         </div>
@@ -634,7 +626,7 @@ const NotesManager = () => {
                             {!isSelectionMode ? (
                                 <>
                                     <div className="nm-fab-option" onClick={() => { setIsSelectionMode(true); setFabOpen(false); }}>
-                                        <button className="nm-fab-option-btn" style={{ background: 'color-mix(in srgb, var(--mac-blue) 15%, transparent)', color: 'var(--mac-blue)' }}><RiCheckDoubleFill /></button>
+                                        <button className="nm-fab-option-btn select-btn"><RiCheckDoubleFill /></button>
                                         <span className="nm-fab-option-label">Select Items</span>
                                     </div>
                                     <div className="nm-fab-option" onClick={handleFabSubject}>
@@ -653,19 +645,19 @@ const NotesManager = () => {
                             ) : (
                                 <>
                                     <div className="nm-fab-option" onClick={() => { clearSelection(); setIsSelectionMode(false); setFabOpen(false); }}>
-                                        <button className="nm-fab-option-btn" style={{ background: 'var(--mac-bg-secondary)', color: 'var(--mac-text)' }}><RiCloseLine /></button>
+                                        <button className="nm-fab-option-btn"><RiCloseLine /></button>
                                         <span className="nm-fab-option-label">Cancel Selection</span>
                                     </div>
                                     <div className="nm-fab-option" onClick={() => { selectAll(); setFabOpen(false); }}>
-                                        <button className="nm-fab-option-btn" style={{ background: 'var(--mac-bg-secondary)', color: 'var(--mac-text)' }}><RiCheckDoubleFill /></button>
+                                        <button className="nm-fab-option-btn"><RiCheckDoubleFill /></button>
                                         <span className="nm-fab-option-label">{selected.size === totalItems && totalItems > 0 ? 'Deselect All' : 'Select All'}</span>
                                     </div>
                                     <div className="nm-fab-option" onClick={() => { if(selected.size>0) { setMoveModal({ids: [...selected]}); setFabOpen(false); } }} style={{opacity: selected.size===0?0.5:1}}>
-                                        <button className="nm-fab-option-btn" style={{ background: 'rgba(0,122,255,0.1)', color: 'var(--mac-blue)' }}><RiFolderTransferLine /></button>
+                                        <button className="nm-fab-option-btn select-btn"><RiFolderTransferLine /></button>
                                         <span className="nm-fab-option-label">Move</span>
                                     </div>
                                     <div className="nm-fab-option" onClick={() => { if(selected.size>0) { deleteItems([...selected]); setFabOpen(false); } }} style={{opacity: selected.size===0?0.5:1}}>
-                                        <button className="nm-fab-option-btn" style={{ background: 'rgba(255,59,48,0.1)', color: 'var(--mac-traffic-red)' }}><RiDeleteBin6Line /></button>
+                                        <button className="nm-fab-option-btn danger-btn"><RiDeleteBin6Line /></button>
                                         <span className="nm-fab-option-label">Delete</span>
                                     </div>
                                 </>
@@ -691,31 +683,38 @@ const NotesManager = () => {
                         onClick={e => e.stopPropagation()}
                         style={window.innerWidth >= 768 && actionSheet.rect ? {
                             position: 'absolute',
-                            top: `${actionSheet.rect.bottom + 8}px`,
-                            left: `${Math.min(actionSheet.rect.right - 220, window.innerWidth - 240)}px`,
+                            top: `${Math.min(actionSheet.rect.bottom + 8, window.innerHeight - 300)}px`,
+                            left: `${Math.max(10, Math.min(actionSheet.rect.right - 220, window.innerWidth - 230))}px`,
                             margin: 0,
-                            maxWidth: '220px'
+                            width: '220px',
+                            borderRadius: '16px',
+                            boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
+                            animation: 'none'
                         } : {}}
                     >
                         <div className="nm-action-sheet-handle" />
 
-                        {isSubject(actionSheet.item.id) && (
-                            <div className="nm-action-item" onClick={() => { openSubjectModal(actionSheet.item); setActionSheet(null); }}>
-                                <RiEdit2Line /> Edit Subject
-                            </div>
-                        )}
-                        {isFile(actionSheet.item.id) && (
-                            <div className="nm-action-item" onClick={() => { openFileModal(actionSheet.item); setActionSheet(null); }}>
-                                <RiEdit2Line /> Edit Link
-                            </div>
-                        )}
+                        {actionSheet.item && (
+                            <>
+                                {isSubject(actionSheet.item.id) && (
+                                    <div className="nm-action-item" onClick={() => { openSubjectModal(actionSheet.item); setActionSheet(null); }}>
+                                        <RiEdit2Line /> Edit Subject
+                                    </div>
+                                )}
+                                {isFile(actionSheet.item.id) && (
+                                    <div className="nm-action-item" onClick={() => { openFileModal(actionSheet.item); setActionSheet(null); }}>
+                                        <RiEdit2Line /> Edit Link
+                                    </div>
+                                )}
 
-                        <div className="nm-action-item" onClick={() => { setRenamingId(actionSheet.item.id); setRenameValue(actionSheet.item.name); setActionSheet(null); }}>
-                            <RiEdit2Line /> Rename
-                        </div>
-                        <div className="nm-action-item" onClick={() => { setMoveModal({ ids: selected.size > 0 ? [...selected] : [actionSheet.item.id] }); setActionSheet(null); }}>
-                            <RiFolderTransferLine /> Move to...
-                        </div>
+                                <div className="nm-action-item" onClick={() => { setRenamingId(actionSheet.item.id); setRenameValue(actionSheet.item.name); setActionSheet(null); }}>
+                                    <RiEdit2Line /> Rename
+                                </div>
+                                <div className="nm-action-item" onClick={() => { setMoveModal({ ids: selected.size > 0 ? [...selected] : [actionSheet.item.id] }); setActionSheet(null); }}>
+                                    <RiFolderTransferLine /> Move to...
+                                </div>
+                            </>
+                        )}
 
                         <div className="nm-action-sep" />
 
@@ -760,7 +759,21 @@ const NotesManager = () => {
                             {units.map((unit, i) => (
                                 <div key={i} className="nm-unit-row">
                                     <div className="nm-field">
-                                        <label>Name</label>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <label style={{ margin: 0 }}>Name</label>
+                                            {units.length > 1 && (
+                                                <button 
+                                                    className="nm-unit-remove-pill" 
+                                                    onClick={() => showConfirm(
+                                                        "Remove Unit?", 
+                                                        `Remove "${unit.name || 'this unit'}" from the subject?`, 
+                                                        () => setUnits(prev => prev.filter((_, j) => j !== i))
+                                                    )}
+                                                >
+                                                    <RiDeleteBinLine style={{ fontSize: '14px' }} /> Delete
+                                                </button>
+                                            )}
+                                        </div>
                                         <input
                                             className="nm-field-input"
                                             placeholder="Unit name"
@@ -777,11 +790,6 @@ const NotesManager = () => {
                                             onChange={e => setUnits(prev => prev.map((u, j) => j === i ? { ...u, link: e.target.value } : u))}
                                         />
                                     </div>
-                                    {units.length > 1 && (
-                                        <button className="nm-unit-remove-btn" onClick={() => setUnits(prev => prev.filter((_, j) => j !== i))}>
-                                            <RiDeleteBinLine />
-                                        </button>
-                                    )}
                                 </div>
                             ))}
 
@@ -884,6 +892,144 @@ const NotesManager = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* ─── Rename Modal ─── */}
+            {renamingId && (
+                <div className="nm-modal-overlay" onClick={() => setRenamingId(null)}>
+                    <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
+                        <div className="nm-modal-header">
+                            <h3>Rename Item</h3>
+                            <button className="nm-modal-close" onClick={() => setRenamingId(null)}>
+                                <RiCloseLine />
+                            </button>
+                        </div>
+                        <div className="nm-modal-body">
+                            <div className="nm-field">
+                                <label>New Name</label>
+                                <input
+                                    className="nm-field-input"
+                                    placeholder="Enter new name"
+                                    value={renameValue}
+                                    onChange={e => setRenameValue(e.target.value)}
+                                    autoFocus
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter') renameItem(renamingId);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div className="nm-modal-footer">
+                            <button className="nm-modal-footer-btn cancel" onClick={() => setRenamingId(null)}>Cancel</button>
+                            <button className="nm-modal-footer-btn confirm" onClick={() => renameItem(renamingId)}>Save</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ─── Folder Creation Modal ─── */}
+            {creatingFolder && (
+                <div className="nm-modal-overlay" onClick={() => setCreatingFolder(false)}>
+                    <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
+                        <div className="nm-modal-header">
+                            <h3>New Folder</h3>
+                            <button className="nm-modal-close" onClick={() => setCreatingFolder(false)}>
+                                <RiCloseLine />
+                            </button>
+                        </div>
+                        <div className="nm-modal-body">
+                            <div className="nm-field">
+                                <label>Folder Name</label>
+                                <input
+                                    className="nm-field-input"
+                                    placeholder="e.g. Assignments, Projects"
+                                    value={newFolderName}
+                                    onChange={e => setNewFolderName(e.target.value)}
+                                    autoFocus
+                                    onKeyDown={e => {
+                                        if (e.key === 'Enter') createFolder(newFolderName);
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div className="nm-modal-footer">
+                            <button className="nm-modal-footer-btn cancel" onClick={() => setCreatingFolder(false)}>Cancel</button>
+                            <button className="nm-modal-footer-btn confirm" onClick={() => createFolder(newFolderName)}>Create</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* ─── Settings Modal ─── */}
+            {settingsModal && (
+                <div className="nm-modal-overlay" onClick={() => setSettingsModal(false)}>
+                    <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
+                        <div className="nm-modal-header">
+                            <h3>Fetch Settings</h3>
+                            <button className="nm-modal-close" onClick={() => setSettingsModal(false)}>
+                                <RiCloseLine />
+                            </button>
+                        </div>
+                        <div className="nm-modal-body">
+                            <p style={{ fontSize: '13px', color: 'var(--mac-text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
+                                Choose how the notes drive displays content for students.
+                            </p>
+
+                            <div className="nm-move-list">
+                                <div 
+                                    className={`nm-move-option ${tempMode === 'fetch' ? 'selected' : ''}`} 
+                                    onClick={() => setTempMode('fetch')}
+                                >
+                                    <div style={{ width: '24px', display: 'flex', alignItems: 'center', color: tempMode === 'fetch' ? 'var(--mac-blue)' : 'var(--mac-text-secondary)' }}>
+                                        {tempMode === 'fetch' ? <RiCheckLine /> : <div style={{ width: 16, height: 16, border: '2px solid var(--mac-border)', borderRadius: '50%' }} />}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontWeight: 600, fontSize: '15px' }}>RMD Fetch Mode</div>
+                                        <div style={{ fontSize: '12px', opacity: 0.6 }}>Load notes directly from rmd.ac.in</div>
+                                    </div>
+                                </div>
+                                <div 
+                                    className={`nm-move-option ${tempMode === 'folder' ? 'selected' : ''}`} 
+                                    onClick={() => setTempMode('folder')}
+                                >
+                                    <div style={{ width: '24px', display: 'flex', alignItems: 'center', color: tempMode === 'folder' ? 'var(--mac-blue)' : 'var(--mac-text-secondary)' }}>
+                                        {tempMode === 'folder' ? <RiCheckLine /> : <div style={{ width: 16, height: 16, border: '2px solid var(--mac-border)', borderRadius: '50%' }} />}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontWeight: 600, fontSize: '15px' }}>Custom Folder Mode</div>
+                                        <div style={{ fontSize: '12px', opacity: 0.6 }}>Use your manual folder structure</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="nm-modal-footer">
+                            <button className="nm-modal-footer-btn cancel" onClick={() => setSettingsModal(false)}>Cancel</button>
+                            <button 
+                                className="nm-modal-footer-btn confirm" 
+                                onClick={() => { updateMode(tempMode); setSettingsModal(false); }}
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* --- PREM CONF MODAL (like ExamManager) --- */}
+            {confirmModal.show && createPortal(
+                <div className="modal-overlay animate-fade-in" onClick={closeConfirm}>
+                    <div className="modal-content animate-pop-in" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <RiDeleteBin6Line className="modal-icon-danger" />
+                            <h3>{confirmModal.title}</h3>
+                        </div>
+                        <p className="modal-message">{confirmModal.message}</p>
+                        <div className="modal-footer">
+                            <button className="btn-modal-cancel" onClick={closeConfirm}>Cancel</button>
+                            <button className="btn-modal-confirm" onClick={() => { confirmModal.onConfirm(); closeConfirm(); }}>Delete</button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     );

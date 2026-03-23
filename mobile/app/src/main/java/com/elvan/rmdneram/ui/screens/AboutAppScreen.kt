@@ -118,7 +118,7 @@ fun AboutAppScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 Text(
-                    "Neram (நேரம், meaning 'Time') is a sleek, all-in-one campus companion app designed specifically for RMD Engineering College students. It brings together everything you need to stay organized and informed throughout your academic day.",
+                    "Neram (நேரம், meaning 'Time') is a sleek, all-in-one campus companion app designed specifically for RMK Group of Institutions students. It brings together everything you need to stay organized and informed throughout your academic day.\n\nThis application was developed by Jaiprakash Parthasarathy, a student from the ECE Department of RMD Engineering College.",
                     style = HomeTypography.MessageBody.copy(
                         lineHeight = 26.sp,
                         fontFamily = com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
