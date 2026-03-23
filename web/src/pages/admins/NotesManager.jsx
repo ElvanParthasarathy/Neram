@@ -15,7 +15,9 @@ import {
     RiArrowLeftLine,
     RiGlobalLine,
     RiFolderLine,
-    RiMore2Fill
+    RiMore2Fill,
+    RiDeleteBin6Line,
+    RiCheckDoubleFill
 } from 'react-icons/ri';
 import '../../styles/notes-manager.css';
 
@@ -41,6 +43,9 @@ const NotesManager = () => {
 
     // Edit List mode (like ExamManager)
     const [isEditListMode, setIsEditListMode] = useState(false);
+    
+    // Selection Mode (activated via bottom bar)
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
 
     // Selection
     const [selected, setSelected] = useState(new Set());
@@ -118,26 +123,34 @@ const NotesManager = () => {
     const navigateToIndex = (i) => updateCurrentPath(currentPath.slice(0, i + 1));
 
     // --- SELECTION ---
-    const toggleSelect = (id, e) => {
-        if (e?.shiftKey || e?.ctrlKey || e?.metaKey) {
-            setSelected(prev => {
-                const next = new Set(prev);
-                next.has(id) ? next.delete(id) : next.add(id);
-                return next;
-            });
-        } else {
-            setSelected(prev => prev.has(id) && prev.size === 1 ? new Set() : new Set([id]));
-        }
+    const toggleSelect = (id) => {
+        setIsSelectionMode(true);
+        setSelected(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
     };
+
     const selectAll = () => {
-        const all = [
+        const allIds = [
             ...currentFolders.map(f => f.id), 
             ...currentSubjects.map(s => s.id),
             ...currentFiles.map(f => f.id)
         ];
-        setSelected(new Set(all));
+        
+        // If all are already selected, clear it. Else, select all.
+        if (selected.size === allIds.length && allIds.length > 0) {
+            setSelected(new Set());
+        } else {
+            setSelected(new Set(allIds));
+        }
     };
-    const clearSelection = () => setSelected(new Set());
+
+    const clearSelection = () => {
+        setSelected(new Set());
+    };
 
     // --- CRUD ---
     const toggleMode = async () => {
@@ -270,7 +283,11 @@ const NotesManager = () => {
             rect = { bottom: e.clientY - 8, right: e.clientX, left: e.clientX, top: e.clientY - 8 };
         }
         setActionSheet({ item, rect });
-        if (!selected.has(item.id)) setSelected(new Set([item.id]));
+        // Only set single selection if we're not currently in multi-selection mode
+        if (!selected.has(item.id)) {
+            if (!isSelectionMode) setSelected(new Set([item.id]));
+            else toggleSelect(item.id);
+        }
     };
 
     // --- FAB actions ---
@@ -344,14 +361,14 @@ const NotesManager = () => {
                     <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
                         <button
                             className="role-header-pill secondary"
-                            onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); }}
+                            onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); setIsSelectionMode(false); }}
                             style={{ minWidth: '90px' }}
                         >
                             Cancel
                         </button>
                         <button
                             className="role-header-pill active"
-                            onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); }}
+                            onClick={() => { setIsEditListMode(false); clearSelection(); setCreatingFolder(false); setIsSelectionMode(false); }}
                             style={{ minWidth: '90px' }}
                         >
                             Done
@@ -370,15 +387,40 @@ const NotesManager = () => {
             {/* ─── Desktop Toolbar (only in edit mode) ─── */}
             {isEditListMode && (
                 <div className="nm-desktop-toolbar">
-                    <button className="nm-desk-btn" onClick={() => { setCreatingFolder(true); setNewFolderName(''); }}>
-                        <RiAddLine /> Folder
-                    </button>
-                    <button className="nm-desk-btn" onClick={() => openFileModal()}>
-                        <RiAddLine /> Link
-                    </button>
-                    <button className="nm-desk-btn accent" onClick={() => openSubjectModal()}>
-                        <RiAddLine /> Subject
-                    </button>
+                    {!isSelectionMode ? (
+                        <>
+                            <button className="nm-desk-btn" onClick={() => { setCreatingFolder(true); setNewFolderName(''); }}>
+                                <RiAddLine /> Folder
+                            </button>
+                            <button className="nm-desk-btn" onClick={() => openFileModal()}>
+                                <RiAddLine /> Link
+                            </button>
+                            <button className="nm-desk-btn accent" onClick={() => openSubjectModal()}>
+                                <RiAddLine /> Subject
+                            </button>
+                            <button className="nm-desk-btn" onClick={() => setIsSelectionMode(true)} style={{ marginLeft: 'auto', background: 'var(--mac-blue)', color: 'white', border: 'none' }}>
+                                <RiCheckDoubleFill /> Select Items
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--mac-text)', marginRight: 'auto' }}>
+                                {selected.size === 0 ? "Select items to modify" : `${selected.size} Selected`}
+                            </span>
+                            <button className="nm-desk-btn" onClick={selectAll}>
+                                {selected.size === totalItems && totalItems > 0 ? 'Deselect All' : 'Select All'}
+                            </button>
+                            <button className="nm-desk-btn" onClick={() => { clearSelection(); setIsSelectionMode(false); }}>
+                                Cancel
+                            </button>
+                            <button className="nm-desk-btn" onClick={() => setMoveModal({ ids: [...selected] })} disabled={selected.size === 0}>
+                                Move
+                            </button>
+                            <button className="nm-desk-btn danger" onClick={() => deleteItems([...selected])} disabled={selected.size === 0} style={{ color: 'var(--mac-traffic-red)' }}>
+                                Delete
+                            </button>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -410,7 +452,7 @@ const NotesManager = () => {
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
                             if (isEditListMode) {
-                                toggleSelect(folder.id, e);
+                                toggleSelect(folder.id);
                             } else {
                                 navigateTo(folder);
                             }
@@ -423,13 +465,13 @@ const NotesManager = () => {
                         onDrop={isEditListMode ? (e) => onDrop(e, folder) : undefined}
                         onDragEnd={isEditListMode ? onDragEnd : undefined}
                     >
-                        {isEditListMode && (
+                        {isSelectionMode && (
                             <input
                                 type="checkbox"
                                 className="mac-checkbox"
                                 style={{ margin: '0 4px 0 0', flexShrink: 0 }}
                                 checked={selected.has(folder.id)}
-                                onChange={(e) => { e.stopPropagation(); toggleSelect(folder.id, e); }}
+                                onChange={(e) => { e.stopPropagation(); toggleSelect(folder.id); }}
                                 onClick={(e) => e.stopPropagation()}
                             />
                         )}
@@ -468,7 +510,7 @@ const NotesManager = () => {
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
                             if (isEditListMode) {
-                                toggleSelect(subject.id, e);
+                                toggleSelect(subject.id);
                             } else {
                                 openSubjectModal(subject);
                             }
@@ -478,13 +520,13 @@ const NotesManager = () => {
                         onDragStart={isEditListMode ? (e) => onDragStart(e, subject.id) : undefined}
                         onDragEnd={isEditListMode ? onDragEnd : undefined}
                     >
-                        {isEditListMode && (
+                        {isSelectionMode && (
                             <input
                                 type="checkbox"
                                 className="mac-checkbox"
                                 style={{ margin: '0 4px 0 0', flexShrink: 0 }}
                                 checked={selected.has(subject.id)}
-                                onChange={(e) => { e.stopPropagation(); toggleSelect(subject.id, e); }}
+                                onChange={(e) => { e.stopPropagation(); toggleSelect(subject.id); }}
                                 onClick={(e) => e.stopPropagation()}
                             />
                         )}
@@ -523,7 +565,7 @@ const NotesManager = () => {
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
                             if (isEditListMode) {
-                                toggleSelect(file.id, e);
+                                toggleSelect(file.id);
                             } else {
                                 if (file.link) window.open(file.link, '_blank');
                             }
@@ -533,13 +575,13 @@ const NotesManager = () => {
                         onDragStart={isEditListMode ? (e) => onDragStart(e, file.id) : undefined}
                         onDragEnd={isEditListMode ? onDragEnd : undefined}
                     >
-                        {isEditListMode && (
+                        {isSelectionMode && (
                             <input
                                 type="checkbox"
                                 className="mac-checkbox"
                                 style={{ margin: '0 4px 0 0', flexShrink: 0 }}
                                 checked={selected.has(file.id)}
-                                onChange={(e) => { e.stopPropagation(); toggleSelect(file.id, e); }}
+                                onChange={(e) => { e.stopPropagation(); toggleSelect(file.id); }}
                                 onClick={(e) => e.stopPropagation()}
                             />
                         )}
@@ -589,18 +631,45 @@ const NotesManager = () => {
 
                     {fabOpen && (
                         <div className="nm-fab-menu">
-                            <div className="nm-fab-option" onClick={handleFabSubject}>
-                                <button className="nm-fab-option-btn subject-btn"><RiBookOpenFill /></button>
-                                <span className="nm-fab-option-label">Subject</span>
-                            </div>
-                            <div className="nm-fab-option" onClick={handleFabLink}>
-                                <button className="nm-fab-option-btn link-btn"><RiLinkM /></button>
-                                <span className="nm-fab-option-label">Link</span>
-                            </div>
-                            <div className="nm-fab-option" onClick={handleFabFolder}>
-                                <button className="nm-fab-option-btn folder-btn"><RiFolderFill /></button>
-                                <span className="nm-fab-option-label">Folder</span>
-                            </div>
+                            {!isSelectionMode ? (
+                                <>
+                                    <div className="nm-fab-option" onClick={() => { setIsSelectionMode(true); setFabOpen(false); }}>
+                                        <button className="nm-fab-option-btn" style={{ background: 'color-mix(in srgb, var(--mac-blue) 15%, transparent)', color: 'var(--mac-blue)' }}><RiCheckDoubleFill /></button>
+                                        <span className="nm-fab-option-label">Select Items</span>
+                                    </div>
+                                    <div className="nm-fab-option" onClick={handleFabSubject}>
+                                        <button className="nm-fab-option-btn subject-btn"><RiBookOpenFill /></button>
+                                        <span className="nm-fab-option-label">Subject</span>
+                                    </div>
+                                    <div className="nm-fab-option" onClick={handleFabLink}>
+                                        <button className="nm-fab-option-btn link-btn"><RiLinkM /></button>
+                                        <span className="nm-fab-option-label">Link</span>
+                                    </div>
+                                    <div className="nm-fab-option" onClick={handleFabFolder}>
+                                        <button className="nm-fab-option-btn folder-btn"><RiFolderFill /></button>
+                                        <span className="nm-fab-option-label">Folder</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="nm-fab-option" onClick={() => { clearSelection(); setIsSelectionMode(false); setFabOpen(false); }}>
+                                        <button className="nm-fab-option-btn" style={{ background: 'var(--mac-bg-secondary)', color: 'var(--mac-text)' }}><RiCloseLine /></button>
+                                        <span className="nm-fab-option-label">Cancel Selection</span>
+                                    </div>
+                                    <div className="nm-fab-option" onClick={() => { selectAll(); setFabOpen(false); }}>
+                                        <button className="nm-fab-option-btn" style={{ background: 'var(--mac-bg-secondary)', color: 'var(--mac-text)' }}><RiCheckDoubleFill /></button>
+                                        <span className="nm-fab-option-label">{selected.size === totalItems && totalItems > 0 ? 'Deselect All' : 'Select All'}</span>
+                                    </div>
+                                    <div className="nm-fab-option" onClick={() => { if(selected.size>0) { setMoveModal({ids: [...selected]}); setFabOpen(false); } }} style={{opacity: selected.size===0?0.5:1}}>
+                                        <button className="nm-fab-option-btn" style={{ background: 'rgba(0,122,255,0.1)', color: 'var(--mac-blue)' }}><RiFolderTransferLine /></button>
+                                        <span className="nm-fab-option-label">Move</span>
+                                    </div>
+                                    <div className="nm-fab-option" onClick={() => { if(selected.size>0) { deleteItems([...selected]); setFabOpen(false); } }} style={{opacity: selected.size===0?0.5:1}}>
+                                        <button className="nm-fab-option-btn" style={{ background: 'rgba(255,59,48,0.1)', color: 'var(--mac-traffic-red)' }}><RiDeleteBin6Line /></button>
+                                        <span className="nm-fab-option-label">Delete</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
 
@@ -608,31 +677,6 @@ const NotesManager = () => {
                         <RiAddLine />
                     </button>
                 </>
-            )}
-
-            {/* ─── Bulk Action Footer ─── */}
-            {isEditListMode && (
-                <div className="bulk-action-footer-premium animate-slide-up danger-mode nm-compact-footer" style={{ margin: '20px 0 0 0', position: 'static', width: '100%', maxWidth: 'none' }}>
-                    <div className="bulk-delete-action-row">
-                        <div className="bulk-delete-info">
-                            <div className="info-icon selected">
-                                <RiFolderLine />
-                            </div>
-                            <div className="bulk-delete-text">
-                                <span className="bulk-delete-title">{selected.size} Selected</span>
-                                <span className="bulk-delete-desc">Options for chosen items</span>
-                            </div>
-                        </div>
-                        <div className="pill-group">
-                            <button className="premium-pill-btn primary" onClick={selectAll}>All</button>
-                            <button className="premium-pill-btn secondary" onClick={() => setMoveModal({ ids: [...selected] })}>Move</button>
-                            <button className="premium-pill-btn danger" onClick={() => deleteItems([...selected])}>Delete</button>
-                            <button className="premium-pill-btn secondary" onClick={clearSelection} style={{ padding: '0 12px' }}>
-                                <RiCloseLine style={{ fontSize: '18px' }} />
-                            </button>
-                        </div>
-                    </div>
-                </div>
             )}
 
             {/* ─── Action Sheet (edit mode only) ─── */}

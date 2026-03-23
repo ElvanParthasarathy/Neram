@@ -1041,32 +1041,168 @@
     }
 }
 
-/* Compact mobile footer overrides for NotesManager */
+/* ─── Custom Selection Toolbar (Bottom) ─── */
+.nm-selection-toolbar {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 600px;
+    background: var(--mac-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--mac-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    z-index: 1000;
+}
+
+.nm-selection-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nm-selection-count {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-text);
+}
+
+.nm-selection-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nm-selection-action-btn {
+    all: unset;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-blue);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nm-selection-action-btn.text {
+    padding: 6px 14px;
+    color: var(--mac-text);
+    background: var(--mac-hover, rgba(120, 120, 128, 0.12));
+}
+
+.nm-selection-action-btn.text:hover {
+    background: var(--mac-hover, rgba(120, 120, 128, 0.2));
+}
+
+.nm-selection-action-btn:hover:not(:disabled):not(.text) {
+    background: rgba(0, 122, 255, 0.1);
+}
+
+.nm-selection-action-btn.danger {
+    color: var(--mac-traffic-red, #FF3B30);
+}
+
+.nm-selection-action-btn.danger:hover:not(:disabled) {
+    background: rgba(255, 59, 48, 0.1);
+}
+
+.nm-selection-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.nm-selection-action-btn svg {
+    font-size: 18px;
+}
+
+.nm-selection-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--mac-border);
+    margin: 0 8px;
+}
+
+.nm-selection-close-btn {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--mac-text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.nm-selection-close-btn:hover {
+    background: var(--mac-hover, rgba(120, 120, 128, 0.12));
+    color: var(--mac-text);
+}
+
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
-    .nm-compact-footer .bulk-delete-action-row {
-        flex-direction: row !important;
-        align-items: center !important;
-        flex-wrap: wrap !important;
-        gap: 12px !important;
-        padding: 0 !important;
+    .nm-selection-toolbar {
+        bottom: 16px;
+        width: calc(100% - 24px);
+        padding: 10px 16px;
+        flex-direction: row;
+        gap: 0;
+        border-radius: 20px;
     }
     
-    .nm-compact-footer .bulk-delete-info {
-        flex: 1 !important;
-        min-width: 0 !important;
-        margin-right: auto !important;
+    .nm-selection-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
     }
     
-    .nm-compact-footer .pill-group {
-        flex-direction: row !important;
-        width: auto !important;
-        gap: 6px !important;
-        justify-content: flex-end !important;
+    .nm-selection-count {
+        font-size: 13px;
     }
     
-    .nm-compact-footer .premium-pill-btn {
-        width: auto !important;
-        padding: 8px 12px !important;
-        font-size: 12px !important;
+    .nm-selection-action-btn.text {
+        padding: 0;
+        background: transparent;
+        font-size: 12px;
+        color: var(--mac-blue);
+    }
+    
+    .nm-selection-actions {
+        gap: 4px;
+    }
+    
+    .nm-selection-action-btn {
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 12px;
+        border-radius: 12px;
+    }
+    
+    .nm-selection-action-btn svg {
+        font-size: 22px;
+    }
+    
+    .nm-action-label {
+        font-size: 10px;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    .nm-selection-close-btn {
+        margin-left: 4px;
     }
 }
