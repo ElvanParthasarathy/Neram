@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, set, push, remove, update } from "firebase/database";
 import { 
@@ -21,7 +22,19 @@ const NotesManager = () => {
     const [folders, setFolders] = useState({});
     const [subjects, setSubjects] = useState({});
     const [files, setFiles] = useState({});
-    const [currentPath, setCurrentPath] = useState([{ id: 'root', name: 'Notes Drive' }]);
+    const [searchParams, setSearchParams] = useSearchParams();
+    
+    const urlPathStr = searchParams.get('nfp');
+    const currentPath = urlPathStr 
+        ? JSON.parse(decodeURIComponent(urlPathStr)) 
+        : [{ id: 'root', name: 'Notes Drive' }];
+
+    const updateCurrentPath = (newPath) => {
+        setSearchParams({ 
+            mod: 'notes', 
+            nfp: encodeURIComponent(JSON.stringify(newPath)) 
+        }, { replace: false });
+    };
     const [loading, setLoading] = useState(true);
 
     // Selection
@@ -96,8 +109,8 @@ const NotesManager = () => {
     const totalItems = currentFolders.length + currentSubjects.length + currentFiles.length;
 
     // --- NAVIGATION ---
-    const navigateTo = (folder) => setCurrentPath(prev => [...prev, folder]);
-    const navigateToIndex = (i) => setCurrentPath(prev => prev.slice(0, i + 1));
+    const navigateTo = (folder) => updateCurrentPath([...currentPath, { id: folder.id, name: folder.name }]);
+    const navigateToIndex = (i) => updateCurrentPath(currentPath.slice(0, i + 1));
 
     // --- SELECTION ---
     const toggleSelect = (id, e) => {

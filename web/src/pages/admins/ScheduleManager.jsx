@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, set, update, get } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
@@ -60,14 +60,12 @@ const ScheduleManager = ({ user, userProfile }) => {
             ss: newPath.sec !== undefined ? newPath.sec : path.sec
         };
         Object.keys(params).forEach(key => !params[key] && delete params[key]);
-        setSearchParams(params);
+        setSearchParams(params, { replace: false });
     };
 
-    const handleBack = () => {
-        if (viewLevel === 'editor' || viewLevel === 'master') updateLevel('secs', { sec: '' });
-        else if (viewLevel === 'secs') updateLevel('depts', { dept: '' });
-        else if (viewLevel === 'depts') updateLevel('batches', { batch: '' });
-    };
+    const navigate = useNavigate();
+
+    const handleBack = () => navigate(-1);
 
     const [hierarchy, setHierarchy] = useState({});
     const [activeTab, setActiveTab] = useState('courses'); // courses | timetable | counseling

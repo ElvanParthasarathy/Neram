@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../utils/timeUtils";
 import HybridDateInput from '../../components/HybridDateInput';
 import { db } from "../../firebase";
@@ -38,13 +38,12 @@ const EventManager = ({ user, userProfile, isMobile }) => {
       ed: newPath.dept !== undefined ? newPath.dept : path.dept
     };
     Object.keys(params).forEach(key => !params[key] && delete params[key]);
-    setSearchParams(params);
+    setSearchParams(params, { replace: false });
   };
 
-  const handleBack = () => {
-    if (viewLevel === 'editor') updateLevel('depts', { dept: '' });
-    else if (viewLevel === 'depts') updateLevel('batches', { batch: '' });
-  };
+  const navigate = useNavigate();
+
+  const handleBack = () => navigate(-1);
 
   // --- 2. DATA STATE ---
   const [hierarchy, setHierarchy] = useState({});

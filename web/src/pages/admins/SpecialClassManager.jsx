@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, set, update } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
@@ -19,27 +19,26 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
   const finalRole = emailRole || userProfile?.role || 'student';
   const isRep = finalRole === 'rep';
 
-  const viewLevel = searchParams.get('slvl') || 'batches';
+  const viewLevel = searchParams.get('sclvl') || 'batches';
   const path = {
-    batch: searchParams.get('sb') || '',
-    dept: searchParams.get('sd') || ''
+    batch: searchParams.get('scb') || '',
+    dept: searchParams.get('scd') || ''
   };
 
   const updateLevel = (level, newPath = {}) => {
     const params = {
       mod: 'special_classes',
-      slvl: level,
-      sb: newPath.batch !== undefined ? newPath.batch : path.batch,
-      sd: newPath.dept !== undefined ? newPath.dept : path.dept
+      sclvl: level,
+      scb: newPath.batch !== undefined ? newPath.batch : path.batch,
+      scd: newPath.dept !== undefined ? newPath.dept : path.dept
     };
     Object.keys(params).forEach(key => !params[key] && delete params[key]);
-    setSearchParams(params);
+    setSearchParams(params, { replace: false });
   };
 
-  const handleBack = () => {
-    if (viewLevel === 'editor') updateLevel('depts', { dept: '' });
-    else if (viewLevel === 'depts') updateLevel('batches', { batch: '' });
-  };
+  const navigate = useNavigate();
+
+  const handleBack = () => navigate(-1);
 
   // --- DATA STATE ---
   const [hierarchy, setHierarchy] = useState({});

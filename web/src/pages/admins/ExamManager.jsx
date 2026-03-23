@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { convertTo12Hour, formatDateDDMMYYYY } from '../../utils/timeUtils';
 import HybridDateInput from '../../components/HybridDateInput';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { db } from "../../firebase";
 import { ref, onValue, update } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
@@ -54,14 +54,12 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
             ed: newPath.dept !== undefined ? newPath.dept : path.dept
         };
         Object.keys(params).forEach(key => !params[key] && delete params[key]);
-        setSearchParams(params);
+        setSearchParams(params, { replace: false });
     };
 
-    // Physical Back Button Logic
-    const handleBack = () => {
-        if (viewLevel === 'editor') updateLevel('depts', { dept: '' });
-        else if (viewLevel === 'depts') updateLevel('batches', { batch: '' });
-    };
+    const navigate = useNavigate();
+
+    const handleBack = () => navigate(-1);
 
     const [hierarchy, setHierarchy] = useState({});
     const [masterData, setMasterData] = useState({ courses: [], exams: [], sections: [], rawDeptData: {} });
