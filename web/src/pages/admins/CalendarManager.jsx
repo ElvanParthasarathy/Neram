@@ -465,12 +465,6 @@ const CalendarManager = () => {
       {/* 1. HEADER WITH BREADCRUMBS */}
       <header className="explorer-header focus-mode" style={{ background: 'transparent', padding: '0 0 20px 0', borderBottom: '1px solid var(--mac-divider)', height: 'auto', marginBottom: 0 }}>
         <div className="breadcrumb-nav">
-          {viewLevel === 'editor' && (
-            <button className="explorer-back-btn" onClick={() => { setViewLevel('batches'); setActiveTab('published'); }} style={{ marginRight: '12px' }}>
-              <RiArrowLeftLine /> Back
-            </button>
-          )}
-
           <div className="breadcrumb-list">
             <span className="crumb-btn" onClick={() => { setViewLevel('batches'); setActiveTab('published'); }}>Calendars</span>
             {viewLevel === 'editor' && (
@@ -480,6 +474,14 @@ const CalendarManager = () => {
               </>
             )}
           </div>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {viewLevel === 'editor' && (
+            <button className="explorer-back-btn" onClick={() => { setViewLevel('batches'); setActiveTab('published'); }}>
+              <RiArrowLeftLine /> Back
+            </button>
+          )}
         </div>
       </header>
 

@@ -583,14 +583,7 @@ const ScheduleManager = ({ user, userProfile }) => {
     return (
         <div className="admin-subpage animate-fade-in central-schedule-manager">
             <header className="explorer-header focus-mode">
-                <div className="breadcrumb-nav">
-                    {!isRep && viewLevel !== 'batches' && (
-                        <button className="explorer-back-btn" onClick={handleBack}>
-                            <RiArrowLeftLine /> Back
-                        </button>
-                    )}
-
-                    <div className="breadcrumb-list">
+                <div className="breadcrumb-nav">                    <div className="breadcrumb-list">
                         <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '', sec: '' })}>Schedule</span>
                         
                         {/* Mobile Truncation Ellipsis (Hidden on Desktop) */}
@@ -600,9 +593,14 @@ const ScheduleManager = ({ user, userProfile }) => {
                         </span>
 
                         {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className="crumb-btn level-batch" onClick={() => updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
-                        {path.dept && <><RiArrowRightSLine className="crumb-sep level-dept-sep" /> <span className={`level-dept ${viewLevel === 'secs' ? "crumb-static" : "crumb-btn"}`} onClick={() => updateLevel('secs', { sec: '' })}>{path.dept}</span></>}
-                        {path.sec && <><RiArrowRightSLine className="crumb-sep level-sec-sep" /> <span className="crumb-static level-sec">{path.sec === '_master' ? 'Master' : `Sec ${path.sec}`}</span></>}
                     </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {!isRep && viewLevel !== 'batches' && (
+                        <button className="explorer-back-btn" onClick={handleBack}>
+                            <RiArrowLeftLine /> Back
+                        </button>
+                    )}
                 </div>
             </header>
 

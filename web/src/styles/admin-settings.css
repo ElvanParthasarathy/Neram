@@ -201,13 +201,25 @@ html:not(.dark) .shifter-item.active {
 }
 
 /* --- 4. SEQUOIA GROUP CARDS --- */
-.settings-group-card {
+.settings-group-card,
+.settings-card {
     background: var(--mac-sidebar-bg);
     border: 1px solid var(--mac-divider);
     border-radius: 32px;
-    padding: 0;
+    padding: 32px;
     margin-bottom: 32px;
     overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.settings-card h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.settings-group-card {
+    padding: 0;
 }
 
 .settings-group-card.no-padding {

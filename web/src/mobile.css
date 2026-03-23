@@ -242,11 +242,15 @@
 
     .mobile-page-container {
       margin: 0 12px;
+      width: auto !important;
       background: var(--bg-body);
       position: relative;
       /* Override App.css padding — clear top bar + show below rounded top edge */
       padding-top: 24px !important;
-      padding-bottom: 24px;
+      padding-bottom: 50px !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      box-sizing: border-box;
     }
 
     /* Hide Desktop-Specific Elements */
@@ -1794,14 +1798,9 @@
   }
 
   .bulk-action-footer-premium {
-    position: fixed !important;
-    bottom: 24px;
-    left: 12px;
-    right: 12px;
-    width: calc(100% - 24px) !important;
-    z-index: 1000 !important;
-    box-sizing: border-box;
-    margin-top: 0 !important;
+    position: relative !important;
+    margin-top: 16px !important;
+    margin-bottom: 100px;
   }
 
   .breadcrumb-nav {

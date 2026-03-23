@@ -25,7 +25,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
     dept: searchParams.get('scd') || ''
   };
 
-  const updateLevel = (level, newPath = {}) => {
+  const updateLevel = (level, newPath = {}, forceReplace = false) => {
     const params = {
       mod: 'special_classes',
       sclvl: level,
@@ -33,7 +33,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
       scd: newPath.dept !== undefined ? newPath.dept : path.dept
     };
     Object.keys(params).forEach(key => !params[key] && delete params[key]);
-    setSearchParams(params, { replace: false });
+    setSearchParams(params, { replace: forceReplace });
   };
 
   const navigate = useNavigate();
@@ -532,15 +532,8 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
   return (
     <div className="exam-manager-container admin-subpage animate-fade-in">
       <header className="explorer-header focus-mode">
-        <div className="breadcrumb-nav">
-          {!isRep && viewLevel !== 'batches' && (
-            <button className="explorer-back-btn" onClick={handleBack} style={{ marginRight: '12px' }}>
-              <RiArrowLeftLine /> Back
-            </button>
-          )}
-
-          <div className="breadcrumb-list">
-            <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '' })}>Classes</span>
+        <div className="breadcrumb-nav">          <div className="breadcrumb-list">
+            <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '' }, true)}>Classes</span>
 
             {/* Mobile Truncation Ellipsis */}
             <span className="crumb-ellipsis-container">
@@ -548,9 +541,16 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                 <span className="crumb-static">...</span>
             </span>
 
-            {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className="crumb-btn level-batch" onClick={() => updateLevel('depts', { dept: '' })}>{path.batch}</span></>}
+            {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className="crumb-btn level-batch" onClick={() => updateLevel('depts', { dept: '' }, true)}>{path.batch}</span></>}
             {path.dept && <><RiArrowRightSLine className="crumb-sep level-dept-sep" /> <span className="crumb-static level-dept">{path.dept}</span></>}
           </div>
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {!isRep && viewLevel !== 'batches' && (
+            <button className="explorer-back-btn" onClick={handleBack}>
+              <RiArrowLeftLine /> Back
+            </button>
+          )}
         </div>
       </header>
 

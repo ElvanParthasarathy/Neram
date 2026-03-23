@@ -30,7 +30,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
     dept: searchParams.get('ed') || ''
   };
 
-  const updateLevel = (level, newPath = {}) => {
+  const updateLevel = (level, newPath = {}, forceReplace = false) => {
     const params = {
       mod: 'events',
       elvl: level,
@@ -38,7 +38,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
       ed: newPath.dept !== undefined ? newPath.dept : path.dept
     };
     Object.keys(params).forEach(key => !params[key] && delete params[key]);
-    setSearchParams(params, { replace: false });
+    setSearchParams(params, { replace: forceReplace });
   };
 
   const navigate = useNavigate();
@@ -428,14 +428,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
     <div className="exam-manager-container admin-subpage animate-fade-in">
       {/* 1. HEADER WITH BREADCRUMBS */}
       <header className="explorer-header focus-mode">
-        <div className="breadcrumb-nav">
-          {!isRep && viewLevel !== 'batches' && (
-            <button className="explorer-back-btn" onClick={handleBack} style={{ marginRight: '12px' }}>
-              <RiArrowLeftLine /> Back
-            </button>
-          )}
-
-          {isRep ? (
+        <div className="breadcrumb-nav">          {isRep ? (
             /* STATIC HEADER FOR REPS - FULL BLOCKING */
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: 'var(--mac-text)', fontSize: '15px' }}>
               <RiCalendarEventLine style={{ fontSize: '18px', color: 'var(--mac-accent)' }} />
@@ -446,7 +439,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
           ) : (
             /* INTERACTIVE BREADCRUMBS FOR OTHERS */
             <div className="breadcrumb-list">
-              <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '' })}>Events</span>
+              <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '' }, true)}>Events</span>
               
               {/* Mobile Truncation Ellipsis */}
               <span className="crumb-ellipsis-container">
@@ -454,11 +447,17 @@ const EventManager = ({ user, userProfile, isMobile }) => {
                   <span className="crumb-static">...</span>
               </span>
 
-              {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className="crumb-btn level-batch" onClick={() => updateLevel('depts', { dept: '' })}>{path.batch}</span></>}
+              {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className="crumb-btn level-batch" onClick={() => updateLevel('depts', { dept: '' }, true)}>{path.batch}</span></>}
               {path.dept && <><RiArrowRightSLine className="crumb-sep level-dept-sep" /> <span className="crumb-static level-dept">{path.dept}</span></>}
             </div>
           )}
-          
+        </div>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {!isRep && viewLevel !== 'batches' && (
+            <button className="explorer-back-btn" onClick={handleBack}>
+              <RiArrowLeftLine /> Back
+            </button>
+          )}
         </div>
       </header>
 

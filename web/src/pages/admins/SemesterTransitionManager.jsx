@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { db } from "../../firebase";
 import { ref, get, update, onValue } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
-import { RiHistoryLine, RiArrowGoBackLine, RiAlertLine, RiInboxArchiveLine, RiCheckLine, RiLoader4Line } from 'react-icons/ri';
+import { RiHistoryLine, RiArrowGoBackLine, RiAlertLine, RiInboxArchiveLine, RiCheckLine, RiLoader4Line, RiArrowDownSLine } from 'react-icons/ri';
 import "../../styles/admin-settings.css";
 
-const SemesterTransitionManager = ({ user, userProfile }) => {
+const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
     const role = user?.email ? getHardcodedRole(user.email) : (userProfile?.role || 'student');
     const isSuperAdmin = role === 'super_admin';
 
@@ -200,130 +200,140 @@ const SemesterTransitionManager = ({ user, userProfile }) => {
 
 
     return (
-        <div className="admin-subpage animate-fade-in" style={{ padding: '24px', maxWidth: '900px', margin: '0 auto' }}>
-            <div style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontSize: '28px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '12px', margin: 0, color: 'var(--mac-text)' }}>
-                    <RiHistoryLine style={{ color: 'var(--mac-blue)' }} /> Semester Timeline
-                </h1>
-                <p style={{ color: 'var(--mac-text)', opacity: 0.6, marginTop: '8px', fontSize: '15px' }}>
-                    Safely transition between academic semesters by archiving old timetables and restoring historical ones.
-                </p>
-            </div>
-
-            {actionStatus.message && (
-                <div style={{
-                    padding: '16px',
-                    borderRadius: '8px',
-                    marginBottom: '24px',
-                    background: actionStatus.type === 'success' ? 'rgba(40,200,64,0.1)' : 'rgba(255,59,48,0.1)',
-                    color: actionStatus.type === 'success' ? 'var(--mac-success-text)' : 'var(--mac-warning-text)',
-                    border: `1px solid ${actionStatus.type === 'success' ? 'rgba(40,200,64,0.2)' : 'rgba(255,59,48,0.2)'}`,
-                    display: 'flex', alignItems: 'center', gap: '8px'
-                }}>
-                    {actionStatus.type === 'success' ? <RiCheckLine /> : <RiAlertLine />}
-                    {actionStatus.message}
-                </div>
+        <div className={`admin-subpage ${isMobile ? 'mobile-page-container' : ''} animate-fade-in`}>
+            {!isMobile && (
+                <header className="explorer-header focus-mode" style={{ background: 'transparent', padding: '0 0 20px 0', borderBottom: '1px solid var(--mac-divider)', height: 'auto', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <p style={{ color: 'var(--mac-text)', opacity: 0.6, margin: 0, fontSize: '15px' }}>
+                            Safely transition between academic semesters by archiving old timetables and restoring historical ones.
+                        </p>
+                    </div>
+                </header>
             )}
 
-            <div style={{ padding: '24px', background: 'var(--mac-card-bg)', borderRadius: '12px', border: '1px solid var(--border-color)', marginBottom: '32px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: 'var(--mac-text-secondary)', marginBottom: '8px' }}>Target Batch</label>
-                <select
-                    className="s2-complaint-input s2-select-input"
-                    style={{ width: '100%', maxWidth: '300px', padding: '12px', borderRadius: '8px', background: 'var(--mac-container-bg)', border: '1px solid var(--border-color)', color: 'var(--mac-text)', fontSize: '16px' }}
-                    value={selectedBatch}
-                    onChange={(e) => { setSelectedBatch(e.target.value); setSelectedRestoreSem(''); }}
-                >
-                    <option value="">-- Select Batch --</option>
-                    {Object.keys(hierarchy).sort().reverse().map(b => (
-                        <option key={b} value={b}>{b}</option>
-                    ))}
-                </select>
-            </div>
+            <div className="scroll-container-mac" style={{ marginTop: isMobile ? '0' : '0' }}>
+                {actionStatus.message && (
+                    <div style={{
+                        padding: '16px',
+                        borderRadius: '12px',
+                        marginBottom: '24px',
+                        background: actionStatus.type === 'success' ? 'rgba(40,200,64,0.1)' : 'rgba(255,59,48,0.1)',
+                        color: actionStatus.type === 'success' ? 'var(--mac-success-text)' : 'var(--mac-warning-text)',
+                        border: `1px solid ${actionStatus.type === 'success' ? 'rgba(40,200,64,0.2)' : 'rgba(255,59,48,0.2)'}`,
+                        display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600
+                    }}>
+                        {actionStatus.type === 'success' ? <RiCheckLine size={20} /> : <RiAlertLine size={20} />}
+                        {actionStatus.message}
+                    </div>
+                )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
-
-                {/* ARCHIVE CARD */}
-                <div style={{ padding: '24px', background: 'rgba(255,59,48,0.03)', borderRadius: '12px', border: '1px solid rgba(255,59,48,0.15)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,59,48,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mac-warning-text)', fontSize: '20px' }}>
-                            <RiInboxArchiveLine />
+                <div className="settings-card" style={{ marginBottom: '32px', padding: isMobile ? '20px' : '30px' }}>
+                    <div className="field">
+                        <label>Target Batch</label>
+                        <div className="s2-date-input-wrap">
+                            <select
+                                className="event-select s2-select-input"
+                                value={selectedBatch}
+                                onChange={(e) => { setSelectedBatch(e.target.value); setSelectedRestoreSem(''); }}
+                            >
+                                <option value="">-- Select Batch --</option>
+                                {Object.keys(hierarchy).sort().reverse().map(b => (
+                                    <option key={b} value={b}>{b}</option>
+                                ))}
+                            </select>
+                            <RiArrowDownSLine className="s2-date-icon" />
                         </div>
-                        <h3 style={{ margin: 0, color: 'var(--mac-warning-text)', fontSize: '18px' }}>Archive & Reset</h3>
                     </div>
-
-                    <p style={{ color: 'var(--mac-text)', opacity: 0.7, fontSize: '14px', lineHeight: 1.5, marginBottom: '24px' }}>
-                        Snapshots the active schedules, exams, and events for <strong>Batch {selectedBatch || '...'}</strong>, copies them to the Archive Vault, and <strong>wipes the active boards clean</strong> for the new semester.
-                    </p>
-
-                    <div style={{ marginBottom: '24px' }}>
-                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--mac-text-secondary)', marginBottom: '8px' }}>Semester Number to Archive (e.g. "5")</label>
-                        <input
-                            type="number"
-                            placeholder="Current Sem Number"
-                            value={archiveSemNumber}
-                            onChange={e => setArchiveSemNumber(e.target.value)}
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--mac-card-bg)', border: '1px solid rgba(255,59,48,0.2)', color: 'var(--mac-warning-text)', fontSize: '16px', outline: 'none' }}
-                        />
-                    </div>
-
-                    <button
-                        onClick={handleArchiveAndReset}
-                        disabled={isLoading || !selectedBatch || !archiveSemNumber}
-                        style={{ width: '100%', padding: '14px', borderRadius: '8px', background: 'var(--mac-warning-text)', color: '#fff', border: 'none', fontSize: '15px', fontWeight: 600, cursor: (isLoading || !selectedBatch || !archiveSemNumber) ? 'not-allowed' : 'pointer', opacity: (isLoading || !selectedBatch || !archiveSemNumber) ? 0.5 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
-                    >
-                        {isLoading ? <RiLoader4Line className="spin" /> : <RiInboxArchiveLine />}
-                        {isLoading ? 'Archiving...' : 'Confirm Archive & Reset'}
-                    </button>
                 </div>
 
-                {/* RESTORE CARD */}
-                <div style={{ padding: '24px', background: 'rgba(40,200,64,0.03)', borderRadius: '12px', border: '1px solid rgba(40,200,64,0.15)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(40,200,64,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mac-success-text)', fontSize: '20px' }}>
-                            <RiArrowGoBackLine />
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+                    {/* ARCHIVE CARD */}
+                    <div className="settings-card" style={{ padding: isMobile ? '20px' : '30px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,59,48,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mac-warning-text)', fontSize: '20px' }}>
+                                <RiInboxArchiveLine />
+                            </div>
+                            <h3 style={{ margin: 0, color: 'var(--mac-text)', fontSize: '18px', fontWeight: 700 }}>Archive & Reset</h3>
                         </div>
-                        <h3 style={{ margin: 0, color: 'var(--mac-success-text)', fontSize: '18px' }}>Restore Past Semester</h3>
-                    </div>
 
-                    <p style={{ color: 'var(--mac-text)', opacity: 0.7, fontSize: '14px', lineHeight: 1.5, marginBottom: '24px' }}>
-                        Copies a previously archived semester and <strong>overwrites</strong> the currently active boards for <strong>Batch {selectedBatch || '...'}</strong> to revert back in time.
-                    </p>
+                        <p style={{ color: 'var(--mac-text)', opacity: 0.7, fontSize: '14px', lineHeight: 1.5, marginBottom: '24px' }}>
+                            Snapshots the active schedules, exams, and events for <strong>Batch {selectedBatch || '...'}</strong>, copies them to the Archive Vault, and <strong>wipes the active boards clean</strong> for the new semester.
+                        </p>
 
-                    <div style={{ marginBottom: '24px' }}>
-                        <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--mac-text-secondary)', marginBottom: '8px' }}>Available Archives</label>
-                        <select
-                            className="s2-complaint-input s2-select-input"
-                            value={selectedRestoreSem}
-                            onChange={e => setSelectedRestoreSem(e.target.value)}
-                            disabled={archivedSemesters.length === 0}
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', background: 'var(--mac-card-bg)', border: '1px solid rgba(40,200,64,0.2)', color: 'var(--mac-success-text)', fontSize: '16px', outline: 'none' }}
+                        <div className="field" style={{ marginBottom: '24px' }}>
+                            <label>Semester Number to Archive (e.g. "5")</label>
+                            <input
+                                type="number"
+                                className="event-input"
+                                placeholder="Current Sem Number"
+                                value={archiveSemNumber}
+                                onChange={e => setArchiveSemNumber(e.target.value)}
+                            />
+                        </div>
+
+                        <button
+                            className="btn-danger"
+                            onClick={handleArchiveAndReset}
+                            disabled={isLoading || !selectedBatch || !archiveSemNumber}
+                            style={{ width: '100%', height: '48px', opacity: (isLoading || !selectedBatch || !archiveSemNumber) ? 0.5 : 1 }}
                         >
-                            <option value="">{archivedSemesters.length > 0 ? '-- Select Archive --' : 'No Archives Found'}</option>
-                            {archivedSemesters.map(sem => (
-                                <option key={sem} value={sem}>Semester {sem}</option>
-                            ))}
-                        </select>
+                            {isLoading ? <RiLoader4Line className="spin" /> : <RiInboxArchiveLine style={{ fontSize: '18px' }} />}
+                            {isLoading ? 'Archiving...' : 'Confirm Archive & Reset'}
+                        </button>
                     </div>
 
-                    <button
-                        onClick={handleRestore}
-                        disabled={isLoading || !selectedBatch || !selectedRestoreSem}
-                        style={{ width: '100%', padding: '14px', borderRadius: '8px', background: 'var(--mac-success-text)', color: '#fff', border: 'none', fontSize: '15px', fontWeight: 600, cursor: (isLoading || !selectedBatch || !selectedRestoreSem) ? 'not-allowed' : 'pointer', opacity: (isLoading || !selectedBatch || !selectedRestoreSem) ? 0.5 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginBottom: '12px' }}
-                    >
-                        {isLoading ? <RiLoader4Line className="spin" /> : <RiArrowGoBackLine />}
-                        {isLoading ? 'Restoring...' : 'Restore As Active'}
-                    </button>
+                    {/* RESTORE CARD */}
+                    <div className="settings-card" style={{ padding: isMobile ? '20px' : '30px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(40,200,64,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mac-success-text)', fontSize: '20px' }}>
+                                <RiArrowGoBackLine />
+                            </div>
+                            <h3 style={{ margin: 0, color: 'var(--mac-text)', fontSize: '18px', fontWeight: 700 }}>Restore Past Semester</h3>
+                        </div>
 
-                    <button
-                        onClick={handleDeleteArchive}
-                        disabled={isLoading || !selectedBatch || !selectedRestoreSem}
-                        style={{ width: '100%', padding: '14px', borderRadius: '8px', background: 'transparent', color: 'var(--mac-warning-text)', border: '1px solid var(--mac-warning-text)', fontSize: '15px', fontWeight: 600, cursor: (isLoading || !selectedBatch || !selectedRestoreSem) ? 'not-allowed' : 'pointer', opacity: (isLoading || !selectedBatch || !selectedRestoreSem) ? 0.5 : 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
-                    >
-                        {isLoading ? <RiLoader4Line className="spin" /> : <RiInboxArchiveLine />}
-                        {isLoading ? 'Deleting...' : 'Delete Forever'}
-                    </button>
+                        <p style={{ color: 'var(--mac-text)', opacity: 0.7, fontSize: '14px', lineHeight: 1.5, marginBottom: '24px' }}>
+                            Copies a previously archived semester and <strong>overwrites</strong> the currently active boards for <strong>Batch {selectedBatch || '...'}</strong> to revert back in time.
+                        </p>
+
+                        <div className="field" style={{ marginBottom: '24px' }}>
+                            <label>Available Archives</label>
+                            <div className="s2-date-input-wrap">
+                                <select
+                                    className="event-select s2-select-input"
+                                    value={selectedRestoreSem}
+                                    onChange={e => setSelectedRestoreSem(e.target.value)}
+                                    disabled={archivedSemesters.length === 0}
+                                >
+                                    <option value="">{archivedSemesters.length > 0 ? '-- Select Archive --' : 'No Archives Found'}</option>
+                                    {archivedSemesters.map(sem => (
+                                        <option key={sem} value={sem}>Semester {sem}</option>
+                                    ))}
+                                </select>
+                                <RiArrowDownSLine className="s2-date-icon" />
+                            </div>
+                        </div>
+
+                        <button
+                            className="btn-primary"
+                            onClick={handleRestore}
+                            disabled={isLoading || !selectedBatch || !selectedRestoreSem}
+                            style={{ width: '100%', height: '48px', marginBottom: '12px', opacity: (isLoading || !selectedBatch || !selectedRestoreSem) ? 0.5 : 1 }}
+                        >
+                            {isLoading ? <RiLoader4Line className="spin" /> : <RiArrowGoBackLine style={{ fontSize: '18px' }} />}
+                            {isLoading ? 'Restoring...' : 'Restore As Active'}
+                        </button>
+
+                        <button
+                            className="btn-cancel"
+                            onClick={handleDeleteArchive}
+                            disabled={isLoading || !selectedBatch || !selectedRestoreSem}
+                            style={{ width: '100%', height: '48px', color: 'var(--mac-warning-text)', opacity: (isLoading || !selectedBatch || !selectedRestoreSem) ? 0.5 : 1 }}
+                        >
+                            {isLoading ? <RiLoader4Line className="spin" /> : <RiInboxArchiveLine style={{ fontSize: '18px' }} />}
+                            {isLoading ? 'Deleting...' : 'Delete Forever'}
+                        </button>
+                    </div>
                 </div>
-
             </div>
         </div>
     );

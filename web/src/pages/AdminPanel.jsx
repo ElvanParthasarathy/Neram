@@ -17,7 +17,6 @@ import {
 import { getHardcodedRole } from '../data/admins';
 
 // Import sub-components
-import StructureManager from './admins/StructureManager';
 import UserManagement from './admins/UserManagement';
 import ScheduleManager from './admins/ScheduleManager';
 import CalendarManager from './admins/CalendarManager';
@@ -26,6 +25,7 @@ import AdminRoleManager from './admins/AdminRoleManager';
 import EventManager from './admins/EventManager';
 import ResourceManager from './admins/ResourceManager';
 import AdminDashboard from './admins/AdminDashboard';
+import StructureManager from "./admins/StructureManager";
 import PendingRequests from './admins/PendingRequests';
 import SemesterTransitionManager from './admins/SemesterTransitionManager';
 import SpecialClassManager from './admins/SpecialClassManager';
@@ -91,7 +91,7 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
               {activeModule === 'resources' && 'Resources'}
               {activeModule === 'notes' && 'Notes Manager'}
               {activeModule === 'pending' && 'Pending Requests'}
-              {activeModule === 'structure' && 'Structure'}
+              {activeModule === 'structure' && 'Structure Manager'}
               {activeModule === 'archives' && 'Semester Archive Tool'}
               {activeModule === 'special_classes' && 'Special Classes'}
             </h1>

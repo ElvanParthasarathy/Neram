@@ -255,6 +255,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    padding-bottom: 110px;
 }
 
 /* ─── File Row (Card style — matches Notes.jsx) ─── */
@@ -428,7 +429,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 20px rgba(0, 122, 255, 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Replaced glow with standard subtle shadow */
     z-index: 500;
     transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
@@ -504,28 +505,37 @@
 }
 
 .nm-fab-option-btn.folder-btn {
-    background: rgba(0, 122, 255, 0.15) !important;
-    color: var(--mac-blue) !important;
+    background: rgba(0, 122, 255, 0.15);
+    color: var(--mac-blue);
 }
 
 .nm-fab-option-btn.link-btn {
-    background: rgba(255, 149, 0, 0.15) !important;
-    color: var(--mac-warning-text, #ff9500) !important;
+    background: rgba(255, 149, 0, 0.15);
+    color: var(--mac-warning-text, #ff9500);
 }
 
 .nm-fab-option-btn.subject-btn {
-    background: rgba(52, 199, 89, 0.15) !important;
-    color: var(--mac-traffic-green, #34c759) !important;
+    background: rgba(52, 199, 89, 0.15);
+    color: var(--mac-traffic-green, #34c759);
 }
 
 .nm-fab-option-btn.select-btn {
-    background: rgba(0, 122, 255, 0.15) !important;
-    color: var(--mac-blue) !important;
+    background: rgba(0, 122, 255, 0.15);
+    color: var(--mac-blue);
 }
 
 .nm-fab-option-btn.danger-btn {
-    background: rgba(255, 59, 48, 0.15) !important;
-    color: var(--mac-traffic-red, #FF3B30) !important;
+    background: rgba(255, 59, 48, 0.15);
+    color: var(--mac-traffic-red, #FF3B30);
+}
+
+html:not(.dark) .nm-fab-option-btn.folder-btn,
+html:not(.dark) .nm-fab-option-btn.link-btn,
+html:not(.dark) .nm-fab-option-btn.subject-btn,
+html:not(.dark) .nm-fab-option-btn.select-btn,
+html:not(.dark) .nm-fab-option-btn.danger-btn {
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 /* FAB backdrop */
@@ -638,18 +648,25 @@
 .nm-action-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 15px 24px;
-    font-size: 16px;
+    gap: 12px;
+    padding: 12px 16px;
+    margin: 4px 16px;
+    border-radius: 12px;
+    font-size: 15px;
     font-weight: 500;
     color: var(--mac-text);
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-    transition: background 0.1s;
+    transition: all 0.15s;
+}
+
+.nm-action-item:hover {
+    background: var(--mac-hover, rgba(120,120,128,0.1));
 }
 
 .nm-action-item:active {
-    background: var(--mac-hover, rgba(120,120,128,0.1));
+    background: var(--mac-hover, rgba(120,120,128,0.15));
+    transform: scale(0.98);
 }
 
 .nm-action-item.danger {
@@ -657,7 +674,7 @@
 }
 
 .nm-action-item svg {
-    font-size: 20px;
+    font-size: 18px;
     flex-shrink: 0;
     opacity: 0.8;
 }
@@ -665,24 +682,32 @@
 .nm-action-sep {
     height: 1px;
     background: var(--mac-border);
-    margin: 4px 24px;
+    margin: 8px 16px;
 }
 
 .nm-action-cancel {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 15px 24px;
-    font-size: 16px;
+    padding: 12px 16px;
+    margin: 8px 16px 4px;
+    border-radius: 12px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--mac-blue);
+    background: rgba(0, 122, 255, 0.08);
     cursor: pointer;
-    margin-top: 4px;
+    transition: all 0.15s;
     -webkit-tap-highlight-color: transparent;
 }
 
+.nm-action-cancel:hover {
+    background: rgba(0, 122, 255, 0.12);
+}
+
 .nm-action-cancel:active {
-    background: var(--mac-hover, rgba(120,120,128,0.1));
+    background: rgba(0, 122, 255, 0.15);
+    transform: scale(0.98);
 }
 
 /* ─── Modal (Subject / File / Move) ─── */
@@ -700,15 +725,33 @@
 }
 
 .nm-modal-sheet {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     width: 100%;
     max-width: 540px;
     background: var(--mac-card-bg);
     border-radius: 24px 24px 0 0;
     max-height: 100dvh;
     height: auto;
-    overflow-y: auto;
     animation: nmSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    overscroll-behavior: contain;
+}
+
+/* Custom Scrollbar for Modal to keep it nicely inside and sleek */
+.nm-modal-body::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+}
+.nm-modal-body::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px 0; /* Keeps scrollbar inside gently */
+}
+.nm-modal-body::-webkit-scrollbar-thumb {
+    background: var(--mac-border);
+    border-radius: 10px;
+}
+.nm-modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--mac-text-secondary);
 }
 
 .nm-modal-header {
@@ -716,8 +759,6 @@
     align-items: center;
     justify-content: space-between;
     padding: 18px 16px 12px;
-    position: sticky;
-    top: 0;
     background: var(--mac-card-bg);
     z-index: 2;
     border-bottom: 1px solid var(--mac-border);
@@ -749,6 +790,9 @@
 
 .nm-modal-body {
     padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
 }
 
 .nm-modal-footer {
@@ -756,8 +800,6 @@
     gap: 10px;
     padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 24px));
     border-top: 1px solid var(--mac-border);
-    position: sticky;
-    bottom: 0;
     background: var(--mac-card-bg);
 }
 

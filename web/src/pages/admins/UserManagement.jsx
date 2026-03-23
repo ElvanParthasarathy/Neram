@@ -42,7 +42,7 @@ const UserManagement = () => {
     sec: searchParams.get('us') || ''
   };
 
-  const updateParams = (updates) => {
+  const updateParams = (updates = {}, forceReplace = false) => {
     const params = {
       mod: 'users',
       ulvl: viewLevel,
@@ -53,7 +53,7 @@ const UserManagement = () => {
       ...updates
     };
     Object.keys(params).forEach(key => !params[key] && delete params[key]);
-    setSearchParams(params, { replace: false });
+    setSearchParams(params, { replace: forceReplace });
   };
 
   // UI States
@@ -136,10 +136,10 @@ const UserManagement = () => {
   const navigateBack = () => navigate(-1);
 
   const resetToRoot = () => {
-    updateParams({ ulvl: 'batches', urg: 'student', ub: '', ud: '', us: '' });
+    updateParams({ ulvl: 'batches', urg: 'student', ub: '', ud: '', us: '' }, true);
   };
 
-  const setViewLevel = (lvl) => updateParams({ ulvl: lvl });
+  const setViewLevel = (lvl) => updateParams({ ulvl: lvl }, true);
 
   // --- LOGIC: Handle User Selection (UPDATED SMART NAME) ---
   const openUserModal = (u, uid) => {
@@ -469,7 +469,7 @@ const UserManagement = () => {
           <button
             className={`role-pill ${roleGroup === 'student' ? 'active' : ''}`}
             onClick={() => {
-              updateParams({ urg: 'student', ulvl: 'batches', ub: '', ud: '', us: '' });
+              updateParams({ urg: 'student', ulvl: 'batches', ub: '', ud: '', us: '' }, true);
               setIsEditListMode(false);
               setIsDeleteMode(false);
               setSelectedUsers([]);
@@ -480,7 +480,7 @@ const UserManagement = () => {
           <button
             className={`role-pill ${roleGroup === 'faculty' ? 'active' : ''}`}
             onClick={() => {
-              updateParams({ urg: 'faculty', ulvl: 'faculty_depts', ub: '', ud: '', us: '' });
+              updateParams({ urg: 'faculty', ulvl: 'faculty_depts', ub: '', ud: '', us: '' }, true);
               setIsEditListMode(false);
               setIsDeleteMode(false);
               setSelectedUsers([]);
@@ -491,7 +491,7 @@ const UserManagement = () => {
           <button
             className={`role-pill ${roleGroup === 'admin' ? 'active' : ''}`}
             onClick={() => {
-              updateParams({ urg: 'admin', ulvl: 'admin_list', ub: '', ud: '', us: '' });
+              updateParams({ urg: 'admin', ulvl: 'admin_list', ub: '', ud: '', us: '' }, true);
               setIsEditListMode(false);
               setIsDeleteMode(false);
               setSelectedUsers([]);
@@ -504,14 +504,16 @@ const UserManagement = () => {
 
       <header className="explorer-header" style={{ marginTop: '10px' }}>
         <div className="breadcrumb-nav">
-          <span className="crumb-btn" onClick={resetToRoot}>Directory</span>
-          {roleGroup !== 'student' && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => {
-            if (roleGroup === 'faculty') setViewLevel('faculty_depts');
-            else setViewLevel('admin_list');
-          }}>{roleGroup.charAt(0).toUpperCase() + roleGroup.slice(1)}s</span></>}
-          {roleGroup === 'student' && currentPath.batch && <><RiArrowRightSLine /> <span className="crumb-btn" onClick={() => setViewLevel('depts')}>{currentPath.batch}</span></>}
-          {(roleGroup === 'student' || roleGroup === 'faculty') && currentPath.dept && <><RiArrowRightSLine /> <span className="crumb-static">{currentPath.dept}</span></>}
-          {roleGroup === 'student' && currentPath.sec && <><RiArrowRightSLine /> <span className="crumb-static">Sec {currentPath.sec}</span></>}
+          <div className="breadcrumb-list">
+            <span className="crumb-btn level-root" onClick={resetToRoot}>Directory</span>
+            {roleGroup !== 'student' && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-btn" onClick={() => {
+              if (roleGroup === 'faculty') setViewLevel('faculty_depts');
+              else setViewLevel('admin_list');
+            }}>{roleGroup.charAt(0).toUpperCase() + roleGroup.slice(1)}s</span></>}
+            {roleGroup === 'student' && currentPath.batch && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-btn" onClick={() => setViewLevel('depts')}>{currentPath.batch}</span></>}
+            {(roleGroup === 'student' || roleGroup === 'faculty') && currentPath.dept && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-static">{currentPath.dept}</span></>}
+            {roleGroup === 'student' && currentPath.sec && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-static">Sec {currentPath.sec}</span></>}
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {viewLevel !== 'batches' && viewLevel !== 'faculty_depts' && viewLevel !== 'admin_list' && (

@@ -143,7 +143,6 @@ const NotesManager = () => {
 
     // --- SELECTION ---
     const toggleSelect = (id) => {
-        setIsSelectionMode(true);
         setSelected(prev => {
             const next = new Set(prev);
             if (next.has(id)) next.delete(id);
@@ -308,11 +307,7 @@ const NotesManager = () => {
             rect = { bottom: e.clientY - 8, right: e.clientX, left: e.clientX, top: e.clientY - 8 };
         }
         setActionSheet({ item, rect });
-        // Only set single selection if we're not currently in multi-selection mode
-        if (!selected.has(item.id)) {
-            if (!isSelectionMode) setSelected(new Set([item.id]));
-            else toggleSelect(item.id);
-        }
+        // Selection is now only accessible via the selection menu
     };
 
     // --- FAB actions ---
@@ -345,11 +340,6 @@ const NotesManager = () => {
             {/* ─── Breadcrumb Navigation (EXAM MANAGER STYLE) ─── */}
             <header className="explorer-header focus-mode" style={{ marginBottom: '20px', marginTop: 0 }}>
                 <div className="breadcrumb-nav">
-                    {currentPath.length > 1 && (
-                        <button className="explorer-back-btn" onClick={() => navigateToIndex(currentPath.length - 2)}>
-                            <RiArrowLeftLine /> Back
-                        </button>
-                    )}
                     <div className="breadcrumb-list">
                         <span className="crumb-btn level-root" onClick={() => navigateToIndex(0)}>{currentPath[0].name}</span>
 
@@ -380,6 +370,13 @@ const NotesManager = () => {
                             )
                         )}
                     </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {currentPath.length > 1 && (
+                        <button className="explorer-back-btn" onClick={() => navigateToIndex(currentPath.length - 2)}>
+                            <RiArrowLeftLine /> Back
+                        </button>
+                    )}
                 </div>
             </header>
 
@@ -470,13 +467,12 @@ const NotesManager = () => {
                         className={`nm-file-row ${selected.has(folder.id) ? 'selected' : ''} ${dragId === folder.id ? 'dragging' : ''} ${dragOverId === folder.id ? 'drag-over' : ''}`}
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
-                            if (isEditListMode) {
+                            if (isSelectionMode) {
                                 toggleSelect(folder.id);
-                            } else {
+                            } else if (!isEditListMode) {
                                 navigateTo(folder);
                             }
                         }}
-                        onContextMenu={(e) => { if (isEditListMode) { e.preventDefault(); openActionSheet(folder, e); } }}
                         draggable={isEditListMode}
                         onDragStart={isEditListMode ? (e) => onDragStart(e, folder.id) : undefined}
                         onDragOver={isEditListMode ? (e) => onDragOver(e, folder.id) : undefined}
@@ -519,13 +515,12 @@ const NotesManager = () => {
                         className={`nm-file-row ${selected.has(subject.id) ? 'selected' : ''} ${dragId === subject.id ? 'dragging' : ''}`}
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
-                            if (isEditListMode) {
+                            if (isSelectionMode) {
                                 toggleSelect(subject.id);
-                            } else {
+                            } else if (!isEditListMode) {
                                 openSubjectModal(subject);
                             }
                         }}
-                        onContextMenu={(e) => { if (isEditListMode) { e.preventDefault(); openActionSheet(subject, e); } }}
                         draggable={isEditListMode}
                         onDragStart={isEditListMode ? (e) => onDragStart(e, subject.id) : undefined}
                         onDragEnd={isEditListMode ? onDragEnd : undefined}
@@ -548,12 +543,12 @@ const NotesManager = () => {
                             <div className="nm-file-meta">{Object.keys(subject.units || {}).length} units</div>
                         </div>
                         <div className="nm-file-end">
+                            <span className="nm-file-badge units">{Object.keys(subject.units || {}).length} Units</span>
                             {isEditListMode && (
                                 <button className="nm-file-more-btn" onClick={(e) => { e.stopPropagation(); openActionSheet(subject, e); }}>
                                     <RiMore2Fill />
                                 </button>
                             )}
-                            <span className="nm-file-badge units">{Object.keys(subject.units || {}).length} Units</span>
                         </div>
                     </div>
                 ))}
@@ -565,13 +560,12 @@ const NotesManager = () => {
                         className={`nm-file-row ${selected.has(file.id) ? 'selected' : ''} ${dragId === file.id ? 'dragging' : ''}`}
                         onClick={(e) => {
                             if (e.target.closest('input')) return;
-                            if (isEditListMode) {
+                            if (isSelectionMode) {
                                 toggleSelect(file.id);
-                            } else {
+                            } else if (!isEditListMode) {
                                 if (file.link) window.open(file.link, '_blank');
                             }
                         }}
-                        onContextMenu={(e) => { if (isEditListMode) { e.preventDefault(); openActionSheet(file, e); } }}
                         draggable={isEditListMode}
                         onDragStart={isEditListMode ? (e) => onDragStart(e, file.id) : undefined}
                         onDragEnd={isEditListMode ? onDragEnd : undefined}
@@ -594,12 +588,12 @@ const NotesManager = () => {
                             <div className="nm-file-meta">{file.link ? 'External Link' : 'No link'}</div>
                         </div>
                         <div className="nm-file-end">
+                            {file.link && <span className="nm-file-badge link-type">Link</span>}
                             {isEditListMode && (
                                 <button className="nm-file-more-btn" onClick={(e) => { e.stopPropagation(); openActionSheet(file, e); }}>
                                     <RiMore2Fill />
                                 </button>
                             )}
-                            {file.link && <span className="nm-file-badge link-type">Link</span>}
                         </div>
                     </div>
                 ))}
@@ -617,7 +611,7 @@ const NotesManager = () => {
             </div>
 
             {/* ─── FAB (Mobile only — edit mode only) ─── */}
-            {isEditListMode && (
+            {isEditListMode && createPortal(
                 <>
                     {fabOpen && <div className="nm-fab-backdrop" onClick={() => setFabOpen(false)} />}
 
@@ -668,11 +662,12 @@ const NotesManager = () => {
                     <button className={`nm-fab ${fabOpen ? 'open' : ''}`} onClick={() => setFabOpen(!fabOpen)}>
                         <RiAddLine />
                     </button>
-                </>
+                </>,
+                document.body
             )}
 
             {/* ─── Action Sheet (edit mode only) ─── */}
-            {isEditListMode && actionSheet && (
+            {isEditListMode && actionSheet && createPortal(
                 <div 
                     className="nm-action-sheet-overlay" 
                     onClick={() => setActionSheet(null)}
@@ -726,12 +721,13 @@ const NotesManager = () => {
                             Cancel
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* ─── Subject Modal ─── */}
             {subjectModal && (
-                <div className="nm-modal-overlay" onClick={() => setSubjectModal(null)}>
+                <div className="nm-modal-overlay">
                     <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
                         <div className="nm-modal-header">
                             <h3>{subjectModal.mode === 'edit' ? 'Edit Subject' : 'New Subject'}</h3>
@@ -810,7 +806,7 @@ const NotesManager = () => {
 
             {/* ─── File / Link Modal ─── */}
             {fileModal && (
-                <div className="nm-modal-overlay" onClick={() => setFileModal(null)}>
+                <div className="nm-modal-overlay">
                     <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
                         <div className="nm-modal-header">
                             <h3>{fileModal.mode === 'edit' ? 'Edit Link' : 'New Link'}</h3>
@@ -856,9 +852,8 @@ const NotesManager = () => {
                 </div>
             )}
 
-            {/* ─── Move Modal ─── */}
             {moveModal && (
-                <div className="nm-modal-overlay" onClick={() => setMoveModal(null)}>
+                <div className="nm-modal-overlay">
                     <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
                         <div className="nm-modal-header">
                             <h3>Move to...</h3>
@@ -896,7 +891,7 @@ const NotesManager = () => {
 
             {/* ─── Rename Modal ─── */}
             {renamingId && (
-                <div className="nm-modal-overlay" onClick={() => setRenamingId(null)}>
+                <div className="nm-modal-overlay">
                     <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
                         <div className="nm-modal-header">
                             <h3>Rename Item</h3>
@@ -929,7 +924,7 @@ const NotesManager = () => {
 
             {/* ─── Folder Creation Modal ─── */}
             {creatingFolder && (
-                <div className="nm-modal-overlay" onClick={() => setCreatingFolder(false)}>
+                <div className="nm-modal-overlay">
                     <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
                         <div className="nm-modal-header">
                             <h3>New Folder</h3>
@@ -961,7 +956,7 @@ const NotesManager = () => {
             )}
             {/* ─── Settings Modal ─── */}
             {settingsModal && (
-                <div className="nm-modal-overlay" onClick={() => setSettingsModal(false)}>
+                <div className="nm-modal-overlay">
                     <div className="nm-modal-sheet" onClick={e => e.stopPropagation()}>
                         <div className="nm-modal-header">
                             <h3>Fetch Settings</h3>

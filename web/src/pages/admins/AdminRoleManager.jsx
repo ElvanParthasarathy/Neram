@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { db, auth } from "../../firebase";
 import { ref, onValue, update } from "firebase/database";
 import { adminEmails, getHardcodedRole } from "../../data/admins";
@@ -24,10 +25,28 @@ const AdminRoleManager = ({ userProfile }) => {
   const [loading, setLoading] = useState(true);
 
   // Navigation State
-  const [viewLevel, setViewLevel] = useState('batches'); // Default to batches
-  const [selectedCategory, setSelectedCategory] = useState('Student Admins'); // Default category
-  const [drillPath, setDrillPath] = useState({ batch: '', dept: '' }); // Simplified: no section
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
+  const viewLevel = searchParams.get('rlvl') || 'batches'; // Default to batches
+  const selectedCategory = searchParams.get('rcat') || 'Student Admins'; // Default category
+  const drillPath = {
+    batch: searchParams.get('rb') || '',
+    dept: searchParams.get('rd') || ''
+  };
+
+  const updateParams = (updates = {}, forceReplace = false) => {
+    const params = {
+      mod: 'roles',
+      rlvl: viewLevel,
+      rcat: selectedCategory,
+      rb: drillPath.batch,
+      rd: drillPath.dept,
+      ...updates
+    };
+    Object.keys(params).forEach(key => !params[key] && delete params[key]);
+    setSearchParams(params, { replace: forceReplace });
+  };
   const [activeMenuId, setActiveMenuId] = useState(null);
 
   // --- DERIVE CURRENT USER ROLE ---
@@ -79,43 +98,22 @@ const AdminRoleManager = ({ userProfile }) => {
   };
 
   const resetToRoot = () => {
-    setViewLevel('root');
-    setSelectedCategory('');
-    setDrillPath({ batch: '', dept: '' });
+    updateParams({ rlvl: 'root', rcat: '', rb: '', rd: '' }, true);
     setSearchTerm("");
   };
 
   const handleTabChange = (category) => {
-    setSelectedCategory(category);
     setSearchTerm("");
     if (category === 'Super Admins') {
-      setViewLevel('list');
-      setDrillPath({ batch: '', dept: '' });
+      updateParams({ rcat: category, rlvl: 'list', rb: '', rd: '' }, true);
     } else if (category === 'Faculty Admins') {
-      setViewLevel('depts');
-      setDrillPath({ batch: '', dept: '' });
+      updateParams({ rcat: category, rlvl: 'depts', rb: '', rd: '' }, true);
     } else if (category === 'Student Admins') {
-      setViewLevel('batches');
-      setDrillPath({ batch: '', dept: '' });
+      updateParams({ rcat: category, rlvl: 'batches', rb: '', rd: '' }, true);
     }
   };
 
-  const navigateBack = () => {
-    if (viewLevel === 'promote') {
-      // Go back to the previous list view or batches
-      if (selectedCategory === 'Student Admins') setViewLevel('batches');
-      else if (selectedCategory === 'Faculty Admins') setViewLevel('depts');
-      else setViewLevel('list');
-    }
-    else if (viewLevel === 'list') {
-      if (selectedCategory === 'Super Admins') setViewLevel('list'); // Nowhere else to go
-      else setViewLevel('depts');
-    }
-    else if (viewLevel === 'depts') {
-      if (selectedCategory === 'Student Admins') setViewLevel('batches');
-      else setViewLevel('depts');
-    }
-  };
+  const navigateBack = () => navigate(-1);
 
   const getAdminsByRole = (roleTitle) => {
     return Object.entries(users)
@@ -266,41 +264,43 @@ const AdminRoleManager = ({ userProfile }) => {
       {/* 2. HEADER & BREADCRUMBS */}
       <header className="explorer-header" style={{ marginBottom: '20px' }}>
         <div className="breadcrumb-nav">
-          {selectedCategory === 'Student Admins' && drillPath.batch && (
-            <>
-              <span className="crumb-btn" onClick={() => { setViewLevel('batches'); setDrillPath({ batch: '', dept: '' }); }}>
-                Batches
+          <div className="breadcrumb-list">
+            {selectedCategory === 'Student Admins' && drillPath.batch && (
+              <>
+                <span className="crumb-btn level-root" onClick={() => updateParams({ rlvl: 'batches', rb: '', rd: '' }, true)}>
+                  Batches
+                </span>
+                <RiArrowRightSLine className="crumb-sep" />
+                <span className="crumb-btn" onClick={() => updateParams({ rlvl: 'depts', rd: '' }, true)}>
+                  {drillPath.batch}
+                </span>
+              </>
+            )}
+            {selectedCategory === 'Faculty Admins' && drillPath.dept && (
+              <>
+                <span className="crumb-btn level-root" onClick={() => updateParams({ rlvl: 'depts', rb: '', rd: '' }, true)}>
+                  Departments
+                </span>
+              </>
+            )}
+            {drillPath.dept && (
+              <>
+                <RiArrowRightSLine className="crumb-sep" />
+                <span className="crumb-static">{drillPath.dept}</span>
+              </>
+            )}
+            {selectedCategory === 'Super Admins' && (
+              <span className="crumb-static level-root">System Owners</span>
+            )}
+            {!drillPath.batch && !drillPath.dept && selectedCategory !== 'Super Admins' && viewLevel !== 'promote' && (
+              <span className="crumb-static level-root" style={{ opacity: 0.5 }}>
+                {selectedCategory === 'Student Admins' ? 'Select Batch' : 'Select Department'}
               </span>
-              <RiArrowRightSLine />
-              <span className="crumb-btn" onClick={() => { setViewLevel('depts'); setDrillPath(prev => ({ ...prev, dept: '' })); }}>
-                {drillPath.batch}
-              </span>
-            </>
-          )}
-          {selectedCategory === 'Faculty Admins' && drillPath.dept && (
-            <>
-              <span className="crumb-btn" onClick={() => { setViewLevel('depts'); setDrillPath({ batch: '', dept: '' }); }}>
-                Departments
-              </span>
-            </>
-          )}
-          {drillPath.dept && (
-            <>
-              <RiArrowRightSLine />
-              <span className="crumb-static">{drillPath.dept}</span>
-            </>
-          )}
-          {selectedCategory === 'Super Admins' && (
-            <span className="crumb-static">System Owners</span>
-          )}
-          {!drillPath.batch && !drillPath.dept && selectedCategory !== 'Super Admins' && viewLevel !== 'promote' && (
-            <span className="crumb-static" style={{ opacity: 0.5 }}>
-              {selectedCategory === 'Student Admins' ? 'Select Batch' : 'Select Department'}
-            </span>
-          )}
-          {viewLevel === 'promote' && (
-            <span className="crumb-static">Promote New Admin</span>
-          )}
+            )}
+            {viewLevel === 'promote' && (
+              <span className="crumb-static level-root">Promote New Admin</span>
+            )}
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -318,7 +318,7 @@ const AdminRoleManager = ({ userProfile }) => {
       {viewLevel === 'batches' && (
         <div className="explorer-view animate-fade-in">
           <div className="explorer-grid">
-            <div className="explorer-card" onClick={() => { setSearchTerm(''); setViewLevel('promote'); }}>
+            <div className="explorer-card" onClick={() => { setSearchTerm(''); updateParams({ rlvl: 'promote' }); }}>
               <RiShieldUserLine className="card-icon" />
               <div className="card-info">
                 <h3>Promote Admin</h3>
@@ -326,7 +326,7 @@ const AdminRoleManager = ({ userProfile }) => {
               </div>
             </div>
             {Object.keys(hierarchy).sort().reverse().map(batch => (
-              <div key={batch} className="explorer-card" onClick={() => { setDrillPath(prev => ({ ...prev, batch })); setViewLevel('depts'); }}>
+              <div key={batch} className="explorer-card" onClick={() => updateParams({ rb: batch, rlvl: 'depts' })}>
                 <RiTeamLine className="card-icon" />
                 <div className="card-info">
                   <h3>Batch {batch}</h3>
@@ -343,7 +343,7 @@ const AdminRoleManager = ({ userProfile }) => {
         <div className="explorer-view animate-fade-in">
           <div className="explorer-grid">
             {!drillPath.dept && (
-              <div className="explorer-card" onClick={() => { setSearchTerm(''); setViewLevel('promote'); }}>
+              <div className="explorer-card" onClick={() => { setSearchTerm(''); updateParams({ rlvl: 'promote' }); }}>
                 <RiShieldUserLine className="card-icon" />
                 <div className="card-info">
                   <h3>Promote Admin</h3>
@@ -357,10 +357,7 @@ const AdminRoleManager = ({ userProfile }) => {
                 : Object.keys(hierarchy[drillPath.batch] || {}).filter(k => k !== 'initialized');
 
               return depts.sort().map(dept => (
-                <div key={dept} className="explorer-card variant-dept" onClick={() => {
-                  setDrillPath(prev => ({ ...prev, dept }));
-                  setViewLevel('list'); // DIRECTLY TO LIST
-                }}>
+                <div key={dept} className="explorer-card variant-dept" onClick={() => updateParams({ rd: dept, rlvl: 'list' })}>
                   <RiLayoutGridLine className="card-icon" />
                   <div className="card-info">
                     <h3>{dept}</h3>

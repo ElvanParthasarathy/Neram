@@ -43,7 +43,7 @@ function AdminAppContent({ user, isAdminUser, isMobile, loading, dbUserProfile }
                 /* NOT AN ADMIN: Show blocking "Pending Approval" screen */
                 <PendingApproval user={user} />
             ) : (
-                <div id="app-shell" className="desktop-mode-active">
+                <div id="app-shell" className={isMobile ? "mobile-mode-active" : "desktop-mode-active"}>
                     <AdminNavbar
                         user={user}
                         userProfile={dbUserProfile}
