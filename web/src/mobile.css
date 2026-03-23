@@ -210,8 +210,8 @@
       /* Rounded hole positioned between navbars */
       top: 64px;
       /* top bar height */
-      bottom: 96px;
-      /* bottom bar height + gap */
+      bottom: 12px;
+      /* No bottom bar — extend frame to bottom */
       left: 12px;
       right: 12px;
       border-radius: 24px;
@@ -246,7 +246,7 @@
       position: relative;
       /* Override App.css padding — clear top bar + show below rounded top edge */
       padding-top: 24px !important;
-      padding-bottom: 100px;
+      padding-bottom: 24px;
     }
 
     /* Hide Desktop-Specific Elements */
@@ -1777,7 +1777,7 @@
 
   .admin-subpage {
     padding: 0 12px;
-    padding-bottom: 100px;
+    padding-bottom: 24px;
   }
 
   .admin-subpage>h1,
@@ -1832,7 +1832,7 @@
   .user-directory-grid {
     grid-template-columns: minmax(0, 1fr) !important;
     gap: 12px;
-    padding-bottom: 120px;
+    padding-bottom: 24px;
   }
 
   .user-management-card {
@@ -1888,7 +1888,7 @@
 
   /* Editor workspace */
   .schedule-editor-workspace {
-    padding: 0 0 120px;
+    padding: 0 0 24px;
   }
 
   .editor-tabs {

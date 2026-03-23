@@ -1,372 +1,456 @@
 /* =============================================
-   NOTES MANAGER — PREMIUM MOBILE-FIRST REDESIGN
-   Matches: EventManager, CalendarManager, ExamManager
+   NOTES MANAGER — Samsung My Files Style
+   Mobile-first, touch-friendly, then desktop
    ============================================= */
 
 /* ─── Container ─── */
 .notes-manager {
     font-family: var(--font-primary, 'Inter', system-ui, sans-serif);
     color: var(--mac-text);
-    padding-bottom: 40px;
+    padding: 0 !important;
+    padding-top: 12px !important;
+    padding-bottom: 24px !important;
+    margin: 0 12px;
+    width: auto;
+    position: relative;
+    min-height: 60vh;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
-/* ─── Mode Toggle Card ─── */
-.nm-mode-card {
+/* ─── Mode Banner (compact) ─── */
+.nm-mode-banner {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    background: var(--mac-sidebar-bg);
-    border: 1px solid var(--mac-border);
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    margin: 0 0 10px;
     border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 20px;
+    background: var(--mac-sidebar-bg);
 }
 
-.nm-mode-info {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex: 1;
-}
-
-.nm-mode-icon-ring {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
+.nm-mode-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
     flex-shrink: 0;
 }
 
-.nm-mode-icon-ring.fetch {
-    background: rgba(0, 122, 255, 0.12);
-    color: var(--mac-blue);
-}
+.nm-mode-dot.fetch { background: var(--mac-blue); }
+.nm-mode-dot.folder { background: var(--mac-traffic-green, #34c759); }
 
-.nm-mode-icon-ring.folder {
-    background: rgba(52, 199, 89, 0.12);
-    color: var(--mac-traffic-green, #34c759);
-}
-
-.nm-mode-text h3 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--mac-text);
-}
-
-.nm-mode-text p {
-    margin: 3px 0 0;
+.nm-mode-label {
     font-size: 13px;
+    font-weight: 500;
     color: var(--mac-text-secondary);
-    line-height: 1.4;
+    flex: 1;
+    min-width: 0;
 }
 
-.nm-mode-toggle-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border-radius: 100px;
-    border: none;
-    background: var(--mac-blue);
-    color: #fff;
-    font-size: 14px;
+.nm-mode-label strong {
+    color: var(--mac-text);
     font-weight: 600;
+}
+
+.nm-mode-switch {
+    all: unset;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mac-blue);
     cursor: pointer;
-    transition: all 0.2s ease;
     white-space: nowrap;
-    width: 100%;
+    padding: 6px 14px;
+    border-radius: 100px;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
 }
 
-.nm-mode-toggle-btn:active {
-    transform: scale(0.97);
+.nm-mode-switch:active {
+    background: rgba(0, 122, 255, 0.1);
 }
 
-/* ─── Breadcrumb Bar ─── */
-.nm-breadcrumb-bar {
+/* ─── Breadcrumb (Samsung-style path bar) ─── */
+.nm-path-bar {
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 0 4px 16px;
+    gap: 2px;
+    padding: 6px 8px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
 }
 
-.nm-breadcrumb-bar::-webkit-scrollbar { display: none; }
+.nm-path-bar::-webkit-scrollbar { display: none; }
 
-.nm-crumb {
+.nm-path-item {
     font-size: 14px;
     font-weight: 500;
     color: var(--mac-blue);
     cursor: pointer;
-    padding: 6px 10px;
-    border-radius: 8px;
+    padding: 4px 6px;
+    border-radius: 6px;
     white-space: nowrap;
-    transition: all 0.15s ease;
     -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
 }
 
-.nm-crumb:active {
+.nm-path-item:active {
     background: rgba(0, 122, 255, 0.08);
 }
 
-.nm-crumb.current {
+.nm-path-item.active {
     color: var(--mac-text);
     font-weight: 700;
     cursor: default;
 }
 
-.nm-crumb-sep {
+.nm-path-item.active:active {
+    background: transparent;
+}
+
+.nm-path-sep {
     color: var(--mac-text-secondary);
-    opacity: 0.35;
-    font-size: 16px;
+    opacity: 0.3;
+    font-size: 18px;
     flex-shrink: 0;
 }
 
-/* ─── Toolbar ─── */
-.nm-toolbar-row {
+/* ─── Selection Bar (Samsung-style) ─── */
+.nm-sel-strip {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 0 0 16px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-
-.nm-toolbar-row::-webkit-scrollbar { display: none; }
-
-.nm-pill-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 16px;
-    border-radius: 100px;
-    border: 1px solid var(--mac-border);
-    background: var(--mac-card-bg);
-    color: var(--mac-text);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    -webkit-tap-highlight-color: transparent;
-    flex-shrink: 0;
-}
-
-.nm-pill-btn:active {
-    transform: scale(0.96);
-}
-
-.nm-pill-btn.accent {
-    background: var(--mac-blue);
-    color: #fff;
-    border-color: var(--mac-blue);
-}
-
-.nm-pill-btn.danger {
-    color: var(--mac-traffic-red, #FF3B30);
-    border-color: color-mix(in srgb, var(--mac-traffic-red, #FF3B30) 30%, transparent);
-}
-
-.nm-pill-btn.danger:active {
-    background: rgba(255, 59, 48, 0.08);
-}
-
-.nm-pill-btn svg {
-    font-size: 16px;
-}
-
-.nm-toolbar-spacer {
-    flex: 1;
-}
-
-/* ─── Selection Bar ─── */
-.nm-sel-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
-    margin-bottom: 12px;
+    padding: 8px 16px;
+    margin: 0;
     background: color-mix(in srgb, var(--mac-blue) 8%, transparent);
-    border: 1px solid color-mix(in srgb, var(--mac-blue) 20%, transparent);
-    border-radius: 16px;
-    flex-wrap: wrap;
+    border-radius: 0;
+    animation: nmFadeIn 0.15s ease;
 }
 
-.nm-sel-count {
+.nm-sel-strip-count {
     font-size: 14px;
     font-weight: 700;
     color: var(--mac-blue);
+    flex: 1;
+}
+
+.nm-sel-strip-btn {
+    all: unset;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 100px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s;
     white-space: nowrap;
 }
 
-.nm-sel-bar .nm-pill-btn {
-    padding: 8px 14px;
-    font-size: 12px;
-    border-radius: 100px;
+.nm-sel-strip-btn.move {
+    color: var(--mac-blue);
+    background: rgba(0, 122, 255, 0.1);
 }
 
-/* ─── Items List (Mobile-first: Vertical Stack) ─── */
-.nm-items-list {
+.nm-sel-strip-btn.delete {
+    color: var(--mac-traffic-red, #FF3B30);
+    background: rgba(255, 59, 48, 0.1);
+}
+
+.nm-sel-strip-btn.all {
+    color: var(--mac-text);
+    background: var(--mac-hover, rgba(120,120,128,0.12));
+}
+
+.nm-sel-strip-btn.clear {
+    color: var(--mac-text-secondary);
+}
+
+.nm-sel-strip-btn:active {
+    opacity: 0.7;
+}
+
+/* ─── Items Container ─── */
+.nm-file-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 10px;
 }
 
-/* ─── Item Row ─── */
-.nm-item-row {
+/* ─── File Row (Card style — matches Notes.jsx) ─── */
+.nm-file-row {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 14px 16px;
-    border-radius: 16px;
-    background: var(--mac-card-bg);
-    border: 1.5px solid var(--mac-border);
+    padding: 16px 20px;
+    background: var(--mac-sidebar-bg);
+    border-radius: 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
-    min-height: 56px;
+    transition: all 0.2s;
+    position: relative;
 }
 
-.nm-item-row:active {
-    transform: scale(0.985);
+.nm-file-row:active {
+    background: var(--mac-hover, rgba(120,120,128,0.12));
 }
 
-.nm-item-row.selected {
-    background: color-mix(in srgb, var(--mac-blue) 8%, transparent);
-    border-color: var(--mac-blue);
-}
-
-.nm-item-row.dragging {
-    opacity: 0.4;
-}
-
-.nm-item-row.drag-over {
-    border-color: var(--mac-blue);
+.nm-file-row.selected {
     background: color-mix(in srgb, var(--mac-blue) 12%, transparent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mac-blue) 15%, transparent);
+    box-shadow: inset 0 0 0 1.5px var(--mac-blue);
 }
 
-/* Item Icon */
-.nm-icon-box {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+.nm-file-row.dragging {
+    opacity: 0.35;
+}
+
+.nm-file-row.drag-over {
+    background: color-mix(in srgb, var(--mac-blue) 15%, transparent);
+    box-shadow: inset 0 0 0 2px var(--mac-blue);
+}
+
+/* Row icon — direct color, no background box (matches Notes.jsx) */
+.nm-file-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 26px;
     flex-shrink: 0;
+    width: auto;
+    height: auto;
 }
 
-.nm-icon-box.folder {
-    background: rgba(0, 122, 255, 0.1);
+.nm-file-icon.folder {
     color: var(--mac-blue);
 }
 
-.nm-icon-box.subject {
-    background: rgba(52, 199, 89, 0.1);
+.nm-file-icon.subject {
     color: var(--mac-traffic-green, #34c759);
 }
 
-.nm-icon-box.file {
-    background: rgba(255, 149, 0, 0.1);
+.nm-file-icon.link {
     color: var(--mac-warning-text, #ff9500);
 }
 
-/* Item Details */
-.nm-item-details {
-    display: flex;
-    flex-direction: column;
+/* Row text */
+.nm-file-info {
     flex: 1;
     min-width: 0;
-    gap: 2px;
 }
 
-.nm-item-title {
-    font-size: 15px;
-    font-weight: 600;
+.nm-file-name {
+    font-size: 16px;
+    font-weight: 700;
     color: var(--mac-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.3;
 }
 
-.nm-item-title input {
+.nm-file-name input {
     font-size: 15px;
     font-weight: 600;
     border: 1.5px solid var(--mac-blue);
     border-radius: 8px;
-    padding: 6px 10px;
+    padding: 4px 8px;
     width: 100%;
-    max-width: 220px;
+    max-width: 200px;
     background: var(--mac-bg-primary);
     color: var(--mac-text);
     outline: none;
     box-sizing: border-box;
 }
 
-.nm-item-sub {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--mac-text-secondary);
-}
-
-/* Item chevron */
-.nm-item-chevron {
-    color: var(--mac-text-secondary);
-    opacity: 0.4;
-    font-size: 20px;
-    flex-shrink: 0;
-    transition: transform 0.2s ease;
-}
-
-/* Item badge */
-.nm-tag {
+.nm-file-meta {
     font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
+    font-weight: 700;
+    color: var(--mac-text-secondary);
+    text-transform: uppercase;
+    margin-top: 2px;
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Row right side */
+.nm-file-end {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.nm-file-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
     border-radius: 100px;
     white-space: nowrap;
-    flex-shrink: 0;
 }
 
-.nm-tag.units {
+.nm-file-badge.units {
     background: rgba(52, 199, 89, 0.1);
     color: var(--mac-traffic-green, #34c759);
 }
 
-.nm-tag.link {
+.nm-file-badge.link-type {
     background: rgba(0, 122, 255, 0.1);
     color: var(--mac-blue);
 }
 
-/* More menu for items */
-.nm-item-more {
-    all: unset;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+.nm-file-chevron {
+    color: var(--mac-text-secondary);
+    opacity: 0.3;
+    font-size: 20px;
+}
+
+/* ─── FAB (Floating Action Button – Samsung style) ─── */
+.nm-fab {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--mac-blue);
+    color: #fff;
+    border: none;
+    font-size: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--mac-text-secondary);
-    font-size: 18px;
     cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.15s ease;
+    box-shadow: 0 4px 20px rgba(0, 122, 255, 0.4);
+    z-index: 500;
+    transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
 }
 
-.nm-item-more:active {
-    background: var(--mac-hover, rgba(120,120,128,0.12));
+.nm-fab:active {
+    transform: scale(0.92);
+}
+
+.nm-fab.open {
+    border-radius: 50%;
+    transform: rotate(45deg);
+    background: var(--mac-text-secondary);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.nm-fab.open:active {
+    transform: rotate(45deg) scale(0.92);
+}
+
+/* ─── FAB Menu (Samsung-style quick options) ─── */
+.nm-fab-menu {
+    position: fixed;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 499;
+    animation: nmSlideUp2 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nm-fab-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-direction: row-reverse;
+    animation: nmFadeIn 0.15s ease;
+}
+
+.nm-fab-option-label {
+    background: var(--mac-card-bg);
+    color: var(--mac-text);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.nm-fab-option-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: none;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s;
+}
+
+.nm-fab-option-btn:active {
+    transform: scale(0.9);
+}
+
+.nm-fab-option-btn.folder-btn {
+    background: rgba(0, 122, 255, 0.15);
+    color: var(--mac-blue);
+}
+
+.nm-fab-option-btn.link-btn {
+    background: rgba(255, 149, 0, 0.15);
+    color: var(--mac-warning-text, #ff9500);
+}
+
+.nm-fab-option-btn.subject-btn {
+    background: rgba(52, 199, 89, 0.15);
+    color: var(--mac-traffic-green, #34c759);
+}
+
+/* FAB backdrop */
+.nm-fab-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 498;
+    animation: nmFadeIn 0.15s ease;
+}
+
+/* ─── Desktop Toolbar (hidden on mobile, shown on desktop) ─── */
+.nm-desktop-toolbar {
+    display: none;
+}
+
+/* ─── Inline New Folder ─── */
+.nm-new-folder-inline {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: color-mix(in srgb, var(--mac-blue) 6%, var(--mac-sidebar-bg));
+    border-radius: 20px;
+    box-shadow: inset 0 0 0 1.5px var(--mac-blue);
+}
+
+.nm-new-folder-inline input {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1.5px solid var(--mac-blue);
+    border-radius: 10px;
+    padding: 8px 12px;
+    background: var(--mac-bg-primary);
+    color: var(--mac-text);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.nm-new-folder-inline input::placeholder {
+    color: var(--mac-text-secondary);
+    font-weight: 400;
 }
 
 /* ─── Empty State ─── */
@@ -377,19 +461,13 @@
     justify-content: center;
     padding: 60px 24px;
     text-align: center;
-    gap: 12px;
+    gap: 8px;
 }
 
-.nm-empty-icon-ring {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: rgba(0, 122, 255, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    color: var(--mac-blue);
+.nm-empty-folder-icon {
+    font-size: 48px;
+    color: var(--mac-text-secondary);
+    opacity: 0.25;
     margin-bottom: 4px;
 }
 
@@ -403,39 +481,9 @@
     font-size: 13px;
     color: var(--mac-text-secondary);
     line-height: 1.5;
-    max-width: 280px;
 }
 
-/* ─── Inline New Folder ─── */
-.nm-new-folder-row {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    border-radius: 16px;
-    border: 2px dashed var(--mac-blue);
-    background: color-mix(in srgb, var(--mac-blue) 4%, transparent);
-}
-
-.nm-new-folder-row input {
-    flex: 1;
-    font-size: 15px;
-    font-weight: 600;
-    border: 1.5px solid var(--mac-blue);
-    border-radius: 10px;
-    padding: 10px 14px;
-    background: var(--mac-bg-primary);
-    color: var(--mac-text);
-    outline: none;
-    box-sizing: border-box;
-}
-
-.nm-new-folder-row input::placeholder {
-    color: var(--mac-text-secondary);
-    font-weight: 500;
-}
-
-/* ─── Context Menu / Action Sheet ─── */
+/* ─── Action Sheet ─── */
 .nm-action-sheet-overlay {
     position: fixed;
     inset: 0;
@@ -444,7 +492,7 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    animation: nmFadeIn 0.2s ease;
+    animation: nmFadeIn 0.15s ease;
 }
 
 .nm-action-sheet {
@@ -453,7 +501,7 @@
     background: var(--mac-card-bg);
     border-radius: 20px 20px 0 0;
     padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 16px));
-    animation: nmSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: nmSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nm-action-sheet-handle {
@@ -461,25 +509,25 @@
     height: 4px;
     border-radius: 100px;
     background: var(--mac-text-secondary);
-    opacity: 0.3;
-    margin: 8px auto 12px;
+    opacity: 0.25;
+    margin: 8px auto 14px;
 }
 
 .nm-action-item {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 14px 24px;
+    padding: 15px 24px;
     font-size: 16px;
     font-weight: 500;
     color: var(--mac-text);
     cursor: pointer;
-    transition: background 0.15s;
     -webkit-tap-highlight-color: transparent;
+    transition: background 0.1s;
 }
 
 .nm-action-item:active {
-    background: var(--mac-hover, rgba(120,120,128,0.12));
+    background: var(--mac-hover, rgba(120,120,128,0.1));
 }
 
 .nm-action-item.danger {
@@ -489,19 +537,20 @@
 .nm-action-item svg {
     font-size: 20px;
     flex-shrink: 0;
+    opacity: 0.8;
 }
 
 .nm-action-sep {
     height: 1px;
     background: var(--mac-border);
-    margin: 6px 24px;
+    margin: 4px 24px;
 }
 
 .nm-action-cancel {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 14px 24px;
+    padding: 15px 24px;
     font-size: 16px;
     font-weight: 700;
     color: var(--mac-blue);
@@ -511,7 +560,7 @@
 }
 
 .nm-action-cancel:active {
-    background: var(--mac-hover, rgba(120,120,128,0.12));
+    background: var(--mac-hover, rgba(120,120,128,0.1));
 }
 
 /* ─── Modal (Subject / File / Move) ─── */
@@ -525,7 +574,7 @@
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    animation: nmFadeIn 0.2s ease;
+    animation: nmFadeIn 0.15s ease;
 }
 
 .nm-modal-sheet {
@@ -533,10 +582,9 @@
     max-width: 540px;
     background: var(--mac-card-bg);
     border-radius: 24px 24px 0 0;
-    padding: 0;
     max-height: 90vh;
     overflow-y: auto;
-    animation: nmSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: nmSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     overscroll-behavior: contain;
 }
 
@@ -544,7 +592,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px 16px;
+    padding: 18px 16px 12px;
     position: sticky;
     top: 0;
     background: var(--mac-card-bg);
@@ -570,7 +618,6 @@
     cursor: pointer;
     color: var(--mac-text-secondary);
     font-size: 18px;
-    transition: all 0.15s ease;
 }
 
 .nm-modal-close:active {
@@ -578,24 +625,48 @@
 }
 
 .nm-modal-body {
-    padding: 20px 24px;
+    padding: 16px;
 }
 
 .nm-modal-footer {
     display: flex;
     gap: 10px;
-    padding: 16px 24px calc(16px + env(safe-area-inset-bottom, 12px));
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 12px));
     border-top: 1px solid var(--mac-border);
     position: sticky;
     bottom: 0;
     background: var(--mac-card-bg);
 }
 
-.nm-modal-footer .nm-pill-btn {
+.nm-modal-footer-btn {
     flex: 1;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    gap: 6px;
     padding: 14px 20px;
+    border-radius: 100px;
+    border: none;
     font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.15s;
+}
+
+.nm-modal-footer-btn.cancel {
+    background: var(--mac-bg-secondary);
+    color: var(--mac-text);
+    border: 1px solid var(--mac-border);
+}
+
+.nm-modal-footer-btn.confirm {
+    background: var(--mac-blue);
+    color: #fff;
+}
+
+.nm-modal-footer-btn:active {
+    transform: scale(0.97);
 }
 
 /* ─── Form Fields ─── */
@@ -603,35 +674,35 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .nm-field label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--mac-text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
 }
 
 .nm-field-input {
     width: 100%;
-    padding: 12px 16px;
+    padding: 12px 14px;
     border-radius: 12px;
     border: 1.5px solid var(--mac-border);
     background: var(--mac-bg-secondary);
     color: var(--mac-text);
     font-size: 15px;
     font-weight: 500;
-    transition: all 0.2s ease;
     box-sizing: border-box;
+    transition: all 0.2s;
     color-scheme: light dark;
 }
 
 .nm-field-input:focus {
     outline: none;
     border-color: var(--mac-blue);
-    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
     background: var(--mac-card-bg);
 }
 
@@ -640,71 +711,96 @@
     font-weight: 400;
 }
 
-/* ─── Unit Row ─── */
+/* ─── Unit Rows ─── */
 .nm-unit-row {
     display: flex;
+    flex-direction: column;
     gap: 8px;
-    align-items: flex-start;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: var(--mac-bg-secondary);
+    border-radius: 12px;
+    position: relative;
 }
 
 .nm-unit-row .nm-field {
     margin-bottom: 0;
 }
 
-.nm-unit-row .nm-field:first-child {
-    flex: 0 0 120px;
-}
-
-.nm-unit-row .nm-field:nth-child(2) {
-    flex: 1;
+.nm-unit-row .nm-field-input {
+    background: var(--mac-card-bg);
 }
 
 .nm-unit-remove-btn {
     all: unset;
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: var(--mac-traffic-red, #FF3B30);
     cursor: pointer;
-    flex-shrink: 0;
-    margin-top: 24px;
-    transition: all 0.15s ease;
+    font-size: 14px;
 }
 
 .nm-unit-remove-btn:active {
     background: rgba(255, 59, 48, 0.1);
 }
 
-/* ─── Move Modal ─── */
+.nm-add-unit-btn {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1.5px dashed var(--mac-border);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mac-blue);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    margin-top: 4px;
+}
+
+.nm-add-unit-btn:active {
+    background: rgba(0, 122, 255, 0.05);
+}
+
+/* ─── Move Modal List ─── */
 .nm-move-list {
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    margin-bottom: 8px;
 }
 
-.nm-move-item {
+.nm-move-option {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 14px 16px;
-    border-radius: 12px;
+    padding: 14px 4px;
     cursor: pointer;
     font-size: 15px;
     font-weight: 500;
-    transition: all 0.15s ease;
+    border-bottom: 1px solid color-mix(in srgb, var(--mac-border) 50%, transparent);
     -webkit-tap-highlight-color: transparent;
 }
 
-.nm-move-item:active {
-    background: color-mix(in srgb, var(--mac-blue) 10%, transparent);
+.nm-move-option:last-child {
+    border-bottom: none;
 }
 
-.nm-move-item svg {
+.nm-move-option:active {
+    background: color-mix(in srgb, var(--mac-blue) 8%, transparent);
+}
+
+.nm-move-option svg {
     font-size: 20px;
     color: var(--mac-blue);
     flex-shrink: 0;
@@ -721,84 +817,137 @@
     to { transform: translateY(0); }
 }
 
+@keyframes nmSlideUp2 {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
 @keyframes nmPop {
-    0% { transform: scale(0.9); opacity: 0; }
+    0% { transform: scale(0.92); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
 }
 
 
 /* =============================================
-   DESKTOP ADAPTATIONS (min-width: 769px)
+   DESKTOP (min-width: 769px)
    ============================================= */
 @media (min-width: 769px) {
     .notes-manager {
-        max-width: 900px;
-        margin: 0 auto;
+        max-width: 860px;
+        margin: 0 auto !important;
+        width: 100% !important;
+        padding: 0 !important;
+        padding-bottom: 40px !important;
     }
 
-    /* Mode card side-by-side */
-    .nm-mode-card {
-        flex-direction: row;
+    .nm-mode-banner {
+        border-radius: 14px;
+        border: 1px solid var(--mac-border);
+        border-bottom: 1px solid var(--mac-border);
+        margin-bottom: 8px;
+    }
+
+    .nm-sel-strip {
+        border-radius: 12px;
+        margin-bottom: 8px;
+    }
+
+    /* Hide FAB on desktop */
+    .nm-fab,
+    .nm-fab-menu,
+    .nm-fab-backdrop {
+        display: none;
+    }
+
+    /* Show desktop toolbar instead */
+    .nm-desktop-toolbar {
+        display: flex;
         align-items: center;
-        gap: 20px;
-        padding: 20px 24px;
+        gap: 8px;
+        padding: 0 0 12px;
     }
 
-    .nm-mode-toggle-btn {
-        width: auto;
-        flex-shrink: 0;
+    .nm-desk-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 100px;
+        border: 1px solid var(--mac-border);
+        background: var(--mac-card-bg);
+        color: var(--mac-text);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
     }
 
-    /* Items as grid */
-    .nm-items-list {
+    .nm-desk-btn:hover {
+        background: var(--mac-hover, rgba(120,120,128,0.08));
+    }
+
+    .nm-desk-btn.accent {
+        background: var(--mac-blue);
+        color: #fff;
+        border-color: var(--mac-blue);
+    }
+
+    .nm-desk-btn.accent:hover {
+        opacity: 0.9;
+    }
+
+    .nm-desk-btn svg {
+        font-size: 16px;
+    }
+
+    /* File list as grid on desktop */
+    .nm-file-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 10px;
     }
 
-    /* Refine item row for desktop */
-    .nm-item-row {
-        border-radius: 14px;
-        padding: 14px 18px;
-        transition: all 0.2s ease, box-shadow 0.2s ease;
+    .nm-file-row {
+        border-radius: 20px;
+        padding: 16px 20px;
+        transition: all 0.2s, box-shadow 0.2s;
     }
 
-    .nm-item-row:hover {
-        background: var(--mac-hover, rgba(120,120,128,0.06));
-        border-color: var(--mac-divider);
-        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    .nm-file-row:hover {
+        background: var(--mac-selection-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     }
 
-    .nm-item-row:active {
+    .nm-file-row:active {
         transform: none;
     }
 
-    /* Action sheet becomes floating menu on desktop */
+    /* Action sheet → centered menu on desktop */
     .nm-action-sheet-overlay {
         align-items: center;
     }
 
     .nm-action-sheet {
         border-radius: 16px;
-        max-width: 340px;
+        max-width: 320px;
         animation: nmPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .nm-action-sheet-handle {
-        display: none;
-    }
+    .nm-action-sheet-handle { display: none; }
 
     .nm-action-item {
         font-size: 14px;
-        padding: 12px 20px;
+        padding: 11px 20px;
     }
 
     .nm-action-cancel {
         font-size: 14px;
-        padding: 12px 20px;
+        padding: 11px 20px;
     }
 
-    /* Modal becomes centered dialog */
+    /* Modal → centered dialog */
     .nm-modal-overlay {
         align-items: center;
     }
@@ -809,42 +958,50 @@
         animation: nmPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .nm-modal-footer .nm-pill-btn {
-        flex: initial;
-        padding: 12px 24px;
-        font-size: 14px;
-    }
-
     .nm-modal-footer {
         justify-content: flex-end;
-        padding: 14px 24px;
+    }
+
+    .nm-modal-footer-btn {
+        flex: initial;
+        padding: 10px 24px;
+        font-size: 14px;
     }
 
     /* Unit rows side by side */
     .nm-unit-row {
         flex-direction: row;
+        align-items: flex-end;
+        padding: 10px 12px;
     }
 
     .nm-unit-row .nm-field:first-child {
-        flex: 0 0 160px;
+        flex: 0 0 150px;
     }
 
-    /* Pill btn hover on desktop */
-    .nm-pill-btn:hover {
-        background: var(--mac-hover, rgba(120,120,128,0.08));
+    .nm-unit-row .nm-field:nth-child(2) {
+        flex: 1;
     }
 
-    .nm-pill-btn.accent:hover {
-        opacity: 0.9;
-        background: var(--mac-blue);
+    .nm-unit-remove-btn {
+        position: static;
+        margin-bottom: 2px;
     }
 
-    .nm-pill-btn.danger:hover {
-        background: rgba(255, 59, 48, 0.08);
+    /* Selection strip hover */
+    .nm-sel-strip-btn:hover {
+        opacity: 0.8;
     }
 
-    /* Item More btn hover */
-    .nm-item-more:hover {
-        background: var(--mac-hover, rgba(120,120,128,0.12));
+    /* New folder inline on desktop */
+    .nm-new-folder-inline {
+        border-bottom: none;
+        border-radius: 14px;
+        border: 2px dashed var(--mac-blue);
+    }
+
+    /* Mode switch hover */
+    .nm-mode-switch:hover {
+        background: rgba(0, 122, 255, 0.08);
     }
 }

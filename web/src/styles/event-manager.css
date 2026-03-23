@@ -423,7 +423,7 @@
    ========================================= */
 @media (max-width: 900px) {
     .event-editor-workspace {
-        padding-bottom: 120px;
+        padding-bottom: 24px;
     }
 
     .event-creator-card {

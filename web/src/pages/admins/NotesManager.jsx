@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from "../../firebase";
 import { ref, onValue, set, push, remove, update } from "firebase/database";
 import { 
@@ -12,8 +12,7 @@ import {
     RiCloseLine,
     RiArrowRightSLine,
     RiGlobalLine,
-    RiFolderLine,
-    RiArrowLeftSLine
+    RiFolderLine
 } from 'react-icons/ri';
 import '../../styles/notes-manager.css';
 
@@ -28,8 +27,8 @@ const NotesManager = () => {
     // Selection
     const [selected, setSelected] = useState(new Set());
     
-    // Action sheet (mobile-first context menu)
-    const [actionSheet, setActionSheet] = useState(null); // null | { item }
+    // Action sheet
+    const [actionSheet, setActionSheet] = useState(null);
     
     // Inline rename
     const [renamingId, setRenamingId] = useState(null);
@@ -39,6 +38,9 @@ const NotesManager = () => {
     const [creatingFolder, setCreatingFolder] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
     const newFolderRef = useRef(null);
+    
+    // FAB menu
+    const [fabOpen, setFabOpen] = useState(false);
     
     // Subject form modal
     const [subjectModal, setSubjectModal] = useState(null);
@@ -72,7 +74,7 @@ const NotesManager = () => {
     }, []);
 
     // Clear selection on path change
-    useEffect(() => { setSelected(new Set()); setActionSheet(null); }, [currentFolderId]);
+    useEffect(() => { setSelected(new Set()); setActionSheet(null); setFabOpen(false); }, [currentFolderId]);
 
     // Focus new folder input
     useEffect(() => {
@@ -247,37 +249,49 @@ const NotesManager = () => {
         if (!selected.has(item.id)) setSelected(new Set([item.id]));
     };
 
+    // --- FAB actions ---
+    const handleFabFolder = () => {
+        setFabOpen(false);
+        setCreatingFolder(true);
+        setNewFolderName('');
+    };
+
+    const handleFabLink = () => {
+        setFabOpen(false);
+        openFileModal();
+    };
+
+    const handleFabSubject = () => {
+        setFabOpen(false);
+        openSubjectModal();
+    };
+
     if (loading) return (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', color: 'var(--mac-text-secondary)' }}>
-            Loading Notes Manager...
+            Loading...
         </div>
     );
 
     return (
         <div className="notes-manager">
-            {/* ─── Mode Toggle Card ─── */}
-            <div className="nm-mode-card">
-                <div className="nm-mode-info">
-                    <div className={`nm-mode-icon-ring ${notesMode === 'fetch' ? 'fetch' : 'folder'}`}>
-                        {notesMode === 'fetch' ? <RiGlobalLine /> : <RiFolderLine />}
-                    </div>
-                    <div className="nm-mode-text">
-                        <h3>{notesMode === 'fetch' ? 'Global RMD Fetch' : 'Custom Folders'}</h3>
-                        <p>{notesMode === 'fetch' ? 'Students see the live rmd.ac.in notes.' : 'Students see the custom file explorer.'}</p>
-                    </div>
-                </div>
-                <button className="nm-mode-toggle-btn" onClick={toggleMode}>
-                    Switch to {notesMode === 'fetch' ? 'Folder' : 'Fetch'} Mode
+            {/* ─── Mode Banner (compact) ─── */}
+            <div className="nm-mode-banner">
+                <div className={`nm-mode-dot ${notesMode === 'fetch' ? 'fetch' : 'folder'}`} />
+                <span className="nm-mode-label">
+                    <strong>{notesMode === 'fetch' ? 'RMD Fetch' : 'Folder Mode'}</strong> · {notesMode === 'fetch' ? 'Live rmd.ac.in' : 'Custom folders'}
+                </span>
+                <button className="nm-mode-switch" onClick={toggleMode}>
+                    Switch
                 </button>
             </div>
 
-            {/* ─── Breadcrumb Navigation ─── */}
-            <div className="nm-breadcrumb-bar">
+            {/* ─── Path Bar (Samsung-style breadcrumb) ─── */}
+            <div className="nm-path-bar">
                 {currentPath.map((p, i) => (
                     <React.Fragment key={p.id}>
-                        {i > 0 && <RiArrowRightSLine className="nm-crumb-sep" />}
+                        {i > 0 && <RiArrowRightSLine className="nm-path-sep" />}
                         <span
-                            className={`nm-crumb ${i === currentPath.length - 1 ? 'current' : ''}`}
+                            className={`nm-path-item ${i === currentPath.length - 1 ? 'active' : ''}`}
                             onClick={() => i < currentPath.length - 1 && navigateToIndex(i)}
                         >
                             {p.name}
@@ -286,53 +300,42 @@ const NotesManager = () => {
                 ))}
             </div>
 
-            {/* ─── Toolbar ─── */}
-            <div className="nm-toolbar-row">
-                <button className="nm-pill-btn" onClick={() => { setCreatingFolder(true); setNewFolderName(''); }}>
+            {/* ─── Desktop Toolbar (hidden on mobile, shown on desktop) ─── */}
+            <div className="nm-desktop-toolbar">
+                <button className="nm-desk-btn" onClick={() => { setCreatingFolder(true); setNewFolderName(''); }}>
                     <RiAddLine /> Folder
                 </button>
-                <button className="nm-pill-btn" onClick={() => openFileModal()}>
+                <button className="nm-desk-btn" onClick={() => openFileModal()}>
                     <RiAddLine /> Link
                 </button>
-                <button className="nm-pill-btn accent" onClick={() => openSubjectModal()}>
+                <button className="nm-desk-btn accent" onClick={() => openSubjectModal()}>
                     <RiAddLine /> Subject
                 </button>
-
-                <div className="nm-toolbar-spacer" />
-
-                {currentPath.length > 1 && (
-                    <button className="nm-pill-btn" onClick={() => navigateToIndex(currentPath.length - 2)}>
-                        <RiArrowLeftSLine /> Back
-                    </button>
-                )}
             </div>
 
             {/* ─── Selection Bar ─── */}
             {selected.size > 0 && (
-                <div className="nm-sel-bar">
-                    <span className="nm-sel-count">{selected.size} selected</span>
-                    <button className="nm-pill-btn" onClick={selectAll}>All</button>
-                    <button className="nm-pill-btn" onClick={() => setMoveModal({ ids: [...selected] })}>
-                        <RiFolderTransferLine /> Move
+                <div className="nm-sel-strip">
+                    <span className="nm-sel-strip-count">{selected.size} selected</span>
+                    <button className="nm-sel-strip-btn all" onClick={selectAll}>All</button>
+                    <button className="nm-sel-strip-btn move" onClick={() => setMoveModal({ ids: [...selected] })}>
+                        Move
                     </button>
-                    <button className="nm-pill-btn danger" onClick={() => deleteItems([...selected])}>
-                        <RiDeleteBinLine /> Delete
+                    <button className="nm-sel-strip-btn delete" onClick={() => deleteItems([...selected])}>
+                        Delete
                     </button>
-                    <div className="nm-toolbar-spacer" />
-                    <button className="nm-pill-btn" onClick={clearSelection}>
-                        <RiCloseLine /> Clear
+                    <button className="nm-sel-strip-btn clear" onClick={clearSelection}>
+                        ✕
                     </button>
                 </div>
             )}
 
-            {/* ─── Items List ─── */}
-            <div className="nm-items-list">
-                {/* New Folder Inline */}
+            {/* ─── File List ─── */}
+            <div className="nm-file-list">
+                {/* Inline new folder */}
                 {creatingFolder && (
-                    <div className="nm-new-folder-row">
-                        <div className="nm-icon-box folder">
-                            <RiFolderFill />
-                        </div>
+                    <div className="nm-new-folder-inline">
+                        <div className="nm-file-icon folder"><RiFolderFill /></div>
                         <input
                             ref={newFolderRef}
                             value={newFolderName}
@@ -351,11 +354,12 @@ const NotesManager = () => {
                 {currentFolders.map(folder => (
                     <div
                         key={folder.id}
-                        className={`nm-item-row ${selected.has(folder.id) ? 'selected' : ''} ${dragId === folder.id ? 'dragging' : ''} ${dragOverId === folder.id ? 'drag-over' : ''}`}
+                        className={`nm-file-row ${selected.has(folder.id) ? 'selected' : ''} ${dragId === folder.id ? 'dragging' : ''} ${dragOverId === folder.id ? 'drag-over' : ''}`}
                         onClick={(e) => {
-                            if (e.target.closest('.nm-item-more') || e.target.closest('input')) return;
+                            if (e.target.closest('input')) return;
                             navigateTo(folder);
                         }}
+                        onContextMenu={(e) => { e.preventDefault(); openActionSheet(folder); }}
                         draggable
                         onDragStart={(e) => onDragStart(e, folder.id)}
                         onDragOver={(e) => onDragOver(e, folder.id)}
@@ -363,9 +367,9 @@ const NotesManager = () => {
                         onDrop={(e) => onDrop(e, folder)}
                         onDragEnd={onDragEnd}
                     >
-                        <div className="nm-icon-box folder"><RiFolderFill /></div>
-                        <div className="nm-item-details">
-                            <div className="nm-item-title">
+                        <div className="nm-file-icon folder"><RiFolderFill /></div>
+                        <div className="nm-file-info">
+                            <div className="nm-file-name">
                                 {renamingId === folder.id ? (
                                     <input
                                         value={renameValue}
@@ -377,12 +381,11 @@ const NotesManager = () => {
                                     />
                                 ) : folder.name}
                             </div>
-                            <div className="nm-item-sub">Folder</div>
+                            <div className="nm-file-meta">Folder</div>
                         </div>
-                        <RiArrowRightSLine className="nm-item-chevron" />
-                        <button className="nm-item-more" onClick={(e) => { e.stopPropagation(); openActionSheet(folder); }}>
-                            •••
-                        </button>
+                        <div className="nm-file-end">
+                            <RiArrowRightSLine className="nm-file-chevron" />
+                        </div>
                     </div>
                 ))}
 
@@ -390,18 +393,19 @@ const NotesManager = () => {
                 {currentSubjects.map(subject => (
                     <div
                         key={subject.id}
-                        className={`nm-item-row ${selected.has(subject.id) ? 'selected' : ''} ${dragId === subject.id ? 'dragging' : ''}`}
+                        className={`nm-file-row ${selected.has(subject.id) ? 'selected' : ''} ${dragId === subject.id ? 'dragging' : ''}`}
                         onClick={(e) => {
-                            if (e.target.closest('.nm-item-more') || e.target.closest('input')) return;
+                            if (e.target.closest('input')) return;
                             openSubjectModal(subject);
                         }}
+                        onContextMenu={(e) => { e.preventDefault(); openActionSheet(subject); }}
                         draggable
                         onDragStart={(e) => onDragStart(e, subject.id)}
                         onDragEnd={onDragEnd}
                     >
-                        <div className="nm-icon-box subject"><RiBookOpenFill /></div>
-                        <div className="nm-item-details">
-                            <div className="nm-item-title">
+                        <div className="nm-file-icon subject"><RiBookOpenFill /></div>
+                        <div className="nm-file-info">
+                            <div className="nm-file-name">
                                 {renamingId === subject.id ? (
                                     <input
                                         value={renameValue}
@@ -413,31 +417,31 @@ const NotesManager = () => {
                                     />
                                 ) : subject.name}
                             </div>
-                            <div className="nm-item-sub">{Object.keys(subject.units || {}).length} units</div>
+                            <div className="nm-file-meta">{Object.keys(subject.units || {}).length} units</div>
                         </div>
-                        <span className="nm-tag units">{Object.keys(subject.units || {}).length} Units</span>
-                        <button className="nm-item-more" onClick={(e) => { e.stopPropagation(); openActionSheet(subject); }}>
-                            •••
-                        </button>
+                        <div className="nm-file-end">
+                            <span className="nm-file-badge units">{Object.keys(subject.units || {}).length} Units</span>
+                        </div>
                     </div>
                 ))}
 
-                {/* Files / Direct Links */}
+                {/* Files / Links */}
                 {currentFiles.map(file => (
                     <div
                         key={file.id}
-                        className={`nm-item-row ${selected.has(file.id) ? 'selected' : ''} ${dragId === file.id ? 'dragging' : ''}`}
+                        className={`nm-file-row ${selected.has(file.id) ? 'selected' : ''} ${dragId === file.id ? 'dragging' : ''}`}
                         onClick={(e) => {
-                            if (e.target.closest('.nm-item-more') || e.target.closest('input')) return;
+                            if (e.target.closest('input')) return;
                             openFileModal(file);
                         }}
+                        onContextMenu={(e) => { e.preventDefault(); openActionSheet(file); }}
                         draggable
                         onDragStart={(e) => onDragStart(e, file.id)}
                         onDragEnd={onDragEnd}
                     >
-                        <div className="nm-icon-box file"><RiLinkM /></div>
-                        <div className="nm-item-details">
-                            <div className="nm-item-title">
+                        <div className="nm-file-icon link"><RiLinkM /></div>
+                        <div className="nm-file-info">
+                            <div className="nm-file-name">
                                 {renamingId === file.id ? (
                                     <input
                                         value={renameValue}
@@ -449,30 +453,51 @@ const NotesManager = () => {
                                     />
                                 ) : file.name}
                             </div>
-                            <div className="nm-item-sub">{file.link ? 'External Link' : 'No link'}</div>
+                            <div className="nm-file-meta">{file.link ? 'External Link' : 'No link'}</div>
                         </div>
-                        {file.link && <span className="nm-tag link">Link</span>}
-                        <button className="nm-item-more" onClick={(e) => { e.stopPropagation(); openActionSheet(file); }}>
-                            •••
-                        </button>
+                        <div className="nm-file-end">
+                            {file.link && <span className="nm-file-badge link-type">Link</span>}
+                        </div>
                     </div>
                 ))}
 
-                {/* Empty State */}
+                {/* Empty */}
                 {totalItems === 0 && !creatingFolder && (
                     <div className="nm-empty-state">
-                        <div className="nm-empty-icon-ring">
-                            <RiFolderFill />
-                        </div>
-                        <div className="nm-empty-title">No items here</div>
+                        <RiFolderFill className="nm-empty-folder-icon" />
+                        <div className="nm-empty-title">This folder is empty</div>
                         <div className="nm-empty-desc">
-                            Create a folder, subject, or link to get started.
+                            Tap the + button to create a folder, subject, or link.
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* ─── Action Sheet (Mobile-first context menu) ─── */}
+            {/* ─── FAB (Mobile only — Samsung style) ─── */}
+            {fabOpen && <div className="nm-fab-backdrop" onClick={() => setFabOpen(false)} />}
+
+            {fabOpen && (
+                <div className="nm-fab-menu">
+                    <div className="nm-fab-option" onClick={handleFabSubject}>
+                        <button className="nm-fab-option-btn subject-btn"><RiBookOpenFill /></button>
+                        <span className="nm-fab-option-label">Subject</span>
+                    </div>
+                    <div className="nm-fab-option" onClick={handleFabLink}>
+                        <button className="nm-fab-option-btn link-btn"><RiLinkM /></button>
+                        <span className="nm-fab-option-label">Link</span>
+                    </div>
+                    <div className="nm-fab-option" onClick={handleFabFolder}>
+                        <button className="nm-fab-option-btn folder-btn"><RiFolderFill /></button>
+                        <span className="nm-fab-option-label">Folder</span>
+                    </div>
+                </div>
+            )}
+
+            <button className={`nm-fab ${fabOpen ? 'open' : ''}`} onClick={() => setFabOpen(!fabOpen)}>
+                <RiAddLine />
+            </button>
+
+            {/* ─── Action Sheet (long-press / context menu) ─── */}
             {actionSheet && (
                 <div className="nm-action-sheet-overlay" onClick={() => setActionSheet(null)}>
                     <div className="nm-action-sheet" onClick={e => e.stopPropagation()}>
@@ -537,7 +562,7 @@ const NotesManager = () => {
                                 />
                             </div>
 
-                            <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--mac-text)', marginBottom: '12px', display: 'block' }}>
+                            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--mac-text)', marginBottom: '10px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
                                 Units
                             </label>
 
@@ -569,18 +594,14 @@ const NotesManager = () => {
                                 </div>
                             ))}
 
-                            <button
-                                className="nm-pill-btn"
-                                onClick={() => setUnits(prev => [...prev, { name: `Unit ${prev.length + 1}`, link: '' }])}
-                                style={{ marginTop: '4px', width: '100%', justifyContent: 'center' }}
-                            >
+                            <button className="nm-add-unit-btn" onClick={() => setUnits(prev => [...prev, { name: `Unit ${prev.length + 1}`, link: '' }])}>
                                 <RiAddLine /> Add Unit
                             </button>
                         </div>
 
                         <div className="nm-modal-footer">
-                            <button className="nm-pill-btn" onClick={() => setSubjectModal(null)}>Cancel</button>
-                            <button className="nm-pill-btn accent" onClick={saveSubject}>
+                            <button className="nm-modal-footer-btn cancel" onClick={() => setSubjectModal(null)}>Cancel</button>
+                            <button className="nm-modal-footer-btn confirm" onClick={saveSubject}>
                                 {subjectModal.mode === 'edit' ? 'Update' : 'Create'}
                             </button>
                         </div>
@@ -601,7 +622,7 @@ const NotesManager = () => {
 
                         <div className="nm-modal-body">
                             <p style={{ fontSize: '13px', color: 'var(--mac-text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
-                                Create a standalone link that opens directly when clicked by students.
+                                Create a standalone link that opens when students tap it.
                             </p>
 
                             <div className="nm-field">
@@ -627,8 +648,8 @@ const NotesManager = () => {
                         </div>
 
                         <div className="nm-modal-footer">
-                            <button className="nm-pill-btn" onClick={() => setFileModal(null)}>Cancel</button>
-                            <button className="nm-pill-btn accent" onClick={saveFile}>
+                            <button className="nm-modal-footer-btn cancel" onClick={() => setFileModal(null)}>Cancel</button>
+                            <button className="nm-modal-footer-btn confirm" onClick={saveFile}>
                                 {fileModal.mode === 'edit' ? 'Update' : 'Create'}
                             </button>
                         </div>
@@ -649,7 +670,7 @@ const NotesManager = () => {
 
                         <div className="nm-modal-body">
                             <div className="nm-move-list">
-                                <div className="nm-move-item" onClick={() => moveItems(moveModal.ids, 'root')}>
+                                <div className="nm-move-option" onClick={() => moveItems(moveModal.ids, 'root')}>
                                     <RiFolderFill /> Notes Drive (Root)
                                 </div>
                                 {allFoldersList
@@ -657,7 +678,7 @@ const NotesManager = () => {
                                     .map(folder => (
                                         <div
                                             key={folder.id}
-                                            className="nm-move-item"
+                                            className="nm-move-option"
                                             onClick={() => moveItems(moveModal.ids, folder.id)}
                                         >
                                             <RiFolderFill /> {folder.name}
@@ -668,7 +689,7 @@ const NotesManager = () => {
                         </div>
 
                         <div className="nm-modal-footer">
-                            <button className="nm-pill-btn" onClick={() => setMoveModal(null)}>Cancel</button>
+                            <button className="nm-modal-footer-btn cancel" onClick={() => setMoveModal(null)}>Cancel</button>
                         </div>
                     </div>
                 </div>

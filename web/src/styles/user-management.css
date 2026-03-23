@@ -421,7 +421,7 @@ html:not(.dark) .role-pill.active {
    ========================================================================== */
 @media (max-width: 768px) {
     .user-directory-grid {
-        padding-bottom: 120px; /* Ensure space for bottom nav in view-only mode */
+        padding-bottom: 24px; /* No bottom nav — reduced */
     }
 
     .user-directory-grid.edit-mode {

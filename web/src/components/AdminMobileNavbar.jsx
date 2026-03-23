@@ -16,7 +16,8 @@ import {
     RiSettings3Line,
     RiInboxArchiveLine,
     RiScanLine,
-    RiFolderLine
+    RiFolderLine,
+    RiComputerLine
 } from "react-icons/ri";
 import { getHardcodedRole } from '../data/admins';
 import ThemeToggle from './ThemeToggle';
@@ -77,27 +78,15 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     const canViewExtras = isSuper;
 
     const handleNav = (mod) => {
-        setIsSidebarOpen(false); // Close sidebar if it was open
+        setIsSidebarOpen(false);
 
         const currentMod = searchParams.get('mod') || 'home';
         if (currentMod === mod) return;
 
-        const mainTabs = ['home', 'schedules', 'exams', 'events'];
-        const isCurrentlyRoot = mainTabs.includes(currentMod);
-
-        if (!isCurrentlyRoot) {
-            // We are on a sidebar module or subpage. Pop it off before switching.
-            navigate(-1);
-            setTimeout(() => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const poppedMod = urlParams.get('mod') || 'home';
-                const poppedToHome = poppedMod === 'home';
-                setSearchParams({ mod }, { replace: !poppedToHome });
-            }, 10);
-        } else {
-            // We are on a root tab. PUSH from Home, REPLACE from other tabs.
-            setSearchParams({ mod }, { replace: currentMod !== 'home' });
-        }
+        // Always PUSH to history so back button works in order
+        // Exception: if we're ON home and going somewhere, push (normal)
+        // If we're going TO home, also push (so back returns to where we were)
+        setSearchParams({ mod }, { replace: false });
     };
 
     const topBarTitle = {
@@ -112,46 +101,20 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         notes: 'Notes Manager',
         structure: 'Structure',
         pending: 'Pending Requests',
+        special_classes: 'Special Classes',
+        archives: 'Archive Tool',
     }[activeModule] || 'Admin Panel';
 
-    // Schedule Manager back navigation (read URL params)
+    // Schedule Manager deep view detection
     const schedLevel = searchParams.get('slvl');
-    const schedBatch = searchParams.get('sb') || '';
-    const schedDept = searchParams.get('sd') || '';
     const isInScheduleDeep = activeModule === 'schedules' && schedLevel && schedLevel !== 'batches';
 
-    const handleScheduleBack = () => {
-        const params = { mod: 'schedules' };
-        if (schedLevel === 'editor' || schedLevel === 'master') {
-            params.slvl = 'secs'; params.sb = schedBatch; params.sd = schedDept;
-        } else if (schedLevel === 'secs') {
-            params.slvl = 'depts'; params.sb = schedBatch;
-        } else if (schedLevel === 'depts') {
-            // go back to batches — no extra params needed
-        }
-        setSearchParams(params);
-    };
-
-    // Exam Manager back navigation (read URL params)
+    // Exam Manager deep view detection
     const examLevel = searchParams.get('elvl');
-    const examBatch = searchParams.get('eb') || '';
-    const examDept = searchParams.get('ed') || '';
     const isInExamDeep = activeModule === 'exams' && examLevel && examLevel !== 'batches';
 
-    const handleExamBack = () => {
-        const params = { mod: 'exams' };
-        if (examLevel === 'editor') {
-            params.elvl = 'secs'; params.eb = examBatch; params.ed = examDept;
-        } else if (examLevel === 'secs') {
-            params.elvl = 'depts'; params.eb = examBatch;
-        } else if (examLevel === 'depts') {
-            // go back to batches
-        }
-        setSearchParams(params);
-    };
-
     const isDeepView = isInScheduleDeep || isInExamDeep;
-    const handleDeepBack = isInScheduleDeep ? handleScheduleBack : handleExamBack;
+    const handleDeepBack = () => navigate(-1);
 
     // Determine current settings title
     const settingsTitle = navOverride?.title || 'Settings';
@@ -159,10 +122,9 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
 
     const handleSettingsBack = () => {
         if (isInSubSection) {
-            // Go back to settings hub
             window.dispatchEvent(new Event('neram-go-hub'));
         } else {
-            navigate('/');
+            navigate(-1);
         }
     };
 
@@ -202,10 +164,10 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
                                 <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)', marginLeft: '-2px' }} />
                             </button>
-                        ) : ['users', 'roles', 'calendar', 'resources', 'notes', 'structure', 'pending', 'archives'].includes(activeModule) && (
+                        ) : ['users', 'roles', 'calendar', 'resources', 'notes', 'structure', 'pending', 'archives', 'special_classes'].includes(activeModule) && (
                             <button
                                 className="top-action-btn"
-                                onClick={() => setSearchParams({ mod: 'home' })}
+                                onClick={() => navigate(-1)}
                                 style={{
                                     marginLeft: 'auto',
                                     marginRight: '8px',
@@ -261,6 +223,25 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
 
                         {/* Drawer Links */}
                         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 0' }}>
+                            {/* Primary Tabs (moved from bottom bar) */}
+                            <button onClick={() => handleNav('home')} className={`menu-item ${activeModule === 'home' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'home' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'home' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'home' ? '600' : '500' }}>
+                                <RiHomeLine style={{ fontSize: '20px' }} /> <span>Home</span>
+                            </button>
+                            <button onClick={() => handleNav('schedules')} className={`menu-item ${activeModule === 'schedules' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'schedules' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'schedules' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'schedules' ? '600' : '500' }}>
+                                <RiCalendarScheduleLine style={{ fontSize: '20px' }} /> <span>Schedule</span>
+                            </button>
+                            <button onClick={() => handleNav('exams')} className={`menu-item ${activeModule === 'exams' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'exams' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'exams' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'exams' ? '600' : '500' }}>
+                                <RiTrophyLine style={{ fontSize: '20px' }} /> <span>Exams</span>
+                            </button>
+                            <button onClick={() => handleNav('events')} className={`menu-item ${activeModule === 'events' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'events' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'events' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'events' ? '600' : '500' }}>
+                                <RiCalendarEventLine style={{ fontSize: '20px' }} /> <span>Events</span>
+                            </button>
+
+                            <button onClick={() => handleNav('special_classes')} className={`menu-item ${activeModule === 'special_classes' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'special_classes' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'special_classes' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'special_classes' ? '600' : '500' }}>
+                                <RiComputerLine style={{ fontSize: '20px' }} /> <span>Special Classes</span>
+                            </button>
+
+                            <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
                             <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Management</div>
 
                             {canViewUsers && (
@@ -335,42 +316,6 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                 </>
             )}
 
-            {/* 3. BOTTOM TABS (4 Items) - HIDDEN ON SETTINGS */}
-            {!isOnSettings && (
-                <div className="mobile-bottom-bar admin-bottom-bar" style={{ zIndex: 10000, paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
-                    <div className="nav-links" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', padding: '0 8px' }}>
-
-                        <button className={`nav-item ${activeModule === 'home' ? 'active' : ''}`} onClick={() => handleNav('home')}>
-                            <div className="nav-icon-container">
-                                <RiHomeLine style={{ width: '24px', height: '24px' }} />
-                            </div>
-                            <span className="nav-label">Home</span>
-                        </button>
-
-                        <button className={`nav-item ${activeModule === 'schedules' ? 'active' : ''}`} onClick={() => handleNav('schedules')}>
-                            <div className="nav-icon-container">
-                                <RiCalendarScheduleLine style={{ width: '24px', height: '24px' }} />
-                            </div>
-                            <span className="nav-label">Schedule</span>
-                        </button>
-
-                        <button className={`nav-item ${activeModule === 'exams' ? 'active' : ''}`} onClick={() => handleNav('exams')}>
-                            <div className="nav-icon-container">
-                                <RiTrophyLine style={{ width: '24px', height: '24px' }} />
-                            </div>
-                            <span className="nav-label">Exams</span>
-                        </button>
-
-                        <button className={`nav-item ${activeModule === 'events' ? 'active' : ''}`} onClick={() => handleNav('events')}>
-                            <div className="nav-icon-container">
-                                <RiCalendarEventLine style={{ width: '24px', height: '24px' }} />
-                            </div>
-                            <span className="nav-label">Events</span>
-                        </button>
-
-                    </div>
-                </div>
-            )}
         </>
     );
 };
