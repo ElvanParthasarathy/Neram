@@ -612,16 +612,7 @@ const NotesManager = () => {
 
             {/* ─── Bulk Action Footer ─── */}
             {isEditListMode && (
-                <div className="bulk-action-footer-premium animate-slide-up danger-mode nm-compact-footer" style={{
-                    position: 'fixed',
-                    bottom: '24px',
-                    left: '12px',
-                    right: '12px',
-                    width: 'calc(100% - 24px)',
-                    maxWidth: '600px',
-                    margin: '0 auto',
-                    zIndex: 1000
-                }}>
+                <div className="bulk-action-footer-premium animate-slide-up danger-mode nm-compact-footer" style={{ margin: '20px 0 0 0', position: 'static', width: '100%', maxWidth: 'none' }}>
                     <div className="bulk-delete-action-row">
                         <div className="bulk-delete-info">
                             <div className="info-icon selected">
