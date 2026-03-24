@@ -26,6 +26,7 @@ import EventManager from './admins/EventManager';
 import ResourceManager from './admins/ResourceManager';
 import AdminDashboard from './admins/AdminDashboard';
 import StructureManager from "./admins/StructureManager";
+import FacultyDirectory from "./admins/FacultyDirectory";
 import PendingRequests from './admins/PendingRequests';
 import SemesterTransitionManager from './admins/SemesterTransitionManager';
 import SpecialClassManager from './admins/SpecialClassManager';
@@ -84,6 +85,7 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
             <h1 className="page-title">
               {activeModule === 'users' && 'Users'}
               {activeModule === 'roles' && 'Admins'}
+              {activeModule === 'faculty' && 'Faculty Directory'}
               {activeModule === 'schedules' && 'Schedule'}
               {activeModule === 'exams' && 'Exams'}
               {activeModule === 'events' && 'Events'}
@@ -101,6 +103,7 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
         {activeModule === 'structure' && <StructureManager />}
         {activeModule === 'users' && <UserManagement />}
         {activeModule === 'roles' && <AdminRoleManager userProfile={userProfile} />}
+        {activeModule === 'faculty' && <FacultyDirectory />}
         {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} isMobile={isMobile} />}
 
         {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} isMobile={isMobile} />}

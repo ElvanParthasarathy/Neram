@@ -17,7 +17,8 @@ import {
     RiInboxArchiveLine,
     RiScanLine,
     RiFolderLine,
-    RiComputerLine
+    RiComputerLine,
+    RiUser3Fill
 } from "react-icons/ri";
 import { getHardcodedRole } from '../data/admins';
 import ThemeToggle from './ThemeToggle';
@@ -96,6 +97,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         events: 'Events',
         users: 'Users',
         roles: 'Admins',
+        faculty: 'Faculty Directory',
         calendar: 'Calendar',
         resources: 'Resources',
         notes: 'Notes Manager',
@@ -269,6 +271,12 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             {canViewAdmins && (
                                 <button onClick={() => handleNav('roles')} className={`menu-item ${activeModule === 'roles' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'roles' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'roles' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'roles' ? '600' : '500' }}>
                                     <RiShieldUserLine style={{ fontSize: '20px' }} /> <span>Admins</span>
+                                </button>
+                            )}
+
+                            {canViewUsers && (
+                                <button onClick={() => handleNav('faculty')} className={`menu-item ${activeModule === 'faculty' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'faculty' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'faculty' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'faculty' ? '600' : '500' }}>
+                                    <RiUser3Fill style={{ fontSize: '20px' }} /> <span>Faculty Directory</span>
                                 </button>
                             )}
 

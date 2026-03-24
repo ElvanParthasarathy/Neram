@@ -148,6 +148,13 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
           </Link>
         )}
 
+        {canViewUsers && (
+          <Link to="/?mod=faculty" className={`admin-nav-link ${location.search.includes('mod=faculty') ? "active" : ""}`}>
+            <RiUser3Fill className="admin-nav-icon" />
+            <span>Faculty Directory</span>
+          </Link>
+        )}
+
         {/* GROUP 2: PLANNING */}
         <div className="nav-group-label">Planning</div>
         <Link to="/?mod=schedules" className={`admin-nav-link ${location.search.includes('mod=schedules') ? "active" : ""}`}>
