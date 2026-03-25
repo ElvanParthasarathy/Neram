@@ -129,15 +129,16 @@ const Home = ({
     let hasLabToday = false;
     const eventsForDay = allCalendar?.filter((e) => todayStr >= (e.startDate || e.date) && todayStr <= (e.endDate || e.date)) || [];
     const holidayEvent = eventsForDay.find((e) =>
-        e.title.toLowerCase().includes("holiday")
+        e.type === "Holiday" || e.title.toLowerCase().includes("holiday")
     );
+    const academicEvent = eventsForDay.find((e) => e.type === "Academic");
     const fullDayEvt = eventsForDay.find((e) => e.type === "FullDay");
 
     const scListSync = masterData.specialClasses || [];
     const specialClassToday = scListSync.find(sc => sc.date === todayStr);
 
-    // Kotlin parity: classes are suspended on holidays, full-day events, or major exams, and special classes
-    const classesSuspended = !!holidayEvent || !!fullDayEvt || isMajorExam || !!specialClassToday;
+    // Kotlin parity: classes are suspended on holidays, academic days, full-day events, or major exams, and special classes
+    const classesSuspended = !!holidayEvent || !!academicEvent || !!fullDayEvt || isMajorExam || !!specialClassToday;
 
     if (!classesSuspended) {
         let tempOrder = "";
@@ -216,9 +217,13 @@ const Home = ({
         const weekdayName = currentDate.toLocaleDateString("en-GB", {
             weekday: "long",
         });
-        const hol = events.find((e) => e.title.toLowerCase().includes("holiday"));
-        const manual = events.find((e) =>
-            e.title.toLowerCase().includes("order")
+        const hol = events.find((e) => e.type === "Holiday" || e.title.toLowerCase().includes("holiday"));
+        const acEvt = events.find((e) => e.type === "Academic");
+
+        const workingDayEvent = events.find(e => 
+            e.type === 'Event' || 
+            e.title.toLowerCase().includes('working day') || 
+            e.title.toLowerCase().includes('order')
         );
 
         let ro = "";
@@ -229,25 +234,21 @@ const Home = ({
         } else if (hol) {
             ro = "";
             rs = "Holiday";
-        } else if (manual) {
-            const found = ["Monday", ...daysOrder].find((d) =>
-                manual.title.includes(d)
+        } else if (acEvt) {
+            ro = "";
+            rs = "Occasion";
+        } else if (fullDayEvt) {
+            ro = "";
+            rs = "Event Day";
+        } else if (workingDayEvent) {
+            const foundOrder = ["Monday", ...daysOrder].find((d) =>
+                workingDayEvent.title.includes(d)
             );
-            if (found) {
-                ro = found;
-                rs = `Following ${found} Order`;
-            } else {
-                ro = weekdayName === "Sunday" ? "" : weekdayName;
-                rs = `Regular ${ro}`;
-            }
+            ro = foundOrder || (weekdayName === "Sunday" ? "" : weekdayName);
+            rs = foundOrder ? `Following ${foundOrder} Order` : `Working Day (${ro})`;
         } else {
-            if (weekdayName === "Sunday") {
-                ro = "";
-                rs = "Holiday";
-            } else {
-                ro = weekdayName;
-                rs = `Regular ${weekdayName}`;
-            }
+            ro = "";
+            rs = (weekdayName === "Sunday") ? "Holiday" : "No Academic Calendar Scheduled";
         }
         setDayOrder(ro);
         setScheduleStatus(rs);
@@ -258,7 +259,7 @@ const Home = ({
         if (activeProfile?.section && todayStr) {
             setAreEventsLoading(true);
             const { batch, department, section } = activeProfile;
-            const sRef = ref(db, `events/${batch}/${department}/${section}`);
+            const sRef = ref(db, `list_events/${batch}/${department}/${section}`);
             const unsub = onValue(sRef, (snap) => {
                 const data = snap.val() || [];
                 const arr = Array.isArray(data) ? data : Object.values(data);
@@ -267,7 +268,8 @@ const Home = ({
                     if (group.events && Array.isArray(group.events)) {
                         group.events.forEach(ev => {
                             if (ev.date === todayStr) {
-                                flattenedToday.push({ ...group, ...ev, title: ev.title || group.title });
+                                const { events: _ignored, scopes: _s, ...groupRest } = group;
+                                flattenedToday.push({ ...groupRest, ...ev, title: ev.title || group.title });
                             }
                         });
                     } else {
@@ -286,8 +288,9 @@ const Home = ({
         }
     }, [activeProfile, todayStr]);
 
-    const fullDayEvent = todayEvents.find((e) => e.type === "FullDay");
-    const halfDayEvent = todayEvents.find((e) => e.type === "HalfDay");
+    const fullDayEvent = sectionEvts.find((e) => e.type === "FullDay" || (e.type === "Event" && e.fullTime === "All Day"));
+    const halfDayEvent = sectionEvts.find((e) => e.type === "HalfDay" || (e.type === "Event" && e.fullTime !== "All Day"));
+    console.log("SECTION EVENTS TODAY:", sectionEvts, { fullDayEvent, halfDayEvent });
 
     // ---------- SAVE ACTIONS ----------
     const handleSaveNote = async () => {
@@ -329,19 +332,18 @@ const Home = ({
 
     // ---------- EVENT CLASS ----------
     const getEventClass = (event) => {
-        const t = event.title.toLowerCase();
-        if (t.includes("holiday")) return "holiday";
-        if (
-            t.includes("exam") ||
-            t.includes("test") ||
-            t.includes("sia") ||
-            t.includes("fia")
-        )
-            return "exam";
-        if (t.includes("working day") && t.includes("order")) return "order";
-        if (event.type === "FullDay" || event.type === "HalfDay" || event.isSection)
-            return "special";
-        return "default";
+        const t = (event.title || '').toLowerCase();
+        // Priority 1: Exam override (Green)
+        if (t.includes('exam') || t.includes('test') || t.includes('sia') || t.includes('fia')) return 'exam';
+        
+        // Priority 2: Order override (Saffron)
+        if (t.includes('order')) return 'order';
+        
+        // Priority 3: Assigned Types
+        if (event.type === 'Holiday' || t.includes('holiday')) return 'holiday';
+        if (event.type === 'Academic') return 'academic';
+        
+        return 'default'; // Working Day (Blue)
     };
 
     // ======================= RENDER =======================
@@ -403,8 +405,8 @@ const Home = ({
                             <div className="h2-calendar-section">
                                 <div className="h2-section-title">Academic Calendar</div>
                                 <div className="h2-grouped-card">
-                                    {todayEvents.length > 0 ? (
-                                        todayEvents.map((ev, i) => (
+                                    {globalEvents.length > 0 ? (
+                                        globalEvents.map((ev, i) => (
                                             <React.Fragment key={i}>
                                                 <div className="h2-event-row">
                                                     <div className={`h2-event-bar ${getEventClass(ev)}`} />
@@ -416,7 +418,7 @@ const Home = ({
                                                     </div>
                                                 </div>
                                                 {/* Add divider except for the last item */}
-                                                {i < todayEvents.length - 1 && <div className="h2-event-divider" />}
+                                                {i < globalEvents.length - 1 && <div className="h2-event-divider" />}
                                             </React.Fragment>
                                         ))
                                     ) : (
@@ -648,10 +650,12 @@ const Home = ({
                                                 tag="SPECIAL EVENT"
                                                 title={halfDayEvent.title}
                                                 subtitle={halfDayEvent.description || "Special Session"}
-                                                meta1={`${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`}
-                                                meta1Icon={<RiTimeLine />}
-                                                meta2="Event"
-                                                meta2Icon={<RiInformationLine />}
+                                                {...(halfDayEvent.type !== "Event" ? {
+                                                    meta1: `${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`,
+                                                    meta1Icon: <RiTimeLine />,
+                                                    meta2: "Event",
+                                                    meta2Icon: <RiInformationLine />
+                                                } : {})}
                                             />
                                         )}
 

@@ -313,10 +313,12 @@ export const EventCard = ({ tag, title, subtitle, meta1, meta2, meta1Icon, meta2
       <div className="s2-event-info">
         <h3>{title}</h3>
         <p>{subtitle}</p>
-        <div className="s2-event-meta">
-          {meta1 && <span className="s2-meta-chip">{meta1Icon || <RiTimeLine />} {meta1}</span>}
-          {meta2 && <span className="s2-meta-chip">{meta2Icon || <RiInformationLine />} {meta2}</span>}
-        </div>
+        {(meta1 || meta2) && (
+          <div className="s2-event-meta">
+            {meta1 && <span className="s2-meta-chip">{meta1Icon || <RiTimeLine />} {meta1}</span>}
+            {meta2 && <span className="s2-meta-chip">{meta2Icon || <RiInformationLine />} {meta2}</span>}
+          </div>
+        )}
       </div>
     </div>
   </div>
@@ -709,7 +711,7 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
     if (activeProfile?.section) {
       setAreEventsLoading(true);
       const { batch, department, section } = activeProfile;
-      const sectionEventsRef = ref(db, `events/${batch}/${department}/${section}`);
+      const sectionEventsRef = ref(db, `list_events/${batch}/${department}/${section}`);
       const unsub = onValue(sectionEventsRef, (snap) => {
         const data = snap.val() || [];
         const rawEvents = Array.isArray(data) ? data : Object.values(data);
@@ -718,7 +720,8 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
             if (group.events && Array.isArray(group.events)) {
                 group.events.forEach(ev => {
                     if (ev.date === todayStr) {
-                        flattenedToday.push({ ...group, ...ev, title: ev.title || group.title });
+                        const { events: _ignored, scopes: _s, ...groupRest } = group;
+                        flattenedToday.push({ ...groupRest, ...ev, title: ev.title || group.title });
                     }
                 });
             } else {
@@ -768,38 +771,40 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
     }
 
     // Day order
-    const holidayEvent = gEvents.find(e => e.title.toLowerCase().includes("holiday"));
-    const orderEvent = gEvents.find(e => e.title.toLowerCase().includes("order"));
+    const hol = gEvents.find(e => e.type === "Holiday" || e.title.toLowerCase().includes("holiday"));
+    const acEvt = gEvents.find(e => e.type === "Academic");
+    const workingDayEvent = gEvents.find(e => 
+      e.type === 'Event' || 
+      e.title.toLowerCase().includes('working day') || 
+      e.title.toLowerCase().includes('order')
+    );
     const specialClassToday = (masterData.specialClasses || []).find(sc => sc.date === todayStr);
 
     if (specialClassToday) {
       setTodayNote(`Special Schedule: ${specialClassToday.typeTitle}`);
       setDayOrder("SPECIAL");
-    } else if (holidayEvent) {
-      setTodayNote(`Holiday: ${holidayEvent.title}`);
+    } else if (hol) {
+      setTodayNote(`Holiday: ${hol.title}`);
       setDayOrder("");
-    } else if (orderEvent) {
-      const order = ["Monday", ...daysOrder].find(day => orderEvent.title.includes(day));
-      if (order) { setDayOrder(order); setTodayNote(`Following ${order} Order.`); }
+    } else if (acEvt) {
+      setTodayNote(`Occasion: ${acEvt.title}`);
+      setDayOrder("");
+    } else if (workingDayEvent) {
+      const order = ["Monday", ...daysOrder].find(day => workingDayEvent.title.includes(day));
+      const weekday = currentDate.getDay();
+      const fallback = ["Monday", ...daysOrder][weekday - 1] || "";
+      const finalOrder = order || (fallback === "Monday" ? "" : fallback);
+      setDayOrder(finalOrder);
+      setTodayNote(order ? `Following ${order} Order.` : `Working Day (${finalOrder})`);
     } else {
       const weekday = currentDate.getDay();
-      if (weekday === 0) { setTodayNote("Today is Sunday. No classes."); setDayOrder(""); }
-      else {
-        const order = ["Monday", ...daysOrder][weekday - 1];
-        if (order === "Monday") { setTodayNote("Today is Monday. No classes."); setDayOrder(""); }
-        else { setDayOrder(order); setTodayNote(`Today is ${order}.`); }
-      }
+      setTodayNote(weekday === 0 ? "Today is Sunday. No classes." : "No Academic Calendar Scheduled");
+      setDayOrder("");
     }
   }, [currentDate, globalData, allCalendar, masterData]);
 
-  // Merged events
-  const todayEvents = useMemo(() => {
-    const combined = [...globalEvents, ...sectionEvents];
-    return Array.from(new Map(combined.map(item => [item.id || item.title, item])).values());
-  }, [globalEvents, sectionEvents]);
-
-  const fullDayEvent = todayEvents.find(e => e.type === "FullDay");
-  const halfDayEvent = todayEvents.find(e => e.type === "HalfDay");
+  const fullDayEvent = sectionEvents.find(e => e.type === "FullDay" || (e.type === "Event" && e.fullTime === "All Day"));
+  const halfDayEvent = sectionEvents.find(e => e.type === "HalfDay" || (e.type === "Event" && e.fullTime !== "All Day"));
 
   // Build periods for today
   const todayPeriods = useMemo(() => {
@@ -1001,8 +1006,10 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
                     tag="SPECIAL EVENT"
                     title={halfDayEvent.title}
                     subtitle={halfDayEvent.description || "Special Session"}
-                    meta1={`${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`}
-                    meta2="Event"
+                    {...(halfDayEvent.type !== "Event" ? {
+                      meta1: `${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`,
+                      meta2: "Event"
+                    } : {})}
                   />
                 )}
 

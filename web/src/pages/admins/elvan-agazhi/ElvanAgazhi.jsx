@@ -247,8 +247,20 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
         setParsedCalendar(prev => {
             const updated = [...prev];
             if (updated[mi] && updated[mi].rows[ri]) {
-                updated[mi] = { ...updated[mi], rows: [...updated[mi].rows] };
-                updated[mi].rows[ri] = { ...updated[mi].rows[ri], [field]: value };
+                const newMonth = { ...updated[mi], rows: [...updated[mi].rows] };
+                if (field === '_DELETE_ROW') {
+                    newMonth.rows[ri] = { 
+                        ...newMonth.rows[ri], 
+                        event: '', 
+                        workingDay: '', 
+                        fullTime: '', 
+                        type: '', 
+                        isHoliday: false 
+                    };
+                } else {
+                    newMonth.rows[ri] = { ...newMonth.rows[ri], [field]: value };
+                }
+                updated[mi] = newMonth;
             }
             return updated;
         });

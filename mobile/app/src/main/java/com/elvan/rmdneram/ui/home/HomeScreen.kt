@@ -52,6 +52,7 @@ fun HomeScreen(
     // Optimized: Observe derived state flows directly
     val scheduleState by viewModel.scheduleState.collectAsState()
     val todayEvents by viewModel.todayEvents.collectAsState()
+    val academicCalendarEvents by viewModel.academicCalendarEvents.collectAsState()
     val todayUpdate by viewModel.todayUpdate.collectAsState()
     
     var showDatePicker by remember { mutableStateOf(false) }
@@ -65,14 +66,15 @@ fun HomeScreen(
     // =========================================================================
     // EVENT DEDUPLICATION LOGIC
     // =========================================================================
-    // Determine which events are being shown as "Big Cards" in the Schedule Section
-    // and hide them from the Academic Calendar list to avoid redundancy.
+    // Academic Calendar section shows ONLY global calendar events (not Event Manager events).
+    // Event Manager events (FullDay/HalfDay) are shown as big cards in the Schedule section.
+    // We still deduplicate exam events that are already shown as big cards.
     val displayConfig = remember(scheduleState) { ScheduleLogic.calculateDisplayConfig(scheduleState) }
     
-    val filteredEvents = remember(todayEvents, displayConfig, scheduleState) {
-        if (todayEvents.isEmpty()) return@remember todayEvents
+    val filteredEvents = remember(academicCalendarEvents, displayConfig, scheduleState) {
+        if (academicCalendarEvents.isEmpty()) return@remember academicCalendarEvents
 
-        todayEvents.filter { event ->
+        academicCalendarEvents.filter { event ->
             val isFullDayRedundant = displayConfig.showFullDayEvent && scheduleState.fullDayEvent?.let { 
                 event.id == it.id || event.title == it.title 
             } == true
@@ -90,10 +92,10 @@ fun HomeScreen(
     }
 
     // Visibility Logic:
-    // 1. If todayEvents is empty -> Show "Regular Working Day"
-    // 2. If todayEvents is NOT empty but filteredEvents IS empty -> HIDE section
+    // 1. If academicCalendarEvents is empty -> Show "No events declared"
+    // 2. If academicCalendarEvents is NOT empty but filteredEvents IS empty -> HIDE section
     // 3. If filteredEvents is NOT empty -> Show Calendar + List
-    val showAcademicCalendarSection = todayEvents.isEmpty() || filteredEvents.isNotEmpty()
+    val showAcademicCalendarSection = academicCalendarEvents.isEmpty() || filteredEvents.isNotEmpty()
     
     // =========================================================================
     // DIALOGS

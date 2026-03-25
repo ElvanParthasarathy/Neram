@@ -2,5 +2,9 @@
     {
         "merged": "com.elvan.rmdneram.admin-mergeReleaseResources-44:/layout/activity_admin_main.xml",
         "source": "com.elvan.rmdneram.admin-main-46:/layout/activity_admin_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-mergeReleaseResources-44:\\layout\\activity_admin_main.xml",
+        "source": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-main-46:\\layout\\activity_admin_main.xml"
     }
 ]

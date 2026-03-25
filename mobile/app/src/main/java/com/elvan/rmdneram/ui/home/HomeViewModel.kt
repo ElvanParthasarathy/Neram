@@ -58,7 +58,8 @@ data class ScheduleState(
     val todayBatches: ImmutableList<TodayBatchGroup> = persistentListOf(),
     val todaySpecialClass: SpecialClass? = null,
     val fullDayEvent: CalendarEvent? = null,
-    val halfDayEvent: CalendarEvent? = null
+    val halfDayEvent: CalendarEvent? = null,
+    val occasionEvent: CalendarEvent? = null
 )
 
 /**
@@ -233,7 +234,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val todayBatches: List<TodayBatchGroup> = emptyList(),
         val todaySpecialClass: SpecialClass? = null,
         val fullDayEvent: CalendarEvent? = null,
-        val halfDayEvent: CalendarEvent? = null
+        val halfDayEvent: CalendarEvent? = null,
+        val occasionEvent: CalendarEvent? = null
     )
     
     // Cache ScheduleState for instant startup (avoids "black to filled" transition)
@@ -250,7 +252,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 todayBatches = (cached.todayBatches).toImmutableList(),
                 todaySpecialClass = cached.todaySpecialClass,
                 fullDayEvent = cached.fullDayEvent,
-                halfDayEvent = cached.halfDayEvent
+                halfDayEvent = cached.halfDayEvent,
+                occasionEvent = cached.occasionEvent
             )
         } else {
             ScheduleState()
@@ -270,6 +273,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             .filter { it.date == todayStr }
             .distinctBy { it.id.ifEmpty { it.title } }
             .toImmutableList()
+        } catch (e: Exception) {
+            persistentListOf()
+        }
+    }
+    
+    // Computed cached academic events for instant startup
+    private val _cachedAcademicEvents: ImmutableList<CalendarEvent> = run {
+        try {
+            val todayStr = LocalDate.now().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)
+            _cachedInitialState.calendarEvents
+                .filter { it.date == todayStr }
+                .distinctBy { it.id.ifEmpty { it.title } }
+                .toImmutableList()
         } catch (e: Exception) {
             persistentListOf()
         }
@@ -423,7 +439,19 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     
     // StateFlow for specific data slices to minimize recomposition
     
-    // 1. Today's Events Flow
+    // 1a. Academic Calendar Events Flow — ONLY global calendar events (matches web's globalEvents)
+    //     These are shown in the "Academic Calendar" section on the Home screen.
+    val academicCalendarEvents: StateFlow<ImmutableList<CalendarEvent>> = combine(uiState, _selectedDate) { state, date ->
+        val dateStr = date.format(dateFormatter)
+        state.calendarEvents
+            .filter { it.date == dateStr }
+            .distinctBy { it.id.ifEmpty { it.title } }
+            .toImmutableList()
+    }
+    .flowOn(Dispatchers.Default)
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _cachedAcademicEvents)
+
+    // 1b. Today's All Events Flow — Merged calendar + section events (for Schedule logic)
     val todayEvents: StateFlow<ImmutableList<CalendarEvent>> = combine(uiState, _selectedDate) { state, date ->
         val dateStr = date.format(dateFormatter)
         
@@ -473,9 +501,13 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         
-        // Check for full-day or half-day events
-        val fullDayEvent = currentEvents.find { it.type == "FullDay" }
-        val halfDayEvent = currentEvents.find { it.type == "HalfDay" }
+        // Check for full-day, half-day or occasion events
+        // Web parity (Home.jsx): type "Event" (Regular Notice) maps to fullDay if fullTime == "All Day", otherwise halfDay
+        // IMPORTANT: Only match type "Event" for section events (isSection=true), NOT academic calendar events
+        // On the web, fullDayEvent/halfDayEvent are searched only in sectionEvts, not globalEvents
+        val fullDayEvent = currentEvents.find { it.type == "FullDay" || (it.type == "Event" && it.isSection && it.fullTime == "All Day") }
+        val halfDayEvent = currentEvents.find { it.type == "HalfDay" || (it.type == "Event" && it.isSection && it.fullTime != "All Day") }
+        val occasionEvent = currentEvents.find { it.isOccasion() }
         
         // Detect special class for today
         val todaySpecialClass = masterData.specialClasses.find { it.date == dateStr }
@@ -509,7 +541,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             todayBatches = todayBatches,
             todaySpecialClass = todaySpecialClass,
             fullDayEvent = fullDayEvent,
-            halfDayEvent = halfDayEvent
+            halfDayEvent = halfDayEvent,
+            occasionEvent = occasionEvent
         )
     }
     .onEach { state ->
@@ -541,7 +574,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val isHoliday = schedule.scheduleStatus.contains("Holiday", ignoreCase = true)
         val hasFullDayEvent = schedule.fullDayEvent != null
         val isMajorExam = schedule.activeExamPeriod != null && !schedule.activeExamPeriod.type.contains("CT")
-        val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam || schedule.todaySpecialClass != null
+        val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam || schedule.todaySpecialClass != null || schedule.occasionEvent != null
         
         val hasLabToday = (!classesSuspended && schedule.periods.any { it.isLab }) || (schedule.activeExamPeriod != null && schedule.activeExamPeriod.type.equals("Practical", ignoreCase = true) && schedule.todayBatches.isNotEmpty())
         val hasExamToday = schedule.todayExam != null || schedule.todayBatches.isNotEmpty()
@@ -586,30 +619,34 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
      */
     private fun resolveDayOrder(date: LocalDate, events: List<CalendarEvent>, specialClass: SpecialClass? = null): Pair<String, String> {
         if (specialClass != null) {
-            return "SPECIAL" to "Special Schedule: ${specialClass.typeTitle}"
+            return "SPECIAL" to "Classes suspended due to ${specialClass.title.ifBlank { specialClass.typeTitle }}."
         }
 
-        val weekday = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+        val weekdayName = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
         
         val holidayEvent = events.find { it.isHoliday() }
-        val orderEvent = events.find { it.isOrderOverride() }
+        val occasionEvent = events.find { it.isOccasion() }
+        val fullDayEvt = events.find { it.type == "FullDay" }
+        val workingDayEvent = events.find { e -> 
+            e.type == "Event" || 
+            e.title.contains("working day", ignoreCase = true) || 
+            e.title.contains("order", ignoreCase = true)
+        }
         
         return when {
             holidayEvent != null -> "" to "Holiday: ${holidayEvent.title}"
-            orderEvent != null -> {
-                val foundDay = orderEvent.extractOrderDay()
-                if (foundDay != null) {
-                    foundDay to "Following $foundDay Order"
-                } else {
-                    if (date.dayOfWeek == DayOfWeek.SUNDAY) {
-                        "" to "Sunday (Holiday)"
-                    } else {
-                        weekday to "Regular $weekday"
-                    }
-                }
+            occasionEvent != null -> "" to "Occasion"
+            fullDayEvt != null -> "" to "Event Day"
+            workingDayEvent != null -> {
+                val foundOrder = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
+                    .find { workingDayEvent.title.contains(it, ignoreCase = true) }
+                
+                val ro = foundOrder ?: (if (date.dayOfWeek == DayOfWeek.SUNDAY) "" else weekdayName)
+                val rs = if (foundOrder != null) "Following $foundOrder Order" else "Working Day ($ro)"
+                ro to rs
             }
-            date.dayOfWeek == DayOfWeek.SUNDAY -> "" to "Sunday (Holiday)"
-            else -> weekday to "Regular $weekday"
+            date.dayOfWeek == DayOfWeek.SUNDAY -> "" to "Holiday"
+            else -> "" to "No Academic Calendar Scheduled"
         }
     }
     

@@ -211,11 +211,13 @@ const useCalendarData = (globalData, selectedDate, currentMonth) => {
         }
 
         const title = group.title.toLowerCase();
+        const evType = group.events[0].type;
         let color = BAR_DEFAULT_COLOR;
-        if (title.includes("holiday")) color = HOLIDAY_COLOR;
-        else if (title.includes("exam") || title.includes("test") || title.includes("sia") || title.includes("fia")) color = EXAM_COLOR;
+        
+        if (title.includes("exam") || title.includes("test") || title.includes("sia") || title.includes("fia")) color = EXAM_COLOR;
         else if (title.includes("order")) color = ORDER_COLOR;
-        else if (group.events[0].type === "FullDay" || group.events[0].isSection) color = SPECIAL_COLOR;
+        else if (evType === "Holiday" || title.includes("holiday")) color = HOLIDAY_COLOR;
+        else if (evType === "Academic") color = SPECIAL_COLOR;
 
         indicatorMap[ds][lane] = {
           color,
@@ -402,10 +404,10 @@ const MobileOfficialDocs = () => {
 
 const getEventObjColor = (event) => {
   const title = (event.title || "").toLowerCase();
-  if (title.includes("holiday")) return HOLIDAY_COLOR;
   if (title.includes("exam") || title.includes("test") || title.includes("sia") || title.includes("fia")) return EXAM_COLOR;
   if (title.includes("order")) return ORDER_COLOR;
-  if (event.type === "FullDay" || event.isSection) return SPECIAL_COLOR;
+  if (event.type === "Holiday" || title.includes("holiday")) return HOLIDAY_COLOR;
+  if (event.type === "Academic") return SPECIAL_COLOR;
   return BAR_DEFAULT_COLOR;
 };
 

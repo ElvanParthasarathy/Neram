@@ -16,12 +16,9 @@ function generateGroupId() {
 /**
  * Determine the time range for an event title.
  */
-function getFullTime(title) {
-    const upper = title.toUpperCase();
-    if (upper.startsWith('WORKING DAY') || upper.includes('COMMENCEMENT')) {
-        return '08:30 AM - 03:00 PM';
-    }
-    return '';
+function getFullTime(title, isHoliday, type) {
+    if (isHoliday || type === 'Holiday') return 'All Day';
+    return '08:30 AM - 03:00 PM';
 }
 
 /**
@@ -53,16 +50,19 @@ export function buildRTDBEvents(calendar) {
 
             if (!isoDate) continue;
 
-            const eventText = (r.event || '').trim();
-            if (!eventText) continue;
+            let eventText = (r.event || '').trim();
+            const hasWD = !!(r.workingDay || '').trim();
+            if (!eventText && !hasWD) continue;
+            
+            if (!eventText && hasWD) eventText = `Working Day (WD ${r.workingDay})`;
 
-            const upper = eventText.toUpperCase();
-            const defaultType = (upper.startsWith('WORKING DAY') || upper.includes('COMMENCEMENT')) ? 'Custom' : 'FullDay';
+            const defaultType = r.workingDay ? 'Event' : 'Holiday';
+            const isHoliday = defaultType === 'Holiday';
 
             monthEntries.push({
                 isoDate,
                 title: eventText,
-                fullTime: r.fullTime || getFullTime(eventText),
+                fullTime: r.fullTime || getFullTime(eventText, isHoliday, r.type || defaultType),
                 type: r.type || defaultType
             });
         }

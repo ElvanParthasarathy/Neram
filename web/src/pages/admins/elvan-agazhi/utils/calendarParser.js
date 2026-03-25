@@ -130,7 +130,7 @@ function parseDataLine(line) {
         if (mainEvent && mainEvent.toUpperCase() !== 'WORKING DAY') {
             const mainIsHoliday = mainEvent.toUpperCase().includes('HOLIDAY');
             entries.push({ date, day, workingDay, event: mainEvent, isHoliday: mainIsHoliday });
-            entries.push({ date: '', day: '', workingDay: '', event: orderText, isHoliday: false });
+            entries.push({ date, day, workingDay, event: orderText, isHoliday: false });
         } else {
             entries.push({ date, day, workingDay, event: orderText, isHoliday: false });
         }

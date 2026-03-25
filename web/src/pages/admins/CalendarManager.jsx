@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from "../../firebase";
-import { ref, onValue, set, remove, push, get } from "firebase/database";
+import { ref, onValue, set, remove, push, get, update } from "firebase/database";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../utils/timeUtils";
@@ -128,13 +128,19 @@ const CalendarManager = () => {
 
   // --- MULTI-EVENT BATCH STATE ---
   const [batchEvents, setBatchEvents] = useState([
-    { id: Date.now(), title: '', startDate: new Date().toISOString().split('T')[0], endDate: new Date().toISOString().split('T')[0], fullTime: 'All Day', type: 'FullDay' }
+    { id: Date.now(), title: '', startDate: new Date().toISOString().split('T')[0], endDate: new Date().toISOString().split('T')[0], fullTime: '08:30 AM - 03:00 PM', type: 'Event' }
   ]);
   const [isAddingNew, setIsAddingNew] = useState(false); // Sacrificial state to prevent ghost crashes
+  const [toastMsg, setToastMsg] = useState('');
+
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(''), 2500);
+  };
 
   const addBatchRow = () => {
     const today = new Date().toISOString().split('T')[0];
-    setBatchEvents(prev => [...prev, { id: Date.now() + Math.random(), title: '', startDate: today, endDate: today, fullTime: 'All Day', type: 'FullDay' }]);
+    setBatchEvents(prev => [...prev, { id: Date.now() + Math.random(), title: '', startDate: today, endDate: today, fullTime: '08:30 AM - 03:00 PM', type: 'Event' }]);
   };
 
   const removeBatchRow = (id) => {
@@ -250,6 +256,7 @@ const CalendarManager = () => {
     event.target.value = null; // Reset input
   };
 
+
   const handleAddNewEvent = () => {
     addBatchRow();
   };
@@ -295,14 +302,14 @@ const CalendarManager = () => {
     // PERSIST IMMEDIATELY to academic calendar path
     try {
       await set(ref(db, `calendars/${selectedBatch}/events`), updatedEvents);
-      alert(`✅ ${validEvents.length} event(s) created and saved to academic calendar!`);
+      showToast(`✅ ${validEvents.length} event(s) saved log!`);
     } catch (err) {
       alert("Events created locally but failed to save to server: " + err.message);
     }
 
     // Reset to one fresh row
     const today = new Date().toISOString().split('T')[0];
-    setBatchEvents([{ id: Date.now(), title: '', startDate: today, endDate: today, fullTime: 'All Day', type: 'FullDay' }]);
+    setBatchEvents([{ id: Date.now(), title: '', startDate: today, endDate: today, fullTime: 'All Day', type: 'Event' }]);
   };
 
   // --- BULK DELETE HANDLERS ---
@@ -340,7 +347,7 @@ const CalendarManager = () => {
     // Persist immediately
     try {
       await set(ref(db, `calendars/${selectedBatch}/events`), updated);
-      alert(`✅ ${selectedEvents.length} event(s) deleted!`);
+      showToast(`✅ ${selectedEvents.length} event(s) deleted!`);
     } catch (err) {
       alert('Delete failed locally, save needed: ' + err.message);
     }
@@ -353,40 +360,47 @@ const CalendarManager = () => {
 
 
 
-  const saveEdit = (oldStartDate, oldEndDate, oldTitle) => {
-    // Determine the buffer's properties
+  const saveEdit = async (oldStartDate, oldEndDate, oldTitle) => {
     if (editBuffer.length === 0) return;
     const spanInfo = editBuffer[0]; 
 
-    setLiveFlatEvents(prev => {
-      // Remove all flattened events that were part of this original span
-      const filtered = prev.filter(ev => {
-        const isMatch = (ev.title === oldTitle && ev.date >= oldStartDate && ev.date <= oldEndDate);
-        return !isMatch;
-      });
-
-      // Generate new flattened events for the new span (academic calendar format)
-      const newEvents = [];
-      const gId = generateGroupId();
-      const start = new Date(spanInfo.startDate);
-      const end = new Date(spanInfo.endDate);
-      let current = new Date(start);
-      while (current <= end) {
-        const dStr = current.toISOString().split('T')[0];
-        newEvents.push({
-          date: dStr,
-          fullTime: spanInfo.fullTime,
-          type: spanInfo.type || 'FullDay',
-          groupId: gId,
-          id: `${gId}_${dStr}`,
-          title: spanInfo.title
-        });
-        current.setDate(current.getDate() + 1);
-      }
-      return [...filtered, ...newEvents];
+    const filtered = liveFlatEvents.filter(ev => {
+      const isMatch = (ev.title === oldTitle && ev.date >= oldStartDate && ev.date <= oldEndDate);
+      return !isMatch;
     });
+
+    const newEvents = [];
+    const gId = generateGroupId();
+    const start = new Date(spanInfo.startDate);
+    const end = new Date(spanInfo.endDate);
+    let current = new Date(start);
+    while (current <= end) {
+      const dStr = current.toISOString().split('T')[0];
+      newEvents.push({
+        date: dStr,
+        fullTime: spanInfo.fullTime,
+        type: spanInfo.type || 'FullDay', // Preserves Occasion (Academic), Holiday, or Event (Working Day)
+        groupId: gId,
+        id: `${gId}_${dStr}`,
+        title: spanInfo.title
+      });
+      current.setDate(current.getDate() + 1);
+    }
+    const finalEvents = [...filtered, ...newEvents];
+    setLiveFlatEvents(finalEvents);
+
     setEditingDateStr(null);
     setEditBuffer([]);
+
+    // Persist to Firebase instantly (like Bulk Add/Delete)
+    try {
+      if (finalEvents.length > 0) {
+        await set(ref(db, `calendars/${selectedBatch}/events`), finalEvents);
+        showToast("✅ Edit saved successfully!");
+      }
+    } catch (err) {
+      alert('Edit failed to save to server: ' + err.message);
+    }
   };
 
   const startEditingSpan = (span) => {
@@ -448,6 +462,30 @@ const CalendarManager = () => {
   };
 
 
+  // --- Auto-color mapping (matches Calendar.jsx — colors NOT saved in DB) ---
+  const getCardColor = (event) => {
+    const t = (event.title || '').toLowerCase();
+    
+    // Priority 1: Exam override (Green)
+    if (t.includes('exam') || t.includes('test') || t.includes('sia') || t.includes('fia')) return { text: '#66BB6A', bg: '#66BB6A20' };
+    
+    // Priority 2: Order override (Cyan)
+    if (t.includes('order')) return { text: '#00BCD4', bg: '#00BCD420' };
+    
+    // Priority 3: Assigned Types & Exact matches
+    if (event.type === 'Holiday' || t.includes('holiday')) return { text: '#9C27B0', bg: '#9C27B020' }; // Purple
+    if (event.type === 'Academic') return { text: '#FFCA28', bg: '#FFCA2820' }; // Yellow
+    
+    // Default: Working Day
+    return { text: 'var(--mac-blue)', bg: 'rgba(10, 132, 255, 0.1)' }; // Working Day / Default
+  };
+
+  // --- Base Type Color mapping (No Overrides) ---
+  const getBaseTypeColor = (type) => {
+    if (type === 'Holiday') return { text: '#9C27B0', bg: '#9C27B020' };
+    if (type === 'Academic') return { text: '#FFCA28', bg: '#FFCA2820' };
+    return { text: 'var(--mac-blue)', bg: 'rgba(10, 132, 255, 0.1)' };
+  };
 
   const filteredLiveEvents = liveFlatEvents.filter(item => {
     const itemDate = new Date(item.date);
@@ -461,6 +499,12 @@ const CalendarManager = () => {
   // --- RENDER ---
   return (
     <div className="pc-container admin-subpage">
+      {toastMsg && createPortal(
+        <div className="admin-toast-popup animate-slide-up">
+          {toastMsg}
+        </div>,
+        document.body
+      )}
 
       {/* 1. HEADER WITH BREADCRUMBS */}
       <header className="explorer-header focus-mode" style={{ background: 'transparent', padding: '0 0 20px 0', borderBottom: '1px solid var(--mac-divider)', height: 'auto', marginBottom: 0 }}>
@@ -551,13 +595,15 @@ const CalendarManager = () => {
                     <p style={{ fontSize: '13px', color: 'var(--mac-text-secondary)', margin: '0 0 24px 0', textAlign: 'center', maxWidth: '300px', lineHeight: 1.5 }}>
                       Use the PDF Agazhi tab above to generate a new live calendar for this batch.
                     </p>
-                    <button
-                      className="premium-pill-btn secondary"
-                      onClick={() => fileInputRef.current.click()}
-                      style={{ width: '100%', maxWidth: '240px', height: '44px' }}
-                    >
-                      <RiUploadCloud2Line style={{ fontSize: '18px' }} /> Import Backup JSON
-                    </button>
+                    <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '150px' }}>
+                      <button
+                        className="premium-pill-btn secondary"
+                        onClick={() => fileInputRef.current.click()}
+                        style={{ flex: 1, height: '44px' }}
+                      >
+                        <RiUploadCloud2Line style={{ fontSize: '18px' }} /> Import JSON
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <>
@@ -636,6 +682,41 @@ const CalendarManager = () => {
                                 </div>
 
                                 <div className="field">
+                                  <label>Event Type</label>
+                                  <div style={{ display: 'flex', gap: '6px', background: 'var(--mac-button-bg)', borderRadius: '100px', padding: '4px', height: '44px', width: '100%', boxSizing: 'border-box' }}>
+                                    {[{label: 'Working Day', val: 'Event'}, {label: 'Holiday', val: 'Holiday'}, {label: 'Occasion', val: 'Academic'}].map(t => {
+                                      const isActive = ev.type === t.val || (!ev.type && t.val === 'Event');
+                                      const activeColor = t.val === 'Holiday' ? '#9C27B0' : (t.val === 'Academic' ? '#FFCA28' : 'var(--mac-blue)');
+                                      const isTinted = t.val === 'Academic';
+                                      return (
+                                        <button
+                                          key={t.val}
+                                          onClick={() => {
+                                              updateBatchRow(ev.id, 'type', t.val);
+                                              if (t.val === 'Holiday') {
+                                                  updateBatchRow(ev.id, 'fullTime', 'All Day');
+                                              } else {
+                                                  // Default for Working Day and Occasion is custom time
+                                                  if (ev.fullTime === 'All Day') updateBatchRow(ev.id, 'fullTime', '08:30 AM - 03:00 PM');
+                                              }
+                                          }}
+                                          style={{
+                                            flex: 1, padding: '0 8px', border: 'none', borderRadius: '100px',
+                                            fontSize: '12px', fontWeight: 700, cursor: 'pointer',
+                                            background: isActive ? (isTinted ? `${activeColor}25` : activeColor) : 'transparent',
+                                            color: isActive ? (isTinted ? activeColor : '#fff') : 'var(--mac-text-secondary)',
+                                            transition: 'all 0.2s ease', height: '100%'
+                                          }}
+                                        >
+                                          {t.label}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+
+                                {false && (
+                                <div className="field animate-slide-up">
                                   <label>Time Setting</label>
                                   <div style={{ display: 'flex', gap: '6px', background: 'var(--mac-button-bg)', borderRadius: '100px', padding: '4px', height: '44px', width: '100%', boxSizing: 'border-box' }}>
                                     {['All Day', 'Custom'].map(t => {
@@ -658,6 +739,7 @@ const CalendarManager = () => {
                                     })}
                                   </div>
                                 </div>
+                                )}
 
                                 <div className="field">
                                   <label>Start Date</label>
@@ -675,7 +757,7 @@ const CalendarManager = () => {
                                   />
                                 </div>
 
-                                {ev.fullTime !== 'All Day' && (
+                                {ev.type !== 'Holiday' && ev.fullTime !== 'All Day' && (
                                   <>
                                     <div className="field animate-slide-up">
                                       <label>Start Time</label>
@@ -720,7 +802,7 @@ const CalendarManager = () => {
                               <button className="btn-save-master" style={{ flex: 1, height: '36px', fontSize: '13px', padding: '0 18px', borderRadius: '50px' }} onClick={saveBatchEvents}>Publish</button>
                               <button className="btn-cancel-mini" style={{ flex: 1, padding: '0 18px', height: '36px', fontSize: '13px', borderRadius: '50px', background: 'var(--mac-sidebar-bg)', border: '1px solid var(--mac-border)', color: 'var(--mac-text)', cursor: 'pointer', fontWeight: 600 }} onClick={() => {
                                 const today = new Date().toISOString().split('T')[0];
-                                setBatchEvents([{ id: Date.now(), title: '', startDate: today, endDate: today, fullTime: 'All Day', type: 'FullDay' }]);
+                                setBatchEvents([{ id: Date.now(), title: '', startDate: today, endDate: today, fullTime: 'All Day', type: 'Event' }]);
                               }}>Cancel</button>
                             </div>
                           )}
@@ -771,14 +853,16 @@ const CalendarManager = () => {
                                                   onChange={(e) => { e.stopPropagation(); handleToggleEventSelect(spanId); }}
                                               />
                                           )}
-                                          <div className="compact-date-badge">
+                                          <div className="compact-date-badge" style={{ background: getCardColor(currentSpan).bg, color: getCardColor(currentSpan).text }}>
                                               <span className="day-num">{new Date(currentSpan.startDate).getDate()}</span>
                                               <span className="month-name">{new Date(currentSpan.startDate).toLocaleString('default', { month: 'short' })}</span>
                                           </div>
                                           <div className="compact-details">
                                               <h3>{currentSpan.title}</h3>
                                               <div className="time-row">
-                                                  <span className="time-badge-mini">{currentSpan.fullTime || 'All Day'}</span>
+                                                  <span className="time-badge-mini" style={{ color: getBaseTypeColor(currentSpan.type).text }}>
+                                                      {currentSpan.fullTime || 'All Day'}
+                                                  </span>
                                                   {!sameDay && <span style={{ opacity: 0.4 }}>•</span>}
                                                   {!sameDay && <span className="range-subtext">Until {endDisplay}</span>}
                                               </div>
@@ -815,8 +899,43 @@ const CalendarManager = () => {
                                                   />
                                               </div>
 
-                                              {/* 2. Time Setting (Uniform Flex Toggle) */}
                                               <div className="field">
+                                                   <label>Event Type</label>
+                                                   <div style={{ display: 'flex', gap: '6px', background: 'var(--mac-button-bg)', borderRadius: '100px', padding: '4px', height: '44px', width: '100%', boxSizing: 'border-box' }}>
+                                                      {[{label: 'Working Day', val: 'Event'}, {label: 'Holiday', val: 'Holiday'}, {label: 'Occasion', val: 'Academic'}].map(t => {
+                                                          const isActive = currentSpan.type === t.val || (!currentSpan.type && t.val === 'Event');
+                                                          const activeColor = t.val === 'Holiday' ? '#9C27B0' : (t.val === 'Academic' ? '#FFCA28' : 'var(--mac-blue)');
+                                                          const isTinted = t.val === 'Academic'; // Yellow uses tinted style
+                                                          return (
+                                                              <button
+                                                                  key={t.val}
+                                                                  onClick={() => {
+                                                                      const nb = [...editBuffer];
+                                                                      nb[0].type = t.val;
+                                                                      if (t.val === 'Holiday') {
+                                                                          nb[0].fullTime = 'All Day';
+                                                                      } else {
+                                                                          if (nb[0].fullTime === 'All Day') nb[0].fullTime = '08:30 AM - 03:00 PM';
+                                                                      }
+                                                                      setEditBuffer(nb);
+                                                                  }}
+                                                                  style={{
+                                                                      flex: 1, padding: '0 8px', border: 'none', borderRadius: '100px',
+                                                                      fontSize: '12px', fontWeight: 700, cursor: 'pointer',
+                                                                      background: isActive ? (isTinted ? `${activeColor}25` : activeColor) : 'transparent',
+                                                                      color: isActive ? (isTinted ? activeColor : '#fff') : 'var(--mac-text-secondary)',
+                                                                      transition: 'all 0.2s ease', height: '100%'
+                                                                  }}
+                                                              >
+                                                                  {t.label}
+                                                              </button>
+                                                          );
+                                                      })}
+                                                  </div>
+                                               </div>
+                                              {/* 2. Time Setting (Uniform Flex Toggle) - REMOVED per user request */}
+                                              {false && (
+                                              <div className="field animate-slide-up">
                                                   <label>Time Setting</label>
                                                   <div style={{ display: 'flex', gap: '6px', background: 'var(--mac-button-bg)', borderRadius: '100px', padding: '4px', height: '44px', width: '100%', boxSizing: 'border-box' }}>
                                                       {['All Day', 'Custom'].map(t => {
@@ -843,6 +962,7 @@ const CalendarManager = () => {
                                                       })}
                                                   </div>
                                               </div>
+                                              )}
 
                                               {/* 3. Start Date */}
                                               <div className="field">
@@ -871,7 +991,7 @@ const CalendarManager = () => {
                                               </div>
 
                                               {/* Start/End Time Extract for Custom */}
-                                              {currentSpan.fullTime !== 'All Day' && (
+                                              {currentSpan.type !== 'Holiday' && currentSpan.fullTime !== 'All Day' && (
                                                 <>
                                                   <div className="field animate-slide-up">
                                                     <label>Start Time</label>
@@ -939,6 +1059,7 @@ const CalendarManager = () => {
                               </div>
                             </div>
                             <div className="pill-group">
+
                               <button
                                 className="premium-pill-btn secondary"
                                 onClick={() => fileInputRef.current.click()}

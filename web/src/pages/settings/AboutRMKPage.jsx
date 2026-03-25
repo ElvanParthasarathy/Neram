@@ -16,14 +16,17 @@ const AboutRMKPage = ({ onBack }) => (
     <>
         <SubHeader title="About RMK Group" onBack={onBack} />
 
-        <div className="s2-about-header" style={{ paddingTop: '32px' }}>
-            <div className="s2-about-english" style={{ fontSize: '1.2rem', fontWeight: '800', background: 'rgba(var(--mac-accent-rgb), 0.1)', color: 'var(--mac-accent)' }}>
-                R.M.K. Group of Institutions
+        <SettingsGroup>
+            <div className="s2-about-header">
+                <div className="s2-about-english">
+                    R.M.K. Group of Institutions
+                </div>
+                <div className="s2-about-desc">
+                    A legacy of excellence in education, unparalleled discipline, and constant innovation.
+                </div>
             </div>
-            <div className="s2-about-desc" style={{ marginTop: '16px', maxWidth: '450px', marginLeft: 'auto', marginRight: 'auto' }}>
-                A legacy of excellence in education, unparalleled discipline, and constant innovation.
-            </div>
-        </div>
+        </SettingsGroup>
+        <div className="s2-spacer-md" />
 
         <div className="s2-section-label">Our Institutions</div>
         <SettingsGroup>

@@ -31,11 +31,10 @@ import "../styles/notes-desktop.css";
  * - Sequoia Pro UI (Folders, Accordions, Unit Chips)
  */
 
-const ROOT_DEPTS = ["ECE", "AIML", "CSBS", "CSE", "IT", "SNH"];
-
 const Notes = () => {
     // --- STATE ---
     const [path, setPath] = useState([]); // Stack: ["CSE", "Semester 3"]
+    const [rootDepts, setRootDepts] = useState(["ECE", "AIML", "CSBS", "CSE", "IT", "SNH"]);
     const [cachedSemesters, setCachedSemesters] = useState([]); // Raw data from RMD
     const [uiStatus, setUiStatus] = useState('empty'); // 'empty', 'loading', 'browser', 'error'
     const [error, setError] = useState(null);
@@ -108,11 +107,20 @@ const Notes = () => {
         const unsubSubjects = onValue(ref(db, 'notes_drive/subjects'), (snapshot) => setSubjects(snapshot.val() || {}));
         const unsubFiles = onValue(ref(db, 'notes_drive/files'), (snapshot) => setFiles(snapshot.val() || {}));
         
+        const unsubDepts = onValue(ref(db, 'departments'), (snap) => {
+            if (snap.exists()) {
+                let depts = snap.val();
+                if (!depts.includes("SNH")) depts.push("SNH");
+                setRootDepts(depts.sort());
+            }
+        });
+
         return () => { 
             unsubMode(); 
             unsubFolders(); 
             unsubSubjects(); 
             unsubFiles();
+            unsubDepts();
         };
     }, []);
 
@@ -392,7 +400,7 @@ const Notes = () => {
 
     // --- CONTENT RESOLUTION (The ViewModel Logic) ---
     const browserContent = useMemo(() => {
-        if (path.length === 0) return { type: 'folders', items: ROOT_DEPTS };
+        if (path.length === 0) return { type: 'folders', items: rootDepts };
         if (uiStatus !== 'browser') return null;
 
         const rootDept = path[0];

@@ -20,8 +20,12 @@ data class CalendarEvent(
     /**
      * Check if this is a holiday event
      */
-    fun isHoliday(): Boolean = title.lowercase().contains("holiday")
+    fun isHoliday(): Boolean = type == "Holiday" || title.lowercase().contains("holiday")
     
+    /**
+     * Check if this is an occasion (Academic Day)
+     */
+    fun isOccasion(): Boolean = type == "Academic"
     /**
      * Check if this specifies a day order override
      */

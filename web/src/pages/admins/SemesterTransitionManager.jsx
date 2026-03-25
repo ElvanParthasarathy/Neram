@@ -74,7 +74,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
             // 1. Fetch Snapshot
             const snapshotPaths = [
                 `schedules/${selectedBatch}`,
-                `events/${selectedBatch}`,
+                `list_events/${selectedBatch}`,
                 `courses/${selectedBatch}`
             ];
 
@@ -86,7 +86,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
             const archiveBasePath = `archives/${selectedBatch}/semester_${archiveSemNumber}`;
 
             if (schedulesSnap.exists()) updates[`${archiveBasePath}/schedules`] = schedulesSnap.val();
-            if (eventsSnap.exists()) updates[`${archiveBasePath}/events`] = eventsSnap.val();
+            if (eventsSnap.exists()) updates[`${archiveBasePath}/list_events`] = eventsSnap.val();
             if (coursesSnap.exists()) updates[`${archiveBasePath}/courses`] = coursesSnap.val();
 
             // 3. Build Wipe Updates (Selective deletion)
@@ -113,7 +113,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
             });
 
             // Wipe central events entirely
-            updates[`events/${selectedBatch}`] = null;
+            updates[`list_events/${selectedBatch}`] = null;
             // Wipe central courses entirely (if you store them independently, usually Neo puts them in schedules/master)
             updates[`courses/${selectedBatch}`] = null;
 
@@ -158,7 +158,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
 
             // Overwrite whole nodes
             if (archiveData.schedules) updates[`schedules/${selectedBatch}`] = archiveData.schedules;
-            if (archiveData.events) updates[`events/${selectedBatch}`] = archiveData.events;
+            if (archiveData.list_events) updates[`list_events/${selectedBatch}`] = archiveData.list_events;
             if (archiveData.courses) updates[`courses/${selectedBatch}`] = archiveData.courses;
 
             // 3. Commit

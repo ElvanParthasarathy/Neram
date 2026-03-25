@@ -93,6 +93,7 @@ sealed class EventIndicatorStyle {
     data class Bar(val color: Color, override val position: EventPosition = EventPosition.Single, override val title: String? = null, override val spanCount: Int = 1) : EventIndicatorStyle()
     data class Exam(override val position: EventPosition = EventPosition.Single, override val title: String? = "Exam", override val spanCount: Int = 1) : EventIndicatorStyle()
     data class Holiday(override val position: EventPosition = EventPosition.Single, override val title: String? = "Holiday", override val spanCount: Int = 1) : EventIndicatorStyle()
+    data class Occasion(override val position: EventPosition = EventPosition.Single, override val title: String? = "Occasion", override val spanCount: Int = 1) : EventIndicatorStyle()
     data class Special(override val position: EventPosition = EventPosition.Single, override val title: String? = "Special", override val spanCount: Int = 1) : EventIndicatorStyle()
     object Spacer : EventIndicatorStyle() { 
         override val position: EventPosition = EventPosition.Single 
@@ -391,6 +392,7 @@ private fun buildWeekEventData(
                 is EventIndicatorStyle.Holiday -> SamsungPurple
                 is EventIndicatorStyle.Exam -> SamsungGreen
                 is EventIndicatorStyle.Special -> SpecialYellow
+                is EventIndicatorStyle.Occasion -> SpecialYellow
                 is EventIndicatorStyle.Bar -> indicator.color
                 else -> androidx.compose.ui.graphics.Color.Gray
             }
@@ -725,6 +727,7 @@ fun DayCell(
                         is EventIndicatorStyle.Holiday -> SamsungPurple
                         is EventIndicatorStyle.Exam -> SamsungGreen
                         is EventIndicatorStyle.Special -> SpecialYellow
+                        is EventIndicatorStyle.Occasion -> SpecialYellow
                         is EventIndicatorStyle.Bar -> indicator.color
                         else -> Color.Transparent
                     }
@@ -878,14 +881,16 @@ fun EventCard(event: CalendarEvent, colors: HomeColors) {
     val titleLower = event.title.lowercase()
     val isExam = titleLower.contains("exam") || titleLower.contains("test") || 
                  titleLower.contains("sia") || titleLower.contains("fia")
-    val isHoliday = titleLower.contains("holiday")
-    val isWorkingDayOrder = titleLower.contains("working day") && titleLower.contains("order")
-    val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || event.isSection
+    val isHoliday = event.isHoliday()
+    val isOccasion = event.isOccasion() || titleLower.contains("occasion")
+    val isOrder = titleLower.contains("order")
+    val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || (event.type == "Event" && event.isSection) || event.isSection
     
     val baseColor = when {
-        isHoliday -> SamsungPurple
         isExam -> SamsungGreen
-        isWorkingDayOrder -> Color(0xFF00BCD4) // Cyan for working day order
+        isOrder -> Color(0xFF00BCD4) // Cyan for day order
+        isHoliday -> SamsungPurple
+        isOccasion -> SpecialYellow
         isSpecial -> SpecialYellow
         else -> SamsungBlue
     }
@@ -950,14 +955,16 @@ fun AgendaItem(event: CalendarEvent, isSelected: Boolean, colors: HomeColors) {
     val titleLower = event.title.lowercase()
     val isExam = titleLower.contains("exam") || titleLower.contains("test") || 
                  titleLower.contains("sia") || titleLower.contains("fia")
-    val isHoliday = titleLower.contains("holiday")
-    val isWorkingDayOrder = titleLower.contains("working day") && titleLower.contains("order")
-    val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || event.isSection
+    val isHoliday = event.isHoliday()
+    val isOccasion = event.isOccasion() || titleLower.contains("occasion")
+    val isOrder = titleLower.contains("order")
+    val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || (event.type == "Event" && event.isSection) || event.isSection
     
     val barColor = when {
-        isHoliday -> SamsungPurple
         isExam -> SamsungGreen
-        isWorkingDayOrder -> Color(0xFF00BCD4) // Cyan for working day order
+        isOrder -> Color(0xFF00BCD4) // Cyan for day order
+        isHoliday -> SamsungPurple
+        isOccasion -> SpecialYellow
         isSpecial -> SpecialYellow
         else -> SamsungBlue
     }

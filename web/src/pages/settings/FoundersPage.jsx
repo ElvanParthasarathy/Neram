@@ -23,14 +23,17 @@ const FoundersPage = ({ onBack }) => (
     <>
         <SubHeader title="Management Team" onBack={onBack} />
 
-        <div className="s2-about-header" style={{ paddingTop: '32px' }}>
-            <div className="s2-about-english" style={{ fontSize: '1.2rem', fontWeight: '800', background: 'rgba(var(--mac-accent-rgb), 0.1)', color: 'var(--mac-accent)' }}>
-                Management Team
+        <SettingsGroup>
+            <div className="s2-about-header">
+                <div className="s2-about-english">
+                    Management Team
+                </div>
+                <div className="s2-about-desc">
+                    The visionaries driving excellence and innovation across the RMK Group.
+                </div>
             </div>
-            <div className="s2-about-desc" style={{ marginTop: '16px', maxWidth: '450px', marginLeft: 'auto', marginRight: 'auto' }}>
-                The visionaries driving excellence and innovation across the RMK Group.
-            </div>
-        </div>
+        </SettingsGroup>
+        <div className="s2-spacer-md" />
 
         <div className="s2-section-label">Founders</div>
         <SettingsGroup>

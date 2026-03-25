@@ -1,79 +1,94 @@
 {
-    "rules": {
-        "users": {
-            "$uid": {
-                ".read": "auth != null && (auth.uid === $uid || root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty')",
-                ".write": "auth != null && (auth.uid === $uid || root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
-            },
-            ".read": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+  "rules": {
+    "departments": {
+      ".read": "auth != null",
+      ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+    },
+    "users": {
+        "$uid": {
+            ".read": "auth != null && (auth.uid === $uid || root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty')",
+            ".write": "auth != null && (auth.uid === $uid || root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
         },
-        "academic_hierarchy": {
-            ".read": "auth != null",
-            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin')"
-        },
-        "faculties_directory": {
-            ".read": "auth != null",
-            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
-        },
-        "schedules": {
-            ".read": "auth != null",
-            "$batch": {
-                ".write": "auth != null && root.child('users/' + auth.uid + '/role').val() === 'super_admin'",
-                "$dept": {
-                    "$section": {
-                        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
-                    }
+        ".read": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+    },
+    "academic_hierarchy": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+    },
+    "faculties_directory": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+    },
+    "schedules": {
+        ".read": "auth != null",
+        "$batch": {
+            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')",
+            "$dept": {
+                "$section": {
+                    ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
                 }
             }
-        },
-        "events": {
-            ".read": "auth != null",
-            "$batch": {
-                ".write": "auth != null && root.child('users/' + auth.uid + '/role').val() === 'super_admin'",
-                "$dept": {
-                    "$section": {
-                        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
-                    }
-                }
-            }
-        },
-        "updates": {
-            ".read": "auth != null",
-            "$batch": {
-                "$dept": {
-                    "$section": {
-                        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
-                    }
-                }
-            }
-        },
-        "official_docs": {
-            ".read": "auth != null",
-            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin')"
-        },
-        "calendars": {
-            ".read": "auth != null",
-            ".write": "auth != null"
-        },
-        "archives": {
-            ".read": "auth != null",
-            ".write": "auth != null && root.child('users/' + auth.uid + '/role').val() === 'super_admin'"
-        },
-        "courses": {
-            ".read": "auth != null",
-            ".write": "auth != null && root.child('users/' + auth.uid + '/role').val() === 'super_admin'"
-        },
-        "settings": {
-            ".read": "auth != null",
-            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
-        },
-        "notes_drive": {
-            ".read": "auth != null",
-            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
-        },
-        "$other": {
-            ".read": false,
-            ".write": false
         }
+    },
+    "events": {
+        ".read": "auth != null",
+        "$batch": {
+            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')",
+            "$dept": {
+                "$section": {
+                    ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+                }
+            }
+        }
+    },
+    "list_events": {
+        ".read": "auth != null",
+        "$batch": {
+            ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')",
+            "$dept": {
+                "$section": {
+                    ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+                }
+            }
+        }
+    },
+    "updates": {
+        ".read": "auth != null",
+        "$batch": {
+            "$dept": {
+                "$section": {
+                    ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+                }
+            }
+        }
+    },
+    "official_docs": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin')"
+    },
+    "calendars": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+    },
+    "archives": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+    },
+    "courses": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+    },
+    "settings": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+    },
+    "notes_drive": {
+        ".read": "auth != null",
+        ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin')"
+    },
+    "$other": {
+        ".read": false,
+        ".write": false
     }
+  }
 }

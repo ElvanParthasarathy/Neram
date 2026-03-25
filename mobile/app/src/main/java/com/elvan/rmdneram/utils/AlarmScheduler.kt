@@ -82,25 +82,37 @@ object AlarmScheduler {
             }
 
             Log.d(TAG, "Scheduling True Exact Alarm for: ${nextAlarmTime.time}")
-
-            // Schedule as an Exact Alarm Clock (Highest Priority, breaks through Doze and Killed state)
-            val alarmClockInfo = AlarmManager.AlarmClockInfo(nextAlarmTime.timeInMillis, pendingIntent)
             
-            // Check EXACT_ALARM permission starting Android 12
+            // Cancel any previously scheduled alarms for this intent first
+            alarmManager.cancel(pendingIntent)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (alarmManager.canScheduleExactAlarms()) {
-                    alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+                    alarmManager.setExactAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        nextAlarmTime.timeInMillis,
+                        pendingIntent
+                    )
                 } else {
-                    Log.w(TAG, "Exact alarm permission missing! Falling back to inexact alarm.")
-                    // Fallback if user explicitly revoked the exact alarm permission in settings
+                    Log.w(TAG, "Exact alarm permission missing! Falling back to setAndAllowWhileIdle.")
                     alarmManager.setAndAllowWhileIdle(
                         AlarmManager.RTC_WAKEUP,
                         nextAlarmTime.timeInMillis,
                         pendingIntent
                     )
                 }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    nextAlarmTime.timeInMillis,
+                    pendingIntent
+                )
             } else {
-                alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    nextAlarmTime.timeInMillis,
+                    pendingIntent
+                )
             }
             
         } catch (e: Exception) {

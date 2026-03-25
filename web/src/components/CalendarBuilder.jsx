@@ -193,20 +193,34 @@ const CalendarBuilder = ({
                                         </thead>
                                         <tbody>
                                             {m.rows.map((r, ri) => {
-                                                const wdClass = r.workingDay ? '' : 'no-wd';
-                                                
-                                                const eventUpper = (r.event || '').toUpperCase();
-                                                const defaultType = (eventUpper.startsWith('WORKING DAY') || eventUpper.includes('COMMENCEMENT')) ? 'Custom' : 'FullDay';
-                                                const currentType = r.type || defaultType;
+                                                {/* Type Detection: WD# -> Event, "Holiday" -> Holiday (handle typos like 'hoilday') */}
+                                                let detectedType = r.type;
+                                                if (!detectedType) {
+                                                    if (r.workingDay) {
+                                                        detectedType = 'Event';
+                                                    } else if (r.event) {
+                                                        const t = r.event.toLowerCase();
+                                                        // Default to Holiday for anything not a WD# unless user manually picked Academic
+                                                        // Adding 'hoilday' and 'holyday' to catch common OCR typos
+                                                        if (t.includes('holiday') || t.includes('hoilday') || t.includes('holyday')) {
+                                                            detectedType = 'Holiday';
+                                                        } else {
+                                                            // User requested: "BY DEFUALT IT SHLOD SELCT THE HOLIDSY FOR THE INSTED OF ACADEMIC"
+                                                            detectedType = 'Holiday';
+                                                        }
+                                                    }
+                                                }
+                                                const currentType = detectedType || '';
+                                                const hasType = !!currentType;
 
                                                 return (
                                                     <tr key={ri} className={r.isHoliday ? 'is-holiday' : ''}>
-                                                        <td className="ea-date-col">
+                                                        <td className="ea-date-col" style={{ opacity: hasType ? 1 : 0.4 }}>
                                                             <input
                                                                 type="date"
                                                                 value={getIsoDate(m.year, m.month, r.date)}
                                                                 className="ea-type-select"
-                                                                style={{ padding: '4px', fontSize: '13px', width: 'auto' }}
+                                                                style={{ padding: '4px', fontSize: '13px', width: 'auto', border: hasType ? '' : 'none', background: 'transparent' }}
                                                                 onChange={(e) => {
                                                                     const iso = e.target.value;
                                                                     if (!iso) {
@@ -226,13 +240,13 @@ const CalendarBuilder = ({
                                                                 }}
                                                             />
                                                         </td>
-                                                        <td className="ea-day-col" style={{ opacity: 0.8, letterSpacing: '0.5px' }}>
+                                                        <td className="ea-day-col" style={{ opacity: hasType ? 0.8 : 0.3, letterSpacing: '0.5px' }}>
                                                             {escapeAttr(r.day || '—')}
                                                         </td>
-                                                        <td className={`ea-wd-col ${wdClass}`}>
+                                                        <td className={`ea-wd-col ${r.workingDay ? '' : 'no-wd'}`}>
                                                             <input
                                                                 type="text"
-                                                                defaultValue={escapeAttr(r.workingDay || '')}
+                                                                value={r.workingDay || ''}
                                                                 style={{ textAlign: 'center', padding: '8px 2px' }}
                                                                 placeholder="—"
                                                                 onChange={(e) => onCellChange(mi, ri, 'workingDay', e.target.value)}
@@ -242,13 +256,15 @@ const CalendarBuilder = ({
                                                             <input
                                                                 type="text"
                                                                 className="ea-event-input"
-                                                                defaultValue={escapeAttr(r.event)}
+                                                                value={r.event || ''}
                                                                 placeholder="Event Title..."
                                                                 onChange={(e) => onCellChange(mi, ri, 'event', e.target.value)}
                                                             />
                                                         </td>
                                                         <td className="ea-time-col">
-                                                            {currentType === 'Custom' ? (() => {
+                                                            {!hasType ? (
+                                                                <span style={{ fontSize: 12, opacity: 0.1 }}>—</span>
+                                                            ) : ((currentType === 'Event' || currentType === 'Academic') ? (() => {
                                                                 const rawTime = escapeAttr(r.fullTime || '08:30 AM - 03:00 PM');
                                                                 const parts = rawTime.split(' - ');
                                                                 const tStart24 = parse12HourTo24(parts[0] || '08:30 AM');
@@ -280,38 +296,49 @@ const CalendarBuilder = ({
                                                                 );
                                                             })() : (
                                                                 <span style={{ fontSize: 12, opacity: 0.5, padding: '4px 6px' }}>All Day</span>
-                                                            )}
+                                                            ))}
                                                         </td>
                                                         <td className="ea-type-col">
                                                             <select
                                                                 className="ea-type-select"
-                                                                defaultValue={currentType}
+                                                                value={currentType}
+                                                                style={{ 
+                                                                    opacity: hasType ? 1 : 0.5,
+                                                                    color: currentType === 'Holiday' ? '#9C27B0' : currentType === 'Academic' ? '#FFCA28' : currentType === 'Event' ? '#42A5F5' : 'inherit',
+                                                                    fontWeight: hasType ? 700 : 500
+                                                                }}
                                                                 onChange={(e) => {
                                                                     const newType = e.target.value;
                                                                     onCellChange(mi, ri, 'type', newType);
-                                                                    if (newType === 'Custom' && !r.fullTime) {
-                                                                        onCellChange(mi, ri, 'fullTime', '08:30 AM - 03:00 PM');
-                                                                    } else if (newType !== 'Custom') {
+                                                                    if (newType === 'Event' || newType === 'Academic') {
+                                                                        if (!r.fullTime || r.fullTime === 'All Day') {
+                                                                            onCellChange(mi, ri, 'fullTime', '08:30 AM - 03:00 PM');
+                                                                        }
+                                                                    } else if (newType === 'Holiday') {
+                                                                        onCellChange(mi, ri, 'fullTime', 'All Day');
+                                                                    } else {
                                                                         onCellChange(mi, ri, 'fullTime', '');
                                                                     }
                                                                 }}
                                                             >
-                                                                <option value="FullDay" style={{ color: '#000' }}>FullDay</option>
-                                                                <option value="Custom" style={{ color: '#000' }}>Custom</option>
+                                                                <option value="" style={{ color: '#000' }}>— None —</option>
+                                                                <option value="Event" style={{ color: '#000' }}>Working Day</option>
+                                                                <option value="Holiday" style={{ color: '#000' }}>Holiday</option>
+                                                                <option value="Academic" style={{ color: '#000' }}>Occasion</option>
                                                             </select>
                                                         </td>
                                                         <td style={{ textAlign: 'center' }}>
                                                             <button
                                                                 className="ea-row-delete-btn"
                                                                 onClick={() => {
-                                                                    if (window.confirm('Delete this event row?')) {
+                                                                    if (window.confirm('Clear this event row?')) {
                                                                         onCellChange?.(mi, ri, '_DELETE_ROW', true);
                                                                     }
                                                                 }}
-                                                                title="Delete Row"
+                                                                title="Clear Row"
                                                             >
                                                                 <RiDeleteBinLine size={14} />
-                                                                <span style={{ fontSize: 11, fontWeight: 700 }}>Delete</span>
+                                                                <span style={{ fontSize: 11, fontWeight: 700 }}>Clear</span>
                                                             </button>
                                                         </td>
                                                     </tr>

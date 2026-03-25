@@ -99,7 +99,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
 
   useEffect(() => {
     if (viewLevel === 'editor' && path.dept) {
-      const deptRef = ref(db, `events/${path.batch}/${path.dept}`);
+      const deptRef = ref(db, `list_events/${path.batch}/${path.dept}`);
       const unsub = onValue(deptRef, (snap) => {
         const deptData = snap.val() || {};
 
@@ -179,14 +179,14 @@ const EventManager = ({ user, userProfile, isMobile }) => {
             const newSecEvent = { ...eventObj };
             delete newSecEvent.scope;
             delete newSecEvent.scopes;
-            updates[`events/${path.batch}/${path.dept}/${secId}`] = [...filteredEvents, newSecEvent];
+            updates[`list_events/${path.batch}/${path.dept}/${secId}`] = [...filteredEvents, newSecEvent];
           } else {
             // Even if it no longer applies, update the DB minus this event we already filtered out
-            updates[`events/${path.batch}/${path.dept}/${secId}`] = filteredEvents;
+            updates[`list_events/${path.batch}/${path.dept}/${secId}`] = filteredEvents;
           }
 
         } else {
-          updates[`events/${path.batch}/${path.dept}/${secId}`] = filteredEvents;
+          updates[`list_events/${path.batch}/${path.dept}/${secId}`] = filteredEvents;
         }
       });
 
@@ -221,6 +221,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
       title: newEvent.title,
       startDate: newEvent.startDate,
       endDate: newEvent.endDate,
+      type: newEvent.events[0]?.type || 'Event',
       events: newEvent.events
     };
 
@@ -318,6 +319,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
       ...ev, 
       startDate: ev.startDate || ev.date || '',
       endDate: ev.endDate || ev.date || '',
+      type: ev.type || ev.events?.[0]?.type || 'Event',
       events: ev.events || [{
          title: ev.title || '',
          date: ev.startDate || ev.date || '',
@@ -579,7 +581,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
 
             {masterData.events.length > 0 ? masterData.events.map((ev) => (
               <React.Fragment key={ev.id}>
-                {editingEventId === ev.id && (
+                {!isMobile && editingEventId === ev.id && (
                   <div className="master-header-row pill-group-row desktop-edit-actions" style={{ justifyContent: 'flex-end', marginBottom: '8px' }}>
                     <button className="role-header-pill secondary" onClick={() => { setEditingEventId(null); setEditBuffer(null); }}>Cancel</button>
                     <button className="role-header-pill active" onClick={saveEdit}>Save</button>
@@ -591,10 +593,12 @@ const EventManager = ({ user, userProfile, isMobile }) => {
                   <>
                     <header className="published-header">
                       <div className="edit-meta-inputs" style={{ flex: 1 }}>
-                        <div className="mobile-edit-actions pill-group-row master-header-row" style={{ width: '100%', flexDirection: 'row', gap: '8px', marginBottom: '16px' }}>
-                          <button className="role-header-pill secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { setEditingEventId(null); setEditBuffer(null); }}>Cancel</button>
-                          <button className="role-header-pill active" style={{ flex: 1, justifyContent: 'center' }} onClick={saveEdit}>Save</button>
-                        </div>
+                        {isMobile && (
+                          <div className="mobile-edit-actions pill-group-row master-header-row" style={{ width: '100%', flexDirection: 'row', gap: '8px', marginBottom: '16px' }}>
+                            <button className="role-header-pill secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { setEditingEventId(null); setEditBuffer(null); }}>Cancel</button>
+                            <button className="role-header-pill active" style={{ flex: 1, justifyContent: 'center' }} onClick={saveEdit}>Save</button>
+                          </div>
+                        )}
                         <input className="edit-title-input" value={editBuffer.title} onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })} />
                         <div className="event-date-row" style={{ marginTop: '16px' }}>
                           <div className="field" style={{ flex: 1 }}>
@@ -653,7 +657,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
                       <div className="pub-title-group" style={{ flex: 1 }}>
                         <RiCalendarEventLine className="icon-main" style={{ color: 'var(--mac-blue)' }} />
                         <div>
-                          <h3>{ev.title} <span>({ev.type === 'Event' ? 'Notice' : ev.type})</span></h3>
+                          <h3>{ev.title} <span>({(ev.type || ev.events?.[0]?.type || 'Event') === 'Event' ? 'Notice' : (ev.type || ev.events?.[0]?.type)})</span></h3>
                           <p>Date: {parseDate(ev.startDate || ev.date)?.toLocaleDateString('en-GB')} {ev.endDate && ev.endDate !== (ev.startDate || ev.date) ? ` - ${parseDate(ev.endDate)?.toLocaleDateString('en-GB')}` : ''}</p>
                         </div>
                       </div>

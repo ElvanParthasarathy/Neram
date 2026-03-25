@@ -28,7 +28,7 @@ const parseFaculties = (facultyStr) => {
 };
 
 const FacultyDirectory = () => {
-  const departmentsList = ["ECE", "IT", "CSE", "CSBS", "AIML"];
+  const [departmentsList, setDepartmentsList] = useState(["ECE", "IT", "CSE", "CSBS", "AIML"]);
   const [targetFacultyDept, setTargetFacultyDept] = useState("");
   const [targetFacultyRole, setTargetFacultyRole] = useState("Faculty");
   const [facultyList, setFacultyList] = useState([]);
@@ -55,10 +55,17 @@ const FacultyDirectory = () => {
   const extraFacultyDepts = ["S&H", "Leadership"];
   const mergedDepartments = [...new Set([...departmentsList, ...extraFacultyDepts, ...allFacultyDeptKeys])].sort();
 
-  // Load all faculty directory keys + counts
+  // Load all faculty directory keys + counts + global departments
   useEffect(() => {
+    const deptsRef = ref(db, 'departments');
+    const unsubDepts = onValue(deptsRef, (snap) => {
+      if (snap.exists()) {
+        setDepartmentsList(snap.val());
+      }
+    });
+
     const facDirRef = ref(db, 'faculties_directory');
-    const unsub = onValue(facDirRef, (snap) => {
+    const unsubFac = onValue(facDirRef, (snap) => {
       if (snap.exists()) {
         const data = snap.val();
         setAllFacultyDeptKeys(Object.keys(data));
@@ -72,7 +79,11 @@ const FacultyDirectory = () => {
         setDeptCounts({});
       }
     });
-    return () => unsub();
+
+    return () => {
+      unsubDepts();
+      unsubFac();
+    };
   }, []);
 
   useEffect(() => {

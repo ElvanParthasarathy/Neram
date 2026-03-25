@@ -65,9 +65,9 @@ fun CalendarScreen(
         )
     }
     
-    // Merge global and section events
-    val allEvents = remember(uiState.calendarEvents, uiState.sectionEvents) {
-        (uiState.calendarEvents + uiState.sectionEvents).distinctBy { it.id }
+    // Only show global academic calendar events (exclude Event Manager section events like web)
+    val allEvents = remember(uiState.calendarEvents) {
+        uiState.calendarEvents.distinctBy { it.id }
     }
     
     // Hoist State from ViewModel (Source of Truth)
@@ -260,12 +260,18 @@ fun CalendarScreen(
                         val remainingDays = java.time.temporal.ChronoUnit.DAYS.between(date, eventEndDate) + 1
                         val spanCount = kotlin.math.min(remainingDays.toInt(), daysInRow)
 
+                        val isHoliday = event.isHoliday()
+                        val isOccasion = event.isOccasion() || title.contains("occasion")
+                        val isWorkingDayOrder = title.contains("working day") && title.contains("order")
+                        val isExam = title.contains("exam") || title.contains("test") || title.contains("sia") || title.contains("fia")
+                        val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || (event.type == "Event" && event.isSection) || event.isSection
+
                         val style = when {
-                            title.contains("holiday") -> EventIndicatorStyle.Holiday(position, title = event.title, spanCount = spanCount)
-                            title.contains("exam") || title.contains("test") || title.contains("sia") || title.contains("fia") -> EventIndicatorStyle.Exam(position, title = event.title, spanCount = spanCount)
-                            title.contains("working day") && title.contains("order") -> EventIndicatorStyle.Bar(androidx.compose.ui.graphics.Color(0xFF00BCD4), position, title = event.title, spanCount = spanCount)
-                            title.contains("working day") -> EventIndicatorStyle.Bar(colors.accent, position, title = event.title, spanCount = spanCount)
-                            event.type == "FullDay" || event.type == "HalfDay" || event.isSection -> EventIndicatorStyle.Special(position, title = event.title, spanCount = spanCount)
+                            isExam -> EventIndicatorStyle.Exam(position, title = event.title, spanCount = spanCount)
+                            isWorkingDayOrder -> EventIndicatorStyle.Bar(androidx.compose.ui.graphics.Color(0xFF00BCD4), position, title = event.title, spanCount = spanCount)
+                            isHoliday -> EventIndicatorStyle.Holiday(position, title = event.title, spanCount = spanCount)
+                            isOccasion -> EventIndicatorStyle.Occasion(position, title = event.title, spanCount = spanCount)
+                            isSpecial -> EventIndicatorStyle.Special(position, title = event.title, spanCount = spanCount)
                             else -> EventIndicatorStyle.Bar(colors.accent, position, title = event.title, spanCount = spanCount)
                         }
                         dailyIndicators[slot] = style

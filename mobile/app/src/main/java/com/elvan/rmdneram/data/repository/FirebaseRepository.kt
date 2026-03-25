@@ -719,7 +719,7 @@ class FirebaseRepository(private val context: Context) {
         // Remove old listener first - CRITICAL for section change
         removeListener(sectionEventsListener)
         
-        val ref = database.getReference("events/$batch/$dept/$section")
+        val ref = database.getReference("list_events/$batch/$dept/$section")
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val events = mutableListOf<CalendarEvent>()
@@ -738,9 +738,7 @@ class FirebaseRepository(private val context: Context) {
                                 val normalizedDate = if (rawDate.matches(Regex("\\d{2}-\\d{2}-\\d{4}"))) {
                                     val parts = rawDate.split("-")
                                     "${parts[2]}-${parts[1]}-${parts[0]}"
-                                } else {
-                                    rawDate
-                                }
+                                } else { rawDate }
                                 
                                 if (normalizedDate.isNotBlank()) {
                                     val subTitle = subEvent.child("title").getValue<String>() ?: ""

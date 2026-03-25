@@ -1,151 +1,156 @@
 import React, { useState, useEffect } from 'react';
 import { db } from "../../firebase";
 import { ref, onValue, set, get, update } from "firebase/database";
-import { RiLock2Line, RiLockUnlockLine, RiAddLine, RiDeleteBinLine, RiEditLine, RiSave3Line, RiCloseLine, RiInformationLine } from 'react-icons/ri';
+import {
+  RiAddLine, RiDeleteBin6Line, RiEditLine, RiCloseLine,
+  RiSave3Line, RiGlobalLine, RiBookOpenLine
+} from 'react-icons/ri';
 
-// --- IMPORT STYLES ---
-import "../../styles/structure-manager.css";
 import "../../styles/admin-settings.css";
 
 const AcademicTree = () => {
-  const departmentsList = ["ECE", "IT", "CSE", "CSBS", "AIML"];
-  const [hierarchy, setHierarchy] = useState({});
-  const [isEditing, setIsEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState('hierarchy');
 
-  // Tree View State
+  // --- DATA ---
+  const [departmentsList, setDepartmentsList] = useState([]);
+  const [hierarchy, setHierarchy] = useState({});
+
+  // Form State
+  const [newDeptCode, setNewDeptCode] = useState("");
   const [batchStart, setBatchStart] = useState("");
   const [batchEnd, setBatchEnd] = useState("");
-  const [selectedBatch, setSelectedBatch] = useState("");
-  const [selectedDept, setSelectedDept] = useState("");
+  const [secBatch, setSecBatch] = useState("");
+  const [secDept, setSecDept] = useState("");
   const [newSection, setNewSection] = useState("");
 
-  const [editingSec, setEditingSec] = useState(null);
+  // Editing State
   const [editingBatch, setEditingBatch] = useState(null);
-  const [editingDept, setEditingDept] = useState(null);
+  const [editingGlobalDept, setEditingGlobalDept] = useState(null);
+  const [editingSec, setEditingSec] = useState(null);
 
+  // --- FIREBASE ---
   useEffect(() => {
-    const configRef = ref(db, 'academic_hierarchy');
-    const unsubscribe = onValue(configRef, (snapshot) => {
-      setHierarchy(snapshot.exists() ? snapshot.val() : {});
+    const unsubH = onValue(ref(db, 'academic_hierarchy'), snap => setHierarchy(snap.exists() ? snap.val() : {}));
+    const unsubD = onValue(ref(db, 'departments'), snap => {
+      if (snap.exists()) setDepartmentsList(snap.val());
+      else { const d = ["ECE", "IT", "CSE", "CSBS", "AIML"]; setDepartmentsList(d); set(ref(db, 'departments'), d); }
     });
-    return () => unsubscribe();
+    return () => { unsubH(); unsubD(); };
   }, []);
 
+  // --- MIGRATION ENGINE ---
   const runGlobalMigration = async (type, oldPath, newPath, oldVal, newVal) => {
     const updates = {};
-    const scheduleSnapshot = await get(ref(db, `schedules/${oldPath}`));
-    if (scheduleSnapshot.exists()) {
-      updates[`schedules/${newPath}`] = scheduleSnapshot.val();
-      updates[`schedules/${oldPath}`] = null;
-    }
-
-    const usersSnapshot = await get(ref(db, 'users'));
-    if (usersSnapshot.exists()) {
-      const allUsers = usersSnapshot.val();
-      Object.keys(allUsers).forEach(uid => {
-        const user = allUsers[uid];
+    const schedSnap = await get(ref(db, `schedules/${oldPath}`));
+    if (schedSnap.exists()) { updates[`schedules/${newPath}`] = schedSnap.val(); updates[`schedules/${oldPath}`] = null; }
+    const usersSnap = await get(ref(db, 'users'));
+    if (usersSnap.exists()) {
+      Object.entries(usersSnap.val()).forEach(([uid, user]) => {
         if (type === 'batch' && user.batch === oldVal) updates[`users/${uid}/batch`] = newVal;
         if (type === 'dept' && user.batch === oldPath.split('/')[0] && user.department === oldVal) updates[`users/${uid}/department`] = newVal;
         if (type === 'sec' && user.batch === oldPath.split('/')[0] && user.department === oldPath.split('/')[1] && user.section === oldVal) updates[`users/${uid}/section`] = newVal;
       });
     }
-
-    const hierarchyData = await get(ref(db, `academic_hierarchy/${oldPath}`));
-    updates[`academic_hierarchy/${newPath}`] = hierarchyData.val();
+    const hrData = await get(ref(db, `academic_hierarchy/${oldPath}`));
+    updates[`academic_hierarchy/${newPath}`] = hrData.val();
     updates[`academic_hierarchy/${oldPath}`] = null;
     await update(ref(db), updates);
   };
 
+  // --- BATCH CRUD ---
   const handleCreateBatch = async () => {
     if (!batchStart || !batchEnd) return alert("Please enter both years");
-    const label = `${batchStart}-${batchEnd}`;
-    await set(ref(db, `academic_hierarchy/${label}`), { initialized: true });
+    await set(ref(db, `academic_hierarchy/${batchStart}-${batchEnd}`), { initialized: true });
     setBatchStart(""); setBatchEnd("");
   };
 
   const handleUpdateBatch = async () => {
     const { oldVal, newVal } = editingBatch;
-    const cleanNewVal = newVal.trim();
-    if (!cleanNewVal || oldVal === cleanNewVal) return setEditingBatch(null);
-    if (hierarchy[cleanNewVal]) return alert("Batch already exists!");
-    if (window.confirm(`Rename Batch to "${cleanNewVal}"?`)) {
-      try {
-        await runGlobalMigration('batch', oldVal, cleanNewVal, oldVal, cleanNewVal);
-        setEditingBatch(null);
-      } catch (err) { alert(err.message); }
+    const v = newVal.trim();
+    if (!v || oldVal === v) return setEditingBatch(null);
+    if (hierarchy[v]) return alert("Batch already exists!");
+    if (window.confirm(`Rename batch to "${v}"?`)) {
+      try { await runGlobalMigration('batch', oldVal, v, oldVal, v); setEditingBatch(null); }
+      catch (err) { alert(err.message); }
     }
   };
 
   const handleDeleteBatch = async (batch) => {
-    const batchData = hierarchy[batch];
-    const departments = Object.keys(batchData || {}).filter(k => k !== 'initialized');
-    if (departments.length > 0) {
-      alert(`Cannot delete Batch ${batch} because it contains Departments.\n\nPlease delete all Departments in this Batch first.`);
-      return;
-    }
+    const depts = Object.keys(hierarchy[batch] || {}).filter(k => k !== 'initialized');
+    if (depts.length > 0) return alert(`Cannot delete — ${batch} still has ${depts.length} department(s).`);
     if (window.confirm(`Permanently delete empty Batch ${batch}?`)) {
+      await update(ref(db), { [`academic_hierarchy/${batch}`]: null, [`schedules/${batch}`]: null });
+    }
+  };
+
+  // --- GLOBAL DEPARTMENT CRUD ---
+  const handleAddDepartment = async () => {
+    if (!newDeptCode) return alert("Enter a department code");
+    const code = newDeptCode.toUpperCase().trim();
+    if (departmentsList.includes(code)) return alert("Already exists.");
+    await set(ref(db, 'departments'), [...departmentsList, code].sort());
+    setNewDeptCode("");
+  };
+
+  const handleUpdateGlobalDept = async (oldVal, newVal) => {
+    const v = newVal.toUpperCase().trim();
+    if (!v || oldVal === v) return;
+    if (departmentsList.includes(v)) return alert("Code already exists!");
+    if (!window.confirm(`Globally rename "${oldVal}" → "${v}"?\n\nThis updates all schedules, faculty, users, events, and courses.`)) return;
+    try {
       const updates = {};
-      updates[`academic_hierarchy/${batch}`] = null;
-      updates[`schedules/${batch}`] = null;
+      updates['departments'] = departmentsList.map(d => d === oldVal ? v : d).sort();
+      for (const node of ['academic_hierarchy', 'schedules', 'events', 'courses']) {
+        const snap = await get(ref(db, node));
+        if (snap.exists()) Object.keys(snap.val()).forEach(batch => {
+          if (snap.val()[batch]?.[oldVal]) {
+            updates[`${node}/${batch}/${v}`] = snap.val()[batch][oldVal];
+            updates[`${node}/${batch}/${oldVal}`] = null;
+          }
+        });
+      }
+      const facSnap = await get(ref(db, `faculties_directory/${oldVal}`));
+      if (facSnap.exists()) { updates[`faculties_directory/${v}`] = facSnap.val(); updates[`faculties_directory/${oldVal}`] = null; }
+      const usersSnap = await get(ref(db, 'users'));
+      if (usersSnap.exists()) Object.entries(usersSnap.val()).forEach(([uid, u]) => {
+        if (u.department === oldVal) updates[`users/${uid}/department`] = v;
+      });
       await update(ref(db), updates);
-    }
+      alert(`Migrated ${oldVal} → ${v} globally!`);
+    } catch (err) { alert("Migration failed: " + err.message); }
   };
 
-  const handleUpdateDept = async () => {
-    const { batch, oldVal, newVal } = editingDept;
-    const cleanNewVal = newVal.toUpperCase().trim();
-    if (!cleanNewVal || oldVal === cleanNewVal) return setEditingDept(null);
-    if (window.confirm(`Rename Dept to "${cleanNewVal}"?`)) {
-      try {
-        await runGlobalMigration('dept', `${batch}/${oldVal}`, `${batch}/${cleanNewVal}`, oldVal, cleanNewVal);
-        setEditingDept(null);
-      } catch (err) { alert(err.message); }
-    }
+  const handleDeleteGlobalDept = async (dept) => {
+    let isUsed = false;
+    Object.values(hierarchy).forEach(b => { if (b?.[dept] && Object.keys(b[dept]).filter(k => k !== 'initialized').length > 0) isUsed = true; });
+    if (isUsed) return alert(`Cannot delete "${dept}" — it's mapped in the hierarchy.`);
+    if (window.confirm(`Remove "${dept}" from the Global Registry?`))
+      await set(ref(db, 'departments'), departmentsList.filter(d => d !== dept));
   };
 
-  const handleDeleteDept = async (batch, dept) => {
-    const sections = hierarchy[batch]?.[dept];
-    if (Array.isArray(sections) && sections.length > 0) {
-      alert(`Cannot delete Department ${dept} because it contains Sections.\n\nPlease delete all Sections in this Department first.`);
-      return;
-    }
-    if (window.confirm(`Permanently delete empty Department ${dept}?`)) {
-      const updates = {};
-      updates[`academic_hierarchy/${batch}/${dept}`] = null;
-      updates[`schedules/${batch}/${dept}`] = null;
-      await update(ref(db), updates);
-    }
-  };
-
+  // --- SECTION CRUD ---
   const handleAddSection = async () => {
-    if (!selectedBatch || !selectedDept || !newSection) return alert("Complete all fields.");
+    if (!secBatch || !secDept || !newSection) return alert("Complete all fields.");
     const sec = newSection.toUpperCase().trim();
-    const currentSections = hierarchy[selectedBatch]?.[selectedDept] || [];
-    const updatedSections = [...currentSections, sec].sort();
-    await set(ref(db, `academic_hierarchy/${selectedBatch}/${selectedDept}`), updatedSections);
+    const cur = hierarchy[secBatch]?.[secDept] || [];
+    await set(ref(db, `academic_hierarchy/${secBatch}/${secDept}`), [...cur, sec].sort());
     setNewSection("");
   };
 
   const handleUpdateSection = async () => {
     const { batch, dept, oldVal, newVal } = editingSec;
-    const cleanNewVal = newVal.toUpperCase().trim();
-    if (window.confirm(`Rename Section to "${cleanNewVal}"?`)) {
+    const v = newVal.toUpperCase().trim();
+    if (!v || oldVal === v) return setEditingSec(null);
+    if (window.confirm(`Rename Section "${oldVal}" → "${v}"?`)) {
       try {
-        const currentSections = hierarchy[batch][dept];
-        const updatedSections = currentSections.map(s => s === oldVal ? cleanNewVal : s);
         const updates = {};
-        updates[`academic_hierarchy/${batch}/${dept}`] = updatedSections;
+        updates[`academic_hierarchy/${batch}/${dept}`] = hierarchy[batch][dept].map(s => s === oldVal ? v : s);
         const schedSnap = await get(ref(db, `schedules/${batch}/${dept}/${oldVal}`));
-        if (schedSnap.exists()) {
-          updates[`schedules/${batch}/${dept}/${cleanNewVal}`] = schedSnap.val();
-          updates[`schedules/${batch}/${dept}/${oldVal}`] = null;
-        }
+        if (schedSnap.exists()) { updates[`schedules/${batch}/${dept}/${v}`] = schedSnap.val(); updates[`schedules/${batch}/${dept}/${oldVal}`] = null; }
         const usersSnap = await get(ref(db, 'users'));
-        if (usersSnap.exists()) {
-          Object.entries(usersSnap.val()).forEach(([uid, u]) => {
-            if (u.batch === batch && u.department === dept && u.section === oldVal) updates[`users/${uid}/section`] = cleanNewVal;
-          });
-        }
+        if (usersSnap.exists()) Object.entries(usersSnap.val()).forEach(([uid, u]) => {
+          if (u.batch === batch && u.department === dept && u.section === oldVal) updates[`users/${uid}/section`] = v;
+        });
         await update(ref(db), updates);
         setEditingSec(null);
       } catch (err) { alert(err.message); }
@@ -153,225 +158,358 @@ const AcademicTree = () => {
   };
 
   const handleDeleteSection = async (batch, dept, sec) => {
-    if (window.confirm(`Permanently delete Section ${sec} from ${batch} - ${dept}?`)) {
-      const updates = {};
-      updates[`academic_hierarchy/${batch}/${dept}`] = hierarchy[batch][dept].filter(s => s !== sec);
-      updates[`schedules/${batch}/${dept}/${sec}`] = null;
-      await update(ref(db), updates);
+    if (window.confirm(`Delete Section ${sec}?`)) {
+      await update(ref(db), {
+        [`academic_hierarchy/${batch}/${dept}`]: hierarchy[batch][dept].filter(s => s !== sec),
+        [`schedules/${batch}/${dept}/${sec}`]: null,
+      });
     }
   };
 
+  // --- COMPUTED: sections for selected batch+dept ---
+  const filteredSections = (secBatch && secDept && Array.isArray(hierarchy[secBatch]?.[secDept]))
+    ? hierarchy[secBatch][secDept] : [];
+
   return (
-    <div className="admin-subpage animate-fade-in" style={{ padding: 0, width: '100%' }}>
-      {/* Edit Mode Toggle Row */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-          <button
-            className={`btn-toggle-explicit ${isEditing ? 'editing' : ''}`}
-            onClick={() => setIsEditing(!isEditing)}
-          >
-            {isEditing ? <><RiCloseLine /> Done Editing</> : <><RiEditLine /> Edit Mode</>}
-          </button>
-      </div>
+    <div className="admin-subpage animate-fade-in central-schedule-manager">
+      <div className="schedule-editor-workspace">
+        <nav className="editor-tabs box-flat">
+          <button className={activeTab === 'hierarchy' ? 'active' : ''} onClick={() => setActiveTab('hierarchy')}>Hierarchy</button>
+          <button className={activeTab === 'batches' ? 'active' : ''} onClick={() => setActiveTab('batches')}>Batches</button>
+          <button className={activeTab === 'departments' ? 'active' : ''} onClick={() => setActiveTab('departments')}>Departments</button>
+          <button className={activeTab === 'sections' ? 'active' : ''} onClick={() => setActiveTab('sections')}>Sections</button>
+        </nav>
 
-      <div className="admin-grid-layout" style={{ paddingTop: '0' }}>
-        {isEditing && (
-          <div className="admin-forms-column slide-in-left">
-            <section className="settings-card security-module">
-              <h3><RiAddLine /> Initialize New Batch</h3>
-              <div className="settings-row-vertical">
-                <div className="input-split-row">
-                  <div className="input-group">
-                    <label>Start Year</label>
-                    <input type="number" placeholder="YYYY" value={batchStart} onChange={e => setBatchStart(e.target.value)} className="mac-input" />
-                  </div>
-                  <div className="input-group">
-                    <label>End Year</label>
-                    <input type="number" placeholder="YYYY" value={batchEnd} onChange={e => setBatchEnd(e.target.value)} className="mac-input" />
-                  </div>
-                </div>
-                <button onClick={handleCreateBatch} className="btn-save-master" style={{ justifyContent: 'center', marginTop: '10px' }}>Create Batch</button>
+        <div className="tab-content-area">
+
+          {/* ==================== 1. HIERARCHY (TREE VIEW) ==================== */}
+          {activeTab === 'hierarchy' && (
+            <div className="course-manager">
+              <div style={{ marginBottom: '24px' }}>
+                <h2 className="section-title-premium" style={{ margin: 0 }}>Live Structure</h2>
+                <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--mac-text-secondary)' }}>Read-only tree view of all batches, departments and sections.</p>
               </div>
-            </section>
 
-            <section className="settings-card security-module">
-              <h3><RiAddLine /> Map Sections</h3>
-              <div className="settings-row-vertical" style={{ gap: '20px' }}>
-                <div className="input-group">
-                  <label>Target Batch</label>
-                  <select value={selectedBatch} onChange={e => setSelectedBatch(e.target.value)} className="mac-input">
-                    <option value="">Select Batch</option>
-                    {Object.keys(hierarchy).map(b => <option key={b} value={b}>{b}</option>)}
-                  </select>
+              {Object.keys(hierarchy).length === 0 && (
+                <div className="settings-card empty-card-wrap">
+                  <div className="empty-placeholder"><RiBookOpenLine /><p>No batches yet. Go to the Batches tab to create one.</p></div>
                 </div>
+              )}
 
-                <div className="input-split-row">
-                  <div className="input-group">
-                    <label>Department</label>
-                    <select value={selectedDept} onChange={e => setSelectedDept(e.target.value)} className="mac-input">
+              {Object.keys(hierarchy).sort().reverse().map(batch => {
+                const batchData = hierarchy[batch] || {};
+                const depts = Object.keys(batchData).filter(k => k !== 'initialized');
+                return (
+                  <div key={batch} style={{ marginBottom: '32px' }}>
+                    {/* BATCH NODE */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', padding: '10px 20px', borderRadius: '50px',
+                        background: 'rgba(10,132,255,0.1)', color: 'var(--mac-blue)', fontWeight: 700, fontSize: '15px'
+                      }}>Batch {batch}</span>
+                    </div>
+
+                    {/* DEPT BRANCH */}
+                    {depts.length > 0 && (
+                      <div style={{
+                        marginLeft: '15px', paddingLeft: '25px',
+                        borderLeft: '1.5px solid var(--mac-divider)',
+                        display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '16px'
+                      }}>
+                        {depts.map(dept => {
+                          const sections = Array.isArray(batchData[dept]) ? batchData[dept] : [];
+                          return (
+                            <div key={dept} style={{ position: 'relative' }}>
+                              {/* Horizontal connector */}
+                              <div style={{
+                                position: 'absolute', left: '-26.5px', top: '18px',
+                                width: '25px', height: '1.5px', background: 'var(--mac-divider)'
+                              }} />
+
+                              {/* DEPT NODE */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <span style={{
+                                  display: 'inline-flex', alignItems: 'center', padding: '10px 20px', borderRadius: '50px',
+                                  background: 'var(--mac-bg-secondary)', border: '1px solid var(--mac-divider)',
+                                  fontWeight: 700, fontSize: '13px', color: 'var(--mac-text)'
+                                }}>{dept}</span>
+                              </div>
+
+                              {/* SECTION BRANCH */}
+                              {sections.length > 0 && (
+                                <div style={{
+                                  marginLeft: '20px', paddingLeft: '25px',
+                                  borderLeft: '1.5px solid var(--mac-divider)',
+                                  display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px'
+                                }}>
+                                  {sections.map(sec => (
+                                    <div key={sec} style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                      {/* Horizontal connector */}
+                                      <div style={{
+                                        position: 'absolute', left: '-26.5px', top: '50%',
+                                        width: '25px', height: '1.5px', background: 'var(--mac-divider)'
+                                      }} />
+                                      <span style={{
+                                        display: 'inline-flex', alignItems: 'center', padding: '8px 18px', borderRadius: '50px',
+                                        background: 'var(--mac-bg-secondary)', border: '1px solid var(--mac-divider)',
+                                        fontWeight: 600, fontSize: '13px', color: 'var(--mac-text)'
+                                      }}>{sec}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* ==================== 2. BATCHES ==================== */}
+          {activeTab === 'batches' && (
+            <div className="course-manager">
+              <div style={{ marginBottom: '16px' }}>
+                <h2 className="section-title-premium" style={{ margin: 0 }}>Batch Manager</h2>
+              </div>
+
+              <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
+                <div className="add-card-title-row"><span>Create New Batch</span></div>
+                <div className="add-card-grid">
+                  <div className="add-input-section">
+                    <label className="add-input-label">START YEAR</label>
+                    <input className="premium-add-input" placeholder="YYYY" type="number" value={batchStart} onChange={e => setBatchStart(e.target.value)} />
+                  </div>
+                  <div className="add-input-section">
+                    <label className="add-input-label">END YEAR</label>
+                    <input className="premium-add-input" placeholder="YYYY" type="number" value={batchEnd} onChange={e => setBatchEnd(e.target.value)} />
+                  </div>
+                </div>
+                <button className="premium-add-submit-btn" onClick={handleCreateBatch}><RiAddLine /> Create Batch</button>
+              </div>
+
+              <div className="master-items-container individual-cards">
+                {Object.keys(hierarchy).sort().reverse().map(batch => {
+                  const deptCount = Object.keys(hierarchy[batch] || {}).filter(k => k !== 'initialized').length;
+                  return (
+                    <div key={batch} className={`settings-card master-item-card ${editingBatch?.oldVal === batch ? 'editing' : ''}`}>
+                      {editingBatch?.oldVal === batch ? (
+                        <div className="pill-edit-row">
+                          <div className="edit-item-fields" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div className="edit-field">
+                              <label className="edit-label">START YEAR</label>
+                              <input 
+                                autoFocus 
+                                type="number"
+                                className="edit-input-field" 
+                                value={editingBatch.startYear || ''} 
+                                onChange={e => setEditingBatch({ ...editingBatch, startYear: e.target.value })} 
+                              />
+                            </div>
+                            <div className="edit-field">
+                              <label className="edit-label">END YEAR</label>
+                              <input 
+                                type="number"
+                                className="edit-input-field" 
+                                value={editingBatch.endYear || ''} 
+                                onChange={e => setEditingBatch({ ...editingBatch, endYear: e.target.value })} 
+                              />
+                            </div>
+                          </div>
+                          <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                            <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingBatch(null)}>Cancel</button>
+                            <button className="premium-pill-btn danger" style={{ flex: 1, justifyContent: 'center' }} onClick={() => handleDeleteBatch(batch)}><RiDeleteBin6Line /> Delete</button>
+                            <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => {
+                              const newStart = (editingBatch.startYear || '').toString().trim();
+                              const newEnd = (editingBatch.endYear || '').toString().trim();
+                              if (!newStart || !newEnd) return alert("Please enter both years");
+                              handleUpdateBatch(batch, `${newStart}-${newEnd}`);
+                            }}><RiSave3Line /> Save</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="item-content">
+                            <div className="item-text-stack">
+                              <div className="course-code-badge">{batch}</div>
+                              <span className="course-name-text">{deptCount} Department{deptCount !== 1 ? 's' : ''}</span>
+                            </div>
+                          </div>
+                          <button 
+                            className="pill-inline-edit" 
+                            onClick={() => {
+                              const parts = batch.split('-');
+                              setEditingBatch({ 
+                                oldVal: batch, 
+                                startYear: parts[0] || '', 
+                                endYear: parts[1] || '' 
+                              });
+                            }}
+                          >
+                            <RiEditLine />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+                {Object.keys(hierarchy).length === 0 && (
+                  <div className="settings-card empty-card-wrap"><div className="empty-placeholder"><RiBookOpenLine /><p>No batches created yet.</p></div></div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ==================== 3. DEPARTMENTS ==================== */}
+          {activeTab === 'departments' && (
+            <div className="course-manager">
+              <div style={{ marginBottom: '16px' }}>
+                <h2 className="section-title-premium" style={{ margin: 0 }}>Global Department Registry</h2>
+                <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--mac-text-secondary)' }}>Renaming a department here triggers a global migration across all schedules, users, faculty, events, and courses.</p>
+              </div>
+
+              <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
+                <div className="add-card-title-row"><span>Register New Department</span></div>
+                <div className="add-card-grid">
+                  <div className="add-input-section grow">
+                    <label className="add-input-label">DEPARTMENT CODE</label>
+                    <input className="premium-add-input" placeholder="e.g. MECH" value={newDeptCode}
+                      onChange={e => setNewDeptCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDepartment()} />
+                  </div>
+                </div>
+                <button className="premium-add-submit-btn" onClick={handleAddDepartment}><RiAddLine /> Add Department</button>
+              </div>
+
+              <div className="master-items-container individual-cards">
+                {departmentsList.map(dept => (
+                  <div key={dept} className={`settings-card master-item-card ${editingGlobalDept === dept ? 'editing' : ''}`}>
+                    {editingGlobalDept === dept ? (
+                      <div className="pill-edit-row">
+                        <div className="edit-item-fields">
+                          <div className="edit-field">
+                            <label className="edit-label">DEPARTMENT CODE</label>
+                            <input autoFocus className="edit-input-field" defaultValue={dept}
+                              onKeyDown={e => { if (e.key === 'Enter') e.target.blur(); if (e.key === 'Escape') setEditingGlobalDept(null); }}
+                              onBlur={e => {
+                                const v = e.target.value.toUpperCase().trim();
+                                if (v && v !== dept) handleUpdateGlobalDept(dept, v);
+                                setEditingGlobalDept(null);
+                              }} />
+                          </div>
+                        </div>
+                        <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                          <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingGlobalDept(null)}>Cancel</button>
+                          <button className="premium-pill-btn danger" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { handleDeleteGlobalDept(dept); setEditingGlobalDept(null); }}><RiDeleteBin6Line /> Delete</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="item-content">
+                          <div className="item-text-stack">
+                            <div className="course-code-badge">{dept}</div>
+                            <span className="course-name-text">Department</span>
+                          </div>
+                        </div>
+                        <button className="pill-inline-edit" onClick={() => setEditingGlobalDept(dept)}><RiEditLine /></button>
+                      </>
+                    )}
+                  </div>
+                ))}
+                {departmentsList.length === 0 && (
+                  <div className="settings-card empty-card-wrap"><div className="empty-placeholder"><RiBookOpenLine /><p>No departments registered.</p></div></div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ==================== 4. SECTIONS ==================== */}
+          {activeTab === 'sections' && (
+            <div className="course-manager">
+              <div style={{ marginBottom: '16px' }}>
+                <h2 className="section-title-premium" style={{ margin: 0 }}>Section Manager</h2>
+                <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--mac-text-secondary)' }}>Select a batch and department, then add or edit sections.</p>
+              </div>
+
+              <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
+                <div className="add-card-title-row"><span>Map New Section</span></div>
+                <div className="add-card-grid">
+                  <div className="add-input-section">
+                    <label className="add-input-label">BATCH</label>
+                    <select className="premium-add-input" style={{ cursor: 'pointer' }} value={secBatch} onChange={e => { setSecBatch(e.target.value); setSecDept(""); }}>
+                      <option value="">Select Batch</option>
+                      {Object.keys(hierarchy).sort().reverse().map(b => <option key={b} value={b}>{b}</option>)}
+                    </select>
+                  </div>
+                  <div className="add-input-section">
+                    <label className="add-input-label">DEPARTMENT</label>
+                    <select className="premium-add-input" style={{ cursor: 'pointer' }} value={secDept} onChange={e => setSecDept(e.target.value)} disabled={!secBatch}>
                       <option value="">Select Dept</option>
                       {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
-                  <div className="input-group">
-                    <label>Section Name</label>
-                    <input type="text" placeholder="e.g. A" value={newSection} onChange={e => setNewSection(e.target.value)} className="mac-input" />
+                  <div className="add-input-section">
+                    <label className="add-input-label">SECTION NAME</label>
+                    <input className="premium-add-input" placeholder="e.g. A" value={newSection} onChange={e => setNewSection(e.target.value)} />
                   </div>
                 </div>
-                <button onClick={handleAddSection} className="btn-save-master" style={{ justifyContent: 'center', marginTop: '10px' }}>Add Map</button>
-              </div>
-            </section>
-          </div>
-        )}
-
-        <div className={`admin-tree-column settings-card ${isEditing ? '' : 'full-width'}`}>
-          {!isEditing && (
-            <div className="tree-viewport">
-              <div className="read-only-banner">
-                <RiInformationLine size={18} />
-                Read-Only View. Enable Edit Mode to make changes.
+                <button className="premium-add-submit-btn" onClick={handleAddSection}><RiAddLine /> Add Section</button>
               </div>
 
-              {Object.keys(hierarchy).sort().reverse().map(batch => (
-                <div key={batch} className="tree-batch-node">
-                  <div className="tree-node-container">
-                    <div className="node-label batch">
-                      <span>Batch {batch}</span>
-                    </div>
-                  </div>
+              {/* All Sections List */}
+              <div className="master-items-container individual-cards">
+                {(() => {
+                  const allSections = [];
+                  Object.keys(hierarchy).sort().reverse().forEach(batch => {
+                    const depts = Object.keys(hierarchy[batch] || {}).filter(k => k !== 'initialized').sort();
+                    depts.forEach(dept => {
+                      const sections = Array.isArray(hierarchy[batch][dept]) ? hierarchy[batch][dept] : [];
+                      sections.forEach(sec => {
+                        allSections.push({ batch, dept, sec });
+                      });
+                    });
+                  });
 
-                  <div className="tree-dept-list">
-                    {Object.keys(hierarchy[batch]).map(dept => dept !== 'initialized' && (
-                      <div key={dept} className="tree-dept-node">
-                        <div className="tree-node-container">
-                          <div className="node-label dept">
-                            <span>{dept}</span>
+                  if (allSections.length === 0) {
+                    return <div className="settings-card empty-card-wrap"><div className="empty-placeholder"><RiBookOpenLine /><p>No sections mapped yet.</p></div></div>;
+                  }
+
+                  return allSections.map(({ batch, dept, sec }) => (
+                    <div key={`${batch}-${dept}-${sec}`} className={`settings-card master-item-card ${editingSec?.oldVal === sec && editingSec?.batch === batch && editingSec?.dept === dept ? 'editing' : ''}`}>
+                      {editingSec?.oldVal === sec && editingSec?.batch === batch && editingSec?.dept === dept ? (
+                        <div className="pill-edit-row">
+                          <div className="edit-item-fields">
+                            <div className="edit-field">
+                              <label className="edit-label">SECTION NAME</label>
+                              <input autoFocus className="edit-input-field" value={editingSec.newVal} onChange={e => setEditingSec({ ...editingSec, newVal: e.target.value })} onKeyDown={e => e.key === 'Enter' && handleUpdateSection()} />
+                            </div>
+                          </div>
+                          <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                            <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingSec(null)}>Cancel</button>
+                            <button className="premium-pill-btn danger" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { handleDeleteSection(batch, dept, sec); setEditingSec(null); }}><RiDeleteBin6Line /> Delete</button>
+                            <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleUpdateSection}><RiSave3Line /> Save</button>
                           </div>
                         </div>
-
-                        <div className="tree-section-grid">
-                          {Array.isArray(hierarchy[batch][dept]) && hierarchy[batch][dept].map(sec => (
-                            <div key={sec} className="tree-sec-pill-wrapper">
-                              <div className="tree-node-container">
-                                <div className="node-label sec">
-                                  <span>{sec}</span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {isEditing && (
-            <div className="flat-editor-viewport animate-fade-in">
-              <h2 className="editor-section-title">Batches</h2>
-              <div className="flat-editor-list">
-                {Object.keys(hierarchy).sort().reverse().map(batch => (
-                  <div key={`batch-${batch}`} className="editor-list-item">
-                    <div className="list-item-content">
-                      <span className="item-badge batch-badge">Batch</span>
-                      {editingBatch?.oldVal === batch ? (
-                        <input value={editingBatch.newVal} onChange={e => setEditingBatch({ ...editingBatch, newVal: e.target.value })} autoFocus className="mac-input inline-edit-input wide" />
                       ) : (
-                        <span className="item-text">{batch}</span>
-                      )}
-                    </div>
-                    <div className="node-actions">
-                      {editingBatch?.oldVal === batch ? (
                         <>
-                          <button className="labeled-btn save" onClick={handleUpdateBatch}><RiSave3Line /> Save</button>
-                          <button className="labeled-btn danger" onClick={() => handleDeleteBatch(batch)}><RiDeleteBinLine /> Delete</button>
-                          <button className="labeled-btn cancel" onClick={() => setEditingBatch(null)}><RiCloseLine /> Cancel</button>
+                          <div className="item-content">
+                            <div className="item-text-stack">
+                              <div className="course-code-badge">Section {sec}</div>
+                              <span className="course-name-text">{batch} · {dept}</span>
+                            </div>
+                          </div>
+                          <button className="pill-inline-edit" onClick={() => setEditingSec({ batch, dept, oldVal: sec, newVal: sec })}><RiEditLine /></button>
                         </>
-                      ) : (
-                        <button className="labeled-btn edit" onClick={() => setEditingBatch({ oldVal: batch, newVal: batch })}><RiEditLine /> Edit</button>
                       )}
                     </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
-
-              <h2 className="editor-section-title mt-4">Departments</h2>
-              {Object.keys(hierarchy).sort().reverse().map(batch => {
-                const depts = Object.keys(hierarchy[batch]).filter(d => d !== 'initialized');
-                if (depts.length === 0) return null;
-                return (
-                  <div key={`deptgroup-${batch}`} className="editor-group">
-                    <p className="editor-group-label">{batch}</p>
-                    <div className="flat-editor-list">
-                      {depts.map(dept => (
-                        <div key={`dept-${batch}-${dept}`} className="editor-list-item">
-                          <div className="list-item-content">
-                            <span className="item-badge dept-badge">Dept</span>
-                            {editingDept?.oldVal === dept && editingDept?.batch === batch ? (
-                              <input value={editingDept.newVal} onChange={e => setEditingDept({ ...editingDept, newVal: e.target.value })} autoFocus className="mac-input inline-edit-input wide" />
-                            ) : (
-                              <span className="item-text">{dept}</span>
-                            )}
-                          </div>
-                          <div className="node-actions">
-                            {editingDept?.oldVal === dept && editingDept?.batch === batch ? (
-                              <>
-                                <button className="labeled-btn save" onClick={handleUpdateDept}><RiSave3Line /> Save</button>
-                                <button className="labeled-btn danger" onClick={() => handleDeleteDept(batch, dept)}><RiDeleteBinLine /> Delete</button>
-                                <button className="labeled-btn cancel" onClick={() => setEditingDept(null)}><RiCloseLine /> Cancel</button>
-                              </>
-                            ) : (
-                              <button className="labeled-btn edit" onClick={() => setEditingDept({ batch, oldVal: dept, newVal: dept })}><RiEditLine /> Edit</button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-
-              <h2 className="editor-section-title mt-4">Sections</h2>
-              {Object.keys(hierarchy).sort().reverse().map(batch =>
-                Object.keys(hierarchy[batch]).map(dept => {
-                  if (dept === 'initialized') return null;
-                  const secs = Array.isArray(hierarchy[batch][dept]) ? hierarchy[batch][dept] : [];
-                  if (secs.length === 0) return null;
-                  return (
-                    <div key={`secgroup-${batch}-${dept}`} className="editor-group">
-                      <p className="editor-group-label">{batch} — {dept}</p>
-                      <div className="flat-editor-list">
-                        {secs.map(sec => (
-                          <div key={`sec-${batch}-${dept}-${sec}`} className="editor-list-item">
-                            <div className="list-item-content">
-                              <span className="item-badge sec-badge">Sec</span>
-                              {editingSec?.oldVal === sec && editingSec?.dept === dept && editingSec?.batch === batch ? (
-                                <input value={editingSec.newVal} onChange={e => setEditingSec({ ...editingSec, newVal: e.target.value })} autoFocus className="mac-input inline-edit-input thin" />
-                              ) : (
-                                <span className="item-text">{sec}</span>
-                              )}
-                            </div>
-                            <div className="node-actions">
-                              {editingSec?.oldVal === sec && editingSec?.dept === dept && editingSec?.batch === batch ? (
-                                <>
-                                  <button className="labeled-btn save" onClick={handleUpdateSection}><RiSave3Line /> Save</button>
-                                  <button className="labeled-btn danger" onClick={() => handleDeleteSection(batch, dept, sec)}><RiDeleteBinLine /> Delete</button>
-                                  <button className="labeled-btn cancel" onClick={() => setEditingSec(null)}><RiCloseLine /> Cancel</button>
-                                </>
-                              ) : (
-                                <button className="labeled-btn edit" onClick={() => setEditingSec({ batch, dept, oldVal: sec, newVal: sec })}><RiEditLine /> Edit</button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
             </div>
           )}
+
         </div>
       </div>
     </div>

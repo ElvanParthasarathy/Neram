@@ -83,7 +83,7 @@ object DailyUpdateHelper {
             val globalEvents = db.calendarEventDao().getAllEvents().first().map { it.toCalendarEvent() }
             
             val database = FirebaseDatabase.getInstance()
-            val eventsRef = database.getReference("events/$batch/$dept/$section")
+            val eventsRef = database.getReference("list_events/$batch/$dept/$section")
             val eventsSnapshot = eventsRef.get().await()
             val liveSectionEvents = mutableListOf<com.elvan.rmdneram.data.model.CalendarEvent>()
             for (child in eventsSnapshot.children) {
@@ -156,7 +156,8 @@ object DailyUpdateHelper {
             // Calculate Day Order / Schedule Status
             val isSunday = today.dayOfWeek == java.time.DayOfWeek.SUNDAY
             val isHoliday = isSunday || todaysEvents.any {
-                it.type == "Holiday" || it.type == "FullDay" ||
+                it.type == "Holiday" || it.type == "FullDay" || 
+                (it.type == "Event" && it.isSection && it.fullTime == "All Day") ||
                 it.title.lowercase().contains("holiday")
             }
             var dayKey = today.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH)
@@ -461,9 +462,8 @@ object DailyUpdateHelper {
             if (eventRemindersEnabled && todaysEvents.isNotEmpty()) {
                 todaysEvents.forEach { event ->
                     val type = event.type
-                    val isHoliday = type == "Holiday" || event.title.lowercase().contains("holiday")
-                    val isFullDay = type == "FullDay"
-                    val isHalfDay = type == "HalfDay"
+                    val isFullDay = type == "FullDay" || (type == "Event" && event.isSection && event.fullTime == "All Day")
+                    val isHalfDay = type == "HalfDay" || (type == "Event" && event.isSection && !event.fullTime.isNullOrBlank() && event.fullTime != "All Day")
                     
                     val isExamEvent = event.title.lowercase().let { 
                         it.contains("sia") || it.contains("internal") || it.contains("model") || 
@@ -473,11 +473,14 @@ object DailyUpdateHelper {
                     val title = when {
                         isHoliday -> "Holiday Today"
                         isExamEvent -> "Exam Today"
-                        else -> "Today's Event"
+                        event.isSection -> if (isFullDay) "Full Day Notice" else if (isHalfDay) "Half Day Notice" else "Section Notice"
+                        else -> "Academic Calendar Update"
                     }
                     
                     val message = if (isHalfDay && !event.startTime.isNullOrBlank()) {
                         "${event.title} (${event.startTime} - ${event.endTime})"
+                    } else if (isHalfDay && !event.fullTime.isNullOrBlank()) {
+                        "${event.title} (${event.fullTime})"
                     } else {
                         event.title
                     }

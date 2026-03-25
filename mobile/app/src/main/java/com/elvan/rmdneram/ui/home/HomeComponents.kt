@@ -439,20 +439,23 @@ internal fun GroupedEventsCard(
             modifier = Modifier.fillMaxWidth()
         ) {
             events.forEachIndexed { index, event ->
-                // Color logic matching EventPill
+                // Color logic matching Web getEventClass (Home.jsx)
+                // Priority: Exam → Order → Holiday → Occasion → Special → Default
                 val titleLower = event.title.lowercase()
                 val isExam = titleLower.contains("exam") || titleLower.contains("test") || 
                              titleLower.contains("sia") || titleLower.contains("fia")
-                val isHoliday = titleLower.contains("holiday")
-                val isWorkingDayOrder = titleLower.contains("working day") && titleLower.contains("order")
+                val isOrder = titleLower.contains("order")
+                val isHoliday = event.isHoliday() // checks type == "Holiday" OR title contains "holiday"
+                val isOccasion = event.isOccasion() // checks type == "Academic"
                 val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || event.isSection
                 
                 val barColor = when {
-                    isHoliday -> colors.holiday
-                    isExam -> colors.success
-                    isWorkingDayOrder -> Color(0xFF00BCD4) // Cyan for working day order
-                    isSpecial -> SpecialYellow
-                    else -> colors.accent
+                    isExam -> colors.success             // Green
+                    isOrder -> Color(0xFF00BCD4)         // Cyan for day order
+                    isHoliday -> colors.holiday          // Purple
+                    isOccasion -> SpecialYellow           // Yellow for Academic/Occasion
+                    isSpecial -> SpecialYellow            // Yellow for FullDay/HalfDay
+                    else -> colors.accent                 // Blue (default)
                 }
 
                 Row(
@@ -768,23 +771,25 @@ internal fun HalfDayEventCard(
                         color = Color.White.copy(alpha = 0.9f)
                     )
                     
-                    Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingSm),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val time = "${DateTimeUtils.formatTimeForDisplay(event.startTime ?: "09:00")} - ${DateTimeUtils.formatTimeForDisplay(event.endTime ?: "12:00")}"
-                        MetaChip(
-                            icon = Icons.Outlined.Schedule,
-                            text = time,
-                            colors = colors
-                        )
-                        MetaChip(
-                            icon = Icons.Outlined.Info,
-                            text = "Event",
-                            colors = colors
-                        )
+                    if (event.type != "Event") {
+                        Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
+                        
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingSm),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val time = "${DateTimeUtils.formatTimeForDisplay(event.startTime ?: "09:00")} - ${DateTimeUtils.formatTimeForDisplay(event.endTime ?: "12:00")}"
+                            MetaChip(
+                                icon = Icons.Outlined.Schedule,
+                                text = time,
+                                colors = colors
+                            )
+                            MetaChip(
+                                icon = Icons.Outlined.Info,
+                                text = "Event",
+                                colors = colors
+                            )
+                        }
                     }
                 }
             }
