@@ -22,9 +22,9 @@ const AboutPage = ({ onBack }) => (
     <>
         <SubHeader title="About App" onBack={onBack} />
 
-        <div className="s2-about-header">
-            <div className="s2-about-tamil">நேரம்</div>
-            <div className="s2-about-english">Neram</div>
+        <div className="s2-app-logo-container">
+            <div className="s2-app-logo-tamil">நேரம்</div>
+            <div className="s2-app-logo-english">Neram</div>
         </div>
 
         <SettingsGroup>
@@ -67,13 +67,6 @@ const AboutPage = ({ onBack }) => (
                     desc="Stay updated with news, circulars, and announcements from the college."
                 />
 
-                <SettingsDivider />
-                <FeatureItem
-                    icon={<RiWifiOffLine />}
-                    color="green"
-                    title="Offline Support"
-                    desc="Access your timetable and cached data even without an internet connection."
-                />
                 <SettingsDivider />
                 <FeatureItem
                     icon={<RiRefreshLine />}

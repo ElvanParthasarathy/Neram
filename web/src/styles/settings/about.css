@@ -56,6 +56,33 @@
     display: block;
     margin-bottom: 12px;
 }
+.s2-app-logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px 16px;
+}
+
+.s2-app-logo-tamil {
+    font-size: 40px; /* Reduced to proper size */
+    font-weight: 700;
+    color: var(--mac-text);
+    line-height: 1;
+    font-family: 'Mukta Malar', sans-serif;
+}
+
+.s2-app-logo-english {
+    font-size: 14px; /* Standard pill size */
+    font-weight: 600; /* Bold enough to be readable in a pill */
+    color: var(--mac-text-secondary); /* Grey text color */
+    background: var(--mac-bg-secondary); /* Grey pill background typically */
+    margin-top: 12px; /* Space from the main logo */
+    padding: 3px 12px; /* Compact pill interior spacing */
+    border-radius: 100px; /* Fully rounded pill shape */
+    border: none; /* Flat pill, no outline */
+}
+
 
 .s2-about-card-title {
     font-size: 18px;
