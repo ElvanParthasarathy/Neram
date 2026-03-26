@@ -611,7 +611,7 @@ const NotesManager = () => {
             </div>
 
             {/* ─── FAB (Mobile only — edit mode only) ─── */}
-            {isEditListMode && createPortal(
+            {isEditListMode && !subjectModal && !fileModal && !moveModal && !renamingId && !creatingFolder && !settingsModal && !confirmModal.show && createPortal(
                 <>
                     {fabOpen && <div className="nm-fab-backdrop" onClick={() => setFabOpen(false)} />}
 
@@ -1002,7 +1002,7 @@ const NotesManager = () => {
                                 className="nm-modal-footer-btn confirm" 
                                 onClick={() => { updateMode(tempMode); setSettingsModal(false); }}
                             >
-                                Save Changes
+                                Save
                             </button>
                         </div>
                     </div>

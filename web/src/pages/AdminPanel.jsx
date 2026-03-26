@@ -59,11 +59,12 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
     let unauthorized = false;
 
     if (isFaculty) {
-      if (['structure', 'calendar', 'resources', 'archives'].includes(activeModule)) unauthorized = true;
+      // Faculty: blocked from faculty directory, structure, archives
+      if (['structure', 'archives', 'faculty', 'pending'].includes(activeModule)) unauthorized = true;
     }
     else if (isRep) {
-      // Reps can see 'roles' (Admins) as per request, but not 'users'.
-      if (['structure', 'calendar', 'resources', 'users', 'archives'].includes(activeModule)) unauthorized = true;
+      // Reps: only planning tools + admins + notes. Blocked from everything else.
+      if (['structure', 'calendar', 'resources', 'users', 'faculty', 'archives', 'pending'].includes(activeModule)) unauthorized = true;
     }
 
     if (unauthorized) {
@@ -99,19 +100,19 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
             </h1>
           </header>
         )}
-        {activeModule === 'home' && <AdminDashboard user={user} userProfile={userProfile} />}
-        {activeModule === 'structure' && <StructureManager />}
-        {activeModule === 'users' && <UserManagement />}
-        {activeModule === 'roles' && <AdminRoleManager userProfile={userProfile} />}
-        {activeModule === 'faculty' && <FacultyDirectory />}
+        {activeModule === 'home' && <AdminDashboard user={user} userProfile={userProfile} isMobile={isMobile} />}
+        {activeModule === 'structure' && <StructureManager isMobile={isMobile} />}
+        {activeModule === 'users' && <UserManagement isMobile={isMobile} />}
+        {activeModule === 'roles' && <AdminRoleManager userProfile={userProfile} isMobile={isMobile} />}
+        {activeModule === 'faculty' && <FacultyDirectory isMobile={isMobile} />}
         {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} isMobile={isMobile} />}
 
         {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} isMobile={isMobile} />}
         {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} isMobile={isMobile} />}
-        {activeModule === 'calendar' && <CalendarManager />}
-        {activeModule === 'resources' && <ResourceManager />}
-        {activeModule === 'notes' && <NotesManager />}
-        {activeModule === 'pending' && <PendingRequests />}
+        {activeModule === 'calendar' && <CalendarManager isMobile={isMobile} />}
+        {activeModule === 'resources' && <ResourceManager isMobile={isMobile} />}
+        {activeModule === 'notes' && <NotesManager isMobile={isMobile} />}
+        {activeModule === 'pending' && <PendingRequests isMobile={isMobile} />}
         {activeModule === 'archives' && <SemesterTransitionManager user={user} userProfile={userProfile} isMobile={isMobile} />}
         {activeModule === 'special_classes' && <SpecialClassManager user={user} userProfile={userProfile} isMobile={isMobile} />}
       </main>

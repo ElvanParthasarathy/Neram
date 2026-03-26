@@ -476,3 +476,10 @@
         flex-direction: column;
     }
 }
+
+/* Utility to hide elements on desktop */
+@media (min-width: 901px) {
+    .show-only-mobile {
+        display: none !important;
+    }
+}

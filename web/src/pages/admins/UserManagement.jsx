@@ -345,6 +345,7 @@ const UserManagement = () => {
                             value={selectedUser.dob}
                             onChange={(val) => setSelectedUser({ ...selectedUser, dob: val })}
                             inputClass="modal-input"
+                            isMobileProp={isMobile}
                         />
                     </div>
               </div>

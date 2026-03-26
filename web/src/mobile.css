@@ -2644,4 +2644,79 @@
 
   /* CSS BLOKER KLOSING */
 
+
+    /* -------------------------------------------------------------
+       G. ADMIN PANEL PREMIUM UI TOKENS (MOBILE PARITY)
+       ------------------------------------------------------------- */
+    
+    .mobile-tabs {
+        display: flex !important;
+        background: rgba(0, 0, 0, 0.05) !important;
+        padding: 4px !important;
+        border-radius: 100px !important;
+        margin-bottom: 24px !important;
+        gap: 4px !important;
+        overflow-x: auto !important;
+        scrollbar-width: none !important;
+    }
+    
+    html.dark .mobile-tabs {
+        background: rgba(255, 255, 255, 0.08) !important;
+    }
+    
+    .mobile-tabs button {
+        flex: 1;
+        white-space: nowrap;
+        border: none !important;
+        background: transparent !important;
+        padding: 10px 16px !important;
+        border-radius: 100px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: var(--text-secondary) !important;
+        transition: all 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
+    }
+    
+    .mobile-tabs button.active {
+        background: var(--bg-card) !important;
+        color: var(--accent-primary) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        font-weight: 700 !important;
+    }
+
+    /* Standardized Mobile Action Buttons */
+    .role-header-pill, .premium-pill-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 44px;
+        padding: 0 24px;
+        border-radius: 100px;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .role-header-pill.active, .premium-pill-btn.primary {
+        background: var(--accent-primary) !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+    }
+
+    .role-header-pill.secondary, .premium-pill-btn.secondary {
+        background: var(--bg-button-secondary) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--glass-border) !important;
+    }
+
+    .role-header-pill.danger, .premium-pill-btn.danger {
+        background: rgba(255, 59, 48, 0.1) !important;
+        color: var(--accent-danger) !important;
+    }
+
+    .role-header-pill:active, .premium-pill-btn:active {
+        transform: scale(0.96);
+    }
 }

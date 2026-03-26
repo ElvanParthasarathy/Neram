@@ -1020,6 +1020,18 @@ html.dark .ea-modal {
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
 }
 
+.ea-cal-table td select.ea-type-select option {
+    background: #fff;
+    color: #1d1d1f;
+    padding: 8px 12px;
+    font-weight: 600;
+}
+
+html.dark .ea-cal-table td select.ea-type-select option {
+    background: #2a2a2e;
+    color: #f5f5f7;
+}
+
 .ea-cal-table td input.ea-event-input {
     min-width: 130px;
     font-weight: 600;

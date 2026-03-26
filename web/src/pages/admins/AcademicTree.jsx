@@ -3,12 +3,14 @@ import { db } from "../../firebase";
 import { ref, onValue, set, get, update } from "firebase/database";
 import {
   RiAddLine, RiDeleteBin6Line, RiEditLine, RiCloseLine,
-  RiSave3Line, RiGlobalLine, RiBookOpenLine
+  RiSave3Line, RiGlobalLine, RiBookOpenLine,
+  RiTeamLine, RiLayoutGridLine, RiDeleteBin6Fill,
+  RiCalendarLine
 } from 'react-icons/ri';
 
 import "../../styles/admin-settings.css";
 
-const AcademicTree = () => {
+const AcademicTree = ({ isMobile }) => {
   const [activeTab, setActiveTab] = useState('hierarchy');
 
   // --- DATA ---
@@ -26,7 +28,21 @@ const AcademicTree = () => {
   // Editing State
   const [editingBatch, setEditingBatch] = useState(null);
   const [editingGlobalDept, setEditingGlobalDept] = useState(null);
+  const [editGlobalDeptVal, setEditGlobalDeptVal] = useState("");
   const [editingSec, setEditingSec] = useState(null);
+
+  // --- BULK EDIT STATE ---
+  const [isBatchEditMode, setIsBatchEditMode] = useState(false);
+  const [isBatchDeleteMode, setIsBatchDeleteMode] = useState(false);
+  const [selectedBatches, setSelectedBatches] = useState([]);
+
+  const [isDeptEditMode, setIsDeptEditMode] = useState(false);
+  const [isDeptDeleteMode, setIsDeptDeleteMode] = useState(false);
+  const [selectedDepts, setSelectedDepts] = useState([]);
+
+  const [isSecEditMode, setIsSecEditMode] = useState(false);
+  const [isSecDeleteMode, setIsSecDeleteMode] = useState(false);
+  const [selectedSecs, setSelectedSecs] = useState([]);
 
   // --- FIREBASE ---
   useEffect(() => {
@@ -83,6 +99,20 @@ const AcademicTree = () => {
     }
   };
 
+  const handleToggleBatchSelect = (batch) => setSelectedBatches(p => p.includes(batch) ? p.filter(b => b !== batch) : [...p, batch]);
+  const handleSelectAllBatches = (allBatches) => setSelectedBatches(selectedBatches.length === allBatches.length ? [] : allBatches);
+  const handleBulkDeleteBatches = async () => {
+    if (selectedBatches.length === 0) return;
+    const nonDeletable = selectedBatches.filter(b => Object.keys(hierarchy[b] || {}).filter(k => k !== 'initialized').length > 0);
+    if (nonDeletable.length > 0) return alert(`Cannot delete ${nonDeletable.length} batch(es) because they still contain departments.`);
+    if (window.confirm(`Permanently delete ${selectedBatches.length} empty Batches?`)) {
+      const updates = {};
+      selectedBatches.forEach(b => { updates[`academic_hierarchy/${b}`] = null; updates[`schedules/${b}`] = null; });
+      await update(ref(db), updates);
+      setSelectedBatches([]); setIsBatchDeleteMode(false);
+    }
+  };
+
   // --- GLOBAL DEPARTMENT CRUD ---
   const handleAddDepartment = async () => {
     if (!newDeptCode) return alert("Enter a department code");
@@ -128,6 +158,22 @@ const AcademicTree = () => {
       await set(ref(db, 'departments'), departmentsList.filter(d => d !== dept));
   };
 
+  const handleToggleDeptSelect = (dept) => setSelectedDepts(p => p.includes(dept) ? p.filter(d => d !== dept) : [...p, dept]);
+  const handleSelectAllDepts = (allDepts) => setSelectedDepts(selectedDepts.length === allDepts.length ? [] : allDepts);
+  const handleBulkDeleteDepts = async () => {
+    if (selectedDepts.length === 0) return;
+    const usedDepts = selectedDepts.filter(dept => {
+      let used = false;
+      Object.values(hierarchy).forEach(b => { if (b?.[dept] && Object.keys(b[dept]).filter(k => k !== 'initialized').length > 0) used = true; });
+      return used;
+    });
+    if (usedDepts.length > 0) return alert(`Cannot delete ${usedDepts.length} department(s) because they are mapped in the hierarchy.`);
+    if (window.confirm(`Remove ${selectedDepts.length} unused departments from the Global Registry?`)) {
+      await set(ref(db, 'departments'), departmentsList.filter(d => !selectedDepts.includes(d)));
+      setSelectedDepts([]); setIsDeptDeleteMode(false);
+    }
+  };
+
   // --- SECTION CRUD ---
   const handleAddSection = async () => {
     if (!secBatch || !secDept || !newSection) return alert("Complete all fields.");
@@ -166,6 +212,36 @@ const AcademicTree = () => {
     }
   };
 
+  const handleToggleSecSelect = (secKey) => setSelectedSecs(p => p.includes(secKey) ? p.filter(s => s !== secKey) : [...p, secKey]);
+  const handleSelectAllSecs = (allSecKeys) => setSelectedSecs(selectedSecs.length === allSecKeys.length ? [] : allSecKeys);
+  const handleBulkDeleteSecs = async (allSectionsList) => {
+    if (selectedSecs.length === 0) return;
+    if (window.confirm(`Delete ${selectedSecs.length} assigned sections?`)) {
+      const updates = {};
+      
+      // Group selections by paths to update hierarchy structure appropriately
+      const selectionsMap = {};
+      selectedSecs.forEach(secKey => {
+        const item = allSectionsList.find(s => `${s.batch}-${s.dept}-${s.sec}` === secKey);
+        if(item) {
+           if(!selectionsMap[`${item.batch}/${item.dept}`]) selectionsMap[`${item.batch}/${item.dept}`] = [];
+           selectionsMap[`${item.batch}/${item.dept}`].push(item.sec);
+           updates[`schedules/${item.batch}/${item.dept}/${item.sec}`] = null;
+        }
+      });
+
+      Object.keys(selectionsMap).forEach(hierPath => {
+         const [b, d] = hierPath.split('/');
+         const currentList = hierarchy[b][d] || [];
+         const toRemove = selectionsMap[hierPath];
+         updates[`academic_hierarchy/${b}/${d}`] = currentList.filter(s => !toRemove.includes(s));
+      });
+
+      await update(ref(db), updates);
+      setSelectedSecs([]); setIsSecDeleteMode(false);
+    }
+  };
+
   // --- COMPUTED: sections for selected batch+dept ---
   const filteredSections = (secBatch && secDept && Array.isArray(hierarchy[secBatch]?.[secDept]))
     ? hierarchy[secBatch][secDept] : [];
@@ -173,14 +249,14 @@ const AcademicTree = () => {
   return (
     <div className="admin-subpage animate-fade-in central-schedule-manager">
       <div className="schedule-editor-workspace">
-        <nav className="editor-tabs box-flat">
-          <button className={activeTab === 'hierarchy' ? 'active' : ''} onClick={() => setActiveTab('hierarchy')}>Hierarchy</button>
+        <nav className="editor-tabs" style={{ marginBottom: '24px' }}>
+          <button className={activeTab === 'hierarchy' ? 'active' : ''} onClick={() => setActiveTab('hierarchy')}>{isMobile ? 'Tree' : 'Hierarchy'}</button>
           <button className={activeTab === 'batches' ? 'active' : ''} onClick={() => setActiveTab('batches')}>Batches</button>
-          <button className={activeTab === 'departments' ? 'active' : ''} onClick={() => setActiveTab('departments')}>Departments</button>
-          <button className={activeTab === 'sections' ? 'active' : ''} onClick={() => setActiveTab('sections')}>Sections</button>
+          <button className={activeTab === 'departments' ? 'active' : ''} onClick={() => setActiveTab('departments')}>{isMobile ? 'Depts' : 'Departments'}</button>
+          <button className={activeTab === 'sections' ? 'active' : ''} onClick={() => setActiveTab('sections')}>{isMobile ? 'Secs' : 'Sections'}</button>
         </nav>
 
-        <div className="tab-content-area">
+        <div className="tab-content-area" style={{ paddingTop: 0 }}>
 
           {/* ==================== 1. HIERARCHY (TREE VIEW) ==================== */}
           {activeTab === 'hierarchy' && (
@@ -200,7 +276,7 @@ const AcademicTree = () => {
                 const batchData = hierarchy[batch] || {};
                 const depts = Object.keys(batchData).filter(k => k !== 'initialized');
                 return (
-                  <div key={batch} style={{ marginBottom: '32px' }}>
+                  <div key={batch} className="settings-card" style={{ marginBottom: '16px', padding: '20px 24px', borderRadius: '20px' }}>
                     {/* BATCH NODE */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span style={{
@@ -272,85 +348,112 @@ const AcademicTree = () => {
           {/* ==================== 2. BATCHES ==================== */}
           {activeTab === 'batches' && (
             <div className="course-manager">
-              <div style={{ marginBottom: '16px' }}>
-                <h2 className="section-title-premium" style={{ margin: 0 }}>Batch Manager</h2>
+              <div className="master-header-row animate-fade-in" style={{ marginBottom: '16px', minHeight: 'auto', justifyContent: 'flex-end', paddingRight: 0, paddingLeft: 0 }}>
+                <div className="header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
+                  {isBatchEditMode ? (
+                    <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
+                      <button className="role-header-pill secondary" onClick={() => { setSelectedBatches([]); setIsBatchDeleteMode(false); setIsBatchEditMode(false); setEditingBatch(null); }} style={{ minWidth: '90px' }}>Cancel</button>
+                      <button className="role-header-pill active" onClick={() => { setSelectedBatches([]); setIsBatchDeleteMode(false); setIsBatchEditMode(false); setEditingBatch(null); }} style={{ minWidth: '90px' }}>Done</button>
+                    </div>
+                  ) : (
+                    <button className="edit-list-btn" onClick={() => setIsBatchEditMode(true)}><RiEditLine style={{ marginRight: '6px' }} /> Edit List</button>
+                  )}
+                </div>
               </div>
 
+              {isBatchEditMode && (
               <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
                 <div className="add-card-title-row"><span>Create New Batch</span></div>
                 <div className="add-card-grid">
-                  <div className="add-input-section">
+                  <div className="add-input-section grow">
                     <label className="add-input-label">START YEAR</label>
                     <input className="premium-add-input" placeholder="YYYY" type="number" value={batchStart} onChange={e => setBatchStart(e.target.value)} />
                   </div>
-                  <div className="add-input-section">
+                  <div className="add-input-section grow">
                     <label className="add-input-label">END YEAR</label>
                     <input className="premium-add-input" placeholder="YYYY" type="number" value={batchEnd} onChange={e => setBatchEnd(e.target.value)} />
                   </div>
                 </div>
-                <button className="premium-add-submit-btn" onClick={handleCreateBatch}><RiAddLine /> Create Batch</button>
+                {isMobile ? (
+                  <button className="premium-add-submit-btn" style={{ marginTop: '16px' }} onClick={handleCreateBatch}>Create Batch</button>
+                ) : (
+                  <button className="premium-add-submit-btn" onClick={handleCreateBatch}><RiAddLine /> Create Batch</button>
+                )}
               </div>
+              )}
 
-              <div className="master-items-container individual-cards">
+              <div className="master-items-container individual-cards" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
                 {Object.keys(hierarchy).sort().reverse().map(batch => {
                   const deptCount = Object.keys(hierarchy[batch] || {}).filter(k => k !== 'initialized').length;
                   return (
                     <div key={batch} className={`settings-card master-item-card ${editingBatch?.oldVal === batch ? 'editing' : ''}`}>
                       {editingBatch?.oldVal === batch ? (
                         <div className="pill-edit-row">
-                          <div className="edit-item-fields" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                            <div className="edit-field">
-                              <label className="edit-label">START YEAR</label>
-                              <input 
-                                autoFocus 
-                                type="number"
-                                className="edit-input-field" 
-                                value={editingBatch.startYear || ''} 
-                                onChange={e => setEditingBatch({ ...editingBatch, startYear: e.target.value })} 
-                              />
-                            </div>
-                            <div className="edit-field">
-                              <label className="edit-label">END YEAR</label>
-                              <input 
-                                type="number"
-                                className="edit-input-field" 
-                                value={editingBatch.endYear || ''} 
-                                onChange={e => setEditingBatch({ ...editingBatch, endYear: e.target.value })} 
-                              />
+                          <div className="edit-item-fields">
+                            <div className="edit-item-fields-grid" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px', width: '100%' }}>
+                              <div className="edit-field">
+                                <label className="edit-label">START YEAR</label>
+                                <input 
+                                  autoFocus 
+                                  type="number"
+                                  className="edit-input-field" 
+                                  value={editingBatch.startYear || ''} 
+                                  onChange={e => setEditingBatch({ ...editingBatch, startYear: e.target.value })} 
+                                />
+                              </div>
+                              <div className="edit-field">
+                                <label className="edit-label">END YEAR</label>
+                                <input 
+                                  type="number"
+                                  className="edit-input-field" 
+                                  value={editingBatch.endYear || ''} 
+                                  onChange={e => setEditingBatch({ ...editingBatch, endYear: e.target.value })} 
+                                />
+                              </div>
                             </div>
                           </div>
                           <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
                             <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingBatch(null)}>Cancel</button>
-                            <button className="premium-pill-btn danger" style={{ flex: 1, justifyContent: 'center' }} onClick={() => handleDeleteBatch(batch)}><RiDeleteBin6Line /> Delete</button>
                             <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => {
-                              const newStart = (editingBatch.startYear || '').toString().trim();
-                              const newEnd = (editingBatch.endYear || '').toString().trim();
-                              if (!newStart || !newEnd) return alert("Please enter both years");
-                              handleUpdateBatch(batch, `${newStart}-${newEnd}`);
-                            }}><RiSave3Line /> Save</button>
+                                const newStart = (editingBatch.startYear || '').toString().trim();
+                                const newEnd = (editingBatch.endYear || '').toString().trim();
+                                if (!newStart || !newEnd) return alert("Please enter both years");
+                                handleUpdateBatch();
+                              }}> Save</button>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <div className="item-content">
-                            <div className="item-text-stack">
-                              <div className="course-code-badge">{batch}</div>
-                              <span className="course-name-text">{deptCount} Department{deptCount !== 1 ? 's' : ''}</span>
+                          <div className="item-content" style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', padding: '4px 0' }}>
+                            {isBatchDeleteMode && (
+                              <input type="checkbox" className="mac-checkbox" checked={selectedBatches.includes(batch)} onChange={() => handleToggleBatchSelect(batch)} />
+                            )}
+                            <div style={{
+                              width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,149,0,0.1)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                            }}>
+                              <RiCalendarLine style={{ fontSize: '20px', color: '#ff9500' }} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                              <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--mac-text)', letterSpacing: '-0.3px' }}>{batch}</div>
+                              <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--mac-text-secondary)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '1px' }}>{deptCount} Department{deptCount !== 1 ? 's' : ''}</div>
                             </div>
                           </div>
-                          <button 
-                            className="pill-inline-edit" 
-                            onClick={() => {
-                              const parts = batch.split('-');
-                              setEditingBatch({ 
-                                oldVal: batch, 
-                                startYear: parts[0] || '', 
-                                endYear: parts[1] || '' 
-                              });
-                            }}
-                          >
-                            <RiEditLine />
-                          </button>
+                          {isBatchEditMode && (
+                            <button 
+                              className="pill-inline-edit" 
+                              onClick={() => {
+                                const parts = batch.split('-');
+                                setEditingBatch({ 
+                                  oldVal: batch, 
+                                  startYear: parts[0] || '', 
+                                  endYear: parts[1] || '' 
+                                });
+                              }}
+                            >
+                              <RiEditLine />
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
@@ -360,17 +463,58 @@ const AcademicTree = () => {
                   <div className="settings-card empty-card-wrap"><div className="empty-placeholder"><RiBookOpenLine /><p>No batches created yet.</p></div></div>
                 )}
               </div>
+
+              {isBatchEditMode && (
+                <div className={`bulk-action-footer-premium animate-slide-up ${isBatchDeleteMode ? 'danger-mode' : ''}`}>
+                  {isBatchDeleteMode ? (
+                    <div className="bulk-delete-action-row">
+                      <div className="bulk-delete-info">
+                        <div className="info-icon"><RiDeleteBin6Fill /></div>
+                        <div className="bulk-delete-text">
+                          <span className="bulk-delete-title">{selectedBatches.length === 0 ? "Select Items" : `${selectedBatches.length} Selected`}</span>
+                          <span className="bulk-delete-desc">Choose batches to delete</span>
+                        </div>
+                      </div>
+                      <div className="pill-group">
+                        <button className="premium-pill-btn primary" onClick={() => handleSelectAllBatches(Object.keys(hierarchy))}>{selectedBatches.length === Object.keys(hierarchy).length && Object.keys(hierarchy).length > 0 ? 'Deselect All' : 'Select All'}</button>
+                        <button className="premium-pill-btn secondary" onClick={() => { setSelectedBatches([]); setIsBatchDeleteMode(false); }}>Cancel</button>
+                        <button className="premium-pill-btn danger" onClick={handleBulkDeleteBatches} disabled={selectedBatches.length === 0}>Delete</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bulk-delete-start-row">
+                      <div className="bulk-delete-info">
+                        <div className="info-icon"><RiTeamLine /></div>
+                        <div className="bulk-delete-text">
+                          <span className="bulk-delete-title">Manage Batches</span>
+                          <span className="bulk-delete-desc">Select and remove empty batches</span>
+                        </div>
+                      </div>
+                      <button className="premium-pill-btn danger" onClick={() => setIsBatchDeleteMode(true)}><RiDeleteBin6Fill /> Delete</button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {/* ==================== 3. DEPARTMENTS ==================== */}
           {activeTab === 'departments' && (
             <div className="course-manager">
-              <div style={{ marginBottom: '16px' }}>
-                <h2 className="section-title-premium" style={{ margin: 0 }}>Global Department Registry</h2>
-                <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--mac-text-secondary)' }}>Renaming a department here triggers a global migration across all schedules, users, faculty, events, and courses.</p>
+              <div className="master-header-row animate-fade-in" style={{ marginBottom: '16px', minHeight: 'auto', justifyContent: 'flex-end', paddingRight: 0, paddingLeft: 0 }}>
+                <div className="header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
+                  {isDeptEditMode ? (
+                    <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
+                      <button className="role-header-pill secondary" onClick={() => { setSelectedDepts([]); setIsDeptDeleteMode(false); setIsDeptEditMode(false); setEditingGlobalDept(null); }} style={{ minWidth: '90px' }}>Cancel</button>
+                      <button className="role-header-pill active" onClick={() => { setSelectedDepts([]); setIsDeptDeleteMode(false); setIsDeptEditMode(false); setEditingGlobalDept(null); }} style={{ minWidth: '90px' }}>Done</button>
+                    </div>
+                  ) : (
+                    <button className="edit-list-btn" onClick={() => setIsDeptEditMode(true)}><RiEditLine style={{ marginRight: '6px' }} /> Edit List</button>
+                  )}
+                </div>
               </div>
 
+              {isDeptEditMode && (
               <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
                 <div className="add-card-title-row"><span>Register New Department</span></div>
                 <div className="add-card-grid">
@@ -380,10 +524,15 @@ const AcademicTree = () => {
                       onChange={e => setNewDeptCode(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddDepartment()} />
                   </div>
                 </div>
-                <button className="premium-add-submit-btn" onClick={handleAddDepartment}><RiAddLine /> Add Department</button>
+                {isMobile ? (
+                  <button className="premium-add-submit-btn" style={{ marginTop: '16px' }} onClick={handleAddDepartment}>Add Department</button>
+                ) : (
+                  <button className="premium-add-submit-btn" onClick={handleAddDepartment}><RiAddLine /> Add Department</button>
+                )}
               </div>
+              )}
 
-              <div className="master-items-container individual-cards">
+              <div className="master-items-container individual-cards" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
                 {departmentsList.map(dept => (
                   <div key={dept} className={`settings-card master-item-card ${editingGlobalDept === dept ? 'editing' : ''}`}>
                     {editingGlobalDept === dept ? (
@@ -391,29 +540,40 @@ const AcademicTree = () => {
                         <div className="edit-item-fields">
                           <div className="edit-field">
                             <label className="edit-label">DEPARTMENT CODE</label>
-                            <input autoFocus className="edit-input-field" defaultValue={dept}
-                              onKeyDown={e => { if (e.key === 'Enter') e.target.blur(); if (e.key === 'Escape') setEditingGlobalDept(null); }}
-                              onBlur={e => {
-                                const v = e.target.value.toUpperCase().trim();
-                                if (v && v !== dept) handleUpdateGlobalDept(dept, v);
-                                setEditingGlobalDept(null);
-                              }} />
+                            <input autoFocus className="edit-input-field" value={editGlobalDeptVal}
+                              onChange={e => setEditGlobalDeptVal(e.target.value)}
+                              onKeyDown={e => { if (e.key === 'Enter') { const v = editGlobalDeptVal.toUpperCase().trim(); if (v && v !== dept) handleUpdateGlobalDept(dept, v); setEditingGlobalDept(null); } if (e.key === 'Escape') setEditingGlobalDept(null); }} />
                           </div>
                         </div>
                         <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
                           <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingGlobalDept(null)}>Cancel</button>
-                          <button className="premium-pill-btn danger" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { handleDeleteGlobalDept(dept); setEditingGlobalDept(null); }}><RiDeleteBin6Line /> Delete</button>
+                          <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => {
+                            const v = editGlobalDeptVal.toUpperCase().trim();
+                            if (v && v !== dept) handleUpdateGlobalDept(dept, v);
+                            setEditingGlobalDept(null);
+                          }}> Save</button>
                         </div>
                       </div>
                     ) : (
                       <>
-                        <div className="item-content">
-                          <div className="item-text-stack">
-                            <div className="course-code-badge">{dept}</div>
-                            <span className="course-name-text">Department</span>
+                        <div className="item-content" style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', padding: '4px 0' }}>
+                          {isDeptDeleteMode && (
+                            <input type="checkbox" className="mac-checkbox" checked={selectedDepts.includes(dept)} onChange={() => handleToggleDeptSelect(dept)} />
+                          )}
+                          <div style={{
+                            width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(10,132,255,0.1)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                          }}>
+                            <RiBookOpenLine style={{ fontSize: '20px', color: 'var(--mac-blue)' }} />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--mac-text)', letterSpacing: '1px' }}>{dept}</div>
+                            <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--mac-text-secondary)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '1px' }}>Department</div>
                           </div>
                         </div>
-                        <button className="pill-inline-edit" onClick={() => setEditingGlobalDept(dept)}><RiEditLine /></button>
+                        {isDeptEditMode && (
+                          <button className="pill-inline-edit" onClick={() => { setEditingGlobalDept(dept); setEditGlobalDeptVal(dept); }}><RiEditLine /></button>
+                        )}
                       </>
                     )}
                   </div>
@@ -422,44 +582,90 @@ const AcademicTree = () => {
                   <div className="settings-card empty-card-wrap"><div className="empty-placeholder"><RiBookOpenLine /><p>No departments registered.</p></div></div>
                 )}
               </div>
+
+              {isDeptEditMode && (
+                <div className={`bulk-action-footer-premium animate-slide-up ${isDeptDeleteMode ? 'danger-mode' : ''}`}>
+                  {isDeptDeleteMode ? (
+                    <div className="bulk-delete-action-row">
+                      <div className="bulk-delete-info">
+                        <div className="info-icon"><RiDeleteBin6Fill /></div>
+                        <div className="bulk-delete-text">
+                          <span className="bulk-delete-title">{selectedDepts.length === 0 ? "Select Items" : `${selectedDepts.length} Selected`}</span>
+                          <span className="bulk-delete-desc">Choose departments to delete</span>
+                        </div>
+                      </div>
+                      <div className="pill-group">
+                        <button className="premium-pill-btn primary" onClick={() => handleSelectAllDepts(departmentsList)}>{selectedDepts.length === departmentsList.length && departmentsList.length > 0 ? 'Deselect All' : 'Select All'}</button>
+                        <button className="premium-pill-btn secondary" onClick={() => { setSelectedDepts([]); setIsDeptDeleteMode(false); }}>Cancel</button>
+                        <button className="premium-pill-btn danger" onClick={handleBulkDeleteDepts} disabled={selectedDepts.length === 0}>Delete</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bulk-delete-start-row">
+                      <div className="bulk-delete-info">
+                        <div className="info-icon"><RiBookOpenLine /></div>
+                        <div className="bulk-delete-text">
+                          <span className="bulk-delete-title">Manage Registry</span>
+                          <span className="bulk-delete-desc">Select and remove unused departments</span>
+                        </div>
+                      </div>
+                      <button className="premium-pill-btn danger" onClick={() => setIsDeptDeleteMode(true)}><RiDeleteBin6Fill /> Delete</button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
           {/* ==================== 4. SECTIONS ==================== */}
           {activeTab === 'sections' && (
             <div className="course-manager">
-              <div style={{ marginBottom: '16px' }}>
-                <h2 className="section-title-premium" style={{ margin: 0 }}>Section Manager</h2>
-                <p style={{ margin: '6px 0 0 0', fontSize: '13px', color: 'var(--mac-text-secondary)' }}>Select a batch and department, then add or edit sections.</p>
+              <div className="master-header-row animate-fade-in" style={{ marginBottom: '16px', minHeight: 'auto', justifyContent: 'flex-end', paddingRight: 0, paddingLeft: 0 }}>
+                <div className="header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
+                  {isSecEditMode ? (
+                    <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
+                      <button className="role-header-pill secondary" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); setIsSecEditMode(false); setEditingSec(null); }} style={{ minWidth: '90px' }}>Cancel</button>
+                      <button className="role-header-pill active" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); setIsSecEditMode(false); setEditingSec(null); }} style={{ minWidth: '90px' }}>Done</button>
+                    </div>
+                  ) : (
+                    <button className="edit-list-btn" onClick={() => setIsSecEditMode(true)}><RiEditLine style={{ marginRight: '6px' }} /> Edit List</button>
+                  )}
+                </div>
               </div>
 
+              {isSecEditMode && (
               <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
                 <div className="add-card-title-row"><span>Map New Section</span></div>
                 <div className="add-card-grid">
-                  <div className="add-input-section">
+                  <div className="add-input-section grow">
                     <label className="add-input-label">BATCH</label>
                     <select className="premium-add-input" style={{ cursor: 'pointer' }} value={secBatch} onChange={e => { setSecBatch(e.target.value); setSecDept(""); }}>
                       <option value="">Select Batch</option>
                       {Object.keys(hierarchy).sort().reverse().map(b => <option key={b} value={b}>{b}</option>)}
                     </select>
                   </div>
-                  <div className="add-input-section">
+                  <div className="add-input-section grow">
                     <label className="add-input-label">DEPARTMENT</label>
                     <select className="premium-add-input" style={{ cursor: 'pointer' }} value={secDept} onChange={e => setSecDept(e.target.value)} disabled={!secBatch}>
                       <option value="">Select Dept</option>
                       {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
-                  <div className="add-input-section">
+                  <div className="add-input-section grow">
                     <label className="add-input-label">SECTION NAME</label>
-                    <input className="premium-add-input" placeholder="e.g. A" value={newSection} onChange={e => setNewSection(e.target.value)} />
+                    <input className="premium-add-input" placeholder="e.g. A" value={newSection} onChange={e => setNewSection(e.target.value)} disabled={!secDept} />
                   </div>
                 </div>
-                <button className="premium-add-submit-btn" onClick={handleAddSection}><RiAddLine /> Add Section</button>
+                {isMobile ? (
+                  <button className="premium-add-submit-btn" style={{ marginTop: '16px' }} onClick={handleAddSection}>Add Section</button>
+                ) : (
+                  <button className="premium-add-submit-btn" onClick={handleAddSection}><RiAddLine /> Add Section</button>
+                )}
               </div>
+              )}
 
               {/* All Sections List */}
-              <div className="master-items-container individual-cards">
+              <div className="master-items-container individual-cards" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
                 {(() => {
                   const allSections = [];
                   Object.keys(hierarchy).sort().reverse().forEach(batch => {
@@ -488,25 +694,85 @@ const AcademicTree = () => {
                           </div>
                           <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
                             <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingSec(null)}>Cancel</button>
-                            <button className="premium-pill-btn danger" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { handleDeleteSection(batch, dept, sec); setEditingSec(null); }}><RiDeleteBin6Line /> Delete</button>
-                            <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleUpdateSection}><RiSave3Line /> Save</button>
+                            <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleUpdateSection}> Save</button>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <div className="item-content">
-                            <div className="item-text-stack">
-                              <div className="course-code-badge">Section {sec}</div>
-                              <span className="course-name-text">{batch} · {dept}</span>
+                          <div className="item-content" style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', padding: '4px 0' }}>
+                            {isSecDeleteMode && (
+                              <input type="checkbox" className="mac-checkbox" checked={selectedSecs.includes(`${batch}-${dept}-${sec}`)} onChange={() => handleToggleSecSelect(`${batch}-${dept}-${sec}`)} />
+                            )}
+                            <div style={{
+                              width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(52,199,89,0.1)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                            }}>
+                              <RiLayoutGridLine style={{ fontSize: '20px', color: '#34c759' }} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                              <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--mac-text)', letterSpacing: '-0.3px' }}>Section {sec}</div>
+                              <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--mac-text-secondary)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '1px' }}>{batch} · {dept}</div>
                             </div>
                           </div>
-                          <button className="pill-inline-edit" onClick={() => setEditingSec({ batch, dept, oldVal: sec, newVal: sec })}><RiEditLine /></button>
+                          {isSecEditMode && (
+                            <button className="pill-inline-edit" onClick={() => setEditingSec({ batch, dept, oldVal: sec, newVal: sec })}><RiEditLine /></button>
+                          )}
                         </>
                       )}
                     </div>
                   ));
                 })()}
               </div>
+
+              {isSecEditMode && (
+                <div className={`bulk-action-footer-premium animate-slide-up ${isSecDeleteMode ? 'danger-mode' : ''}`}>
+                  {isSecDeleteMode ? (
+                    <div className="bulk-delete-action-row">
+                      <div className="bulk-delete-info">
+                        <div className="info-icon"><RiDeleteBin6Fill /></div>
+                        <div className="bulk-delete-text">
+                          <span className="bulk-delete-title">{selectedSecs.length === 0 ? "Select Items" : `${selectedSecs.length} Selected`}</span>
+                          <span className="bulk-delete-desc">Choose sections to delete</span>
+                        </div>
+                      </div>
+                      <div className="pill-group">
+                        <button className="premium-pill-btn primary" onClick={() => {
+                          const allSecKeys = [];
+                          Object.keys(hierarchy).forEach(b => {
+                            Object.keys(hierarchy[b] || {}).filter(k => k !== 'initialized').forEach(d => {
+                              const arr = Array.isArray(hierarchy[b][d]) ? hierarchy[b][d] : [];
+                              arr.forEach(s => allSecKeys.push(`${b}-${d}-${s}`));
+                            });
+                          });
+                          handleSelectAllSecs(allSecKeys);
+                        }}>{selectedSecs.length > 0 ? 'Deselect All' : 'Select All'}</button>
+                        <button className="premium-pill-btn secondary" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); }}>Cancel</button>
+                        <button className="premium-pill-btn danger" onClick={() => {
+                           const allSectionsList = [];
+                           Object.keys(hierarchy).forEach(b => {
+                             Object.keys(hierarchy[b]||{}).filter(k=>k!=='initialized').forEach(d => {
+                               const arr = Array.isArray(hierarchy[b][d]) ? hierarchy[b][d] : [];
+                               arr.forEach(s => allSectionsList.push({batch: b, dept: d, sec: s}));
+                             });
+                           });
+                           handleBulkDeleteSecs(allSectionsList);
+                        }} disabled={selectedSecs.length === 0}>Delete</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bulk-delete-start-row">
+                      <div className="bulk-delete-info">
+                        <div className="info-icon"><RiLayoutGridLine /></div>
+                        <div className="bulk-delete-text">
+                          <span className="bulk-delete-title">Manage Sections</span>
+                          <span className="bulk-delete-desc">Select and remove mapped sections</span>
+                        </div>
+                      </div>
+                      <button className="premium-pill-btn danger" onClick={() => setIsSecDeleteMode(true)}><RiDeleteBin6Fill /> Delete</button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

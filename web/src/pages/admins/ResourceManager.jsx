@@ -127,7 +127,7 @@ const ResourceManager = () => {
                         <div className="form-actions-row">
                             <button onClick={handleSave} disabled={saving} className="btn-save-master">
                                 {saving ? <RiLoader4Line className="spin" /> : <RiSave3Line />}
-                                {saving ? 'Updating...' : 'Save Changes'}
+                                {saving ? 'Updating...' : 'Save'}
                             </button>
 
                             {message && (

@@ -419,12 +419,12 @@ const CalendarManager = () => {
 
   const handlePushLiveToFirebase = async () => {
     if (liveFlatEvents.length === 0) return alert('No events to push');
-    if (!confirm(`Save changes? This will instantly update the apps for Batch ${selectedBatch}.`)) return;
+    if (!confirm(`Save? This will instantly update the apps for Batch ${selectedBatch}.`)) return;
 
     setIsLivePushing(true);
     try {
       await set(ref(db, `calendars/${selectedBatch}/events`), liveFlatEvents);
-      alert(`✅ Changes saved live to Batch ${selectedBatch}`);
+      alert(`✅ Saved live to Batch ${selectedBatch}`);
     } catch (err) {
       alert('Save failed: ' + err.message);
     } finally {
@@ -797,15 +797,27 @@ const CalendarManager = () => {
                              <RiAddLine /> Add Extra Event
                            </button>
 
-                          {batchEvents.some(ev => ev.title.trim()) && (
-                            <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                              <button className="btn-save-master" style={{ flex: 1, height: '36px', fontSize: '13px', padding: '0 18px', borderRadius: '50px' }} onClick={saveBatchEvents}>Publish</button>
-                              <button className="btn-cancel-mini" style={{ flex: 1, padding: '0 18px', height: '36px', fontSize: '13px', borderRadius: '50px', background: 'var(--mac-sidebar-bg)', border: '1px solid var(--mac-border)', color: 'var(--mac-text)', cursor: 'pointer', fontWeight: 600 }} onClick={() => {
-                                const today = new Date().toISOString().split('T')[0];
-                                setBatchEvents([{ id: Date.now(), title: '', startDate: today, endDate: today, fullTime: 'All Day', type: 'Event' }]);
-                              }}>Cancel</button>
-                            </div>
-                          )}
+                           {batchEvents.length > 0 && (
+                             <div className="creator-action-pills" style={{ display: 'flex', flexDirection: 'row', gap: '12px', marginTop: '16px', width: '100%' }}>
+                               <button 
+                                 className="premium-pill-btn primary" 
+                                 style={{ flex: 1, justifyContent: 'center' }} 
+                                 onClick={saveBatchEvents}
+                               >
+                                 Publish
+                               </button>
+                               <button 
+                                 className="premium-pill-btn secondary" 
+                                 style={{ flex: 1, justifyContent: 'center' }} 
+                                 onClick={() => {
+                                   const today = new Date().toISOString().split('T')[0];
+                                   setBatchEvents([{ id: Date.now(), title: '', startDate: today, endDate: today, fullTime: 'All Day', type: 'Event' }]);
+                                 }}
+                               >
+                                 Cancel
+                               </button>
+                             </div>
+                           )}
                       </div>
                       </div>
                       )}

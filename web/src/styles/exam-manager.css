@@ -27,8 +27,11 @@
   display: none !important;
 }
 
-.mobile-edit-actions .role-header-pill.secondary {
-  background: var(--mac-selection-hover) !important;
+.mobile-edit-actions .role-header-pill.secondary,
+.mobile-edit-actions .premium-pill-btn.secondary {
+  background: var(--mac-button-bg) !important;
+  color: var(--mac-text) !important;
+  border: 1px solid var(--mac-border) !important; /* Updated from divider to border for higher contrast */
 }
 
 /* --- 1. EXPLORER HEADER & BREADCRUMBS --- */

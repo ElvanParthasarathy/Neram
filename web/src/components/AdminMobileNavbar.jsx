@@ -73,10 +73,13 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     const isFaculty = finalRole === 'faculty';
     const isRep = finalRole === 'rep';
 
-    const canViewUsers = isSuper || isFaculty;
-    const canViewAdmins = isSuper || isFaculty || isRep;
-    const canViewStructure = isSuper;
-    const canViewExtras = isSuper;
+    const canViewUsers = isSuper || isFaculty;              // Users: Super + Faculty
+    const canViewAdmins = isSuper || isFaculty || isRep;   // Admins: all roles
+    const canViewFacultyDir = isSuper;                      // Faculty Directory: Super only
+    const canViewCalendar = isSuper || isFaculty;           // Calendar: Super + Faculty
+    const canViewResources = isSuper || isFaculty;          // Resources: Super + Faculty
+    const canViewNotes = isSuper || isFaculty || isRep;     // Notes: all roles
+    const canViewStructure = isSuper;                       // Structure: Super only
 
     const handleNav = (mod) => {
         setIsSidebarOpen(false);
@@ -152,54 +155,32 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
             <div className="mobile-top-bar" style={{ justifyContent: 'flex-start' }}>
                 {isOnSettings ? (
                     <>
-                        <span className="top-bar-title" style={{ marginLeft: '16px', flex: 1 }}>{settingsTitle}</span>
+                        <span className="top-bar-title" style={{ flex: 1 }}>{settingsTitle}</span>
                         <button
-                            className="top-action-btn"
+                            className="top-back-btn"
                             onClick={handleSettingsBack}
-                            style={{
-                                marginLeft: 'auto',
-                                marginRight: '8px',
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '50%',
-                                background: 'var(--mac-bg-secondary, rgba(120,120,128,0.12))',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                border: 'none'
-                            }}
+                            style={{ marginLeft: 'auto' }}
                         >
-                            <RiArrowLeftSLine style={{ width: '22px', height: '22px', color: 'var(--text-primary)' }} />
+                            <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
                         </button>
                     </>
                 ) : (
                     <>
-                        <button className="top-action-btn" onClick={() => setIsSidebarOpen(true)} style={{ marginRight: '12px' }}>
+                        <button className="top-action-btn" onClick={() => setIsSidebarOpen(true)}>
                             <RiMenuLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
                         </button>
                         <span className="top-bar-title" style={{ marginLeft: 0, flex: 1 }}>{topBarTitle}</span>
                         {isDeepView ? (
                             <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
-                                <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)', marginLeft: '-2px' }} />
+                            <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
                             </button>
                         ) : activeModule !== 'home' && (
                             <button
-                                className="top-action-btn"
+                                className="top-back-btn"
                                 onClick={() => navigate(-1)}
-                                style={{
-                                    marginLeft: 'auto',
-                                    marginRight: '8px',
-                                    width: '36px',
-                                    height: '36px',
-                                    borderRadius: '50%',
-                                    background: 'var(--mac-bg-secondary, rgba(120,120,128,0.12))',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    border: 'none'
-                                }}
+                                style={{ marginLeft: 'auto' }}
                             >
-                                <RiArrowLeftSLine style={{ width: '22px', height: '22px', color: 'var(--text-primary)' }} />
+                                <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
                             </button>
                         )}
                     </>
@@ -274,25 +255,31 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                                 </button>
                             )}
 
-                            {canViewUsers && (
+                            {canViewFacultyDir && (
                                 <button onClick={() => handleNav('faculty')} className={`menu-item ${activeModule === 'faculty' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'faculty' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'faculty' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'faculty' ? '600' : '500' }}>
                                     <RiUser3Fill style={{ fontSize: '20px' }} /> <span>Faculty Directory</span>
                                 </button>
                             )}
 
-                            {canViewExtras && (
+                            {(canViewCalendar || canViewResources || canViewNotes) && (
                                 <>
                                     <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
                                     <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Academic</div>
+                                    {canViewCalendar && (
                                     <button onClick={() => handleNav('calendar')} className={`menu-item ${activeModule === 'calendar' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'calendar' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'calendar' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'calendar' ? '600' : '500' }}>
                                         <RiCalendarEventLine style={{ fontSize: '20px' }} /> <span>Calendar</span>
                                     </button>
+                                    )}
+                                    {canViewResources && (
                                     <button onClick={() => handleNav('resources')} className={`menu-item ${activeModule === 'resources' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'resources' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'resources' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'resources' ? '600' : '500' }}>
                                         <RiFilePdfLine style={{ fontSize: '20px' }} /> <span>Resources</span>
                                     </button>
+                                    )}
+                                    {canViewNotes && (
                                     <button onClick={() => handleNav('notes')} className={`menu-item ${activeModule === 'notes' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'notes' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'notes' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'notes' ? '600' : '500' }}>
                                         <RiFolderLine style={{ fontSize: '20px' }} /> <span>Notes Manager</span>
                                     </button>
+                                    )}
                                 </>
                             )}
 

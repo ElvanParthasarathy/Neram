@@ -316,6 +316,11 @@
     box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2) !important;
 }
 
+html.dark option {
+    background-color: var(--mac-bg-secondary, #1C1C1E);
+    color: var(--mac-text, #ffffff);
+}
+
 .control-divider {
     color: var(--mac-blue);
     opacity: 0.8;
@@ -420,6 +425,12 @@ html:not(.dark) .role-pill.active {
    MOBILE RESPONSIVENESS
    ========================================================================== */
 @media (max-width: 768px) {
+    .role-switcher-container {
+        justify-content: center !important;
+        border-bottom: none;
+        padding-bottom: 20px;
+    }
+
     .user-directory-grid {
         padding-bottom: 24px; /* No bottom nav — reduced */
     }

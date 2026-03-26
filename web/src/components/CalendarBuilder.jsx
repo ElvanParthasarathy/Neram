@@ -218,6 +218,7 @@ const CalendarBuilder = ({
                                                         <td className="ea-date-col" style={{ opacity: hasType ? 1 : 0.4 }}>
                                                             <input
                                                                 type="date"
+                                                                lang="en-GB"
                                                                 value={getIsoDate(m.year, m.month, r.date)}
                                                                 className="ea-type-select"
                                                                 style={{ padding: '4px', fontSize: '13px', width: 'auto', border: hasType ? '' : 'none', background: 'transparent' }}
@@ -321,10 +322,10 @@ const CalendarBuilder = ({
                                                                     }
                                                                 }}
                                                             >
-                                                                <option value="" style={{ color: '#000' }}>— None —</option>
-                                                                <option value="Event" style={{ color: '#000' }}>Working Day</option>
-                                                                <option value="Holiday" style={{ color: '#000' }}>Holiday</option>
-                                                                <option value="Academic" style={{ color: '#000' }}>Occasion</option>
+                                                                <option value="">— None —</option>
+                                                                <option value="Event">Working Day</option>
+                                                                <option value="Holiday">Holiday</option>
+                                                                <option value="Academic">Occasion</option>
                                                             </select>
                                                         </td>
                                                         <td style={{ textAlign: 'center' }}>

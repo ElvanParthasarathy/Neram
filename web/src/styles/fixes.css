@@ -342,6 +342,38 @@
   align-items: center;
 }
 
+.native-date-input {
+  width: 100%;
+  height: 48px;
+  background: var(--mac-bg-secondary) !important;
+  border: 1px solid transparent !important;
+  border-radius: 14px !important;
+  padding: 0 16px;
+  font-size: 15px;
+  font-family: inherit !important;
+  color: var(--mac-text) !important;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.native-date-input::-webkit-calendar-picker-indicator,
+.native-date-input::-webkit-clear-button,
+.native-date-input::-webkit-inner-spin-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+html.dark .native-date-input {
+  background: #1C1C1E !important;
+  color: #FFFFFF !important;
+}
+
+html.dark .native-date-input:focus {
+  background: #2C2C2E !important;
+  border-color: var(--mac-blue) !important;
+}
+
 .date-text-input {
   padding-right: 50px !important;
   /* Space for the icon */

@@ -93,10 +93,13 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
   const isRep = finalRole === 'rep';
 
   // Computed Access Permissions
-  const canViewUsers = isSuper || isFaculty;
-  const canViewAdmins = isSuper || isFaculty || isRep; // User requested "Admins" for Reps
-  const canViewStructure = isSuper; // Only Super Admin
-  const canViewExtras = isSuper; // Calendar, Resources -> Super Only
+  const canViewUsers = isSuper || isFaculty;              // Users tab: Super + Faculty
+  const canViewAdmins = isSuper || isFaculty || isRep;  // Admins tab: all roles
+  const canViewFacultyDir = isSuper;                    // Faculty Directory: Super only
+  const canViewCalendar = isSuper || isFaculty;         // Calendar: Super + Faculty
+  const canViewResources = isSuper || isFaculty;        // Resources: Super + Faculty
+  const canViewNotes = isSuper || isFaculty || isRep;   // Notes: all roles
+  const canViewStructure = isSuper;                     // Structure: Super only
 
   // --- SMART NAME LOGIC ---
   const firstName = userProfile?.firstName || (user?.displayName || "").split(' ')[0] || "User";
@@ -148,7 +151,7 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
           </Link>
         )}
 
-        {canViewUsers && (
+        {canViewFacultyDir && (
           <Link to="/?mod=faculty" className={`admin-nav-link ${location.search.includes('mod=faculty') ? "active" : ""}`}>
             <RiUser3Fill className="admin-nav-icon" />
             <span>Faculty Directory</span>
@@ -174,22 +177,28 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
           <span>Special Classes</span>
         </Link>
 
-        {/* GROUP 3: ACADEMIC - SUPER ADMIN ONLY */}
-        {canViewExtras && (
+        {/* GROUP 3: ACADEMIC */}
+        {(canViewCalendar || canViewResources || canViewNotes) && (
           <>
             <div className="nav-group-label">Academic</div>
-            <Link to="/?mod=calendar" className={`admin-nav-link ${location.search.includes('mod=calendar') ? "active" : ""}`}>
-              <RiCalendarEventLine className="admin-nav-icon" />
-              <span>Calendar</span>
-            </Link>
-            <Link to="/?mod=resources" className={`admin-nav-link ${location.search.includes('mod=resources') ? "active" : ""}`}>
-              <RiFilePdfLine className="admin-nav-icon" />
-              <span>Resources</span>
-            </Link>
-            <Link to="/?mod=notes" className={`admin-nav-link ${location.search.includes('mod=notes') ? "active" : ""}`}>
-              <RiFolderLine className="admin-nav-icon" />
-              <span>Notes Manager</span>
-            </Link>
+            {canViewCalendar && (
+              <Link to="/?mod=calendar" className={`admin-nav-link ${location.search.includes('mod=calendar') ? "active" : ""}`}>
+                <RiCalendarEventLine className="admin-nav-icon" />
+                <span>Calendar</span>
+              </Link>
+            )}
+            {canViewResources && (
+              <Link to="/?mod=resources" className={`admin-nav-link ${location.search.includes('mod=resources') ? "active" : ""}`}>
+                <RiFilePdfLine className="admin-nav-icon" />
+                <span>Resources</span>
+              </Link>
+            )}
+            {canViewNotes && (
+              <Link to="/?mod=notes" className={`admin-nav-link ${location.search.includes('mod=notes') ? "active" : ""}`}>
+                <RiFolderLine className="admin-nav-icon" />
+                <span>Notes Manager</span>
+              </Link>
+            )}
           </>
         )}
 

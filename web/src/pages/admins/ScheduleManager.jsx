@@ -743,7 +743,7 @@ const ScheduleManager = ({ user, userProfile }) => {
                                                 </div>
                                                 <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
                                                     <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingMasterCourseIdx(null)}>Cancel</button>
-                                                    <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleUpdateMasterCourse}>Save Changes</button>
+                                                    <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleUpdateMasterCourse}>Save</button>
                                                 </div>
                                             </div>
                                         ) : (

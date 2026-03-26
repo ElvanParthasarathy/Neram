@@ -566,9 +566,21 @@ const EventManager = ({ user, userProfile, isMobile }) => {
             </div>
 
               {newEvent.events.length > 0 && (
-                <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                  <button className="btn-save-master" style={{ flex: 1, height: '36px', fontSize: '13px', padding: '0 18px', borderRadius: '50px' }} onClick={handleAddEvent}>Publish</button>
-                  <button className="btn-cancel-mini" style={{ flex: 1, padding: '0 18px', height: '36px', fontSize: '13px', borderRadius: '50px' }} onClick={() => { setNewEvent({ title: '', startDate: '', endDate: '', events: [] }); }}>Cancel</button>
+                <div className="creator-action-pills" style={{ display: 'flex', flexDirection: 'row', gap: '12px', marginTop: '16px', width: '100%' }}>
+                  <button 
+                    className="premium-pill-btn primary" 
+                    style={{ flex: 1, justifyContent: 'center' }} 
+                    onClick={handleAddEvent}
+                  >
+                    Publish
+                  </button>
+                  <button 
+                    className="premium-pill-btn secondary" 
+                    style={{ flex: 1, justifyContent: 'center' }} 
+                    onClick={() => { setNewEvent({ title: '', startDate: '', endDate: '', events: [] }); }}
+                  >
+                    Cancel
+                  </button>
                 </div>
               )}
           </div>
@@ -582,21 +594,33 @@ const EventManager = ({ user, userProfile, isMobile }) => {
             {masterData.events.length > 0 ? masterData.events.map((ev) => (
               <React.Fragment key={ev.id}>
                 {!isMobile && editingEventId === ev.id && (
-                  <div className="master-header-row pill-group-row desktop-edit-actions" style={{ justifyContent: 'flex-end', marginBottom: '8px' }}>
+                  <div className="master-header-row pill-group-row desktop-edit-actions" style={{ justifyContent: 'flex-end', marginBottom: '12px' }}>
                     <button className="role-header-pill secondary" onClick={() => { setEditingEventId(null); setEditBuffer(null); }}>Cancel</button>
                     <button className="role-header-pill active" onClick={saveEdit}>Save</button>
                   </div>
                 )}
-              <div className={`settings-card published-exam-card ${editingEventId === ev.id ? 'editing-active' : ''}`}>
+                <div className={`settings-card published-exam-card ${editingEventId === ev.id ? 'editing-active' : ''}`}>
                 {editingEventId === ev.id ? (
                   /* EDIT MODE UI */
                   <>
                     <header className="published-header">
                       <div className="edit-meta-inputs" style={{ flex: 1 }}>
                         {isMobile && (
-                          <div className="mobile-edit-actions pill-group-row master-header-row" style={{ width: '100%', flexDirection: 'row', gap: '8px', marginBottom: '16px' }}>
-                            <button className="role-header-pill secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { setEditingEventId(null); setEditBuffer(null); }}>Cancel</button>
-                            <button className="role-header-pill active" style={{ flex: 1, justifyContent: 'center' }} onClick={saveEdit}>Save</button>
+                          <div className="mobile-edit-actions pill-group-row master-header-row show-only-mobile" style={{ width: '100%', flexDirection: 'row', gap: '8px', marginBottom: '16px' }}>
+                            <button 
+                              className="role-header-pill secondary" 
+                              style={{ flex: 1, justifyContent: 'center' }} 
+                              onClick={() => { setEditingEventId(null); setEditBuffer(null); }}
+                            >
+                              Cancel
+                            </button>
+                            <button 
+                              className="role-header-pill active" 
+                              style={{ flex: 1, justifyContent: 'center' }} 
+                              onClick={saveEdit}
+                            >
+                              Save
+                            </button>
                           </div>
                         )}
                         <input className="edit-title-input" value={editBuffer.title} onChange={e => setEditBuffer({ ...editBuffer, title: e.target.value })} />
@@ -630,6 +654,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
                       >
                         <RiAddLine /> Add Event Entry
                       </button>
+
                     </div>
                   </>
                 ) : (

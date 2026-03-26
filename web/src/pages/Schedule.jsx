@@ -253,6 +253,7 @@ export const DateSection = ({ date, onPrev, onNext, onDateChange, isMobile: isMo
       <div className="s2-calendar-trigger-wrapper">
         <input
           type="date"
+          lang="en-GB"
           className="s2-mobile-date-input"
           value={date.toISOString().split('T')[0]}
           onChange={(e) => {

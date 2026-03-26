@@ -170,10 +170,10 @@ const UserDirectoryView = ({ onBack }) => {
 
                 <>
                     <div className="s2-section-label">Select Batch</div>
-                    <div className="s2-dir-list">
+                    <div className="s2-dir-list" key={`list-0`}>
                         {Object.keys(hierarchy).sort().map((batch) => (
                             <DirectoryFolderItem
-                                key={batch}
+                                key={`batch-${batch}`}
                                 name={`Batch ${batch}`}
                                 onClick={() => navigateTo([...path, batch])}
                             />
@@ -183,10 +183,10 @@ const UserDirectoryView = ({ onBack }) => {
             ) : level === 1 ? (
                 <>
                     <div className="s2-section-label">Select Department</div>
-                    <div className="s2-dir-list">
+                    <div className="s2-dir-list" key={`list-1`}>
                         {Object.keys(hierarchy[path[0]] || {}).sort().map((dept) => (
                             <DirectoryFolderItem
-                                key={dept}
+                                key={`dept-${dept}`}
                                 name={dept}
                                 onClick={() => navigateTo([...path, dept])}
                             />
@@ -196,10 +196,10 @@ const UserDirectoryView = ({ onBack }) => {
             ) : level === 2 ? (
                 <>
                     <div className="s2-section-label">Select Section</div>
-                    <div className="s2-dir-list">
+                    <div className="s2-dir-list" key={`list-2`}>
                         {(hierarchy[path[0]]?.[path[1]] || []).sort().map((section) => (
                             <DirectoryFolderItem
-                                key={section}
+                                key={`sec-${section}`}
                                 name={`Section ${section}`}
                                 onClick={() => navigateTo([...path, section])}
                             />
@@ -219,9 +219,9 @@ const UserDirectoryView = ({ onBack }) => {
                             No users found in this section.
                         </div>
                     ) : (
-                        <div className="s2-dir-list">
+                        <div className="s2-dir-list" key={`list-3`}>
                             {users.map((user, i) => (
-                                <DirectoryUserCard key={user.registerNo || i} user={user} />
+                                <DirectoryUserCard key={`user-${user.registerNo || i}`} user={user} />
                             ))}
                         </div>
                     )}

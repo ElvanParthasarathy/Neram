@@ -66,20 +66,21 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
             return;
         }
 
-        const confirmMsg = `WARNING: You are about to ARCHIVE Semester ${archiveSemNumber} for Batch ${selectedBatch} and WIPE ALL ACTIVE TIMETABLES AND EXAMS.\n\nThis will take the active app offline for this batch until new data is entered.\n\nType "CONFIRM" to proceed.`;
+        const confirmMsg = `WARNING: You are about to ARCHIVE Semester ${archiveSemNumber} for Batch ${selectedBatch} and WIPE ALL ACTIVE TIMETABLES, EXAMS, SPECIAL CLASSES, AND CALENDAR.\n\nThis will take the active app offline for this batch until new data is entered.\n\nType "CONFIRM" to proceed.`;
         if (window.prompt(confirmMsg) !== "CONFIRM") return;
 
         setIsLoading(true);
         try {
-            // 1. Fetch Snapshot
+            // 1. Fetch Snapshot (all semester-specific data paths)
             const snapshotPaths = [
                 `schedules/${selectedBatch}`,
                 `list_events/${selectedBatch}`,
-                `courses/${selectedBatch}`
+                `courses/${selectedBatch}`,
+                `calendars/${selectedBatch}/events`
             ];
 
             const snapshots = await Promise.all(snapshotPaths.map(p => get(ref(db, p))));
-            const [schedulesSnap, eventsSnap, coursesSnap] = snapshots;
+            const [schedulesSnap, eventsSnap, coursesSnap, calendarSnap] = snapshots;
 
             // 2. Build Archive Updates
             const updates = {};
@@ -88,6 +89,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
             if (schedulesSnap.exists()) updates[`${archiveBasePath}/schedules`] = schedulesSnap.val();
             if (eventsSnap.exists()) updates[`${archiveBasePath}/list_events`] = eventsSnap.val();
             if (coursesSnap.exists()) updates[`${archiveBasePath}/courses`] = coursesSnap.val();
+            if (calendarSnap.exists()) updates[`${archiveBasePath}/calendars`] = calendarSnap.val();
 
             // 3. Build Wipe Updates (Selective deletion)
             const schedulesData = schedulesSnap.val() || {};
@@ -105,17 +107,20 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
                 Object.keys(deptData).forEach(sec => {
                     if (sec === '_master' || sec === 'initialized') return;
 
-                    // Wipe timetable, exams, and local courses. Keep counseling intact.
+                    // Wipe timetable, exams, local courses, and special classes. Keep counseling intact.
                     updates[`schedules/${selectedBatch}/${dept}/${sec}/timetable`] = null;
                     updates[`schedules/${selectedBatch}/${dept}/${sec}/exams`] = null;
                     updates[`schedules/${selectedBatch}/${dept}/${sec}/courses`] = null;
+                    updates[`schedules/${selectedBatch}/${dept}/${sec}/specialClasses`] = null;
                 });
             });
 
             // Wipe central events entirely
             updates[`list_events/${selectedBatch}`] = null;
-            // Wipe central courses entirely (if you store them independently, usually Neo puts them in schedules/master)
+            // Wipe central courses entirely
             updates[`courses/${selectedBatch}`] = null;
+            // Wipe academic calendar events for this batch
+            updates[`calendars/${selectedBatch}/events`] = null;
 
             // 4. Commit Transaction
             await update(ref(db), updates);
@@ -137,7 +142,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
             return;
         }
 
-        if (!window.confirm(`Are you sure you want to RESTORE Semester ${selectedRestoreSem} for Batch ${selectedBatch}?\n\nThis will OVERWRITE the currently active timetables and exams for this batch.`)) return;
+        if (!window.confirm(`Are you sure you want to RESTORE Semester ${selectedRestoreSem} for Batch ${selectedBatch}?\n\nThis will OVERWRITE the currently active timetables, exams, special classes, and calendar for this batch.`)) return;
 
         setIsLoading(true);
         try {
@@ -160,6 +165,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
             if (archiveData.schedules) updates[`schedules/${selectedBatch}`] = archiveData.schedules;
             if (archiveData.list_events) updates[`list_events/${selectedBatch}`] = archiveData.list_events;
             if (archiveData.courses) updates[`courses/${selectedBatch}`] = archiveData.courses;
+            if (archiveData.calendars) updates[`calendars/${selectedBatch}/events`] = archiveData.calendars;
 
             // 3. Commit
             await update(ref(db), updates);
@@ -257,7 +263,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
                         </div>
 
                         <p style={{ color: 'var(--mac-text)', opacity: 0.7, fontSize: '14px', lineHeight: 1.5, marginBottom: '24px' }}>
-                            Snapshots the active schedules, exams, and events for <strong>Batch {selectedBatch || '...'}</strong>, copies them to the Archive Vault, and <strong>wipes the active boards clean</strong> for the new semester.
+                            Snapshots schedules, exams, events, special classes, and calendar for <strong>Batch {selectedBatch || '...'}</strong>, copies them to the Archive Vault, and <strong>wipes the active boards clean</strong> for the new semester.
                         </p>
 
                         <div className="field" style={{ marginBottom: '24px' }}>

@@ -508,18 +508,26 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
             </div>
 
             {item.batches.length > 0 && (
-              <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                <button className="btn-save-master" style={{ flex: 1, height: '36px', fontSize: '13px', padding: '0 18px', borderRadius: '50px' }} onClick={() => isEditMode ? saveEdit() : handleSave()}>
+              <div className="creator-action-pills" style={{ display: 'flex', flexDirection: 'row', gap: '12px', marginTop: '16px', width: '100%' }}>
+                <button 
+                  className="premium-pill-btn primary" 
+                  style={{ flex: 1, justifyContent: 'center' }} 
+                  onClick={() => isEditMode ? saveEdit() : handleSave()}
+                >
                   Save
                 </button>
-                <button className="btn-cancel-mini" style={{ flex: 1, padding: '0 18px', height: '36px', fontSize: '13px', borderRadius: '50px' }} onClick={() => {
+                <button 
+                  className="premium-pill-btn secondary" 
+                  style={{ flex: 1, justifyContent: 'center' }} 
+                  onClick={() => {
                     if (isEditMode) {
                         setEditingClassId(null);
                         setEditBuffer(null);
                     } else {
                         setItem({ id: null, date: '', typeTitle: 'Special Class', title: '', desc: '', batches: [] });
                     }
-                }}>
+                  }}
+                >
                   Cancel
                 </button>
               </div>
@@ -614,7 +622,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                 return (
                   <React.Fragment key={sc.id}>
                     {/* Desktop Save/Cancel above card — exactly like ExamManager */}
-                    {isEditing && (
+                    {!isMobile && isEditing && (
                         <div className="master-header-row pill-group-row desktop-edit-actions" style={{ justifyContent: 'flex-end', marginBottom: '8px' }}>
                             <button className="role-header-pill secondary" onClick={() => { setEditingClassId(null); setEditBuffer(null); }}>Cancel</button>
                             <button className="role-header-pill active" onClick={saveEdit}>Save</button>
@@ -634,10 +642,12 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                     {isEditing ? (
                         <div className="edit-meta-inputs" style={{ flex: 1 }}>
                             {/* Mobile Save/Cancel inside header — exactly like ExamManager */}
-                            <div className="mobile-edit-actions pill-group-row master-header-row" style={{ width: '100%', flexDirection: 'row', gap: '8px', marginBottom: '16px' }}>
-                                <button className="role-header-pill secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { setEditingClassId(null); setEditBuffer(null); }}>Cancel</button>
-                                <button className="role-header-pill active" style={{ flex: 1, justifyContent: 'center' }} onClick={saveEdit}>Save</button>
-                            </div>
+                            {isMobile && (
+                                <div className="mobile-edit-actions pill-group-row master-header-row show-only-mobile" style={{ width: '100%', flexDirection: 'row', gap: '8px', marginBottom: '16px' }}>
+                                    <button className="role-header-pill secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => { setEditingClassId(null); setEditBuffer(null); }}>Cancel</button>
+                                    <button className="role-header-pill active" style={{ flex: 1, justifyContent: 'center' }} onClick={saveEdit}>Save</button>
+                                </div>
+                            )}
                             <input className="edit-title-input" value={currentData.typeTitle || ''} onChange={e => setEditBuffer({ ...editBuffer, typeTitle: e.target.value })} placeholder="Tag e.g. Special Class" />
                             <div className="exam-config-grid" style={{ marginTop: '20px', marginBottom: '0', paddingBottom: '0', borderBottom: 'none' }}>
                                 <div className="input-group-vertical">

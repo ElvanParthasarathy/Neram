@@ -19,6 +19,11 @@ body {
   background-color: var(--mac-bg-primary);
   background-attachment: fixed;
   scroll-behavior: smooth;
+  color: var(--mac-text);
+}
+
+h1, h2, h3, h4, h5, h6, .page-title {
+  color: var(--mac-text);
 }
 
 @media (max-width: 768px) {
