@@ -482,23 +482,24 @@ const AdminRoleManager = ({ userProfile }) => {
 
                         {activeMenuId === uid && (
                           <div className="admin-dropdown-menu">
-                            {/* Upgrade to Faculty — faculty/super can do this on reps or students */}
-                            {u.role === 'rep' && iAmFacultyOrSuper && (
-                              <button className="menu-item" onClick={() => { updateRole(uid, 'faculty'); setActiveMenuId(null); }}>Make Faculty Admin</button>
+                            {/* STRICT ROLE TRACKS:
+                                Student track: student → rep (max). No promotion to faculty.
+                                Faculty track: faculty → super_admin. No demotion to rep/student.
+                            */}
+
+                            {/* Rep → can only be removed (back to student) */}
+                            {u.role === 'rep' && canEditStudentsTab && (
+                              <button className="menu-item text-red" onClick={() => { updateRole(uid, 'student'); setActiveMenuId(null); }}>Remove Admin</button>
                             )}
-                            {/* Downgrade Faculty → Rep — super only */}
+
+                            {/* Faculty → can only be promoted to Super Admin */}
                             {u.role === 'faculty' && iAmSuper && (
-                              <button className="menu-item" onClick={() => { updateRole(uid, 'rep'); setActiveMenuId(null); }}>Make Student Rep</button>
-                            )}
-                            {/* Upgrade to Super Admin — super only */}
-                            {u.role !== 'super_admin' && iAmSuper && (
                               <button className="menu-item" onClick={() => { updateRole(uid, 'super_admin'); setActiveMenuId(null); }}>Make Super Admin</button>
                             )}
-                            {/* Remove Admin — scoped strictly by hierarchy */}
-                            {((u.role === 'rep'         && (iAmRep || iAmFaculty || iAmSuper)) ||
-                              (u.role === 'faculty'     && (iAmFaculty || iAmSuper)) ||
-                              (u.role === 'super_admin' && iAmSuper)) && (
-                              <button className="menu-item text-red" onClick={() => { updateRole(uid, 'student'); setActiveMenuId(null); }}>Remove Admin</button>
+
+                            {/* Super Admin → can only be downgraded to Faculty */}
+                            {u.role === 'super_admin' && iAmSuper && (
+                              <button className="menu-item text-red" onClick={() => { updateRole(uid, 'faculty'); setActiveMenuId(null); }}>Downgrade to Faculty</button>
                             )}
                           </div>
                         )}
@@ -532,12 +533,20 @@ const AdminRoleManager = ({ userProfile }) => {
 
           <div className="user-directory-grid">
             {Object.entries(users)
-              .filter(([_, u]) =>
-                searchTerm.length > 2 &&
-                !['admin', 'faculty', 'rep', 'super_admin'].includes(u.role) &&
-                !isSpecialAdmin(u.email) &&
-                (u.displayName?.toLowerCase().includes(searchTerm) || u.email?.toLowerCase().includes(searchTerm))
-              )
+              .filter(([_, u]) => {
+                if (searchTerm.length <= 2) return false;
+                if (isSpecialAdmin(u.email)) return false;
+                const nameMatch = u.displayName?.toLowerCase().includes(searchTerm) || u.email?.toLowerCase().includes(searchTerm);
+                if (!nameMatch) return false;
+
+                // STRICT ROLE TRACKS:
+                // Super tab: only show existing faculty admins (faculty track promotion)
+                if (selectedCategory === 'Super Admins') {
+                  return u.role === 'faculty';
+                }
+                // Students/Faculty tabs: show regular users (no existing admins)
+                return !['admin', 'faculty', 'rep', 'super_admin'].includes(u.role);
+              })
               .slice(0, 12)
               .map(([uid, u]) => (
                 <div key={uid} className="user-management-card">
@@ -548,13 +557,14 @@ const AdminRoleManager = ({ userProfile }) => {
                     <h4 className="u-name">{u.displayName}</h4>
                     <p className="u-email">{u.email} • {u.batch}</p>
                     <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
-                      {canGrantRep && (
+                      {/* TAB-AWARE: Only show the grant button relevant to the current tab */}
+                      {selectedCategory === 'Student Admins' && canGrantRep && (
                         <button onClick={() => updateRole(uid, 'rep')} style={{ background: '#007AFF', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>Grant Class Rep</button>
                       )}
-                      {canGrantFaculty && (
+                      {selectedCategory === 'Faculty Admins' && canGrantFaculty && (
                         <button onClick={() => updateRole(uid, 'faculty')} style={{ background: '#FF9500', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>Grant Faculty</button>
                       )}
-                      {canGrantSuper && (
+                      {selectedCategory === 'Super Admins' && canGrantSuper && (
                         <button onClick={() => updateRole(uid, 'super_admin')} style={{ background: '#5856D6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>Grant Super Admin</button>
                       )}
                     </div>
