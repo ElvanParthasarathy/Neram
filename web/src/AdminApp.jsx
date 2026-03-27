@@ -100,46 +100,21 @@ function AdminApp() {
             const path = hash.split('?')[0]; // e.g. '#/' or '#/settings'
 
             // 1. Auth screens → exit
-            if (!hash || hash === '#' || hash === '#/' && !mod) return 'exit';
+            if (!hash || hash === '#') return 'exit';
+            if (path === '#/' && !mod) return 'exit';
             if (hash === '#/login' || hash === '#/signup') return 'exit';
 
             // 2. Home screen → exit
-            if (mod === 'home' || (path === '#/' && !mod)) return 'exit';
+            if (mod === 'home') return 'exit';
 
-            // 3. Settings page → go to home
-            if (path === '#/settings') {
-                window.location.hash = '#/';
-                return 'navigated';
-            }
-
-            // 4. Sub-module drill-downs: step back one level using history
-            // Schedule: slvl (batches > depts > secs > editor/master)
-            const slvl = params.get('slvl');
-            if (mod === 'schedules' && slvl && slvl !== 'batches') {
-                window.history.back();
-                return 'navigated';
-            }
-            // Exam: xlvl (batches > depts > editor)
-            const xlvl = params.get('xlvl');
-            if (mod === 'exams' && xlvl && xlvl !== 'batches') {
-                window.history.back();
-                return 'navigated';
-            }
-            // Event: elvl (batches > depts > editor)
-            const elvl = params.get('elvl');
-            if (mod === 'events' && elvl && elvl !== 'batches') {
-                window.history.back();
-                return 'navigated';
-            }
-
-            // 5. Any top-level module page → go to home
-            if (mod && mod !== 'home') {
-                window.location.hash = '#/?mod=home';
-                return 'navigated';
-            }
-
-            // Fallback: exit
-            return 'exit';
+            // 3. Everything else → use history.back() to properly POP history
+            // This handles ALL cases correctly:
+            //   - Settings page → goes back to wherever user came from
+            //   - Top-level modules (calendar, notes, etc.) → goes back to home
+            //   - Sub-module drill-downs → steps up one level
+            //   - Any internal navigation within modules → reverses step by step
+            window.history.back();
+            return 'navigated';
         };
 
         return () => {
