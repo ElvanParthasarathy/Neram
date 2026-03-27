@@ -252,6 +252,11 @@ function App() {
 
       // Force background color on body to match for overscroll/system blending
       document.body.style.backgroundColor = themeColor;
+
+      // Tell native Android app to update status/nav bar colors
+      if (window.NativeBridge && window.NativeBridge.setTheme) {
+        window.NativeBridge.setTheme(isDark);
+      }
     };
 
     // Initial check
@@ -262,6 +267,22 @@ function App() {
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
     return () => observer.disconnect();
+  }, []);
+
+  // --- NATIVE SCROLL SYNC ---
+  // Tell the Android WebView whether we are at the top, so it can enable/disable Pull-to-Refresh
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.NativeBridge && window.NativeBridge.setRefreshEnabled) {
+        const isAtTop = window.scrollY === 0;
+        window.NativeBridge.setRefreshEnabled(isAtTop);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const expandGoogleEvent = useCallback((event) => {

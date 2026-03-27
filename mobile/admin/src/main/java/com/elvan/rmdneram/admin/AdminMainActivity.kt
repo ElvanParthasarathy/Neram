@@ -147,7 +147,13 @@ class AdminMainActivity : AppCompatActivity() {
             setRenderPriority(WebSettings.RenderPriority.HIGH)
         }
 
+        // Smoothness: hardware acceleration + overscroll
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+        webView.overScrollMode = View.OVER_SCROLL_NEVER
+        webView.isScrollbarFadingEnabled = true
+        webView.isVerticalScrollBarEnabled = false
+        webView.isHorizontalScrollBarEnabled = false
+
         webView.addJavascriptInterface(NativeBridge(), "NativeBridge")
 
         // WebViewClient
@@ -216,14 +222,19 @@ class AdminMainActivity : AppCompatActivity() {
             }
         }
 
-        // Back navigation
+        // Back navigation — HashRouter-aware
+        // WebView.canGoBack() doesn't work for hash-based SPA navigation.
+        // We ask JavaScript for history.length and use history.back() instead.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (webView.canGoBack()) {
-                    webView.goBack()
-                } else {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
+                webView.evaluateJavascript("window.history.length") { result ->
+                    val historyLength = result?.toIntOrNull() ?: 1
+                    if (historyLength > 1) {
+                        webView.evaluateJavascript("window.history.back();", null)
+                    } else {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
                 }
             }
         })
