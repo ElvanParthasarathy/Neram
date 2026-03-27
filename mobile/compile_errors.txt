@@ -1,9 +1,0 @@
-﻿
-> Task :app:checkKotlinGradlePluginConfigurationErrors 
-SKIPPED
-e: file:///D:/Projects/Neram/mobile/app/src/main/java/com/elv
-an/rmdneram/ui/calendar/CalendarLayout.kt:515:2 Syntax 
-error: Expecting '}'.
-   > Compilation error. See log for more details
-
-
