@@ -3,8 +3,8 @@ package com.elvan.rmdneram.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.elvan.rmdneram.data.ThemeManager
-import com.elvan.rmdneram.data.LanguageManager
+import com.elvan.rmdneram.data.preferences.ThemeManager
+import com.elvan.rmdneram.data.preferences.LanguageManager
 import com.elvan.rmdneram.data.model.UserProfile
 import com.elvan.rmdneram.data.repository.FirebaseRepository
 import com.google.firebase.auth.FirebaseAuth

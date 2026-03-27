@@ -42,21 +42,21 @@ import com.elvan.rmdneram.ui.navigation.NavTab
 import com.elvan.rmdneram.ui.schedule.ScheduleScreen
 import com.elvan.rmdneram.ui.profile.ProfileScreen
 
-import com.elvan.rmdneram.ui.screens.CollegeSitesScreen
-import com.elvan.rmdneram.ui.screens.ContactScreen
-import com.elvan.rmdneram.ui.screens.SettingsScreen
-import com.elvan.rmdneram.ui.screens.DisplaySettingsScreen
-import com.elvan.rmdneram.ui.screens.SecuritySettingsScreen
-import com.elvan.rmdneram.ui.screens.LinkedAccountsScreen
-import com.elvan.rmdneram.ui.screens.ComplaintScreen
-import com.elvan.rmdneram.ui.screens.DeveloperInfoScreen
-import com.elvan.rmdneram.ui.screens.AboutAppScreen
-import com.elvan.rmdneram.ui.screens.AboutRMKScreen
-import com.elvan.rmdneram.ui.screens.ManagementTeamScreen
-import com.elvan.rmdneram.ui.screens.StorageSettingsScreen
-import com.elvan.rmdneram.ui.screens.NotificationSettingsScreen
-import com.elvan.rmdneram.ui.screens.LanguageSettingsScreen
-import com.elvan.rmdneram.ui.screens.UserDirectoryScreen
+import com.elvan.rmdneram.ui.about.CollegeSitesScreen
+import com.elvan.rmdneram.ui.about.ContactScreen
+import com.elvan.rmdneram.ui.settings.SettingsScreen
+import com.elvan.rmdneram.ui.settings.DisplaySettingsScreen
+import com.elvan.rmdneram.ui.settings.SecuritySettingsScreen
+import com.elvan.rmdneram.ui.settings.LinkedAccountsScreen
+import com.elvan.rmdneram.ui.about.ComplaintScreen
+import com.elvan.rmdneram.ui.about.DeveloperInfoScreen
+import com.elvan.rmdneram.ui.about.AboutAppScreen
+import com.elvan.rmdneram.ui.about.AboutRMKScreen
+import com.elvan.rmdneram.ui.about.ManagementTeamScreen
+import com.elvan.rmdneram.ui.settings.StorageSettingsScreen
+import com.elvan.rmdneram.ui.settings.NotificationSettingsScreen
+import com.elvan.rmdneram.ui.settings.LanguageSettingsScreen
+import com.elvan.rmdneram.ui.directory.UserDirectoryScreen
 import com.elvan.rmdneram.ui.home.HomeViewModel
 import com.elvan.rmdneram.ui.calendar.CalendarViewType
 import java.time.format.TextStyle
@@ -418,7 +418,7 @@ fun MainScreen(
                     onLanguageChange = { mainViewModel.setLanguage(it) },
                     onBack = { currentScreen = "settings" }
                 )
-                "calendar_settings" -> com.elvan.rmdneram.ui.screens.CalendarSettingsScreen(
+                "calendar_settings" -> com.elvan.rmdneram.ui.settings.CalendarSettingsScreen(
                     onBack = { currentScreen = "settings" }
                 )
                 "user_directory" -> UserDirectoryScreen(
@@ -433,7 +433,7 @@ fun MainScreen(
                 "notifications" -> com.elvan.rmdneram.ui.notifications.NotificationScreen(
                     onBack = { currentScreen = "tabs" }
                 )
-                "pdf_viewer" -> com.elvan.rmdneram.ui.screens.PdfViewerScreen(
+                "pdf_viewer" -> com.elvan.rmdneram.ui.common.PdfViewerScreen(
                     url = selectedPdfUrl,
                     onBack = { currentScreen = "tabs" },
                     colors = colors
