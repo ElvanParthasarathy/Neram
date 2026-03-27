@@ -549,7 +549,13 @@ const CalendarManager = () => {
         
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           {viewLevel === 'editor' && (
-            <button className="explorer-back-btn" onClick={() => { setViewLevel('batches'); setActiveTab('published'); }}>
+            <button className="explorer-back-btn" onClick={() => {
+              const params = new URLSearchParams(searchParams);
+              params.set('clvl', 'batches');
+              params.delete('cb');
+              params.set('ctab', 'published');
+              setSearchParams(params);
+            }}>
               <RiArrowLeftLine /> Back
             </button>
           )}
@@ -567,7 +573,12 @@ const CalendarManager = () => {
               <div
                 key={batch}
                 className="explorer-card"
-                onClick={() => { setSelectedBatch(batch); setViewLevel('editor'); }}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set('cb', batch);
+                  params.set('clvl', 'editor');
+                  setSearchParams(params);
+                }}
               >
                 <RiTeamLine className="card-icon" />
                 <div className="card-info">

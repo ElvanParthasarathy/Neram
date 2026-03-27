@@ -81,10 +81,12 @@ const ScheduleManager = ({ user, userProfile }) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
-        if (viewLevel === 'sections') {
-            updateLevel('depts', { sec: '' });
+        if (viewLevel === 'editor' || viewLevel === 'master') {
+            updateLevel('secs', { sec: '' });
+        } else if (viewLevel === 'secs') {
+            updateLevel('depts', { dept: '', sec: '' });
         } else if (viewLevel === 'depts') {
-            updateLevel('batches', { batch: '', dept: '' });
+            updateLevel('batches', { batch: '', dept: '', sec: '' });
         } else {
             setSearchParams({ mod: 'home' }, { replace: true });
         }

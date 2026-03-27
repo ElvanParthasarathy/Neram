@@ -138,8 +138,10 @@ const UserManagement = () => {
       updateParams({ ulvl: 'secs', us: '' });
     } else if (viewLevel === 'secs') {
       updateParams({ ulvl: 'depts', ud: '', us: '' });
-    } else if (viewLevel === 'depts' || viewLevel === 'faculty_members') {
+    } else if (viewLevel === 'depts') {
       updateParams({ ulvl: 'batches', ub: '', ud: '', us: '' });
+    } else if (viewLevel === 'faculty_members') {
+      updateParams({ ulvl: 'faculty_depts', ud: '' });
     } else {
       setSearchParams({ mod: 'home' }, { replace: true });
     }

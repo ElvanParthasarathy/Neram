@@ -73,10 +73,10 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
     const navigate = useNavigate();
 
     const handleBack = () => {
-        if (viewLevel === 'depts') {
-            updateLevel('batches', { batch: '', dept: '' });
-        } else if (viewLevel !== 'batches') {
+        if (viewLevel === 'editor') {
             updateLevel('depts', { dept: '' });
+        } else if (viewLevel === 'depts') {
+            updateLevel('batches', { batch: '', dept: '' });
         } else {
             setSearchParams({ mod: 'home' }, { replace: true });
         }

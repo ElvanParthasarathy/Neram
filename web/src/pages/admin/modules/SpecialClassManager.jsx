@@ -47,10 +47,10 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
 
   const handleBack = () => {
     const sclvl = searchParams.get('sclvl') || 'batches';
-    if (sclvl === 'depts') {
-      updateLevel('batches', { batch: '', dept: '' });
-    } else if (sclvl !== 'batches') {
+    if (sclvl === 'editor') {
       updateLevel('depts', { dept: '' });
+    } else if (sclvl === 'depts') {
+      updateLevel('batches', { batch: '', dept: '' });
     } else {
       setSearchParams({ mod: 'home' }, { replace: true });
     }
