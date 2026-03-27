@@ -44,11 +44,20 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
     const repSec = userProfile?.section;
 
     // --- HISTORY LOGIC ---
-    const viewLevel = searchParams.get('elvl') || 'batches';
-    const path = {
+    let viewLevel = searchParams.get('elvl') || 'batches';
+    let path = {
         batch: searchParams.get('eb') || '',
         dept: searchParams.get('ed') || ''
     };
+
+    // Pre-render override for Reps to prevent UI flicker
+    if (isRep && repBatch && repDept) {
+        if (path.batch !== repBatch || path.dept !== repDept || viewLevel === 'batches' || viewLevel === 'depts') {
+            viewLevel = 'editor';
+            path.batch = repBatch;
+            path.dept = repDept;
+        }
+    }
 
     const updateLevel = (level, newPath = {}) => {
         const params = {
@@ -114,31 +123,22 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
     // Extract hierarchy data early for the interceptor
     const sectionsForDeptStr = Array.isArray(hierarchy[path.batch]?.[path.dept]) ? hierarchy[path.batch][path.dept].join(',') : '';
 
-    // --- REP NAVIGATION LOCK GUARD ---
+    // Sync URL with pre-render override for Reps to ensure history matches UI
     useEffect(() => {
         if (isRep && repBatch && repDept) {
-            // Guard: If URL aims at wrong batch/dept or lower level
-            if (path.batch !== repBatch || path.dept !== repDept || viewLevel === 'batches' || viewLevel === 'depts') {
-                // If they have a section, push them directly to editor for that department
-                // (Exams are managed at dept-level, but scope is filtered strictly later)
-                updateLevel('editor', { batch: repBatch, dept: repDept });
+            const currentElvl = searchParams.get('elvl');
+            const currentEb = searchParams.get('eb');
+            const currentEd = searchParams.get('ed');
+            
+            if (currentEb !== repBatch || currentEd !== repDept || currentElvl === 'batches' || currentElvl === 'depts' || !currentElvl) {
+                const params = new URLSearchParams(searchParams);
+                params.set('elvl', 'editor');
+                params.set('eb', repBatch);
+                params.set('ed', repDept);
+                setSearchParams(params, { replace: true });
             }
         }
-    }, [isRep, repBatch, repDept, viewLevel, path.batch, path.dept]);
-
-    // --- AUTO-NAVIGATE FOR REPS (Legacy support just in case) ---
-    useEffect(() => {
-        if (isRep && !hasAutoNavigated.current && userProfile?.batch && userProfile?.department) {
-            hasAutoNavigated.current = true;
-            const params = {
-                mod: 'exams',
-                elvl: 'editor',
-                eb: userProfile.batch,
-                ed: userProfile.department
-            };
-            setSearchParams(params, { replace: true });
-        }
-    }, [isRep, userProfile]);
+    }, [isRep, repBatch, repDept, searchParams, setSearchParams]);
 
     // --- FETCH DEPT DATA (Aggregation) ---
     useEffect(() => {

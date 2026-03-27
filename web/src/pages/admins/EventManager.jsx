@@ -24,11 +24,20 @@ const EventManager = ({ user, userProfile, isMobile }) => {
   const finalRole = emailRole || userProfile?.role || 'student';
   const isRep = finalRole === 'rep';
 
-  const viewLevel = searchParams.get('elvl') || 'batches';
-  const path = {
+  let viewLevel = searchParams.get('elvl') || 'batches';
+  let path = {
     batch: searchParams.get('eb') || '',
     dept: searchParams.get('ed') || ''
   };
+
+  // Pre-render override for Reps to prevent UI flicker
+  if (isRep && userProfile?.batch && userProfile?.department) {
+      if (path.batch !== userProfile.batch || path.dept !== userProfile.department || viewLevel === 'batches' || viewLevel === 'depts') {
+          viewLevel = 'editor';
+          path.batch = userProfile.batch;
+          path.dept = userProfile.department;
+      }
+  }
 
   const updateLevel = (level, newPath = {}, forceReplace = false) => {
     const params = {
@@ -88,19 +97,24 @@ const EventManager = ({ user, userProfile, isMobile }) => {
     return () => unsub();
   }, []);
 
-  // --- AUTO-NAVIGATE FOR REPS ---
+  // Sync URL with pre-render override for Reps to ensure history matches UI
   useEffect(() => {
-    if (isRep && !hasAutoNavigated.current && userProfile?.batch && userProfile?.department) {
-      hasAutoNavigated.current = true;
-      const params = {
-        mod: 'events',
-        elvl: 'editor',
-        eb: userProfile.batch,
-        ed: userProfile.department
-      };
-      setSearchParams(params, { replace: true });
-    }
-  }, [isRep, userProfile]);
+      if (isRep && userProfile?.batch && userProfile?.department) {
+          const repBatch = userProfile.batch;
+          const repDept = userProfile.department;
+          const currentElvl = searchParams.get('elvl');
+          const currentEb = searchParams.get('eb');
+          const currentEd = searchParams.get('ed');
+          
+          if (currentEb !== repBatch || currentEd !== repDept || currentElvl === 'batches' || currentElvl === 'depts' || !currentElvl) {
+              const params = new URLSearchParams(searchParams);
+              params.set('elvl', 'editor');
+              params.set('eb', repBatch);
+              params.set('ed', repDept);
+              setSearchParams(params, { replace: true });
+          }
+      }
+  }, [isRep, userProfile, searchParams, setSearchParams]);
 
   // --- 4. FETCH DEPT DATA (Aggregation) ---
   // Path: schedules/{batch}/{dept}

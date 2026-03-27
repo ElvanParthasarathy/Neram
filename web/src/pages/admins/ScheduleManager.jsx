@@ -49,12 +49,22 @@ const ScheduleManager = ({ user, userProfile }) => {
     const repDept = userProfile?.department;
     const repSec = userProfile?.section;
 
-    const viewLevel = searchParams.get('slvl') || 'batches'; // slvl = schedule level
-    const path = {
+    let viewLevel = searchParams.get('slvl') || 'batches'; // slvl = schedule level
+    let path = {
         batch: searchParams.get('sb') || '',
         dept: searchParams.get('sd') || '',
         sec: searchParams.get('ss') || ''
     };
+
+    // Pre-render override for Reps to prevent UI flicker
+    if (isRep && repBatch && repDept && repSec) {
+        if (path.batch !== repBatch || path.dept !== repDept || viewLevel === 'batches' || viewLevel === 'depts') {
+            viewLevel = 'secs';
+            path.batch = repBatch;
+            path.dept = repDept;
+            path.sec = ''; // Rep targets the sections level to pick their section card
+        }
+    }
 
     const updateLevel = (level, newPath = {}) => {
         const params = {
@@ -142,19 +152,34 @@ const ScheduleManager = ({ user, userProfile }) => {
     const [isEditingTimetable, setIsEditingTimetable] = useState(false);
     const [editingDay, setEditingDay] = useState('Tuesday');
 
-    // --- REP NAVIGATION LOCK GUARD ---
+    // Sync URL with pre-render override for Reps to ensure history matches UI
     useEffect(() => {
         if (isRep && repBatch && repDept && repSec) {
+            const currentSlvl = searchParams.get('slvl');
+            const currentSb = searchParams.get('sb');
+            const currentSd = searchParams.get('sd');
+            const currentSs = searchParams.get('ss');
+            
             // Guard 1: If URL aims at wrong batch/dept or lower level
-            if (path.batch !== repBatch || path.dept !== repDept || viewLevel === 'batches' || viewLevel === 'depts') {
-                updateLevel('secs', { batch: repBatch, dept: repDept, sec: '' });
+            if (currentSb !== repBatch || currentSd !== repDept || currentSlvl === 'batches' || currentSlvl === 'depts' || !currentSlvl) {
+                const params = new URLSearchParams(searchParams);
+                params.set('slvl', 'secs');
+                params.set('sb', repBatch);
+                params.set('sd', repDept);
+                params.delete('ss'); // Clean logic
+                setSearchParams(params, { replace: true });
             }
             // Guard 2: If URL aims at wrong section in editor
-            else if (viewLevel === 'editor' && path.sec !== repSec) {
-                updateLevel('secs', { batch: repBatch, dept: repDept, sec: '' });
+            else if (currentSlvl === 'editor' && currentSs !== repSec) {
+                const params = new URLSearchParams(searchParams);
+                params.set('slvl', 'secs');
+                params.set('sb', repBatch);
+                params.set('sd', repDept);
+                params.delete('ss'); // Clean logic
+                setSearchParams(params, { replace: true });
             }
         }
-    }, [isRep, repBatch, repDept, repSec, viewLevel, path.batch, path.dept, path.sec]);
+    }, [isRep, repBatch, repDept, repSec, searchParams, setSearchParams]);
 
     useEffect(() => {
         const unsub = onValue(ref(db, 'academic_hierarchy'), (snap) => setHierarchy(snap.val() || {}));
