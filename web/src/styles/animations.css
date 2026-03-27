@@ -111,22 +111,20 @@
 
   /* --- 4. ANIMATION UTILITIES (Used in navigation tags) --- */
   .animate-slide-down {
-    animation: slideDownFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: slideDownFade 0.25s ease-out forwards;
   }
 
   .animate-fade-in {
-    animation: simpleFadeIn 0.5s ease forwards;
+    animation: simpleFadeIn 0.15s ease-out forwards;
   }
 
   @keyframes slideDownFade {
     from {
       opacity: 0;
-      transform: translateY(-10px);
     }
 
     to {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 
@@ -181,10 +179,15 @@
     transform: none;
   }
 
-  /* 2. ANIMATE DIRECT CHILDREN (The Content) */
+  /* Smooth desktop opening transition for all admin modules */
+  .admin-subpage,
+  .admin-dashboard-container {
+    animation: fadeIn 0.35s cubic-bezier(0.2, 0, 0, 1) both;
+  }
+
+  /* 2. ADMIN CONTENT — inherits animate-fade-in from component classes */
   .home-view>*,
   .schedule-view>*,
-  /* Animates the main container on load */
   .calendar-view>*,
   .sites-view>*,
   .contact-view>*,
@@ -194,68 +197,10 @@
   .settings-content-flow>*,
   .admin-content-flow>*,
   .schedule-container>*
-
-  /* NEW: Animates the Header, Controls, and Tab Content */
     {
-    /* will-change: transform, opacity; */
-    /* animation: canvaRise 0.6s cubic-bezier(0, 0, 0.2, 1) forwards; */
-    /* opacity: 0; */
     opacity: 1;
-    /* Force visible */
   }
 
-  /* 3. STAGGER DELAYS (Waterfall Effect) */
-
-  /* 1st Element (Headers) */
-  .home-view>*:nth-child(1),
-  .schedule-view>*:nth-child(1),
-  .calendar-view>*:nth-child(1),
-  .settings-content-flow>*:nth-child(1),
-  .admin-content-flow>*:nth-child(1),
-  .schedule-container>*:nth-child(1)
-
-  /* NEW */
-    {
-    animation-delay: 0.1s;
-  }
-
-  /* 2nd Element (Controls/Grids) */
-  .home-view>*:nth-child(2),
-  .schedule-view>*:nth-child(2),
-  .calendar-view>*:nth-child(2),
-  .settings-content-flow>*:nth-child(2),
-  .admin-content-flow>*:nth-child(2),
-  .schedule-container>*:nth-child(2)
-
-  /* NEW */
-    {
-    animation-delay: 0.2s;
-  }
-
-  /* 3rd Element (The Tab Content usually appears here) */
-  .home-view>*:nth-child(3),
-  .schedule-view>*:nth-child(3),
-  .calendar-view>*:nth-child(3),
-  .settings-content-flow>*:nth-child(3),
-  .admin-content-flow>*:nth-child(3),
-  .schedule-container>*:nth-child(3)
-
-  /* NEW */
-    {
-    animation-delay: 0.3s;
-  }
-
-  /* 4th+ Elements (Rest of the page) */
-  .home-view>*:nth-child(n+4),
-  .schedule-view>*:nth-child(n+4),
-  .calendar-view>*:nth-child(n+4),
-  .settings-content-flow>*:nth-child(n+4),
-  .admin-content-flow>*:nth-child(n+4),
-  .schedule-container>*:nth-child(n+4)
-
-  /* NEW */
-    {
-    animation-delay: 0.4s;
-  }
+  /* 3. STAGGER DELAYS — Disabled to prevent jitter */
 
 }

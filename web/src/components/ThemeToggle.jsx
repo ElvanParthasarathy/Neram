@@ -40,8 +40,8 @@ const ThemeToggle = ({ asMenuItem = false }) => {
     }
 
     html.dark .theme-slider-container {
-      background: var(--mac-card-bg) !important;
-      border: none !important;
+      background: rgba(0, 0, 0, 0.45) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
 
     .slider-thumb {

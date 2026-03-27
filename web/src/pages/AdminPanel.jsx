@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   RiListCheck,
@@ -16,21 +16,35 @@ import {
 } from 'react-icons/ri';
 import { getHardcodedRole } from '../data/admins';
 
-// Import sub-components
-import UserManagement from './admins/UserManagement';
-import ScheduleManager from './admins/ScheduleManager';
-import CalendarManager from './admins/CalendarManager';
-import ExamManager from './admins/ExamManager';
-import AdminRoleManager from './admins/AdminRoleManager';
-import EventManager from './admins/EventManager';
-import ResourceManager from './admins/ResourceManager';
-import AdminDashboard from './admins/AdminDashboard';
-import StructureManager from "./admins/StructureManager";
-import FacultyDirectory from "./admins/FacultyDirectory";
-import PendingRequests from './admins/PendingRequests';
-import SemesterTransitionManager from './admins/SemesterTransitionManager';
-import SpecialClassManager from './admins/SpecialClassManager';
-import NotesManager from './admins/NotesManager';
+// Lazy-load sub-components for smooth skeleton transitions
+const UserManagement = React.lazy(() => import('./admins/UserManagement'));
+const ScheduleManager = React.lazy(() => import('./admins/ScheduleManager'));
+const CalendarManager = React.lazy(() => import('./admins/CalendarManager'));
+const ExamManager = React.lazy(() => import('./admins/ExamManager'));
+const AdminRoleManager = React.lazy(() => import('./admins/AdminRoleManager'));
+const EventManager = React.lazy(() => import('./admins/EventManager'));
+const ResourceManager = React.lazy(() => import('./admins/ResourceManager'));
+const AdminDashboard = React.lazy(() => import('./admins/AdminDashboard'));
+const StructureManager = React.lazy(() => import("./admins/StructureManager"));
+const FacultyDirectory = React.lazy(() => import("./admins/FacultyDirectory"));
+const PendingRequests = React.lazy(() => import('./admins/PendingRequests'));
+const SemesterTransitionManager = React.lazy(() => import('./admins/SemesterTransitionManager'));
+const SpecialClassManager = React.lazy(() => import('./admins/SpecialClassManager'));
+const NotesManager = React.lazy(() => import('./admins/NotesManager'));
+
+// --- Skeleton Fallback ---
+const AdminSkeletonFallback = () => (
+  <div className="admin-skeleton-page" style={{ padding: '20px' }}>
+    <div className="skeleton skeleton-title" style={{ width: '40%', height: '18px', marginBottom: '24px' }}></div>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+      <div className="skeleton skeleton-explorer-card"></div>
+      <div className="skeleton skeleton-explorer-card"></div>
+      <div className="skeleton skeleton-explorer-card"></div>
+    </div>
+    <div className="skeleton skeleton-card" style={{ height: '140px' }}></div>
+    <div className="skeleton skeleton-card" style={{ height: '100px' }}></div>
+  </div>
+);
 
 const AdminPanel = ({ user, userProfile, isMobile }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -70,7 +84,6 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
     if (unauthorized) {
       // Force redirect to home
       setSearchParams({ mod: 'home' });
-      // alert("Access Denied: You do not have permission to view this module."); // Optional: verify if alert is annoying
     }
   }, [activeModule, isFaculty, isRep]);
 
@@ -100,21 +113,23 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
             </h1>
           </header>
         )}
-        {activeModule === 'home' && <AdminDashboard user={user} userProfile={userProfile} isMobile={isMobile} />}
-        {activeModule === 'structure' && <StructureManager isMobile={isMobile} />}
-        {activeModule === 'users' && <UserManagement isMobile={isMobile} />}
-        {activeModule === 'roles' && <AdminRoleManager userProfile={userProfile} isMobile={isMobile} />}
-        {activeModule === 'faculty' && <FacultyDirectory isMobile={isMobile} />}
-        {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+        <Suspense fallback={<AdminSkeletonFallback />}>
+          {activeModule === 'home' && <AdminDashboard user={user} userProfile={userProfile} isMobile={isMobile} />}
+          {activeModule === 'structure' && <StructureManager isMobile={isMobile} />}
+          {activeModule === 'users' && <UserManagement isMobile={isMobile} />}
+          {activeModule === 'roles' && <AdminRoleManager userProfile={userProfile} isMobile={isMobile} />}
+          {activeModule === 'faculty' && <FacultyDirectory isMobile={isMobile} />}
+          {activeModule === 'schedules' && <ScheduleManager user={user} userProfile={userProfile} isMobile={isMobile} />}
 
-        {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} isMobile={isMobile} />}
-        {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} isMobile={isMobile} />}
-        {activeModule === 'calendar' && <CalendarManager isMobile={isMobile} />}
-        {activeModule === 'resources' && <ResourceManager isMobile={isMobile} />}
-        {activeModule === 'notes' && <NotesManager isMobile={isMobile} />}
-        {activeModule === 'pending' && <PendingRequests isMobile={isMobile} />}
-        {activeModule === 'archives' && <SemesterTransitionManager user={user} userProfile={userProfile} isMobile={isMobile} />}
-        {activeModule === 'special_classes' && <SpecialClassManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+          {activeModule === 'exams' && <ExamManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+          {activeModule === 'events' && <EventManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+          {activeModule === 'calendar' && <CalendarManager isMobile={isMobile} />}
+          {activeModule === 'resources' && <ResourceManager isMobile={isMobile} />}
+          {activeModule === 'notes' && <NotesManager isMobile={isMobile} />}
+          {activeModule === 'pending' && <PendingRequests isMobile={isMobile} />}
+          {activeModule === 'archives' && <SemesterTransitionManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+          {activeModule === 'special_classes' && <SpecialClassManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+        </Suspense>
       </main>
     </div>
   );

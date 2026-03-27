@@ -4,6 +4,7 @@ import { ref, onValue, update } from 'firebase/database';
 import { RiCheckLine, RiCloseLine, RiUserLine, RiTimeLine } from 'react-icons/ri';
 import { convertTo12Hour, formatDateDDMMYYYY } from '../../utils/timeUtils';
 import '../../styles/pending-requests.css';
+import { ListItemSkeleton } from '../../components/AdminSkeletons';
 
 const PendingRequests = () => {
     const [users, setUsers] = useState({});
@@ -44,7 +45,7 @@ const PendingRequests = () => {
         }
     };
 
-    if (loading) return <div className="admin-loader">Loading Pending Requests...</div>;
+    if (loading) return <div style={{ padding: '20px' }}><ListItemSkeleton count={3} /></div>;
 
     return (
         <div className="pending-requests-container">

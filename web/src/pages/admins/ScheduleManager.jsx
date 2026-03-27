@@ -10,7 +10,7 @@ import {
     RiUserVoiceLine, RiAddLine, RiDeleteBin6Fill, RiEditLine,
     RiCloseLine, RiCheckLine, RiArrowLeftLine, RiUserLine,
     RiDeleteBin6Line,
-    RiGlobalLine, RiLinksLine, RiRefreshLine, RiShieldUserLine
+    RiGlobalLine, RiLinksLine, RiRefreshLine, RiShieldUserLine, RiTableLine
 } from 'react-icons/ri';
 
 // --- IMPORT UTILS & SHARED ---
@@ -41,9 +41,14 @@ const ScheduleManager = ({ user, userProfile }) => {
     // --- ROLE DETECTION ---
     const emailRole = user?.email ? getHardcodedRole(user.email) : null;
     const finalRole = emailRole || userProfile?.role || 'student';
-    const isRep = finalRole === 'rep';
-
     // Extract level and path from URL
+    const isRep = finalRole === 'rep';
+    
+    // Rep Strict Lock Params
+    const repBatch = userProfile?.batch;
+    const repDept = userProfile?.department;
+    const repSec = userProfile?.section;
+
     const viewLevel = searchParams.get('slvl') || 'batches'; // slvl = schedule level
     const path = {
         batch: searchParams.get('sb') || '',
@@ -129,6 +134,20 @@ const ScheduleManager = ({ user, userProfile }) => {
     const [isEditingTimetable, setIsEditingTimetable] = useState(false);
     const [editingDay, setEditingDay] = useState('Tuesday');
 
+    // --- REP NAVIGATION LOCK GUARD ---
+    useEffect(() => {
+        if (isRep && repBatch && repDept && repSec) {
+            // Guard 1: If URL aims at wrong batch/dept or lower level
+            if (path.batch !== repBatch || path.dept !== repDept || viewLevel === 'batches' || viewLevel === 'depts') {
+                updateLevel('secs', { batch: repBatch, dept: repDept, sec: '' });
+            }
+            // Guard 2: If URL aims at wrong section in editor
+            else if (viewLevel === 'editor' && path.sec !== repSec) {
+                updateLevel('secs', { batch: repBatch, dept: repDept, sec: '' });
+            }
+        }
+    }, [isRep, repBatch, repDept, repSec, viewLevel, path.batch, path.dept, path.sec]);
+
     useEffect(() => {
         const unsub = onValue(ref(db, 'academic_hierarchy'), (snap) => setHierarchy(snap.val() || {}));
         return () => unsub();
@@ -172,16 +191,17 @@ const ScheduleManager = ({ user, userProfile }) => {
         const otherDepts = Object.keys(allDeptFaculties)
             .filter(d => d !== path.dept)
             .sort();
+        const uniqueOwnFaculties = [...new Set(globalFaculties)];
 
         return (
             <>
                 <option value="">-- Select Faculty --</option>
                 <optgroup label={`${path.dept} (Your Dept)`}>
-                    {globalFaculties.map(f => <option key={f} value={f}>{f}</option>)}
-                    {globalFaculties.length === 0 && <option disabled>No faculty added</option>}
+                    {uniqueOwnFaculties.map(f => <option key={f} value={f}>{f}</option>)}
+                    {uniqueOwnFaculties.length === 0 && <option disabled>No faculty added</option>}
                 </optgroup>
                 {otherDepts.map(dept => {
-                    const deptFac = (allDeptFaculties[dept] || []).filter(f => !globalFaculties.includes(f));
+                    const deptFac = [...new Set((allDeptFaculties[dept] || []).filter(f => !uniqueOwnFaculties.includes(f)))];
                     if (deptFac.length === 0) return null;
                     return (
                         <optgroup key={dept} label={`↗ ${dept}`}>
@@ -583,8 +603,9 @@ const ScheduleManager = ({ user, userProfile }) => {
     return (
         <div className="admin-subpage animate-fade-in central-schedule-manager">
             <header className="explorer-header focus-mode">
-                <div className="breadcrumb-nav">                    <div className="breadcrumb-list">
-                        <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '', sec: '' })}>Schedule</span>
+                <div className="breadcrumb-nav">
+                    <div className="breadcrumb-list">
+                        <span className={`crumb-btn level-root ${isRep ? 'disabled-crumb' : ''}`} onClick={() => !isRep && updateLevel('batches', { batch: '', dept: '', sec: '' })}>Schedule</span>
                         
                         {/* Mobile Truncation Ellipsis (Hidden on Desktop) */}
                         <span className="crumb-ellipsis-container">
@@ -592,11 +613,17 @@ const ScheduleManager = ({ user, userProfile }) => {
                             <span className="crumb-static">...</span>
                         </span>
 
-                        {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className="crumb-btn level-batch" onClick={() => updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
+                        {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className={`crumb-btn level-batch ${isRep ? 'disabled-crumb' : ''}`} onClick={() => !isRep && updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
+                        {isRep && path.dept && <><RiArrowRightSLine className="crumb-sep level-dept-sep" /> <span className="crumb-static level-dept">{path.dept}</span></>}
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {!isRep && viewLevel !== 'batches' && (
+                    {viewLevel !== 'batches' && viewLevel !== 'secs' && (
+                        <button className="explorer-back-btn" onClick={handleBack}>
+                            <RiArrowLeftLine /> Back
+                        </button>
+                    )}
+                    {!isRep && viewLevel === 'secs' && (
                         <button className="explorer-back-btn" onClick={handleBack}>
                             <RiArrowLeftLine /> Back
                         </button>
@@ -605,7 +632,7 @@ const ScheduleManager = ({ user, userProfile }) => {
             </header>
 
             {/* EXPLORER VIEWS */}
-            {viewLevel === 'batches' && (
+            {!isRep && viewLevel === 'batches' && (
                 <div className="explorer-content explorer-grid">
                     {Object.keys(hierarchy).sort().reverse().map(b => (
                         <div key={b} className="explorer-card" onClick={() => updateLevel('depts', { batch: b })}>
@@ -616,7 +643,7 @@ const ScheduleManager = ({ user, userProfile }) => {
             )}
 
             {/* DEPARTMENT SELECTOR */}
-            {viewLevel === 'depts' && (
+            {!isRep && viewLevel === 'depts' && (
                 <div className="explorer-content explorer-grid">
                     {Object.keys(hierarchy[path.batch] || {}).map(d => (
                         <div key={d} className="explorer-card" onClick={() => updateLevel('secs', { dept: d })}>
@@ -633,7 +660,9 @@ const ScheduleManager = ({ user, userProfile }) => {
                         <div className="card-initial" style={{ background: 'var(--mac-blue)', color: '#fff' }}><RiGlobalLine style={{ width: '60%', height: '60%', margin: '20%' }} /></div>
                         <div className="card-info"><h3>Master View</h3></div>
                     </div>
-                    {Object.values(hierarchy[path.batch]?.[path.dept] || {}).map(s => (
+                    {Object.values(hierarchy[path.batch]?.[path.dept] || {})
+                        .filter(s => !isRep || s === repSec) // REPS ONLY SEE THEIR SECTION
+                        .map(s => (
                         <div key={s} className="explorer-card minified" onClick={() => updateLevel('editor', { sec: s })}>
                             <div className="card-initial">{s}</div>
                             <div className="card-info"><h3>Section {s}</h3></div>

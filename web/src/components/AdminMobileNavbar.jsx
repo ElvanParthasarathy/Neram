@@ -213,95 +213,168 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                         }}
                     >
                         {/* Drawer Header */}
-                        <div style={{ padding: '24px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                        <div style={{ padding: '24px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', flexShrink: 0 }}>
                             <span style={{ fontSize: '18px', fontWeight: '800' }}>Admin Menu</span>
                             <button className="top-back-btn" onClick={() => setIsSidebarOpen(false)}>
                                 <RiCloseLine style={{ width: '24px', height: '24px' }} />
                             </button>
                         </div>
 
+                        {/* Custom scrollbar styles */}
+                        <style>{`
+                            .admin-drawer-scroll {
+                                scrollbar-width: thin;
+                                scrollbar-color: rgba(120,120,128,0.35) transparent;
+                            }
+                            .admin-drawer-scroll::-webkit-scrollbar {
+                                width: 4px;
+                            }
+                            .admin-drawer-scroll::-webkit-scrollbar-track {
+                                background: transparent;
+                            }
+                            .admin-drawer-scroll::-webkit-scrollbar-thumb {
+                                background: rgba(120,120,128,0.35);
+                                border-radius: 100px;
+                            }
+                            html.dark .admin-drawer-scroll::-webkit-scrollbar-thumb {
+                                background: rgba(255,255,255,0.18);
+                            }
+                            .admin-drawer-item {
+                                width: calc(100% - 24px);
+                                margin: 2px 12px;
+                                min-height: 44px;
+                                padding: 10px 18px;
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+                                border: none;
+                                border-radius: 100px;
+                                font-size: 15px;
+                                text-align: left;
+                                font-weight: 500;
+                                cursor: pointer;
+                                background: transparent;
+                                color: var(--mac-sidebar-item-text, var(--text-primary));
+                                transition: background 0.1s ease, transform 0.1s;
+                                -webkit-tap-highlight-color: transparent;
+                                user-select: none;
+                            }
+                            .admin-drawer-item:active {
+                                transform: scale(0.97);
+                            }
+                            .admin-drawer-item .drawer-icon {
+                                font-size: 20px;
+                                opacity: 0.8;
+                                flex-shrink: 0;
+                                display: flex;
+                                align-items: center;
+                            }
+                            .admin-drawer-item.active {
+                                background: var(--mac-sidebar-item-active-bg, rgba(10,132,255,0.12));
+                                color: var(--mac-sidebar-item-active-text, var(--mac-blue));
+                                font-weight: 600;
+                            }
+                            .admin-drawer-item.active .drawer-icon {
+                                opacity: 1;
+                            }
+                            .drawer-group-label {
+                                padding: 4px 30px 2px 30px;
+                                font-size: 11.5px;
+                                font-weight: 700;
+                                text-transform: none;
+                                color: var(--mac-sidebar-header-text, var(--text-secondary));
+                                letter-spacing: -0.1px;
+                            }
+                            .drawer-divider {
+                                height: 1px;
+                                background: var(--border-color);
+                                margin: 10px 20px;
+                            }
+                        `}</style>
+
                         {/* Drawer Links */}
-                        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 0' }}>
-                            {/* Primary Tabs (moved from bottom bar) */}
-                            <button onClick={() => handleNav('home')} className={`menu-item ${activeModule === 'home' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'home' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'home' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'home' ? '600' : '500' }}>
-                                <RiHomeLine style={{ fontSize: '20px' }} /> <span>Home</span>
-                            </button>
-                            <button onClick={() => handleNav('schedules')} className={`menu-item ${activeModule === 'schedules' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'schedules' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'schedules' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'schedules' ? '600' : '500' }}>
-                                <RiCalendarScheduleLine style={{ fontSize: '20px' }} /> <span>Schedule</span>
-                            </button>
-                            <button onClick={() => handleNav('exams')} className={`menu-item ${activeModule === 'exams' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'exams' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'exams' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'exams' ? '600' : '500' }}>
-                                <RiTrophyLine style={{ fontSize: '20px' }} /> <span>Exams</span>
-                            </button>
-                            <button onClick={() => handleNav('events')} className={`menu-item ${activeModule === 'events' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'events' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'events' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'events' ? '600' : '500' }}>
-                                <RiCalendarEventLine style={{ fontSize: '20px' }} /> <span>Events</span>
+                        <div className="admin-drawer-scroll" style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
+                            <button onClick={() => handleNav('home')} className={`admin-drawer-item ${activeModule === 'home' ? 'active' : ''}`}>
+                                <div className="drawer-icon"><RiHomeLine /></div> <span>Home</span>
                             </button>
 
-                            <button onClick={() => handleNav('special_classes')} className={`menu-item ${activeModule === 'special_classes' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'special_classes' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'special_classes' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'special_classes' ? '600' : '500' }}>
-                                <RiComputerLine style={{ fontSize: '20px' }} /> <span>Special Classes</span>
+                            {/* PLANNER */}
+                            <div className="drawer-divider" />
+                            <div className="drawer-group-label">Planner</div>
+                            <button onClick={() => handleNav('schedules')} className={`admin-drawer-item ${activeModule === 'schedules' ? 'active' : ''}`}>
+                                <div className="drawer-icon"><RiCalendarScheduleLine /></div> <span>Schedule</span>
+                            </button>
+                            <button onClick={() => handleNav('exams')} className={`admin-drawer-item ${activeModule === 'exams' ? 'active' : ''}`}>
+                                <div className="drawer-icon"><RiTrophyLine /></div> <span>Exams</span>
+                            </button>
+                            <button onClick={() => handleNav('events')} className={`admin-drawer-item ${activeModule === 'events' ? 'active' : ''}`}>
+                                <div className="drawer-icon"><RiCalendarEventLine /></div> <span>Events</span>
+                            </button>
+                            <button onClick={() => handleNav('special_classes')} className={`admin-drawer-item ${activeModule === 'special_classes' ? 'active' : ''}`}>
+                                <div className="drawer-icon"><RiComputerLine /></div> <span>Special Classes</span>
                             </button>
 
-                            <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
-                            <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Management</div>
-
-                            {canViewUsers && (
-                                <button onClick={() => handleNav('users')} className={`menu-item ${activeModule === 'users' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'users' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'users' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'users' ? '600' : '500' }}>
-                                    <RiGroupLine style={{ fontSize: '20px' }} /> <span>Users</span>
-                                </button>
-                            )}
-
-                            {canViewAdmins && (
-                                <button onClick={() => handleNav('roles')} className={`menu-item ${activeModule === 'roles' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'roles' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'roles' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'roles' ? '600' : '500' }}>
-                                    <RiShieldUserLine style={{ fontSize: '20px' }} /> <span>Admins</span>
-                                </button>
-                            )}
-
-                            {canViewFacultyDir && (
-                                <button onClick={() => handleNav('faculty')} className={`menu-item ${activeModule === 'faculty' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'faculty' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'faculty' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'faculty' ? '600' : '500' }}>
-                                    <RiUser3Fill style={{ fontSize: '20px' }} /> <span>Faculty Directory</span>
-                                </button>
-                            )}
-
+                            {/* CONTENT */}
                             {(canViewCalendar || canViewResources || canViewNotes) && (
                                 <>
-                                    <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
-                                    <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Academic</div>
+                                    <div className="drawer-divider" />
+                                    <div className="drawer-group-label">Content</div>
                                     {canViewCalendar && (
-                                    <button onClick={() => handleNav('calendar')} className={`menu-item ${activeModule === 'calendar' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'calendar' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'calendar' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'calendar' ? '600' : '500' }}>
-                                        <RiCalendarEventLine style={{ fontSize: '20px' }} /> <span>Calendar</span>
+                                    <button onClick={() => handleNav('calendar')} className={`admin-drawer-item ${activeModule === 'calendar' ? 'active' : ''}`}>
+                                        <div className="drawer-icon"><RiCalendarEventLine /></div> <span>Calendar</span>
                                     </button>
                                     )}
                                     {canViewResources && (
-                                    <button onClick={() => handleNav('resources')} className={`menu-item ${activeModule === 'resources' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'resources' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'resources' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'resources' ? '600' : '500' }}>
-                                        <RiFilePdfLine style={{ fontSize: '20px' }} /> <span>Resources</span>
+                                    <button onClick={() => handleNav('resources')} className={`admin-drawer-item ${activeModule === 'resources' ? 'active' : ''}`}>
+                                        <div className="drawer-icon"><RiFilePdfLine /></div> <span>Resources</span>
                                     </button>
                                     )}
                                     {canViewNotes && (
-                                    <button onClick={() => handleNav('notes')} className={`menu-item ${activeModule === 'notes' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'notes' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'notes' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'notes' ? '600' : '500' }}>
-                                        <RiFolderLine style={{ fontSize: '20px' }} /> <span>Notes Manager</span>
+                                    <button onClick={() => handleNav('notes')} className={`admin-drawer-item ${activeModule === 'notes' ? 'active' : ''}`}>
+                                        <div className="drawer-icon"><RiFolderLine /></div> <span>Notes Manager</span>
                                     </button>
                                     )}
                                 </>
                             )}
 
-                            {canViewStructure && (
+                            {/* ADMIN */}
+                            {(canViewUsers || canViewAdmins) && (
                                 <>
-                                    <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
-                                    <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>System</div>
-                                    <button onClick={() => handleNav('structure')} className={`menu-item ${activeModule === 'structure' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'structure' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'structure' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'structure' ? '600' : '500' }}>
-                                        <RiListCheck style={{ fontSize: '20px' }} /> <span>Structure</span>
-                                    </button>
-                                    <button onClick={() => handleNav('archives')} className={`menu-item ${activeModule === 'archives' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'archives' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'archives' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'archives' ? '600' : '500' }}>
-                                        <RiInboxArchiveLine style={{ fontSize: '20px' }} /> <span>Archive Tool</span>
-                                    </button>
+                                    <div className="drawer-divider" />
+                                    <div className="drawer-group-label">Admin</div>
+                                    {canViewUsers && (
+                                        <button onClick={() => handleNav('users')} className={`admin-drawer-item ${activeModule === 'users' ? 'active' : ''}`}>
+                                            <div className="drawer-icon"><RiGroupLine /></div> <span>Users</span>
+                                        </button>
+                                    )}
+                                    {canViewAdmins && (
+                                        <button onClick={() => handleNav('roles')} className={`admin-drawer-item ${activeModule === 'roles' ? 'active' : ''}`}>
+                                            <div className="drawer-icon"><RiShieldUserLine /></div> <span>Admins</span>
+                                        </button>
+                                    )}
+                                    {canViewFacultyDir && (
+                                        <button onClick={() => handleNav('faculty')} className={`admin-drawer-item ${activeModule === 'faculty' ? 'active' : ''}`}>
+                                            <div className="drawer-icon"><RiUser3Fill /></div> <span>Faculty Directory</span>
+                                        </button>
+                                    )}
+                                    {isSuper && (
+                                        <button onClick={() => handleNav('pending')} className={`admin-drawer-item ${activeModule === 'pending' ? 'active' : ''}`}>
+                                            <div className="drawer-icon"><RiTimeLine /></div> <span>Pending</span>
+                                        </button>
+                                    )}
                                 </>
                             )}
 
-                            {isSuper && (
+                            {/* SYSTEM */}
+                            {canViewStructure && (
                                 <>
-                                    <div className="menu-divider" style={{ height: '1px', background: 'var(--border-color)', margin: '16px 24px' }} />
-                                    <div className="nav-group-label" style={{ padding: '8px 24px', opacity: 0.5, fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }}>Requests</div>
-                                    <button onClick={() => handleNav('pending')} className={`menu-item ${activeModule === 'pending' ? 'selected' : ''}`} style={{ width: '100%', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: activeModule === 'pending' ? 'var(--mac-blue-15)' : 'transparent', border: 'none', color: activeModule === 'pending' ? 'var(--mac-blue)' : 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: activeModule === 'pending' ? '600' : '500' }}>
-                                        <RiTimeLine style={{ fontSize: '20px' }} /> <span>Pending</span>
+                                    <div className="drawer-divider" />
+                                    <div className="drawer-group-label">System</div>
+                                    <button onClick={() => handleNav('structure')} className={`admin-drawer-item ${activeModule === 'structure' ? 'active' : ''}`}>
+                                        <div className="drawer-icon"><RiListCheck /></div> <span>Structure</span>
+                                    </button>
+                                    <button onClick={() => handleNav('archives')} className={`admin-drawer-item ${activeModule === 'archives' ? 'active' : ''}`}>
+                                        <div className="drawer-icon"><RiInboxArchiveLine /></div> <span>Archive Tool</span>
                                     </button>
                                 </>
                             )}
@@ -313,8 +386,8 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             <div style={{ padding: '0 16px' }}>
                                 <ThemeToggle asMenuItem={true} />
                             </div>
-                            <button onClick={() => { navigate('/settings'); setIsSidebarOpen(false); }} style={{ width: '100%', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: '16px', background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '16px', textAlign: 'left', fontWeight: '500' }}>
-                                <RiSettings3Line style={{ fontSize: '20px' }} /> <span>Settings</span>
+                            <button onClick={() => { navigate('/settings'); setIsSidebarOpen(false); }} className="admin-drawer-item" style={{ marginTop: '4px' }}>
+                                <div className="drawer-icon"><RiSettings3Line /></div> <span>Settings</span>
                             </button>
                         </div>
                     </div>

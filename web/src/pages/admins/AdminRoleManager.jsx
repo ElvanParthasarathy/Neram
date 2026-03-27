@@ -57,7 +57,27 @@ const AdminRoleManager = ({ userProfile }) => {
 
   const iAmSuper = myRole === 'super_admin';
   const iAmFaculty = myRole === 'faculty';
+  const iAmRep = myRole === 'rep';
   const iAmFacultyOrSuper = iAmFaculty || iAmSuper;
+
+  // Tab edit access: who can promote/demote in each tab
+  const canEditStudentsTab = iAmSuper || iAmFaculty || iAmRep;
+  const canEditFacultyTab  = iAmSuper || iAmFaculty;
+  const canEditSuperTab    = iAmSuper;
+
+  // Grant buttons available in Promote view
+  const canGrantRep     = canEditStudentsTab;
+  const canGrantFaculty = iAmFacultyOrSuper;
+  const canGrantSuper   = iAmSuper;
+
+  // Helper: does the viewer have at least one action on a given user card?
+  const canManageUser = (targetRole, isHardcoded) => {
+    if (isHardcoded) return false;
+    if (targetRole === 'rep')         return canEditStudentsTab;
+    if (targetRole === 'faculty')     return canEditFacultyTab;
+    if (targetRole === 'super_admin') return canEditSuperTab;
+    return false;
+  };
 
   // 1. Fetch Data
   useEffect(() => {
@@ -318,6 +338,7 @@ const AdminRoleManager = ({ userProfile }) => {
       {viewLevel === 'batches' && (
         <div className="explorer-view animate-fade-in">
           <div className="explorer-grid">
+            {canEditStudentsTab && (
             <div className="explorer-card" onClick={() => { setSearchTerm(''); updateParams({ rlvl: 'promote' }); }}>
               <RiShieldUserLine className="card-icon" />
               <div className="card-info">
@@ -325,6 +346,7 @@ const AdminRoleManager = ({ userProfile }) => {
                 <p>Add new staff/student admin</p>
               </div>
             </div>
+            )}
             {Object.keys(hierarchy).sort().reverse().map(batch => (
               <div key={batch} className="explorer-card" onClick={() => updateParams({ rb: batch, rlvl: 'depts' })}>
                 <RiTeamLine className="card-icon" />
@@ -342,15 +364,20 @@ const AdminRoleManager = ({ userProfile }) => {
       {viewLevel === 'depts' && (
         <div className="explorer-view animate-fade-in">
           <div className="explorer-grid">
-            {!drillPath.dept && (
-              <div className="explorer-card" onClick={() => { setSearchTerm(''); updateParams({ rlvl: 'promote' }); }}>
-                <RiShieldUserLine className="card-icon" />
-                <div className="card-info">
-                  <h3>Promote Admin</h3>
-                  <p>Add new staff/student admin</p>
+            {!drillPath.dept && (() => {
+              const tabEditAccess = selectedCategory === 'Student Admins' ? canEditStudentsTab
+                : selectedCategory === 'Faculty Admins' ? canEditFacultyTab
+                : canEditSuperTab;
+              return tabEditAccess ? (
+                <div className="explorer-card" onClick={() => { setSearchTerm(''); updateParams({ rlvl: 'promote' }); }}>
+                  <RiShieldUserLine className="card-icon" />
+                  <div className="card-info">
+                    <h3>Promote Admin</h3>
+                    <p>Add new staff/student admin</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : null;
+            })()}
             {(() => {
               const depts = selectedCategory === 'Faculty Admins'
                 ? Array.from(new Set(Object.values(users).filter(u => u.role === 'faculty' && u.department).map(u => u.department)))
@@ -413,7 +440,7 @@ const AdminRoleManager = ({ userProfile }) => {
                       </div>
                     </div>
 
-                    {!hardcodedRole && (
+                    {canManageUser(hardcodedRole || u.role, !!hardcodedRole) && (
                       <div className="admin-menu-container">
                         <button
                           className="btn-icon-only"
@@ -428,16 +455,22 @@ const AdminRoleManager = ({ userProfile }) => {
 
                         {activeMenuId === uid && (
                           <div className="admin-dropdown-menu">
-                            {u.role !== 'faculty' && iAmFacultyOrSuper && (
-                              <button className="menu-item" onClick={() => { updateRole(uid, 'faculty'); setActiveMenuId(null); }}>Make Faculty</button>
+                            {/* Upgrade to Faculty — faculty/super can do this on reps or students */}
+                            {u.role === 'rep' && iAmFacultyOrSuper && (
+                              <button className="menu-item" onClick={() => { updateRole(uid, 'faculty'); setActiveMenuId(null); }}>Make Faculty Admin</button>
                             )}
-                            {u.role !== 'rep' && iAmSuper && (
-                              <button className="menu-item" onClick={() => { updateRole(uid, 'rep'); setActiveMenuId(null); }}>Make Student Admin</button>
+                            {/* Downgrade Faculty → Rep — super only */}
+                            {u.role === 'faculty' && iAmSuper && (
+                              <button className="menu-item" onClick={() => { updateRole(uid, 'rep'); setActiveMenuId(null); }}>Make Student Rep</button>
                             )}
+                            {/* Upgrade to Super Admin — super only */}
                             {u.role !== 'super_admin' && iAmSuper && (
                               <button className="menu-item" onClick={() => { updateRole(uid, 'super_admin'); setActiveMenuId(null); }}>Make Super Admin</button>
                             )}
-                            {(iAmSuper || (u.role === 'rep')) && (
+                            {/* Remove Admin — scoped strictly by hierarchy */}
+                            {((u.role === 'rep'         && (iAmRep || iAmFaculty || iAmSuper)) ||
+                              (u.role === 'faculty'     && (iAmFaculty || iAmSuper)) ||
+                              (u.role === 'super_admin' && iAmSuper)) && (
                               <button className="menu-item text-red" onClick={() => { updateRole(uid, 'student'); setActiveMenuId(null); }}>Remove Admin</button>
                             )}
                           </div>
@@ -487,11 +520,16 @@ const AdminRoleManager = ({ userProfile }) => {
                   <div className="card-info">
                     <h4 className="u-name">{u.displayName}</h4>
                     <p className="u-email">{u.email} • {u.batch}</p>
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                      {iAmFacultyOrSuper && (
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
+                      {canGrantRep && (
+                        <button onClick={() => updateRole(uid, 'rep')} style={{ background: '#007AFF', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>Grant Class Rep</button>
+                      )}
+                      {canGrantFaculty && (
                         <button onClick={() => updateRole(uid, 'faculty')} style={{ background: '#FF9500', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>Grant Faculty</button>
                       )}
-                      <button onClick={() => updateRole(uid, 'rep')} style={{ background: '#007AFF', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>Grant Class Rep</button>
+                      {canGrantSuper && (
+                        <button onClick={() => updateRole(uid, 'super_admin')} style={{ background: '#5856D6', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>Grant Super Admin</button>
+                      )}
                     </div>
                   </div>
                 </div>

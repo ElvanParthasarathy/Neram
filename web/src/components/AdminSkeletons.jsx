@@ -56,3 +56,17 @@ export const AdminPageSkeleton = ({ type = 'list' }) => {
         </div>
     );
 };
+
+export const ListItemSkeleton = ({ count = 4 }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        {Array.from({ length: count }).map((_, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', borderRadius: '12px' }}>
+                <Skeleton className="skeleton-circle" style={{ width: 36, height: 36, flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                    <Skeleton className="skeleton-text" style={{ width: `${55 + (i * 10) % 30}%`, height: 14, marginBottom: 6 }} />
+                    <Skeleton className="skeleton-text" style={{ width: '35%', height: 10, marginBottom: 0 }} />
+                </div>
+            </div>
+        ))}
+    </div>
+);

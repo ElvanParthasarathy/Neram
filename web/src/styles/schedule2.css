@@ -368,6 +368,7 @@ html.dark .s2-view-tabs .s2-tab-indicator {
     font-weight: 700;
     margin: 0 0 2px;
     letter-spacing: -0.3px;
+    color: inherit;
 }
 
 .s2-event-info p {
@@ -375,6 +376,7 @@ html.dark .s2-view-tabs .s2-tab-indicator {
     font-weight: 500;
     opacity: 0.95;
     margin: 0;
+    color: inherit;
 }
 
 .s2-event-meta {

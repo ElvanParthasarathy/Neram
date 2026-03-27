@@ -23,6 +23,7 @@ import {
     RiCheckLine
 } from 'react-icons/ri';
 import '../../styles/notes-manager.css';
+import { ListItemSkeleton } from '../../components/AdminSkeletons';
 
 const NotesManager = () => {
     const [notesMode, setNotesMode] = useState('fetch');
@@ -328,8 +329,8 @@ const NotesManager = () => {
     };
 
     if (loading) return (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', color: 'var(--mac-text-secondary)' }}>
-            Loading...
+        <div style={{ padding: '20px' }}>
+            <ListItemSkeleton count={5} />
         </div>
     );
 

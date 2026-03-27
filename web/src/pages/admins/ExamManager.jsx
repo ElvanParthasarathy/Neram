@@ -39,6 +39,10 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
     const finalRole = emailRole || userProfile?.role || 'student';
     const isRep = finalRole === 'rep';
 
+    const repBatch = userProfile?.batch;
+    const repDept = userProfile?.department;
+    const repSec = userProfile?.section;
+
     // --- HISTORY LOGIC ---
     const viewLevel = searchParams.get('elvl') || 'batches';
     const path = {
@@ -99,7 +103,22 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
         return () => unsub();
     }, []);
 
-    // --- AUTO-NAVIGATE FOR REPS ---
+    // Extract hierarchy data early for the interceptor
+    const sectionsForDeptStr = Array.isArray(hierarchy[path.batch]?.[path.dept]) ? hierarchy[path.batch][path.dept].join(',') : '';
+
+    // --- REP NAVIGATION LOCK GUARD ---
+    useEffect(() => {
+        if (isRep && repBatch && repDept) {
+            // Guard: If URL aims at wrong batch/dept or lower level
+            if (path.batch !== repBatch || path.dept !== repDept || viewLevel === 'batches' || viewLevel === 'depts') {
+                // If they have a section, push them directly to editor for that department
+                // (Exams are managed at dept-level, but scope is filtered strictly later)
+                updateLevel('editor', { batch: repBatch, dept: repDept });
+            }
+        }
+    }, [isRep, repBatch, repDept, viewLevel, path.batch, path.dept]);
+
+    // --- AUTO-NAVIGATE FOR REPS (Legacy support just in case) ---
     useEffect(() => {
         if (isRep && !hasAutoNavigated.current && userProfile?.batch && userProfile?.department) {
             hasAutoNavigated.current = true;
@@ -112,8 +131,6 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
             setSearchParams(params, { replace: true });
         }
     }, [isRep, userProfile]);
-
-    const sectionsForDeptStr = Array.isArray(hierarchy[path.batch]?.[path.dept]) ? hierarchy[path.batch][path.dept].join(',') : '';
 
     // --- FETCH DEPT DATA (Aggregation) ---
     useEffect(() => {
@@ -448,9 +465,15 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                     </div>
                     <div className="input-group-vertical variant-scope">
                         <label>Scope</label>
-                        <select value={sub.scope} onChange={e => updateSub('scope', e.target.value)}>
-                            <option value="Common">Common (All Secs)</option>
-                            {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                        <select value={sub.scope} onChange={e => updateSub('scope', e.target.value)} disabled={isRep}>
+                            {isRep ? (
+                                <option value={`Section ${repSec}`}>Section {repSec}</option>
+                            ) : (
+                                <>
+                                    <option value="Common">Common (All Secs)</option>
+                                    {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                                </>
+                            )}
                         </select>
                     </div>
                     <button className="btn-del-mini practical-remove-btn" onClick={removeSub}><RiDeleteBin6Line /> Remove</button>
@@ -541,19 +564,32 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
         );
     };
 
+    // Don't render until Rep path is resolved (prevents header flash)
+    if (isRep && (!path.batch || !path.dept)) return null;
+
     return (
         <div className="exam-manager-container admin-subpage animate-fade-in">
             <header className="explorer-header focus-mode">
-                <div className="breadcrumb-nav">                    <div className="breadcrumb-list">
-                        <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '' })}>Exams</span>
+                <div className="breadcrumb-nav">
+                    {isRep ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: 'var(--mac-text)', fontSize: '15px' }}>
+                            <RiTrophyLine style={{ fontSize: '18px', color: 'var(--mac-accent)' }} />
+                            <span>{path.batch}</span>
+                            <span style={{ color: 'var(--mac-text-secondary)' }}>/</span>
+                            <span>{path.dept} Manager</span>
+                        </div>
+                    ) : (
+                        <div className="breadcrumb-list">
+                            <span className="crumb-btn level-root" onClick={() => updateLevel('batches', { batch: '', dept: '' })}>Exams</span>
 
-                        {/* Mobile Truncation Ellipsis */}
-                        <span className="crumb-ellipsis-container">
-                            <RiArrowRightSLine className="crumb-sep" />
-                            <span className="crumb-static">...</span>
-                        </span>
+                            {/* Mobile Truncation Ellipsis */}
+                            <span className="crumb-ellipsis-container">
+                                <RiArrowRightSLine className="crumb-sep" />
+                                <span className="crumb-static">...</span>
+                            </span>
 
-                    </div>
+                        </div>
+                    )}
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                     {!isRep && viewLevel !== 'batches' && (
@@ -565,6 +601,7 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
             </header>
 
             {viewLevel !== 'editor' ? (
+                isRep ? null : (
                 <div className="explorer-content explorer-grid">
                     {viewLevel === 'batches' && Object.keys(hierarchy || {}).sort().reverse().map(b => (
                         <div key={b} className="explorer-card" onClick={() => updateLevel('depts', { batch: b })}>
@@ -577,6 +614,7 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                         </div>
                     ))}
                 </div>
+                )
             ) : (
                 <div className="exam-editor-workspace">
                     {/* SECTION HEADER WITH EDIT LIST BUTTON */}
@@ -675,11 +713,17 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                                 </div>
                                                 <div className="input-group-vertical variant-scope">
                                                     <label>Scope</label>
-                                                    <select value={sub.scope} onChange={e => { let s = [...newExam.subjects]; s[idx].scope = e.target.value; setNewExam({ ...newExam, subjects: s }); }}>
-                                                        <option value="Common">Common (All Secs)</option>
-                                                        {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
-                                                        {sub.scope && sub.scope !== 'Common' && !masterData.sections.includes(sub.scope) && (
-                                                            <option value={sub.scope}>{sub.scope} (Mixed)</option>
+                                                    <select value={sub.scope} onChange={e => { let s = [...newExam.subjects]; s[idx].scope = e.target.value; setNewExam({ ...newExam, subjects: s }); }} disabled={isRep}>
+                                                        {isRep ? (
+                                                            <option value={`Section ${repSec}`}>Section {repSec}</option>
+                                                        ) : (
+                                                            <>
+                                                                <option value="Common">Common (All Secs)</option>
+                                                                {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                                                                {sub.scope && sub.scope !== 'Common' && !masterData.sections.includes(sub.scope) && (
+                                                                    <option value={sub.scope}>{sub.scope} (Mixed)</option>
+                                                                )}
+                                                            </>
                                                         )}
                                                     </select>
                                                 </div>
@@ -706,7 +750,7 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                                     startTime: lastSub ? to24hHelper(lastSub.startTime) : '08:20',
                                                     endTime: lastSub ? to24hHelper(lastSub.endTime) : '11:30',
                                                     portion: PORTION_DEFAULTS[newExam.type],
-                                                    scope: 'Common'
+                                                    scope: isRep ? `Section ${repSec}` : 'Common'
                                                 }]
                                             });
                                         }}><RiAddLine /> Add Subject Day</button>
@@ -855,11 +899,17 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                                                 </div>
                                                                 <div className="input-group-vertical variant-scope">
                                                                     <label>Scope</label>
-                                                                    <select value={s.scope} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].scope = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }}>
-                                                                        <option value="Common">Common (All Secs)</option>
-                                                                        {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
-                                                                        {s.scope && s.scope !== 'Common' && !masterData.sections.includes(s.scope) && (
-                                                                            <option value={s.scope}>{s.scope} (Mixed)</option>
+                                                                    <select value={s.scope} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].scope = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} disabled={isRep}>
+                                                                        {isRep ? (
+                                                                            <option value={`Section ${repSec}`}>Section {repSec}</option>
+                                                                        ) : (
+                                                                            <>
+                                                                                <option value="Common">Common (All Secs)</option>
+                                                                                {masterData.sections.map(sec => <option key={sec} value={sec}>Section {sec}</option>)}
+                                                                                {s.scope && s.scope !== 'Common' && !masterData.sections.includes(s.scope) && (
+                                                                                    <option value={s.scope}>{s.scope} (Mixed)</option>
+                                                                                )}
+                                                                            </>
                                                                         )}
                                                                     </select>
                                                                 </div>

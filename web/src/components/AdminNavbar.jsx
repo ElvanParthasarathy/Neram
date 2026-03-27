@@ -133,33 +133,8 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
           <span>Home</span>
         </Link>
 
-        {/* GROUP 1: PERSONS */}
-        {canViewUsers && (
-          <>
-            <div className="nav-group-label">Persons</div>
-            <Link to="/?mod=users" className={`admin-nav-link ${location.search.includes('mod=users') || (!location.search && location.pathname === '/') ? "active" : ""}`}>
-              <RiGroupLine className="admin-nav-icon" />
-              <span>Users</span>
-            </Link>
-          </>
-        )}
-
-        {canViewAdmins && (
-          <Link to="/?mod=roles" className={`admin-nav-link ${location.search.includes('mod=roles') ? "active" : ""}`}>
-            <RiShieldUserLine className="admin-nav-icon" />
-            <span>Admins</span>
-          </Link>
-        )}
-
-        {canViewFacultyDir && (
-          <Link to="/?mod=faculty" className={`admin-nav-link ${location.search.includes('mod=faculty') ? "active" : ""}`}>
-            <RiUser3Fill className="admin-nav-icon" />
-            <span>Faculty Directory</span>
-          </Link>
-        )}
-
-        {/* GROUP 2: PLANNING */}
-        <div className="nav-group-label">Planning</div>
+        {/* GROUP 1: PLANNER — Scheduling & timetable tools */}
+        <div className="nav-group-label">Planner</div>
         <Link to="/?mod=schedules" className={`admin-nav-link ${location.search.includes('mod=schedules') ? "active" : ""}`}>
           <RiCalendarScheduleLine className="admin-nav-icon" />
           <span>Schedule</span>
@@ -177,10 +152,10 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
           <span>Special Classes</span>
         </Link>
 
-        {/* GROUP 3: ACADEMIC */}
+        {/* GROUP 2: CONTENT — Calendar, materials & notes */}
         {(canViewCalendar || canViewResources || canViewNotes) && (
           <>
-            <div className="nav-group-label">Academic</div>
+            <div className="nav-group-label">Content</div>
             {canViewCalendar && (
               <Link to="/?mod=calendar" className={`admin-nav-link ${location.search.includes('mod=calendar') ? "active" : ""}`}>
                 <RiCalendarEventLine className="admin-nav-icon" />
@@ -202,9 +177,41 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
           </>
         )}
 
-        {/* STRUCTURE - SUPER ADMIN ONLY */}
+        {/* GROUP 3: ADMIN — People & access management */}
+        {(canViewUsers || canViewAdmins) && (
+          <>
+            <div className="nav-group-label">Admin</div>
+            {canViewUsers && (
+              <Link to="/?mod=users" className={`admin-nav-link ${location.search.includes('mod=users') ? "active" : ""}`}>
+                <RiGroupLine className="admin-nav-icon" />
+                <span>Users</span>
+              </Link>
+            )}
+            {canViewAdmins && (
+              <Link to="/?mod=roles" className={`admin-nav-link ${location.search.includes('mod=roles') ? "active" : ""}`}>
+                <RiShieldUserLine className="admin-nav-icon" />
+                <span>Admins</span>
+              </Link>
+            )}
+            {canViewFacultyDir && (
+              <Link to="/?mod=faculty" className={`admin-nav-link ${location.search.includes('mod=faculty') ? "active" : ""}`}>
+                <RiUser3Fill className="admin-nav-icon" />
+                <span>Faculty Directory</span>
+              </Link>
+            )}
+            {isSuper && (
+              <Link to="/?mod=pending" className={`admin-nav-link ${location.search.includes('mod=pending') ? "active" : ""}`}>
+                <RiTimeLine className="admin-nav-icon" />
+                <span>Pending</span>
+              </Link>
+            )}
+          </>
+        )}
+
+        {/* GROUP 4: SYSTEM — Infrastructure & structure */}
         {canViewStructure && (
           <>
+            <div className="nav-group-label">System</div>
             <Link to="/?mod=structure" className={`admin-nav-link ${location.search.includes('mod=structure') ? "active" : ""}`}>
               <RiListCheck className="admin-nav-icon" />
               <span>Structure</span>
@@ -216,15 +223,6 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
           </>
         )}
 
-        {/* PENDING REQUESTS - SUPER ADMIN ONLY (inside Academic group) */}
-        {isSuper && (
-          <Link to="/?mod=pending" className={`admin-nav-link ${location.search.includes('mod=pending') ? "active" : ""}`}>
-            <RiTimeLine className="admin-nav-icon" />
-            <span>Pending</span>
-          </Link>
-        )}
-
-        {/* Spacer to maintain gap without using container padding (which clips scroller) */}
         <div className="nav-spacer" style={{ height: '20px' }}></div>
 
       </nav>

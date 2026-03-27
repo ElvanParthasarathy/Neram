@@ -426,6 +426,9 @@ const EventManager = ({ user, userProfile, isMobile }) => {
     );
   };
 
+  // Don't render until Rep path is resolved (prevents header flash)
+  if (isRep && (!path.batch || !path.dept)) return null;
+
   return (
     <div className="exam-manager-container admin-subpage animate-fade-in">
       {/* 1. HEADER WITH BREADCRUMBS */}
@@ -465,6 +468,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
 
       {/* 2. EXPLORER CONTENT (Selection Grid) */}
       {viewLevel !== 'editor' ? (
+        isRep ? null : (
         <div className="explorer-content explorer-grid">
           {/* A. BATCH SELECTION */}
           {viewLevel === 'batches' && Object.keys(hierarchy || {}).sort().reverse().map(b => (
@@ -479,6 +483,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
             </div>
           ))}
         </div>
+        )
       ) : (
         /* 3. EDITOR WORKSPACE */
         <div className="exam-editor-workspace">

@@ -189,61 +189,58 @@
 
 /* --- ANIMATIONS --- */
 .animate-fade-in {
-    animation: fadeIn 0.2s ease-out;
+    animation: fadeIn 0.25s cubic-bezier(0.2, 0, 0, 1) both;
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(-4px);
+        transform: scale(0.985);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: scale(1);
     }
 }
 
 /* --- DARK MODE SUPPORT --- */
-/* --- DARK MODE SUPPORT (MOBILE ONLY) --- */
-@media (max-width: 768px) {
-    html.dark .switcher-popup-panel {
-        background: rgba(30, 30, 30, 0.8);
-        border-color: rgba(255, 255, 255, 0.1);
-    }
+html.dark .switcher-popup-panel {
+    background: rgba(30, 30, 30, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+}
 
-    html.dark .switcher-popup-header h4 {
-        color: #FFFFFF;
-    }
+html.dark .switcher-popup-header h4 {
+    color: #FFFFFF;
+}
 
-    html.dark .dropdown-divider {
-        background: rgba(255, 255, 255, 0.1);
-    }
+html.dark .dropdown-divider {
+    background: rgba(255, 255, 255, 0.1);
+}
 
-    html.dark .mac-custom-picker {
-        background: #2C2C2E;
-        border-color: rgba(255, 255, 255, 0.1);
-        color: #FFFFFF;
-    }
+html.dark .mac-custom-picker {
+    background: #2C2C2E;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+}
 
-    html.dark .mac-custom-picker:hover {
-        background: #3A3A3C;
-    }
+html.dark .mac-custom-picker:hover {
+    background: #3A3A3C;
+}
 
-    html.dark .switch-group-mac label {
-        color: #98989D;
-    }
+html.dark .switch-group-mac label {
+    color: #98989D;
+}
 
-    html.dark .mac-picker-dropdown {
-        background: #2C2C2E;
-        border-color: rgba(255, 255, 255, 0.1);
-    }
+html.dark .mac-picker-dropdown {
+    background: #2C2C2E;
+    border-color: rgba(255, 255, 255, 0.1);
+}
 
-    html.dark .mac-picker-option {
-        color: #FFFFFF;
-    }
+html.dark .mac-picker-option {
+    color: #FFFFFF;
+}
 
-    html.dark .mac-picker-option:hover {
-        background: #3A3A3C;
-    }
+html.dark .mac-picker-option:hover {
+    background: #3A3A3C;
 }
