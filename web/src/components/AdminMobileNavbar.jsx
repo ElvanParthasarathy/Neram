@@ -114,7 +114,21 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     // The mobile chevron back button should behave exactly like the browser/system back button.
     // Since all navigation (drawer handleNav, sub-page drill-downs) pushes to history properly,
     // navigate(-1) will always go to the correct previous page.
-    const handleBack = () => navigate(-1);
+    const handleBack = () => {
+        const params = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
+        const mod = params.get('mod');
+
+        // Sub-module drill-downs: use history.back() to step up one level
+        const slvl = params.get('slvl');
+        if (mod === 'schedules' && slvl && slvl !== 'batches') { window.history.back(); return; }
+        const xlvl = params.get('xlvl');
+        if (mod === 'exams' && xlvl && xlvl !== 'batches') { window.history.back(); return; }
+        const elvl = params.get('elvl');
+        if (mod === 'events' && elvl && elvl !== 'batches') { window.history.back(); return; }
+
+        // Top-level module or anything else → go home
+        navigate('/?mod=home');
+    };
 
     // Determine current settings title
     const settingsTitle = navOverride?.title || 'Settings';

@@ -82,7 +82,8 @@ function AdminApp() {
     const [dbUserProfile, setDbUserProfile] = useState({ batch: "", department: "", section: "" });
 
     // --- NATIVE BACK BUTTON BRIDGE ---
-    // Android calls this to know if it should exit or call webView.goBack().
+    // Android calls handleNativeBack() which performs web-side navigation
+    // and returns "exit" (app should close) or "navigated" (web handled it).
     useEffect(() => {
         window.isNativeAtRoot = () => {
             const hash = window.location.hash;
@@ -92,7 +93,59 @@ function AdminApp() {
                 || hash === '#/signup';
         };
 
-        return () => { delete window.isNativeAtRoot; };
+        window.handleNativeBack = () => {
+            const hash = window.location.hash || '';
+            const params = new URLSearchParams(hash.includes('?') ? hash.split('?')[1] : '');
+            const mod = params.get('mod');
+            const path = hash.split('?')[0]; // e.g. '#/' or '#/settings'
+
+            // 1. Auth screens → exit
+            if (!hash || hash === '#' || hash === '#/' && !mod) return 'exit';
+            if (hash === '#/login' || hash === '#/signup') return 'exit';
+
+            // 2. Home screen → exit
+            if (mod === 'home' || (path === '#/' && !mod)) return 'exit';
+
+            // 3. Settings page → go to home
+            if (path === '#/settings') {
+                window.location.hash = '#/';
+                return 'navigated';
+            }
+
+            // 4. Sub-module drill-downs: step back one level using history
+            // Schedule: slvl (batches > depts > secs > editor/master)
+            const slvl = params.get('slvl');
+            if (mod === 'schedules' && slvl && slvl !== 'batches') {
+                window.history.back();
+                return 'navigated';
+            }
+            // Exam: xlvl (batches > depts > editor)
+            const xlvl = params.get('xlvl');
+            if (mod === 'exams' && xlvl && xlvl !== 'batches') {
+                window.history.back();
+                return 'navigated';
+            }
+            // Event: elvl (batches > depts > editor)
+            const elvl = params.get('elvl');
+            if (mod === 'events' && elvl && elvl !== 'batches') {
+                window.history.back();
+                return 'navigated';
+            }
+
+            // 5. Any top-level module page → go to home
+            if (mod && mod !== 'home') {
+                window.location.hash = '#/?mod=home';
+                return 'navigated';
+            }
+
+            // Fallback: exit
+            return 'exit';
+        };
+
+        return () => {
+            delete window.isNativeAtRoot;
+            delete window.handleNativeBack;
+        };
     }, []);
 
     useEffect(() => {

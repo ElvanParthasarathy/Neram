@@ -238,30 +238,33 @@ class AdminMainActivity : AppCompatActivity() {
             }
         }
 
-        // Back navigation — Professional JS Bridge approach
-        // The web app tells us if it's at a logical root screen. If so, we exit.
-        // Otherwise, we rely on the WebView's robust history stack to navigate back.
+        // Back navigation — Delegate entirely to web app's JS bridge.
+        // The web app handles route-aware navigation (sub-module drill-downs,
+        // module→home, settings→home). It returns "exit" when at true root,
+        // or "navigated" when it handled the back navigation internally.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                webView.evaluateJavascript("(function(){ return typeof window.isNativeAtRoot === 'function' ? window.isNativeAtRoot() : null; })()") { result ->
+                webView.evaluateJavascript(
+                    "(function(){ return typeof window.handleNativeBack === 'function' ? window.handleNativeBack() : null; })()"
+                ) { result ->
                     val res = result?.replace("\"", "")?.trim()
-                    val isRoot = res == "true"
-                    val isMissing = res == "null" || result == null
-                    
-                    if (isRoot) {
-                        // Web explicitly said it's at root -> exit the app
-                        isEnabled = false
-                        onBackPressedDispatcher.onBackPressed()
-                    } else if (!isMissing && webView.canGoBack()) {
-                        // Web said it's NOT at root -> pop the internal WebView history
-                        webView.goBack()
-                    } else if (isMissing && webView.canGoBack()) {
-                        // App hasn't fully loaded JS bridge yet, fallback to WebView history
-                        webView.goBack()
-                    } else {
-                        // Ultimate fallback: cannot go back anymore, exit
-                        isEnabled = false
-                        onBackPressedDispatcher.onBackPressed()
+
+                    when (res) {
+                        "exit" -> {
+                            // Web confirmed we're at root → close the app
+                            finish()
+                        }
+                        "navigated" -> {
+                            // Web handled the back navigation → do nothing
+                        }
+                        else -> {
+                            // JS bridge not loaded yet (null) — fallback
+                            if (webView.canGoBack()) {
+                                webView.goBack()
+                            } else {
+                                finish()
+                            }
+                        }
                     }
                 }
             }
