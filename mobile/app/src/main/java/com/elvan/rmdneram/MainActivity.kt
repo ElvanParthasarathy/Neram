@@ -172,7 +172,13 @@ class MainActivity : ComponentActivity() {
                     androidx.compose.ui.platform.LocalConfiguration provides configuration
                 ) {
                     Surface(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(
+                                WindowInsets.displayCutout
+                                    .only(WindowInsetsSides.Horizontal)
+                                    .asPaddingValues()
+                            ),
                         color = MaterialTheme.colorScheme.background
                     ) {
                         // Root Navigation State
