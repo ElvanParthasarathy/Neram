@@ -5,11 +5,11 @@ import { db } from "../../../firebase";
 import { ref, onValue, set, update } from "firebase/database";
 import { getHardcodedRole } from '../../../data/admins';
 import { ListItemSkeleton } from '../../../components/ui/AdminSkeletons';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 import { RiCalendarEventLine, RiTimeLine, RiHashtag, RiGroupLine, RiSave3Line, RiCloseLine, RiDeleteBin6Line, RiFileCopyLine, RiCheckLine, RiExternalLinkLine, RiHistoryLine, RiRefreshLine, RiCalendarLine, RiArrowRightSLine, RiArrowLeftLine, RiTeamLine, RiLayoutGridLine, RiComputerLine, RiAddLine, RiEditLine, RiArrowDownSLine, RiDeleteBin6Fill } from "react-icons/ri";
 import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO, convertTo12Hour } from "../../../utils/timeUtils";
 import HybridDateInput from '../../../components/ui/HybridDateInput';
+import HybridTimePicker from '../../../components/ui/HybridTimePicker';
 import { useToast } from '../../../contexts/ToastContext';
 
 const SpecialClassManager = ({ user, userProfile, isMobile }) => {
@@ -489,11 +489,11 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                 </div>
                 <div className="input-group-vertical">
                   <label>Start</label>
-                  <input className="event-input" type="time" value={b.startTime} onChange={e => updateBatchFieldLocal(b.id, 'startTime', e.target.value)} />
+                  <HybridTimePicker className="event-input" value={b.startTime} onChange={val => updateBatchFieldLocal(b.id, 'startTime', val)} />
                 </div>
                 <div className="input-group-vertical">
                   <label>End</label>
-                  <input className="event-input" type="time" value={b.endTime} onChange={e => updateBatchFieldLocal(b.id, 'endTime', e.target.value)} />
+                  <HybridTimePicker className="event-input" value={b.endTime} onChange={val => updateBatchFieldLocal(b.id, 'endTime', val)} />
                 </div>
                 <div className="input-group-vertical variant-code">
                   <label>Subject</label>
@@ -767,11 +767,11 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                                     </div>
                                     <div className="input-group-vertical">
                                       <label>Start</label>
-                                      <input className="event-input" type="time" value={b.startTime} onChange={e => { let batches = [...editBuffer.batches]; batches[idx].startTime = e.target.value; setEditBuffer({ ...editBuffer, batches }); }} />
+                                      <HybridTimePicker className="event-input" value={b.startTime} onChange={val => { let batches = [...editBuffer.batches]; batches[idx].startTime = val; setEditBuffer({ ...editBuffer, batches }); }} />
                                     </div>
                                     <div className="input-group-vertical">
                                       <label>End</label>
-                                      <input className="event-input" type="time" value={b.endTime} onChange={e => { let batches = [...editBuffer.batches]; batches[idx].endTime = e.target.value; setEditBuffer({ ...editBuffer, batches }); }} />
+                                      <HybridTimePicker className="event-input" value={b.endTime} onChange={val => { let batches = [...editBuffer.batches]; batches[idx].endTime = val; setEditBuffer({ ...editBuffer, batches }); }} />
                                     </div>
                                     <div className="input-group-vertical variant-code">
                                       <label>Subject</label>

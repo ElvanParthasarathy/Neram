@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { db } from "../../../firebase";
 import { ref, onValue, set, remove, push, get, update } from "firebase/database";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../../utils/timeUtils";
 import HybridDateInput from '../../../components/ui/HybridDateInput';
+import HybridTimePicker from '../../../components/ui/HybridTimePicker';
 import {
   RiCalendarEventLine, RiCalendarLine, RiTeamLine, RiRefreshLine, RiAddCircleLine,
   RiFileList3Line, RiInformationLine, RiArrowLeftLine, RiScanLine, RiDeleteBin6Line, RiDeleteBin6Fill, RiArrowRightSLine,
@@ -791,24 +791,24 @@ const CalendarManager = () => {
                                   <>
                                     <div className="field animate-slide-up">
                                       <label>Start Time</label>
-                                      <input
-                                        type="time"
+                                      <HybridTimePicker
+                                        className="event-input"
                                         value={t12to24(ev.fullTime.split(' - ')[0] || '08:30 AM')}
-                                        onChange={(e) => {
+                                        onChange={(val) => {
                                           const parts = ev.fullTime.split(' - ');
-                                          const newStart = t24to12(e.target.value);
+                                          const newStart = t24to12(val);
                                           updateBatchRow(ev.id, 'fullTime', `${newStart} - ${parts[1] || '03:00 PM'}`);
                                         }}
                                       />
                                     </div>
                                     <div className="field animate-slide-up">
                                       <label>End Time</label>
-                                      <input
-                                        type="time"
+                                      <HybridTimePicker
+                                        className="event-input"
                                         value={t12to24(ev.fullTime.split(' - ')[1] || '03:00 PM')}
-                                        onChange={(e) => {
+                                        onChange={(val) => {
                                           const parts = ev.fullTime.split(' - ');
-                                          const newEnd = t24to12(e.target.value);
+                                          const newEnd = t24to12(val);
                                           updateBatchRow(ev.id, 'fullTime', `${parts[0] || '08:30 AM'} - ${newEnd}`);
                                         }}
                                       />
@@ -1037,13 +1037,13 @@ const CalendarManager = () => {
                                                 <>
                                                   <div className="field animate-slide-up">
                                                     <label>Start Time</label>
-                                                    <input
-                                                      type="time"
+                                                    <HybridTimePicker
+                                                      className="event-input"
                                                       value={t12to24(currentSpan.fullTime?.split(' - ')[0] || '08:30 AM')}
-                                                      onChange={(e) => {
+                                                      onChange={(val) => {
                                                         const nb = [...editBuffer];
                                                         const parts = currentSpan.fullTime?.split(' - ') || ['08:30 AM', '03:00 PM'];
-                                                        const newStart = t24to12(e.target.value);
+                                                        const newStart = t24to12(val);
                                                         nb[0].fullTime = `${newStart} - ${parts[1] || '03:00 PM'}`;
                                                         setEditBuffer(nb);
                                                       }}
@@ -1051,13 +1051,13 @@ const CalendarManager = () => {
                                                   </div>
                                                   <div className="field animate-slide-up">
                                                     <label>End Time</label>
-                                                    <input
-                                                      type="time"
+                                                    <HybridTimePicker
+                                                      className="event-input"
                                                       value={t12to24(currentSpan.fullTime?.split(' - ')[1] || '03:00 PM')}
-                                                      onChange={(e) => {
+                                                      onChange={(val) => {
                                                         const nb = [...editBuffer];
                                                         const parts = currentSpan.fullTime?.split(' - ') || ['08:30 AM', '03:00 PM'];
-                                                        const newEnd = t24to12(e.target.value);
+                                                        const newEnd = t24to12(val);
                                                         nb[0].fullTime = `${parts[0] || '08:30 AM'} - ${newEnd}`;
                                                         setEditBuffer(nb);
                                                       }}

@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { db } from "../../../firebase";
 import { ref, onValue, update, push, set, remove } from "firebase/database";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+
 import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../../utils/timeUtils";
 import HybridDateInput from '../../../components/ui/HybridDateInput';
 import {
