@@ -12,6 +12,7 @@ import {
   RiDownloadCloud2Line, RiUploadCloud2Line, RiCloseLine, RiEditLine, RiArrowDownSLine, RiAddLine,
   RiArrowLeftSLine, RiCheckboxCircleLine
 } from 'react-icons/ri';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 // --- SHARED COMPONENTS ---
 import CalendarBuilder from '../../components/CalendarBuilder';
