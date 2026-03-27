@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthLayout, AuthButton } from '../../components/auth/AuthComponents';
-import Logo from '../../assets/neram.svg';
+import Logo from '../../assets/branding/neram-full.svg';
 
 const AdminWelcomePage = () => {
     const navigate = useNavigate();

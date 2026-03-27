@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth, db } from "../../firebase";
 import { signOut } from "firebase/auth";
 import { ref, onValue } from "firebase/database";
-import Logo from "../../assets/neramv.svg";
-import LogoIcon from "../../assets/neram.svg";
+import Logo from "../../assets/branding/neram-compact.svg";
+import LogoIcon from "../../assets/branding/neram-full.svg";
 import ThemeToggle from "../ui/ThemeToggle";
 import {
     RiHomeLine,

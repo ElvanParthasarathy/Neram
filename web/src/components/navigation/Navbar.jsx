@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth, googleProvider, db } from "../../firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { ref, onValue } from "firebase/database";
-import Logo from "../../assets/neramv.svg";
+import Logo from "../../assets/branding/neram-compact.svg";
 import ThemeToggle from "../ui/ThemeToggle";
 import {
   RiHomeLine,

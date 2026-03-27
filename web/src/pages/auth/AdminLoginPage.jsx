@@ -21,7 +21,7 @@ import {
 } from "../../components/auth/AuthComponents";
 
 // IMPORT THE LOGO ASSET
-import Logo from "../../assets/neram.svg"; // Use same logo as student portal
+import Logo from "../../assets/branding/neram-full.svg"; // Use same logo as student portal
 
 const AdminLoginPage = () => {
     const [email, setEmail] = useState("");
