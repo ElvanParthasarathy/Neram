@@ -17,7 +17,13 @@
   <!-- Theme color: two variants for light/dark splash screen -->
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
-  <link rel="manifest" href="/admin-manifest.json" />
+  <!-- Dynamic manifest: picks light/dark variant for correct splash screen color -->
+  <link rel="manifest" id="app-manifest" />
+  <script>
+    document.getElementById('app-manifest').href =
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? '/admin-manifest-dark.json' : '/admin-manifest.json';
+  </script>
 
   <!-- Apple PWA Support -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
