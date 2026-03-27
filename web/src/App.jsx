@@ -10,28 +10,28 @@ import "@fontsource-variable/inter";
 import "./App.css";
 import "./mobile.css";
 
-import "./styles/admin-sidebar.css";
-import "./styles/schedule2.css";
+import "./styles/navigation/admin-sidebar.css";
+import "./styles/student/schedule.css";
 
 // Data & Components
 import { adminEmails, getHardcodedRole } from "./data/admins";
-import StudentSidebar from "./components/StudentSidebar";
-import Navbar from "./components/Navbar";
-import MobileNavbar from "./components/MobileNavbar";
+import StudentSidebar from "./components/navigation/StudentSidebar";
+import Navbar from "./components/navigation/Navbar";
+import MobileNavbar from "./components/navigation/MobileNavbar";
 
-import SetupPage from "./pages/SetupPage";
-import Home from "./pages/Home";
-import Schedule from "./pages/Schedule";
-import Calendar from "./pages/Calendar";
-import CollegeSites from "./pages/CollegeSites";
+import SetupPage from "./pages/auth/SetupPage";
+import Home from "./pages/student/Home";
+import Schedule from "./pages/student/Schedule";
+import Calendar from "./pages/student/Calendar";
+import CollegeSites from "./pages/student/CollegeSites";
 
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
-import WelcomePage from "./pages/WelcomePage";
-import Settings2 from "./pages/Settings2";
-import AdminPanel from "./pages/AdminPanel";
-import Notes from "./pages/Notes";
-import SplashScreen from "./components/SplashScreen";
+import LoginPage from "./pages/auth/LoginPage";
+import SignupPage from "./pages/auth/SignupPage";
+import WelcomePage from "./pages/student/WelcomePage";
+import Settings2 from "./pages/student/Settings";
+import AdminPanel from "./pages/admin/AdminPanel";
+import Notes from "./pages/student/Notes";
+import SplashScreen from "./components/ui/SplashScreen";
 
 // --- UTILITY HELPERS ---
 const toLocalISO = (date) => {

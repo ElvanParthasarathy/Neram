@@ -1,14 +1,14 @@
 /* Refactored index.css */
-@import './styles/tokens.css';
+@import './styles/core/tokens.css';
 
-@import './styles/theme-dark.css';
-@import './styles/responsive.css';
-@import './styles/global.css';
-@import './styles/scrollbar.css';
-@import './styles/sidebar.css';
-@import './styles/preview-badge.css';
-@import './styles/profile.css';
-@import './styles/preview-system.css';
-@import './styles/10-premium-mac-system-initial-loader-verifying-access-account.css';
-@import './styles/admin-dashboard.css';
-@import './styles/neram-portal-admin-command-center-dead-end-full-width.css';
+@import './styles/core/theme-dark.css';
+@import './styles/core/responsive.css';
+@import './styles/core/global.css';
+@import './styles/core/scrollbar.css';
+@import './styles/navigation/sidebar.css';
+@import './styles/components/preview-badge.css';
+@import './styles/student/profile.css';
+@import './styles/components/preview-system.css';
+@import './styles/auth/initial-loader.css';
+@import './styles/admin/dashboard.css';
+@import './styles/admin/command-center.css';

@@ -1,0 +1,11 @@
+/* ==========================================================================
+   SETTINGS 2: Aggregator — imports all split CSS modules
+   ========================================================================== */
+@import '../settings/shared.css';
+@import '../settings/hub.css';
+@import '../settings/display.css';
+@import '../settings/directory.css';
+@import '../settings/feedback.css';
+@import '../settings/profile.css';
+@import '../settings/developer.css';
+@import '../settings/about.css';

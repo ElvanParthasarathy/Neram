@@ -13,16 +13,16 @@ import "./mobile.css";
 
 // Admin Components
 import { adminEmails, getHardcodedRole } from "./data/admins";
-import AdminNavbar from "./components/AdminNavbar";
-import AdminMobileNavbar from "./components/AdminMobileNavbar";
-import AdminLoginPage from "./pages/AdminLoginPage";
-import AdminWelcomePage from "./pages/AdminWelcomePage";
-import AdminSignupPage from "./pages/AdminSignupPage";
-import AdminPanel from "./pages/AdminPanel";
-import AdminSettings from "./pages/AdminSettings";
-import AdminDashboard from "./pages/admins/AdminDashboard";
-import PendingApproval from "./pages/PendingApproval";
-import SplashScreen from "./components/SplashScreen";
+import AdminNavbar from "./components/navigation/AdminNavbar";
+import AdminMobileNavbar from "./components/navigation/AdminMobileNavbar";
+import AdminLoginPage from "./pages/auth/AdminLoginPage";
+import AdminWelcomePage from "./pages/admin/AdminWelcomePage";
+import AdminSignupPage from "./pages/auth/AdminSignupPage";
+import AdminPanel from "./pages/admin/AdminPanel";
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminDashboard from "./pages/admin/modules/AdminDashboard";
+import PendingApproval from "./pages/student/PendingApproval";
+import SplashScreen from "./components/ui/SplashScreen";
 
 function AdminAppContent({ user, isAdminUser, isMobile, loading, dbUserProfile }) {
     // Admin App is simple: 

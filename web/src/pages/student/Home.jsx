@@ -1,0 +1,726 @@
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { db } from "../../firebase";
+import { ref, update, onValue } from "firebase/database";
+import "../../styles/student/home.css";
+import "../../styles/student/schedule.css"; // Ensure schedule styles are available
+import { PeriodRow, getPeriodDetails, periodTimes, DateSection, EventCard, ExamEventCard, NoticeCard } from "./Schedule"; // Import shared components
+import { convertTo12Hour } from "../../utils/timeUtils";
+import {
+    RiCalendarEventLine,
+    RiCalendarLine,
+    RiTimeLine,
+    RiFilePaperLine,
+    RiInformationLine,
+    RiTrophyLine,
+    RiEditLine,
+    RiUserVoiceLine,
+    RiComputerLine,
+} from "react-icons/ri";
+
+/* =====================================================================
+   Home2 — Kotlin-parity Home Dashboard
+   Port of HomeScreen.kt / HomeLayout.kt / HomeComponents.kt
+   ===================================================================== */
+
+const daysOrder = ["Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+const Home = ({
+    isAdmin = false,
+    globalData,
+    userProfile,
+    activeProfile,
+    hideHeader = false,
+}) => {
+    // ---------- STATE ----------
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const { masterData = {}, allCalendar = [], sectionUpdates = {}, isSyncing } =
+        globalData || {};
+
+    const [dayOrder, setDayOrder] = useState("");
+    const [scheduleStatus, setScheduleStatus] = useState("");
+
+    const [globalEvents, setGlobalEvents] = useState([]);
+    const [sectionEvts, setSectionEvts] = useState([]);
+
+    const todayEvents = useMemo(() => {
+        const combined = [...globalEvents, ...sectionEvts];
+        return Array.from(
+            new Map(combined.map((i) => [i.id || i.title, i])).values()
+        );
+    }, [globalEvents, sectionEvts]);
+
+    const [activeExamPeriod, setActiveExamPeriod] = useState(null);
+    const [activeExamToday, setActiveExamToday] = useState(null);
+    const [activeSpecialClass, setActiveSpecialClass] = useState(null);
+
+    // Editing state
+    const [isEditingNote, setIsEditingNote] = useState(false);
+    const [tempNote, setTempNote] = useState("");
+    const [isEditingGeneral, setIsEditingGeneral] = useState(false);
+    const [tempGeneral, setTempGeneral] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
+
+    const [areEventsLoading, setAreEventsLoading] = useState(true);
+    const [slideAnim, setSlideAnim] = useState("");
+
+    // Calendar dropdown
+    const [calOpen, setCalOpen] = useState(false);
+    const calDropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (calDropdownRef.current && !calDropdownRef.current.contains(e.target))
+                setCalOpen(false);
+        };
+        if (calOpen) document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, [calOpen]);
+
+    const handlePrevDay = () => {
+        setSlideAnim("h2-slide-right");
+        const d = new Date(currentDate);
+        d.setDate(d.getDate() - 1);
+        setCurrentDate(d);
+        setTimeout(() => setSlideAnim(""), 350);
+    };
+
+    const handleNextDay = () => {
+        setSlideAnim("h2-slide-left");
+        const d = new Date(currentDate);
+        d.setDate(d.getDate() + 1);
+        setCurrentDate(d);
+        setTimeout(() => setSlideAnim(""), 350);
+    };
+
+    // ---------- HELPERS ----------
+    const formatDate = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${dd}`;
+    };
+
+    const todayStr = formatDate(currentDate);
+
+    // ---------- LIVE UPDATE DATA ----------
+    const liveUpdateData = sectionUpdates?.live?.[todayStr] || {};
+    const rawNote = liveUpdateData.note || "";
+    let liveUpdateNote = rawNote;
+    const liveUpdateAuthor = liveUpdateData.author || "";
+
+    const generalData = sectionUpdates?.general || {};
+    const generalText = generalData.text || "";
+    const generalAuthor = generalData.author || "";
+
+    // ---------- AUTOMATED NOTICES (KOTLIN PARITY) ----------
+    const getSubjectName = (code) =>
+        masterData.courses?.find((c) => c.code === code)?.name || "General Subject";
+
+    const currentExamPeriod = masterData.exams?.find(
+        (ex) => todayStr >= ex.startDate && todayStr <= ex.endDate
+    );
+    const isExamToday = currentExamPeriod?.type === 'Practical'
+        ? currentExamPeriod?.subjects?.some(s => (s.batches || []).some(b => b.date === todayStr))
+        : currentExamPeriod?.subjects?.some(s => s.date === todayStr);
+    const examTitle = currentExamPeriod?.title?.toLowerCase() || "";
+    const isCycleTest = examTitle.includes("cycle test");
+    const isMajorExam = currentExamPeriod && !isCycleTest;
+
+    let hasLabToday = false;
+    const eventsForDay = allCalendar?.filter((e) => todayStr >= (e.startDate || e.date) && todayStr <= (e.endDate || e.date)) || [];
+    const holidayEvent = eventsForDay.find((e) =>
+        e.type === "Holiday" || e.title.toLowerCase().includes("holiday")
+    );
+    const academicEvent = eventsForDay.find((e) => e.type === "Academic");
+    const fullDayEvt = eventsForDay.find((e) => e.type === "FullDay");
+
+    const scListSync = masterData.specialClasses || [];
+    const specialClassToday = scListSync.find(sc => sc.date === todayStr);
+
+    // Kotlin parity: classes are suspended on holidays, academic days, full-day events, or major exams, and special classes
+    const classesSuspended = !!holidayEvent || !!academicEvent || !!fullDayEvt || isMajorExam || !!specialClassToday;
+
+    if (!classesSuspended) {
+        let tempOrder = "";
+        const manualOrderEvent = eventsForDay.find((e) =>
+            e.title.toLowerCase().includes("order")
+        );
+        const weekdayName = currentDate.toLocaleDateString("en-GB", {
+            weekday: "long",
+        });
+        if (manualOrderEvent) {
+            const foundDay = ["Monday", ...daysOrder].find((d) =>
+                manualOrderEvent.title.includes(d)
+            );
+            tempOrder = foundDay || (weekdayName === "Sunday" ? "" : weekdayName);
+        } else {
+            tempOrder = weekdayName === "Sunday" ? "" : weekdayName;
+        }
+        if (tempOrder && masterData.timetable?.[tempOrder]) {
+            // Use getPeriodDetails (same as Schedule.jsx / Kotlin) for accurate lab detection
+            // Only periods with batch suffixes (A1, B2, etc.) are considered labs
+            hasLabToday = masterData.timetable[tempOrder].some((c) =>
+                getPeriodDetails(c, masterData.courses).isLab
+            );
+        }
+    }
+
+    const isPracticalExamToday = currentExamPeriod?.type === 'Practical' && isExamToday;
+    if (isPracticalExamToday) {
+        hasLabToday = true;
+    }
+
+    const automatedNotices = [];
+    if (hasLabToday)
+        automatedNotices.push("📚 Bring Labcoats, Laptops & Lab Essentials");
+    if (isExamToday)
+        automatedNotices.push(
+            "📖 Study well for the test! Score well and get full marks! All the best! 🎯"
+        );
+    if (automatedNotices.length > 0) {
+        const combo = automatedNotices.join("\n\n");
+        liveUpdateNote = liveUpdateNote ? `${liveUpdateNote}\n\n${combo}` : combo;
+    }
+    if (!liveUpdateNote) liveUpdateNote = "No special updates for today.";
+
+    // ---------- LOGIC RESOLUTION ----------
+    useEffect(() => {
+        if (!allCalendar || !masterData) return;
+        const events = allCalendar.filter((e) => todayStr >= (e.startDate || e.date) && todayStr <= (e.endDate || e.date));
+        setGlobalEvents(events);
+
+        const cp = masterData.exams?.find(
+            (ex) => todayStr >= ex.startDate && todayStr <= ex.endDate
+        );
+        setActiveExamPeriod(cp || null);
+        if (cp) {
+            if (cp.type === 'Practical') {
+                const todayBatches = (cp.subjects || []).map(sub => {
+                    const matchingBatches = (sub.batches || []).filter(b => b.date === todayStr);
+                    if (matchingBatches.length === 0) return null;
+                    return { code: sub.code, subjectName: getSubjectName(sub.code), batches: matchingBatches };
+                }).filter(Boolean);
+                setActiveExamToday(todayBatches.length > 0 ? { ...cp, todayBatches, subjectName: todayBatches[0]?.subjectName } : null);
+            } else {
+                const sub = cp.subjects?.find((s) => s.date === todayStr);
+                setActiveExamToday(sub ? { ...cp, todaySub: sub } : null);
+            }
+        } else {
+            setActiveExamToday(null);
+        }
+
+        // --- Special Classes Detection ---
+        const scList = masterData.specialClasses || [];
+        const todaySC = scList.find(sc => sc.date === todayStr);
+        setActiveSpecialClass(todaySC || null);
+
+        const weekdayName = currentDate.toLocaleDateString("en-GB", {
+            weekday: "long",
+        });
+        const hol = events.find((e) => e.type === "Holiday" || e.title.toLowerCase().includes("holiday"));
+        const acEvt = events.find((e) => e.type === "Academic");
+
+        const workingDayEvent = events.find(e => 
+            e.type === 'Event' || 
+            e.title.toLowerCase().includes('working day') || 
+            e.title.toLowerCase().includes('order')
+        );
+
+        let ro = "";
+        let rs = "";
+        if (todaySC) {
+            ro = "SPECIAL";
+            rs = `Classes suspended due to ${todaySC.title || todaySC.typeTitle}.`;
+        } else if (hol) {
+            ro = "";
+            rs = "Holiday";
+        } else if (acEvt) {
+            ro = "";
+            rs = "Occasion";
+        } else if (fullDayEvt) {
+            ro = "";
+            rs = "Event Day";
+        } else if (workingDayEvent) {
+            const foundOrder = ["Monday", ...daysOrder].find((d) =>
+                workingDayEvent.title.includes(d)
+            );
+            ro = foundOrder || (weekdayName === "Sunday" ? "" : weekdayName);
+            rs = foundOrder ? `Following ${foundOrder} Order` : `Working Day (${ro})`;
+        } else {
+            ro = "";
+            rs = (weekdayName === "Sunday") ? "Holiday" : "No Academic Calendar Scheduled";
+        }
+        setDayOrder(ro);
+        setScheduleStatus(rs);
+    }, [currentDate, allCalendar, masterData, todayStr]);
+
+    // ---------- SECTION EVENTS ----------
+    useEffect(() => {
+        if (activeProfile?.section && todayStr) {
+            setAreEventsLoading(true);
+            const { batch, department, section } = activeProfile;
+            const sRef = ref(db, `list_events/${batch}/${department}/${section}`);
+            const unsub = onValue(sRef, (snap) => {
+                const data = snap.val() || [];
+                const arr = Array.isArray(data) ? data : Object.values(data);
+                const flattenedToday = [];
+                arr.forEach(group => {
+                    if (group.events && Array.isArray(group.events)) {
+                        group.events.forEach(ev => {
+                            if (ev.date === todayStr) {
+                                const { events: _ignored, scopes: _s, ...groupRest } = group;
+                                flattenedToday.push({ ...groupRest, ...ev, title: ev.title || group.title });
+                            }
+                        });
+                    } else {
+                        if (todayStr >= (group.startDate || group.date) && todayStr <= (group.endDate || group.date)) {
+                            flattenedToday.push(group);
+                        }
+                    }
+                });
+                setSectionEvts(flattenedToday);
+                setAreEventsLoading(false);
+            });
+            return () => unsub();
+        } else {
+            setSectionEvts([]);
+            setAreEventsLoading(false);
+        }
+    }, [activeProfile, todayStr]);
+
+    const fullDayEvent = sectionEvts.find((e) => e.type === "FullDay" || (e.type === "Event" && e.fullTime === "All Day"));
+    const halfDayEvent = sectionEvts.find((e) => e.type === "HalfDay" || (e.type === "Event" && e.fullTime !== "All Day"));
+    console.log("SECTION EVENTS TODAY:", sectionEvts, { fullDayEvent, halfDayEvent });
+
+    // ---------- SAVE ACTIONS ----------
+    const handleSaveNote = async () => {
+        if (!activeProfile) return;
+        const { batch, department, section } = activeProfile;
+        setIsSaving(true);
+        try {
+            await update(
+                ref(db, `updates/${batch}/${department}/${section}/daily_update/${todayStr}`),
+                { note: tempNote, author: userProfile?.displayName || "Admin" }
+            );
+            setIsEditingNote(false);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleSaveGeneral = async () => {
+        if (!activeProfile) return;
+        const { batch, department, section } = activeProfile;
+        setIsSaving(true);
+        try {
+            await update(ref(db, `updates/${batch}/${department}/${section}`), {
+                general_text: tempGeneral,
+                general_author: userProfile?.displayName || "Admin",
+            });
+            setIsEditingGeneral(false);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    // ---------- KOTLIN-PARITY COURSE RESOLVER ----------
+
+
+    // ---------- EVENT CLASS ----------
+    const getEventClass = (event) => {
+        const t = (event.title || '').toLowerCase();
+        // Priority 1: Exam override (Green)
+        if (t.includes('exam') || t.includes('test') || t.includes('sia') || t.includes('fia')) return 'exam';
+        
+        // Priority 2: Order override (Saffron)
+        if (t.includes('order')) return 'order';
+        
+        // Priority 3: Assigned Types
+        if (event.type === 'Holiday' || t.includes('holiday')) return 'holiday';
+        if (event.type === 'Academic') return 'academic';
+        
+        return 'default'; // Working Day (Blue)
+    };
+
+    // ======================= RENDER =======================
+    return (
+        <div className="h2-view">
+            {!hideHeader && <h1 className="h2-page-title">Home Dashboard</h1>}
+            <div className="h2-container">
+                {/* ========== 1. HEADER — Kotlin PageHeader Pill ========== */}
+                {!hideHeader && activeProfile?.section !== userProfile?.section && (
+                    <div className="h2-page-header">
+                        {/* Preview Tag (when viewing another section) */}
+                        <div className="h2-preview-tag" style={{ marginTop: 0, marginBottom: 16 }}>
+                            <RiInformationLine />
+                            <span>
+                                Viewing Preview:{" "}
+                                <strong>
+                                    {activeProfile?.department}-{activeProfile?.section}
+                                </strong>
+                            </span>
+                        </div>
+                    </div>
+                )}
+
+                <div className="h2-content-grid">
+                    {/* ========== LEFT COLUMN (Was Right) ========== */}
+                    <div className="h2-col-left">
+                        {/* ========== PROFILE CARD (Static) ========== */}
+                        {!hideHeader && (
+                            <div className="h2-profile-section">
+                                <div className="h2-section-title">Profile</div>
+                                <div className="h2-profile-pill">
+                                    <div className="h2-avatar">
+                                        {userProfile?.photoURL ? (
+                                            <img
+                                                src={userProfile.photoURL}
+                                                alt="Profile"
+                                                className="h2-avatar-img"
+                                            />
+                                        ) : (
+                                            <span className="h2-avatar-emoji">👤</span>
+                                        )}
+                                    </div>
+                                    <div className="h2-greeting-col">
+                                        <div className="h2-greeting-row">
+                                            <span className="h2-greeting-text">Vanakkam!</span>
+                                            <span className="h2-sparkle">✨</span>
+                                        </div>
+                                        <span className="h2-user-name">
+                                            {userProfile?.displayName || "Student"}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ANIMATED SIDEBAR CONTENT */}
+                        <div key={`side-${todayStr}`} className={slideAnim} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                            {/* ========== 3. ACADEMIC CALENDAR (Kotlin Grouped Card) ========== */}
+                            <div className="h2-calendar-section">
+                                <div className="h2-section-title">Academic Calendar</div>
+                                <div className="h2-grouped-card">
+                                    {globalEvents.length > 0 ? (
+                                        globalEvents.map((ev, i) => (
+                                            <React.Fragment key={i}>
+                                                <div className="h2-event-row">
+                                                    <div className={`h2-event-bar ${getEventClass(ev)}`} />
+                                                    <div className="h2-event-details">
+                                                        <p className="h2-event-title-text">{ev.title}</p>
+                                                        <p className="h2-event-time-text">
+                                                            {ev.fullTime || (ev.startTime && ev.endTime ? `${convertTo12Hour(ev.startTime)} - ${convertTo12Hour(ev.endTime)}` : "All Day")}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {/* Add divider except for the last item */}
+                                                {i < globalEvents.length - 1 && <div className="h2-event-divider" />}
+                                            </React.Fragment>
+                                        ))
+                                    ) : (
+                                        <div className="h2-event-row" style={{ opacity: 0.8 }}>
+                                            <div className="h2-event-bar" style={{ backgroundColor: 'var(--mac-border)' }} />
+                                            <div className="h2-event-details" style={{ justifyContent: 'center' }}>
+                                                <p className="h2-event-title-text" style={{ color: 'var(--mac-secondary)' }}>No events declared</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* ========== 5. LIVE UPDATES (Kotlin EditableSection) ========== */}
+                            <div className="h2-editable-section">
+                                <div className="h2-section-header">
+                                    <div className="h2-section-title">
+                                        Live Updates ({activeProfile?.section})
+                                    </div>
+                                    {!isEditingNote && (
+                                        <button
+                                            className="h2-edit-trigger"
+                                            onClick={() => {
+                                                setTempNote(rawNote);
+                                                setIsEditingNote(true);
+                                            }}
+                                        >
+                                            <RiEditLine /> Edit
+                                        </button>
+                                    )}
+                                </div>
+                                {isEditingNote ? (
+                                    <div className="h2-edit-form">
+                                        <textarea
+                                            className="h2-edit-textarea"
+                                            value={tempNote}
+                                            onChange={(e) => setTempNote(e.target.value)}
+                                            placeholder="Type update for today..."
+                                        />
+                                        <div className="h2-form-buttons">
+                                            <button
+                                                onClick={handleSaveNote}
+                                                disabled={isSaving}
+                                                className="h2-save-btn"
+                                            >
+                                                {isSaving ? (
+                                                    <div className="h2-btn-spinner" />
+                                                ) : (
+                                                    "Save"
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={() => setIsEditingNote(false)}
+                                                disabled={isSaving}
+                                                className="h2-cancel-btn"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="h2-message-surface">
+                                            <p className="h2-message-body">{liveUpdateNote}</p>
+                                        </div>
+                                        {liveUpdateAuthor && (
+                                            <div className="h2-author-row">
+                                                <span className="h2-author-pill">
+                                                    Posted by <RiUserVoiceLine /> {liveUpdateAuthor}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+
+                            {/* ========== 6. GENERAL NOTICE (Kotlin EditableSection) ========== */}
+                            <div className="h2-editable-section">
+                                <div className="h2-section-header">
+                                    <div className="h2-section-title">General Notice</div>
+                                    {!isEditingGeneral && (
+                                        <button
+                                            className="h2-edit-trigger"
+                                            onClick={() => {
+                                                setTempGeneral(generalText);
+                                                setIsEditingGeneral(true);
+                                            }}
+                                        >
+                                            <RiEditLine /> Edit
+                                        </button>
+                                    )}
+                                </div>
+                                {isEditingGeneral ? (
+                                    <div className="h2-edit-form">
+                                        <textarea
+                                            className="h2-edit-textarea"
+                                            value={tempGeneral}
+                                            onChange={(e) => setTempGeneral(e.target.value)}
+                                            placeholder="Type general notice..."
+                                        />
+                                        <div className="h2-form-buttons">
+                                            <button
+                                                onClick={handleSaveGeneral}
+                                                disabled={isSaving}
+                                                className="h2-save-btn"
+                                            >
+                                                {isSaving ? (
+                                                    <div className="h2-btn-spinner" />
+                                                ) : (
+                                                    "Save"
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={() => setIsEditingGeneral(false)}
+                                                disabled={isSaving}
+                                                className="h2-cancel-btn"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="h2-message-surface">
+                                            <p className="h2-message-body">
+                                                {generalText || "No general notices."}
+                                            </p>
+                                        </div>
+                                        {generalAuthor && (
+                                            <div className="h2-author-row">
+                                                <span className="h2-author-pill">
+                                                    Posted by <RiUserVoiceLine /> {generalAuthor}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* ========== 7. ACADEMIC DETAILS (Static) ========== */}
+                        <div className="h2-info-grid" style={{ marginTop: '32px' }}>
+                            <div className="h2-academic-card">
+                                <span className="h2-info-label">Batch</span>
+                                <span className="h2-info-value">{activeProfile?.batch}</span>
+                            </div>
+                            <div className="h2-academic-card">
+                                <span className="h2-info-label">Dept</span>
+                                <span className="h2-info-value">
+                                    {activeProfile?.department}
+                                </span>
+                            </div>
+                            <div className="h2-academic-card">
+                                <span className="h2-info-label">Sec</span>
+                                <span className="h2-info-value">{activeProfile?.section}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ========== RIGHT COLUMN (Was Left) ========== */}
+                    <div className="h2-col-right">
+
+                        {/* ========== 2. DATE SECTION (Static) ========== */}
+                        <div className="h2-date-section">
+                            <div className="h2-section-title">Select date</div>
+                            <DateSection
+                                date={currentDate}
+                                onPrev={handlePrevDay}
+                                onNext={handleNextDay}
+                                onDateChange={(d) => { setSlideAnim(""); setCurrentDate(d); }}
+                            />
+                        </div>
+
+                        {/* ANIMATED CONTENT KEYED BY DATE */}
+                        <div key={todayStr} className={slideAnim}>
+                            {/* 4. SCHEDULE */}
+                            <div className="h2-timetable-section">
+                                <div className="h2-schedule-header">
+                                    <div className="h2-section-title">Schedule</div>
+                                    <span className="h2-status-badge">{scheduleStatus}</span>
+                                </div>
+
+                                {isSyncing || areEventsLoading ? (
+                                    <div className="h2-loading-card">
+                                        <div className="h2-spinner" />
+                                        <span>Checking Schedule...</span>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* 4a. SPECIAL CLASS CARD */}
+                                        {activeSpecialClass && (
+                                            <ExamEventCard specialClass={activeSpecialClass} />
+                                        )}
+
+                                        {/* 4b. EXAM CARD */}
+                                        {activeExamToday && (
+                                            <ExamEventCard
+                                                exam={activeExamToday.type === 'Practical' ? {
+                                                    title: activeExamToday.title,
+                                                    type: activeExamToday.type,
+                                                    todayBatches: activeExamToday.todayBatches,
+                                                    subjectName: activeExamToday.subjectName
+                                                } : {
+                                                    title: activeExamToday.title,
+                                                    subjectName: getSubjectName(activeExamToday.todaySub.code),
+                                                    todaySub: {
+                                                        ...activeExamToday.todaySub,
+                                                        startTime: convertTo12Hour(activeExamToday.todaySub.startTime),
+                                                        endTime: convertTo12Hour(activeExamToday.todaySub.endTime)
+                                                    }
+                                                }}
+                                            />
+                                        )}
+
+                                        {/* 4b. FULL DAY EVENT */}
+                                        {fullDayEvent && (
+                                            <EventCard
+                                                tag="TODAY'S EVENT"
+                                                title={fullDayEvent.title}
+                                                subtitle={fullDayEvent.description || "Full Day Event"}
+                                                meta1="Full Day"
+                                                meta1Icon={<RiTimeLine />}
+                                            />
+                                        )}
+
+                                        {/* 4c. HALF DAY */}
+                                        {halfDayEvent && (
+                                            <EventCard
+                                                tag="SPECIAL EVENT"
+                                                title={halfDayEvent.title}
+                                                subtitle={halfDayEvent.description || "Special Session"}
+                                                {...(halfDayEvent.type !== "Event" ? {
+                                                    meta1: `${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`,
+                                                    meta1Icon: <RiTimeLine />,
+                                                    meta2: "Event",
+                                                    meta2Icon: <RiInformationLine />
+                                                } : {})}
+                                            />
+                                        )}
+
+                                        {/* 4d. TIMETABLE or SUSPENDED */}
+                                        {(() => {
+                                            if (activeSpecialClass) {
+                                                return (
+                                                    <NoticeCard
+                                                        title="Classes Suspended"
+                                                        message={`Classes suspended due to ${activeSpecialClass.title || activeSpecialClass.typeTitle}.`}
+                                                    />
+                                                );
+                                            } else if (fullDayEvent && !isMajorExam) {
+                                                return (
+                                                    <NoticeCard
+                                                        title="Classes Suspended"
+                                                        message={`Day reserved for ${fullDayEvent.title}.`}
+                                                    />
+                                                );
+                                            } else if (activeExamPeriod && !activeExamPeriod.type.includes("CT")) {
+                                                return (
+                                                    <NoticeCard
+                                                        title="Classes Suspended"
+                                                        message={`Suspended for ${activeExamPeriod.title}.`}
+                                                    />
+                                                );
+                                            } else {
+                                                if (dayOrder && masterData.timetable?.[dayOrder]) {
+                                                    return (
+                                                        <div className="h2-schedule-list">
+                                                            {masterData.timetable[dayOrder].map((rawCode, index) => {
+                                                                const { entries, isLab } = getPeriodDetails(rawCode, masterData.courses);
+                                                                return (
+                                                                    <PeriodRow
+                                                                        key={index}
+                                                                        number={index + 1}
+                                                                        time={periodTimes[index]}
+                                                                        entries={entries}
+                                                                        isLab={isLab}
+                                                                    />
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    );
+                                                } else {
+                                                    return (
+                                                        <div className="h2-no-classes">
+                                                            <p className="h2-no-classes-title">
+                                                                No classes scheduled.
+                                                            </p>
+                                                            <p className="h2-no-classes-sub">{scheduleStatus}</p>
+                                                        </div>
+                                                    );
+                                                }
+                                            }
+                                        })()}
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Home;

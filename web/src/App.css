@@ -1,26 +1,26 @@
 /* Refactored App.css */
-@import './styles/auth.css';
-@import './styles/tokens.css';
-/* @import './styles/home.css'; DISABLED: replaced by home2.css */
-@import './styles/animations.css';
-@import './styles/schedule.desktop.css';
-@import './styles/schedule.mobile.css';
-@import './styles/exam-notice.css';
-@import './styles/components.css';
-@import './styles/calendar.css';
-@import './styles/fixes.css';
-@import './styles/splash.css';
-@import './styles/buttons.css';
-@import './styles/neram-portal-college-sites-platforms-clean-sequoia-grid.css';
-@import './styles/neram-portal-premium-sequoia-contact-silky-alignment.css';
-@import './styles/neram-portal-admin-command-center-dead-end-full-width.css';
-@import './styles/neram-portal-compact-user-directory-clean-interaction.css';
+@import './styles/auth/auth.css';
+@import './styles/core/tokens.css';
+/* @import './styles/student/home.css'; DISABLED: replaced by home2.css */
+@import './styles/core/animations.css';
+@import './styles/student/schedule-desktop.css';
+@import './styles/student/schedule-mobile.css';
+@import './styles/student/exam-notice.css';
+@import './styles/components/components.css';
+@import './styles/student/calendar.css';
+@import './styles/core/fixes.css';
+@import './styles/components/splash.css';
+@import './styles/components/buttons.css';
+@import './styles/student/sites-grid.css';
+@import './styles/student/contact.css';
+@import './styles/admin/command-center.css';
+@import './styles/student/user-directory.css';
 
-@import './styles/exam-manager.css';
-@import './styles/forced-setup-modal-premium-sequoia-theme-full-block.css';
-@import './styles/2-11-desktop-date-of-birth-selector-3-column-glass.css';
-@import './styles/notes.css';
-@import './styles/skeletons.css';
+@import './styles/admin/exam-manager.css';
+@import './styles/auth/setup-modal.css';
+@import './styles/auth/dob-selector.css';
+@import './styles/student/notes.css';
+@import './styles/components/skeletons.css';
 
 
 /* Mobile Top Padding Standardization */
