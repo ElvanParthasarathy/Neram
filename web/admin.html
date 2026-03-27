@@ -14,8 +14,9 @@
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
-  <!-- Theme color: set dynamically by inline script below -->
-  <meta name="theme-color" content="#F2F2F7" />
+  <!-- Theme color: two variants for light/dark splash screen -->
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F2F7" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
   <link rel="manifest" href="/admin-manifest.json" />
 
   <!-- Apple PWA Support -->
@@ -47,10 +48,9 @@
           root.classList.remove('dark');
         }
 
-        // 5. Update theme-color meta tag BEFORE React loads (prevents status bar flash)
+        // 5. Update ALL theme-color meta tags BEFORE React loads (prevents status bar flash)
         var themeColor = shouldBeDark ? '#000000' : '#F2F2F7';
-        var meta = document.querySelector("meta[name='theme-color']");
-        if (meta) meta.setAttribute('content', themeColor);
+        document.querySelectorAll("meta[name='theme-color']").forEach(function(m) { m.setAttribute('content', themeColor); });
 
         // 6. Also update Apple status bar style
         var appleMeta = document.querySelector("meta[name='apple-mobile-web-app-status-bar-style']");

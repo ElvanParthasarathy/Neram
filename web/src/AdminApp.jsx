@@ -123,13 +123,8 @@ function AdminApp() {
             const isDark = document.documentElement.classList.contains("dark");
             const themeColor = isDark ? "#000000" : "#F2F2F7";
 
-            let metaThemeColor = document.querySelector("meta[name='theme-color']");
-            if (!metaThemeColor) {
-                metaThemeColor = document.createElement('meta');
-                metaThemeColor.name = "theme-color";
-                document.head.appendChild(metaThemeColor);
-            }
-            metaThemeColor.setAttribute("content", themeColor);
+            // Update all theme-color meta tags (handles media-query variants)
+            document.querySelectorAll("meta[name='theme-color']").forEach(m => m.setAttribute("content", themeColor));
             document.body.style.backgroundColor = themeColor;
 
             // Update Apple status bar style
