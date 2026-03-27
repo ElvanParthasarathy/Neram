@@ -14,6 +14,7 @@ import {
     RiSave3Line, RiAddLine, RiDeleteBin6Line, RiDeleteBin6Fill, RiBookOpenLine, RiEditLine, RiCloseLine, RiArrowLeftLine, RiArrowDownSLine, RiArrowUpSLine,
     RiCalendarEventLine, RiTimeLine, RiHashtag, RiGroupLine, RiFileCopyLine, RiCheckLine, RiExternalLinkLine, RiHistoryLine, RiRefreshLine, RiCalendarLine
 } from 'react-icons/ri';
+import { useToast } from '../../../contexts/ToastContext';
 
 const PORTION_DEFAULTS = {
     'CT1': 'Unit 1',
@@ -31,6 +32,7 @@ const newBlankPracticalSubject = () => ({
 });
 
 const ExamManager = ({ user, userProfile, isMobile }) => {
+    const { showToast } = useToast();
     const [searchParams, setSearchParams] = useSearchParams();
     const hasAutoNavigated = useRef(false);
 
@@ -328,8 +330,8 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
             });
 
             await update(ref(db), updates);
-            alert(isDelete ? "Central Exam Deleted!" : "Central Exam Sync Complete!");
-        } catch (err) { alert(err.message); }
+            showToast(isDelete ? "Central Exam Deleted!" : "Central Exam Sync Complete!");
+        } catch (err) { showToast(err.message); }
     };
 
     const handleTypeChange = (newType) => {
@@ -411,7 +413,7 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
     };
 
     const handlePublish = () => {
-        if (!newExam.title || newExam.subjects.length === 0) return alert("Fill details first");
+        if (!newExam.title || newExam.subjects.length === 0) return showToast("Fill details first");
         const readyExam = { ...newExam, id: Date.now() };
         syncCentralExamToDB(readyExam);
         setNewExam({ type: 'CT1', title: '', startDate: '', endDate: '', subjects: [] });

@@ -9,8 +9,10 @@ import {
 } from 'react-icons/ri';
 
 import "../../../styles/admin/settings.css";
+import { useToast } from '../../../contexts/ToastContext';
 
 const AcademicTree = ({ isMobile }) => {
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('hierarchy');
 
   // --- DATA ---
@@ -75,7 +77,7 @@ const AcademicTree = ({ isMobile }) => {
 
   // --- BATCH CRUD ---
   const handleCreateBatch = async () => {
-    if (!batchStart || !batchEnd) return alert("Please enter both years");
+    if (!batchStart || !batchEnd) return showToast("Please enter both years");
     await set(ref(db, `academic_hierarchy/${batchStart}-${batchEnd}`), { initialized: true });
     setBatchStart(""); setBatchEnd("");
   };
@@ -84,16 +86,16 @@ const AcademicTree = ({ isMobile }) => {
     const { oldVal, newVal } = editingBatch;
     const v = newVal.trim();
     if (!v || oldVal === v) return setEditingBatch(null);
-    if (hierarchy[v]) return alert("Batch already exists!");
+    if (hierarchy[v]) return showToast("Batch already exists!");
     if (window.confirm(`Rename batch to "${v}"?`)) {
       try { await runGlobalMigration('batch', oldVal, v, oldVal, v); setEditingBatch(null); }
-      catch (err) { alert(err.message); }
+      catch (err) { showToast(err.message); }
     }
   };
 
   const handleDeleteBatch = async (batch) => {
     const depts = Object.keys(hierarchy[batch] || {}).filter(k => k !== 'initialized');
-    if (depts.length > 0) return alert(`Cannot delete — ${batch} still has ${depts.length} department(s).`);
+    if (depts.length > 0) return showToast(`Cannot delete — ${batch} still has ${depts.length} department(s).`);
     if (window.confirm(`Permanently delete empty Batch ${batch}?`)) {
       await update(ref(db), { [`academic_hierarchy/${batch}`]: null, [`schedules/${batch}`]: null });
     }
@@ -104,7 +106,7 @@ const AcademicTree = ({ isMobile }) => {
   const handleBulkDeleteBatches = async () => {
     if (selectedBatches.length === 0) return;
     const nonDeletable = selectedBatches.filter(b => Object.keys(hierarchy[b] || {}).filter(k => k !== 'initialized').length > 0);
-    if (nonDeletable.length > 0) return alert(`Cannot delete ${nonDeletable.length} batch(es) because they still contain departments.`);
+    if (nonDeletable.length > 0) return showToast(`Cannot delete ${nonDeletable.length} batch(es) because they still contain departments.`);
     if (window.confirm(`Permanently delete ${selectedBatches.length} empty Batches?`)) {
       const updates = {};
       selectedBatches.forEach(b => { updates[`academic_hierarchy/${b}`] = null; updates[`schedules/${b}`] = null; });
@@ -115,9 +117,9 @@ const AcademicTree = ({ isMobile }) => {
 
   // --- GLOBAL DEPARTMENT CRUD ---
   const handleAddDepartment = async () => {
-    if (!newDeptCode) return alert("Enter a department code");
+    if (!newDeptCode) return showToast("Enter a department code");
     const code = newDeptCode.toUpperCase().trim();
-    if (departmentsList.includes(code)) return alert("Already exists.");
+    if (departmentsList.includes(code)) return showToast("Already exists.");
     await set(ref(db, 'departments'), [...departmentsList, code].sort());
     setNewDeptCode("");
   };
@@ -125,7 +127,7 @@ const AcademicTree = ({ isMobile }) => {
   const handleUpdateGlobalDept = async (oldVal, newVal) => {
     const v = newVal.toUpperCase().trim();
     if (!v || oldVal === v) return;
-    if (departmentsList.includes(v)) return alert("Code already exists!");
+    if (departmentsList.includes(v)) return showToast("Code already exists!");
     if (!window.confirm(`Globally rename "${oldVal}" → "${v}"?\n\nThis updates all schedules, faculty, users, events, and courses.`)) return;
     try {
       const updates = {};
@@ -146,14 +148,14 @@ const AcademicTree = ({ isMobile }) => {
         if (u.department === oldVal) updates[`users/${uid}/department`] = v;
       });
       await update(ref(db), updates);
-      alert(`Migrated ${oldVal} → ${v} globally!`);
-    } catch (err) { alert("Migration failed: " + err.message); }
+      showToast(`Migrated ${oldVal} → ${v} globally!`);
+    } catch (err) { showToast("Migration failed: " + err.message); }
   };
 
   const handleDeleteGlobalDept = async (dept) => {
     let isUsed = false;
     Object.values(hierarchy).forEach(b => { if (b?.[dept] && Object.keys(b[dept]).filter(k => k !== 'initialized').length > 0) isUsed = true; });
-    if (isUsed) return alert(`Cannot delete "${dept}" — it's mapped in the hierarchy.`);
+    if (isUsed) return showToast(`Cannot delete "${dept}" — it's mapped in the hierarchy.`);
     if (window.confirm(`Remove "${dept}" from the Global Registry?`))
       await set(ref(db, 'departments'), departmentsList.filter(d => d !== dept));
   };
@@ -167,7 +169,7 @@ const AcademicTree = ({ isMobile }) => {
       Object.values(hierarchy).forEach(b => { if (b?.[dept] && Object.keys(b[dept]).filter(k => k !== 'initialized').length > 0) used = true; });
       return used;
     });
-    if (usedDepts.length > 0) return alert(`Cannot delete ${usedDepts.length} department(s) because they are mapped in the hierarchy.`);
+    if (usedDepts.length > 0) return showToast(`Cannot delete ${usedDepts.length} department(s) because they are mapped in the hierarchy.`);
     if (window.confirm(`Remove ${selectedDepts.length} unused departments from the Global Registry?`)) {
       await set(ref(db, 'departments'), departmentsList.filter(d => !selectedDepts.includes(d)));
       setSelectedDepts([]); setIsDeptDeleteMode(false);
@@ -176,7 +178,7 @@ const AcademicTree = ({ isMobile }) => {
 
   // --- SECTION CRUD ---
   const handleAddSection = async () => {
-    if (!secBatch || !secDept || !newSection) return alert("Complete all fields.");
+    if (!secBatch || !secDept || !newSection) return showToast("Complete all fields.");
     const sec = newSection.toUpperCase().trim();
     const cur = hierarchy[secBatch]?.[secDept] || [];
     await set(ref(db, `academic_hierarchy/${secBatch}/${secDept}`), [...cur, sec].sort());
@@ -199,7 +201,7 @@ const AcademicTree = ({ isMobile }) => {
         });
         await update(ref(db), updates);
         setEditingSec(null);
-      } catch (err) { alert(err.message); }
+      } catch (err) { showToast(err.message); }
     }
   };
 
@@ -417,7 +419,7 @@ const AcademicTree = ({ isMobile }) => {
                             <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => {
                                 const newStart = (editingBatch.startYear || '').toString().trim();
                                 const newEnd = (editingBatch.endYear || '').toString().trim();
-                                if (!newStart || !newEnd) return alert("Please enter both years");
+                                if (!newStart || !newEnd) return showToast("Please enter both years");
                                 handleUpdateBatch();
                               }}> Save</button>
                           </div>

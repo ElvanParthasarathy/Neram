@@ -19,8 +19,10 @@ import '../../../../styles/admin/elvan-agazhi.css';
 import { db } from '../../../../firebase';
 import { ref, set, get } from 'firebase/database';
 import { RiFileListLine, RiFileCopyLine, RiArrowRightLine } from 'react-icons/ri';
+import { useToast } from '../../../../contexts/ToastContext';
 
 const ElvanAgazhi = ({ preselectedBatch }) => {
+    const { showToast } = useToast();
     // ─── PDF State ───
     const [pdfDoc, setPdfDoc] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -113,7 +115,7 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
             await renderAndShowPage(doc, 1);
         } catch (err) {
             console.error(err);
-            alert('Could not load PDF.');
+            showToast('Could not load PDF.');
             setIsLoading(false);
         }
     }, []);
@@ -159,7 +161,7 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
 
         const cd = cropper.getData();
         if (Math.round(cd.width) === 0 || Math.round(cd.height) === 0) {
-            alert('Please draw a crop box around the column you want to extract.');
+            showToast('Please draw a crop box around the column you want to extract.');
             return;
         }
 
@@ -192,7 +194,7 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
 
         const cd = cropper.getData();
         if (Math.round(cd.width) === 0 || Math.round(cd.height) === 0) {
-            alert('Please draw a crop box on the current page first. The same crop will be applied to all pages.');
+            showToast('Please draw a crop box on the current page first. The same crop will be applied to all pages.');
             return;
         }
 
@@ -274,12 +276,12 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
     // ─── Push to Firebase ───
     const handlePushToFirebase = useCallback(async () => {
         if (!selectedBatch) {
-            alert('Please select a batch first.');
+            showToast('Please select a batch first.');
             return;
         }
         const events = buildRTDBEvents(parsedCalendar);
         if (events.length === 0) {
-            alert('No events to push.');
+            showToast('No events to push.');
             return;
         }
         if (!confirm(`Push ${events.length} events to batch "${selectedBatch}"? This will replace existing calendar data.`)) return;
@@ -287,10 +289,10 @@ const ElvanAgazhi = ({ preselectedBatch }) => {
         setIsPushing(true);
         try {
             await set(ref(db, `calendars/${selectedBatch}/events`), events);
-            alert(`✅ ${events.length} events pushed to batch ${selectedBatch}!`);
+            showToast(`✅ ${events.length} events pushed to batch ${selectedBatch}!`);
         } catch (err) {
             console.error(err);
-            alert('Push failed: ' + err.message);
+            showToast('Push failed: ' + err.message);
         } finally {
             setIsPushing(false);
         }

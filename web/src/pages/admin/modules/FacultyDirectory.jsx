@@ -11,6 +11,7 @@ import {
 import "../../../styles/admin/settings.css";
 import "../../../styles/student/schedule-desktop.css";
 import "../../../styles/admin/user-management.css";
+import { useToast } from '../../../contexts/ToastContext';
 
 // --- UTILITIES FOR FACULTY STRINGS ---
 const formatFaculties = (faculties) => {
@@ -29,6 +30,7 @@ const parseFaculties = (facultyStr) => {
 };
 
 const FacultyDirectory = ({ isMobile }) => {
+  const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -147,7 +149,7 @@ const FacultyDirectory = ({ isMobile }) => {
   const handleAddFaculty = async () => {
     if (!targetFacultyDept || !newFacultyName.trim()) return;
     const cleanName = newFacultyName.trim();
-    if (facultyList.some(f => (f.name || f) === cleanName)) return alert("Faculty already exists in this department!");
+    if (facultyList.some(f => (f.name || f) === cleanName)) return showToast("Faculty already exists in this department!");
     const newFacultyObj = { name: cleanName, role: targetFacultyRole };
     const updatedList = [...facultyList, newFacultyObj].sort((a, b) => (a.name || a).localeCompare(b.name || b));
     await set(ref(db, `faculties_directory/${targetFacultyDept}`), updatedList);
@@ -161,7 +163,7 @@ const FacultyDirectory = ({ isMobile }) => {
     const oldName = (oldFacultyItem.name || oldFacultyItem).trim();
     const existingIdx = facultyList.findIndex(f => (f.name || f) === cleanName);
     if (existingIdx !== -1 && existingIdx !== editingFacultyIdx) {
-      return alert("Another faculty with this name already exists in this department!");
+      return showToast("Another faculty with this name already exists in this department!");
     }
     const updatedList = [...facultyList];
     updatedList[editingFacultyIdx] = { name: cleanName, role: tempFacultyRole };
@@ -205,11 +207,11 @@ const FacultyDirectory = ({ isMobile }) => {
       cascadeUpdates[`faculties_directory/${targetFacultyDept}`] = updatedList;
       await update(ref(db), cascadeUpdates);
       setEditingFacultyIdx(null);
-    } catch (err) { alert("Error updating: " + err.message); }
+    } catch (err) { showToast("Error updating: " + err.message); }
   };
 
   const handleMoveFaculty = async (idx) => {
-    if (!moveToDept || moveToDept === targetFacultyDept) return alert("Select a different department.");
+    if (!moveToDept || moveToDept === targetFacultyDept) return showToast("Select a different department.");
     const facultyToMove = facultyList[idx];
     const facName = facultyToMove.name || facultyToMove;
     if (window.confirm(`Move ${facName} to ${moveToDept}?`)) {
@@ -227,7 +229,7 @@ const FacultyDirectory = ({ isMobile }) => {
         await set(ref(db, `faculties_directory/${targetFacultyDept}`), updatedList);
         setMovingFacultyIdx(null);
         setMoveToDept("");
-      } catch (err) { alert("Error moving: " + err.message); }
+      } catch (err) { showToast("Error moving: " + err.message); }
     }
   };
 

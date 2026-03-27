@@ -14,12 +14,14 @@ import {
   RiCalendarEventLine, RiCalendarLine
 } from 'react-icons/ri';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useToast } from '../../../contexts/ToastContext';
 import "../../../styles/admin/user-management.css";
 import { AdminPageSkeleton } from '../../../components/ui/AdminSkeletons';
 
 
 const UserManagement = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   // Data States
   const [users, setUsers] = useState({});
@@ -239,7 +241,7 @@ const UserManagement = () => {
         setSelectedUsers([]);
         setIsDeleteMode(false);
       } catch (err) {
-        alert("Error during bulk delete: " + err.message);
+        showToast("Error during bulk delete: " + err.message);
       }
     }
   };
@@ -273,10 +275,10 @@ const UserManagement = () => {
       };
 
       await update(ref(db, `users/${uid}`), finalPayload);
-      alert("Database updated successfully!");
+      showToast("Database updated successfully!");
       setSelectedUser(null);
     } catch (err) {
-      alert("Error saving: " + err.message);
+      showToast("Error saving: " + err.message);
     }
   };
 
@@ -311,7 +313,7 @@ const UserManagement = () => {
             <img src={selectedUser.photoURL || "/default-avatar.png"} className="modal-avatar-preview" alt="" />
             <div className="sync-controls" style={{ flex: 1 }}>
               <label>Profile Picture</label>
-              <button className="admin-btn-outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => alert("Re-sync success")}>
+              <button className="admin-btn-outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => showToast("Re-sync success")}>
                 <RiRefreshLine /> Sync
               </button>
             </div>

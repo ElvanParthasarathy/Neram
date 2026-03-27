@@ -13,6 +13,7 @@ import {
   RiArrowLeftSLine, RiCheckboxCircleLine
 } from 'react-icons/ri';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useToast } from '../../../contexts/ToastContext';
 
 // --- SHARED COMPONENTS ---
 import CalendarBuilder from '../../../components/features/CalendarBuilder';
@@ -158,12 +159,7 @@ const CalendarManager = () => {
     { id: Date.now(), title: '', startDate: new Date().toISOString().split('T')[0], endDate: new Date().toISOString().split('T')[0], fullTime: '08:30 AM - 03:00 PM', type: 'Event' }
   ]);
   const [isAddingNew, setIsAddingNew] = useState(false); // Sacrificial state to prevent ghost crashes
-  const [toastMsg, setToastMsg] = useState('');
-
-  const showToast = (msg) => {
-    setToastMsg(msg);
-    setTimeout(() => setToastMsg(''), 2500);
-  };
+  const { showToast } = useToast();
 
   const addBatchRow = () => {
     const today = new Date().toISOString().split('T')[0];
@@ -266,17 +262,17 @@ const CalendarManager = () => {
                   setViewDate(new Date(parseInt(y), parseInt(m) - 1, 1));
                 }
 
-                alert('Calendar imported and pushed to Live successfully!');
+                showToast('Calendar imported and pushed to Live successfully!');
               } catch (err) {
-                alert('Failed to save to server: ' + err.message);
+                showToast('Failed to save to server: ' + err.message);
               }
             }
           });
         } else {
-          alert("Invalid file format: Expected an array of events.");
+          showToast("Invalid file format: Expected an array of events.");
         }
       } catch (err) {
-        alert("Failed to parse JSON file.");
+        showToast("Failed to parse JSON file.");
       }
     };
     reader.readAsText(file);
@@ -298,7 +294,7 @@ const CalendarManager = () => {
 
   const saveBatchEvents = async () => {
     const validEvents = batchEvents.filter(ev => ev.title.trim());
-    if (validEvents.length === 0) return alert("At least one event with a title is required");
+    if (validEvents.length === 0) return showToast("At least one event with a title is required");
 
     const allNewEntries = [];
     
@@ -331,7 +327,7 @@ const CalendarManager = () => {
       await set(ref(db, `calendars/${selectedBatch}/events`), updatedEvents);
       showToast(`✅ ${validEvents.length} event(s) saved log!`);
     } catch (err) {
-      alert("Events created locally but failed to save to server: " + err.message);
+      showToast("Events created locally but failed to save to server: " + err.message);
     }
 
     // Reset to one fresh row
@@ -376,7 +372,7 @@ const CalendarManager = () => {
       await set(ref(db, `calendars/${selectedBatch}/events`), updated);
       showToast(`✅ ${selectedEvents.length} event(s) deleted!`);
     } catch (err) {
-      alert('Delete failed locally, save needed: ' + err.message);
+      showToast('Delete failed locally, save needed: ' + err.message);
     }
 
     setSelectedEvents([]);
@@ -426,7 +422,7 @@ const CalendarManager = () => {
         showToast("✅ Edit saved successfully!");
       }
     } catch (err) {
-      alert('Edit failed to save to server: ' + err.message);
+      showToast('Edit failed to save to server: ' + err.message);
     }
   };
 
@@ -436,7 +432,7 @@ const CalendarManager = () => {
   };
 
   const handleExportLiveJSON = () => {
-    if (liveFlatEvents.length === 0) return alert('No events to export');
+    if (liveFlatEvents.length === 0) return showToast('No events to export');
     setIsExporting(true);
     setTimeout(() => {
       downloadRTDBJson(liveFlatEvents);
@@ -445,15 +441,15 @@ const CalendarManager = () => {
   };
 
   const handlePushLiveToFirebase = async () => {
-    if (liveFlatEvents.length === 0) return alert('No events to push');
+    if (liveFlatEvents.length === 0) return showToast('No events to push');
     if (!confirm(`Save? This will instantly update the apps for Batch ${selectedBatch}.`)) return;
 
     setIsLivePushing(true);
     try {
       await set(ref(db, `calendars/${selectedBatch}/events`), liveFlatEvents);
-      alert(`✅ Saved live to Batch ${selectedBatch}`);
+      showToast(`✅ Saved live to Batch ${selectedBatch}`);
     } catch (err) {
-      alert('Save failed: ' + err.message);
+      showToast('Save failed: ' + err.message);
     } finally {
       setIsLivePushing(false);
     }
@@ -469,7 +465,7 @@ const CalendarManager = () => {
       onConfirm: async () => {
         const code = prompt(`TYPE "${selectedBatch}" TO CONFIRM DELETION:`);
         if (code !== selectedBatch) {
-          if (code !== null) alert("Incorrect verification code. Deletion cancelled.");
+          if (code !== null) showToast("Incorrect verification code. Deletion cancelled.");
           return;
         }
 
@@ -478,9 +474,9 @@ const CalendarManager = () => {
           await remove(ref(db, `calendars/${selectedBatch}/events`));
           setLiveFlatEvents([]);
           setHasLiveEvents(false);
-          alert(`🗑️ Calendar deleted for Batch ${selectedBatch}`);
+          showToast(`🗑️ Calendar deleted for Batch ${selectedBatch}`);
         } catch (err) {
-          alert('Delete failed: ' + err.message);
+          showToast('Delete failed: ' + err.message);
         } finally {
           setIsLoading(false);
         }
@@ -526,12 +522,6 @@ const CalendarManager = () => {
   // --- RENDER ---
   return (
     <div className="pc-container admin-subpage">
-      {toastMsg && createPortal(
-        <div className="admin-toast-popup animate-slide-up">
-          {toastMsg}
-        </div>,
-        document.body
-      )}
 
       {/* 1. HEADER WITH BREADCRUMBS */}
       <header className="explorer-header focus-mode" style={{ background: 'transparent', padding: '0 0 20px 0', borderBottom: '1px solid var(--mac-divider)', height: 'auto', marginBottom: 0 }}>

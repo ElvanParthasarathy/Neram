@@ -16,9 +16,11 @@ import {
 } from 'react-icons/ri';
 import "../../../styles/admin/user-management.css";
 import { AdminPageSkeleton } from '../../../components/ui/AdminSkeletons';
+import { useToast } from '../../../contexts/ToastContext';
 
 
 const AdminRoleManager = ({ userProfile }) => {
+  const { showToast } = useToast();
   const [users, setUsers] = useState({});
   const [hierarchy, setHierarchy] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
@@ -113,7 +115,7 @@ const AdminRoleManager = ({ userProfile }) => {
     try {
       await update(ref(db, `users/${uid}`), { role: newRole });
     } catch (err) {
-      alert("Error: " + err.message);
+      showToast("Error: " + err.message);
     }
   };
 

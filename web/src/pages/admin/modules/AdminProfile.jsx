@@ -12,8 +12,10 @@ import {
 } from 'react-icons/ri';
 
 import { SubHeader, ProfileSection, ProfileField } from '../../student/settings/SettingsShared';
+import { useToast } from '../../../contexts/ToastContext';
 
 const AdminProfile = ({ onBack }) => {
+    const { showToast } = useToast();
     const user = auth.currentUser;
     const [editing, setEditing] = useState({});
     const [hierarchy, setHierarchy] = useState({});
@@ -117,12 +119,12 @@ const AdminProfile = ({ onBack }) => {
                 };
             }
             else if (field === 'department') {
-                if (!formData.department) return alert("Select a department");
+                if (!formData.department) return showToast("Select a department");
                 updateObj = { department: formData.department };
             }
             else if (field === 'class') {
                 // For Reps, 'class' means batch + section update
-                if (!formData.batch || !formData.section) return alert("Select Batch and Section");
+                if (!formData.batch || !formData.section) return showToast("Select Batch and Section");
                 updateObj = {
                     batch: formData.batch,
                     department: formData.department, // Ensure dept matches batch if needed, or keep existing
@@ -137,7 +139,7 @@ const AdminProfile = ({ onBack }) => {
             setEditing(prev => ({ ...prev, [field]: false }));
             showSnack("Saved successfully");
         } catch (err) {
-            alert(err.message);
+            showToast(err.message);
         }
     };
 

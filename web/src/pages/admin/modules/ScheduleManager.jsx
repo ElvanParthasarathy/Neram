@@ -12,6 +12,7 @@ import {
     RiDeleteBin6Line,
     RiGlobalLine, RiLinksLine, RiRefreshLine, RiShieldUserLine, RiTableLine
 } from 'react-icons/ri';
+import { useToast } from '../../../contexts/ToastContext';
 
 // --- IMPORT UTILS & SHARED ---
 import { convertTo12Hour } from "../../../utils/timeUtils";
@@ -35,6 +36,7 @@ const parseFaculties = (facultyStr) => {
 };
 
 const ScheduleManager = ({ user, userProfile }) => {
+    const { showToast } = useToast();
     const [searchParams, setSearchParams] = useSearchParams();
     const hasAutoNavigated = useRef(false);
 
@@ -383,13 +385,13 @@ const ScheduleManager = ({ user, userProfile }) => {
     const saveMaster = async (newData) => {
         try {
             await set(ref(db, `schedules/${path.batch}/${path.dept}/_master`), newData);
-        } catch (e) { alert(e.message); }
+        } catch (e) { showToast(e.message); }
     };
 
     const saveSection = async (newData) => {
         try {
             await set(ref(db, `schedules/${path.batch}/${path.dept}/${path.sec}`), newData);
-        } catch (e) { alert(e.message); }
+        } catch (e) { showToast(e.message); }
     }
 
     // --- MASTER ACTIONS (Dept Level) ---
@@ -458,15 +460,15 @@ const ScheduleManager = ({ user, userProfile }) => {
 
         try {
             await update(ref(db), updates);
-            alert("Year Coordinator updated across all sections!");
+            showToast("Year Coordinator updated across all sections!");
             setIsRolesEditMode(false);
-        } catch (e) { alert(e.message); }
+        } catch (e) { showToast(e.message); }
     };
 
     // --- SECTION ACTIONS (Mapped Level) ---
     const handleMapCourse = () => {
         const validFaculties = newMappedCourse.faculties.filter(f => f.trim() !== '');
-        if (!newMappedCourse.code || validFaculties.length === 0) return alert("Select Course & at least one Faculty");
+        if (!newMappedCourse.code || validFaculties.length === 0) return showToast("Select Course & at least one Faculty");
 
         // Auto-fill name
         const mCourse = masterData.courses.find(c => c.code === newMappedCourse.code);
@@ -487,7 +489,7 @@ const ScheduleManager = ({ user, userProfile }) => {
 
     const handleUpdateMappedCourse = () => {
         const validFaculties = tempMappedCourse.faculties.filter(f => f.trim() !== '');
-        if (validFaculties.length === 0) return alert("Select at least one Faculty");
+        if (validFaculties.length === 0) return showToast("Select at least one Faculty");
 
         const mCourse = masterData.courses.find(c => c.code === tempMappedCourse.code);
         const completeCourse = {
@@ -590,7 +592,7 @@ const ScheduleManager = ({ user, userProfile }) => {
     };
 
     const handleUpdateCounselor = () => {
-        if (!tempCounselor.trim()) return alert("Counselor name cannot be empty");
+        if (!tempCounselor.trim()) return showToast("Counselor name cannot be empty");
         const updatedCounselors = [...sectionData.counseling.counselors];
         updatedCounselors[editingCounselorIdx] = tempCounselor;
         saveSection({

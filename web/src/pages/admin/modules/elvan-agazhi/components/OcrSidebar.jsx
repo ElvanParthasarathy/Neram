@@ -5,6 +5,7 @@ import {
     RiFileListLine, RiArrowRightLine, RiSettings4Line,
     RiCheckLine, RiFilePdfLine, RiCropLine, RiDragMoveLine
 } from 'react-icons/ri';
+import { useToast } from '../../../../../contexts/ToastContext';
 
 const OcrSidebar = ({
     // File upload
@@ -27,6 +28,7 @@ const OcrSidebar = ({
     // Drag mode
     dragMode, onToggleDragMode
 }) => {
+    const { showToast } = useToast();
     const [showSettings, setShowSettings] = useState(false);
 
     const handleDrop = (e) => {
@@ -38,7 +40,7 @@ const OcrSidebar = ({
     const handleFileInput = (e) => {
         const file = e.target.files[0];
         if (file && file.type === 'application/pdf') onFileSelect(file);
-        else if (file) alert('Please select a valid PDF file.');
+        else if (file) showToast('Please select a valid PDF file.');
     };
 
     const isProcessing = singleProgress || batchProgress;

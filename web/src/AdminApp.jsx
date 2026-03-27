@@ -11,6 +11,8 @@ import "./App.css";
 import "./mobile.css";
 
 
+import { ToastProvider } from "./contexts/ToastContext";
+
 // Admin Components
 import { adminEmails, getHardcodedRole } from "./data/admins";
 import AdminNavbar from "./components/navigation/AdminNavbar";
@@ -229,12 +231,14 @@ function AdminApp() {
     if (loading) return <SplashScreen />;
 
     return (
-        <HashRouter>
-            <AdminAppContent
-                user={user} isAdminUser={isAdminUser} isMobile={isMobile}
-                loading={loading} dbUserProfile={dbUserProfile}
-            />
-        </HashRouter>
+        <ToastProvider>
+            <HashRouter>
+                <AdminAppContent
+                    user={user} isAdminUser={isAdminUser} isMobile={isMobile}
+                    loading={loading} dbUserProfile={dbUserProfile}
+                />
+            </HashRouter>
+        </ToastProvider>
     );
 }
 

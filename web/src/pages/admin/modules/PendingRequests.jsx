@@ -5,8 +5,10 @@ import { RiCheckLine, RiCloseLine, RiUserLine, RiTimeLine } from 'react-icons/ri
 import { convertTo12Hour, formatDateDDMMYYYY } from '../../../utils/timeUtils';
 import '../../../styles/admin/pending-requests.css';
 import { ListItemSkeleton } from '../../../components/ui/AdminSkeletons';
+import { useToast } from '../../../contexts/ToastContext';
 
 const PendingRequests = () => {
+    const { showToast } = useToast();
     const [users, setUsers] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -29,9 +31,9 @@ const PendingRequests = () => {
         if (!window.confirm(`Approve this user as ${roleLabel}?`)) return;
         try {
             await update(ref(db, `users/${uid}`), { role });
-            alert(`User approved as ${roleLabel}.`);
+            showToast(`User approved as ${roleLabel}.`);
         } catch (err) {
-            alert("Error: " + err.message);
+            showToast("Error: " + err.message);
         }
     };
 
@@ -39,9 +41,9 @@ const PendingRequests = () => {
         if (!window.confirm("Reject this user? They will be set back to 'student' role.")) return;
         try {
             await update(ref(db, `users/${uid}`), { role: 'student' });
-            alert("User rejected and set to Student role.");
+            showToast("User rejected and set to Student role.");
         } catch (err) {
-            alert("Error: " + err.message);
+            showToast("Error: " + err.message);
         }
     };
 

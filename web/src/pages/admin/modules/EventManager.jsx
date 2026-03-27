@@ -14,8 +14,10 @@ import {
   RiAddLine, RiInformationLine, RiFlagLine,
   RiArrowRightSLine, RiTeamLine, RiLayoutGridLine, RiArrowLeftLine, RiTrophyLine, RiArrowDownSLine, RiArrowUpSLine
 } from 'react-icons/ri';
+import { useToast } from '../../../contexts/ToastContext';
 
 const EventManager = ({ user, userProfile, isMobile }) => {
+  const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const hasAutoNavigated = useRef(false);
 
@@ -216,7 +218,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
       await update(ref(db), updates);
     } catch (err) {
       console.error("Firebase Sync Error:", err);
-      alert("Database Error: " + err.message);
+      showToast("Database Error: " + err.message);
     }
   };
 
@@ -236,8 +238,8 @@ const EventManager = ({ user, userProfile, isMobile }) => {
   };
 
   const handleAddEvent = () => {
-    if (!newEvent.title || !newEvent.startDate || !newEvent.endDate) return alert("Group Title, Start and End Dates are required!");
-    if (newEvent.events.length === 0) return alert("Please add at least one event entry to the group!");
+    if (!newEvent.title || !newEvent.startDate || !newEvent.endDate) return showToast("Group Title, Start and End Dates are required!");
+    if (newEvent.events.length === 0) return showToast("Please add at least one event entry to the group!");
 
     const payload = {
       id: Date.now(),
@@ -356,8 +358,8 @@ const EventManager = ({ user, userProfile, isMobile }) => {
   };
 
   const saveEdit = () => {
-    if (!editBuffer.title || !editBuffer.startDate || !editBuffer.endDate) return alert("Group Title, Start Date, and End Date are required!");
-    if (!editBuffer.events || editBuffer.events.length === 0) return alert("Please add at least one event entry!");
+    if (!editBuffer.title || !editBuffer.startDate || !editBuffer.endDate) return showToast("Group Title, Start Date, and End Date are required!");
+    if (!editBuffer.events || editBuffer.events.length === 0) return showToast("Please add at least one event entry!");
     syncCentralEventToDB(editBuffer);
     setEditingEventId(null);
     setEditBuffer(null);

@@ -10,8 +10,10 @@ import "react-datepicker/dist/react-datepicker.css";
 import { RiCalendarEventLine, RiTimeLine, RiHashtag, RiGroupLine, RiSave3Line, RiCloseLine, RiDeleteBin6Line, RiFileCopyLine, RiCheckLine, RiExternalLinkLine, RiHistoryLine, RiRefreshLine, RiCalendarLine, RiArrowRightSLine, RiArrowLeftLine, RiTeamLine, RiLayoutGridLine, RiComputerLine, RiAddLine, RiEditLine, RiArrowDownSLine, RiDeleteBin6Fill } from "react-icons/ri";
 import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO, convertTo12Hour } from "../../../utils/timeUtils";
 import HybridDateInput from '../../../components/ui/HybridDateInput';
+import { useToast } from '../../../contexts/ToastContext';
 
 const SpecialClassManager = ({ user, userProfile, isMobile }) => {
+  const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const hasAutoNavigated = useRef(false);
 
@@ -249,8 +251,8 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
   };
 
   const saveClassEntry = async (classObj) => {
-    if (!classObj.date) { alert("Please select a date."); return false; }
-    if (classObj.batches.some(b => !b.subjectName)) { alert("Please enter subject names for all classes."); return false; }
+    if (!classObj.date) { showToast("Please select a date."); return false; }
+    if (classObj.batches.some(b => !b.subjectName)) { showToast("Please enter subject names for all classes."); return false; }
 
     try {
       const payloadId = classObj.id || `sc_${Date.now()}`;
@@ -300,7 +302,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
       if (Object.keys(updates).length > 0) await update(ref(db), updates);
       return true;
     } catch (err) {
-      alert("Error saving: " + err.message);
+      showToast("Error saving: " + err.message);
       return false;
     }
   };
@@ -339,7 +341,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
         await update(ref(db), updates);
       }
     } catch (err) {
-      alert("Error deleting: " + err.message);
+      showToast("Error deleting: " + err.message);
     }
   };
 
@@ -370,7 +372,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
       setSelectedClasses([]);
       setIsDeleteMode(false);
     } catch (err) {
-      alert("Error deleting: " + err.message);
+      showToast("Error deleting: " + err.message);
     }
   };
 
