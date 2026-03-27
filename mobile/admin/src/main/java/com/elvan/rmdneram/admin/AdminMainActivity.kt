@@ -239,18 +239,30 @@ class AdminMainActivity : AppCompatActivity() {
         }
 
         // Back navigation — Professional JS Bridge approach
-        // The web app owns its navigation via window.handleNativeBack().
-        // Android just asks: "did you handle it?" → if false, exit.
+        // The web app tells us if it's at a logical root screen. If so, we exit.
+        // Otherwise, we rely on the WebView's robust history stack to navigate back.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                webView.evaluateJavascript("(function(){ return window.handleNativeBack ? window.handleNativeBack() : false; })()") { result ->
-                    val handled = result?.replace("\"", "")?.trim() == "true"
-                    if (!handled) {
-                        // Web said "I'm at root, exit the app"
+                webView.evaluateJavascript("(function(){ return typeof window.isNativeAtRoot === 'function' ? window.isNativeAtRoot() : null; })()") { result ->
+                    val res = result?.replace("\"", "")?.trim()
+                    val isRoot = res == "true"
+                    val isMissing = res == "null" || result == null
+                    
+                    if (isRoot) {
+                        // Web explicitly said it's at root -> exit the app
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    } else if (!isMissing && webView.canGoBack()) {
+                        // Web said it's NOT at root -> pop the internal WebView history
+                        webView.goBack()
+                    } else if (isMissing && webView.canGoBack()) {
+                        // App hasn't fully loaded JS bridge yet, fallback to WebView history
+                        webView.goBack()
+                    } else {
+                        // Ultimate fallback: cannot go back anymore, exit
                         isEnabled = false
                         onBackPressedDispatcher.onBackPressed()
                     }
-                    // else: web already called history.back(), nothing to do
                 }
             }
         })

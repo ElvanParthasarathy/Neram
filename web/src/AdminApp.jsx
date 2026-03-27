@@ -82,28 +82,17 @@ function AdminApp() {
     const [dbUserProfile, setDbUserProfile] = useState({ batch: "", department: "", section: "" });
 
     // --- NATIVE BACK BUTTON BRIDGE ---
-    // The web app owns its navigation. Android calls this function on hardware back press.
-    // Returns true = web handled it (navigated back inside SPA)
-    // Returns false = web is at root, Android should exit the app
+    // Android calls this to know if it should exit or call webView.goBack().
     useEffect(() => {
-        window.handleNativeBack = () => {
+        window.isNativeAtRoot = () => {
             const hash = window.location.hash;
-            // Root screens: home, login, welcome, or empty hash
-            const isRoot = !hash || hash === '#' || hash === '#/'
+            return !hash || hash === '#' || hash === '#/'
                 || hash.startsWith('#/?mod=home')
                 || hash === '#/login'
                 || hash === '#/signup';
-
-            if (isRoot) {
-                return false; // Signal Android to exit
-            }
-
-            // Not at root — navigate back within SPA
-            window.history.back();
-            return true; // Web handled it
         };
 
-        return () => { delete window.handleNativeBack; };
+        return () => { delete window.isNativeAtRoot; };
     }, []);
 
     useEffect(() => {
