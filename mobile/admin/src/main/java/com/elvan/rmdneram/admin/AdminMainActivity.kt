@@ -20,6 +20,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -101,6 +102,10 @@ class AdminMainActivity : AppCompatActivity() {
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Dismiss Android 12+ system splash IMMEDIATELY to prevent white flash
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { false }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_admin_main)
@@ -113,14 +118,18 @@ class AdminMainActivity : AppCompatActivity() {
             windowInsets
         }
 
-        // Set light/dark status bar icons based on system theme
+        // Set light/dark status bar icons and colors based on system theme initially
         val insetsController = WindowCompat.getInsetsController(window, window.decorView)
         val nightMode = resources.configuration.uiMode and
                 android.content.res.Configuration.UI_MODE_NIGHT_MASK
-        insetsController.isAppearanceLightStatusBars =
-            nightMode != android.content.res.Configuration.UI_MODE_NIGHT_YES
-        insetsController.isAppearanceLightNavigationBars =
-            nightMode != android.content.res.Configuration.UI_MODE_NIGHT_YES
+        val isSystemDark = nightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES
+        
+        insetsController.isAppearanceLightStatusBars = !isSystemDark
+        insetsController.isAppearanceLightNavigationBars = !isSystemDark
+        
+        val initialColor = if (isSystemDark) Color.parseColor("#000000") else Color.parseColor("#F2F2F7")
+        window.statusBarColor = initialColor
+        window.navigationBarColor = initialColor
 
         // Bind views
         webView = findViewById(R.id.webView)
