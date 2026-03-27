@@ -326,7 +326,7 @@ const AcademicTree = ({ isMobile }) => {
                 const batchData = hierarchy[batch] || {};
                 const depts = Object.keys(batchData).filter(k => k !== 'initialized');
                 return (
-                  <div key={batch} className="settings-card" style={{ marginBottom: '16px', padding: '20px 24px', borderRadius: '20px' }}>
+                  <div key={batch} className="settings-card" style={{ marginBottom: '16px', padding: '20px 24px', borderRadius: '20px', border: 'none' }}>
                     {/* BATCH NODE */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span style={{
@@ -356,7 +356,7 @@ const AcademicTree = ({ isMobile }) => {
                               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <span style={{
                                   display: 'inline-flex', alignItems: 'center', padding: '10px 20px', borderRadius: '50px',
-                                  background: 'var(--mac-bg-secondary)', border: '1px solid var(--mac-divider)',
+                                  background: 'var(--mac-bg-secondary)', border: 'none',
                                   fontWeight: 700, fontSize: '13px', color: 'var(--mac-text)'
                                 }}>{dept}</span>
                               </div>
@@ -377,7 +377,7 @@ const AcademicTree = ({ isMobile }) => {
                                       }} />
                                       <span style={{
                                         display: 'inline-flex', alignItems: 'center', padding: '8px 18px', borderRadius: '50px',
-                                        background: 'var(--mac-bg-secondary)', border: '1px solid var(--mac-divider)',
+                                        background: 'var(--mac-bg-secondary)', border: 'none',
                                         fontWeight: 600, fontSize: '13px', color: 'var(--mac-text)'
                                       }}>{sec}</span>
                                     </div>
