@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { convertTo12Hour, formatDateDDMMYYYY } from '../../../utils/timeUtils';
 import HybridDateInput from '../../../components/ui/HybridDateInput';
-import HybridTimePicker from '../../../components/ui/HybridTimePicker';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { db } from "../../../firebase";
 import { ref, onValue, update } from "firebase/database";
 import { getHardcodedRole } from '../../../data/admins';
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 // Using Native Browser Date Inputs
 import {
     RiTrophyLine, RiArrowRightSLine, RiTeamLine, RiLayoutGridLine,
@@ -517,8 +517,8 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                             />
                                         </div>
                                     </td>
-                                    <td data-label="Start"><HybridTimePicker value={b.startTime} onChange={val => updateBatch(bIdx, 'startTime', val)} /></td>
-                                    <td data-label="End"><HybridTimePicker value={b.endTime} onChange={val => updateBatch(bIdx, 'endTime', val)} /></td>
+                                    <td data-label="Start"><input type="time" value={b.startTime} onChange={e => updateBatch(bIdx, 'startTime', e.target.value)} /></td>
+                                    <td data-label="End"><input type="time" value={b.endTime} onChange={e => updateBatch(bIdx, 'endTime', e.target.value)} /></td>
                                     <td data-label="Reg. Range"><input value={b.registerRange} onChange={e => updateBatch(bIdx, 'registerRange', e.target.value)} placeholder="111523104001–4032" /></td>
                                     <td data-label="Total"><input value={b.totalCount} onChange={e => updateBatch(bIdx, 'totalCount', e.target.value)} placeholder="32" /></td>
                                     <td data-label="" className="batch-action-cell">
@@ -744,8 +744,8 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                                     <label>Portion</label>
                                                     <input list="portion-presets" value={sub.portion} onChange={e => { let s = [...newExam.subjects]; s[idx].portion = e.target.value; setNewExam({ ...newExam, subjects: s }); }} placeholder="Portion..." />
                                                 </div>
-                                                <div className="input-group-vertical"><label>Start</label><HybridTimePicker value={sub.startTime} onChange={val => { let s = [...newExam.subjects]; s[idx].startTime = val; setNewExam({ ...newExam, subjects: s }); }} /></div>
-                                                <div className="input-group-vertical"><label>End</label><HybridTimePicker value={sub.endTime} onChange={val => { let s = [...newExam.subjects]; s[idx].endTime = val; setNewExam({ ...newExam, subjects: s }); }} /></div>
+                                                <div className="input-group-vertical"><label>Start</label><input type="time" value={sub.startTime} onChange={e => { let s = [...newExam.subjects]; s[idx].startTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
+                                                <div className="input-group-vertical"><label>End</label><input type="time" value={sub.endTime} onChange={e => { let s = [...newExam.subjects]; s[idx].endTime = e.target.value; setNewExam({ ...newExam, subjects: s }); }} /></div>
                                                 <button className="btn-del-mini" onClick={() => {
                                                     showConfirm("Delete Subject?", `Remove ${getSubjectName(sub.code)}?`, () => setNewExam({ ...newExam, subjects: newExam.subjects.filter((_, i) => i !== idx) }));
                                                 }}><RiDeleteBin6Line /></button>
@@ -930,8 +930,8 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                                                     <label>Portion</label>
                                                                     <input list="portion-presets" value={s.portion} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].portion = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} placeholder="Portion..." />
                                                                 </div>
-                                                                <div className="input-group-vertical"><label>Start</label><HybridTimePicker value={s.startTime} onChange={val => { let subs = [...editBuffer.subjects]; subs[i].startTime = val; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
-                                                                <div className="input-group-vertical"><label>End</label><HybridTimePicker value={s.endTime} onChange={val => { let subs = [...editBuffer.subjects]; subs[i].endTime = val; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
+                                                                <div className="input-group-vertical"><label>Start</label><input type="time" value={s.startTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].startTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
+                                                                <div className="input-group-vertical"><label>End</label><input type="time" value={s.endTime} onChange={e => { let subs = [...editBuffer.subjects]; subs[i].endTime = e.target.value; setEditBuffer({ ...editBuffer, subjects: subs }); }} /></div>
                                                                 <button className="btn-del-mini" onClick={() => {
                                                                     showConfirm("Remove Day?", "Remove this subject day?", () => { let subs = editBuffer.subjects.filter((_, idx) => idx !== i); setEditBuffer({ ...editBuffer, subjects: subs }); });
                                                                 }}><RiDeleteBin6Line /></button>

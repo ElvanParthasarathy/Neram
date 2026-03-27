@@ -102,50 +102,6 @@ class AdminMainActivity : AppCompatActivity() {
                 insetsController.isAppearanceLightNavigationBars = !isDark
             }
         }
-
-        @JavascriptInterface
-        fun showDatePicker(currentMs: Long, callbackName: String) {
-            Handler(Looper.getMainLooper()).post {
-                val picker = com.google.android.material.datepicker.MaterialDatePicker.Builder.datePicker()
-                    .setTitleText("Select Date")
-                    .setSelection(if (currentMs > 0) currentMs else com.google.android.material.datepicker.MaterialDatePicker.todayInUtcMilliseconds())
-                    .build()
-                picker.addOnPositiveButtonClickListener { selection ->
-                    webView.evaluateJavascript("window['$callbackName']($selection);", null)
-                }
-                picker.addOnCancelListener {
-                    webView.evaluateJavascript("window['$callbackName'](null);", null)
-                }
-                picker.addOnDismissListener {
-                    webView.evaluateJavascript("window['$callbackName'](null);", null)
-                }
-                picker.show(supportFragmentManager, "DATE_PICKER")
-            }
-        }
-
-        @JavascriptInterface
-        fun showTimePicker(hour: Int, minute: Int, callbackName: String) {
-            Handler(Looper.getMainLooper()).post {
-                val picker = com.google.android.material.timepicker.MaterialTimePicker.Builder()
-                    .setTimeFormat(com.google.android.material.timepicker.TimeFormat.CLOCK_24H)
-                    .setHour(if (hour >= 0) hour else 12)
-                    .setMinute(if (minute >= 0) minute else 0)
-                    .setTitleText("Select Time")
-                    .build()
-                picker.addOnPositiveButtonClickListener {
-                    val h = picker.hour
-                    val m = picker.minute
-                    webView.evaluateJavascript("window['$callbackName']($h, $m);", null)
-                }
-                picker.addOnCancelListener {
-                    webView.evaluateJavascript("window['$callbackName'](-1, -1);", null)
-                }
-                picker.addOnDismissListener {
-                    webView.evaluateJavascript("window['$callbackName'](-1, -1);", null)
-                }
-                picker.show(supportFragmentManager, "TIME_PICKER")
-            }
-        }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "AddJavascriptInterface")

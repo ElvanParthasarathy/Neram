@@ -3,11 +3,11 @@ import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../../utils/timeUtils";
 import HybridDateInput from '../../../components/ui/HybridDateInput';
-import HybridTimePicker from '../../../components/ui/HybridTimePicker';
 import { db } from "../../../firebase";
 import { ref, onValue, set, update } from "firebase/database";
 import { getHardcodedRole } from '../../../data/admins';
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import "../../../styles/admin/event-manager.css";
 import {
   RiCalendarEventLine, RiTimeLine, RiDeleteBin6Line, RiDeleteBin6Fill, RiEditLine,
@@ -411,11 +411,11 @@ const EventManager = ({ user, userProfile, isMobile }) => {
               <>
                  <div className="input-group-vertical">
                   <label><RiTimeLine /> Start Time</label>
-                  <HybridTimePicker className="event-input" value={parseTimeForInput(evItem.startTime) || '09:00'} onChange={val => { let s = [...parentObj.events]; s[idx].startTime = val; setParentObj({ ...parentObj, events: s }); }} />
+                  <input className="event-input" type="time" value={parseTimeForInput(evItem.startTime) || '09:00'} onChange={e => { let s = [...parentObj.events]; s[idx].startTime = e.target.value; setParentObj({ ...parentObj, events: s }); }} />
                 </div>
                 <div className="input-group-vertical">
                   <label><RiTimeLine /> End Time</label>
-                  <HybridTimePicker className="event-input" value={parseTimeForInput(evItem.endTime) || '12:00'} onChange={val => { let s = [...parentObj.events]; s[idx].endTime = val; setParentObj({ ...parentObj, events: s }); }} />
+                  <input className="event-input" type="time" value={parseTimeForInput(evItem.endTime) || '12:00'} onChange={e => { let s = [...parentObj.events]; s[idx].endTime = e.target.value; setParentObj({ ...parentObj, events: s }); }} />
                 </div>
               </>
             )}
