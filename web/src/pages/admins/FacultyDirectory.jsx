@@ -8,6 +8,7 @@ import {
 } from 'react-icons/ri';
 
 // --- IMPORT STYLES ---
+import "../../styles/admin-settings.css";
 import "../../styles/schedule.desktop.css";
 import "../../styles/user-management.css";
 
@@ -322,14 +323,27 @@ const FacultyDirectory = ({ isMobile }) => {
           {!targetFacultyDept ? (
             /* ==================== 1. DIRECTORY (DEPT GRID) ==================== */
             <div className="course-manager">
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                 {mergedDepartments.map(dept => {
                   const isNonAcademic = extraFacultyDepts.includes(dept);
                   return (
                     <div key={dept} className="settings-card" 
-                      style={{ padding: '24px', borderRadius: '24px', cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', border: '1px solid transparent' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'var(--mac-selection-hover)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'var(--mac-card-bg)'}
+                      style={{ 
+                        padding: '16px 20px', 
+                        borderRadius: '20px', 
+                        cursor: 'pointer', 
+                        transition: 'all 0.2s ease',
+                        background: 'var(--mac-card-bg)',
+                        border: '1px solid var(--mac-divider)',
+                        boxShadow: 'none',
+                        margin: 0
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'var(--mac-selection-hover)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'var(--mac-card-bg)';
+                      }}
                       onClick={() => navigateToLevel(dept)}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%' }}>
                         <div style={{
@@ -423,7 +437,7 @@ const FacultyDirectory = ({ isMobile }) => {
               </div>
 
               {/* Faculty Items Grid */}
-              <div className="master-items-container individual-cards" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
+              <div className="master-items-container individual-cards" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                 {filteredFaculty.length === 0 ? (
                   <div className="settings-card empty-card-wrap" style={{ gridColumn: '1 / -1' }}>
                     <div className="empty-placeholder">
@@ -433,7 +447,13 @@ const FacultyDirectory = ({ isMobile }) => {
                   </div>
                 ) : (
                   filteredFaculty.map((f, i) => (
-                    <div key={i} className={`settings-card master-item-card ${editingFacultyIdx === i || movingFacultyIdx === i ? 'editing' : ''}`} style={{ borderRadius: '24px' }}>
+                    <div key={i} className={`settings-card master-item-card ${editingFacultyIdx === i || movingFacultyIdx === i ? 'editing' : ''}`} 
+                      style={{ 
+                        borderRadius: '20px',
+                        boxShadow: 'none',
+                        border: '1px solid var(--mac-divider)',
+                        margin: 0
+                      }}>
                       {editingFacultyIdx === i ? (
                         /* ── Inline Edit Mode ── */
                         <div className="pill-edit-row">
