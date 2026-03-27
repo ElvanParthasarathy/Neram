@@ -432,11 +432,22 @@ html:not(.dark) .role-pill.active {
     }
 
     .user-directory-grid {
-        padding-bottom: 24px; /* No bottom nav — reduced */
+        grid-template-columns: 1fr;
+        padding-bottom: 24px;
     }
 
     .user-directory-grid.edit-mode {
         padding-bottom: 20px !important; /* Let bulk-action-footer push the space */
+    }
+
+    .explorer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .explorer-card {
+        padding: 24px 16px;
+        border-radius: 24px;
     }
 
     .user-management-card {

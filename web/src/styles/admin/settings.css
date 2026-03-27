@@ -212,6 +212,21 @@ html:not(.dark) .shifter-item.active {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
+/* Flat style override for item cards used inside grids */
+.settings-card.master-item-card {
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
+    padding: 18px 24px;
+    border-radius: 24px;
+    background: var(--mac-card-bg);
+}
+
+.settings-card.empty-card-wrap {
+    border: none;
+    box-shadow: none;
+}
+
 .settings-card h3 {
     font-size: 15px;
     font-weight: 700;

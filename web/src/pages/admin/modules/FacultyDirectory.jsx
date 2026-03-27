@@ -153,6 +153,7 @@ const FacultyDirectory = ({ isMobile }) => {
     const newFacultyObj = { name: cleanName, role: targetFacultyRole };
     const updatedList = [...facultyList, newFacultyObj].sort((a, b) => (a.name || a).localeCompare(b.name || b));
     await set(ref(db, `faculties_directory/${targetFacultyDept}`), updatedList);
+    showToast("✅ Faculty added successfully.");
     setNewFacultyName("");
   };
 
@@ -206,6 +207,7 @@ const FacultyDirectory = ({ isMobile }) => {
     try {
       cascadeUpdates[`faculties_directory/${targetFacultyDept}`] = updatedList;
       await update(ref(db), cascadeUpdates);
+      showToast("✅ Faculty updated successfully.");
       setEditingFacultyIdx(null);
     } catch (err) { showToast("Error updating: " + err.message); }
   };
@@ -227,6 +229,7 @@ const FacultyDirectory = ({ isMobile }) => {
         }
         const updatedList = facultyList.filter((_, i) => i !== idx);
         await set(ref(db, `faculties_directory/${targetFacultyDept}`), updatedList);
+        showToast(`✅ ${facName} moved to ${moveToDept}.`);
         setMovingFacultyIdx(null);
         setMoveToDept("");
       } catch (err) { showToast("Error moving: " + err.message); }
@@ -253,6 +256,7 @@ const FacultyDirectory = ({ isMobile }) => {
     if (window.confirm(`Delete ${selectedFaculty.length} selected faculty from ${targetFacultyDept}?`)) {
       const remaining = facultyList.filter((_, i) => !selectedFaculty.includes(i));
       await set(ref(db, `faculties_directory/${targetFacultyDept}`), remaining);
+      showToast(`✅ ${selectedFaculty.length} faculty deleted.`);
       setSelectedFaculty([]);
       setIsDeleteMode(false);
     }
@@ -336,7 +340,7 @@ const FacultyDirectory = ({ isMobile }) => {
                         cursor: 'pointer', 
                         transition: 'all 0.2s ease',
                         background: 'var(--mac-card-bg)',
-                        border: '1px solid var(--mac-divider)',
+                        border: 'none',
                         boxShadow: 'none',
                         margin: 0
                       }}
@@ -404,39 +408,41 @@ const FacultyDirectory = ({ isMobile }) => {
               </div>
 
               {/* Add Faculty Card */}
-              <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
-                <div className="add-card-title-row"><span>Add Member to {targetFacultyDept}</span></div>
-                <div className="add-card-grid">
-                  <div className="add-input-section" style={{ width: isMobile ? '100%' : '180px' }}>
-                    <label className="add-input-label">DESIGNATION / ROLE</label>
-                    <select
-                      className="premium-add-input"
-                      value={targetFacultyRole}
-                      onChange={e => setTargetFacultyRole(e.target.value)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {getRoleOptions().map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
+              {((isEditMode && !isDeleteMode) || facultyList.length === 0) && (
+                <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
+                  <div className="add-card-title-row"><span>Add Member to {targetFacultyDept}</span></div>
+                  <div className="add-card-grid">
+                    <div className="add-input-section" style={{ width: isMobile ? '100%' : '180px' }}>
+                      <label className="add-input-label">DESIGNATION / ROLE</label>
+                      <select
+                        className="premium-add-input"
+                        value={targetFacultyRole}
+                        onChange={e => setTargetFacultyRole(e.target.value)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {getRoleOptions().map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="add-input-section grow">
+                      <label className="add-input-label">FULL NAME</label>
+                      <input
+                        className="premium-add-input"
+                        placeholder="e.g. Dr. Jane Cooper"
+                        value={newFacultyName}
+                        onChange={(e) => setNewFacultyName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddFaculty()}
+                      />
+                    </div>
                   </div>
-                  <div className="add-input-section grow">
-                    <label className="add-input-label">FULL NAME</label>
-                    <input
-                      className="premium-add-input"
-                      placeholder="e.g. Dr. Jane Cooper"
-                      value={newFacultyName}
-                      onChange={(e) => setNewFacultyName(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleAddFaculty()}
-                    />
-                  </div>
+                  {isMobile ? (
+                    <button className="premium-add-submit-btn" style={{ marginTop: '16px' }} onClick={handleAddFaculty}>Add Faculty</button>
+                  ) : (
+                    <button className="premium-add-submit-btn" onClick={handleAddFaculty}><RiAddLine /> Add Faculty</button>
+                  )}
                 </div>
-                {isMobile ? (
-                  <button className="premium-add-submit-btn" style={{ marginTop: '16px' }} onClick={handleAddFaculty}>Add Faculty</button>
-                ) : (
-                  <button className="premium-add-submit-btn" onClick={handleAddFaculty}><RiAddLine /> Add Faculty</button>
-                )}
-              </div>
+              )}
 
               {/* Faculty Items Grid */}
               <div className="master-items-container individual-cards" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>

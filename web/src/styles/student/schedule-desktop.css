@@ -2029,8 +2029,22 @@ html.dark .premium-pill-btn.tinted-danger:hover {
 
 .edit-input-field:focus {
     border-color: var(--mac-blue) !important;
-    background: var(--mac-bg) !important;
+    background-color: var(--mac-bg) !important;
     box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+}
+
+select.edit-input-field {
+    appearance: none;
+    padding-right: 40px !important;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 16px center !important;
+    background-size: 16px !important;
+    color-scheme: dark;
+}
+
+select.edit-input-field:focus {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
 }
 
 .pill-actions {

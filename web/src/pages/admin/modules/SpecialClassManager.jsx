@@ -299,7 +299,10 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
         }
       });
 
-      if (Object.keys(updates).length > 0) await update(ref(db), updates);
+      if (Object.keys(updates).length > 0) {
+        await update(ref(db), updates);
+        showToast("✅ Special Class saved successfully.");
+      }
       return true;
     } catch (err) {
       showToast("Error saving: " + err.message);
@@ -339,6 +342,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
       });
       if (Object.keys(updates).length > 0) {
         await update(ref(db), updates);
+        showToast("✅ Special class deleted successfully.");
       }
     } catch (err) {
       showToast("Error deleting: " + err.message);
@@ -368,6 +372,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
       });
       if (Object.keys(updates).length > 0) {
         await update(ref(db), updates);
+        showToast(`✅ ${selectedClasses.length} special class(es) deleted.`);
       }
       setSelectedClasses([]);
       setIsDeleteMode(false);
@@ -601,7 +606,7 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
           )}
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {!isRep && viewLevel !== 'batches' && (
+          {!isRep && (
             <button className="explorer-back-btn" onClick={handleBack}>
               <RiArrowLeftLine /> Back
             </button>

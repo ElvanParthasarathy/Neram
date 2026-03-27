@@ -538,17 +538,19 @@ const CalendarManager = () => {
         </div>
         
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {viewLevel === 'editor' && (
             <button className="explorer-back-btn" onClick={() => {
-              const params = new URLSearchParams(searchParams);
-              params.set('clvl', 'batches');
-              params.delete('cb');
-              params.set('ctab', 'published');
-              setSearchParams(params);
+              if (viewLevel === 'editor') {
+                  const params = new URLSearchParams(searchParams);
+                  params.set('clvl', 'batches');
+                  params.delete('cb');
+                  params.set('ctab', 'published');
+                  setSearchParams(params);
+              } else {
+                  setSearchParams({ mod: 'home' });
+              }
             }}>
               <RiArrowLeftLine /> Back
             </button>
-          )}
         </div>
       </header>
 

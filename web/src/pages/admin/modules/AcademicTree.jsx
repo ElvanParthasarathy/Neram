@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { db } from "../../../firebase";
 import { ref, onValue, set, get, update } from "firebase/database";
 import {
   RiAddLine, RiDeleteBin6Line, RiEditLine, RiCloseLine,
   RiSave3Line, RiGlobalLine, RiBookOpenLine,
   RiTeamLine, RiLayoutGridLine, RiDeleteBin6Fill,
-  RiCalendarLine
+  RiCalendarLine, RiArrowLeftLine, RiArrowRightSLine
 } from 'react-icons/ri';
 
 import "../../../styles/admin/settings.css";
 import { useToast } from '../../../contexts/ToastContext';
 
 const AcademicTree = ({ isMobile }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('hierarchy');
 
@@ -46,6 +48,19 @@ const AcademicTree = ({ isMobile }) => {
   const [isSecDeleteMode, setIsSecDeleteMode] = useState(false);
   const [selectedSecs, setSelectedSecs] = useState([]);
 
+  // --- SECTIONS EXPLORER STATE (URL-driven for system back support) ---
+  const secSelectedBatch = searchParams.get('sec_batch') || '';
+  const secSelectedDept = searchParams.get('sec_dept') || '';
+  const secViewLevel = secSelectedDept ? 'secs' : secSelectedBatch ? 'depts' : 'batches';
+
+  const updateSecLevel = (batch, dept) => {
+    const params = new URLSearchParams(searchParams);
+    if (batch) params.set('sec_batch', batch); else params.delete('sec_batch');
+    if (dept) params.set('sec_dept', dept); else params.delete('sec_dept');
+    setSearchParams(params);
+    setIsSecEditMode(false); setIsSecDeleteMode(false); setSelectedSecs([]);
+  };
+
   // --- FIREBASE ---
   useEffect(() => {
     const unsubH = onValue(ref(db, 'academic_hierarchy'), snap => setHierarchy(snap.exists() ? snap.val() : {}));
@@ -79,13 +94,14 @@ const AcademicTree = ({ isMobile }) => {
   const handleCreateBatch = async () => {
     if (!batchStart || !batchEnd) return showToast("Please enter both years");
     await set(ref(db, `academic_hierarchy/${batchStart}-${batchEnd}`), { initialized: true });
+    showToast("✅ Batch created successfully.");
     setBatchStart(""); setBatchEnd("");
   };
 
   const handleUpdateBatch = async () => {
-    const { oldVal, newVal } = editingBatch;
-    const v = newVal.trim();
-    if (!v || oldVal === v) return setEditingBatch(null);
+    const { oldVal, startYear, endYear } = editingBatch;
+    const v = `${(startYear || '').toString().trim()}-${(endYear || '').toString().trim()}`;
+    if (!startYear || !endYear || oldVal === v) return setEditingBatch(null);
     if (hierarchy[v]) return showToast("Batch already exists!");
     if (window.confirm(`Rename batch to "${v}"?`)) {
       try { await runGlobalMigration('batch', oldVal, v, oldVal, v); setEditingBatch(null); }
@@ -98,6 +114,7 @@ const AcademicTree = ({ isMobile }) => {
     if (depts.length > 0) return showToast(`Cannot delete — ${batch} still has ${depts.length} department(s).`);
     if (window.confirm(`Permanently delete empty Batch ${batch}?`)) {
       await update(ref(db), { [`academic_hierarchy/${batch}`]: null, [`schedules/${batch}`]: null });
+      showToast("✅ Batch deleted successfully.");
     }
   };
 
@@ -111,6 +128,7 @@ const AcademicTree = ({ isMobile }) => {
       const updates = {};
       selectedBatches.forEach(b => { updates[`academic_hierarchy/${b}`] = null; updates[`schedules/${b}`] = null; });
       await update(ref(db), updates);
+      showToast(`✅ ${selectedBatches.length} batch(es) deleted.`);
       setSelectedBatches([]); setIsBatchDeleteMode(false);
     }
   };
@@ -121,6 +139,7 @@ const AcademicTree = ({ isMobile }) => {
     const code = newDeptCode.toUpperCase().trim();
     if (departmentsList.includes(code)) return showToast("Already exists.");
     await set(ref(db, 'departments'), [...departmentsList, code].sort());
+    showToast("✅ Department added successfully.");
     setNewDeptCode("");
   };
 
@@ -156,8 +175,10 @@ const AcademicTree = ({ isMobile }) => {
     let isUsed = false;
     Object.values(hierarchy).forEach(b => { if (b?.[dept] && Object.keys(b[dept]).filter(k => k !== 'initialized').length > 0) isUsed = true; });
     if (isUsed) return showToast(`Cannot delete "${dept}" — it's mapped in the hierarchy.`);
-    if (window.confirm(`Remove "${dept}" from the Global Registry?`))
+    if (window.confirm(`Remove "${dept}" from the Global Registry?`)) {
       await set(ref(db, 'departments'), departmentsList.filter(d => d !== dept));
+      showToast(`✅ Department "${dept}" removed.`);
+    }
   };
 
   const handleToggleDeptSelect = (dept) => setSelectedDepts(p => p.includes(dept) ? p.filter(d => d !== dept) : [...p, dept]);
@@ -172,6 +193,7 @@ const AcademicTree = ({ isMobile }) => {
     if (usedDepts.length > 0) return showToast(`Cannot delete ${usedDepts.length} department(s) because they are mapped in the hierarchy.`);
     if (window.confirm(`Remove ${selectedDepts.length} unused departments from the Global Registry?`)) {
       await set(ref(db, 'departments'), departmentsList.filter(d => !selectedDepts.includes(d)));
+      showToast(`✅ ${selectedDepts.length} department(s) removed.`);
       setSelectedDepts([]); setIsDeptDeleteMode(false);
     }
   };
@@ -182,6 +204,7 @@ const AcademicTree = ({ isMobile }) => {
     const sec = newSection.toUpperCase().trim();
     const cur = hierarchy[secBatch]?.[secDept] || [];
     await set(ref(db, `academic_hierarchy/${secBatch}/${secDept}`), [...cur, sec].sort());
+    showToast("✅ Section mapped successfully.");
     setNewSection("");
   };
 
@@ -200,6 +223,7 @@ const AcademicTree = ({ isMobile }) => {
           if (u.batch === batch && u.department === dept && u.section === oldVal) updates[`users/${uid}/section`] = v;
         });
         await update(ref(db), updates);
+        showToast("✅ Section renamed successfully.");
         setEditingSec(null);
       } catch (err) { showToast(err.message); }
     }
@@ -211,6 +235,7 @@ const AcademicTree = ({ isMobile }) => {
         [`academic_hierarchy/${batch}/${dept}`]: hierarchy[batch][dept].filter(s => s !== sec),
         [`schedules/${batch}/${dept}/${sec}`]: null,
       });
+      showToast(`✅ Section ${sec} deleted.`);
     }
   };
 
@@ -240,6 +265,7 @@ const AcademicTree = ({ isMobile }) => {
       });
 
       await update(ref(db), updates);
+      showToast(`✅ ${selectedSecs.length} section(s) deleted.`);
       setSelectedSecs([]); setIsSecDeleteMode(false);
     }
   };
@@ -250,6 +276,28 @@ const AcademicTree = ({ isMobile }) => {
 
   return (
     <div className="admin-subpage animate-fade-in central-schedule-manager">
+      <header className="explorer-header" style={{ marginBottom: '20px' }}>
+        <div className="breadcrumb-nav">
+          {!isMobile && <h1 className="page-title" style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: 'var(--mac-text)', letterSpacing: '-0.5px' }}>Structure Manager</h1>}
+        </div>
+        {!isMobile && (
+             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button className="explorer-back-btn" onClick={() => {
+                    if (activeTab === 'sections' && secViewLevel === 'secs') {
+                      updateSecLevel(secSelectedBatch, '');
+                    } else if (activeTab === 'sections' && secViewLevel === 'depts') {
+                      updateSecLevel('', '');
+                    } else {
+                      const params = new URLSearchParams(searchParams);
+                      params.set('mod', 'home');
+                      setSearchParams(params);
+                    }
+                }}>
+                    <RiArrowLeftLine /> Back
+                </button>
+            </div>
+        )}
+      </header>
       <div className="schedule-editor-workspace">
         <nav className="editor-tabs" style={{ marginBottom: '24px' }}>
           <button className={activeTab === 'hierarchy' ? 'active' : ''} onClick={() => setActiveTab('hierarchy')}>{isMobile ? 'Tree' : 'Hierarchy'}</button>
@@ -622,162 +670,181 @@ const AcademicTree = ({ isMobile }) => {
           {/* ==================== 4. SECTIONS ==================== */}
           {activeTab === 'sections' && (
             <div className="course-manager">
-              <div className="master-header-row animate-fade-in" style={{ marginBottom: '16px', minHeight: 'auto', justifyContent: 'flex-end', paddingRight: 0, paddingLeft: 0 }}>
-                <div className="header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
-                  {isSecEditMode ? (
-                    <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
-                      <button className="role-header-pill secondary" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); setIsSecEditMode(false); setEditingSec(null); }} style={{ minWidth: '90px' }}>Cancel</button>
-                      <button className="role-header-pill active" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); setIsSecEditMode(false); setEditingSec(null); }} style={{ minWidth: '90px' }}>Done</button>
-                    </div>
-                  ) : (
-                    <button className="edit-list-btn" onClick={() => setIsSecEditMode(true)}><RiEditLine style={{ marginRight: '6px' }} /> Edit List</button>
+              {/* BREADCRUMB NAV FOR SECTIONS EXPLORER */}
+              <div className="breadcrumb-nav" style={{ marginBottom: '20px' }}>
+                <div className="breadcrumb-list">
+                  <span className={`crumb-btn ${secViewLevel === 'batches' ? 'level-root' : ''}`} onClick={() => { updateSecLevel('', ''); setSecBatch(''); setSecDept(''); }}>Batches</span>
+                  {secSelectedBatch && (
+                    <>
+                      <RiArrowRightSLine className="crumb-sep" />
+                      <span className={`crumb-btn ${secViewLevel === 'depts' ? 'level-batch' : ''}`} onClick={() => { updateSecLevel(secSelectedBatch, ''); setSecDept(''); }}>{secSelectedBatch}</span>
+                    </>
+                  )}
+                  {secSelectedDept && (
+                    <>
+                      <RiArrowRightSLine className="crumb-sep" />
+                      <span className="crumb-static">{secSelectedDept}</span>
+                    </>
                   )}
                 </div>
               </div>
 
-              {isSecEditMode && (
-              <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
-                <div className="add-card-title-row"><span>Map New Section</span></div>
-                <div className="add-card-grid">
-                  <div className="add-input-section grow">
-                    <label className="add-input-label">BATCH</label>
-                    <select className="premium-add-input" style={{ cursor: 'pointer' }} value={secBatch} onChange={e => { setSecBatch(e.target.value); setSecDept(""); }}>
-                      <option value="">Select Batch</option>
-                      {Object.keys(hierarchy).sort().reverse().map(b => <option key={b} value={b}>{b}</option>)}
-                    </select>
-                  </div>
-                  <div className="add-input-section grow">
-                    <label className="add-input-label">DEPARTMENT</label>
-                    <select className="premium-add-input" style={{ cursor: 'pointer' }} value={secDept} onChange={e => setSecDept(e.target.value)} disabled={!secBatch}>
-                      <option value="">Select Dept</option>
-                      {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                  </div>
-                  <div className="add-input-section grow">
-                    <label className="add-input-label">SECTION NAME</label>
-                    <input className="premium-add-input" placeholder="e.g. A" value={newSection} onChange={e => setNewSection(e.target.value)} disabled={!secDept} />
-                  </div>
+              {/* LEVEL 1: BATCHES */}
+              {secViewLevel === 'batches' && (
+                <div className="explorer-content explorer-grid">
+                  {Object.keys(hierarchy).filter(k => k !== 'initialized').sort().reverse().map(b => (
+                    <div key={b} className="explorer-card" onClick={() => { updateSecLevel(b, ''); setSecBatch(b); }}>
+                      <RiTeamLine className="card-icon" />
+                      <div className="card-info"><h3>Batch {b}</h3><p>Select Batch</p></div>
+                    </div>
+                  ))}
+                  {Object.keys(hierarchy).filter(k => k !== 'initialized').length === 0 && (
+                    <div className="settings-card empty-card-wrap" style={{ gridColumn: '1 / -1' }}><div className="empty-placeholder"><RiBookOpenLine /><p>No batches registered yet.</p></div></div>
+                  )}
                 </div>
-                {isMobile ? (
-                  <button className="premium-add-submit-btn" style={{ marginTop: '16px' }} onClick={handleAddSection}>Add Section</button>
-                ) : (
-                  <button className="premium-add-submit-btn" onClick={handleAddSection}><RiAddLine /> Add Section</button>
-                )}
-              </div>
               )}
 
-              {/* All Sections List */}
-              <div className="master-items-container individual-cards" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
-                {(() => {
-                  const allSections = [];
-                  Object.keys(hierarchy).sort().reverse().forEach(batch => {
-                    const depts = Object.keys(hierarchy[batch] || {}).filter(k => k !== 'initialized').sort();
-                    depts.forEach(dept => {
-                      const sections = Array.isArray(hierarchy[batch][dept]) ? hierarchy[batch][dept] : [];
-                      sections.forEach(sec => {
-                        allSections.push({ batch, dept, sec });
-                      });
-                    });
-                  });
+              {/* LEVEL 2: DEPARTMENTS */}
+              {secViewLevel === 'depts' && (
+                <div className="explorer-content explorer-grid">
+                  {Object.keys(hierarchy[secSelectedBatch] || {}).filter(k => k !== 'initialized').sort().map(d => (
+                    <div key={d} className="explorer-card" onClick={() => { updateSecLevel(secSelectedBatch, d); setSecDept(d); }}>
+                      <RiBookOpenLine className="card-icon" />
+                      <div className="card-info"><h3>{d}</h3><p>Select Department</p></div>
+                    </div>
+                  ))}
+                  {Object.keys(hierarchy[secSelectedBatch] || {}).filter(k => k !== 'initialized').length === 0 && (
+                    <div className="settings-card empty-card-wrap" style={{ gridColumn: '1 / -1' }}><div className="empty-placeholder"><RiBookOpenLine /><p>No departments in this batch.</p></div></div>
+                  )}
+                </div>
+              )}
 
-                  if (allSections.length === 0) {
-                    return <div className="settings-card empty-card-wrap"><div className="empty-placeholder"><RiBookOpenLine /><p>No sections mapped yet.</p></div></div>;
-                  }
+              {/* LEVEL 3: SECTIONS EDITOR */}
+              {secViewLevel === 'secs' && (
+                <>
+                  <div className="master-header-row animate-fade-in" style={{ marginBottom: '16px', minHeight: 'auto', justifyContent: 'flex-end', paddingRight: 0, paddingLeft: 0 }}>
+                    <div className="header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
+                      {isSecEditMode ? (
+                        <div className="master-header-row" style={{ display: 'flex', gap: '8px', flexDirection: 'row', alignItems: 'center' }}>
+                          <button className="role-header-pill secondary" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); setIsSecEditMode(false); setEditingSec(null); }} style={{ minWidth: '90px' }}>Cancel</button>
+                          <button className="role-header-pill active" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); setIsSecEditMode(false); setEditingSec(null); }} style={{ minWidth: '90px' }}>Done</button>
+                        </div>
+                      ) : (
+                        <button className="edit-list-btn" onClick={() => setIsSecEditMode(true)}><RiEditLine style={{ marginRight: '6px' }} /> Edit List</button>
+                      )}
+                    </div>
+                  </div>
 
-                  return allSections.map(({ batch, dept, sec }) => (
-                    <div key={`${batch}-${dept}-${sec}`} className={`settings-card master-item-card ${editingSec?.oldVal === sec && editingSec?.batch === batch && editingSec?.dept === dept ? 'editing' : ''}`}>
-                      {editingSec?.oldVal === sec && editingSec?.batch === batch && editingSec?.dept === dept ? (
-                        <div className="pill-edit-row">
-                          <div className="edit-item-fields">
-                            <div className="edit-field">
-                              <label className="edit-label">SECTION NAME</label>
-                              <input autoFocus className="edit-input-field" value={editingSec.newVal} onChange={e => setEditingSec({ ...editingSec, newVal: e.target.value })} onKeyDown={e => e.key === 'Enter' && handleUpdateSection()} />
+                  {isSecEditMode && (
+                  <div className="master-add-card-premium animate-slide-down" style={{ marginBottom: '24px' }}>
+                    <div className="add-card-title-row"><span>Add New Section</span></div>
+                    <div className="add-card-grid">
+                      <div className="add-input-section grow">
+                        <label className="add-input-label">SECTION NAME</label>
+                        <input className="premium-add-input" placeholder="e.g. A" value={newSection} onChange={e => setNewSection(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddSection()} />
+                      </div>
+                    </div>
+                    {isMobile ? (
+                      <button className="premium-add-submit-btn" style={{ marginTop: '16px' }} onClick={handleAddSection}>Add Section</button>
+                    ) : (
+                      <button className="premium-add-submit-btn" onClick={handleAddSection}><RiAddLine /> Add Section</button>
+                    )}
+                  </div>
+                  )}
+
+                  <div className="master-items-container individual-cards" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '16px' }}>
+                    {(() => {
+                      const sections = Array.isArray(hierarchy[secSelectedBatch]?.[secSelectedDept]) ? hierarchy[secSelectedBatch][secSelectedDept] : [];
+                      
+                      if (sections.length === 0) {
+                        return <div className="settings-card empty-card-wrap" style={{ gridColumn: '1 / -1' }}><div className="empty-placeholder"><RiBookOpenLine /><p>No sections mapped yet.</p></div></div>;
+                      }
+
+                      return sections.map(sec => (
+                        <div key={sec} className={`settings-card master-item-card ${editingSec?.oldVal === sec ? 'editing' : ''}`}>
+                          {editingSec?.oldVal === sec ? (
+                            <div className="pill-edit-row">
+                              <div className="edit-item-fields">
+                                <div className="edit-field">
+                                  <label className="edit-label">SECTION NAME</label>
+                                  <input autoFocus className="edit-input-field" value={editingSec.newVal} onChange={e => setEditingSec({ ...editingSec, newVal: e.target.value })} onKeyDown={e => e.key === 'Enter' && handleUpdateSection()} />
+                                </div>
+                              </div>
+                              <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+                                <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingSec(null)}>Cancel</button>
+                                <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleUpdateSection}> Save</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="item-content" style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', padding: '4px 0' }}>
+                                {isSecDeleteMode && (
+                                  <input type="checkbox" className="mac-checkbox" checked={selectedSecs.includes(`${secSelectedBatch}-${secSelectedDept}-${sec}`)} onChange={() => handleToggleSecSelect(`${secSelectedBatch}-${secSelectedDept}-${sec}`)} />
+                                )}
+                                <div style={{
+                                  width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(52,199,89,0.1)',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                                }}>
+                                  <RiLayoutGridLine style={{ fontSize: '20px', color: '#34c759' }} />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                  <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--mac-text)', letterSpacing: '-0.3px' }}>Section {sec}</div>
+                                  <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--mac-text-secondary)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '1px' }}>{secSelectedBatch} · {secSelectedDept}</div>
+                                </div>
+                              </div>
+                              {isSecEditMode && (
+                                <button className="pill-inline-edit" onClick={() => setEditingSec({ batch: secSelectedBatch, dept: secSelectedDept, oldVal: sec, newVal: sec })}><RiEditLine /></button>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      ));
+                    })()}
+                  </div>
+
+                  {isSecEditMode && (
+                    <div className={`bulk-action-footer-premium animate-slide-up ${isSecDeleteMode ? 'danger-mode' : ''}`}>
+                      {isSecDeleteMode ? (
+                        <div className="bulk-delete-action-row">
+                          <div className="bulk-delete-info">
+                            <div className="info-icon"><RiDeleteBin6Fill /></div>
+                            <div className="bulk-delete-text">
+                              <span className="bulk-delete-title">{selectedSecs.length === 0 ? "Select Items" : `${selectedSecs.length} Selected`}</span>
+                              <span className="bulk-delete-desc">Choose sections to delete</span>
                             </div>
                           </div>
-                          <div className="pill-actions" style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-                            <button className="premium-pill-btn secondary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setEditingSec(null)}>Cancel</button>
-                            <button className="premium-pill-btn primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleUpdateSection}> Save</button>
+                          <div className="pill-group">
+                            <button className="premium-pill-btn primary" onClick={() => {
+                              const arr = Array.isArray(hierarchy[secSelectedBatch]?.[secSelectedDept]) ? hierarchy[secSelectedBatch][secSelectedDept] : [];
+                              const allSecKeys = arr.map(s => `${secSelectedBatch}-${secSelectedDept}-${s}`);
+                              handleSelectAllSecs(allSecKeys);
+                            }}>{selectedSecs.length > 0 ? 'Deselect All' : 'Select All'}</button>
+                            <button className="premium-pill-btn secondary" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); }}>Cancel</button>
+                            <button className="premium-pill-btn danger" onClick={() => {
+                               const arr = Array.isArray(hierarchy[secSelectedBatch]?.[secSelectedDept]) ? hierarchy[secSelectedBatch][secSelectedDept] : [];
+                               const allSectionsList = arr.map(s => ({batch: secSelectedBatch, dept: secSelectedDept, sec: s}));
+                               handleBulkDeleteSecs(allSectionsList);
+                            }} disabled={selectedSecs.length === 0}>Delete</button>
                           </div>
                         </div>
                       ) : (
-                        <>
-                          <div className="item-content" style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', padding: '4px 0' }}>
-                            {isSecDeleteMode && (
-                              <input type="checkbox" className="mac-checkbox" checked={selectedSecs.includes(`${batch}-${dept}-${sec}`)} onChange={() => handleToggleSecSelect(`${batch}-${dept}-${sec}`)} />
-                            )}
-                            <div style={{
-                              width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(52,199,89,0.1)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                            }}>
-                              <RiLayoutGridLine style={{ fontSize: '20px', color: '#34c759' }} />
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                              <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--mac-text)', letterSpacing: '-0.3px' }}>Section {sec}</div>
-                              <div style={{ fontSize: '11px', fontWeight: '600', color: 'var(--mac-text-secondary)', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '1px' }}>{batch} · {dept}</div>
+                        <div className="bulk-delete-start-row">
+                          <div className="bulk-delete-info">
+                            <div className="info-icon"><RiLayoutGridLine /></div>
+                            <div className="bulk-delete-text">
+                              <span className="bulk-delete-title">Manage Sections</span>
+                              <span className="bulk-delete-desc">Select and remove mapped sections</span>
                             </div>
                           </div>
-                          {isSecEditMode && (
-                            <button className="pill-inline-edit" onClick={() => setEditingSec({ batch, dept, oldVal: sec, newVal: sec })}><RiEditLine /></button>
-                          )}
-                        </>
+                          <button className="premium-pill-btn danger" onClick={() => setIsSecDeleteMode(true)}><RiDeleteBin6Fill /> Delete</button>
+                        </div>
                       )}
                     </div>
-                  ));
-                })()}
-              </div>
-
-              {isSecEditMode && (
-                <div className={`bulk-action-footer-premium animate-slide-up ${isSecDeleteMode ? 'danger-mode' : ''}`}>
-                  {isSecDeleteMode ? (
-                    <div className="bulk-delete-action-row">
-                      <div className="bulk-delete-info">
-                        <div className="info-icon"><RiDeleteBin6Fill /></div>
-                        <div className="bulk-delete-text">
-                          <span className="bulk-delete-title">{selectedSecs.length === 0 ? "Select Items" : `${selectedSecs.length} Selected`}</span>
-                          <span className="bulk-delete-desc">Choose sections to delete</span>
-                        </div>
-                      </div>
-                      <div className="pill-group">
-                        <button className="premium-pill-btn primary" onClick={() => {
-                          const allSecKeys = [];
-                          Object.keys(hierarchy).forEach(b => {
-                            Object.keys(hierarchy[b] || {}).filter(k => k !== 'initialized').forEach(d => {
-                              const arr = Array.isArray(hierarchy[b][d]) ? hierarchy[b][d] : [];
-                              arr.forEach(s => allSecKeys.push(`${b}-${d}-${s}`));
-                            });
-                          });
-                          handleSelectAllSecs(allSecKeys);
-                        }}>{selectedSecs.length > 0 ? 'Deselect All' : 'Select All'}</button>
-                        <button className="premium-pill-btn secondary" onClick={() => { setSelectedSecs([]); setIsSecDeleteMode(false); }}>Cancel</button>
-                        <button className="premium-pill-btn danger" onClick={() => {
-                           const allSectionsList = [];
-                           Object.keys(hierarchy).forEach(b => {
-                             Object.keys(hierarchy[b]||{}).filter(k=>k!=='initialized').forEach(d => {
-                               const arr = Array.isArray(hierarchy[b][d]) ? hierarchy[b][d] : [];
-                               arr.forEach(s => allSectionsList.push({batch: b, dept: d, sec: s}));
-                             });
-                           });
-                           handleBulkDeleteSecs(allSectionsList);
-                        }} disabled={selectedSecs.length === 0}>Delete</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bulk-delete-start-row">
-                      <div className="bulk-delete-info">
-                        <div className="info-icon"><RiLayoutGridLine /></div>
-                        <div className="bulk-delete-text">
-                          <span className="bulk-delete-title">Manage Sections</span>
-                          <span className="bulk-delete-desc">Select and remove mapped sections</span>
-                        </div>
-                      </div>
-                      <button className="premium-pill-btn danger" onClick={() => setIsSecDeleteMode(true)}><RiDeleteBin6Fill /> Delete</button>
-                    </div>
                   )}
-                </div>
+                </>
               )}
             </div>
           )}
-
         </div>
       </div>
     </div>

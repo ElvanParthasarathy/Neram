@@ -24,8 +24,10 @@ import {
 } from 'react-icons/ri';
 import '../../../styles/admin/notes-manager.css';
 import { ListItemSkeleton } from '../../../components/ui/AdminSkeletons';
+import { useToast } from '../../../contexts/ToastContext';
 
 const NotesManager = () => {
+    const { showToast } = useToast();
     const [notesMode, setNotesMode] = useState('fetch');
     const [folders, setFolders] = useState({});
     const [subjects, setSubjects] = useState({});
@@ -175,12 +177,14 @@ const NotesManager = () => {
     const updateMode = async (newMode) => {
         if (newMode === notesMode) return;
         await set(ref(db, 'settings/notesMode'), newMode);
+        showToast("✅ Notes visibility updated.");
     };
 
     const createFolder = async (name) => {
         if (!name?.trim()) return;
         const newRef = push(ref(db, 'notes_drive/folders'));
         await set(newRef, { id: newRef.key, name: name.trim(), parentId: currentFolderId });
+        showToast("✅ Folder created successfully.");
         setCreatingFolder(false);
         setNewFolderName('');
     };
@@ -198,6 +202,7 @@ const NotesManager = () => {
                     if (sKey) await remove(ref(db, `notes_drive/subjects/${sKey}`));
                     if (fiKey) await remove(ref(db, `notes_drive/files/${fiKey}`));
                 }
+                showToast(`✅ ${ids.length} item(s) deleted.`);
                 setSelected(new Set());
             }
         );
@@ -211,6 +216,7 @@ const NotesManager = () => {
         if (fKey) await update(ref(db, `notes_drive/folders/${fKey}`), { name: renameValue.trim() });
         if (sKey) await update(ref(db, `notes_drive/subjects/${sKey}`), { name: renameValue.trim() });
         if (fiKey) await update(ref(db, `notes_drive/files/${fiKey}`), { name: renameValue.trim() });
+        showToast("✅ Item renamed successfully.");
         setRenamingId(null);
     };
 
@@ -223,6 +229,7 @@ const NotesManager = () => {
             if (sKey) await update(ref(db, `notes_drive/subjects/${sKey}`), { parentId: targetFolderId });
             if (fiKey) await update(ref(db, `notes_drive/files/${fiKey}`), { parentId: targetFolderId });
         }
+        showToast("✅ Items moved successfully.");
         setMoveModal(null);
         setSelected(new Set());
     };
@@ -249,9 +256,11 @@ const NotesManager = () => {
         if (subjectModal.mode === 'edit') {
             const sKey = Object.entries(subjects).find(([, s]) => s.id === subjectModal.subject.id)?.[0];
             if (sKey) await update(ref(db, `notes_drive/subjects/${sKey}`), { name: subjectName.trim(), units: unitsMap });
+            showToast("✅ Subject updated successfully.");
         } else {
             const newRef = push(ref(db, 'notes_drive/subjects'));
             await set(newRef, { id: newRef.key, name: subjectName.trim(), parentId: currentFolderId, units: unitsMap });
+            showToast("✅ Subject created successfully.");
         }
         setSubjectModal(null);
     };
@@ -274,9 +283,11 @@ const NotesManager = () => {
         if (fileModal.mode === 'edit') {
             const fiKey = Object.entries(files).find(([, f]) => f.id === fileModal.file.id)?.[0];
             if (fiKey) await update(ref(db, `notes_drive/files/${fiKey}`), { name: fileName.trim(), link: fileLink.trim() });
+            showToast("✅ Link updated successfully.");
         } else {
             const newRef = push(ref(db, 'notes_drive/files'));
             await set(newRef, { id: newRef.key, name: fileName.trim(), link: fileLink.trim(), parentId: currentFolderId });
+            showToast("✅ Link created successfully.");
         }
         setFileModal(null);
     };
@@ -373,11 +384,17 @@ const NotesManager = () => {
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {currentPath.length > 1 && (
-                        <button className="explorer-back-btn" onClick={() => navigateToIndex(currentPath.length - 2)}>
-                            <RiArrowLeftLine /> Back
-                        </button>
-                    )}
+                    <button className="explorer-back-btn" onClick={() => {
+                        if (currentPath.length > 1) {
+                            navigateToIndex(currentPath.length - 2);
+                        } else {
+                            const params = new URLSearchParams(searchParams);
+                            params.set('mod', 'home');
+                            setSearchParams(params);
+                        }
+                    }}>
+                        <RiArrowLeftLine /> Back
+                    </button>
                 </div>
             </header>
 

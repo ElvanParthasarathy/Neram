@@ -90,7 +90,9 @@ const ScheduleManager = ({ user, userProfile }) => {
         } else if (viewLevel === 'depts') {
             updateLevel('batches', { batch: '', dept: '', sec: '' });
         } else {
-            setSearchParams({ mod: 'home' }, { replace: true });
+            const params = new URLSearchParams(searchParams);
+            params.set('mod', 'home');
+            setSearchParams(params);
         }
     };
 
@@ -382,15 +384,17 @@ const ScheduleManager = ({ user, userProfile }) => {
     }, [viewLevel, path.batch, path.dept, path.sec]);
 
     // --- SAVE LOGIC ---
-    const saveMaster = async (newData) => {
+    const saveMaster = async (newData, successMsg = "✅ Saved successfully") => {
         try {
             await set(ref(db, `schedules/${path.batch}/${path.dept}/_master`), newData);
+            if (successMsg) showToast(successMsg);
         } catch (e) { showToast(e.message); }
     };
 
-    const saveSection = async (newData) => {
+    const saveSection = async (newData, successMsg = "✅ Saved successfully") => {
         try {
             await set(ref(db, `schedules/${path.batch}/${path.dept}/${path.sec}`), newData);
+            if (successMsg) showToast(successMsg);
         } catch (e) { showToast(e.message); }
     }
 
@@ -651,20 +655,13 @@ const ScheduleManager = ({ user, userProfile }) => {
                         </span>
 
                         {path.batch && <><RiArrowRightSLine className="crumb-sep level-batch-sep" /> <span className={`crumb-btn level-batch ${isRep ? 'disabled-crumb' : ''}`} onClick={() => !isRep && updateLevel('depts', { dept: '', sec: '' })}>{path.batch}</span></>}
-                        {isRep && path.dept && <><RiArrowRightSLine className="crumb-sep level-dept-sep" /> <span className="crumb-static level-dept">{path.dept}</span></>}
+                        {path.dept && <><RiArrowRightSLine className="crumb-sep level-dept-sep" /> <span className={`${(isRep || viewLevel === 'editor' || viewLevel === 'master') ? 'crumb-static' : 'crumb-btn'} level-dept`} onClick={() => !isRep && updateLevel('secs', { sec: '' })}>{path.dept}</span></>}
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {viewLevel !== 'batches' && viewLevel !== 'secs' && (
-                        <button className="explorer-back-btn" onClick={handleBack}>
-                            <RiArrowLeftLine /> Back
-                        </button>
-                    )}
-                    {!isRep && viewLevel === 'secs' && (
-                        <button className="explorer-back-btn" onClick={handleBack}>
-                            <RiArrowLeftLine /> Back
-                        </button>
-                    )}
+                    <button className="explorer-back-btn" onClick={handleBack}>
+                        <RiArrowLeftLine /> Back
+                    </button>
                 </div>
             </header>
 

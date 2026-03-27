@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../../firebase';
+import { useSearchParams } from 'react-router-dom';
 import { ref, onValue, update } from 'firebase/database';
-import { RiCheckLine, RiCloseLine, RiUserLine, RiTimeLine } from 'react-icons/ri';
+import { RiCheckLine, RiCloseLine, RiUserLine, RiTimeLine, RiArrowLeftLine } from 'react-icons/ri';
 import { convertTo12Hour, formatDateDDMMYYYY } from '../../../utils/timeUtils';
 import '../../../styles/admin/pending-requests.css';
 import { ListItemSkeleton } from '../../../components/ui/AdminSkeletons';
 import { useToast } from '../../../contexts/ToastContext';
 
-const PendingRequests = () => {
+const PendingRequests = ({ isMobile }) => {
     const { showToast } = useToast();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [users, setUsers] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -50,7 +52,21 @@ const PendingRequests = () => {
     if (loading) return <div style={{ padding: '20px' }}><ListItemSkeleton count={3} /></div>;
 
     return (
-        <div className="pending-requests-container">
+        <div className="pending-requests-container" style={{ paddingTop: '20px' }}>
+            <header className="explorer-header" style={{ marginBottom: '20px' }}>
+                <div className="breadcrumb-nav">
+                    {!isMobile && <h1 className="page-title" style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: 'var(--mac-text)', letterSpacing: '-0.5px' }}>Pending Approvals</h1>}
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button className="explorer-back-btn" onClick={() => {
+                        const params = new URLSearchParams(searchParams);
+                        params.set('mod', 'home');
+                        setSearchParams(params);
+                    }}>
+                        <RiArrowLeftLine /> Back
+                    </button>
+                </div>
+            </header>
             {pendingUsers.length === 0 ? (
                 <div className="empty-requests">
                     <RiTimeLine className="empty-icon" />

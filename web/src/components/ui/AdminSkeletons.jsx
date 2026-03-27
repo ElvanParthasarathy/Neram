@@ -17,16 +17,11 @@ export const DirectorySkeleton = () => (
 );
 
 export const UserCardSkeleton = () => (
-    <div className="user-management-card skeleton-container">
-        <div className="card-top">
-            <Skeleton className="skeleton-circle user-card-avatar" style={{ border: 'none' }} />
-        </div>
-        <div className="card-info">
-            <Skeleton className="skeleton-title" style={{ height: 18, marginBottom: 8 }} />
-            <Skeleton className="skeleton-text" style={{ width: '80%', height: 12 }} />
-            <div className="u-badges">
-                <Skeleton className="u-tag" style={{ width: 60, height: 18, borderRadius: 6 }} />
-            </div>
+    <div className="user-management-card skeleton-container" style={{ cursor: 'default' }}>
+        <Skeleton className="skeleton-circle" style={{ width: 48, height: 48, flexShrink: 0 }} />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <Skeleton className="skeleton-title" style={{ height: 16, width: '60%', marginBottom: 0 }} />
+            <Skeleton className="skeleton-text" style={{ width: '40%', height: 12, marginBottom: 0 }} />
         </div>
     </div>
 );

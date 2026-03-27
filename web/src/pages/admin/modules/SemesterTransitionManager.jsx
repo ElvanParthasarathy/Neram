@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { db } from "../../../firebase";
 import { ref, get, update, onValue } from "firebase/database";
 import { getHardcodedRole } from '../../../data/admins';
-import { RiHistoryLine, RiArrowGoBackLine, RiAlertLine, RiInboxArchiveLine, RiCheckLine, RiLoader4Line, RiArrowDownSLine } from 'react-icons/ri';
+import { RiHistoryLine, RiArrowGoBackLine, RiAlertLine, RiInboxArchiveLine, RiCheckLine, RiLoader4Line, RiArrowDownSLine, RiArrowLeftLine } from 'react-icons/ri';
 import "../../../styles/admin/settings.css";
 import "../../../styles/admin/event-manager.css";
 
 const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const role = user?.email ? getHardcodedRole(user.email) : (userProfile?.role || 'student');
     const isSuperAdmin = role === 'super_admin';
 
@@ -210,10 +212,17 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
         <div className={`admin-subpage ${isMobile ? 'mobile-page-container' : ''} animate-fade-in`}>
             {!isMobile && (
                 <header className="explorer-header focus-mode" style={{ background: 'transparent', padding: '0 0 20px 0', borderBottom: '1px solid var(--mac-divider)', height: 'auto', marginBottom: '24px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <p style={{ color: 'var(--mac-text)', opacity: 0.6, margin: 0, fontSize: '15px' }}>
-                            Safely transition between academic semesters by archiving old timetables and restoring historical ones.
-                        </p>
+                    <div className="breadcrumb-nav">
+                        <h1 className="page-title" style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: 'var(--mac-text)', letterSpacing: '-0.5px' }}>Semester Archive Tool</h1>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <button className="explorer-back-btn" onClick={() => {
+                            const params = new URLSearchParams(searchParams);
+                            params.set('mod', 'home');
+                            setSearchParams(params);
+                        }}>
+                            <RiArrowLeftLine /> Back
+                        </button>
                     </div>
                 </header>
             )}
@@ -234,7 +243,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
                     </div>
                 )}
 
-                <div className="settings-card" style={{ marginBottom: '32px', padding: isMobile ? '20px' : '30px' }}>
+                <div className="settings-card" style={{ marginBottom: '32px', padding: isMobile ? '20px' : '30px', border: 'none', boxShadow: 'none' }}>
                     <div className="field">
                         <label>Target Batch</label>
                         <div className="s2-date-input-wrap">
@@ -255,7 +264,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
                     {/* ARCHIVE CARD */}
-                    <div className="settings-card" style={{ padding: isMobile ? '20px' : '30px' }}>
+                    <div className="settings-card" style={{ padding: isMobile ? '20px' : '30px', border: 'none', boxShadow: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                             <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,59,48,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mac-warning-text)', fontSize: '20px' }}>
                                 <RiInboxArchiveLine />
@@ -290,7 +299,7 @@ const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
                     </div>
 
                     {/* RESTORE CARD */}
-                    <div className="settings-card" style={{ padding: isMobile ? '20px' : '30px' }}>
+                    <div className="settings-card" style={{ padding: isMobile ? '20px' : '30px', border: 'none', boxShadow: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                             <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(40,200,64,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--mac-success-text)', fontSize: '20px' }}>
                                 <RiArrowGoBackLine />

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { db } from '../../../firebase';
 import { ref as dbRef, onValue, set } from 'firebase/database';
-import { RiFilePdfLine, RiCheckLine, RiLoader4Line, RiSave3Line, RiExternalLinkLine, RiInformationLine } from 'react-icons/ri';
+import { RiFilePdfLine, RiCheckLine, RiLoader4Line, RiSave3Line, RiExternalLinkLine, RiInformationLine, RiArrowLeftLine } from 'react-icons/ri';
 import '../../../styles/admin/resource-manager.css';
 
-const ResourceManager = () => {
+const ResourceManager = ({ isMobile }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [currentFile, setCurrentFile] = useState(null);
     const [inputUrl, setInputUrl] = useState('');
     const [inputName, setInputName] = useState('');
@@ -67,8 +69,16 @@ const ResourceManager = () => {
         <div className="admin-subpage animate-fade-in resources-page-wrapper">
             <header className="explorer-header">
                 <div className="breadcrumb-nav">
-                    <RiInformationLine className="card-icon-mini" />
-                    <span className="crumb-static">Official Resources</span>
+                    {!isMobile && <h1 className="page-title" style={{ margin: 0, fontSize: '28px', fontWeight: 700, color: 'var(--mac-text)', letterSpacing: '-0.5px' }}>Official Resources</h1>}
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button className="explorer-back-btn" onClick={() => {
+                        const params = new URLSearchParams(searchParams);
+                        params.set('mod', 'home');
+                        setSearchParams(params);
+                    }}>
+                        <RiArrowLeftLine /> Back
+                    </button>
                 </div>
             </header>
 

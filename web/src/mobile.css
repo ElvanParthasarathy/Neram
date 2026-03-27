@@ -177,7 +177,7 @@
 
     /* Admin panel: offset content below the fixed top bar */
     #app-shell #main-viewport {
-      padding-top: calc(64px + env(safe-area-inset-top));
+      padding-top: calc(75px + env(safe-area-inset-top)); /* Ensure content clears top bar */
     }
 
     html.dark #main-viewport {
@@ -208,7 +208,7 @@
       content: '';
       position: fixed;
       /* Rounded hole positioned between navbars */
-      top: 64px;
+      top: calc(64px + env(safe-area-inset-top));
       /* top bar height */
       bottom: 12px;
       /* No bottom bar — extend frame to bottom */
@@ -280,7 +280,7 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 64px;
+      height: calc(64px + env(safe-area-inset-top));
       padding: 0 12px;
       padding-top: env(safe-area-inset-top);
       background: #F2F2F7;
@@ -616,7 +616,7 @@
 
     .top-menu-dropdown {
       position: fixed;
-      top: calc(var(--screen-edge-spacing) + 55px);
+      top: calc(var(--screen-edge-spacing) + 55px + env(safe-area-inset-top));
       right: var(--screen-edge-spacing);
       z-index: 9999;
 

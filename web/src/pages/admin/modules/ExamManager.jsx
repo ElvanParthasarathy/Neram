@@ -598,11 +598,14 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                 <span className="crumb-static">...</span>
                             </span>
 
+                            {path.batch && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-btn" onClick={() => updateLevel('depts', { dept: '' })}>{path.batch}</span></>}
+                            {path.dept && <><RiArrowRightSLine className="crumb-sep" /> <span className="crumb-static">{path.dept}</span></>}
+
                         </div>
                     )}
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    {!isRep && viewLevel !== 'batches' && (
+                    {!isRep && (
                         <button className="explorer-back-btn" onClick={handleBack}>
                             <RiArrowLeftLine /> Back
                         </button>

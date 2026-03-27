@@ -216,6 +216,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
       });
 
       await update(ref(db), updates);
+      showToast(isDelete ? "✅ Event deleted successfully" : "✅ Event saved successfully");
     } catch (err) {
       console.error("Firebase Sync Error:", err);
       showToast("Database Error: " + err.message);
@@ -458,7 +459,8 @@ const EventManager = ({ user, userProfile, isMobile }) => {
     <div className="exam-manager-container admin-subpage animate-fade-in">
       {/* 1. HEADER WITH BREADCRUMBS */}
       <header className="explorer-header focus-mode">
-        <div className="breadcrumb-nav">          {isRep ? (
+        <div className="breadcrumb-nav">
+          {isRep ? (
             /* STATIC HEADER FOR REPS - FULL BLOCKING */
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: 'var(--mac-text)', fontSize: '15px' }}>
               <RiCalendarEventLine style={{ fontSize: '18px', color: 'var(--mac-accent)' }} />
@@ -483,7 +485,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
           )}
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {!isRep && viewLevel !== 'batches' && (
+          {!isRep && (
             <button className="explorer-back-btn" onClick={handleBack}>
               <RiArrowLeftLine /> Back
             </button>

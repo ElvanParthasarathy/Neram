@@ -114,6 +114,7 @@ const AdminRoleManager = ({ userProfile }) => {
 
     try {
       await update(ref(db, `users/${uid}`), { role: newRole });
+      showToast(`✅ ${action} successful.`);
     } catch (err) {
       showToast("Error: " + err.message);
     }
@@ -215,7 +216,7 @@ const AdminRoleManager = ({ userProfile }) => {
 
   if (loading) return (
     <div className="admin-subpage">
-      <AdminPageSkeleton type="grid" />
+      <AdminPageSkeleton />
     </div>
   );
 
@@ -353,13 +354,9 @@ const AdminRoleManager = ({ userProfile }) => {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          {((selectedCategory === 'Student Admins' && viewLevel !== 'batches') ||
-            (selectedCategory === 'Faculty Admins' && viewLevel !== 'depts') ||
-            (viewLevel === 'promote')) && (
-              <button className="explorer-back-btn" onClick={navigateBack}>
-                <RiArrowLeftLine /> Back
-              </button>
-            )}
+          <button className="explorer-back-btn" onClick={navigateBack}>
+            <RiArrowLeftLine /> Back
+          </button>
         </div>
       </header>
 

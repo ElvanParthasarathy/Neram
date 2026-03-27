@@ -531,11 +531,9 @@ const UserManagement = () => {
           </div>
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          {viewLevel !== 'batches' && viewLevel !== 'faculty_depts' && viewLevel !== 'admin_list' && (
             <button className="explorer-back-btn" onClick={navigateBack}>
               <RiArrowLeftLine /> Back
             </button>
-          )}
         </div>
       </header>
 

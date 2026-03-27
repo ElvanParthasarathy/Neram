@@ -32,17 +32,13 @@ const SemesterTransitionManager = React.lazy(() => import('./modules/SemesterTra
 const SpecialClassManager = React.lazy(() => import('./modules/SpecialClassManager'));
 const NotesManager = React.lazy(() => import('./modules/NotesManager'));
 
-// --- Skeleton Fallback ---
+// --- Neutral Fallback to prevent "double skeleton" flash ---
 const AdminSkeletonFallback = () => (
-  <div className="admin-skeleton-page" style={{ padding: '20px' }}>
-    <div className="skeleton skeleton-title" style={{ width: '40%', height: '18px', marginBottom: '24px' }}></div>
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
-      <div className="skeleton skeleton-explorer-card"></div>
-      <div className="skeleton skeleton-explorer-card"></div>
-      <div className="skeleton skeleton-explorer-card"></div>
-    </div>
-    <div className="skeleton skeleton-card" style={{ height: '140px' }}></div>
-    <div className="skeleton skeleton-card" style={{ height: '100px' }}></div>
+  <div className="admin-skeleton-page" style={{ padding: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+    <div className="skeleton-circle" style={{ width: 40, height: 40, border: '3px solid var(--mac-blue-15)', borderTopColor: 'var(--mac-blue)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+    <style>{`
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    `}</style>
   </div>
 );
 
@@ -94,25 +90,7 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
       {/* HEADER: LOCKED TO TOP-LEFT EDGE */}
       {/* MAIN CONTENT: EXPANDS TO FULL BREADTH */}
       <main className="admin-content-flow" style={{ paddingTop: '0' }}>
-        {activeModule !== 'home' && (
-          <header className="page-header">
-            <h1 className="page-title">
-              {activeModule === 'users' && 'Users'}
-              {activeModule === 'roles' && 'Admins'}
-              {activeModule === 'faculty' && 'Faculty Directory'}
-              {activeModule === 'schedules' && 'Schedule'}
-              {activeModule === 'exams' && 'Exams'}
-              {activeModule === 'events' && 'Events'}
-              {activeModule === 'calendar' && 'Calendar'}
-              {activeModule === 'resources' && 'Resources'}
-              {activeModule === 'notes' && 'Notes Manager'}
-              {activeModule === 'pending' && 'Pending Requests'}
-              {activeModule === 'structure' && 'Structure Manager'}
-              {activeModule === 'archives' && 'Semester Archive Tool'}
-              {activeModule === 'special_classes' && 'Special Classes'}
-            </h1>
-          </header>
-        )}
+        {/* Global Page Header removed; titles are now localized to match back button alignment */}
         <Suspense fallback={<AdminSkeletonFallback />}>
           {activeModule === 'home' && <AdminDashboard user={user} userProfile={userProfile} isMobile={isMobile} />}
           {activeModule === 'structure' && <StructureManager isMobile={isMobile} />}
