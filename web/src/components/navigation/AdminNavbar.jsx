@@ -3,8 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { auth, googleProvider, db } from "../../firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { ref, onValue } from "firebase/database";
-import Logo from "../../assets/branding/neram-compact.svg";
-import LogoIcon from "../../assets/branding/neram-full.svg";
+import Logo from "../../assets/branding/navbar-logo-icon.svg";
+import LogoIcon from "../../assets/branding/app-logo-wordmark.svg";
 // import AdminViewSwitcher from "../AdminViewSwitcher"; // REMOVED
 import ThemeToggle from "../ui/ThemeToggle";
 import {

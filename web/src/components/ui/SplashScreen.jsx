@@ -1,6 +1,6 @@
 import React from 'react';
 import { AuthLayout } from '../auth/AuthComponents';
-import Logo from '../../assets/branding/neram-full.svg'; // Using the SVG logo like in Login/Signup
+import Logo from '../../assets/branding/app-logo-wordmark.svg'; // Using the SVG logo like in Login/Signup
 import '../../styles/components/splash.css'; // Keep for specific spinner styles if needed, or inline them
 
 const SplashScreen = () => {
