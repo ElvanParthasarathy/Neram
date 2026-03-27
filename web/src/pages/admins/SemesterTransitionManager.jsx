@@ -4,6 +4,7 @@ import { ref, get, update, onValue } from "firebase/database";
 import { getHardcodedRole } from '../../data/admins';
 import { RiHistoryLine, RiArrowGoBackLine, RiAlertLine, RiInboxArchiveLine, RiCheckLine, RiLoader4Line, RiArrowDownSLine } from 'react-icons/ri';
 import "../../styles/admin-settings.css";
+import "../../styles/event-manager.css";
 
 const SemesterTransitionManager = ({ user, userProfile, isMobile }) => {
     const role = user?.email ? getHardcodedRole(user.email) : (userProfile?.role || 'student');

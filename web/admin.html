@@ -11,10 +11,18 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Mukta+Malar:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
+  <!-- Theme color: set dynamically by inline script below -->
   <meta name="theme-color" content="#000000" />
   <link rel="manifest" href="/admin-manifest.json" />
+
+  <!-- Apple PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Neram Admin" />
+  <link rel="apple-touch-icon" href="/neram.png" />
 
   <title>Neram Admin</title>
 
@@ -38,6 +46,15 @@
           root.classList.add('light');
           root.classList.remove('dark');
         }
+
+        // 5. Update theme-color meta tag BEFORE React loads (prevents status bar flash)
+        var themeColor = shouldBeDark ? '#000000' : '#F2F2F7';
+        var meta = document.querySelector("meta[name='theme-color']");
+        if (meta) meta.setAttribute('content', themeColor);
+
+        // 6. Also update Apple status bar style
+        var appleMeta = document.querySelector("meta[name='apple-mobile-web-app-status-bar-style']");
+        if (appleMeta) appleMeta.setAttribute('content', shouldBeDark ? 'black-translucent' : 'default');
       } catch (e) {
         // Fail silently if localStorage is blocked
       }

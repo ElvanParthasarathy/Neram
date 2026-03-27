@@ -133,7 +133,34 @@ const AdminRoleManager = ({ userProfile }) => {
     }
   };
 
-  const navigateBack = () => navigate(-1);
+  const navigateBack = () => {
+    if (viewLevel === 'promote') {
+      // Go back to the tab's root view
+      if (selectedCategory === 'Student Admins') {
+        updateParams({ rlvl: 'batches', rb: '', rd: '' }, true);
+      } else if (selectedCategory === 'Faculty Admins') {
+        updateParams({ rlvl: 'depts', rb: '', rd: '' }, true);
+      } else {
+        updateParams({ rlvl: 'list', rb: '', rd: '' }, true);
+      }
+    } else if (viewLevel === 'list') {
+      if (selectedCategory === 'Student Admins') {
+        updateParams({ rlvl: 'depts', rd: '' }, true);
+      } else if (selectedCategory === 'Faculty Admins') {
+        updateParams({ rlvl: 'depts', rd: '' }, true);
+      } else {
+        setSearchParams({ mod: 'home' }, { replace: true });
+      }
+    } else if (viewLevel === 'depts') {
+      if (selectedCategory === 'Student Admins' && drillPath.batch) {
+        updateParams({ rlvl: 'batches', rb: '', rd: '' }, true);
+      } else {
+        setSearchParams({ mod: 'home' }, { replace: true });
+      }
+    } else {
+      setSearchParams({ mod: 'home' }, { replace: true });
+    }
+  };
 
   const getAdminsByRole = (roleTitle) => {
     return Object.entries(users)

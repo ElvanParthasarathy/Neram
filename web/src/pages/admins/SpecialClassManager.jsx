@@ -45,7 +45,16 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
 
   const navigate = useNavigate();
 
-  const handleBack = () => navigate(-1);
+  const handleBack = () => {
+    const sclvl = searchParams.get('sclvl') || 'batches';
+    if (sclvl === 'depts') {
+      updateLevel('batches', { batch: '', dept: '' });
+    } else if (sclvl !== 'batches') {
+      updateLevel('depts', { dept: '' });
+    } else {
+      setSearchParams({ mod: 'home' }, { replace: true });
+    }
+  };
 
   // --- DATA STATE ---
   const [hierarchy, setHierarchy] = useState({});

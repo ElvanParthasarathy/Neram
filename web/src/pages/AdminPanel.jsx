@@ -53,7 +53,7 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
 
 
   const handleModuleChange = (newMod) => {
-    setSearchParams({ mod: newMod });
+    setSearchParams({ mod: newMod }, { replace: false });
   };
 
   // --- ROLE CHECK FOR ACCESS CONTROL ---

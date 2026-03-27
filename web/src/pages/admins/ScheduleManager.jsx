@@ -70,7 +70,15 @@ const ScheduleManager = ({ user, userProfile }) => {
 
     const navigate = useNavigate();
 
-    const handleBack = () => navigate(-1);
+    const handleBack = () => {
+        if (viewLevel === 'sections') {
+            updateLevel('depts', { sec: '' });
+        } else if (viewLevel === 'depts') {
+            updateLevel('batches', { batch: '', dept: '' });
+        } else {
+            setSearchParams({ mod: 'home' }, { replace: true });
+        }
+    };
 
     const [hierarchy, setHierarchy] = useState({});
     const [activeTab, setActiveTab] = useState('courses'); // courses | timetable | counseling

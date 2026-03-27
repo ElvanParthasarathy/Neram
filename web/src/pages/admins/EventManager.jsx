@@ -43,7 +43,16 @@ const EventManager = ({ user, userProfile, isMobile }) => {
 
   const navigate = useNavigate();
 
-  const handleBack = () => navigate(-1);
+  const handleBack = () => {
+    const elvl = searchParams.get('elvl') || 'batches';
+    if (elvl === 'depts') {
+      updateLevel('batches', { batch: '', dept: '' });
+    } else if (elvl !== 'batches') {
+      updateLevel('depts', { dept: '' });
+    } else {
+      setSearchParams({ mod: 'home' }, { replace: true });
+    }
+  };
 
   // --- 2. DATA STATE ---
   const [hierarchy, setHierarchy] = useState({});

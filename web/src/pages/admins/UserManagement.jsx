@@ -133,7 +133,17 @@ const UserManagement = () => {
     updateParams({ ulvl: nextLevel, ub: nextPath.batch, ud: nextPath.dept, us: nextPath.sec });
   };
 
-  const navigateBack = () => navigate(-1);
+  const navigateBack = () => {
+    if (viewLevel === 'students') {
+      updateParams({ ulvl: 'secs', us: '' });
+    } else if (viewLevel === 'secs') {
+      updateParams({ ulvl: 'depts', ud: '', us: '' });
+    } else if (viewLevel === 'depts' || viewLevel === 'faculty_members') {
+      updateParams({ ulvl: 'batches', ub: '', ud: '', us: '' });
+    } else {
+      setSearchParams({ mod: 'home' }, { replace: true });
+    }
+  };
 
   const resetToRoot = () => {
     updateParams({ ulvl: 'batches', urg: 'student', ub: '', ud: '', us: '' }, true);

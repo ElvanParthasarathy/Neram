@@ -63,7 +63,15 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
 
     const navigate = useNavigate();
 
-    const handleBack = () => navigate(-1);
+    const handleBack = () => {
+        if (viewLevel === 'depts') {
+            updateLevel('batches', { batch: '', dept: '' });
+        } else if (viewLevel !== 'batches') {
+            updateLevel('depts', { dept: '' });
+        } else {
+            setSearchParams({ mod: 'home' }, { replace: true });
+        }
+    };
 
     const [hierarchy, setHierarchy] = useState({});
     const [masterData, setMasterData] = useState({ courses: [], exams: [], sections: [], rawDeptData: {} });

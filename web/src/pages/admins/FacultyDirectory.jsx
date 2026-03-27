@@ -74,7 +74,7 @@ const FacultyDirectory = ({ isMobile }) => {
     if (targetFacultyDept) {
       navigateToLevel("");
     } else {
-      navigate(-1);
+      setSearchParams({ mod: 'home' }, { replace: true });
     }
   };
 

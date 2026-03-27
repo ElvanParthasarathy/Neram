@@ -110,32 +110,11 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         archives: 'Archive Tool',
     }[activeModule] || 'Admin Panel';
 
-    // Schedule Manager deep view detection
-    const schedLevel = searchParams.get('slvl');
-    const isInScheduleDeep = activeModule === 'schedules' && schedLevel && schedLevel !== 'batches';
-
-    // Exam Manager & Event Manager deep view detection
-    const examEventLevel = searchParams.get('elvl');
-    const isInExamDeep = (activeModule === 'exams' || activeModule === 'events') && examEventLevel && examEventLevel !== 'batches';
-
-    // Special Class deep view
-    const scLevel = searchParams.get('sclvl');
-    const isInScDeep = activeModule === 'special_classes' && scLevel && scLevel !== 'batches';
-
-    // Notes Manager deep view
-    let isInNotesDeep = false;
-    try {
-        const nfpBase = searchParams.get('nfp');
-        const nfpPath = nfpBase ? JSON.parse(decodeURIComponent(nfpBase)) : [];
-        isInNotesDeep = activeModule === 'notes' && nfpPath.length > 1;
-    } catch (e) {}
-
-    // Users deep view
-    const ulvl = searchParams.get('ulvl');
-    const isInUsersDeep = activeModule === 'users' && ulvl && !['batches', 'faculty_depts', 'admin_list'].includes(ulvl);
-
-    const isDeepView = isInScheduleDeep || isInExamDeep || isInScDeep || isInNotesDeep || isInUsersDeep;
-    const handleDeepBack = () => navigate(-1);
+    // --- MOBILE BACK NAVIGATION ---
+    // The mobile chevron back button should behave exactly like the browser/system back button.
+    // Since all navigation (drawer handleNav, sub-page drill-downs) pushes to history properly,
+    // navigate(-1) will always go to the correct previous page.
+    const handleBack = () => navigate(-1);
 
     // Determine current settings title
     const settingsTitle = navOverride?.title || 'Settings';
@@ -170,14 +149,10 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             <RiMenuLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
                         </button>
                         <span className="top-bar-title" style={{ marginLeft: 0, flex: 1 }}>{topBarTitle}</span>
-                        {isDeepView ? (
-                            <button className="top-back-btn" onClick={handleDeepBack} style={{ marginLeft: 'auto' }}>
-                            <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
-                            </button>
-                        ) : activeModule !== 'home' && (
+                        {activeModule !== 'home' && (
                             <button
                                 className="top-back-btn"
-                                onClick={() => navigate(-1)}
+                                onClick={handleBack}
                                 style={{ marginLeft: 'auto' }}
                             >
                                 <RiArrowLeftSLine style={{ width: '24px', height: '24px', color: 'var(--text-primary)' }} />
