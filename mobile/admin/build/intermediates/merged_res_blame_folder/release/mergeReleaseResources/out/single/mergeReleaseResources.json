@@ -1,34 +1,30 @@
 [
     {
-        "merged": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-release-45:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-main-46:\\mipmap-anydpi-v26\\ic_launcher.xml"
+        "merged": "com.elvan.rmdneram.admin-release-46:/drawable_shape_circle.xml.flat",
+        "source": "com.elvan.rmdneram.admin-main-47:/drawable/shape_circle.xml"
     },
     {
-        "merged": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-release-45:\\layout_activity_admin_main.xml.flat",
-        "source": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-main-46:\\layout\\activity_admin_main.xml"
+        "merged": "com.elvan.rmdneram.admin-release-46:/drawable_ic_splash_logo.xml.flat",
+        "source": "com.elvan.rmdneram.admin-main-47:/drawable/ic_splash_logo.xml"
     },
     {
-        "merged": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-release-45:\\drawable_ic_launcher_background.xml.flat",
-        "source": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-main-46:\\drawable\\ic_launcher_background.xml"
+        "merged": "com.elvan.rmdneram.admin-release-46:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.elvan.rmdneram.admin-main-47:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-release-45:\\drawable_ic_splash_logo.xml.flat",
-        "source": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-main-46:\\drawable\\ic_splash_logo.xml"
+        "merged": "com.elvan.rmdneram.admin-release-46:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.elvan.rmdneram.admin-main-47:/drawable/ic_launcher_foreground.xml"
     },
     {
-        "merged": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-release-45:\\drawable_shape_circle.xml.flat",
-        "source": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-main-46:\\drawable\\shape_circle.xml"
+        "merged": "com.elvan.rmdneram.admin-release-46:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.elvan.rmdneram.admin-main-47:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
-        "merged": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-release-45:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-main-46:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
+        "merged": "com.elvan.rmdneram.admin-release-46:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.elvan.rmdneram.admin-main-47:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-release-45:\\drawable_ic_launcher_foreground.xml.flat",
-        "source": "C:\\Users\\jaipr\\.gradle\\daemon\\8.13\\com.elvan.rmdneram.admin-main-46:\\drawable\\ic_launcher_foreground.xml"
-    },
-    {
-        "merged": "com.elvan.rmdneram.admin-release-45:/layout_activity_admin_main.xml.flat",
-        "source": "com.elvan.rmdneram.admin-main-46:/layout/activity_admin_main.xml"
+        "merged": "com.elvan.rmdneram.admin-release-46:/layout_activity_admin_main.xml.flat",
+        "source": "com.elvan.rmdneram.admin-main-47:/layout/activity_admin_main.xml"
     }
 ]

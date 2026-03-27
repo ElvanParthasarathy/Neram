@@ -93,6 +93,10 @@ class AdminMainActivity : AppCompatActivity() {
                 val color = if (isDark) Color.parseColor("#000000") else Color.parseColor("#F2F2F7")
                 window.statusBarColor = color
                 window.navigationBarColor = color
+                // Android 15 requires Edge-To-Edge transparent bars, so we color the window background 
+                // to fill the safe area padding instead of relying purely on statusBarColor.
+                window.decorView.setBackgroundColor(color)
+
                 val insetsController = WindowCompat.getInsetsController(window, window.decorView)
                 insetsController.isAppearanceLightStatusBars = !isDark
                 insetsController.isAppearanceLightNavigationBars = !isDark
@@ -130,6 +134,9 @@ class AdminMainActivity : AppCompatActivity() {
         val initialColor = if (isSystemDark) Color.parseColor("#000000") else Color.parseColor("#F2F2F7")
         window.statusBarColor = initialColor
         window.navigationBarColor = initialColor
+        // Android 15 requires Edge-To-Edge transparent bars, so we color the window background 
+        // to fill the safe area padding instead of relying purely on statusBarColor.
+        window.decorView.setBackgroundColor(initialColor)
 
         // Bind views
         webView = findViewById(R.id.webView)
@@ -232,17 +239,27 @@ class AdminMainActivity : AppCompatActivity() {
         }
 
         // Back navigation — HashRouter-aware
-        // WebView.canGoBack() doesn't work for hash-based SPA navigation.
-        // We ask JavaScript for history.length and use history.back() instead.
+        // WebView.canGoBack() and history.length don't work reliably for SPA exits
+        // because history.length doesn't decrease when going back.
+        // We check if the current hash is the home screen, login, or root, and exit if so.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                webView.evaluateJavascript("window.history.length") { result ->
-                    val historyLength = result?.toIntOrNull() ?: 1
-                    if (historyLength > 1) {
-                        webView.evaluateJavascript("window.history.back();", null)
-                    } else {
+                val jsCheck = """
+                    (function() {
+                        var hash = window.location.hash;
+                        return (hash === "" || hash === "#" || hash === "#/" || hash.startsWith("#/?mod=home") || hash === "#/login").toString();
+                    })();
+                """.trimIndent()
+
+                webView.evaluateJavascript(jsCheck) { result ->
+                    val isAtRoot = result?.replace("\"", "") == "true"
+                    if (isAtRoot) {
+                        // We are at a root screen. Exit the app.
                         isEnabled = false
                         onBackPressedDispatcher.onBackPressed()
+                    } else {
+                        // Let SPA handle the back navigation
+                        webView.evaluateJavascript("window.history.back();", null)
                     }
                 }
             }

@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.elvan.rmdneram.admin-mergeReleaseResources-43:/values-tr/values-tr.xml",
+            "outputFile": "com.elvan.rmdneram.admin-mergeReleaseResources-44:/values-tr/values-tr.xml",
             "map": [
                 {
                     "source": "C:\\Users\\jaipr\\.gradle\\caches\\8.13\\transforms\\c1698c77b80df95c8b13720aa2dd3d85\\transformed\\jetified-play-services-base-18.3.0\\res\\values-tr\\values.xml",

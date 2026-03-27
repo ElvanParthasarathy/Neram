@@ -253,6 +253,10 @@ function App() {
       // Force background color on body to match for overscroll/system blending
       document.body.style.backgroundColor = themeColor;
 
+      // Update Apple status bar style
+      let appleMeta = document.querySelector("meta[name='apple-mobile-web-app-status-bar-style']");
+      if (appleMeta) appleMeta.setAttribute('content', isDark ? 'black-translucent' : 'default');
+
       // Tell native Android app to update status/nav bar colors
       if (window.NativeBridge && window.NativeBridge.setTheme) {
         window.NativeBridge.setTheme(isDark);

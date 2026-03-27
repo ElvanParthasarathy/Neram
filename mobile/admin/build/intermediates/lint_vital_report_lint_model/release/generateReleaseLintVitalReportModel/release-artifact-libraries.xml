@@ -601,6 +601,19 @@
       externalAnnotations="annotations.zip"
       proguardRules="proguard.txt"/>
   <library
+      name="androidx.core:core-splashscreen:1.0.1@aar"
+      jars="C:\Users\jaipr\.gradle\caches\8.13\transforms\bf318b34214caaf3ae9beccc9c148666\transformed\jetified-core-splashscreen-1.0.1\jars\classes.jar"
+      resolved="androidx.core:core-splashscreen:1.0.1"
+      folder="C:\Users\jaipr\.gradle\caches\8.13\transforms\bf318b34214caaf3ae9beccc9c148666\transformed\jetified-core-splashscreen-1.0.1"
+      manifest="AndroidManifest.xml"
+      resFolder="res"
+      assetsFolder="assets"
+      lintJar="lint.jar"
+      publicResources="public.txt"
+      symbolFile="R.txt"
+      externalAnnotations="annotations.zip"
+      proguardRules="proguard.txt"/>
+  <library
       name="androidx.savedstate:savedstate-ktx:1.2.1@aar"
       jars="C:\Users\jaipr\.gradle\caches\8.13\transforms\f6e1105cd1973dcaaddb5b7d8c2f1bab\transformed\jetified-savedstate-ktx-1.2.1\jars\classes.jar"
       resolved="androidx.savedstate:savedstate-ktx:1.2.1"

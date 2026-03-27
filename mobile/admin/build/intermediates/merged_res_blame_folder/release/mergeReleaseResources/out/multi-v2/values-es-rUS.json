@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.elvan.rmdneram.admin-mergeReleaseResources-43:/values-es-rUS/values-es-rUS.xml",
+            "outputFile": "com.elvan.rmdneram.admin-mergeReleaseResources-44:/values-es-rUS/values-es-rUS.xml",
             "map": [
                 {
                     "source": "C:\\Users\\jaipr\\.gradle\\caches\\8.13\\transforms\\809760810ff8affd831199c7c1841ac0\\transformed\\core-1.15.0\\res\\values-es-rUS\\values-es-rUS.xml",
