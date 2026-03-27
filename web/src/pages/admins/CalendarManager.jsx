@@ -92,15 +92,41 @@ const getSpannedEvents = (events) => {
     spans.push(currentSpan);
     return spans.sort((a, b) => a.startDate.localeCompare(b.startDate));
 };
+// Removed duplicate fragment
 
 const CalendarManager = () => {
-  // --- EXPLORER STATE ---
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // --- EXPLORER STATE (URL BACKED) ---
   const [hierarchy, setHierarchy] = useState({});
-  const [viewLevel, setViewLevel] = useState('batches'); // 'batches' | 'editor'
-  const [selectedBatch, setSelectedBatch] = useState('');
+  
+  const viewLevel = searchParams.get('clvl') || 'batches'; // 'batches' | 'editor'
+  const selectedBatch = searchParams.get('cb') || '';
+  const activeTab = searchParams.get('ctab') || 'published'; // 'published' | 'agazhi'
+  
+  const setViewLevel = (lvl) => {
+      const params = new URLSearchParams(searchParams);
+      params.set('clvl', lvl);
+      if (lvl === 'batches') {
+          params.delete('cb');
+          params.delete('ctab');
+      }
+      setSearchParams(params);
+  };
+
+  const setSelectedBatch = (batch) => {
+      const params = new URLSearchParams(searchParams);
+      params.set('cb', batch);
+      setSearchParams(params);
+  };
+
+  const setActiveTab = (tab) => {
+      const params = new URLSearchParams(searchParams);
+      params.set('ctab', tab);
+      setSearchParams(params, { replace: true });
+  };
 
   // --- EDITOR TABS ---
-  const [activeTab, setActiveTab] = useState('published'); // 'published' | 'manual' | 'agazhi'
   const [viewDate, setViewDate] = useState(new Date()); // Default to current month
 
   // --- LIVE DATA -> EDITOR STATE ---
