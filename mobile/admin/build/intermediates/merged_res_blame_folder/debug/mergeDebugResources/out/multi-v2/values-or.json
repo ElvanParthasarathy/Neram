@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.elvan.rmdneram.admin-mergeDebugResources-43:/values-or/values-or.xml",
+            "outputFile": "com.elvan.rmdneram.admin-mergeDebugResources-44:/values-or/values-or.xml",
             "map": [
                 {
                     "source": "C:\\Users\\jaipr\\.gradle\\caches\\8.13\\transforms\\2911449b7191493443894b69561a9dc6\\transformed\\jetified-credentials-1.2.0-rc01\\res\\values-or\\values-or.xml",

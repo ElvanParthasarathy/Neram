@@ -30,6 +30,7 @@
         android:theme="@style/Theme.Neram" >
         <activity
             android:name="com.elvan.rmdneram.admin.AdminMainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard|uiMode|smallestScreenSize"
             android:exported="true"
             android:label="Neram Admin"
             android:theme="@style/Theme.Neram" >
