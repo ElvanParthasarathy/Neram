@@ -459,7 +459,7 @@ const FacultyDirectory = ({ isMobile }) => {
                       style={{ 
                         borderRadius: '20px',
                         boxShadow: 'none',
-                        border: '1px solid var(--mac-divider)',
+                        border: 'none',
                         margin: 0
                       }}>
                       {editingFacultyIdx === i ? (

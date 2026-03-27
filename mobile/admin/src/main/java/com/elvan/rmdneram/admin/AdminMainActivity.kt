@@ -120,7 +120,9 @@ class AdminMainActivity : AppCompatActivity() {
             val insets = windowInsets.getInsets(
                 WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
             )
-            view.setPadding(insets.left, insets.top, insets.right, insets.bottom)
+            // Top and Bottom are 0 because the Web App CSS (mobile.css) uses env(safe-area-inset-*)
+            // We keep left and right padding to ensure the camera notch is letterboxed in landscape mode.
+            view.setPadding(insets.left, 0, insets.right, 0)
             windowInsets
         }
 
