@@ -238,29 +238,19 @@ class AdminMainActivity : AppCompatActivity() {
             }
         }
 
-        // Back navigation — HashRouter-aware
-        // WebView.canGoBack() and history.length don't work reliably for SPA exits
-        // because history.length doesn't decrease when going back.
-        // We check if the current hash is the home screen, login, or root, and exit if so.
+        // Back navigation — Professional JS Bridge approach
+        // The web app owns its navigation via window.handleNativeBack().
+        // Android just asks: "did you handle it?" → if false, exit.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val jsCheck = """
-                    (function() {
-                        var hash = window.location.hash;
-                        return (hash === "" || hash === "#" || hash === "#/" || hash.startsWith("#/?mod=home") || hash === "#/login").toString();
-                    })();
-                """.trimIndent()
-
-                webView.evaluateJavascript(jsCheck) { result ->
-                    val isAtRoot = result?.replace("\"", "") == "true"
-                    if (isAtRoot) {
-                        // We are at a root screen. Exit the app.
+                webView.evaluateJavascript("(function(){ return window.handleNativeBack ? window.handleNativeBack() : false; })()") { result ->
+                    val handled = result?.replace("\"", "")?.trim() == "true"
+                    if (!handled) {
+                        // Web said "I'm at root, exit the app"
                         isEnabled = false
                         onBackPressedDispatcher.onBackPressed()
-                    } else {
-                        // Let SPA handle the back navigation
-                        webView.evaluateJavascript("window.history.back();", null)
                     }
+                    // else: web already called history.back(), nothing to do
                 }
             }
         })

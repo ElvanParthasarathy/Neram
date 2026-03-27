@@ -81,6 +81,31 @@ function AdminApp() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [dbUserProfile, setDbUserProfile] = useState({ batch: "", department: "", section: "" });
 
+    // --- NATIVE BACK BUTTON BRIDGE ---
+    // The web app owns its navigation. Android calls this function on hardware back press.
+    // Returns true = web handled it (navigated back inside SPA)
+    // Returns false = web is at root, Android should exit the app
+    useEffect(() => {
+        window.handleNativeBack = () => {
+            const hash = window.location.hash;
+            // Root screens: home, login, welcome, or empty hash
+            const isRoot = !hash || hash === '#' || hash === '#/'
+                || hash.startsWith('#/?mod=home')
+                || hash === '#/login'
+                || hash === '#/signup';
+
+            if (isRoot) {
+                return false; // Signal Android to exit
+            }
+
+            // Not at root — navigate back within SPA
+            window.history.back();
+            return true; // Web handled it
+        };
+
+        return () => { delete window.handleNativeBack; };
+    }, []);
+
     useEffect(() => {
         const handleResize = () => {
             const mobile = window.innerWidth <= 768;
