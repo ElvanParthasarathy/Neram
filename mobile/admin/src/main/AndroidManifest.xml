@@ -17,6 +17,7 @@
             android:name=".AdminMainActivity"
             android:exported="true"
             android:label="Neram Admin"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|keyboard|uiMode|smallestScreenSize"
             android:theme="@style/Theme.Neram">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
