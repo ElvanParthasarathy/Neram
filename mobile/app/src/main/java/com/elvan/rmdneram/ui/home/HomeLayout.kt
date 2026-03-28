@@ -47,8 +47,8 @@ fun HomeMainLayout(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onDateClick: () -> Unit,
-    onDateSwipePrev: () -> Unit = {},
-    onDateSwipeNext: () -> Unit = {},
+    selectedDate: java.time.LocalDate,
+    onDateSelected: (java.time.LocalDate) -> Unit,
     onSaveUpdate: (String) -> Unit,
     onSaveNotice: (String) -> Unit,
     profileLoaderCompleted: Boolean = false,
@@ -112,11 +112,11 @@ fun HomeMainLayout(
                         },
                         onSwipeLeft = { 
                             swipeDirection = -1 // Next Day
-                            onDateSwipePrev() 
+                            onDateSelected(selectedDate.minusDays(1))
                         },
                         onSwipeRight = { 
                             swipeDirection = 1 // Prev Day
-                            onDateSwipeNext() 
+                            onDateSelected(selectedDate.plusDays(1))
                         }
                     )
                 }

@@ -157,6 +157,7 @@ class MainActivity : ComponentActivity() {
                         val window = (view.context as Activity).window
                         window.statusBarColor = colors.background.toArgb()
                         window.navigationBarColor = colors.background.toArgb()
+                        window.decorView.setBackgroundColor(colors.background.toArgb())
                         
                         // Set system bar icon colors: light icons in dark mode, dark icons in light mode
                         val insetsController = WindowCompat.getInsetsController(window, view)

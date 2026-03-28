@@ -39,8 +39,10 @@ import com.elvan.rmdneram.ui.navigation.TopMenuBar
 import com.elvan.rmdneram.ui.navigation.BottomNavBar
 import com.elvan.rmdneram.ui.navigation.SecondaryTopBar
 import com.elvan.rmdneram.ui.navigation.NavTab
+import com.elvan.rmdneram.ui.navigation.SideNavRail
 import com.elvan.rmdneram.ui.schedule.ScheduleScreen
 import com.elvan.rmdneram.ui.profile.ProfileScreen
+import android.content.res.Configuration
 
 import com.elvan.rmdneram.ui.about.CollegeSitesScreen
 import com.elvan.rmdneram.ui.about.ContactScreen
@@ -268,7 +270,8 @@ fun MainScreen(
         if (!isNavInteracting) navDragProgress = selectedTab.ordinal.toFloat()
     }
 
-
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     // Provide language to all children
     CompositionLocalProvider(LocalAppLanguage provides effectiveLanguage) {
@@ -278,10 +281,24 @@ fun MainScreen(
                 .fillMaxSize()
                 .background(colors.background)
         ) {
-        // Main Content Box - padding only when BottomNavBar is visible
+        
+        // Navigation Rail (Landscape Only)
+        if (currentScreen == "tabs" && isLandscape) {
+            SideNavRail(
+                selectedTab = selectedTab,
+                onTabSelected = { tab, isDrag ->
+                    isDragTransition = isDrag
+                    selectedTab = tab
+                },
+                modifier = Modifier.align(Alignment.CenterStart)
+            )
+        }
+
+        // Main Content Box - padding overrides when SideNavRail is visible
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(start = if (currentScreen == "tabs" && isLandscape) 80.dp else 0.dp)
         ) {
         
         // Content is full screen (same size), no padding constraints
@@ -446,8 +463,9 @@ fun MainScreen(
         val density = androidx.compose.ui.platform.LocalDensity.current
         val bottomMargin = with(density) {
             val navBarHeight = WindowInsets.navigationBars.getBottom(this).toFloat()
-            if (currentScreen == "tabs") (80.dp.toPx() + navBarHeight) else (12.dp.toPx() + navBarHeight)
+            if (currentScreen == "tabs" && !isLandscape) (80.dp.toPx() + navBarHeight) else (12.dp.toPx() + navBarHeight)
         }
+        val leftMargin = with(density) { 12.dp.toPx() } // Content Box is already padded
         
         // Canvas now applies to ALL screens including settings
         val statusBarHeight = WindowInsets.statusBars.getTop(density).toFloat()
@@ -456,7 +474,7 @@ fun MainScreen(
         ) {
             val cornerRadius = 24.dp.toPx() // Matches HomeDimens.ItemRadius
             val topMargin = statusBarHeight + 64.dp.toPx() // Match dynamic TopMenuBar position
-            val sideMargin = 12.dp.toPx()
+            val rightMargin = 12.dp.toPx()
             
             // Outer rectangle (Whole Screen)
             val outerPath = androidx.compose.ui.graphics.Path().apply {
@@ -468,9 +486,9 @@ fun MainScreen(
                 addRoundRect(
                     androidx.compose.ui.geometry.RoundRect(
                         rect = androidx.compose.ui.geometry.Rect(
-                            left = sideMargin,
+                            left = leftMargin,
                             top = topMargin,
-                            right = size.width - sideMargin,
+                            right = size.width - rightMargin,
                             bottom = size.height - bottomMargin
                         ),
                         cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius)
@@ -669,9 +687,8 @@ fun MainScreen(
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
-        
-        // Bottom Navigation (visible only on tabs, hidden on other screens)
-        if (currentScreen == "tabs") {
+        // Bottom Navigation (visible only on tabs, hidden on other screens in portrait)
+        if (currentScreen == "tabs" && !isLandscape) {
             BottomNavBar(
                 selectedTab = selectedTab,
                 onTabSelected = { tab, isDrag ->

@@ -13,7 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import java.time.format.DateTimeFormatter
 import java.time.ZoneOffset
 import java.time.Instant
@@ -79,52 +79,69 @@ fun ScheduleScreen(
     // 5. Handle Date Picker Dialog
     if (showDatePicker) {
         key(selectedDate) {
+            val config = androidx.compose.ui.platform.LocalConfiguration.current
+            val isLandscape = config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
             val datePickerState = rememberDatePickerState(
                 initialSelectedDateMillis = selectedDate.atStartOfDay(ZoneOffset.UTC)
-                    .toInstant().toEpochMilli()
+                    .toInstant().toEpochMilli(),
+                initialDisplayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
             )
+            
+            // Force correct mode when orientation changes while picker is open
+            LaunchedEffect(isLandscape) {
+                datePickerState.displayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
+            }
             
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                     confirmButton = {
-                        Button(
-                            onClick = {
-                                datePickerState.selectedDateMillis?.let { millis ->
-                                    val date = Instant.ofEpochMilli(millis)
-                                        .atZone(ZoneOffset.UTC)
-                                        .toLocalDate()
-                                    viewModel.onDateSelected(date)
-                                }
-                                showDatePicker = false
-                            },
-                            shape = HomeShapes.Pill,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colors.accent,
-                                contentColor = androidx.compose.ui.graphics.Color.White
-                            )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = HomeDimens.SpacingMd, end = HomeDimens.SpacingMd, bottom = HomeDimens.SpacingMd),
+                            horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingMd)
                         ) {
-                            Text("OK", style = HomeTypography.PillButton)
+                            val lang = LocalAppLanguage.current
+                            Button(
+                                onClick = { showDatePicker = false },
+                                shape = HomeShapes.Pill,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = colors.subtleBackground,
+                                    contentColor = colors.textSecondary
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(AppStrings.Home.cancel(lang), style = HomeTypography.PillButton)
+                            }
+                            Button(
+                                onClick = {
+                                    datePickerState.selectedDateMillis?.let { millis ->
+                                        val date = Instant.ofEpochMilli(millis)
+                                            .atZone(ZoneOffset.UTC)
+                                            .toLocalDate()
+                                        viewModel.onDateSelected(date)
+                                    }
+                                    showDatePicker = false
+                                },
+                                shape = HomeShapes.Pill,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = colors.accent,
+                                    contentColor = androidx.compose.ui.graphics.Color.White
+                                ),
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("OK", style = HomeTypography.PillButton)
+                            }
                         }
                     },
-                    dismissButton = {
-                        val lang = LocalAppLanguage.current
-                        Button(
-                            onClick = { showDatePicker = false },
-                            shape = HomeShapes.Pill,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colors.subtleBackground,
-                                contentColor = colors.textSecondary
-                            )
-                        ) {
-                            Text(AppStrings.Home.cancel(lang), style = HomeTypography.PillButton)
-                        }
-                    },
+                    dismissButton = null,
                     colors = DatePickerDefaults.colors(
                         containerColor = colors.surface,
                     )
                 ) {
                     DatePicker(
                         state = datePickerState,
+                        showModeToggle = false,
                         title = {
                             Text(
                                 text = com.elvan.rmdneram.ui.theme.AppStrings.Home.selectDate(com.elvan.rmdneram.ui.theme.AppStrings.getEffectiveLanguage(com.elvan.rmdneram.ui.theme.LocalAppLanguage.current, androidx.compose.ui.platform.LocalContext.current)),

@@ -167,8 +167,8 @@ fun HomeScreen(
             }
         },
         onDateClick = { showDatePicker = true },
-        onDateSwipePrev = { viewModel.onDateSelected(selectedDate.minusDays(1)) },
-        onDateSwipeNext = { viewModel.onDateSelected(selectedDate.plusDays(1)) },
+        selectedDate = selectedDate,
+        onDateSelected = { viewModel.onDateSelected(it) },
         onSaveUpdate = { viewModel.saveDailyUpdate(it) },
 
         onSaveNotice = { viewModel.saveGeneralNotice(it) },
@@ -182,10 +182,18 @@ fun HomeScreen(
     // =========================================================================
     if (showDatePicker) {
         key(selectedDate) {
+            val config = androidx.compose.ui.platform.LocalConfiguration.current
+            val isLandscape = config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
             val datePickerState = rememberDatePickerState(
                 initialSelectedDateMillis = selectedDate.atStartOfDay(ZoneOffset.UTC)
-                    .toInstant().toEpochMilli()
+                    .toInstant().toEpochMilli(),
+                initialDisplayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
             )
+            
+            // Force correct mode when orientation changes while picker is open
+            LaunchedEffect(isLandscape) {
+                datePickerState.displayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
+            }
             
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
@@ -235,6 +243,7 @@ fun HomeScreen(
                 ) {
                     DatePicker(
                         state = datePickerState,
+                        showModeToggle = false,
                         title = {
                             Text(
                                 text = com.elvan.rmdneram.ui.theme.AppStrings.Home.selectDate(com.elvan.rmdneram.ui.theme.AppStrings.getEffectiveLanguage(com.elvan.rmdneram.ui.theme.LocalAppLanguage.current, androidx.compose.ui.platform.LocalContext.current)),

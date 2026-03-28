@@ -92,7 +92,10 @@ fun CalendarMainLayout(
     // Calendar progress: Fixed at 0f (Standard View) - Collapsing Removed
     val calendarProgress = 0f // Static Month View
     
-    // Reduced top padding as per user request
+    val layoutConfiguration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isLayoutLandscape = layoutConfiguration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    
+    // Top padding to clear TopMenuBar
     val actualTopPadding = topPadding ?: (rememberStatusBarHeight() + HomeDimens.ContentPaddingTop - 20.dp)
     
     // No drag sensitivity needed as collapsing is disabled
@@ -123,8 +126,8 @@ fun CalendarMainLayout(
                 .padding(top = actualTopPadding)
         ) {
             
-            // --- Month Title (Centered) with Navigation ---
-            if (viewType == "month") {
+            // --- Month Title (Centered) with Navigation --- (Hidden in Landscape to save space)
+            if (viewType == "month" && !isLayoutLandscape) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -163,153 +166,233 @@ fun CalendarMainLayout(
             }
 
                 if (viewType == "month") {
-                    // --- MONTH VIEW: Card-Style Slide Over ---
+                    // --- MONTH VIEW ---
+                    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+                    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
                     
-                    // 1. Measure the Calendar Height to know start offset
-                    // Tightened estimate to reduce gap (Header ~60 + 5.5 rows * 52 = ~346?)
-                    // User reported "VERY LITTLE BIT DOWN" -> Micro-adjusting to 286.dp
-                    val density = LocalDensity.current
-                    val calendarHeightDp = 286.dp
-                    val calendarHeightPx = with(density) { calendarHeightDp.toPx() }
-                    
-                    // ... (Animatable remains same) ...
-                    val agendaOffsetAnim = remember { Animatable(calendarHeightPx) }
-                    // scope moved to top level
-                    
-                    // 3. Draggable Handle Logic (Shutter Mode)
-                    // We removed NestedScrollConnection. Dragging is now exclusive to the handle.
-                    // No nestedScrollConnection needed.
-
-                    // ... (Root Box) ...
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        
-                        // LAYER 1: Calendar Widget (Static Background)
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(calendarHeightDp) 
-                        ) {
-                            CalendarWidget(
-                                currentMonth = currentMonth,
-                                selectedDate = selectedDate,
-                                eventIndicators = eventIndicators,
-                                colors = colors,
-                                calendarProgress = 0f, 
-                                onDateSelected = onDateSelected,
-                                onMonthChanged = onMonthChanged,
-                                showHeader = showHeader
-                            )
-                        }
-                        
-                        // LAYER 2: Agenda Card (Sliding Foreground)
-                        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                             val screenHeight = maxHeight
-
-                             // Removed ExpressivePullToRefreshBox - Replaced with Direct Content
-                             Box(
+                    if (isLandscape) {
+                        // --- LANDSCAPE: Two-Pane Side-by-Side Layout ---
+                        Row(modifier = Modifier.fillMaxSize()) {
+                            // LEFT PANE: Calendar Grid (Scaled to fit)
+                            Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(screenHeight) 
-                                    .offset { IntOffset(0, agendaOffsetAnim.value.toInt()) } 
-                                    .background(Color.Transparent)
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .padding(end = 4.dp)
                             ) {
-                                 Column(
+                                // --- Month Title for Landscape ---
+                                Row(
                                     modifier = Modifier
-                                        .fillMaxSize()
-                                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)) 
-                                        .background(colors.calendarBottomBackground)
-                                        // .shadow(elevation = 8.dp) // Removed to eliminate side artifacts 
-                                        .verticalScroll(rememberScrollState())
-                                        .padding(top = 0.dp) 
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 4.dp)
+                                        .padding(bottom = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
                                 ) {
-                                    // --- THE HANDLE (SHUTTER) ---
-                                    var accDrag by remember { mutableFloatStateOf(0f) }
+                                    val currentYear = java.time.LocalDate.now().year
+                                    val monthName = currentMonth.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH).uppercase()
+                                    
+                                    val titleText = if (currentMonth.year == currentYear) {
+                                        monthName
+                                    } else {
+                                        "$monthName ${currentMonth.year}"
+                                    }
                                     
                                     Box(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(32.dp) // Reduced height (48->32) to close gap
-                                            .background(colors.calendarBottomBackground) 
-                                            .pointerInput(Unit) {
-                                                detectVerticalDragGestures(
-                                                    onDragStart = { accDrag = 0f },
-                                                    onDragEnd = {
-                                                        scope.launch {
-                                                            // Snap Logic with Directional Intent
-                                                            val current = agendaOffsetAnim.value
-                                                            val threshold = 100f // ~30-40dp swipe threshold
-                                                            
-                                                            val target = when {
-                                                                // Swipe UP (Negative) -> Go Top
-                                                                accDrag < -threshold -> 0f 
-                                                                // Swipe DOWN (Positive) -> Go Bottom
-                                                                accDrag > threshold -> calendarHeightPx
-                                                                // Short drag? Snap to nearest
-                                                                else -> if (current < calendarHeightPx / 2) 0f else calendarHeightPx
-                                                            }
-                                                            
-                                                            agendaOffsetAnim.animateTo(
-                                                                targetValue = target,
-                                                                animationSpec = spring(stiffness = Spring.StiffnessLow)
-                                                            )
-                                                        }
-                                                    }
-                                                ) { change, dragAmount ->
-                                                    change.consume()
-                                                    accDrag += dragAmount
-                                                    scope.launch {
-                                                        val newOffset = (agendaOffsetAnim.value + dragAmount).coerceIn(0f, calendarHeightPx)
-                                                        agendaOffsetAnim.snapTo(newOffset)
-                                                    }
-                                                }
-                                            },
+                                            .clip(HomeShapes.Pill)
+                                            .clickable { showMonthPicker = true }
+                                            .padding(vertical = 4.dp, horizontal = 12.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        // Visual Pill
-                                        Box(
-                                            modifier = Modifier
-                                                .width(32.dp)
-                                                .height(4.dp)
-                                                .clip(CircleShape)
-                                                .background(colors.textSecondary.copy(alpha = 0.2f))
+                                        Text(
+                                            text = titleText,
+                                            fontSize = 20.sp, // Slightly smaller than portrait
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = colors.textPrimary
                                         )
                                     }
+                                }
+                                
+                                CalendarWidget(
+                                    currentMonth = currentMonth,
+                                    selectedDate = selectedDate,
+                                    eventIndicators = eventIndicators,
+                                    colors = colors,
+                                    calendarProgress = 0f,
+                                    onDateSelected = onDateSelected,
+                                    onMonthChanged = onMonthChanged,
+                                    showHeader = showHeader
+                                )
+                            }
+                            
+                            // RIGHT PANE: Event Details
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .padding(start = 4.dp)
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                // Selected Day Section with HorizontalPager
+                                androidx.compose.foundation.pager.HorizontalPager(
+                                    state = dayPagerState,
+                                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                                    verticalAlignment = Alignment.Top,
+                                    pageSpacing = 16.dp
+                                ) { page ->
+                                    val anchorDate = java.time.LocalDate.now()
+                                    val daysOffset = page - (Int.MAX_VALUE / 2)
+                                    val pageDate = anchorDate.plusDays(daysOffset.toLong())
                                     
-                                     // Wrapper for Grid/List
-                                     Box(modifier = Modifier.heightIn(min = 200.dp)) {
-                                        Column {
-                                            // Selected Day Section with HorizontalPager
-                                            androidx.compose.foundation.pager.HorizontalPager(
-                                                state = dayPagerState,
-                                                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                                                verticalAlignment = Alignment.Top,
-                                                pageSpacing = 16.dp
-                                            ) { page ->
-                                                val anchorDate = java.time.LocalDate.now()
-                                                val daysOffset = page - (Int.MAX_VALUE / 2)
-                                                val pageDate = anchorDate.plusDays(daysOffset.toLong())
-                                                
-                                                val events = eventsProvider(pageDate)
-                                                
-                                                SelectedDaySection(
-                                                    date = pageDate,
-                                                    events = events,
-                                                    colors = colors,
-                                                    isRefreshing = isRefreshing, // Passed from Parent
-                                                    onRefresh = onRefresh        // Passed from Parent
-                                                )
-                                            }
-                                            
-                                            Spacer(modifier = Modifier.height(16.dp))
-                                            
-                                            // Add extra spacer at bottom
-                                            Spacer(modifier = Modifier.height(24.dp)) 
+                                    val events = eventsProvider(pageDate)
+                                    
+                                    SelectedDaySection(
+                                        date = pageDate,
+                                        events = events,
+                                        colors = colors,
+                                        isRefreshing = isRefreshing,
+                                        onRefresh = onRefresh
+                                    )
+                                }
+                                
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        }
+                    } else {
+                        // --- PORTRAIT: Card-Style Slide Over (Original) ---
+                    
+                        // 1. Measure the Calendar Height to know start offset
+                        val density = LocalDensity.current
+                        val calendarHeightDp = 286.dp
+                        val calendarHeightPx = with(density) { calendarHeightDp.toPx() }
+                    
+                        val agendaOffsetAnim = remember { Animatable(calendarHeightPx) }
+
+                        Box(modifier = Modifier.fillMaxSize()) {
+                        
+                            // LAYER 1: Calendar Widget (Static Background)
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(calendarHeightDp) 
+                            ) {
+                                CalendarWidget(
+                                    currentMonth = currentMonth,
+                                    selectedDate = selectedDate,
+                                    eventIndicators = eventIndicators,
+                                    colors = colors,
+                                    calendarProgress = 0f, 
+                                    onDateSelected = onDateSelected,
+                                    onMonthChanged = onMonthChanged,
+                                    showHeader = showHeader
+                                )
+                            }
+                        
+                            // LAYER 2: Agenda Card (Sliding Foreground)
+                            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                                val screenHeight = maxHeight
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(screenHeight) 
+                                        .offset { IntOffset(0, agendaOffsetAnim.value.toInt()) } 
+                                        .background(Color.Transparent)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)) 
+                                            .background(colors.calendarBottomBackground)
+                                            .verticalScroll(rememberScrollState())
+                                            .padding(top = 0.dp) 
+                                    ) {
+                                        // --- THE HANDLE (SHUTTER) ---
+                                        var accDrag by remember { mutableFloatStateOf(0f) }
+                                    
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(32.dp)
+                                                .background(colors.calendarBottomBackground) 
+                                                .pointerInput(Unit) {
+                                                    detectVerticalDragGestures(
+                                                        onDragStart = { accDrag = 0f },
+                                                        onDragEnd = {
+                                                            scope.launch {
+                                                                val current = agendaOffsetAnim.value
+                                                                val threshold = 100f
+                                                            
+                                                                val target = when {
+                                                                    accDrag < -threshold -> 0f 
+                                                                    accDrag > threshold -> calendarHeightPx
+                                                                    else -> if (current < calendarHeightPx / 2) 0f else calendarHeightPx
+                                                                }
+                                                            
+                                                                agendaOffsetAnim.animateTo(
+                                                                    targetValue = target,
+                                                                    animationSpec = spring(stiffness = Spring.StiffnessLow)
+                                                                )
+                                                            }
+                                                        }
+                                                    ) { change, dragAmount ->
+                                                        change.consume()
+                                                        accDrag += dragAmount
+                                                        scope.launch {
+                                                            val newOffset = (agendaOffsetAnim.value + dragAmount).coerceIn(0f, calendarHeightPx)
+                                                            agendaOffsetAnim.snapTo(newOffset)
+                                                        }
+                                                    }
+                                                },
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            // Visual Pill
+                                            Box(
+                                                modifier = Modifier
+                                                    .width(32.dp)
+                                                    .height(4.dp)
+                                                    .clip(CircleShape)
+                                                    .background(colors.textSecondary.copy(alpha = 0.2f))
+                                            )
                                         }
-                                     }
+                                    
+                                        // Wrapper for Grid/List
+                                        Box(modifier = Modifier.heightIn(min = 200.dp)) {
+                                            Column {
+                                                // Selected Day Section with HorizontalPager
+                                                androidx.compose.foundation.pager.HorizontalPager(
+                                                    state = dayPagerState,
+                                                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                                                    verticalAlignment = Alignment.Top,
+                                                    pageSpacing = 16.dp
+                                                ) { page ->
+                                                    val anchorDate = java.time.LocalDate.now()
+                                                    val daysOffset = page - (Int.MAX_VALUE / 2)
+                                                    val pageDate = anchorDate.plusDays(daysOffset.toLong())
+                                                
+                                                    val events = eventsProvider(pageDate)
+                                                
+                                                    SelectedDaySection(
+                                                        date = pageDate,
+                                                        events = events,
+                                                        colors = colors,
+                                                        isRefreshing = isRefreshing,
+                                                        onRefresh = onRefresh
+                                                    )
+                                                }
+                                            
+                                                Spacer(modifier = Modifier.height(16.dp))
+                                            
+                                                // Add extra spacer at bottom
+                                                Spacer(modifier = Modifier.height(24.dp)) 
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
+                    } // End portrait/landscape branch
 
                 } else {
                  // --- SCHEDULE VIEW ---

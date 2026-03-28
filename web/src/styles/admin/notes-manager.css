@@ -758,7 +758,7 @@ html:not(.dark) .nm-fab-option-btn.danger-btn {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 18px 16px 12px;
+    padding: calc(18px + env(safe-area-inset-top, 0px)) 16px 12px;
     background: var(--mac-card-bg);
     z-index: 2;
     border-bottom: 1px solid var(--mac-border);

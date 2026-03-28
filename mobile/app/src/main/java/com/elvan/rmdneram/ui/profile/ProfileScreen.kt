@@ -1,5 +1,7 @@
 package com.elvan.rmdneram.ui.profile
 
+import com.elvan.rmdneram.ui.home.*
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -708,44 +710,65 @@ fun ProfileScreen(
     
     // Date Picker
     if (showDatePicker) {
+        val config = androidx.compose.ui.platform.LocalConfiguration.current
+        val isLandscape = config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = formData["birthday"]?.let {
                 try { 
-                    LocalDate.parse(it).atStartOfDay(java.time.ZoneId.systemDefault())
+                    LocalDate.parse(it).atStartOfDay(java.time.ZoneOffset.UTC)
                         .toInstant().toEpochMilli()
                 } catch (e: Exception) { null }
-            }
+            },
+            initialDisplayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
         )
+        
+        // Force correct mode when orientation changes while picker is open
+        LaunchedEffect(isLandscape) {
+            datePickerState.displayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
+        }
         
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                Button(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            val date = java.time.Instant.ofEpochMilli(millis)
-                                .atZone(java.time.ZoneId.systemDefault())
-                                .toLocalDate()
-                            formData = formData + ("birthday" to date.toString())
-                        }
-                        showDatePicker = false
-                    },
-                    shape = HomeShapes.Pill,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.accent
-                    )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = HomeDimens.SpacingMd, end = HomeDimens.SpacingMd, bottom = HomeDimens.SpacingMd),
+                    horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingMd)
                 ) {
-                    Text("OK")
+                    Button(
+                        onClick = { showDatePicker = false },
+                        shape = HomeShapes.Pill,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colors.subtleBackground,
+                            contentColor = colors.textSecondary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancel", style = HomeTypography.PillButton)
+                    }
+                    Button(
+                        onClick = {
+                            datePickerState.selectedDateMillis?.let { millis ->
+                                val date = java.time.Instant.ofEpochMilli(millis)
+                                    .atZone(java.time.ZoneOffset.UTC)
+                                    .toLocalDate()
+                                formData = formData + ("birthday" to date.toString())
+                            }
+                            showDatePicker = false
+                        },
+                        shape = HomeShapes.Pill,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colors.accent,
+                            contentColor = Color.White
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("OK", style = HomeTypography.PillButton)
+                    }
                 }
             },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = { showDatePicker = false },
-                    shape = HomeShapes.Pill
-                ) {
-                    Text("Cancel")
-                }
-            },
+            dismissButton = null,
             colors = DatePickerDefaults.colors(
                 containerColor = colors.surface,
                 titleContentColor = colors.textPrimary,
@@ -766,6 +789,7 @@ fun ProfileScreen(
         ) {
             DatePicker(
                 state = datePickerState,
+                showModeToggle = false,
                 colors = DatePickerDefaults.colors(
                     containerColor = colors.surface,
                     titleContentColor = colors.textPrimary,

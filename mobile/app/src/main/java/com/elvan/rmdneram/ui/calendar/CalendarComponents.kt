@@ -493,8 +493,11 @@ fun MonthGrid(
     }
     
     // Row height constants
-    val baseRowHeight = 52.dp // Standard height for 5-row month and collapsed view
-    val totalCalendarHeight = baseRowHeight * 5 // Fixed container height (260dp)
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    
+    val baseRowHeight = if (isLandscape) 40.dp else 52.dp // Scale down standard height in landscape
+    val totalCalendarHeight = baseRowHeight * 5 // Fixed container height (200dp in landscape, 260dp in portrait)
     
     // Dynamic row height: If 6 rows, compress to fit in 5-row space
     val normalRowHeight = (totalCalendarHeight / rows.size)
@@ -661,6 +664,9 @@ fun DayCell(
             )
     }
 
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
     Column(
         modifier = Modifier
             .fillMaxSize() // Allow filling the parent Box (weighted)
@@ -669,7 +675,7 @@ fun DayCell(
         verticalArrangement = Arrangement.Top // Changed from Center to Top
     ) {
         // Top Spacer to position number consistently from the top edge
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(if (isLandscape) 0.dp else 2.dp))
         
         // Date Number
         // Highlight logic: Show background if Today or Selected
@@ -686,7 +692,7 @@ fun DayCell(
         Box(
             modifier = Modifier
                 .offset(y = 1.dp) // Shift squircle down for alignment
-                .size(18.dp) // Reduced to 18.dp
+                .size(if (isLandscape) 16.dp else 18.dp) // Reduced to fit landscape
                 .clip(RoundedCornerShape(6.dp)) // Adjusted for tiny size
                 .background(if (showNumberHighlight) highlightColor.copy(alpha = if (isCurrentMonth) 1f else 0.3f) else Color.Transparent),
             contentAlignment = Alignment.Center
@@ -694,7 +700,7 @@ fun DayCell(
             Text(
                 modifier = Modifier.offset(y = (-1).dp), // Counter-shift text to keep it stationary
                 text = date.dayOfMonth.toString(),
-                fontSize = 12.sp, 
+                fontSize = if (isLandscape) 11.sp else 12.sp, 
                 fontWeight = if (showNumberHighlight) FontWeight.Bold else FontWeight.SemiBold,
                 color = txtColor
             )
@@ -702,7 +708,7 @@ fun DayCell(
 
         // Event Bars (Tighter) - Always render 4 slots for consistent vertical alignment
         // This ensures bars at the same slot index are always at the same vertical position
-        Spacer(modifier = Modifier.height(3.dp)) // Reduced spacing
+        Spacer(modifier = Modifier.height(if (isLandscape) 2.dp else 3.dp)) // Reduced spacing
         
         Column(
             modifier = Modifier
@@ -720,7 +726,7 @@ fun DayCell(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(if (isDetailedView) 14.dp else 3.5.dp) // Taller spacer in detailed view
+                            .height(if (isDetailedView) 14.dp else (if (isLandscape) 2.8.dp else 3.5.dp))
                     )
                 } else {
                     val barColor = when (indicator) {
@@ -749,7 +755,7 @@ fun DayCell(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = startPadding, end = endPadding)
-                            .height(if (isDetailedView) 14.dp else 3.5.dp), // Taller bar in detailed view
+                            .height(if (isDetailedView) 14.dp else (if (isLandscape) 2.8.dp else 3.5.dp)), // Taller bar in detailed view
                         contentAlignment = Alignment.CenterStart
                     ) {
                         // Background Bar (Clipped)

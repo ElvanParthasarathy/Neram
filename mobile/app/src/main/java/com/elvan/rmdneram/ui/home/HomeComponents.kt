@@ -294,6 +294,10 @@ internal fun DateSection(
     val density = LocalDensity.current
     val swipeThreshold = with(density) { 50.dp.toPx() }
     
+    // Use rememberUpdatedState to avoid stale closures in pointerInput(Unit)
+    val currentSwipeLeft by rememberUpdatedState(onSwipeLeft)
+    val currentSwipeRight by rememberUpdatedState(onSwipeRight)
+    
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(HomeDimens.DateSectionSpacing)
@@ -326,15 +330,15 @@ internal fun DateSection(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(HomeShapes.Pill)
-                    .pointerInput(Unit) {
+                    .pointerInput(formattedDate) {
                         var totalDrag = 0f
                         detectHorizontalDragGestures(
                             onDragStart = { totalDrag = 0f },
                             onDragEnd = {
                                 if (totalDrag < -swipeThreshold) {
-                                    onSwipeRight() // Swipe left = next day
+                                    currentSwipeRight() // Swipe left = next day
                                 } else if (totalDrag > swipeThreshold) {
-                                    onSwipeLeft() // Swipe right = previous day
+                                    currentSwipeLeft() // Swipe right = previous day
                                 }
                                 offsetX = 0f
                             },
