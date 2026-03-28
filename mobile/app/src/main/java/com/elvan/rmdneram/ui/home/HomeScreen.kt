@@ -1,5 +1,4 @@
 package com.elvan.rmdneram.ui.home
-package com.elvan.rmdneram.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background

@@ -136,6 +136,7 @@ object NotificationHelper {
 
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification) // Using transparent white icon for status bar
+            .setColor(android.graphics.Color.parseColor("#002DFF")) // Brand Blue for the notification drawer background circle
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH) // Always High for Popup
