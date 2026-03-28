@@ -308,9 +308,6 @@ Neram follows a **macOS Sequoia-inspired** design language across both web and m
 | [`docs/ADMIN_PORTAL_GUIDE.md`](docs/ADMIN_PORTAL_GUIDE.md) | Admin portal guide for Super Admins, Faculty & Reps |
 | [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Technical architecture, setup, and development guide |
 | [`docs/COLLEGE_INTEGRATION_PROPOSAL.md`](docs/COLLEGE_INTEGRATION_PROPOSAL.md) | Full deployment & handover proposal |
-| [`docs/MINI_PROJECT_PRESENTATION.md`](docs/MINI_PROJECT_PRESENTATION.md) | Mini-project campus presentation |
-| [`docs/FINAL_YEAR_PROJECT_REPORT.md`](docs/FINAL_YEAR_PROJECT_REPORT.md) | Final year academic project report |
-| [`docs/COMPETITION_PRESENTATION.md`](docs/COMPETITION_PRESENTATION.md) | Inter-college competition pitch |
 | [`docs/RESTRUCTURING_WALKTHROUGH.md`](docs/RESTRUCTURING_WALKTHROUGH.md) | Codebase restructuring history |
 | [`PRIVACY_POLICY.md`](PRIVACY_POLICY.md) | App privacy policy |
 
