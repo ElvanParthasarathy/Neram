@@ -44,10 +44,13 @@ html.dark .auth-logo-themed {
     position: fixed;
     inset: 0;
     width: 100vw;
+    /* Use dvh (dynamic viewport height) so the container shrinks when
+       the browser toolbar is visible. Falls back to 100vh on old browsers.
+       This prevents buttons being hidden behind Samsung/Chrome bottom bar. */
     height: 100vh;
+    height: 100dvh;
     background-color: var(--auth-bg);
-    overflow-y: scroll;
-    /* Always show scrollbar to prevent layout shift */
+    overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
@@ -70,11 +73,15 @@ html.dark .auth-logo-themed {
     /* Mobile-like width on desktop */
     padding: 24px;
     padding-top: 48px;
+    /* Bottom padding ensures the last button clears the browser toolbar
+       and home indicator on notched/gesture-nav phones. */
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 
 /* Floating Shapes */

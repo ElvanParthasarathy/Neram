@@ -61,63 +61,26 @@
         },
         {
             "client_info": {
-                "mobilesdk_app_id": "1:85578742222:android:d6834cbfe096af9e2c139f",
+                "mobilesdk_app_id": "1:85578742222:android:dae7b9033fa0ffec2c139f",
                 "android_client_info": {
-                    "package_name": "com.elvan.rmdneram"
+                    "package_name": "com.elvan.neram.admin"
                 }
             },
             "oauth_client": [
                 {
-                    "client_id": "85578742222-jdrfl9c0uique804e0i598ibf1tj9adu.apps.googleusercontent.com",
+                    "client_id": "85578742222-424b2e3fq2g7uqji2ogpf6mpb2nl4q4b.apps.googleusercontent.com",
                     "client_type": 1,
                     "android_info": {
-                        "package_name": "com.elvan.rmdneram",
+                        "package_name": "com.elvan.neram.admin",
+                        "certificate_hash": "a3b68b181d6267591aa005075ff0d31698eb3589"
+                    }
+                },
+                {
+                    "client_id": "85578742222-i62bk6ic7f347hld3bmr8pcsqsk4mq29.apps.googleusercontent.com",
+                    "client_type": 1,
+                    "android_info": {
+                        "package_name": "com.elvan.neram.admin",
                         "certificate_hash": "f55fb4b04deb9c941e9306d67a0f00cd593a5e32"
-                    }
-                },
-                {
-                    "client_id": "85578742222-l6vecsvqj2lrcgftbs0m41sgo8j26evk.apps.googleusercontent.com",
-                    "client_type": 1,
-                    "android_info": {
-                        "package_name": "com.elvan.rmdneram",
-                        "certificate_hash": "a3b68b181d6267591aa005075ff0d31698eb3589"
-                    }
-                },
-                {
-                    "client_id": "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com",
-                    "client_type": 3
-                }
-            ],
-            "api_key": [
-                {
-                    "current_key": "AIzaSyDeNc6YjwyPIYCWC7c3nzWUSBZLbMquqs4"
-                }
-            ],
-            "services": {
-                "appinvite_service": {
-                    "other_platform_oauth_client": [
-                        {
-                            "client_id": "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com",
-                            "client_type": 3
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "client_info": {
-                "mobilesdk_app_id": "1:85578742222:android:bea9b2cf5d0c0f402c139f",
-                "android_client_info": {
-                    "package_name": "com.elvan.rmdneram.admin"
-                }
-            },
-            "oauth_client": [
-                {
-                    "client_id": "85578742222-5fvu90ehphit7548lued6qeet1oha8f4.apps.googleusercontent.com",
-                    "client_type": 1,
-                    "android_info": {
-                        "package_name": "com.elvan.rmdneram.admin",
-                        "certificate_hash": "a3b68b181d6267591aa005075ff0d31698eb3589"
                     }
                 },
                 {

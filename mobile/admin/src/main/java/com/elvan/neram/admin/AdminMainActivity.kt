@@ -1,4 +1,4 @@
-package com.elvan.rmdneram.admin
+package com.elvan.neram.admin
 
 import android.annotation.SuppressLint
 import android.content.Context
