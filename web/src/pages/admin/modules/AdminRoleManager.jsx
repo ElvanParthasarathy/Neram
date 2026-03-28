@@ -491,9 +491,12 @@ const AdminRoleManager = ({ userProfile }) => {
                               <button className="menu-item text-red" onClick={() => { updateRole(uid, 'student'); setActiveMenuId(null); }}>Remove Admin</button>
                             )}
 
-                            {/* Faculty → can only be promoted to Super Admin */}
+                            {/* Faculty → can be promoted to Super (by super) or removed (by faculty/super) */}
                             {u.role === 'faculty' && iAmSuper && (
                               <button className="menu-item" onClick={() => { updateRole(uid, 'super_admin'); setActiveMenuId(null); }}>Make Super Admin</button>
+                            )}
+                            {u.role === 'faculty' && canEditFacultyTab && (
+                              <button className="menu-item text-red" onClick={() => { updateRole(uid, 'student'); setActiveMenuId(null); }}>Remove Faculty</button>
                             )}
 
                             {/* Super Admin → can only be downgraded to Faculty */}

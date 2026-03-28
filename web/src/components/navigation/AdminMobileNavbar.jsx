@@ -107,7 +107,6 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         structure: 'Structure',
         pending: 'Pending Requests',
         special_classes: 'Special Classes',
-        archives: 'Archive Tool',
     }[activeModule] || 'Admin Panel';
 
     // --- MOBILE BACK NAVIGATION ---
@@ -347,9 +346,6 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                                     <div className="drawer-group-label">System</div>
                                     <button onClick={() => handleNav('structure')} className={`admin-drawer-item ${activeModule === 'structure' ? 'active' : ''}`}>
                                         <div className="drawer-icon"><RiListCheck /></div> <span>Structure</span>
-                                    </button>
-                                    <button onClick={() => handleNav('archives')} className={`admin-drawer-item ${activeModule === 'archives' ? 'active' : ''}`}>
-                                        <div className="drawer-icon"><RiInboxArchiveLine /></div> <span>Archive Tool</span>
                                     </button>
                                 </>
                             )}

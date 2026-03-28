@@ -32,8 +32,8 @@ import android.os.Looper
 class AdminMainActivity : AppCompatActivity() {
 
     companion object {
-        private const val ADMIN_URL = "https://adminneram.vercel.app/admin"
-        private const val WEB_CLIENT_ID = "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com"
+        private const val ADMIN_URL = AppConfig.ADMIN_URL
+        private const val WEB_CLIENT_ID = AppConfig.WEB_CLIENT_ID
     }
 
     private lateinit var webView: WebView
@@ -216,7 +216,7 @@ class AdminMainActivity : AppCompatActivity() {
                 request: WebResourceRequest?
             ): Boolean {
                 val url = request?.url?.toString() ?: return false
-                if (url.contains("adminneram.vercel.app")) {
+                if (url.contains(AppConfig.ALLOWED_INTERNAL_DOMAIN)) {
                     return false
                 }
                 try {

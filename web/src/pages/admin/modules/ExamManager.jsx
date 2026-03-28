@@ -313,7 +313,14 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                             });
                     }
 
-                    updates[`schedules/${path.batch}/${path.dept}/${secId}/exams`] = [
+                    // Sort subjects by date before saving
+                    secSubjects.sort((a, b) => {
+                        const dateA = a.date || (a.batches?.[0]?.date) || '';
+                        const dateB = b.date || (b.batches?.[0]?.date) || '';
+                        return dateA.localeCompare(dateB);
+                    });
+
+                    const newExamsList = [
                         ...existingSecExams,
                         {
                             id: examObj.id,
@@ -324,6 +331,20 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                             subjects: secSubjects
                         }
                     ];
+
+                    // Sort the entire exams list by earliest subject date so Android & web render in order
+                    newExamsList.sort((a, b) => {
+                        const getEarliestDate = (ex) => {
+                            if (!ex.subjects || ex.subjects.length === 0) return ex.startDate || '';
+                            return ex.subjects.reduce((earliest, s) => {
+                                const d = s.date || (s.batches?.[0]?.date) || '';
+                                return d < earliest ? d : earliest;
+                            }, ex.subjects[0]?.date || ex.subjects[0]?.batches?.[0]?.date || '');
+                        };
+                        return getEarliestDate(a).localeCompare(getEarliestDate(b));
+                    });
+
+                    updates[`schedules/${path.batch}/${path.dept}/${secId}/exams`] = newExamsList;
                 } else {
                     updates[`schedules/${path.batch}/${path.dept}/${secId}/exams`] = existingSecExams;
                 }

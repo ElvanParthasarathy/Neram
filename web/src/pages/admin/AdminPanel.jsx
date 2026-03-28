@@ -77,6 +77,9 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
       if (['structure', 'calendar', 'resources', 'users', 'faculty', 'archives', 'pending'].includes(activeModule)) unauthorized = true;
     }
 
+    // --- DESKTOP-ONLY BLOCKS ON MOBILE ---
+    if (isMobile && ['archives'].includes(activeModule)) unauthorized = true;
+
     if (unauthorized) {
       // Force redirect to home
       setSearchParams({ mod: 'home' });
