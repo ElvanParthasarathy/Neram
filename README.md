@@ -27,11 +27,11 @@
 
 The project spans **three applications** that work together as a unified ecosystem:
 
-| Application | Technology | Purpose |
-|---|---|---|
-| **Student Web Portal** | React 19 + Vite | Full-featured PWA for students |
-| **Student Mobile App** | Kotlin + Jetpack Compose | Native Android app (Material 3) |
-| **Admin Portal** | React 19 (HashRouter) | Full admin dashboard (Web + Android Wrapper) |
+| Application | Technology | Icon | Purpose |
+|---|---|---|---|
+| **Student Web Portal** | React 19 + Vite | <img src="neram.svg" width="24" /> | Full-featured PWA for students |
+| **Student Mobile App** | Kotlin + Jetpack Compose | <img src="neram.svg" width="24" /> | Native Android app (Material 3) |
+| **Admin Portal** | React 19 (HashRouter) | <img src="web/public/icons/favicon-admin-green.svg" width="24" /> | Full admin dashboard (Web + Android Wrapper) |
 
 ---
 
@@ -295,8 +295,8 @@ Neram follows a **macOS Sequoia-inspired** design language across both web and m
 - **Safe Area Handling** — Proper status bar/notch padding on Android devices
 - **Responsive Layout** — Desktop sidebar collapses to mobile bottom nav at 768px
 - **Dual Color Identity**:
-  - 🔵 **Student App** — Gradient Blue (`#002DFF` → `#00B1FF`)
-  - 🟢 **Admin App** — Elf Green (`#088370`)
+  - <img src="neram.svg" width="16" /> **Student App** — Gradient Blue (`#002DFF` → `#00B1FF`)
+  - <img src="web/public/icons/favicon-admin-green.svg" width="16" /> **Admin App** — Elf Green (`#088370`)
 
 ---
 
