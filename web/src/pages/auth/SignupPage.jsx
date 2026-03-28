@@ -125,14 +125,14 @@ const SignupPage = () => {
 
   return (
     <AuthLayout>
-      <div style={{ height: '80px' }} />
+      <div style={{ height: '16px' }} />
 
       <AuthHeader
         title="Create Account"
         subtitle="Fill in your details to get started"
       />
 
-      <div style={{ height: '40px' }} />
+      <div style={{ height: '16px' }} />
 
       <form onSubmit={handleSignup} style={{ width: '100%' }}>
         <div className="auth-grid">
@@ -202,7 +202,7 @@ const SignupPage = () => {
         </AuthButton>
       </div>
 
-      <div style={{ marginTop: '32px', marginBottom: '120px' }}>
+      <div style={{ marginTop: '24px', marginBottom: '16px' }}>
         <AuthLink
           prefix="Already have an account?"
           linkText="Log In"

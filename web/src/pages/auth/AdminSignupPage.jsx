@@ -120,14 +120,14 @@ const AdminSignupPage = () => {
 
     return (
         <AuthLayout>
-            <div style={{ height: '80px' }} />
+            <div style={{ height: '16px' }} />
 
             <AuthHeader
                 title="Create Admin Account"
                 subtitle="Sign up to request admin access"
             />
 
-            <div style={{ height: '40px' }} />
+            <div style={{ height: '16px' }} />
 
             <form onSubmit={handleSignup} style={{ width: '100%' }}>
                 <div className="auth-grid">
@@ -187,7 +187,7 @@ const AdminSignupPage = () => {
                 </AuthButton>
             </div>
 
-            <div style={{ marginTop: '32px', marginBottom: '120px' }}>
+            <div style={{ marginTop: '24px', marginBottom: '16px' }}>
                 <AuthLink
                     prefix="Already have an account?"
                     linkText="Log In"
