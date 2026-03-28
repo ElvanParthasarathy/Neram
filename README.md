@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="web/src/assets/branding/app-logo-wordmark.svg" alt="Neram" width="280" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="web/src/assets/branding/navbar-logo-icon-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="web/src/assets/branding/navbar-logo-icon.svg">
+    <img src="web/src/assets/branding/navbar-logo-icon.svg" alt="Neram" width="280" />
+  </picture>
 </p>
 
 <p align="center">
@@ -23,11 +27,11 @@
 
 The project spans **three applications** that work together as a unified ecosystem:
 
-| Application | Technology | Icon | Purpose |
-|---|---|---|---|
-| **Student Web Portal** | React 19 + Vite | <img src="neram.svg" width="24" /> | Full-featured PWA for students |
-| **Student Mobile App** | Kotlin + Jetpack Compose | <img src="neram.svg" width="24" /> | Native Android app (Material 3) |
-| **Admin Portal** | React 19 (HashRouter) | <img src="web/public/icons/favicon-admin-green.svg" width="24" /> | Full admin dashboard (Web + Android Wrapper) |
+| Application | Technology | Purpose |
+|---|---|---|
+| **Student Web Portal** | React 19 + Vite | Full-featured PWA for students |
+| **Student Mobile App** | Kotlin + Jetpack Compose | Native Android app (Material 3) |
+| **Admin Portal** | React 19 (HashRouter) | Full admin dashboard (Web + Android Wrapper) |
 
 ---
 
@@ -291,8 +295,8 @@ Neram follows a **macOS Sequoia-inspired** design language across both web and m
 - **Safe Area Handling** — Proper status bar/notch padding on Android devices
 - **Responsive Layout** — Desktop sidebar collapses to mobile bottom nav at 768px
 - **Dual Color Identity**:
-  - <img src="neram.svg" width="16" /> **Student App** — Gradient Blue (`#002DFF` → `#00B1FF`)
-  - <img src="web/public/icons/favicon-admin-green.svg" width="16" /> **Admin App** — Elf Green (`#088370`)
+  - 🔵 **Student App** — Gradient Blue (`#002DFF` → `#00B1FF`)
+  - 🟢 **Admin App** — Elf Green (`#088370`)
 
 ---
 
@@ -300,9 +304,13 @@ Neram follows a **macOS Sequoia-inspired** design language across both web and m
 
 | Document | Description |
 |---|---|
-| [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Technical architecture, setup, and development guide |
 | [`docs/STUDENT_USER_MANUAL.md`](docs/STUDENT_USER_MANUAL.md) | End-user guide for students |
+| [`docs/ADMIN_PORTAL_GUIDE.md`](docs/ADMIN_PORTAL_GUIDE.md) | Admin portal guide for Super Admins, Faculty & Reps |
+| [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Technical architecture, setup, and development guide |
 | [`docs/COLLEGE_INTEGRATION_PROPOSAL.md`](docs/COLLEGE_INTEGRATION_PROPOSAL.md) | Full deployment & handover proposal |
+| [`docs/MINI_PROJECT_PRESENTATION.md`](docs/MINI_PROJECT_PRESENTATION.md) | Mini-project campus presentation |
+| [`docs/FINAL_YEAR_PROJECT_REPORT.md`](docs/FINAL_YEAR_PROJECT_REPORT.md) | Final year academic project report |
+| [`docs/COMPETITION_PRESENTATION.md`](docs/COMPETITION_PRESENTATION.md) | Inter-college competition pitch |
 | [`docs/RESTRUCTURING_WALKTHROUGH.md`](docs/RESTRUCTURING_WALKTHROUGH.md) | Codebase restructuring history |
 | [`PRIVACY_POLICY.md`](PRIVACY_POLICY.md) | App privacy policy |
 
@@ -332,7 +340,11 @@ RMD Engineering College
 ---
 
 <p align="center">
-  <img src="web/src/assets/branding/navbar-logo-icon.svg" alt="Neram Icon" width="40" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="web/src/assets/branding/navbar-logo-icon-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="web/src/assets/branding/navbar-logo-icon.svg">
+    <img src="web/src/assets/branding/navbar-logo-icon.svg" alt="Neram Icon" width="40" />
+  </picture>
 </p>
 
 <p align="center">
