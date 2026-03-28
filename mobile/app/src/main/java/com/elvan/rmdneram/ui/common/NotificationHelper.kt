@@ -135,7 +135,7 @@ object NotificationHelper {
         )
 
         val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.mipmap.ic_launcher) // Todo: Use proper notification icon if available
+            .setSmallIcon(R.drawable.ic_notification) // Using transparent white icon for status bar
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH) // Always High for Popup
