@@ -208,14 +208,14 @@ const AdminLoginPage = () => {
 
     return (
         <AuthLayout>
-            <div style={{ height: '60px' }} />
+            <div style={{ height: '20px' }} />
 
             <AuthHeader
                 title="Admin Portal"
                 subtitle="Secure access for administrators"
             />
 
-            <div style={{ height: '32px' }} />
+            <div style={{ height: '16px' }} />
 
             <form onSubmit={handleEmailLogin} style={{ width: '100%' }}>
                 <AuthInput

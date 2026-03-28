@@ -71,11 +71,11 @@ html.dark .auth-logo-themed {
     width: 100%;
     max-width: 480px;
     /* Mobile-like width on desktop */
-    padding: 24px;
-    padding-top: 48px;
+    padding: 20px 24px;
+    padding-top: 32px;
     /* Bottom padding ensures the last button clears the browser toolbar
        and home indicator on notched/gesture-nav phones. */
-    padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
     z-index: 10;
     display: flex;
     flex-direction: column;
@@ -172,7 +172,7 @@ html.dark .auth-logo-themed {
 /* Header */
 .auth-header {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .auth-title {
@@ -193,7 +193,7 @@ html.dark .auth-logo-themed {
 /* Pill Input */
 .auth-field {
     width: 100%;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
 .auth-label {
@@ -347,7 +347,7 @@ html.dark .auth-btn-google {
     display: flex;
     align-items: center;
     width: 100%;
-    margin: 24px 0;
+    margin: 16px 0;
 }
 
 .divider-line {
