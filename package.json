@@ -5,6 +5,7 @@
     "firebase": "^12.9.0",
     "framer-motion": "^12.34.0",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "sharp": "^0.34.5"
   }
 }

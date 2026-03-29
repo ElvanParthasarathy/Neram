@@ -393,7 +393,9 @@ const ScheduleManager = ({ user, userProfile }) => {
 
     const saveSection = async (newData, successMsg = "✅ Saved successfully") => {
         try {
-            await set(ref(db, `schedules/${path.batch}/${path.dept}/${path.sec}`), newData);
+            // Use update() instead of set() to only write the keys we manage,
+            // preserving specialClasses and other data managed by other modules
+            await update(ref(db, `schedules/${path.batch}/${path.dept}/${path.sec}`), newData);
             if (successMsg) showToast(successMsg);
         } catch (e) { showToast(e.message); }
     }

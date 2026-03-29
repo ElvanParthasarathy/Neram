@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { db } from "../../../firebase";
-import { ref, onValue, set, update } from "firebase/database";
+import { ref, onValue, set, update, get } from "firebase/database";
 import { getHardcodedRole } from '../../../data/admins';
 import { ListItemSkeleton } from '../../../components/ui/AdminSkeletons';
 import DatePicker from "react-datepicker";
@@ -258,8 +258,13 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
       const payloadId = classObj.id || `sc_${Date.now()}`;
       const updates = {};
 
+      // Fetch FRESH data from DB to prevent stale-state overwrites
+      const freshSnap = await get(ref(db, `schedules/${path.batch}/${path.dept}`));
+      const freshDeptData = freshSnap.val() || {};
+
       sections.forEach(secId => {
-        const secCourses = rawDeptData[secId]?.courses || [];
+        const freshSecData = freshDeptData[secId] || {};
+        const secCourses = freshSecData.courses || [];
 
         const applicableBatches = classObj.batches.filter(b => b.scope === 'Common' || b.scope === secId)
           .map(b => {
@@ -267,8 +272,8 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
             const matchedSecCourse = secCourses.find(c => c.name === newB.subjectName || c.code === newB.subjectCode);
             if (matchedSecCourse && matchedSecCourse.faculty) {
               newB.faculty = matchedSecCourse.faculty;
-            } else if (rawDeptData._master?.courses) {
-              const masterCourse = rawDeptData._master.courses.find(c => c.name === newB.subjectName || c.code === newB.subjectCode);
+            } else if (freshDeptData._master?.courses) {
+              const masterCourse = freshDeptData._master.courses.find(c => c.name === newB.subjectName || c.code === newB.subjectCode);
               if (masterCourse && masterCourse.faculty) {
                 newB.faculty = masterCourse.faculty;
               }
@@ -279,20 +284,18 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
             return newB;
           });
 
-        const secSc = specialClasses.filter(sc => sc.id !== payloadId)
-          .filter(sc => sc.batches.some(b => b.scopes?.includes(secId) || b.scope === 'Common'))
-          .map(sc => {
-            const newSc = { ...sc };
-            newSc.batches = newSc.batches.filter(b => b.scopes?.includes(secId) || b.scope === 'Common')
-              .map(b => { const nb = { ...b }; delete nb.scopes; delete nb.scope; return nb; });
-            return newSc;
-          });
+        // Use FRESH DB data instead of stale React state
+        const freshScArray = Array.isArray(freshSecData.specialClasses)
+          ? freshSecData.specialClasses
+          : Object.values(freshSecData.specialClasses || {});
+
+        const secSc = freshScArray.filter(sc => sc.id !== payloadId);
 
         if (applicableBatches.length > 0) {
           const finalPayload = { id: payloadId, date: classObj.date, typeTitle: classObj.typeTitle, title: classObj.title, desc: classObj.desc, batches: applicableBatches };
           updates[`schedules/${path.batch}/${path.dept}/${secId}/specialClasses`] = [...secSc, finalPayload];
         } else {
-          const oldExistedHere = specialClasses.some(sc => sc.id === payloadId && sc.batches.some(b => b.scopes?.includes(secId) || b.scope === 'Common'));
+          const oldExistedHere = freshScArray.some(sc => sc.id === payloadId);
           if (oldExistedHere) {
             updates[`schedules/${path.batch}/${path.dept}/${secId}/specialClasses`] = secSc;
           }
@@ -327,17 +330,19 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
     if (!window.confirm("Delete this special class entry?")) return;
     try {
       const updates = {};
+      // Fetch FRESH data from DB
+      const freshSnap = await get(ref(db, `schedules/${path.batch}/${path.dept}`));
+      const freshDeptData = freshSnap.val() || {};
+
       sections.forEach(secId => {
-        const existingForSec = specialClasses.find(sc => sc.id === entryId && sc.batches.some(b => b.scopes?.includes(secId) || b.scope === 'Common'));
-        if (existingForSec) {
-          const secSc = specialClasses.filter(sc => sc.id !== entryId && sc.batches.some(b => b.scopes?.includes(secId) || b.scope === 'Common'))
-            .map(sc => {
-              const newSc = { ...sc };
-              newSc.batches = newSc.batches.filter(b => b.scopes?.includes(secId) || b.scope === 'Common')
-                .map(b => { const nb = { ...b }; delete nb.scopes; delete nb.scope; return nb; });
-              return newSc;
-            });
-          updates[`schedules/${path.batch}/${path.dept}/${secId}/specialClasses`] = secSc;
+        const freshSecData = freshDeptData[secId] || {};
+        const freshScArray = Array.isArray(freshSecData.specialClasses)
+          ? freshSecData.specialClasses
+          : Object.values(freshSecData.specialClasses || {});
+
+        const hadEntry = freshScArray.some(sc => sc.id === entryId);
+        if (hadEntry) {
+          updates[`schedules/${path.batch}/${path.dept}/${secId}/specialClasses`] = freshScArray.filter(sc => sc.id !== entryId);
         }
       });
       if (Object.keys(updates).length > 0) {
@@ -353,21 +358,20 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
     if (!window.confirm(`Delete ${selectedClasses.length} special class(es)?`)) return;
     try {
       const updates = {};
+      // Fetch FRESH data from DB
+      const freshSnap = await get(ref(db, `schedules/${path.batch}/${path.dept}`));
+      const freshDeptData = freshSnap.val() || {};
+
       sections.forEach(secId => {
-        const hasAny = selectedClasses.some(entryId =>
-          specialClasses.find(sc => sc.id === entryId && sc.batches.some(b => b.scopes?.includes(secId) || b.scope === 'Common'))
-        );
+        const freshSecData = freshDeptData[secId] || {};
+        const freshScArray = Array.isArray(freshSecData.specialClasses)
+          ? freshSecData.specialClasses
+          : Object.values(freshSecData.specialClasses || {});
+
+        const hasAny = selectedClasses.some(entryId => freshScArray.some(sc => sc.id === entryId));
 
         if (hasAny) {
-          const secSc = specialClasses
-            .filter(sc => !selectedClasses.includes(sc.id) && sc.batches.some(b => b.scopes?.includes(secId) || b.scope === 'Common'))
-            .map(sc => {
-              const newSc = { ...sc };
-              newSc.batches = newSc.batches.filter(b => b.scopes?.includes(secId) || b.scope === 'Common')
-                .map(b => { const nb = { ...b }; delete nb.scopes; delete nb.scope; return nb; });
-              return newSc;
-            });
-          updates[`schedules/${path.batch}/${path.dept}/${secId}/specialClasses`] = secSc;
+          updates[`schedules/${path.batch}/${path.dept}/${secId}/specialClasses`] = freshScArray.filter(sc => !selectedClasses.includes(sc.id));
         }
       });
       if (Object.keys(updates).length > 0) {
