@@ -29,8 +29,8 @@ The project spans **three applications** that work together as a unified ecosyst
 
 | Application | Technology | Icon | Purpose |
 |---|---|---|---|
-| **Student Web Portal** | React 19 + Vite | <img src="neram.svg" width="24" /> | Full-featured PWA for students |
-| **Student Mobile App** | Kotlin + Jetpack Compose | <img src="neram.svg" width="24" /> | Native Android app (Material 3) |
+| **Student Web Portal** | React 19 + Vite | <img src="web/public/icons/favicon-student-blue.svg" width="24" /> | Full-featured PWA for students |
+| **Student Mobile App** | Kotlin + Jetpack Compose | <img src="web/public/icons/favicon-student-blue.svg" width="24" /> | Native Android app (Material 3) |
 | **Admin Portal** | React 19 (HashRouter) | <img src="web/public/icons/favicon-admin-green.svg" width="24" /> | Full admin dashboard (Web + Android Wrapper) |
 
 ---
