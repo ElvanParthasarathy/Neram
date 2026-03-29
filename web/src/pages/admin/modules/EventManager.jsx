@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { formatDateDDMMYYYY, handleAutoSlash, parseDMYToISO } from "../../../utils/timeUtils";
 import HybridDateInput from '../../../components/ui/HybridDateInput';
 import { db } from "../../../firebase";
-import { ref, onValue, set, update } from "firebase/database";
+import { ref, onValue, set, update, get } from "firebase/database";
 import { getHardcodedRole } from '../../../data/admins';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -191,10 +191,14 @@ const EventManager = ({ user, userProfile, isMobile }) => {
       const updates = {};
       const sections = masterData.sections;
 
+      // Fetch FRESH data from DB to prevent stale-state overwrites
+      const freshSnap = await get(ref(db, `list_events/${path.batch}/${path.dept}`));
+      const freshDeptData = freshSnap.val() || {};
+
       sections.forEach(secId => {
-        const existingSecEvents = (masterData.rawDeptData[secId] || []);
-        const existingEventsArr = Array.isArray(existingSecEvents) ? existingSecEvents : Object.values(existingSecEvents);
-        const filteredEvents = existingEventsArr.filter(e => e.id !== eventObj.id);
+        const freshSecEvents = freshDeptData[secId] || [];
+        const freshEventsArr = Array.isArray(freshSecEvents) ? freshSecEvents : Object.values(freshSecEvents);
+        const filteredEvents = freshEventsArr.filter(e => e.id !== eventObj.id);
 
         if (!isDelete) {
           const scopeStr = eventObj.scope || 'Common';
@@ -206,7 +210,6 @@ const EventManager = ({ user, userProfile, isMobile }) => {
             delete newSecEvent.scopes;
             updates[`list_events/${path.batch}/${path.dept}/${secId}`] = [...filteredEvents, newSecEvent];
           } else {
-            // Even if it no longer applies, update the DB minus this event we already filtered out
             updates[`list_events/${path.batch}/${path.dept}/${secId}`] = filteredEvents;
           }
 

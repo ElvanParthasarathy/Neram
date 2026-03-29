@@ -4,7 +4,7 @@ import { convertTo12Hour, formatDateDDMMYYYY } from '../../../utils/timeUtils';
 import HybridDateInput from '../../../components/ui/HybridDateInput';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { db } from "../../../firebase";
-import { ref, onValue, update } from "firebase/database";
+import { ref, onValue, update, get } from "firebase/database";
 import { getHardcodedRole } from '../../../data/admins';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -259,8 +259,13 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
             const updates = {};
             const sections = masterData.sections;
 
+            // Fetch FRESH data from DB to prevent stale-state overwrites
+            const freshSnap = await get(ref(db, `schedules/${path.batch}/${path.dept}`));
+            const freshDeptData = freshSnap.val() || {};
+
             sections.forEach(secId => {
-                const existingSecExams = (masterData.rawDeptData[secId]?.exams || []).filter(e => e.id !== examObj.id);
+                const freshSecExams = freshDeptData[secId]?.exams || [];
+                const existingSecExams = freshSecExams.filter(e => e.id !== examObj.id);
 
                 if (!isDelete) {
                     let secSubjects;
@@ -273,8 +278,6 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                             })
                             .map(sub => {
                                 if (sub.scope === 'Common') {
-                                    // Common scope: ALL batches go to ALL sections
-                                    // Each section gets a copy with label set to section letter
                                     const filteredBatches = sub.batches.map((b) => ({
                                         ...b,
                                         label: b.label || secId
@@ -285,7 +288,6 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                         batches: filteredBatches
                                     };
                                 } else {
-                                    // Section-specific: all batches belong to that scope section
                                     const scopeSection = sub.scope;
                                     const filteredBatches = sub.batches.map((b, bIdx) => ({
                                         ...b,
