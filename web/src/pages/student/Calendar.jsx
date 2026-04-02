@@ -386,7 +386,7 @@ const MobileOfficialDocs = () => {
             exit={{ height: 0, opacity: 0 }}
             className="cal-mob-docs-content"
           >
-            <div className="cal-mob-docs-item" onClick={() => window.open(pdfUrl, '_blank')}>
+            <div className="cal-mob-docs-item" onClick={() => window.open(`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}`, '_blank')}>
               <div className="cal-mob-docs-icon-box">
                 <RiFilePdfLine size={20} color="#EF5350" />
               </div>
@@ -1097,7 +1097,7 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
                 )}
               </div>
               {renderAgendaContent()}
-              <a href={officialDocUrl} target="_blank" rel="noopener noreferrer" className="cal-doc-btn">
+              <a href={`https://docs.google.com/viewer?url=${encodeURIComponent(officialDocUrl)}`} target="_blank" rel="noopener noreferrer" className="cal-doc-btn">
                 <RiDownloadLine /> Official Document
               </a>
             </div>
@@ -1114,7 +1114,7 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
               <h2>{selectedDate.toLocaleDateString('en-GB', { weekday: 'long' })}</h2>
               <p>{selectedDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
-            <a href={officialDocUrl} target="_blank" rel="noopener noreferrer" className="cal-doc-btn-round">
+            <a href={`https://docs.google.com/viewer?url=${encodeURIComponent(officialDocUrl)}`} target="_blank" rel="noopener noreferrer" className="cal-doc-btn-round">
               <RiDownloadLine />
             </a>
           </div>
