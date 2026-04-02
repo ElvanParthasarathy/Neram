@@ -54,11 +54,11 @@ data class ScheduleState(
     val scheduleStatus: String = "",
     val periods: ImmutableList<PeriodDisplayData> = persistentListOf(),
     val activeExamPeriod: ExamSchedule? = null,
-    val todayExam: ExamSubject? = null,
+    val todayExams: ImmutableList<ExamSubject> = persistentListOf(),
     val todayBatches: ImmutableList<TodayBatchGroup> = persistentListOf(),
-    val todaySpecialClass: SpecialClass? = null,
-    val fullDayEvent: CalendarEvent? = null,
-    val halfDayEvent: CalendarEvent? = null,
+    val todaySpecialClasses: ImmutableList<SpecialClass> = persistentListOf(),
+    val fullDayEvents: ImmutableList<CalendarEvent> = persistentListOf(),
+    val halfDayEvents: ImmutableList<CalendarEvent> = persistentListOf(),
     val occasionEvent: CalendarEvent? = null
 )
 
@@ -230,11 +230,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val scheduleStatus: String = "",
         val periods: List<PeriodDisplayData> = emptyList(),
         val activeExamPeriod: ExamSchedule? = null,
-        val todayExam: ExamSubject? = null,
+        val todayExams: List<ExamSubject> = emptyList(),
         val todayBatches: List<TodayBatchGroup> = emptyList(),
-        val todaySpecialClass: SpecialClass? = null,
-        val fullDayEvent: CalendarEvent? = null,
-        val halfDayEvent: CalendarEvent? = null,
+        val todaySpecialClasses: List<SpecialClass> = emptyList(),
+        val fullDayEvents: List<CalendarEvent> = emptyList(),
+        val halfDayEvents: List<CalendarEvent> = emptyList(),
         val occasionEvent: CalendarEvent? = null
     )
     
@@ -248,11 +248,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 scheduleStatus = cached.scheduleStatus,
                 periods = (cached.periods).toImmutableList(),
                 activeExamPeriod = cached.activeExamPeriod,
-                todayExam = cached.todayExam,
-                todayBatches = (cached.todayBatches).toImmutableList(),
-                todaySpecialClass = cached.todaySpecialClass,
-                fullDayEvent = cached.fullDayEvent,
-                halfDayEvent = cached.halfDayEvent,
+                todayExams = (cached.todayExams ?: emptyList()).toImmutableList(),
+                todayBatches = (cached.todayBatches ?: emptyList()).toImmutableList(),
+                todaySpecialClasses = (cached.todaySpecialClasses ?: emptyList()).toImmutableList(),
+                fullDayEvents = (cached.fullDayEvents ?: emptyList()).toImmutableList(),
+                halfDayEvents = (cached.halfDayEvents ?: emptyList()).toImmutableList(),
                 occasionEvent = cached.occasionEvent
             )
         } else {
@@ -479,7 +479,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             dateStr >= exam.startDate && dateStr <= exam.endDate
         }
         
-        var todayExam: ExamSubject? = null
+        var todayExams: ImmutableList<ExamSubject> = persistentListOf()
         var todayBatches: ImmutableList<TodayBatchGroup> = persistentListOf()
         
         if (activeExamPeriod != null) {
@@ -497,7 +497,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     todayBatches = batchesForToday.toImmutableList()
                 }
             } else {
-                todayExam = activeExamPeriod.subjects.find { it.date == dateStr }
+                todayExams = activeExamPeriod.subjects.filter { it.date == dateStr }.toImmutableList()
             }
         }
         
@@ -505,15 +505,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         // Web parity (Home.jsx): type "Event" (Regular Notice) maps to fullDay if fullTime == "All Day", otherwise halfDay
         // IMPORTANT: Only match type "Event" for section events (isSection=true), NOT academic calendar events
         // On the web, fullDayEvent/halfDayEvent are searched only in sectionEvts, not globalEvents
-        val fullDayEvent = currentEvents.find { it.type == "FullDay" || (it.type == "Event" && it.isSection && it.fullTime == "All Day") }
-        val halfDayEvent = currentEvents.find { it.type == "HalfDay" || (it.type == "Event" && it.isSection && it.fullTime != "All Day") }
+        val fullDayEvents = currentEvents.filter { it.type == "FullDay" || (it.type == "Event" && it.isSection && it.fullTime == "All Day") }.toImmutableList()
+        val halfDayEvents = currentEvents.filter { it.type == "HalfDay" || (it.type == "Event" && it.isSection && it.fullTime != "All Day") }.toImmutableList()
         val occasionEvent = currentEvents.find { it.isOccasion() }
         
         // Detect special class for today
-        val todaySpecialClass = masterData.specialClasses.find { it.date == dateStr }
+        val todaySpecialClasses = masterData.specialClasses.filter { it.date == dateStr }.toImmutableList()
         
         // Resolve day order
-        val (dayOrder, scheduleStatus) = resolveDayOrder(date, currentEvents, todaySpecialClass)
+        val (dayOrder, scheduleStatus) = resolveDayOrder(date, currentEvents, todaySpecialClasses.firstOrNull())
         
         // Build period list
         val periods = if (dayOrder.isNotEmpty()) {
@@ -537,11 +537,11 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             scheduleStatus = scheduleStatus,
             periods = periods,
             activeExamPeriod = activeExamPeriod,
-            todayExam = todayExam,
+            todayExams = todayExams,
             todayBatches = todayBatches,
-            todaySpecialClass = todaySpecialClass,
-            fullDayEvent = fullDayEvent,
-            halfDayEvent = halfDayEvent,
+            todaySpecialClasses = todaySpecialClasses,
+            fullDayEvents = fullDayEvents,
+            halfDayEvents = halfDayEvents,
             occasionEvent = occasionEvent
         )
     }
@@ -572,12 +572,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         
         // Automated lab reminder logic
         val isHoliday = schedule.scheduleStatus.contains("Holiday", ignoreCase = true)
-        val hasFullDayEvent = schedule.fullDayEvent != null
+        val hasFullDayEvent = schedule.fullDayEvents.isNotEmpty()
         val isMajorExam = schedule.activeExamPeriod != null && !schedule.activeExamPeriod.type.contains("CT")
-        val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam || schedule.todaySpecialClass != null || schedule.occasionEvent != null
+        val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam || schedule.todaySpecialClasses.isNotEmpty() || schedule.occasionEvent != null
         
         val hasLabToday = (!classesSuspended && schedule.periods.any { it.isLab }) || (schedule.activeExamPeriod != null && schedule.activeExamPeriod.type.equals("Practical", ignoreCase = true) && schedule.todayBatches.isNotEmpty())
-        val hasExamToday = schedule.todayExam != null || schedule.todayBatches.isNotEmpty()
+        val hasExamToday = schedule.todayExams.isNotEmpty() || schedule.todayBatches.isNotEmpty()
         
         val rawNote = visibleServerUpdate?.note ?: ""
         var finalNote = rawNote

@@ -575,29 +575,33 @@ internal fun ScheduleSection(
             var hasContent = false
             
             // 0. Special Class
-            if (config.showSpecialClass && scheduleState.todaySpecialClass != null) {
-                hasContent = true
-                SpecialClassMiniCard(
-                    specialClass = scheduleState.todaySpecialClass,
-                    colors = colors
-                )
+            if (config.showSpecialClass && scheduleState.todaySpecialClasses.isNotEmpty()) {
+                scheduleState.todaySpecialClasses.forEach { sc ->
+                    hasContent = true
+                    SpecialClassMiniCard(
+                        specialClass = sc,
+                        colors = colors
+                    )
+                }
             }
             
             // A. Show Exam
             if (config.showExamCard) {
                 val activeExam = scheduleState.activeExamPeriod
-                val todaySub = scheduleState.todayExam
+                val todayExams = scheduleState.todayExams
                 val todayBatches = scheduleState.todayBatches
                 
                 if (activeExam != null) {
-                    if (todaySub != null) {
-                        hasContent = true
-                        ExamCard(
-                            exam = activeExam,
-                            subject = todaySub,
-                            courses = masterData.courses,
-                            colors = colors
-                        )
+                    if (todayExams.isNotEmpty()) {
+                        todayExams.forEach { sub ->
+                            hasContent = true
+                            ExamCard(
+                                exam = activeExam,
+                                subject = sub,
+                                courses = masterData.courses,
+                                colors = colors
+                            )
+                        }
                     } else if (todayBatches.isNotEmpty()) {
                         hasContent = true
                         PracticalExamMiniCard(
@@ -611,7 +615,7 @@ internal fun ScheduleSection(
 
             // B. Full Day Event
             if (config.showFullDayEvent) {
-                scheduleState.fullDayEvent?.let { event ->
+                scheduleState.fullDayEvents.forEach { event ->
                     hasContent = true
                     FullDayEventCard(event = event, colors = colors)
                 }
@@ -619,7 +623,7 @@ internal fun ScheduleSection(
             
             // C. Show Half Day (if applicable)
             if (config.showHalfDayEvent) {
-                scheduleState.halfDayEvent?.let { event ->
+                scheduleState.halfDayEvents.forEach { event ->
                     hasContent = true
                     HalfDayEventCard(event = event, colors = colors)
                 }

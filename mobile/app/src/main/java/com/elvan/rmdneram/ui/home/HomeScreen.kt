@@ -75,13 +75,13 @@ fun HomeScreen(
         if (academicCalendarEvents.isEmpty()) return@remember academicCalendarEvents
 
         academicCalendarEvents.filter { event ->
-            val isFullDayRedundant = displayConfig.showFullDayEvent && scheduleState.fullDayEvent?.let { 
-                event.id == it.id || event.title == it.title 
-            } == true
+            val isFullDayRedundant = displayConfig.showFullDayEvent && scheduleState.fullDayEvents.any { fullDayEvent -> 
+                event.id == fullDayEvent.id || event.title == fullDayEvent.title 
+            }
             
-            val isHalfDayRedundant = displayConfig.showHalfDayEvent && scheduleState.halfDayEvent?.let { 
-                event.id == it.id || event.title == it.title 
-            } == true
+            val isHalfDayRedundant = displayConfig.showHalfDayEvent && scheduleState.halfDayEvents.any { halfDayEvent ->
+                event.id == halfDayEvent.id || event.title == halfDayEvent.title 
+            }
             
             val isExamRedundant = displayConfig.showExamCard && scheduleState.activeExamPeriod?.let { exam -> 
                 event.title.contains(exam.title, ignoreCase = true) 

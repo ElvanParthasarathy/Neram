@@ -202,8 +202,8 @@ const Home = ({
                 }).filter(Boolean);
                 setActiveExamToday(todayBatches.length > 0 ? { ...cp, todayBatches, subjectName: todayBatches[0]?.subjectName } : null);
             } else {
-                const sub = cp.subjects?.find((s) => s.date === todayStr);
-                setActiveExamToday(sub ? { ...cp, todaySub: sub } : null);
+                const subs = cp.subjects?.filter((s) => s.date === todayStr) || [];
+                setActiveExamToday(subs.length > 0 ? { ...cp, todaySubs: subs } : null);
             }
         } else {
             setActiveExamToday(null);
@@ -211,8 +211,8 @@ const Home = ({
 
         // --- Special Classes Detection ---
         const scList = masterData.specialClasses || [];
-        const todaySC = scList.find(sc => sc.date === todayStr);
-        setActiveSpecialClass(todaySC || null);
+        const todaySCs = scList.filter(sc => sc.date === todayStr);
+        setActiveSpecialClass(todaySCs.length > 0 ? todaySCs : null);
 
         const weekdayName = currentDate.toLocaleDateString("en-GB", {
             weekday: "long",
@@ -228,9 +228,9 @@ const Home = ({
 
         let ro = "";
         let rs = "";
-        if (todaySC) {
+        if (todaySCs.length > 0) {
             ro = "SPECIAL";
-            rs = `Classes suspended due to ${todaySC.title || todaySC.typeTitle}.`;
+            rs = `Classes suspended due to ${todaySCs[0].title || todaySCs[0].typeTitle}.`;
         } else if (hol) {
             ro = "";
             rs = "Holiday";
@@ -288,9 +288,9 @@ const Home = ({
         }
     }, [activeProfile, todayStr]);
 
-    const fullDayEvent = sectionEvts.find((e) => e.type === "FullDay" || (e.type === "Event" && e.fullTime === "All Day"));
-    const halfDayEvent = sectionEvts.find((e) => e.type === "HalfDay" || (e.type === "Event" && e.fullTime !== "All Day"));
-    console.log("SECTION EVENTS TODAY:", sectionEvts, { fullDayEvent, halfDayEvent });
+    const fullDayEvents = sectionEvts.filter((e) => e.type === "FullDay" || (e.type === "Event" && e.fullTime === "All Day"));
+    const halfDayEvents = sectionEvts.filter((e) => e.type === "HalfDay" || (e.type === "Event" && e.fullTime !== "All Day"));
+    console.log("SECTION EVENTS TODAY:", sectionEvts, { fullDayEvents, halfDayEvents });
 
     // ---------- SAVE ACTIONS ----------
     const handleSaveNote = async () => {
@@ -609,70 +609,76 @@ const Home = ({
                                 ) : (
                                     <>
                                         {/* 4a. SPECIAL CLASS CARD */}
-                                        {activeSpecialClass && (
-                                            <ExamEventCard specialClass={activeSpecialClass} />
-                                        )}
+                                        {activeSpecialClass && activeSpecialClass.map((sc, i) => (
+                                            <ExamEventCard key={`sc-${i}`} specialClass={sc} />
+                                        ))}
 
                                         {/* 4b. EXAM CARD */}
                                         {activeExamToday && (
-                                            <ExamEventCard
-                                                exam={activeExamToday.type === 'Practical' ? {
-                                                    title: activeExamToday.title,
-                                                    type: activeExamToday.type,
-                                                    todayBatches: activeExamToday.todayBatches,
-                                                    subjectName: activeExamToday.subjectName
-                                                } : {
-                                                    title: activeExamToday.title,
-                                                    subjectName: getSubjectName(activeExamToday.todaySub.code),
-                                                    todaySub: {
-                                                        ...activeExamToday.todaySub,
-                                                        startTime: convertTo12Hour(activeExamToday.todaySub.startTime),
-                                                        endTime: convertTo12Hour(activeExamToday.todaySub.endTime)
-                                                    }
-                                                }}
-                                            />
+                                            activeExamToday.type === 'Practical' ? (
+                                                <ExamEventCard
+                                                    exam={{ ...activeExamToday, type: 'Practical' }}
+                                                />
+                                            ) : (
+                                                activeExamToday.todaySubs?.map((sub, i) => (
+                                                    <ExamEventCard
+                                                        key={`ex-${i}`}
+                                                        exam={{
+                                                            title: activeExamToday.title,
+                                                            subjectName: getSubjectName(sub.code),
+                                                            todaySub: {
+                                                                ...sub,
+                                                                startTime: convertTo12Hour(sub.startTime),
+                                                                endTime: convertTo12Hour(sub.endTime)
+                                                            }
+                                                        }}
+                                                    />
+                                                ))
+                                            )
                                         )}
 
                                         {/* 4b. FULL DAY EVENT */}
-                                        {fullDayEvent && (
+                                        {fullDayEvents?.map((evt, i) => (
                                             <EventCard
+                                                key={`fd-${i}`}
                                                 tag="TODAY'S EVENT"
-                                                title={fullDayEvent.title}
-                                                subtitle={fullDayEvent.description || "Full Day Event"}
+                                                title={evt.title}
+                                                subtitle={evt.description || "Full Day Event"}
                                                 meta1="Full Day"
                                                 meta1Icon={<RiTimeLine />}
                                             />
-                                        )}
+                                        ))}
 
                                         {/* 4c. HALF DAY */}
-                                        {halfDayEvent && (
+                                        {halfDayEvents?.map((evt, i) => (
                                             <EventCard
+                                                key={`hd-${i}`}
                                                 tag="SPECIAL EVENT"
-                                                title={halfDayEvent.title}
-                                                subtitle={halfDayEvent.description || "Special Session"}
-                                                {...(halfDayEvent.type !== "Event" ? {
-                                                    meta1: `${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`,
+                                                title={evt.title}
+                                                subtitle={evt.description || "Special Session"}
+                                                {...(evt.type !== "Event" ? {
+                                                    meta1: `${convertTo12Hour(evt.startTime || "09:00")} - ${convertTo12Hour(evt.endTime || "12:00")}`,
                                                     meta1Icon: <RiTimeLine />,
                                                     meta2: "Event",
                                                     meta2Icon: <RiInformationLine />
                                                 } : {})}
                                             />
-                                        )}
+                                        ))}
 
                                         {/* 4d. TIMETABLE or SUSPENDED */}
                                         {(() => {
-                                            if (activeSpecialClass) {
+                                            if (activeSpecialClass && activeSpecialClass.length > 0) {
                                                 return (
                                                     <NoticeCard
                                                         title="Classes Suspended"
-                                                        message={`Classes suspended due to ${activeSpecialClass.title || activeSpecialClass.typeTitle}.`}
+                                                        message={`Classes suspended due to ${activeSpecialClass[0].title || activeSpecialClass[0].typeTitle}.`}
                                                     />
                                                 );
-                                            } else if (fullDayEvent && !isMajorExam) {
+                                            } else if (fullDayEvents && fullDayEvents.length > 0 && !isMajorExam) {
                                                 return (
                                                     <NoticeCard
                                                         title="Classes Suspended"
-                                                        message={`Day reserved for ${fullDayEvent.title}.`}
+                                                        message={`Day reserved for ${fullDayEvents[0].title}.`}
                                                     />
                                                 );
                                             } else if (activeExamPeriod && !activeExamPeriod.type.includes("CT")) {

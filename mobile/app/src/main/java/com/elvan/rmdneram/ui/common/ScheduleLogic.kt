@@ -32,7 +32,7 @@ object ScheduleLogic {
         var suspensionReason = ""
 
         // 1. Special Class (Dominant Override)
-        if (state.todaySpecialClass != null) {
+        if (state.todaySpecialClasses.isNotEmpty()) {
             return ScheduleDisplayConfig(
                 showFullDayEvent = false,
                 showExamCard = false,
@@ -40,22 +40,22 @@ object ScheduleLogic {
                 showHalfDayEvent = false,
                 showTimetable = false,
                 showSuspensionNotice = true,
-                suspensionReason = "Classes suspended due to ${state.todaySpecialClass.typeTitle}."
+                suspensionReason = "Classes suspended due to ${state.todaySpecialClasses.first().typeTitle}."
             )
         }
 
         // 2. Full Day Event
-        if (state.fullDayEvent != null) {
+        if (state.fullDayEvents.isNotEmpty()) {
             showFullDay = true
         }
 
         // 3. Today's Exam
-        if (state.todayExam != null || state.todayBatches.isNotEmpty()) {
+        if (state.todayExams.isNotEmpty() || state.todayBatches.isNotEmpty()) {
             showExam = true
         }
 
         // 4. Half Day Event
-        if (state.halfDayEvent != null) {
+        if (state.halfDayEvents.isNotEmpty()) {
             showHalfDay = true
         }
 
@@ -66,7 +66,8 @@ object ScheduleLogic {
 
         if (showFullDay && (!isExamPeriod || isCycleTestPeriod)) {
             showSuspended = true
-            suspensionReason = "Day reserved for ${state.fullDayEvent?.title}."
+            val eventTitle = state.fullDayEvents.firstOrNull()?.title ?: ""
+            suspensionReason = "Day reserved for $eventTitle."
         } else if (isExamPeriod && !isCycleTestPeriod) {
             showSuspended = true
             suspensionReason = "Regular classes are suspended during the ${state.activeExamPeriod?.title} period."

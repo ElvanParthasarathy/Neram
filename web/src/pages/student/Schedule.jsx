@@ -94,7 +94,7 @@ const processCourse = (course, batch, originalCode) => {
 
 /** Calculate display config (port of ScheduleLogic.kt) */
 const calculateDisplayConfig = (state) => {
-  if (state.activeSpecialClass) {
+  if (state.activeSpecialClasses && state.activeSpecialClasses.length > 0) {
     return {
       showSpecialClass: true,
       showFullDayEvent: false,
@@ -102,20 +102,20 @@ const calculateDisplayConfig = (state) => {
       showHalfDayEvent: false,
       showTimetable: false,
       showSuspensionNotice: true,
-      suspensionReason: `Classes suspended due to ${state.activeSpecialClass.typeTitle}.`
+      suspensionReason: `Classes suspended due to ${state.activeSpecialClasses[0].typeTitle}.`
     };
   }
 
-  if (state.fullDayEvent) {
+  if (state.fullDayEvents && state.fullDayEvents.length > 0) {
     return {
       showFullDayEvent: true, showExamCard: false, showHalfDayEvent: false,
       showTimetable: false, showSuspensionNotice: false, showSpecialClass: false,
-      suspensionReason: `Day reserved for ${state.fullDayEvent.title}.`
+      suspensionReason: `Day reserved for ${state.fullDayEvents[0].title}.`
     };
   }
 
-  let showExam = !!state.todayExam;
-  let showHalfDay = !!state.halfDayEvent && !state.todayExam;
+  let showExam = !!state.todayExams;
+  let showHalfDay = (state.halfDayEvents && state.halfDayEvents.length > 0) && !showExam;
   let showTimetable = false;
   let showSuspended = false;
   let suspensionReason = "";
@@ -132,12 +132,12 @@ const calculateDisplayConfig = (state) => {
   }
 
   return {
-    showFullDayEvent: !state.fullDayEvent ? false : true,
+    showFullDayEvent: (!state.fullDayEvents || state.fullDayEvents.length === 0) ? false : true,
     showExamCard: showExam,
     showHalfDayEvent: showHalfDay,
     showTimetable,
     showSuspensionNotice: showSuspended,
-    showSpecialClass: !!state.activeSpecialClass,
+    showSpecialClass: (state.activeSpecialClasses && state.activeSpecialClasses.length > 0),
     suspensionReason
   };
 };
@@ -764,8 +764,8 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
         }).filter(Boolean);
         setActiveExamToday(todayBatches.length > 0 ? { ...currentPeriod, todayBatches, subjectName: todayBatches[0]?.subjectName } : null);
       } else {
-        const subToday = currentPeriod.subjects?.find(s => s.date === todayStr);
-        setActiveExamToday(subToday ? { ...currentPeriod, todaySub: subToday, subjectName: getCleanSubjectName(subToday.code, masterData.courses) } : null);
+        const subsToday = currentPeriod.subjects?.filter(s => s.date === todayStr) || [];
+        setActiveExamToday(subsToday.length > 0 ? { ...currentPeriod, todaySubs: subsToday } : null);
       }
     } else {
       setActiveExamToday(null);
@@ -804,8 +804,8 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
     }
   }, [currentDate, globalData, allCalendar, masterData]);
 
-  const fullDayEvent = sectionEvents.find(e => e.type === "FullDay" || (e.type === "Event" && e.fullTime === "All Day"));
-  const halfDayEvent = sectionEvents.find(e => e.type === "HalfDay" || (e.type === "Event" && e.fullTime !== "All Day"));
+  const fullDayEvents = sectionEvents.filter(e => e.type === "FullDay" || (e.type === "Event" && e.fullTime === "All Day"));
+  const halfDayEvents = sectionEvents.filter(e => e.type === "HalfDay" || (e.type === "Event" && e.fullTime !== "All Day"));
 
   // Build periods for today
   const todayPeriods = useMemo(() => {
@@ -817,18 +817,18 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
   }, [dayOrder, masterData]);
 
   // Detect special class for current date
-  const activeSpecialClass = useMemo(() => {
+  const activeSpecialClasses = useMemo(() => {
     const todayStr = toISODate(currentDate);
-    return (masterData.specialClasses || []).find(sc => sc.date === todayStr);
+    return (masterData.specialClasses || []).filter(sc => sc.date === todayStr);
   }, [masterData.specialClasses, currentDate]);
 
   // Schedule display config
   const scheduleState = {
-    fullDayEvent,
-    halfDayEvent,
-    todayExam: activeExamToday,
+    fullDayEvents,
+    halfDayEvents,
+    todayExams: activeExamToday,
     activeExamPeriod,
-    activeSpecialClass,
+    activeSpecialClasses,
     periods: todayPeriods
   };
   const displayConfig = calculateDisplayConfig(scheduleState);
@@ -978,41 +978,48 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
                 </div>
 
                 {/* Full Day Event */}
-                {displayConfig.showFullDayEvent && fullDayEvent && (
-                  <>
+                {displayConfig.showFullDayEvent && fullDayEvents?.map((evt, i) => (
+                  <React.Fragment key={`fd-${i}`}>
                     <EventCard
                       tag="TODAY'S EVENT"
-                      title={fullDayEvent.title}
-                      subtitle={fullDayEvent.description || "Full Day Event"}
+                      title={evt.title}
+                      subtitle={evt.description || "Full Day Event"}
                       meta1="Full Day"
                       meta2="No Classes"
                     />
-                    <NoticeCard title="Classes Suspended" message={displayConfig.suspensionReason} />
-                  </>
-                )}
+                    {i === 0 && <NoticeCard title="Classes Suspended" message={displayConfig.suspensionReason} />}
+                  </React.Fragment>
+                ))}
 
                 {/* Special Class Card */}
-                {displayConfig.showSpecialClass && activeSpecialClass && (
-                  <ExamEventCard specialClass={activeSpecialClass} />
-                )}
+                {displayConfig.showSpecialClass && activeSpecialClasses?.map((sc, i) => (
+                  <ExamEventCard key={`sc-${i}`} specialClass={sc} />
+                ))}
 
                 {/* Exam Card */}
                 {displayConfig.showExamCard && activeExamToday && (
-                  <ExamEventCard exam={activeExamToday} />
+                  activeExamToday.type === 'Practical' ? (
+                    <ExamEventCard exam={activeExamToday} />
+                  ) : (
+                    activeExamToday.todaySubs?.map((sub, i) => (
+                      <ExamEventCard key={`ex-${i}`} exam={{ ...activeExamToday, todaySub: sub, subjectName: getCleanSubjectName(sub.code, masterData.courses) }} />
+                    ))
+                  )
                 )}
 
                 {/* Half Day Event */}
-                {displayConfig.showHalfDayEvent && halfDayEvent && (
+                {displayConfig.showHalfDayEvent && halfDayEvents?.map((evt, i) => (
                   <EventCard
+                    key={`hd-${i}`}
                     tag="SPECIAL EVENT"
-                    title={halfDayEvent.title}
-                    subtitle={halfDayEvent.description || "Special Session"}
-                    {...(halfDayEvent.type !== "Event" ? {
-                      meta1: `${convertTo12Hour(halfDayEvent.startTime || "09:00")} - ${convertTo12Hour(halfDayEvent.endTime || "12:00")}`,
+                    title={evt.title}
+                    subtitle={evt.description || "Special Session"}
+                    {...(evt.type !== "Event" ? {
+                      meta1: `${convertTo12Hour(evt.startTime || "09:00")} - ${convertTo12Hour(evt.endTime || "12:00")}`,
                       meta2: "Event"
                     } : {})}
                   />
-                )}
+                ))}
 
                 {/* Timetable */}
                 {displayConfig.showTimetable && todayPeriods.length > 0 && (

@@ -212,11 +212,34 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
   };
 
   // --- FORM ACTIONS ---
+  const generateNextBatchTiming = (lastBatch) => {
+    let nextStart = '08:30';
+    let nextEnd = '10:30';
+    if (lastBatch) {
+      nextStart = lastBatch.endTime || '08:30';
+      if (lastBatch.startTime && lastBatch.endTime) {
+        let [sh, sm] = lastBatch.startTime.split(':').map(Number);
+        let [eh, em] = lastBatch.endTime.split(':').map(Number);
+        let durationMins = (eh * 60 + em) - (sh * 60 + sm);
+        if (durationMins <= 0) durationMins = 120;
+        let newEndMins = (eh * 60 + em) + durationMins;
+        nextEnd = `${String(Math.floor(newEndMins / 60)).padStart(2, '0')}:${String(newEndMins % 60).padStart(2, '0')}`;
+      } else {
+        nextEnd = '12:30';
+      }
+    }
+    return { nextStart, nextEnd };
+  };
+
   const addBatchRow = () => {
-    setNewClass(prev => ({
-      ...prev,
-      batches: [...prev.batches, { id: Date.now(), circleLabel: String(prev.batches.length + 1), startTime: '08:30', endTime: '10:15', subjectCode: '', subjectName: '', faculty: '', scope: 'Common' }]
-    }));
+    setNewClass(prev => {
+      const last = prev.batches[prev.batches.length - 1];
+      const { nextStart, nextEnd } = generateNextBatchTiming(last);
+      return {
+        ...prev,
+        batches: [...prev.batches, { id: Date.now(), circleLabel: String(prev.batches.length + 1), startTime: nextStart, endTime: nextEnd, subjectCode: '', subjectName: '', faculty: '', scope: 'Common', isCustom: last ? (last.isCustom || false) : false }]
+      };
+    });
   };
 
   const removeBatchRow = (id) => {
@@ -245,7 +268,8 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
       batches: sc.batches.map(b => ({
         ...b,
         id: b.id || Date.now() + Math.random(),
-        scope: b.scopes && b.scopes.length === sections.length ? 'Common' : (b.scopes?.[0] || 'Common')
+        scope: b.scopes && b.scopes.length === sections.length ? 'Common' : (b.scopes?.[0] || 'Common'),
+        isCustom: courses.length > 0 && b.subjectName && !courses.some(c => c.name === b.subjectName)
       }))
     });
   };
@@ -434,14 +458,16 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
     const addBatchRowLocal = () => {
       const last = item.batches[item.batches.length - 1];
       const nId = Date.now() + Math.random();
+      const { nextStart, nextEnd } = generateNextBatchTiming(last);
       setItem({
         ...item,
         batches: [...item.batches, {
           id: nId,
           circleLabel: last ? String(parseInt(last.circleLabel || 0) + 1) : "1",
-          startTime: last ? last.endTime : '08:30',
-          endTime: last ? '12:30' : '10:30',
-          subjectCode: '', subjectName: '', faculty: '', scope: isRep ? `Section ${repSec}` : 'Common'
+          startTime: nextStart,
+          endTime: nextEnd,
+          subjectCode: '', subjectName: '', faculty: '', scope: isRep ? `Section ${repSec}` : 'Common', 
+          isCustom: last ? (last.isCustom || false) : false
         }]
       });
     };
@@ -492,6 +518,13 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                   <input className="event-input" style={{ textAlign: 'center' }} value={b.circleLabel} onChange={e => updateBatchFieldLocal(b.id, 'circleLabel', e.target.value)} placeholder="1" />
                 </div>
                 <div className="input-group-vertical">
+                  <label>Entry Mode</label>
+                  <div style={{ display: 'flex', gap: '6px', background: 'var(--mac-button-bg)', borderRadius: '100px', padding: '4px', height: '44px', alignItems: 'stretch', width: '100%', boxSizing: 'border-box' }}>
+                     <button type="button" onClick={() => updateBatchFieldLocal(b.id, 'isCustom', false)} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: 0, border: 'none', borderRadius: '100px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', background: !b.isCustom ? 'var(--mac-blue)' : 'transparent', color: !b.isCustom ? '#fff' : 'var(--mac-text-secondary)', transition: 'all 0.2s ease', height: '100%' }}>List</button>
+                     <button type="button" onClick={() => { setItem(prev => ({ ...prev, batches: prev.batches.map(bd => bd.id === b.id ? { ...bd, isCustom: true, subjectCode: '' } : bd) })); }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: 0, border: 'none', borderRadius: '100px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', background: b.isCustom ? 'var(--mac-blue)' : 'transparent', color: b.isCustom ? '#fff' : 'var(--mac-text-secondary)', transition: 'all 0.2s ease', height: '100%' }}>Custom</button>
+                  </div>
+                </div>
+                <div className="input-group-vertical">
                   <label>Start</label>
                   <input className="event-input" type="time" value={b.startTime} onChange={e => updateBatchFieldLocal(b.id, 'startTime', e.target.value)} />
                 </div>
@@ -499,22 +532,33 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                   <label>End</label>
                   <input className="event-input" type="time" value={b.endTime} onChange={e => updateBatchFieldLocal(b.id, 'endTime', e.target.value)} />
                 </div>
-                <div className="input-group-vertical variant-code">
-                  <label>Subject</label>
-                  <select className="event-input" value={b.subjectName} onChange={e => {
-                    const course = courses.find(c => c.name === e.target.value);
-                    let updated = [...item.batches];
-                    const bIdx = updated.findIndex(ub => ub.id === b.id);
-                    if (bIdx > -1) {
-                      updated[bIdx].subjectCode = course ? course.code : '';
-                      updated[bIdx].faculty = course?.faculty || '';
-                      updated[bIdx].subjectName = e.target.value;
-                      setItem({ ...item, batches: updated });
-                    }
-                  }}>
-                    <option value="">Select</option>
-                    {courses.map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
-                  </select>
+                <div className="input-group-vertical variant-code" style={{ minWidth: '180px' }}>
+                  <label>Subject Name</label>
+                  {!b.isCustom ? (
+                    <select className="event-input" value={b.subjectName} onChange={e => {
+                      const course = courses.find(c => c.name === e.target.value);
+                      let updated = [...item.batches];
+                      const bIdx = updated.findIndex(ub => ub.id === b.id);
+                      if (bIdx > -1) {
+                        updated[bIdx].subjectCode = course ? course.code : '';
+                        updated[bIdx].faculty = course?.faculty || '';
+                        updated[bIdx].subjectName = e.target.value;
+                        setItem({ ...item, batches: updated });
+                      }
+                    }}>
+                      <option value="">Select</option>
+                      {courses.map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
+                    </select>
+                  ) : (
+                    <input className="event-input" placeholder="Custom Subject Name" value={b.subjectName} onChange={e => {
+                      let updated = [...item.batches];
+                      const bIdx = updated.findIndex(ub => ub.id === b.id);
+                      if (bIdx > -1) {
+                        updated[bIdx].subjectName = e.target.value;
+                        setItem({ ...item, batches: updated });
+                      }
+                    }} />
+                  )}
                 </div>
                 <div className="input-group-vertical variant-scope">
                   <label>Scope</label>
@@ -770,6 +814,13 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                                       <input className="event-input" style={{ textAlign: 'center' }} value={b.circleLabel} onChange={e => { let batches = [...editBuffer.batches]; batches[idx].circleLabel = e.target.value; setEditBuffer({ ...editBuffer, batches }); }} placeholder="1" />
                                     </div>
                                     <div className="input-group-vertical">
+                                      <label>Entry Mode</label>
+                                      <div style={{ display: 'flex', gap: '6px', background: 'var(--mac-button-bg)', borderRadius: '100px', padding: '4px', height: '44px', alignItems: 'stretch', width: '100%', boxSizing: 'border-box' }}>
+                                         <button type="button" onClick={() => { setEditBuffer(prev => ({ ...prev, batches: prev.batches.map((bd, i) => i === idx ? { ...bd, isCustom: false } : bd) })); }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: 0, border: 'none', borderRadius: '100px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', background: !b.isCustom ? 'var(--mac-blue)' : 'transparent', color: !b.isCustom ? '#fff' : 'var(--mac-text-secondary)', transition: 'all 0.2s ease', height: '100%' }}>List</button>
+                                         <button type="button" onClick={() => { setEditBuffer(prev => ({ ...prev, batches: prev.batches.map((bd, i) => i === idx ? { ...bd, isCustom: true, subjectCode: '' } : bd) })); }} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: 0, padding: 0, border: 'none', borderRadius: '100px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', background: b.isCustom ? 'var(--mac-blue)' : 'transparent', color: b.isCustom ? '#fff' : 'var(--mac-text-secondary)', transition: 'all 0.2s ease', height: '100%' }}>Custom</button>
+                                      </div>
+                                    </div>
+                                    <div className="input-group-vertical">
                                       <label>Start</label>
                                       <input className="event-input" type="time" value={b.startTime} onChange={e => { let batches = [...editBuffer.batches]; batches[idx].startTime = e.target.value; setEditBuffer({ ...editBuffer, batches }); }} />
                                     </div>
@@ -777,19 +828,27 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                                       <label>End</label>
                                       <input className="event-input" type="time" value={b.endTime} onChange={e => { let batches = [...editBuffer.batches]; batches[idx].endTime = e.target.value; setEditBuffer({ ...editBuffer, batches }); }} />
                                     </div>
-                                    <div className="input-group-vertical variant-code">
-                                      <label>Subject</label>
-                                      <select className="event-input" value={b.subjectName} onChange={e => {
-                                        const course = courses.find(c => c.name === e.target.value);
-                                        let batches = [...editBuffer.batches];
-                                        batches[idx].subjectCode = course ? course.code : '';
-                                        batches[idx].faculty = course?.faculty || '';
-                                        batches[idx].subjectName = e.target.value;
-                                        setEditBuffer({ ...editBuffer, batches });
-                                      }}>
-                                        <option value="">Select</option>
-                                        {courses.map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
-                                      </select>
+                                    <div className="input-group-vertical variant-code" style={{ minWidth: '180px' }}>
+                                      <label>Subject Name</label>
+                                      {!b.isCustom ? (
+                                        <select className="event-input" value={b.subjectName} onChange={e => {
+                                          const course = courses.find(c => c.name === e.target.value);
+                                          let batches = [...editBuffer.batches];
+                                          batches[idx].subjectCode = course ? course.code : '';
+                                          batches[idx].faculty = course?.faculty || '';
+                                          batches[idx].subjectName = e.target.value;
+                                          setEditBuffer({ ...editBuffer, batches });
+                                        }}>
+                                          <option value="">Select</option>
+                                          {courses.map(c => <option key={c.code} value={c.name}>{c.name}</option>)}
+                                        </select>
+                                      ) : (
+                                        <input className="event-input" placeholder="Custom Subject Name" value={b.subjectName} onChange={e => {
+                                          let batches = [...editBuffer.batches];
+                                          batches[idx].subjectName = e.target.value;
+                                          setEditBuffer({ ...editBuffer, batches });
+                                        }} />
+                                      )}
                                     </div>
                                     <div className="input-group-vertical variant-scope">
                                       <label>Scope</label>
@@ -806,14 +865,16 @@ const SpecialClassManager = ({ user, userProfile, isMobile }) => {
                                 <button className="btn-add-line" onClick={() => {
                                   const last = editBuffer.batches[editBuffer.batches.length - 1];
                                   const nId = Date.now() + Math.random();
+                                  const { nextStart, nextEnd } = generateNextBatchTiming(last);
                                   setEditBuffer({
                                     ...editBuffer,
                                     batches: [...editBuffer.batches, {
                                       id: nId,
                                       circleLabel: last ? String(parseInt(last.circleLabel || 0) + 1) : "1",
-                                      startTime: last ? last.endTime : '08:30',
-                                      endTime: last ? '12:30' : '10:30',
-                                      subjectCode: '', subjectName: '', faculty: '', scope: 'Common'
+                                      startTime: nextStart,
+                                      endTime: nextEnd,
+                                      subjectCode: '', subjectName: '', faculty: '', scope: 'Common', 
+                                      isCustom: last ? (last.isCustom || false) : false
                                     }]
                                   });
                                 }}><RiAddLine /> Add Period</button>
