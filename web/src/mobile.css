@@ -1780,8 +1780,7 @@
   }
 
   /* Major Exam Card Parity (Red Sequoia) */
-  .s2-event-card.major,
-  .s2-exam-card.major {
+  .s2-event-card.major {
     background: #FF3B30 !important;
     box-shadow: 0 8px 24px rgba(255, 59, 48, 0.2) !important;
   }
