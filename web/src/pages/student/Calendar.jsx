@@ -407,7 +407,7 @@ const getEventObjColor = (event) => {
   if (title.includes("exam") || title.includes("test") || title.includes("sia") || title.includes("fia")) return EXAM_COLOR;
   if (title.includes("order")) return ORDER_COLOR;
   if (event.type === "Holiday" || title.includes("holiday")) return HOLIDAY_COLOR;
-  if (event.type === "Academic") return SPECIAL_COLOR;
+  if (event.type === "Academic" || title.includes("special") || title.includes("revision")) return SPECIAL_COLOR;
   return BAR_DEFAULT_COLOR;
 };
 
@@ -610,7 +610,7 @@ const MobileCalendar = ({ globalData, userProfile, activeProfile }) => {
     if (t.includes('holiday')) return MOB_PURPLE;
     if (t.includes('exam') || t.includes('test') || t.includes('sia') || t.includes('fia')) return MOB_GREEN;
     if (t.includes('working day') && t.includes('order')) return MOB_CYAN;
-    if (e.type === "FullDay" || e.type === "HalfDay" || e.isSection) return MOB_YELLOW;
+    if (e.type === "FullDay" || e.type === "HalfDay" || e.isSection || t.includes('special') || t.includes('revision')) return MOB_YELLOW;
     return MOB_BLUE;
   }
 
@@ -820,6 +820,7 @@ const DesktopCalendar = ({ globalData, userProfile, activeProfile }) => {
     const t = title.toLowerCase();
     if (t.includes('holiday')) return HOLIDAY_COLOR;
     if (t.includes('exam') || t.includes('test') || t.includes('sia') || t.includes('fia')) return EXAM_COLOR;
+    if (t.includes('special') || t.includes('revision')) return SPECIAL_COLOR;
     if (t.includes('order')) return ORDER_COLOR;
     return BAR_DEFAULT_COLOR;
   };

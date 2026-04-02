@@ -746,7 +746,7 @@ class FirebaseRepository(private val context: Context) {
                                     
                                     events.add(
                                         CalendarEvent(
-                                            id = "${groupId}_${normalizedDate}",
+                                            id = "${groupId}_${normalizedDate}_${subEvent.key}",
                                             title = finalTitle,
                                             date = normalizedDate,
                                             groupId = groupId,

@@ -326,13 +326,14 @@ export const EventCard = ({ tag, title, subtitle, meta1, meta2, meta1Icon, meta2
 );
 
 /** Exam event card (same blue card but with trophy icon) */
-export const ExamEventCard = ({ exam, specialClass }) => {
+export const ExamEventCard = ({ exam, specialClass, isMajor }) => {
+
   if (specialClass) {
     return (
       <div className="s2-prac-today-cards">
         <div style={{ marginBottom: '0' }}>
           {/* Blue header card */}
-          <div className="s2-event-card s2-fade-in" style={{ marginBottom: '12px' }}>
+          <div className={`s2-event-card s2-fade-in ${isMajor ? 'major' : ''}`} style={{ marginBottom: '12px' }}>
             <div className="s2-event-tag">{specialClass.typeTitle?.toUpperCase() || "SPECIAL CLASS"}</div>
             <div className="s2-event-content">
               <RiComputerLine className="s2-event-icon" />
@@ -378,7 +379,7 @@ export const ExamEventCard = ({ exam, specialClass }) => {
         {exam.todayBatches.map((tb, i) => (
           <div key={i} style={{ marginBottom: i < exam.todayBatches.length - 1 ? '24px' : '0' }}>
             {/* Blue header card — same style as standard exam */}
-            <div className="s2-event-card s2-fade-in" style={{ marginBottom: '12px' }}>
+            <div className={`s2-event-card s2-fade-in ${isMajor ? 'major' : ''}`} style={{ marginBottom: '12px' }}>
               <div className="s2-event-tag">TODAY'S PRACTICAL EXAM</div>
               <div className="s2-event-content">
                 <RiTrophyLine className="s2-event-icon" />
@@ -420,7 +421,7 @@ export const ExamEventCard = ({ exam, specialClass }) => {
   }
 
   return (
-    <div className="s2-event-card s2-fade-in">
+    <div className={`s2-event-card s2-fade-in ${isMajor ? 'major' : ''}`}>
       <div className="s2-event-tag">TODAY'S EXAM</div>
       <div className="s2-event-content">
         <RiTrophyLine className="s2-event-icon" />
@@ -570,8 +571,10 @@ const ExamScheduleCard = ({ exam, courses, defaultExpanded = false, viewDate }) 
     ? `${formatDate(exam.startDate)} — ${formatDate(exam.endDate)}`
     : '';
 
+  const isMajor = exam.title?.toLowerCase().includes("sia") || exam.title?.toLowerCase().includes("fia") || (exam.title?.toLowerCase().includes("exam") && !exam.title?.toLowerCase().includes("cycle"));
+
   return (
-    <div className="s2-exam-card s2-fade-in" style={{ marginBottom: '10px' }}>
+    <div className={`s2-exam-card s2-fade-in ${isMajor ? 'major' : ''}`} style={{ marginBottom: '10px' }}>
       <div className="s2-exam-header" onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer', marginBottom: isOpen ? undefined : 0 }}>
         <RiTrophyLine className="s2-exam-header-icon" />
         <div style={{ flex: 1 }}>
@@ -753,6 +756,7 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
     // Exam logic
     const currentPeriod = masterData.exams?.find(ex => todayStr >= ex.startDate && todayStr <= ex.endDate);
     setActiveExamPeriod(currentPeriod || null);
+    const isMajorExam = currentPeriod && !currentPeriod.title?.toLowerCase().includes("cycle test");
 
     if (currentPeriod) {
       if (currentPeriod.type === 'Practical') {
@@ -999,10 +1003,10 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
                 {/* Exam Card */}
                 {displayConfig.showExamCard && activeExamToday && (
                   activeExamToday.type === 'Practical' ? (
-                    <ExamEventCard exam={activeExamToday} />
+                    <ExamEventCard exam={activeExamToday} isMajor={isMajorExam} />
                   ) : (
                     activeExamToday.todaySubs?.map((sub, i) => (
-                      <ExamEventCard key={`ex-${i}`} exam={{ ...activeExamToday, todaySub: sub, subjectName: getCleanSubjectName(sub.code, masterData.courses) }} />
+                      <ExamEventCard key={`ex-${i}`} exam={{ ...activeExamToday, todaySub: sub, subjectName: getCleanSubjectName(sub.code, masterData.courses) }} isMajor={isMajorExam} />
                     ))
                   )
                 )}

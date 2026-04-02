@@ -610,7 +610,7 @@ const Home = ({
                                     <>
                                         {/* 4a. SPECIAL CLASS CARD */}
                                         {activeSpecialClass && activeSpecialClass.map((sc, i) => (
-                                            <ExamEventCard key={`sc-${i}`} specialClass={sc} />
+                                            <ExamEventCard key={`sc-${i}`} specialClass={sc} isMajor={false} />
                                         ))}
 
                                         {/* 4b. EXAM CARD */}
@@ -618,6 +618,7 @@ const Home = ({
                                             activeExamToday.type === 'Practical' ? (
                                                 <ExamEventCard
                                                     exam={{ ...activeExamToday, type: 'Practical' }}
+                                                    isMajor={isMajorExam}
                                                 />
                                             ) : (
                                                 activeExamToday.todaySubs?.map((sub, i) => (
@@ -632,6 +633,7 @@ const Home = ({
                                                                 endTime: convertTo12Hour(sub.endTime)
                                                             }
                                                         }}
+                                                        isMajor={isMajorExam}
                                                     />
                                                 ))
                                             )

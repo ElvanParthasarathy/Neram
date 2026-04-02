@@ -1651,23 +1651,65 @@
     letter-spacing: -0.5px;
   }
 
+  .h2-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .h2-academic-card {
+    background: var(--mac-sidebar-bg);
+    border-radius: 20px;
+    padding: 16px 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+  }
+
+  html.dark .h2-academic-card {
+    background: #121212;
+  }
+
+  .h2-info-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--mac-text-secondary);
+    opacity: 0.7;
+  }
+
+  .h2-info-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mac-blue);
+  }
+
   .h2-grouped-card {
-    background: var(--bg-card);
+    background: var(--mac-sidebar-bg);
     border-radius: 20px;
     overflow: hidden;
-    /* box-shadow: var(--shadow-dock); optional depth */
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   html.dark .h2-grouped-card {
-    background: var(--bg-card);
-    /* Uses #1E1E1E in dark */
+    background: #121212;
+    box-shadow: none;
   }
 
   .h2-event-row {
     display: flex;
     align-items: center;
-    padding: 16px;
+    padding: 16px 20px;
     position: relative;
+    transition: background-color 0.2s;
   }
 
   .h2-event-row:active {
@@ -1682,25 +1724,66 @@
     flex-shrink: 0;
   }
 
-  /* Colors */
-  .h2-event-bar.holiday {
-    background: #8B5CF6;
+  .h2-grouped-card {
+    background: var(--mac-sidebar-bg);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
   }
 
-  .h2-event-bar.exam {
+  html.dark .h2-grouped-card {
+    background: #121212;
+  }
+
+  .h2-event-row {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    position: relative;
+  }
+
+  .h2-event-divider {
+    height: 1px;
+    width: calc(100% - 40px);
+    margin: 0 auto;
+    background-color: var(--mac-border);
+    opacity: 0.5;
+  }
+
+  /* Event Bar & Calendar Dot Colors */
+  .h2-event-bar.holiday,
+  .h2-calendar-dot.holiday {
+    background: #9C27B0;
+  }
+
+  .h2-event-bar.exam,
+  .h2-calendar-dot.exam {
     background: #22C55E;
   }
 
-  .h2-event-bar.order {
+  .h2-event-bar.order,
+  .h2-calendar-dot.order {
     background: #00BCD4;
   }
 
-  .h2-event-bar.special {
-    background: #FBC02D;
+  .h2-event-bar.special,
+  .h2-event-bar.academic,
+  .h2-calendar-dot.special,
+  .h2-calendar-dot.academic {
+    background: #FFCA28;
   }
 
   .h2-event-bar.default {
     background-color: var(--accent-primary);
+  }
+
+  /* Major Exam Card Parity (Red Sequoia) */
+  .s2-event-card.major,
+  .s2-exam-card.major {
+    background: #FF3B30 !important;
+    box-shadow: 0 8px 24px rgba(255, 59, 48, 0.2) !important;
   }
 
   .h2-event-details {
