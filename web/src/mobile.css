@@ -2802,4 +2802,9 @@
     .role-header-pill:active, .premium-pill-btn:active {
         transform: scale(0.96);
     }
+
+    /* Notes Page Mobile Fix */
+    .notes-container {
+        padding-bottom: 110px !important;
+    }
 }
