@@ -1,5 +1,6 @@
 export const convertTo12Hour = (t) => {
     if (!t || typeof t !== 'string') return t || "";
+    if (t.toUpperCase().includes("AM") || t.toUpperCase().includes("PM")) return t;
     if (!t.includes(":")) return t;
     const [hours, minutes] = t.split(":");
     let h = parseInt(hours, 10);

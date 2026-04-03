@@ -273,7 +273,7 @@ const EventManager = ({ user, userProfile, isMobile }) => {
 
   const convertTo12Hour = (timeStr) => {
     if (!timeStr) return '';
-    if (timeStr.includes('AM') || timeStr.includes('PM')) return timeStr; // Already 12-hour
+    if (timeStr.toUpperCase().includes('AM') || timeStr.toUpperCase().includes('PM')) return timeStr; // Already 12-hour
     const parts = timeStr.split(':');
     if (parts.length < 2) return timeStr;
     let h = parseInt(parts[0], 10);
