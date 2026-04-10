@@ -64,38 +64,14 @@ fun HomeScreen(
     var isSimulatingOfflineRefresh by remember { mutableStateOf(false) }
 
     // =========================================================================
-    // EVENT DEDUPLICATION LOGIC
+    // DISPLAY CONFIG (for Schedule section)
     // =========================================================================
-    // Academic Calendar section shows ONLY global calendar events (not Event Manager events).
-    // Event Manager events (FullDay/HalfDay) are shown as big cards in the Schedule section.
-    // We still deduplicate exam events that are already shown as big cards.
     val displayConfig = remember(scheduleState) { ScheduleLogic.calculateDisplayConfig(scheduleState) }
-    
-    val filteredEvents = remember(academicCalendarEvents, displayConfig, scheduleState) {
-        if (academicCalendarEvents.isEmpty()) return@remember academicCalendarEvents
 
-        academicCalendarEvents.filter { event ->
-            val isFullDayRedundant = displayConfig.showFullDayEvent && scheduleState.fullDayEvents.any { fullDayEvent -> 
-                event.id == fullDayEvent.id || event.title == fullDayEvent.title 
-            }
-            
-            val isHalfDayRedundant = displayConfig.showHalfDayEvent && scheduleState.halfDayEvents.any { halfDayEvent ->
-                event.id == halfDayEvent.id || event.title == halfDayEvent.title 
-            }
-            
-            val isExamRedundant = displayConfig.showExamCard && scheduleState.activeExamPeriod?.let { exam -> 
-                event.title.contains(exam.title, ignoreCase = true) 
-            } == true
-            
-            !isFullDayRedundant && !isHalfDayRedundant && !isExamRedundant
-        }
-    }
-
-    // Visibility Logic:
-    // 1. If academicCalendarEvents is empty -> Show "No events declared"
-    // 2. If academicCalendarEvents is NOT empty but filteredEvents IS empty -> HIDE section
-    // 3. If filteredEvents is NOT empty -> Show Calendar + List
-    val showAcademicCalendarSection = academicCalendarEvents.isEmpty() || filteredEvents.isNotEmpty()
+    // Academic Calendar: Show ALL global calendar events without deduplication.
+    // This matches the web app behavior (Home.jsx uses globalEvents directly).
+    // The exam/event cards in the Schedule section are a separate concern.
+    val showAcademicCalendarSection = true
     
     // =========================================================================
     // DIALOGS
@@ -146,7 +122,7 @@ fun HomeScreen(
     HomeMainLayout(
         uiState = uiState,
         scheduleState = scheduleState,
-        filteredEvents = filteredEvents,
+        filteredEvents = academicCalendarEvents,
         todayUpdate = todayUpdate,
         formattedDate = viewModel.getFormattedDate(appLocale),
         showAcademicCalendarSection = showAcademicCalendarSection,

@@ -43,6 +43,7 @@ html.dark .auth-logo-themed {
 .auth-container {
     position: fixed;
     inset: 0;
+    z-index: 10010;
     width: 100vw;
     /* Use dvh (dynamic viewport height) so the container shrinks when
        the browser toolbar is visible. Falls back to 100vh on old browsers.

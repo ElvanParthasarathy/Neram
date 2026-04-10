@@ -6,10 +6,10 @@
     },
     "users": {
         "$uid": {
-            ".read": "auth != null && (auth.uid === $uid || root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty')",
+            ".read": "auth != null",
             ".write": "auth != null && (auth.uid === $uid || root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
         },
-        ".read": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+        ".read": "auth != null"
     },
     "academic_hierarchy": {
         ".read": "auth != null",

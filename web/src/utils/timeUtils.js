@@ -16,7 +16,7 @@ export const convertTo12Hour = (t) => {
  */
 export const formatDateDDMMYYYY = (date) => {
     if (!date) return "";
-    
+
     if (typeof date === 'string') {
         // If the string is already a formatted ISO date (YYYY-MM-DD) string, let it parse.
         // Otherwise, it's an intermediate typing string like "12/03", so return it as-is.

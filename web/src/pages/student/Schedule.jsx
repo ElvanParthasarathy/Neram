@@ -857,6 +857,7 @@ const Schedule = ({ globalData, userProfile, activeProfile, isMobile }) => {
     };
   }, [masterData.exams, currentDate]);
 
+  const isMajorExam = activeExamPeriod && !activeExamPeriod.title?.toLowerCase().includes("cycle test");
   const isLoading = isSyncing || (activeProfile?.section && areEventsLoading);
 
   // Date navigation

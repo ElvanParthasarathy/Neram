@@ -115,6 +115,16 @@ fun SettingsScreen(
                 )
                 Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
                 SettingsListItem(
+                    icon = Icons.Outlined.Language,
+                    iconBgColor = AppColors.Blue,
+                    title = AppStrings.Settings.language(lang),
+                    description = AppStrings.Settings.languageDesc(lang),
+                    onClick = onNavigateToLanguage,
+                    textColor = colors.textPrimary,
+                    subTextColor = colors.textSecondary
+                )
+                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                SettingsListItem(
                     icon = Icons.Outlined.Storage,
                     iconBgColor = AppColors.Orange,
                     title = AppStrings.Settings.storageData(lang),
