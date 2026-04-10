@@ -41,8 +41,9 @@ fun LanguageSettingsScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val cardColor = colors.surface
     
-    // Use current language for displaying strings
-    val lang = currentLanguage
+    // Use the resolved effective language for displaying strings
+    // (LocalAppLanguage is already resolved from "system" → actual locale by MainScreen)
+    val lang = LocalAppLanguage.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

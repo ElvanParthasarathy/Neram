@@ -22,10 +22,22 @@ object AppStrings {
     const val TAMIL = "ta"
     
     /**
-     * Get the effective language code - always returns English
+     * Get the effective language code based on user preference.
+     * - "system" → resolve from device locale (Tamil if device is ta, else English)
+     * - "en" / "ta" → use directly
      */
     fun getEffectiveLanguage(preference: String, context: Context): String {
-        return ENGLISH
+        return when (preference) {
+            ENGLISH -> ENGLISH
+            TAMIL -> TAMIL
+            SYSTEM -> {
+                // Use Resources.getSystem() for true device locale
+                // (context.resources may have app-overridden locale from MainActivity)
+                val deviceLocale = android.content.res.Resources.getSystem().configuration.locales[0]
+                if (deviceLocale.language == "ta") TAMIL else ENGLISH
+            }
+            else -> ENGLISH
+        }
     }
     
     // =========================================================================
