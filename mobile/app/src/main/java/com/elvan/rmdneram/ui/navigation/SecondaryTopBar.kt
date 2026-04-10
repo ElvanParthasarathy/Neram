@@ -74,13 +74,15 @@ fun SecondaryTopBar(
                     HomeTypography.PageTitle.copy(
                         fontSize = if (title.length > 20) 14.sp else 16.sp,
                         fontWeight = FontWeight.Medium,
-                        letterSpacing = 0.sp
+                        letterSpacing = 0.sp,
+                        fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
                     )
                 } else {
                     HomeTypography.PageTitle.copy(
                         fontSize = 28.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = (-1).sp
+                        letterSpacing = (-1).sp,
+                        fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
                     )
                 },
                 color = colors.textPrimary,

@@ -55,7 +55,7 @@ fun LanguageSettingsScreen(
                         AppStrings.Settings.languageOther(lang),
                         style = HomeTypography.PageTitle.copy(
                             fontSize = 28.sp,
-                            fontFamily = if (lang == AppStrings.TAMIL) MuktaMalarFontFamily else null
+                            fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
                         ), 
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 8.dp)

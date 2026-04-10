@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.navigation.CustomIcons
 import com.elvan.rmdneram.ui.theme.AppColors
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
@@ -91,7 +92,7 @@ fun SettingsScreen(
             // 1. Profile Card
             OneUIProfileCard(
                 name = userProfile?.displayName ?: "User",
-                email = "Neram Account",
+                email = AppStrings.Settings.neramAccount(lang),
                 photoUrl = userProfile?.photoURL,
                 onClick = onNavigateToProfile,
                 cardColor = colors.surface,
@@ -137,8 +138,8 @@ fun SettingsScreen(
                 SettingsListItem(
                     icon = Icons.Outlined.Notifications,
                     iconBgColor = AppColors.Purple,
-                    title = "Notifications",
-                    description = "Manage alerts and reminders",
+                    title = AppStrings.Settings.pushNotifications(lang),
+                    description = AppStrings.Settings.notificationTimings(lang),
                     onClick = onNavigateToNotifications,
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -163,8 +164,8 @@ fun SettingsScreen(
                 SettingsListItem(
                     icon = Icons.Default.Person,
                     iconBgColor = AppColors.Blue,
-                    title = "User Directory",
-                    description = "View students",
+                    title = AppStrings.Settings.userDirectory(lang),
+                    description = "",
                     onClick = onNavigateToUserDirectory,
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -178,8 +179,8 @@ fun SettingsScreen(
                 SettingsListItem(
                     icon = Icons.Outlined.Group,
                     iconBgColor = AppColors.Purple,
-                    title = "Management Team",
-                    description = "Founders & Board of Directors",
+                    title = if (lang == AppStrings.TAMIL) "நிர்வாகக் குழு" else "Management Team",
+                    description = if (lang == AppStrings.TAMIL) "நிறுவனர்கள் & இயக்குநர் குழு" else "Founders & Board of Directors",
                     onClick = onNavigateToManagementTeam,
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -188,8 +189,8 @@ fun SettingsScreen(
                 SettingsListItem(
                     icon = Icons.Outlined.AccountBalance,
                     iconBgColor = AppColors.Green,
-                    title = "About RMK Group",
-                    description = "Vision, Mission & Identity",
+                    title = if (lang == AppStrings.TAMIL) "RMK குழு பற்றி" else "About RMK Group",
+                    description = if (lang == AppStrings.TAMIL) "பார்வை, பணி & அடையாளம்" else "Vision, Mission & Identity",
                     onClick = onNavigateToAboutRMK,
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -213,8 +214,8 @@ fun SettingsScreen(
                 SettingsListItem(
                     icon = Icons.Outlined.Logout,
                     iconBgColor = AppColors.Red,
-                    title = "Sign Out",
-                    description = "Log out of your Neram account",
+                    title = AppStrings.Settings.signOut(lang),
+                    description = if (lang == AppStrings.TAMIL) "நேரம் கணக்கிலிருந்து வெளியேறு" else "Log out of your Neram account",
                     onClick = { showLogoutDialog = true },
                     textColor = AppColors.Red, // Explicitly red for destruction
                     subTextColor = colors.textSecondary
@@ -230,14 +231,14 @@ fun SettingsScreen(
             containerColor = colors.surface,
             title = {
                 Text(
-                    "Sign Out",
+                    AppStrings.Settings.signOutConfirm(lang),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     color = colors.textPrimary
                 )
             },
             text = {
                 Text(
-                    "Are you sure you want to sign out?",
+                    AppStrings.Settings.signOutMessage(lang),
                     style = MaterialTheme.typography.bodyMedium,
                     color = colors.textSecondary
                 )
@@ -255,7 +256,7 @@ fun SettingsScreen(
                     shape = RoundedCornerShape(50), // Pill shape
                     elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
-                    Text("Sign Out", fontWeight = FontWeight.SemiBold)
+                    Text(AppStrings.Settings.signOut(lang), fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
@@ -268,7 +269,7 @@ fun SettingsScreen(
                     shape = RoundedCornerShape(50), // Pill shape
                     elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
-                    Text("Cancel", fontWeight = FontWeight.SemiBold)
+                    Text(AppStrings.Home.cancel(lang), fontWeight = FontWeight.SemiBold)
                 }
             }
         )
@@ -334,7 +335,7 @@ fun OneUIProfileCard(
             Column(modifier = Modifier.weight(1f)) {
                 // Top Text: "Neram Account" (Bold, Large)
                 Text(
-                    text = "Neram Account",
+                    text = AppStrings.Settings.neramAccount(LocalAppLanguage.current),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.Bold, 
                         fontSize = 20.sp // Match PageHeader "Welcome" size
@@ -408,15 +409,16 @@ fun SettingsListItem(
         Spacer(modifier = Modifier.width(16.dp))
         
         Column(modifier = Modifier.weight(1f)) {
+            val ff = LocalAppFontFamily.current
             Text(
                 title, 
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium), 
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium, fontFamily = ff), 
                 color = textColor
             )
             if (description.isNotEmpty()) {
                 Text(
                     description, 
-                    style = MaterialTheme.typography.bodySmall, 
+                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = ff), 
                     color = subTextColor
                 )
             }

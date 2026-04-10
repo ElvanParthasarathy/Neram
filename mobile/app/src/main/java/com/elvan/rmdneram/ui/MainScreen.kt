@@ -238,26 +238,29 @@ fun MainScreen(
     }
     
     // Screen Title Helper
+    @Composable
     fun getScreenTitle(screen: String): String {
+        val lang = LocalAppLanguage.current
         return when (screen) {
-            "settings" -> "Settings"
-            "profile" -> "Edit Profile"
-            "sites" -> "Important Sites"
-            "contact" -> "Contact"
-            "security" -> "Security"
-            "display" -> "Display"
-            "storage" -> "Storage & Data"
-            "complaint" -> "Feedback"
-            "developer" -> "About Developer"
-            "language" -> "Language"
-            "calendar_settings" -> "Calendar Settings"
-            "user_directory" -> if (userDirectoryPath.isEmpty()) "User Directory" else userDirectoryPath.last()
-            "linked_accounts" -> "Linked Accounts"
-            "notifications" -> "Notifications"
-            "notification_settings" -> "Notification Settings"
-            "pdf_viewer" -> "Document"
-            "about_rmk" -> "About RMK Group"
-            "management_team" -> "Management Team"
+            "settings" -> AppStrings.Settings.title(lang)
+            "profile" -> AppStrings.Settings.editProfile(lang)
+            "sites" -> AppStrings.Settings.importantSites(lang)
+            "contact" -> AppStrings.Settings.contact(lang)
+            "security" -> AppStrings.Settings.security(lang)
+            "display" -> AppStrings.Settings.display(lang)
+            "storage" -> AppStrings.Settings.storageData(lang)
+            "complaint" -> AppStrings.Settings.feedback(lang)
+            "developer" -> AppStrings.Settings.aboutDeveloper(lang)
+            "language" -> AppStrings.Settings.language(lang)
+            "calendar_settings" -> AppStrings.Settings.calendarSettings(lang)
+            "user_directory" -> if (userDirectoryPath.isEmpty()) AppStrings.Settings.userDirectory(lang) else userDirectoryPath.last()
+            "linked_accounts" -> AppStrings.Settings.linkedAccounts(lang)
+            "notifications" -> AppStrings.Settings.notifications(lang)
+            "notification_settings" -> AppStrings.Settings.notificationSettings(lang)
+            "pdf_viewer" -> AppStrings.Settings.documents(lang)
+            "about_rmk" -> AppStrings.Settings.aboutRmk(lang)
+            "management_team" -> AppStrings.Settings.managementTeam(lang)
+            "about_app" -> AppStrings.Settings.aboutApp(lang)
             else -> ""
         }
     }
@@ -526,11 +529,12 @@ fun MainScreen(
             val notesFolderDisplay = notesDrivePath.map { it.name }.drop(1)
             val isInsideNotesFolder = notesMode == "folder" && notesFolderDisplay.isNotEmpty()
 
+            val lang = LocalAppLanguage.current
             val title = when(selectedTab) {
-                NavTab.Home -> "Neram"
-                NavTab.Schedule -> "Schedule"
-                NavTab.Calendar -> "Calendar"
-                NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else "Notes"
+                NavTab.Home -> AppStrings.Nav.neram(lang)
+                NavTab.Schedule -> AppStrings.Nav.schedule(lang)
+                NavTab.Calendar -> AppStrings.Nav.calendar(lang)
+                NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else AppStrings.Nav.notes(lang)
             }
             
             TopMenuBar(

@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import androidx.compose.foundation.clickable
 import com.elvan.rmdneram.utils.AlarmScheduler
 import java.util.Calendar
@@ -126,9 +128,10 @@ fun NotificationSettingsScreen(
             .padding(horizontal = HomeDimens.ContentPadding)
             .padding(top = topPadding, bottom = 100.dp)
     ) {
+        val lang = LocalAppLanguage.current
         // Section: Push Notifications
         Text(
-            text = "Push Notifications",
+            text = AppStrings.Settings.pushNotifications(lang),
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
             color = colors.textSecondary,
             modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
@@ -138,8 +141,8 @@ fun NotificationSettingsScreen(
             NotificationToggleItem(
                 icon = Icons.Outlined.Article,
                 iconBgColor = AppColors.Orange,
-                title = "Daily Updates",
-                description = "Daily class notes & academic updates",
+                title = if (lang == AppStrings.TAMIL) "தினசரி புதுப்பிப்புகள்" else "Daily Updates",
+                description = if (lang == AppStrings.TAMIL) "தினசரி வகுப்பு குறிப்புகள் & கல்வி புதுப்பிப்புகள்" else "Daily class notes & academic updates",
                 checked = dailyUpdateEnabled,
                 onCheckedChange = {
                     dailyUpdateEnabled = it
@@ -154,8 +157,8 @@ fun NotificationSettingsScreen(
             NotificationToggleItem(
                 icon = Icons.Outlined.Campaign,
                 iconBgColor = AppColors.Blue,
-                title = "General Notices",
-                description = "General announcements from college",
+                title = if (lang == AppStrings.TAMIL) "பொது அறிவிப்புகள்" else "General Notices",
+                description = if (lang == AppStrings.TAMIL) "கல்லூரியின் பொது அறிவிப்புகள்" else "General announcements from college",
                 checked = generalNoticeEnabled,
                 onCheckedChange = {
                     generalNoticeEnabled = it
@@ -170,8 +173,8 @@ fun NotificationSettingsScreen(
             NotificationToggleItem(
                 icon = Icons.Outlined.ViewTimeline,
                 iconBgColor = AppColors.Green,
-                title = "Class Schedule",
-                description = "Today's timetable and subjects",
+                title = if (lang == AppStrings.TAMIL) "வகுப்பு அட்டவணை" else "Class Schedule",
+                description = if (lang == AppStrings.TAMIL) "இன்றைய நேர அட்டவணை மற்றும் பாடங்கள்" else "Today's timetable and subjects",
                 checked = classScheduleEnabled,
                 onCheckedChange = {
                     classScheduleEnabled = it
@@ -267,7 +270,7 @@ fun NotificationSettingsScreen(
         
         // Section: Notification Timings
         Text(
-            text = "Notification Timings",
+            text = AppStrings.Settings.notificationTimings(lang),
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
             color = colors.textSecondary,
             modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
@@ -349,7 +352,7 @@ fun NotificationSettingsScreen(
         
         // Info Section
         Text(
-            text = "Note: You can also manage notification permissions in your device's system settings.",
+            text = AppStrings.Settings.notificationNote(lang),
             style = MaterialTheme.typography.bodySmall,
             color = colors.textSecondary,
             modifier = Modifier.padding(horizontal = 4.dp)

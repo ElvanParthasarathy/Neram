@@ -26,6 +26,8 @@ import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.home.HomeDimens
 import com.elvan.rmdneram.ui.home.HomeShapes
 import com.elvan.rmdneram.ui.theme.AppColors
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,11 +52,13 @@ fun StorageSettingsScreen(
     
     val cardColor = colors.surface
 
+    val lang = LocalAppLanguage.current
+
     if (showOfflineDialog) {
         AlertDialog(
             onDismissRequest = { showOfflineDialog = false },
-            title = { Text("Offline", style = HomeTypography.PillTitle) },
-            text = { Text("Internet is not connected. Connect to internet to perform this action.", style = HomeTypography.AuthorBadge) },
+            title = { Text(AppStrings.Home.offline(lang), style = HomeTypography.PillTitle) },
+            text = { Text(AppStrings.Home.offlineMessage(lang), style = HomeTypography.AuthorBadge) },
             confirmButton = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -69,7 +73,7 @@ fun StorageSettingsScreen(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("OK", style = HomeTypography.PillButton)
+                        Text(AppStrings.Home.ok(lang), style = HomeTypography.PillButton)
                     }
                 }
             },
@@ -87,8 +91,8 @@ fun StorageSettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "Storage & Data",
-                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
+                        AppStrings.Settings.storageData(lang),
+                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp, fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current),
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 8.dp)
                     )
@@ -141,7 +145,7 @@ fun StorageSettingsScreen(
 
             // Cleanup Label
             Text(
-                "CLEANUP OPTIONS",
+                AppStrings.Storage.cleanupOptions(lang),
                 style = HomeTypography.ExamTag,
                 color = colors.textSecondary,
                 modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
@@ -184,12 +188,12 @@ fun StorageSettingsScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Clear Old Updates",
+                            AppStrings.Storage.clearOldUpdates(lang),
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                             color = colors.textPrimary
                         )
                         Text(
-                            "Remove news & notices older than 30 days",
+                            AppStrings.Storage.clearOldUpdatesDesc(lang),
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.textSecondary
                         )
@@ -228,12 +232,12 @@ fun StorageSettingsScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Custom Range Deletion",
+                            AppStrings.Storage.customRangeDeletion(lang),
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                             color = colors.textPrimary
                         )
                         Text(
-                            "Select a date range to wipe updates",
+                            AppStrings.Storage.customRangeDesc(lang),
                             style = MaterialTheme.typography.bodySmall,
                             color = colors.textSecondary
                         )
@@ -245,7 +249,7 @@ fun StorageSettingsScreen(
 
             // Usage Info (Placeholder for future)
             Text(
-                "Optimization helps keep the app responsive and saves local storage by removing old media and text records.",
+                AppStrings.Storage.optimizationInfo(lang),
                 style = HomeTypography.AuthorBadge,
                 color = colors.textSecondary,
                 modifier = Modifier.padding(horizontal = 24.dp)
@@ -257,10 +261,10 @@ fun StorageSettingsScreen(
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Clear Old Updates", color = colors.textPrimary) },
+            title = { Text(AppStrings.Storage.clearOldUpdates(lang), color = colors.textPrimary) },
             text = { 
                 Text(
-                    "This will delete all live updates and notices older than 30 days. This action cannot be undone.",
+                    AppStrings.Storage.clearConfirmMessage(lang),
                     color = colors.textSecondary
                 ) 
             },
@@ -287,7 +291,7 @@ fun StorageSettingsScreen(
                             showConfirmDialog = false
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = "Cleared updates older than 30 days",
+                                    message = AppStrings.Storage.clearedMessage(lang),
                                     duration = SnackbarDuration.Short
                                 )
                             }
@@ -299,7 +303,7 @@ fun StorageSettingsScreen(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Clear Now", style = HomeTypography.PillButton)
+                        Text(AppStrings.Storage.clearNow(lang), style = HomeTypography.PillButton)
                     }
                 }
             },
@@ -348,7 +352,7 @@ fun StorageSettingsScreen(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Select Range", style = HomeTypography.PillButton)
+                        Text(AppStrings.Storage.selectRange(lang), style = HomeTypography.PillButton)
                     }
                 }
             },
@@ -360,10 +364,10 @@ fun StorageSettingsScreen(
             DateRangePicker(
                 state = dateRangePickerState,
                 modifier = Modifier.height(450.dp),
-                title = { Text("Select Date Range", modifier = Modifier.padding(start = 24.dp, top = 16.dp), color = colors.textPrimary) },
+                title = { Text(AppStrings.Storage.selectDateRange(lang), modifier = Modifier.padding(start = 24.dp, top = 16.dp), color = colors.textPrimary) },
                 headline = { 
                     Row(modifier = Modifier.padding(start = 24.dp, bottom = 8.dp)) {
-                        Text("Choose updates to wipe", color = colors.textSecondary)
+                        Text(AppStrings.Storage.chooseUpdatesToWipe(lang), color = colors.textSecondary)
                     }
                 },
                 colors = DatePickerDefaults.colors(
@@ -400,10 +404,10 @@ fun StorageSettingsScreen(
 
         AlertDialog(
             onDismissRequest = { showRangeConfirmDialog = false },
-            title = { Text("Confirm Deletion", color = colors.textPrimary) },
+            title = { Text(AppStrings.Storage.confirmDeletion(lang), color = colors.textPrimary) },
             text = { 
                 Text(
-                    "Are you sure you want to delete all daily updates from $startDate to $endDate? This action is permanent.",
+                    AppStrings.Storage.rangeConfirmMessage(startDate, endDate, lang),
                     color = colors.textSecondary
                 ) 
             },
@@ -430,7 +434,7 @@ fun StorageSettingsScreen(
                             showRangeConfirmDialog = false
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = "Deleted data from $startDate to $endDate",
+                                    message = AppStrings.Storage.deletedRangeMessage(startDate, endDate, lang),
                                     duration = SnackbarDuration.Short
                                 )
                             }
@@ -442,7 +446,7 @@ fun StorageSettingsScreen(
                         ),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Delete Data", style = HomeTypography.PillButton)
+                        Text(AppStrings.Storage.deleteData(lang), style = HomeTypography.PillButton)
                     }
                 }
             },

@@ -50,7 +50,7 @@ fun DisplaySettingsScreen(
                     val lang = LocalAppLanguage.current
                     Text(
                         AppStrings.Settings.display(lang),
-                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
+                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp, fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current),
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 8.dp)
                     )

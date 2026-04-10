@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.theme.InterFontFamily
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 
 /**
  * Home Screen Dimensions - Matching mobileapp.css
@@ -143,6 +144,10 @@ object HomeDimens {
 
 /**
  * Typography styles for Home Screen - Matching mobileapp.css
+ * 
+ * NOTE: This uses InterFontFamily as a static default. For Tamil support,
+ * use the @Composable rememberHomeTypography() instead, which dynamically
+ * selects MuktaMalar for Tamil and Inter for English.
  */
 object HomeTypography {
     // Page Title - matches .page-title: 28px, font-weight: 800
@@ -373,6 +378,62 @@ object HomeTypography {
         fontSize = 10.sp,
         fontWeight = FontWeight.Medium
     )
+
+    /**
+     * Returns all HomeTypography styles with the given fontFamily applied.
+     * Use this to get Tamil-localized styles at the composable call site:
+     *   val typo = HomeTypography.localized(LocalAppFontFamily.current)
+     *   Text(style = typo.PageTitle, ...)
+     */
+    fun localized(fontFamily: androidx.compose.ui.text.font.FontFamily) = LocalizedHomeTypography(fontFamily)
+}
+
+/**
+ * Language-aware HomeTypography that uses the provided font family.
+ * Receives MuktaMalar for Tamil or Inter for English from LocalAppFontFamily.
+ */
+class LocalizedHomeTypography(private val ff: androidx.compose.ui.text.font.FontFamily) {
+    val PageTitle get() = HomeTypography.PageTitle.copy(fontFamily = ff)
+    val SectionTitle get() = HomeTypography.SectionTitle.copy(fontFamily = ff)
+    val DateLabel get() = HomeTypography.DateLabel.copy(fontFamily = ff)
+    val DateText get() = HomeTypography.DateText.copy(fontFamily = ff)
+    val PillTitle get() = HomeTypography.PillTitle.copy(fontFamily = ff)
+    val PillTime get() = HomeTypography.PillTime.copy(fontFamily = ff)
+    val StatusBadge get() = HomeTypography.StatusBadge.copy(fontFamily = ff)
+    val PillButton get() = HomeTypography.PillButton.copy(fontFamily = ff)
+    val ExamTitle get() = HomeTypography.ExamTitle.copy(fontFamily = ff)
+    val ExamSubtitle get() = HomeTypography.ExamSubtitle.copy(fontFamily = ff)
+    val ExamTag get() = HomeTypography.ExamTag.copy(fontFamily = ff)
+    val ExamMeta get() = HomeTypography.ExamMeta.copy(fontFamily = ff)
+    val TableHeader get() = HomeTypography.TableHeader.copy(fontFamily = ff)
+    val CellHour get() = HomeTypography.CellHour.copy(fontFamily = ff)
+    val CourseCode get() = HomeTypography.CourseCode.copy(fontFamily = ff)
+    val CourseName get() = HomeTypography.CourseName.copy(fontFamily = ff)
+    val FacultyName get() = HomeTypography.FacultyName.copy(fontFamily = ff)
+    val MessageBody get() = HomeTypography.MessageBody.copy(fontFamily = ff)
+    val AuthorBadge get() = HomeTypography.AuthorBadge.copy(fontFamily = ff)
+    val EditTrigger get() = HomeTypography.EditTrigger.copy(fontFamily = ff)
+    val EmptyState get() = HomeTypography.EmptyState.copy(fontFamily = ff)
+    val NoClassesTitle get() = HomeTypography.NoClassesTitle.copy(fontFamily = ff)
+    val InfoLabel get() = HomeTypography.InfoLabel.copy(fontFamily = ff)
+    val InfoValue get() = HomeTypography.InfoValue.copy(fontFamily = ff)
+    val AdminBadge get() = HomeTypography.AdminBadge.copy(fontFamily = ff)
+    val OfflineBadge get() = HomeTypography.OfflineBadge.copy(fontFamily = ff)
+    val DialogTitle get() = HomeTypography.DialogTitle.copy(fontFamily = ff)
+    val DialogBody get() = HomeTypography.DialogBody.copy(fontFamily = ff)
+    val LabBadge get() = HomeTypography.LabBadge.copy(fontFamily = ff)
+    val CellTime get() = HomeTypography.CellTime.copy(fontFamily = ff)
+    // Legacy aliases
+    val Greeting get() = PageTitle
+    val UserName get() = PageTitle
+    val CardTitle get() = ExamTitle
+    val CardSubtitle get() = ExamSubtitle
+    val CardTag get() = ExamTag
+    val TableCell get() = CellHour
+    val UpdateText get() = MessageBody
+    val AuthorText get() = AuthorBadge
+    val FooterLabel get() = InfoLabel
+    val FooterValue get() = InfoValue
 }
 
 /**

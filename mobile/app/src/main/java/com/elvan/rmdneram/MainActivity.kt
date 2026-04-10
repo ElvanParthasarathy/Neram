@@ -166,8 +166,13 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 
+                val appFontFamily = if (effectiveLanguage == AppStrings.TAMIL) 
+                    com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily 
+                    else com.elvan.rmdneram.ui.theme.InterFontFamily
+                
                 CompositionLocalProvider(
                     LocalAppLanguage provides effectiveLanguage,
+                    com.elvan.rmdneram.ui.theme.LocalAppFontFamily provides appFontFamily,
                     androidx.compose.ui.platform.LocalContext provides localeContext,
                     LocalActivityResultRegistryOwner provides this@MainActivity,
                     androidx.compose.ui.platform.LocalConfiguration provides configuration

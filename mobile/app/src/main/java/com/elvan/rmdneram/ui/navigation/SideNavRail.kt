@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.rememberHomeColors
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.ui.theme.AppStrings
-import com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 
 /**
  * Standard Material 3 Navigation Rail for Landscape orientation
@@ -59,7 +59,7 @@ fun SideNavRail(
                         },
                         fontSize = 11.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        fontFamily = if (lang == AppStrings.TAMIL) MuktaMalarFontFamily else null
+                        fontFamily = LocalAppFontFamily.current
                     )
                 },
                 colors = NavigationRailItemDefaults.colors(

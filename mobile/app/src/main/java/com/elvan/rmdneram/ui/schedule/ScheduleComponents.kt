@@ -29,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.data.model.*
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.navigation.CustomIcons
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.utils.DateTimeUtils
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
@@ -111,7 +113,14 @@ fun DayTabsRow(
     modifier: Modifier = Modifier
 ) {
     // Hardcoded days for now as per original code (Tue-Sat)
-    val days = listOf("Tue", "Wed", "Thu", "Fri", "Sat")
+    val lang = LocalAppLanguage.current
+    val days = listOf(
+        AppStrings.Schedule.dayTuesday(lang),
+        AppStrings.Schedule.dayWednesday(lang),
+        AppStrings.Schedule.dayThursday(lang),
+        AppStrings.Schedule.dayFriday(lang),
+        AppStrings.Schedule.daySaturday(lang)
+    )
     val fullDays = listOf("Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
     
     val selectedIndex = fullDays.indexOf(selectedDay).coerceAtLeast(0)
@@ -244,7 +253,8 @@ fun DayTabsRow(
                             fontSize = 13.sp,
                             color = textColor,
                             // Snap font weight when mostly covered (> 50%)
-                            fontWeight = if (fraction > 0.5f) FontWeight.Bold else FontWeight.Medium
+                            fontWeight = if (fraction > 0.5f) FontWeight.Bold else FontWeight.Medium,
+                            fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
                         )
                     }
                 }
@@ -463,7 +473,7 @@ fun InfoCard(title: String, items: List<String>, colors: HomeColors) {
             }
             
             if (items.isEmpty()) {
-                 Text("No info available", fontSize = 13.sp, color = colors.textSecondary.copy(alpha=0.5f))
+                 Text(AppStrings.Schedule.noInfoAvailable(LocalAppLanguage.current), fontSize = 13.sp, color = colors.textSecondary.copy(alpha=0.5f))
             }
         }
     }
@@ -533,7 +543,7 @@ fun ScheduleTable(periods: List<PeriodDisplayData>, colors: HomeColors, isMini: 
                                         shape = HomeShapes.Pill
                                     ) {
                                         Text(
-                                            text = "LAB",
+                                        text = AppStrings.Home.lab(LocalAppLanguage.current),
                                             style = HomeTypography.FacultyName.copy(
                                                 fontSize = 9.sp,
                                                 fontWeight = FontWeight.Bold,
@@ -747,7 +757,7 @@ private fun StandardExamContent(
     }
     if (exam.subjects.isEmpty()) {
         Text(
-            text = "No subjects scheduled",
+            text = AppStrings.Schedule.noSubjectsScheduled(LocalAppLanguage.current),
             style = HomeTypography.FacultyName,
             color = colors.textSecondary,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -828,7 +838,7 @@ private fun PracticalExamContent(
 
     if (dateGroups.isEmpty()) {
         Text(
-            text = "No batches scheduled",
+            text = AppStrings.Schedule.noBatchesScheduled(LocalAppLanguage.current),
             style = HomeTypography.FacultyName,
             color = colors.textSecondary,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -965,7 +975,7 @@ private fun PracDateGroup(
                                 }
                                 if (fb.batch.totalCount.isNotEmpty()) {
                                     Text(
-                                        text = "${fb.batch.totalCount} Students",
+                                        text = AppStrings.Schedule.students(fb.batch.totalCount.toIntOrNull() ?: 0, LocalAppLanguage.current),
                                         style = HomeTypography.FacultyName,
                                         color = colors.textSecondary,
                                         modifier = Modifier.padding(top = 2.dp)
@@ -1018,7 +1028,7 @@ fun CourseDirectoryTable(courses: List<Course>, colors: HomeColors) {
                                 )
                                 if (course.periods > 0) {
                                     Text(
-                                        text = "• ${course.periods} periods",
+                                        text = "• ${course.periods} ${AppStrings.Schedule.periods(LocalAppLanguage.current)}",
                                         style = HomeTypography.FacultyName,
                                         color = colors.textSecondary
                                     )
@@ -1084,9 +1094,10 @@ fun ViewTypeTabsRow(
     onInteraction: (Boolean) -> Unit = {},
     onDragProgress: (Float) -> Unit = {}
 ) {
+    val lang = LocalAppLanguage.current
     val tabs = listOf(
-        Triple("Class", "class", CustomIcons.Calendar),
-        Triple("Exams", "exams", Icons.Default.EmojiEvents)
+        Triple(AppStrings.Schedule.classesTab(lang), "class", CustomIcons.Calendar),
+        Triple(AppStrings.Schedule.examsTab(lang), "exams", Icons.Default.EmojiEvents)
     )
     
     val selectedIndex = tabs.indexOfFirst { it.second == activeTab }.coerceAtLeast(0)
@@ -1244,7 +1255,8 @@ fun ViewTypeTabsRow(
                                 style = HomeTypography.PillTitle,
                                 fontSize = 14.sp,
                                 color = contentColor,
-                                fontWeight = if (fraction > 0.5f) FontWeight.Bold else FontWeight.Medium
+                                fontWeight = if (fraction > 0.5f) FontWeight.Bold else FontWeight.Medium,
+                                fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
                             )
                         }
                     }

@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.rememberHomeColors
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.ui.theme.AppStrings
-import com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 import androidx.compose.foundation.gestures.*
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -72,7 +72,7 @@ fun BottomNavBar(
                             },
                             fontSize = 12.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            fontFamily = if (lang == AppStrings.TAMIL) MuktaMalarFontFamily else null
+                            fontFamily = LocalAppFontFamily.current
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(

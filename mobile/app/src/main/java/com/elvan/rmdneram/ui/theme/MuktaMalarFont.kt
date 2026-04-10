@@ -14,5 +14,7 @@ val MuktaMalarFontFamily = FontFamily(
     Font(R.font.mukta_malar_regular, FontWeight.Normal),
     Font(R.font.mukta_malar_medium, FontWeight.Medium),
     Font(R.font.mukta_malar_semibold, FontWeight.SemiBold),
-    Font(R.font.mukta_malar_bold, FontWeight.Bold)
+    Font(R.font.mukta_malar_bold, FontWeight.Bold),
+    Font(R.font.mukta_malar_bold, FontWeight.ExtraBold),
+    Font(R.font.mukta_malar_bold, FontWeight.Black)
 )

@@ -42,6 +42,9 @@ import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.HomeShapes
 import com.elvan.rmdneram.ui.home.HomeTypography
 import com.elvan.rmdneram.ui.home.rememberHomeColors
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
 /**
  * Top Menu Bar - Floating 3-dot menu
@@ -110,19 +113,22 @@ fun TopMenuBar(
                 }
                 
                 Column {
+                    val tamilFont = LocalAppFontFamily.current
                     Text(
                         text = title,
                         style = if (isSmallTitle) {
                             HomeTypography.PageTitle.copy(
                                 fontSize = if (title.length > 20) 14.sp else 16.sp,
                                 fontWeight = FontWeight.Medium,
-                                letterSpacing = 0.sp
+                                letterSpacing = 0.sp,
+                                fontFamily = tamilFont
                             )
                         } else {
                             HomeTypography.PageTitle.copy(
                                 fontSize = 28.sp,
                                 fontWeight = FontWeight.ExtraBold,
-                                letterSpacing = (-1).sp
+                                letterSpacing = (-1).sp,
+                                fontFamily = tamilFont
                             )
                         },
                         color = colors.textPrimary,
@@ -208,7 +214,7 @@ fun TopMenuBar(
                                     .background(colors.danger)
                             )
                             Text(
-                                text = "OFFLINE",
+                                text = AppStrings.Home.offline(LocalAppLanguage.current).uppercase(),
                                 style = HomeTypography.StatusBadge.copy(
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
@@ -294,10 +300,11 @@ private fun MainMenuView(
     onLogout: () -> Unit
 ) {
     Column {
+        val lang = LocalAppLanguage.current
         // Important Sites
         AppMenuItem(
             icon = Icons.Outlined.Language,
-            label = "Important Sites",
+            label = AppStrings.Menu.importantSites(lang),
             colors = colors,
             onClick = onImportantSites
         )
@@ -305,7 +312,7 @@ private fun MainMenuView(
         // Settings
         AppMenuItem(
             icon = Icons.Outlined.Settings,
-            label = "Settings",
+            label = AppStrings.Menu.settings(lang),
             colors = colors,
             onClick = onSettings
         )
@@ -337,7 +344,7 @@ private fun AppearanceMenuView(
                 modifier = Modifier.size(20.dp)
             )
             Text(
-                "Back",
+                AppStrings.Common.back(LocalAppLanguage.current),
                 style = HomeTypography.PillTitle,
                 color = colors.textSecondary,
                 fontWeight = FontWeight.SemiBold
@@ -370,23 +377,24 @@ private fun AppearanceMenuView(
         // That's weird. Dead code?
         // I will implement them using `ThemeMenuItem` since I have it.
         
+        val lang = LocalAppLanguage.current
         AppThemeMenuItem(
             icon = Icons.Filled.BrightnessMedium, // Fallback for Auto
-            label = "System Default",
+            label = AppStrings.Menu.systemDefault(lang),
             colors = colors,
             isSelected = selectedTheme == "auto",
             onClick = { onThemeChange("auto") }
         )
         AppThemeMenuItem(
             icon = Icons.Filled.WbSunny,
-            label = "Light Mode",
+            label = AppStrings.Menu.lightMode(lang),
             colors = colors,
             isSelected = selectedTheme == "light",
             onClick = { onThemeChange("light") }
         )
         AppThemeMenuItem(
             icon = Icons.Filled.NightsStay,
-            label = "Dark Mode",
+            label = AppStrings.Menu.darkMode(lang),
             colors = colors,
             isSelected = selectedTheme == "dark",
             onClick = { onThemeChange("dark") }

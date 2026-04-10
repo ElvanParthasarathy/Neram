@@ -23,6 +23,8 @@ import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.HomeDimens
 import com.elvan.rmdneram.ui.home.HomeShapes
 import com.elvan.rmdneram.ui.home.HomeTypography
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.draw.clip
 
@@ -170,8 +172,8 @@ private fun EditableSectionContent(
     if (showOfflineDialog) {
         AlertDialog(
             onDismissRequest = { onOfflineDialogChange(false) },
-            title = { Text("Offline", style = HomeTypography.PillTitle) },
-            text = { Text("Internet is not connected. Connect to internet to edit this section.", style = HomeTypography.AuthorBadge) },
+            title = { val lang = LocalAppLanguage.current; Text(AppStrings.Home.offline(lang), style = HomeTypography.PillTitle) },
+            text = { val lang = LocalAppLanguage.current; Text(AppStrings.Home.offlineMessage(lang), style = HomeTypography.AuthorBadge) },
             confirmButton = {
                 Button(
                     onClick = { onOfflineDialogChange(false) },
@@ -181,7 +183,7 @@ private fun EditableSectionContent(
                         contentColor = Color.White
                     )
                 ) {
-                    Text("OK", style = HomeTypography.StatusBadge)
+                    Text(AppStrings.Home.ok(LocalAppLanguage.current), style = HomeTypography.StatusBadge)
                 }
             },
             containerColor = colors.surface,
@@ -198,9 +200,10 @@ private fun EditableSectionContent(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            val ff = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
             Text(
                 text = title,
-                style = HomeTypography.SectionTitle,
+                style = HomeTypography.SectionTitle.copy(fontFamily = ff),
                 color = colors.textPrimary
             )
             
@@ -230,9 +233,9 @@ private fun EditableSectionContent(
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
-                            text = "EDIT",
+                            text = AppStrings.Home.edit(LocalAppLanguage.current),
                             color = Color.White,
-                            style = HomeTypography.EditTrigger
+                            style = HomeTypography.EditTrigger.copy(fontFamily = ff)
                         )
                     }
                 }
@@ -311,7 +314,7 @@ private fun EditableSectionContent(
                                         strokeWidth = 2.dp
                                     )
                                 } else {
-                                    Text("Save")
+                                    Text(AppStrings.Common.save(LocalAppLanguage.current))
                                 }
                             }
                             
@@ -327,7 +330,7 @@ private fun EditableSectionContent(
                                 ),
                                 elevation = ButtonDefaults.buttonElevation(0.dp)
                             ) {
-                                Text("Cancel")
+                                Text(AppStrings.Home.cancel(LocalAppLanguage.current))
                             }
                         }
                     }
@@ -385,7 +388,7 @@ private fun EditableSectionContent(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = "Posted by ",
+                                            text = AppStrings.Home.postedBy(LocalAppLanguage.current),
                                             style = HomeTypography.AuthorBadge,
                                             color = colors.textSecondary
                                         )

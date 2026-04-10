@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import android.app.Activity
@@ -115,7 +117,7 @@ private fun StandardSettingsHeader(
             Column(modifier = Modifier.padding(top = 8.dp)) {
                 Text(
                     text = title,
-                    style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
+                    style = HomeTypography.PageTitle.copy(fontSize = 28.sp, fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 if (subtitle != null) {
@@ -181,10 +183,9 @@ private fun SecurityHub(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
-        // Settings List
-        // Settings List
+        val lang = LocalAppLanguage.current
         Text(
-            text = "ACCOUNT",
+            text = AppStrings.Settings.account(lang),
             style = HomeTypography.ExamTag,
             color = colors.textSecondary,
             modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
@@ -194,8 +195,8 @@ private fun SecurityHub(
                 SettingsListItem(
                     icon = Icons.Outlined.Key,
                     iconBgColor = AppColors.Purple,
-                    title = "Change Password",
-                    description = "Update your login password",
+                    title = AppStrings.Settings.changePassword(lang),
+                    description = if (lang == AppStrings.TAMIL) "உங்கள் கடவுச்சொல்லை புதுப்பிக்கவும்" else "Update your login password",
                     onClick = { onNavigate("password") },
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -204,8 +205,8 @@ private fun SecurityHub(
                 SettingsListItem(
                     icon = Icons.Outlined.Key,
                     iconBgColor = AppColors.Purple,
-                    title = "Create Password",
-                    description = "Set a password for email login",
+                    title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
+                    description = if (lang == AppStrings.TAMIL) "மின்னஞ்சல் உள்நுழைவுக்கு கடவுச்சொல் அமைக்கவும்" else "Set a password for email login",
                     onClick = { onNavigate("create_password") },
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -221,8 +222,8 @@ private fun SecurityHub(
             SettingsListItem(
                 icon = Icons.Outlined.Link,
                 iconBgColor = AppColors.Blue,
-                title = "Linked Accounts",
-                description = "Manage Google sign-in",
+                title = if (lang == AppStrings.TAMIL) "இணைக்கப்பட்ட கணக்குகள்" else "Linked Accounts",
+                description = if (lang == AppStrings.TAMIL) "Google உள்நுழைவை நிர்வகி" else "Manage Google sign-in",
                 onClick = { onNavigateToLinkedAccounts() },
                 textColor = colors.textPrimary,
                 subTextColor = colors.textSecondary
@@ -232,7 +233,7 @@ private fun SecurityHub(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "DANGER ZONE",
+            text = AppStrings.Settings.dangerZone(lang),
             style = HomeTypography.ExamTag,
             color = colors.textSecondary,
             modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
@@ -241,8 +242,8 @@ private fun SecurityHub(
             SettingsListItem(
                 icon = Icons.Outlined.Warning,
                 iconBgColor = AppColors.Red,
-                title = "Delete Account",
-                description = "Permanently remove your account",
+                title = AppStrings.Settings.deleteAccount(lang),
+                description = if (lang == AppStrings.TAMIL) "உங்கள் கணக்கை நிரந்தரமாக நீக்கு" else "Permanently remove your account",
                 onClick = { onNavigate("delete") },
                 textColor = colors.danger,
                 subTextColor = colors.textSecondary

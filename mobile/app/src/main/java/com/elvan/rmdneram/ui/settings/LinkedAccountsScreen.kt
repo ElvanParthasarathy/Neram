@@ -24,6 +24,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -56,18 +58,20 @@ fun LinkedAccountsScreen(
     var showUnlinkDialog by remember { mutableStateOf(false) }
     var isUnlinking by remember { mutableStateOf(false) }
 
+    val lang = com.elvan.rmdneram.ui.theme.LocalAppLanguage.current
+
     // Unlink Confirmation Dialog
     if (showUnlinkDialog) {
         AlertDialog(
             onDismissRequest = { showUnlinkDialog = false },
-            title = { Text("Unlink Google Account?", fontWeight = FontWeight.Bold) },
+            title = { Text(AppStrings.LinkedAccounts.unlinkConfirm(lang), fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     Text(
                         if (hasPassword) 
-                            "You will need to sign in with your email and password after unlinking."
+                            AppStrings.LinkedAccounts.unlinkMessage(lang)
                         else 
-                            "You must create a password first before unlinking Google, otherwise you won't be able to sign in.",
+                            AppStrings.LinkedAccounts.createPasswordMsg(lang),
                         color = colors.textPrimary
                     )
                     if (!hasPassword) {
@@ -82,7 +86,7 @@ fun LinkedAccountsScreen(
                         ) {
                             Icon(Icons.Outlined.Warning, null, tint = colors.warning, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Create a password first", color = colors.warning, style = HomeTypography.FacultyName)
+                            Text(AppStrings.LinkedAccounts.createPasswordFirst(lang), color = colors.warning, style = HomeTypography.FacultyName)
                         }
                     }
                 }
@@ -109,7 +113,7 @@ fun LinkedAccountsScreen(
                         if (isUnlinking) {
                             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                         } else {
-                            Text("Unlink")
+                            Text(AppStrings.LinkedAccounts.unlink(lang))
                         }
                     }
                 } else {
@@ -120,7 +124,7 @@ fun LinkedAccountsScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = colors.accent)
                     ) {
-                        Text("Create Password")
+                        Text(AppStrings.LinkedAccounts.createPassword(lang))
                     }
                 }
             },
@@ -133,7 +137,7 @@ fun LinkedAccountsScreen(
                         contentColor = colors.textSecondary
                     )
                 ) {
-                    Text("Cancel")
+                    Text(AppStrings.Home.cancel(lang))
                 }
             },
             containerColor = colors.surface,
@@ -155,7 +159,7 @@ fun LinkedAccountsScreen(
             )
     ) {
         // Section: Sign-in Methods
-        Text("SIGN-IN METHODS", style = HomeTypography.ExamTag, color = colors.textSecondary)
+        Text(AppStrings.LinkedAccounts.signInMethods(lang), style = HomeTypography.ExamTag, color = colors.textSecondary)
         Spacer(modifier = Modifier.height(12.dp))
         
         // Google Account Card
@@ -216,7 +220,7 @@ fun LinkedAccountsScreen(
                         )
                     } else {
                         Text(
-                            "Not connected",
+                            AppStrings.LinkedAccounts.notConnected(lang),
                             style = HomeTypography.FacultyName,
                             color = colors.textSecondary
                         )
@@ -234,7 +238,7 @@ fun LinkedAccountsScreen(
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
                     Text(
-                        if (isGoogleLinked) "Connected" else "Not linked",
+                        if (isGoogleLinked) AppStrings.LinkedAccounts.connected(lang) else AppStrings.LinkedAccounts.notLinked(lang),
                         style = HomeTypography.StatusBadge,
                         color = if (isGoogleLinked) colors.success else colors.textSecondary
                     )
@@ -251,7 +255,7 @@ fun LinkedAccountsScreen(
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Unlink Google Account", color = colors.danger, fontWeight = FontWeight.Medium)
+                    Text(AppStrings.LinkedAccounts.unlinkGoogle(lang), color = colors.danger, fontWeight = FontWeight.Medium)
                 }
             } else {
                 HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 76.dp, end = 20.dp))
@@ -265,7 +269,7 @@ fun LinkedAccountsScreen(
                     if (isLinking) {
                         CircularProgressIndicator(color = colors.accent, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                     } else {
-                        Text("Link Google Account", color = colors.accent, fontWeight = FontWeight.Medium)
+                        Text(AppStrings.LinkedAccounts.linkGoogle(lang), color = colors.accent, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -274,7 +278,7 @@ fun LinkedAccountsScreen(
         Spacer(modifier = Modifier.height(24.dp))
         
         // Email & Password Section
-        Text("EMAIL & PASSWORD", style = HomeTypography.ExamTag, color = colors.textSecondary)
+        Text(AppStrings.LinkedAccounts.emailPassword(lang), style = HomeTypography.ExamTag, color = colors.textSecondary)
         Spacer(modifier = Modifier.height(12.dp))
         
         Column(
@@ -302,7 +306,7 @@ fun LinkedAccountsScreen(
                 Spacer(modifier = Modifier.width(16.dp))
                 
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Email", style = HomeTypography.PillTitle, color = colors.textPrimary)
+                    Text(AppStrings.LinkedAccounts.email(lang), style = HomeTypography.PillTitle, color = colors.textPrimary)
                     Text(
                         primaryEmail,
                         style = HomeTypography.FacultyName,
@@ -343,9 +347,9 @@ fun LinkedAccountsScreen(
                 Spacer(modifier = Modifier.width(16.dp))
                 
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Password", style = HomeTypography.PillTitle, color = colors.textPrimary)
+                    Text(AppStrings.LinkedAccounts.password(lang), style = HomeTypography.PillTitle, color = colors.textPrimary)
                     Text(
-                        if (hasPassword) "Password set" else "No password set",
+                        if (hasPassword) AppStrings.LinkedAccounts.passwordSet(lang) else AppStrings.LinkedAccounts.noPasswordSet(lang),
                         style = HomeTypography.FacultyName,
                         color = colors.textSecondary
                     )
@@ -361,7 +365,7 @@ fun LinkedAccountsScreen(
                             .clickable { onBack() }
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
-                        Text("Create", style = HomeTypography.StatusBadge, color = colors.accent)
+                        Text(AppStrings.LinkedAccounts.create(lang), style = HomeTypography.StatusBadge, color = colors.accent)
                     }
                 }
             }
@@ -381,7 +385,7 @@ fun LinkedAccountsScreen(
             Icon(Icons.Outlined.Info, null, tint = colors.textSecondary, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                "Linking multiple sign-in methods gives you more ways to access your account securely.",
+                AppStrings.LinkedAccounts.infoMessage(lang),
                 style = HomeTypography.FacultyName,
                 color = colors.textSecondary
             )

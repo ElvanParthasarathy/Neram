@@ -209,10 +209,26 @@ fun CalendarWidget(
         // Days Grid Headers (Sunday Start)
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             val daysOfWeek = listOf(DayOfWeek.SUNDAY) + DayOfWeek.values().filter { it != DayOfWeek.SUNDAY }
+            // Tamil day abbreviations: ஞா(யிறு), தி(ங்கள்), செ(வ்வாய்), பு(தன்), வி(யாழன்), வெ(ள்ளி), ச(னி)
+            val tamilDayAbbr = mapOf(
+                DayOfWeek.SUNDAY to "ஞா",
+                DayOfWeek.MONDAY to "தி",
+                DayOfWeek.TUESDAY to "செ",
+                DayOfWeek.WEDNESDAY to "பு",
+                DayOfWeek.THURSDAY to "வி",
+                DayOfWeek.FRIDAY to "வெ",
+                DayOfWeek.SATURDAY to "ச"
+            )
+            val isTamil = langPref == AppStrings.TAMIL || AppStrings.getEffectiveLanguage(langPref, context) == AppStrings.TAMIL
             daysOfWeek.forEach { day ->
                 val isSunday = day == DayOfWeek.SUNDAY
+                val dayText = if (isTamil) {
+                    tamilDayAbbr[day] ?: day.getDisplayName(TextStyle.SHORT, appLocale).take(1).uppercase()
+                } else {
+                    day.getDisplayName(TextStyle.SHORT, appLocale).take(1).uppercase()
+                }
                 Text(
-                    text = day.getDisplayName(TextStyle.SHORT, appLocale).take(1).uppercase(), // "S", "M"...
+                    text = dayText,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = if (isSunday) SamsungRed else colors.textSecondary.copy(alpha = 0.6f),

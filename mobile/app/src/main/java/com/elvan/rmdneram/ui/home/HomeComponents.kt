@@ -50,6 +50,9 @@ import com.elvan.rmdneram.ui.home.components.EditableSection
 import com.elvan.rmdneram.ui.components.ExpressiveLoadingIndicator
 import com.elvan.rmdneram.ui.components.ExpressiveDotsLoader
 import com.elvan.rmdneram.ui.navigation.CustomIcons
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.utils.DateTimeUtils
 import kotlinx.coroutines.delay
 
@@ -114,14 +117,16 @@ internal fun PageHeader(
                         Spacer(modifier = Modifier.width(HomeDimens.SpacingXl))
                         
                         Column(modifier = Modifier.weight(1f)) {
+                            val lang = LocalAppLanguage.current
+                            val tamilFont = LocalAppFontFamily.current
                             Text(
-                                text = "Welcome to Neram!",
-                                style = HomeTypography.PillTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                                text = AppStrings.Home.welcomeToNeram(lang),
+                                style = HomeTypography.PillTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = tamilFont),
                                 color = colors.textPrimary
                             )
                             Text(
-                                text = "Glad you're here 😊",
-                                style = HomeTypography.StatusBadge.copy(fontSize = 14.sp),
+                                text = AppStrings.Home.gladYouAreHere(lang),
+                                style = HomeTypography.StatusBadge.copy(fontSize = 14.sp, fontFamily = tamilFont),
                                 color = colors.textSecondary,
                                 maxLines = 1
                             )
@@ -202,8 +207,9 @@ internal fun PageHeader(
                             
                             Column(modifier = Modifier.weight(1f)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
+                                    val lang = LocalAppLanguage.current
                                     Text(
-                                        text = "Vanakkam!",
+                                        text = AppStrings.Home.vanakkam(lang),
                                         style = HomeTypography.PillTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold),
                                         color = colors.textPrimary
                                     )
@@ -303,9 +309,10 @@ internal fun DateSection(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.DateSectionSpacing)
     ) {
         // Label
+        val lang = LocalAppLanguage.current
         Text(
-            text = "Select date",
-            style = HomeTypography.DateLabel,
+            text = AppStrings.Home.selectDate(lang),
+            style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
             color = colors.textSecondary.copy(alpha = 0.8f),
             modifier = Modifier.padding(start = HomeDimens.SpacingLg)
         )
@@ -517,6 +524,7 @@ internal fun ScheduleSection(
     colors: HomeColors
 ) {
     Column {
+        val lang = LocalAppLanguage.current
         // Header Row with Title and Status Badge
         Row(
             modifier = Modifier
@@ -526,14 +534,14 @@ internal fun ScheduleSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Schedule",
-                style = HomeTypography.SectionTitle,
+                text = AppStrings.Home.schedule(lang),
+                style = HomeTypography.SectionTitle.copy(fontFamily = LocalAppFontFamily.current),
                 color = colors.textPrimary
             )
             
             // Status Badge - matches .status-badge-small
             val isHoliday = scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true)
-            val badgeText = if (isHoliday) "HOLIDAY" else scheduleState.scheduleStatus.uppercase()
+            val badgeText = if (isHoliday) AppStrings.Home.holiday(lang) else scheduleState.scheduleStatus.uppercase()
             
             Surface(
                 shape = HomeShapes.StatusBadge,
@@ -639,7 +647,7 @@ internal fun ScheduleSection(
             if (config.showSuspensionNotice) {
                 hasContent = true
                 ClassesSuspendedNotice(
-                    title = "Classes Suspended",
+                    title = AppStrings.Home.classesSuspended(lang),
                     subtitle = config.suspensionReason,
                     colors = colors
                 )
@@ -678,9 +686,10 @@ internal fun FullDayEventCard(
         colors = CardDefaults.cardColors(containerColor = colors.accent)
     ) {
         Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
+            val lang = LocalAppLanguage.current
             Text(
-                text = "TODAY'S EVENT",
-                style = HomeTypography.ExamTag,
+                text = AppStrings.Home.todaysEvent(lang),
+                style = HomeTypography.ExamTag.copy(fontFamily = LocalAppFontFamily.current),
                 color = Color.White.copy(alpha = 0.8f)
             )
             
@@ -704,7 +713,7 @@ internal fun FullDayEventCard(
                         color = Color.White
                     )
                     Text(
-                        text = event.description ?: "Full Day Event",
+                        text = event.description ?: AppStrings.Home.fullDayEvent(lang),
                         style = HomeTypography.ExamSubtitle,
                         color = Color.White.copy(alpha = 0.9f)
                     )
@@ -717,12 +726,12 @@ internal fun FullDayEventCard(
                     ) {
                         MetaChip(
                             icon = Icons.Outlined.Schedule,
-                            text = "Full Day",
+                            text = AppStrings.Home.fullDay(lang),
                             colors = colors
                         )
                         MetaChip(
                             icon = Icons.Outlined.Info,
-                            text = "No Classes",
+                            text = AppStrings.Home.noClasses(lang),
                             colors = colors
                         )
                     }
@@ -748,8 +757,9 @@ internal fun HalfDayEventCard(
         colors = CardDefaults.cardColors(containerColor = colors.accent)
     ) {
         Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
+            val lang = LocalAppLanguage.current
             Text(
-                text = "SPECIAL EVENT",
+                text = AppStrings.Home.specialEvent(lang),
                 style = HomeTypography.ExamTag,
                 color = Color.White.copy(alpha = 0.8f)
             )
@@ -774,7 +784,7 @@ internal fun HalfDayEventCard(
                         color = Color.White
                     )
                     Text(
-                        text = event.description ?: "Special Session",
+                        text = event.description ?: AppStrings.Home.specialSession(lang),
                         style = HomeTypography.ExamSubtitle,
                         color = Color.White.copy(alpha = 0.9f)
                     )
@@ -794,7 +804,7 @@ internal fun HalfDayEventCard(
                             )
                             MetaChip(
                                 icon = Icons.Outlined.Info,
-                                text = "Event",
+                                text = AppStrings.Home.event(lang),
                                 colors = colors
                             )
                         }
@@ -841,9 +851,10 @@ internal fun ExamCard(
         colors = CardDefaults.cardColors(containerColor = colors.accent)
     ) {
         Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
+            val lang = LocalAppLanguage.current
             Text(
-                text = "TODAY'S EXAM",
-                style = HomeTypography.ExamTag,
+                text = AppStrings.Home.todaysExam(lang),
+                style = HomeTypography.ExamTag.copy(fontFamily = LocalAppFontFamily.current),
                 color = Color.White.copy(alpha = 0.8f)
             )
             
@@ -920,9 +931,10 @@ internal fun PracticalExamMiniCard(
                 colors = CardDefaults.cardColors(containerColor = colors.accent)
             ) {
                 Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
+                    val lang = LocalAppLanguage.current
                     Text(
-                        text = "TODAY'S PRACTICAL EXAM",
-                        style = HomeTypography.ExamTag,
+                        text = AppStrings.Home.todaysPracticalExam(lang),
+                        style = HomeTypography.ExamTag.copy(fontFamily = LocalAppFontFamily.current),
                         color = Color.White.copy(alpha = 0.8f)
                     )
                     
@@ -1151,7 +1163,7 @@ internal fun TimetableCard(
                                         shape = HomeShapes.Pill
                                     ) {
                                         Text(
-                                            text = "LAB",
+                                            text = AppStrings.Home.lab(LocalAppLanguage.current),
                                             style = HomeTypography.FacultyName.copy(
                                                 fontSize = 9.sp,
                                                 fontWeight = FontWeight.Bold,
@@ -1249,8 +1261,8 @@ internal fun NoClassesCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "No classes scheduled.",
-                style = HomeTypography.NoClassesTitle,
+                text = AppStrings.Home.noClassesScheduled(LocalAppLanguage.current),
+                style = HomeTypography.NoClassesTitle.copy(fontFamily = LocalAppFontFamily.current),
                 color = colors.textPrimary
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -1341,12 +1353,13 @@ internal fun UpdatesSection(
     colors: HomeColors,
     onSave: (String) -> Unit
 ) {
+    val lang = LocalAppLanguage.current
     com.elvan.rmdneram.ui.home.components.EditableSection(
-        title = "Live Updates ($sectionName)",
+        title = AppStrings.Home.liveUpdates(sectionName, lang),
         content = content,
         rawContent = rawContent,
         author = author,
-        emptyText = "No updates for this date.",
+        emptyText = AppStrings.Home.noUpdatesForDate(lang),
         canEdit = canEdit,
         accentColor = colors.accent,
         isSaving = isSaving,
@@ -1371,11 +1384,12 @@ internal fun GeneralNoticeSection(
     colors: HomeColors,
     onSave: (String) -> Unit
 ) {
+    val lang = LocalAppLanguage.current
     EditableSection(
-        title = "General Notice",
-        content = content.ifEmpty { "No general notices." },
+        title = AppStrings.Home.generalNotice(lang),
+        content = content.ifEmpty { AppStrings.Home.noGeneralNotices(lang) },
         author = author,
-        emptyText = "No general notices.",
+        emptyText = AppStrings.Home.noGeneralNotices(lang),
         canEdit = canEdit,
         accentColor = colors.success,
         isSaving = isSaving,
