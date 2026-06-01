@@ -90,7 +90,7 @@ fun AboutAppScreen(
                     "நேரம்",
                     style = HomeTypography.PageTitle.copy(
                         fontSize = 48.sp,
-                        fontFamily = com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+                        fontFamily = com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
                     ),
                     color = colors.textPrimary
                 )
@@ -121,7 +121,7 @@ fun AboutAppScreen(
                     "Neram (நேரம், meaning 'Time') is a sleek, all-in-one campus companion app designed specifically for RMK Group of Institutions students. It brings together everything you need to stay organized and informed throughout your academic day.\n\nThis application was developed by Jaiprakash Parthasarathy, a student from the ECE Department of RMD Engineering College.",
                     style = HomeTypography.MessageBody.copy(
                         lineHeight = 26.sp,
-                        fontFamily = com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+                        fontFamily = com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
                     ),
                     color = colors.textSecondary,
                     textAlign = TextAlign.Start

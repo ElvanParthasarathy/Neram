@@ -34,7 +34,7 @@ import com.elvan.rmdneram.ui.theme.AppColors
 import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.ui.theme.AppStrings
-import com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+import com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.elvan.rmdneram.data.model.UserProfile

@@ -31,6 +31,7 @@ const PendingRequests = React.lazy(() => import('./modules/PendingRequests'));
 const SemesterTransitionManager = React.lazy(() => import('./modules/SemesterTransitionManager'));
 const SpecialClassManager = React.lazy(() => import('./modules/SpecialClassManager'));
 const NotesManager = React.lazy(() => import('./modules/NotesManager'));
+const NotificationManager = React.lazy(() => import('./modules/NotificationManager'));
 
 // --- Neutral Fallback to prevent "double skeleton" flash ---
 const AdminSkeletonFallback = () => (
@@ -110,6 +111,7 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
           {activeModule === 'pending' && <PendingRequests isMobile={isMobile} />}
           {activeModule === 'archives' && <SemesterTransitionManager user={user} userProfile={userProfile} isMobile={isMobile} />}
           {activeModule === 'special_classes' && <SpecialClassManager user={user} userProfile={userProfile} isMobile={isMobile} />}
+          {activeModule === 'notifications' && <NotificationManager isMobile={isMobile} />}
         </Suspense>
       </main>
     </div>

@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.elvan.rmdneram.ui.theme.InterFontFamily
+import com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
 import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 
 /**
@@ -145,14 +145,14 @@ object HomeDimens {
 /**
  * Typography styles for Home Screen - Matching mobileapp.css
  * 
- * NOTE: This uses InterFontFamily as a static default. For Tamil support,
+ * NOTE: This uses GoogleSansFontFamily as a static default. For Tamil support,
  * use the @Composable rememberHomeTypography() instead, which dynamically
  * selects MuktaMalar for Tamil and Inter for English.
  */
 object HomeTypography {
     // Page Title - matches .page-title: 28px, font-weight: 800
     val PageTitle = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 28.sp,
         fontWeight = FontWeight.ExtraBold,
         letterSpacing = (-1).sp
@@ -160,7 +160,7 @@ object HomeTypography {
     
     // Section Title - reduced to match DateLabel size (13sp)
     val SectionTitle = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 13.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.5.sp
@@ -168,7 +168,7 @@ object HomeTypography {
     
     // Date Label - matches .input-label
     val DateLabel = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 13.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 0.5.sp
@@ -176,56 +176,56 @@ object HomeTypography {
     
     // Date Display - matches .date-display: 17px, font-weight: 600
     val DateText = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 17.sp,
         fontWeight = FontWeight.SemiBold
     )
     
     // Calendar Title/Event - matches .calendar-text: 15px
     val PillTitle = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 15.sp,
         fontWeight = FontWeight.SemiBold
     )
     
     // Calendar Subtext - matches .calendar-subtext: 13px
     val PillTime = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 13.sp,
         fontWeight = FontWeight.Medium
     )
     
     // Status Badge - matches .status-badge-small: 11px, font-weight: 700
     val StatusBadge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold
     )
     
     // Pill Button - for OK/Cancel in dialogs: 14px, font-weight: 700
     val PillButton = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold
     )
     
     // Exam Card Title - matches .exam-info h3: 18px
     val ExamTitle = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 18.sp,
         fontWeight = FontWeight.Bold
     )
     
     // Exam Card Subtitle - matches .exam-info p: 14px
     val ExamSubtitle = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 14.sp,
         fontWeight = FontWeight.Normal
     )
     
     // Exam Tag - matches .exam-tag: 10px, font-weight: 800
     val ExamTag = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 10.sp,
         fontWeight = FontWeight.ExtraBold,
         letterSpacing = 1.sp
@@ -233,35 +233,35 @@ object HomeTypography {
     
     // Exam Meta - matches .exam-meta: 12px
     val ExamMeta = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold
     )
     
     // Table Header - matches th: 10px
     val TableHeader = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 10.sp,
         fontWeight = FontWeight.Bold
     )
     
     // Hour Cell - matches .cell-hour: 11px
     val CellHour = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 11.sp,
         fontWeight = FontWeight.ExtraBold
     )
     
     // Course Code - matches .course-code: 10px
     val CourseCode = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 10.sp,
         fontWeight = FontWeight.Bold
     )
     
     // Course Name - matches .course-name: 12px
     val CourseName = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 12.sp,
         fontWeight = FontWeight.Normal,
         lineHeight = 16.sp
@@ -269,7 +269,7 @@ object HomeTypography {
     
     // Faculty - matches .cell-faculty: 11px
     val FacultyName = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 11.sp,
         fontWeight = FontWeight.Medium,
         lineHeight = 14.sp
@@ -277,21 +277,21 @@ object HomeTypography {
     
     // Message Body - matches .message-body: 15px
     val MessageBody = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 15.sp,
         lineHeight = 22.sp
     )
     
     // Author Badge - matches .last-edited-badge: 11px
     val AuthorBadge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 11.sp,
         fontWeight = FontWeight.SemiBold
     )
     
     // Edit Trigger - matches .edit-trigger: 11px
     val EditTrigger = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 11.sp,
         fontWeight = FontWeight.Bold,
         letterSpacing = 0.5.sp
@@ -299,35 +299,35 @@ object HomeTypography {
     
     // Empty State - matches .calendar-text-empty: 15px, italic
     val EmptyState = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 15.sp,
         fontStyle = FontStyle.Italic
     )
     
     // No Classes Msg - matches .no-classes-msg: 16px
     val NoClassesTitle = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 16.sp,
         fontWeight = FontWeight.SemiBold
     )
     
     // Info Grid - matches .info-label: 10px
     val InfoLabel = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 10.sp,
         fontWeight = FontWeight.Bold
     )
     
     // Info Value - matches .info-value: 14px
     val InfoValue = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 14.sp,
         fontWeight = FontWeight.Bold
     )
     
     // Admin Badge
     val AdminBadge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 10.sp,
         fontWeight = FontWeight.Bold,
         letterSpacing = 0.5.sp
@@ -335,21 +335,21 @@ object HomeTypography {
     
     // Offline Badge
     val OfflineBadge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 9.sp,
         fontWeight = FontWeight.SemiBold
     )
 
     // Dialog Title - matches .dialog-title
     val DialogTitle = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 18.sp,
         fontWeight = FontWeight.Bold
     )
 
     // Dialog Body - matches .dialog-body
     val DialogBody = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 14.sp,
         lineHeight = 20.sp
     )
@@ -368,7 +368,7 @@ object HomeTypography {
     
     // Additional styles for timetable
     val LabBadge = TextStyle(
-        fontFamily = InterFontFamily,
+        fontFamily = GoogleSansFontFamily,
         fontSize = 9.sp,
         fontWeight = FontWeight.Bold,
         letterSpacing = 0.5.sp

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
 import com.elvan.rmdneram.ui.theme.AppStrings
-import com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily
+import com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -161,7 +161,7 @@ fun LanguageSettingsScreen(
                 else 
                     "Language change applies only to navigation, home menu, and settings. Timetable data will not change.",
                 style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = if (lang == AppStrings.TAMIL) MuktaMalarFontFamily else null
+                    fontFamily = if (lang == AppStrings.TAMIL) GoogleSansFontFamily else null
                 ),
                 color = colors.textSecondary,
                 modifier = Modifier.padding(horizontal = 12.dp)

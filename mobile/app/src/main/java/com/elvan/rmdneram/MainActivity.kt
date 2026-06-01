@@ -167,8 +167,8 @@ class MainActivity : ComponentActivity() {
                 }
                 
                 val appFontFamily = if (effectiveLanguage == AppStrings.TAMIL) 
-                    com.elvan.rmdneram.ui.theme.MuktaMalarFontFamily 
-                    else com.elvan.rmdneram.ui.theme.InterFontFamily
+                    com.elvan.rmdneram.ui.theme.GoogleSansFontFamily 
+                    else com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
                 
                 CompositionLocalProvider(
                     LocalAppLanguage provides effectiveLanguage,

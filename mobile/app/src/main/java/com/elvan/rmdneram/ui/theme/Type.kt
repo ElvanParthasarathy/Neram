@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Creates a full Material3 Typography with the given font family.
- * Used to generate both English (Inter) and Tamil (MuktaMalar) variants.
+ * Used to generate the typography with our unified Font Family (Google Sans + Mukta Malar Fallback).
  */
 private fun createTypography(fontFamily: FontFamily) = Typography(
     // Display
@@ -33,15 +33,11 @@ private fun createTypography(fontFamily: FontFamily) = Typography(
     labelSmall = TextStyle(fontFamily = fontFamily, fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp)
 )
 
-// English Typography (Inter)
-val Typography = createTypography(InterFontFamily)
-
-// Tamil Typography (Mukta Malar)
-val TamilTypography = createTypography(MuktaMalarFontFamily)
+// App Typography (Unified)
+val Typography = createTypography(GoogleSansFontFamily)
 
 /**
- * Returns the appropriate Typography based on the active language.
- * Tamil → MuktaMalar font, English → Inter font.
+ * Returns the appropriate Typography.
+ * Now universally uses our unified font family (Google Sans with Mukta Malar fallback).
  */
-fun appTypography(lang: String): Typography =
-    if (lang == AppStrings.TAMIL) TamilTypography else Typography
+fun appTypography(lang: String): Typography = Typography

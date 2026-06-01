@@ -24,7 +24,8 @@ import {
   RiInboxArchiveLine,
   RiScanLine,
   RiComputerLine,
-  RiFolderLine
+  RiFolderLine,
+  RiNotificationBadgeLine
 } from "react-icons/ri";
 import { getHardcodedRole } from "../../data/admins";
 
@@ -100,6 +101,7 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
   const canViewResources = isSuper || isFaculty;        // Resources: Super + Faculty
   const canViewNotes = isSuper || isFaculty || isRep;   // Notes: all roles
   const canViewStructure = isSuper;                     // Structure: Super only
+  const canViewNotifications = isSuper;                 // Notifications: Super only
 
   // --- SMART NAME LOGIC ---
   const firstName = userProfile?.firstName || (user?.displayName || "").split(' ')[0] || "User";
@@ -209,17 +211,27 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
         )}
 
         {/* GROUP 4: SYSTEM — Infrastructure & structure */}
-        {canViewStructure && (
+        {(canViewStructure || canViewNotifications) && (
           <>
             <div className="nav-group-label">System</div>
-            <Link to="/?mod=structure" className={`admin-nav-link ${location.search.includes('mod=structure') ? "active" : ""}`}>
-              <RiListCheck className="admin-nav-icon" />
-              <span>Structure</span>
-            </Link>
-            <Link to="/?mod=archives" className={`admin-nav-link ${location.search.includes('mod=archives') ? "active" : ""}`}>
-              <RiInboxArchiveLine className="admin-nav-icon" />
-              <span>Archive Tool</span>
-            </Link>
+            {canViewStructure && (
+              <Link to="/?mod=structure" className={`admin-nav-link ${location.search.includes('mod=structure') ? "active" : ""}`}>
+                <RiListCheck className="admin-nav-icon" />
+                <span>Structure</span>
+              </Link>
+            )}
+            {canViewStructure && (
+              <Link to="/?mod=archives" className={`admin-nav-link ${location.search.includes('mod=archives') ? "active" : ""}`}>
+                <RiInboxArchiveLine className="admin-nav-icon" />
+                <span>Archive Tool</span>
+              </Link>
+            )}
+            {canViewNotifications && (
+              <Link to="/?mod=notifications" className={`admin-nav-link ${location.search.includes('mod=notifications') ? "active" : ""}`}>
+                <RiNotificationBadgeLine className="admin-nav-icon" />
+                <span>Notifications</span>
+              </Link>
+            )}
           </>
         )}
 

@@ -18,7 +18,8 @@ import {
     RiScanLine,
     RiFolderLine,
     RiComputerLine,
-    RiUser3Fill
+    RiUser3Fill,
+    RiNotificationBadgeLine
 } from "react-icons/ri";
 import { getHardcodedRole } from '../../data/admins';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -80,6 +81,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
     const canViewResources = isSuper || isFaculty;          // Resources: Super + Faculty
     const canViewNotes = isSuper || isFaculty || isRep;     // Notes: all roles
     const canViewStructure = isSuper;                       // Structure: Super only
+    const canViewNotifications = isSuper;                   // Notifications: Super only
 
     const handleNav = (mod) => {
         setIsSidebarOpen(false);
@@ -105,6 +107,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         resources: 'Resources',
         notes: 'Notes Manager',
         structure: 'Structure',
+        notifications: 'Notifications',
         pending: 'Pending Requests',
         special_classes: 'Special Classes',
     }[activeModule] || 'Admin Panel';
@@ -340,13 +343,20 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             )}
 
                             {/* SYSTEM */}
-                            {canViewStructure && (
+                            {(canViewStructure || canViewNotifications) && (
                                 <>
                                     <div className="drawer-divider" />
                                     <div className="drawer-group-label">System</div>
-                                    <button onClick={() => handleNav('structure')} className={`admin-drawer-item ${activeModule === 'structure' ? 'active' : ''}`}>
-                                        <div className="drawer-icon"><RiListCheck /></div> <span>Structure</span>
-                                    </button>
+                                    {canViewStructure && (
+                                        <button onClick={() => handleNav('structure')} className={`admin-drawer-item ${activeModule === 'structure' ? 'active' : ''}`}>
+                                            <div className="drawer-icon"><RiListCheck /></div> <span>Structure</span>
+                                        </button>
+                                    )}
+                                    {canViewNotifications && (
+                                        <button onClick={() => handleNav('notifications')} className={`admin-drawer-item ${activeModule === 'notifications' ? 'active' : ''}`}>
+                                            <div className="drawer-icon"><RiNotificationBadgeLine /></div> <span>Notifications</span>
+                                        </button>
+                                    )}
                                 </>
                             )}
 

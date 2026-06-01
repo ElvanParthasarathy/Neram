@@ -36,6 +36,17 @@ object DailyUpdateHelper {
         
 
         try {
+            // 0. Master Kill Switch Check
+            val database = FirebaseDatabase.getInstance()
+            val masterSwitchSnapshot = database.getReference("settings/system_notifications_enabled").get().await()
+            if (masterSwitchSnapshot.exists()) {
+                val isSystemNotificationsEnabled = masterSwitchSnapshot.getValue(Boolean::class.java) ?: true
+                if (!isSystemNotificationsEnabled) {
+                    Log.d(TAG, "Skipping: System notifications are disabled globally via Master Kill Switch.")
+                    return
+                }
+            }
+
             val settingsPrefs = context.getSharedPreferences("notification_settings", Context.MODE_PRIVATE)
 
             // Read Notification Settings
@@ -82,7 +93,6 @@ object DailyUpdateHelper {
             
             val globalEvents = db.calendarEventDao().getAllEvents().first().map { it.toCalendarEvent() }
             
-            val database = FirebaseDatabase.getInstance()
             val eventsRef = database.getReference("list_events/$batch/$dept/$section")
             val eventsSnapshot = eventsRef.get().await()
             val liveSectionEvents = mutableListOf<com.elvan.rmdneram.data.model.CalendarEvent>()

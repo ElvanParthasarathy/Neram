@@ -13,10 +13,10 @@ val LocalAppLanguage = compositionLocalOf { "en" }
 
 /**
  * CompositionLocal for app font family.
- * Tamil → MuktaMalar, English → Inter. 
+ * Tamil → MuktaMalar, English → Google Sans. 
  * Provided at the theme level so all components can read it.
  */
-val LocalAppFontFamily = compositionLocalOf<FontFamily> { InterFontFamily }
+val LocalAppFontFamily = compositionLocalOf<FontFamily> { GoogleSansFontFamily }
 
 /**
  * Centralized App Strings with Tamil language support.
