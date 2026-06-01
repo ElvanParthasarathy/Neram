@@ -5,7 +5,7 @@
 /* The main container limits width for ultra-wides but uses full width on mobile */
 .structure-manager-bounded {
     width: 100% !important;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    font-family: 'Google Sans', system-ui, -apple-system, sans-serif !important;
     color: var(--mac-text);
     -webkit-font-smoothing: antialiased;
 }

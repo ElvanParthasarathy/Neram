@@ -1,4 +1,5 @@
 /* Refactored App.css */
+@import './styles/core/fonts.css';
 @import './styles/auth/auth.css';
 @import './styles/core/tokens.css';
 /* @import './styles/student/home.css'; DISABLED: replaced by home2.css */

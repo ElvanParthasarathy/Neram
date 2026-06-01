@@ -4,7 +4,6 @@ import { useSystemTheme } from "./hooks/useSystemTheme";
 import { db, auth } from "./firebase";
 import { ref, onValue, get, update } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
-import "@fontsource-variable/inter";
 
 // Styles
 import "./App.css";

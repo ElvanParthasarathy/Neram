@@ -4,7 +4,6 @@ import { useSystemTheme } from "./hooks/useSystemTheme";
 import { db, auth } from "./firebase";
 import { ref, onValue, get, set } from "firebase/database";
 import { onAuthStateChanged } from "firebase/auth";
-import "@fontsource-variable/inter";
 
 // Styles
 import "./App.css";
@@ -120,7 +119,7 @@ function AppContent({ user, isAdminUser, isMobile, loading, showForcedSetup, glo
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               height: '100vh', width: '100vw', background: 'var(--mac-bg-primary)',
-              fontFamily: "'Inter', system-ui, sans-serif", color: 'var(--mac-text)',
+              fontFamily: "'Google Sans', system-ui, sans-serif", color: 'var(--mac-text)',
               flexDirection: 'column', gap: '20px', textAlign: 'center'
             }}>
               <h1 style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.5px' }}>Admin Account Detected</h1>

@@ -1,4 +1,5 @@
 /* Refactored index.css */
+@import './styles/core/fonts.css';
 @import './styles/core/tokens.css';
 
 @import './styles/core/theme-dark.css';

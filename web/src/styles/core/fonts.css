@@ -1,0 +1,129 @@
+/* Local fonts only. Preloaded weights use block; others use swap to prevent invisible-text delays. */
+@font-face {
+  font-family: "Mukta Malar";
+  font-style: normal;
+  font-weight: 200;
+  font-display: block;
+  src: url('/fonts/MuktaMalar-ExtraLight.woff') format('woff');
+}
+@font-face {
+  font-family: "Mukta Malar";
+  font-style: normal;
+  font-weight: 300;
+  font-display: block;
+  src: url('/fonts/MuktaMalar-Light.woff') format('woff');
+}
+@font-face {
+  font-family: "Mukta Malar";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/MuktaMalar-Regular.woff') format('woff');
+}
+@font-face {
+  font-family: "Mukta Malar";
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url('/fonts/MuktaMalar-Medium.woff') format('woff');
+}
+@font-face {
+  font-family: "Mukta Malar";
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url('/fonts/MuktaMalar-SemiBold.woff') format('woff');
+}
+@font-face {
+  font-family: "Mukta Malar";
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('/fonts/MuktaMalar-Bold.woff') format('woff');
+}
+@font-face {
+  font-family: "Mukta Malar";
+  font-style: normal;
+  font-weight: 800 900;
+  font-display: block;
+  src: url('/fonts/MuktaMalar-ExtraBold.woff') format('woff');
+}
+
+/* Google Sans — local file, with unicode-range excluding Tamil (U+0B80-0BFF) */
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/fonts/GoogleSans-Regular.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url('/fonts/GoogleSans-Medium.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: block;
+  src: url('/fonts/GoogleSans-SemiBold.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('/fonts/GoogleSans-Bold.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 800 900;
+  font-display: block;
+  src: url('/fonts/GoogleSans-Bold.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/GoogleSans-Italic.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/GoogleSans-MediumItalic.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/GoogleSans-SemiBoldItalic.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: italic;
+  font-weight: 700 900;
+  font-display: swap;
+  src: url('/fonts/GoogleSans-BoldItalic.woff') format('woff');
+  unicode-range: U+0000-0B7F, U+0C00-10FFFF;
+}
+
+/* Explicit Tamil classes targeting */
+.s2-tamil, .s2-about-tamil, .s2-app-logo-tamil, .logo-tamil, [lang="ta"] {
+    font-family: 'Mukta Malar', sans-serif !important;
+}
