@@ -5,7 +5,7 @@
 
 /* ─── Container ─── */
 .notes-manager {
-    font-family: var(--font-primary, 'Google Sans', system-ui, sans-serif);
+    font-family: var(--font-primary, 'ElvanSans', system-ui, sans-serif);
     color: var(--mac-text);
     padding: 0 !important;
     padding-top: 12px !important;

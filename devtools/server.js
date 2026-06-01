@@ -195,7 +195,7 @@ const server = http.createServer((req, res) => {
     } else if (req.url.startsWith('/api/trigger')) {
         const urlParams = new URL(req.url, `http://${req.headers.host}`);
         const dateStr = urlParams.searchParams.get('date');
-        
+
         // Build the ADB command
         // The Android receiver is listening for com.elvan.neram.DAILY_ALARM
         // and extracts "date_override"
@@ -203,7 +203,7 @@ const server = http.createServer((req, res) => {
         if (dateStr) {
             cmd += ` --es date_override "${dateStr}"`;
         }
-        
+
         exec(cmd, (error, stdout, stderr) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             if (error) {

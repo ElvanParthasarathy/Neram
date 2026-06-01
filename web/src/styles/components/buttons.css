@@ -271,7 +271,7 @@
     /* The Look */
     background-color: #007AFF !important;
     color: #ffffff !important;
-    font-family: 'Google Sans', system-ui, sans-serif !important;
+    font-family: 'ElvanSans', system-ui, sans-serif !important;
     font-size: 13px !important;
     /* Fixed small size */
     font-weight: 600 !important;
@@ -306,7 +306,7 @@
     background-color: var(--mac-selection-bg) !important;
     color: var(--mac-text) !important;
     border: 1px solid var(--mac-border) !important;
-    font-family: 'Google Sans', system-ui, sans-serif !important;
+    font-family: 'ElvanSans', system-ui, sans-serif !important;
     font-size: 13px !important;
     /* Fixed small size */
     font-weight: 500 !important;

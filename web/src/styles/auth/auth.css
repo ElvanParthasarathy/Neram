@@ -21,7 +21,7 @@
   /* --- 2.1 Viewport & Font --- */
   .login-body-wrapper,
   .signup-body-wrapper {
-    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-family: 'ElvanSans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -424,7 +424,7 @@
  ========================================================================== */
   /* 1. Main Popup Container */
   .react-datepicker {
-    font-family: 'Google Sans', sans-serif !important;
+    font-family: 'ElvanSans', sans-serif !important;
     background: var(--bg-card) !important;
     /* FIXED */
     backdrop-filter: blur(20px) saturate(180%) !important;

@@ -7,7 +7,7 @@
     max-width: 720px;
     margin: 0 auto;
     padding: 0 20px 120px 20px;
-    font-family: "Google Sans", "Google Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: "ElvanSans", "ElvanSans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     color: var(--mac-text);
 }

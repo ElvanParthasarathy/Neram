@@ -46,7 +46,7 @@
     font-weight: 700;
     color: var(--mac-text);
     line-height: 1.2;
-    font-family: 'Mukta Malar', sans-serif;
+    font-family: 'ElvanSans', sans-serif;
 }
 
 .s2-about-english {
@@ -69,7 +69,7 @@
     font-weight: 700;
     color: var(--mac-text);
     line-height: 1;
-    font-family: 'Mukta Malar', sans-serif;
+    font-family: 'ElvanSans', sans-serif;
 }
 
 .s2-app-logo-english {
@@ -99,7 +99,7 @@
 }
 
 .s2-tamil {
-    font-family: 'Mukta Malar', sans-serif;
+    font-family: 'ElvanSans', sans-serif;
 }
 
 .s2-feature-item {

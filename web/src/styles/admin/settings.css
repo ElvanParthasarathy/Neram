@@ -9,7 +9,7 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'ElvanSans', system-ui, -apple-system, sans-serif;
     color: var(--mac-text);
 }
 
@@ -813,7 +813,7 @@ html.dark .maintenance-range-picker {
 .logo-tamil {
     font-size: 56px;
     font-weight: 800;
-    font-family: 'Mukta Malar', sans-serif;
+    font-family: 'ElvanSans', sans-serif;
     background: linear-gradient(135deg, var(--mac-blue), #5856D6);
     -webkit-background-clip: text;
     background-clip: text;

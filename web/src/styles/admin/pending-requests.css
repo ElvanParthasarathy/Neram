@@ -4,7 +4,7 @@
 
 /* --- AUTH CARD STYLES (Ported from mobileapp.css for Desktop Support) --- */
 .login-body-wrapper {
-    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: 'ElvanSans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
     display: flex;
     align-items: center;

@@ -4,7 +4,7 @@
 
 .exam-manager-container {
   width: 100%;
-  font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'ElvanSans', system-ui, -apple-system, sans-serif;
   color: var(--mac-text);
   -webkit-font-smoothing: antialiased;
   padding-bottom: 50px;
@@ -775,7 +775,7 @@ html.light .exam-manager-container textarea {
   .exam-manager-container .published-exam-card.editing-active .btn-save-mini,
   .exam-manager-container .published-exam-card.editing-active .btn-del-mini {
     all: unset !important;
-    font-family: 'Google Sans', system-ui, sans-serif !important;
+    font-family: 'ElvanSans', system-ui, sans-serif !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     display: inline-flex !important;
@@ -804,7 +804,7 @@ html.light .exam-manager-container textarea {
     background-color: var(--mac-selection-bg) !important;
     color: var(--mac-text) !important;
     border: 1px solid var(--mac-border) !important;
-    font-family: 'Google Sans', system-ui, sans-serif !important;
+    font-family: 'ElvanSans', system-ui, sans-serif !important;
     font-size: 13px !important;
     font-weight: 500 !important;
     display: inline-flex !important;

@@ -143,7 +143,7 @@
       overflow: hidden;
       background-color: var(--bg-body) !important;
       color: var(--text-primary) !important;
-      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      font-family: 'ElvanSans', -apple-system, BlinkMacSystemFont, sans-serif !important;
       touch-action: pan-y;
       -webkit-tap-highlight-color: transparent;
       transition: background-color 0.5s ease;
@@ -1486,7 +1486,7 @@
   }
 
   .mac-loader-text {
-    font-family: 'Google Sans', sans-serif;
+    font-family: 'ElvanSans', sans-serif;
     font-size: 13px;
     font-weight: 600;
 

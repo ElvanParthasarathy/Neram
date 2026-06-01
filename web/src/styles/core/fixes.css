@@ -654,7 +654,7 @@ body.modal-open,
 
   /* 1. Main Popup Container (Glass Effect) */
   .react-datepicker {
-    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: 'ElvanSans', -apple-system, BlinkMacSystemFont, sans-serif !important;
     background: var(--mac-popup-bg) !important;
     /* Milky Glass */
     backdrop-filter: blur(20px) saturate(180%) !important;

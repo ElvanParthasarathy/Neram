@@ -7,7 +7,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 24px;
-    font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'ElvanSans', system-ui, -apple-system, sans-serif;
 }
 
 /* ── Two-Column Grid (desktop) ── */
@@ -99,7 +99,7 @@
     max-width: 620px;
     margin: 0 auto;
     padding: 0 24px 80px;
-    font-family: 'Google Sans', system-ui, -apple-system, sans-serif;
+    font-family: 'ElvanSans', system-ui, -apple-system, sans-serif;
 }
 
 @media (max-width: 768px) {
