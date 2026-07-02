@@ -319,10 +319,12 @@ const ScheduleManager = ({ user, userProfile }) => {
                 const newCourses = aggregatedCourses.filter(c => c.code && !currentCourseCodes.has(c.code));
 
                 // If there are new courses, auto-save to master and prevent race loop
-                if (newCourses.length > 0) {
+                // We only do this once (_coursesMigrated) so we don't accidentally restore courses the admin deleted
+                if (newCourses.length > 0 && !actualMaster._coursesMigrated) {
                     const updatedMaster = {
                         ...actualMaster,
-                        courses: [...currentMasterCourses, ...newCourses]
+                        courses: [...currentMasterCourses, ...newCourses],
+                        _coursesMigrated: true
                     };
                     set(ref(db, `schedules/${path.batch}/${path.dept}/_master`), updatedMaster)
                         .catch(err => console.error("Auto-sync master data failed:", err));
