@@ -265,7 +265,8 @@ const ScheduleManager = ({ user, userProfile }) => {
                 // 1. Set Master Data strictly based on what is in DB right now
                 setMasterData({
                     courses: actualMaster.courses || [],
-                    coordinator: actualMaster.coordinator || ''
+                    coordinator: actualMaster.coordinator || '',
+                    _coursesMigrated: actualMaster._coursesMigrated || false
                 });
 
                 // 2. Fetch all sections to aggregate existing data (so old data is not lost)
