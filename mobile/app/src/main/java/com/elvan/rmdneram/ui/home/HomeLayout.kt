@@ -52,6 +52,7 @@ fun HomeMainLayout(
     onSaveUpdate: (String) -> Unit,
     onSaveNotice: (String) -> Unit,
     profileLoaderCompleted: Boolean = false,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
 
     onProfileLoaderCompleted: () -> Unit = {},
     onProfileClick: () -> Unit = {}
@@ -73,17 +74,16 @@ fun HomeMainLayout(
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
+                state = scrollState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = HomeDimens.ContentPadding,
                     end = HomeDimens.ContentPadding,
-                    // Fix: Use stable resource height to prevent "shake" (0 -> Actual jump)
-                    top = rememberStatusBarHeight() + HomeDimens.ContentPaddingTop,
-                    // Bottom padding: Dock (120dp)
                     bottom = HomeDimens.ContentPaddingBottom
                 ),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
+                item { Spacer(Modifier.height(240.dp)) }
                 // 1. Header Section
                 item(key = "header", contentType = "header") {
                     PageHeader(

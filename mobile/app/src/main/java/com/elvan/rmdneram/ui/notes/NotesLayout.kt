@@ -43,10 +43,11 @@ fun NotesMainLayout(
     onNotUploaded: () -> Unit,
     onRetry: () -> Unit,
     onDriveFolderClick: (com.elvan.rmdneram.data.model.DriveFolder) -> Unit = {},
-    onDriveFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit = {}
+    onDriveFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit = {},
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val statusBarHeight = rememberStatusBarHeight()
-    val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop
+    val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop + if (path.isEmpty()) HomeDimens.ExtraHeaderExpansion else 0.dp
 
     val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
 

@@ -66,7 +66,8 @@ fun ScheduleMainLayout(
 
     onDatePillClick: () -> Unit,
     onDateSwipePrev: () -> Unit,
-    onDateSwipeNext: () -> Unit
+    onDateSwipeNext: () -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     // ... existing state ...
     // Interaction Overlay State for View Type Switcher
@@ -97,12 +98,13 @@ fun ScheduleMainLayout(
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
+                state = scrollState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
-                    top = rememberStatusBarHeight() + HomeDimens.ContentPaddingTop,
                     bottom = HomeDimens.ContentPaddingBottom
                 )
             ) {
+                item { Spacer(Modifier.height(240.dp)) }
                 // --- Switcher (Movable) ---
                 item {
                     Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {

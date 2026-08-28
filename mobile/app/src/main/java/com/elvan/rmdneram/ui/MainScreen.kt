@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.runtime.*
@@ -36,7 +37,6 @@ import com.elvan.rmdneram.ui.home.rememberHomeColors
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.ui.theme.AppStrings
 import androidx.compose.runtime.CompositionLocalProvider
-import com.elvan.rmdneram.ui.navigation.TopMenuBar
 import com.elvan.rmdneram.ui.navigation.BottomNavBar
 import com.elvan.rmdneram.ui.navigation.SecondaryTopBar
 import com.elvan.rmdneram.ui.navigation.NavTab
@@ -67,6 +67,7 @@ import java.util.Locale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Today
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ViewAgenda
 import android.app.Activity
@@ -309,7 +310,6 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colors.background)
-                .nestedScroll(nestedScrollConnection)
         ) {
         
         // Navigation Rail (Landscape Only)
@@ -374,21 +374,143 @@ fun MainScreen(
         ) { screen ->
             when (screen) {
            "tabs" -> {
-                    // Apply Navigation Bar Padding ONLY to Tabs Screen
-                    Box(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.navigationBars)) {
-                        // Standard Tab Navigation (No Slider/Swipe)
+                val notesMode by notesViewModel.notesMode.collectAsState()
+                val notesDrivePath by notesViewModel.drivePath.collectAsState()
+                val notesFolderDisplay = notesDrivePath.map { it.name }.drop(1)
+                val isInsideNotesFolder = notesMode == "folder" && notesFolderDisplay.isNotEmpty()
+                val lang = LocalAppLanguage.current
+                val title = when(selectedTab) {
+                    NavTab.Home -> AppStrings.Nav.neram(lang)
+                    NavTab.Schedule -> AppStrings.Nav.schedule(lang)
+                    NavTab.Calendar -> AppStrings.Nav.calendar(lang)
+                    NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else AppStrings.Nav.notes(lang)
+                }
+                
+                val useNewDesign = selectedTab != NavTab.Calendar && !isInsideNotesFolder
+                
+                val homeScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
+                val scheduleScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
+                val notesScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
+                val calendarScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
+                
+                val activeScrollState = when(selectedTab) {
+                    NavTab.Home -> homeScrollState
+                    NavTab.Schedule -> scheduleScrollState
+                    NavTab.Calendar -> calendarScrollState
+                    NavTab.Notes -> notesScrollState
+                }
+
+                com.elvan.rmdneram.ui.components.shell.ElvanShell(
+                    scrollState = activeScrollState,
+                    colors = colors,
+                    showNavbar = !isLandscape,
+                    useNewDesign = useNewDesign,
+                    title = title,
+                    onBack = if (selectedTab == NavTab.Notes && isInsideNotesFolder) {
+                        { notesViewModel.navigateUp() }
+                    } else null,
+                    actions = {
+                        if (selectedTab == NavTab.Calendar) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(
+                                    onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.MONTH) },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_month_view_custom),
+                                        contentDescription = "Month View",
+                                        tint = colors.textPrimary,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.SCHEDULE) },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_list_view_custom),
+                                        contentDescription = "List View",
+                                        tint = colors.textPrimary,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                }
+                                val today = java.time.LocalDate.now()
+                                Box(
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .clip(RoundedCornerShape(6.dp))
+                                        .border(1.5.dp, colors.textPrimary, RoundedCornerShape(6.dp))
+                                        .clickable { 
+                                             homeViewModel.triggerCalendarJump(today)
+                                             homeViewModel.updateSelectedDate(today)
+                                             homeViewModel.updateCurrentMonth(java.time.YearMonth.now())
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = today.dayOfMonth.toString(),
+                                        color = colors.textPrimary,
+                                        fontSize = 11.sp,
+                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                        modifier = Modifier.offset(y = (-0.5).dp)
+                                    )
+                                }
+                            }
+                        } else if (!isInsideNotesFolder) {
+                            var menuExpanded by remember { mutableStateOf(false) }
+                            IconButton(onClick = { /* TODO: Notifications */ }, modifier = Modifier.size(32.dp)) {
+                                Icon(painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_notification), contentDescription = "Notifications", tint = colors.textPrimary, modifier = Modifier.size(22.dp))
+                            }
+                            Spacer(Modifier.width(8.dp))
+                            IconButton(onClick = { menuExpanded = true }, modifier = Modifier.size(32.dp)) {
+                                Icon(Icons.Filled.MoreVert, "Menu", tint = colors.textPrimary, modifier = Modifier.size(22.dp))
+                            }
+                            DropdownMenu(
+                                expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false },
+                                modifier = Modifier.background(colors.surface)
+                            ) {
+                                DropdownMenuItem(text = { Text(AppStrings.Settings.title(lang), color = colors.textPrimary) }, onClick = { 
+                                    menuExpanded = false
+                                    settingsReferrer = "tabs"
+                                    currentScreen = "settings"
+                                    scope.launch { settingsScrollState.scrollTo(0) }
+                                })
+                                DropdownMenuItem(text = { Text(AppStrings.Settings.importantSites(lang), color = colors.textPrimary) }, onClick = { 
+                                    menuExpanded = false
+                                    currentScreen = "sites"
+                                })
+                            }
+                        }
+                    },
+                    navbar = {
+                        BottomNavBar(
+                            selectedTab = selectedTab,
+                            onTabSelected = { tab, isDrag -> 
+                                isDragTransition = isDrag
+                                selectedTab = tab 
+                            },
+                            onInteraction = { isNavInteracting = it },
+                            onDragProgress = { navDragProgress = it }
+                        )
+                    }
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
                         when (selectedTab) {
                             NavTab.Home -> HomeScreen(
                                 onLogout = onLogout, 
                                 isOffline = uiState.isOffline, 
                                 userProfile = uiState.userProfile,
-                                onProfileClick = {
-                                    // Profile click disabled
-                                },
-                                pullRefreshState = homePullRefreshState
+                                onProfileClick = {},
+                                pullRefreshState = homePullRefreshState,
+                                scrollState = homeScrollState
                             )
                             NavTab.Schedule -> ScheduleScreen(
-                                pullRefreshState = schedulePullRefreshState
+                                pullRefreshState = schedulePullRefreshState,
+                                scrollState = scheduleScrollState
                             )
                             NavTab.Calendar -> com.elvan.rmdneram.ui.calendar.CalendarScreen(
                                 viewModel = homeViewModel,
@@ -397,11 +519,38 @@ fun MainScreen(
                                     currentScreen = "pdf_viewer"
                                 }
                             )
-                            NavTab.Notes -> com.elvan.rmdneram.ui.notes.NotesScreen(onBack = { selectedTab = NavTab.Home }, viewModel = notesViewModel) 
+                            NavTab.Notes -> com.elvan.rmdneram.ui.notes.NotesScreen(
+                                onBack = { selectedTab = NavTab.Home }, 
+                                viewModel = notesViewModel,
+                                scrollState = notesScrollState
+                            ) 
+                        }
+
+                        // Pull to Refresh Indicators
+                        if (selectedTab == NavTab.Home) {
+                            val fraction = homePullRefreshState.distanceFraction
+                            val isRefreshing = homeUiState.isSyncing
+                            val targetOffset = if (isRefreshing) com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.RefreshingOffset else (fraction * com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.MaxOffset).coerceIn(0f, com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.MaxOffset)
+                            val animatedOffset by animateFloatAsState(targetValue = targetOffset, label = "offset")
+                            if (isRefreshing || fraction > 0f) {
+                                 com.elvan.rmdneram.ui.components.ExpressiveRefreshIndicator(
+                                     isRefreshing = isRefreshing, fraction = fraction, colors = colors, animatedOffset = animatedOffset, modifier = Modifier.align(Alignment.TopCenter)
+                                 )
+                            }
+                        } else if (selectedTab == NavTab.Schedule) {
+                            val fraction = schedulePullRefreshState.distanceFraction
+                            val isRefreshing = homeUiState.isSyncing
+                            val targetOffset = if (isRefreshing) com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.RefreshingOffset else (fraction * com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.MaxOffset).coerceIn(0f, com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.MaxOffset)
+                            val animatedOffset by animateFloatAsState(targetValue = targetOffset, label = "offset")
+                            if (isRefreshing || fraction > 0f) {
+                                 com.elvan.rmdneram.ui.components.ExpressiveRefreshIndicator(
+                                     isRefreshing = isRefreshing, fraction = fraction, colors = colors, animatedOffset = animatedOffset, modifier = Modifier.align(Alignment.TopCenter)
+                                 )
+                            }
                         }
                     }
                 }
-
+            }
                 "profile" -> ProfileScreen( // Editable Profile from Settings
                     onBack = { currentScreen = "settings" },
                     homeViewModel = homeViewModel
@@ -499,148 +648,6 @@ fun MainScreen(
                 .background(colors.background)
         )
         
-        if (currentScreen == "tabs") {
-            // Dynamic Notes title — only adaptive for folder mode
-            val notesMode by notesViewModel.notesMode.collectAsState()
-            val notesDrivePath by notesViewModel.drivePath.collectAsState()
-            val notesFolderDisplay = notesDrivePath.map { it.name }.drop(1)
-            val isInsideNotesFolder = notesMode == "folder" && notesFolderDisplay.isNotEmpty()
-
-            val lang = LocalAppLanguage.current
-            val title = when(selectedTab) {
-                NavTab.Home -> AppStrings.Nav.neram(lang)
-                NavTab.Schedule -> AppStrings.Nav.schedule(lang)
-                NavTab.Calendar -> AppStrings.Nav.calendar(lang)
-                NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else AppStrings.Nav.notes(lang)
-            }
-            
-            TopMenuBar(
-                title = title,
-                onLogout = onLogout,
-                userRole = uiState.userProfile?.role,
-                themeMode = uiState.themeMode,
-                onThemeModeChange = { mainViewModel.setThemeMode(it) },
-                onBack = if (selectedTab == NavTab.Notes && isInsideNotesFolder) {
-                    { notesViewModel.navigateUp() }
-                } else null,
-                isSmallTitle = selectedTab == NavTab.Notes && isInsideNotesFolder,
-                onNavigateToSettings = { 
-                    settingsReferrer = "tabs"
-                    currentScreen = "settings" 
-                    scope.launch { settingsScrollState.scrollTo(0) }
-                },
-                onNavigateToSites = { currentScreen = "sites" },
-                isOffline = uiState.isOffline,
-                showMenu = selectedTab != NavTab.Calendar && !isInsideNotesFolder,
-                onNotificationsClick = if (selectedTab == NavTab.Calendar || isInsideNotesFolder) null else { { currentScreen = "notifications" } },
-                unreadCount = unreadCount,
-                actions = {
-                    if (selectedTab == NavTab.Calendar) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp), // Increased spacing
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(end = 12.dp) // Align with standard 3-dot menu margin
-                        ) {
-                            // Month View Icon
-                            IconButton(
-                                onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.MONTH) },
-                                modifier = Modifier.size(32.dp) // Standard touch target
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = com.elvan.rmdneram.R.drawable.ic_month_view_custom),
-                                    contentDescription = "Month View",
-                                    tint = colors.textPrimary, // Monochrome
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-
-                            // List/Schedule View Icon
-                            IconButton(
-                                onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.SCHEDULE) },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = com.elvan.rmdneram.R.drawable.ic_list_view_custom),
-                                    contentDescription = "List View",
-                                    tint = colors.textPrimary, // Monochrome
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                            
-                            // Today Icon (Monochrome Outline Squircle)
-                            val today = java.time.LocalDate.now()
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp) // Slightly smaller than 28dp to look balanced
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .border(1.5.dp, colors.textPrimary, RoundedCornerShape(6.dp)) // Monochrome Border
-                                    .clickable { 
-                                         homeViewModel.triggerCalendarJump(today)
-                                         homeViewModel.updateSelectedDate(today)
-                                         homeViewModel.updateCurrentMonth(java.time.YearMonth.now())
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = today.dayOfMonth.toString(),
-                                    color = colors.textPrimary, // Monochrome Text
-                                    fontSize = 11.sp,
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                    modifier = Modifier.offset(y = (-0.5).dp)
-                                )
-                            }
-                        }
-                    }
-                },
-                modifier = Modifier.align(Alignment.TopCenter)
-            )
-            
-            // GLOBAL PULL TO REFRESH INDICATOR (Hoisted above Top Bar)
-            // Rendered only when Home OR Schedule tab is active and visible
-            if (currentScreen == "tabs") {
-                if (selectedTab == NavTab.Home) {
-                    val fraction = homePullRefreshState.distanceFraction
-                    val isRefreshing = homeUiState.isSyncing
-                    
-                    val targetOffset = if (isRefreshing) com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.RefreshingOffset else (fraction * com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.MaxOffset).coerceIn(0f, com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.MaxOffset)
-                    
-                    val animatedOffset by animateFloatAsState(
-                        targetValue = targetOffset,
-                        label = "offset"
-                    )
-
-                    if (isRefreshing || fraction > 0f) {
-                         com.elvan.rmdneram.ui.components.ExpressiveRefreshIndicator(
-                             isRefreshing = isRefreshing,
-                             fraction = fraction,
-                             colors = colors,
-                             animatedOffset = animatedOffset,
-                             modifier = Modifier.align(Alignment.TopCenter)
-                         )
-                    }
-                } else if (selectedTab == NavTab.Schedule) {
-                    val fraction = schedulePullRefreshState.distanceFraction
-                    val isRefreshing = homeUiState.isSyncing // Share sync state for now
-
-                    val targetOffset = if (isRefreshing) com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.RefreshingOffset else (fraction * com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.MaxOffset).coerceIn(0f, com.elvan.rmdneram.ui.home.HomeAnimations.PullRefresh.MaxOffset)
-                    
-                    val animatedOffset by animateFloatAsState(
-                        targetValue = targetOffset,
-                        label = "offset"
-                    )
-
-                    if (isRefreshing || fraction > 0f) {
-                         com.elvan.rmdneram.ui.components.ExpressiveRefreshIndicator(
-                             isRefreshing = isRefreshing,
-                             fraction = fraction,
-                             colors = colors,
-                             animatedOffset = animatedOffset,
-                             modifier = Modifier.align(Alignment.TopCenter)
-                         )
-                    }
-                }
-            }
-        } // End if (currentScreen == "tabs") for TopMenuBar section
         
         // Secondary Top Bar (for Settings and other secondary screens)
         if (currentScreen != "tabs") {
@@ -667,81 +674,6 @@ fun MainScreen(
                 },
                 modifier = Modifier.align(Alignment.TopCenter)
             )
-        }
-        // Bottom Navigation (visible only on tabs, hidden on other screens in portrait)
-        if (currentScreen == "tabs" && !isLandscape) {
-            // ── Layer 2: Bottom boundary gradient fade mask ──
-            // Flutter: LinearGradient from transparent → solid at bottom
-            val navbarHeight = 60.dp
-            val navbarBottomMargin = 28.dp
-            val fadeMaskHeight = 96.dp
-            val navBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(fadeMaskHeight + navbarHeight + navbarBottomMargin + navBarsPadding)
-                    .background(
-                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                            colorStops = arrayOf(
-                                0.0f to colors.background.copy(alpha = 0f),
-                                0.3f to colors.background.copy(alpha = 0.16f),
-                                0.65f to colors.background.copy(alpha = 0.55f),
-                                1.0f to colors.background,
-                            )
-                        )
-                    )
-            )
-
-            // ── Layer 2.5: Top boundary gradient fade mask ──
-            // Flutter: LinearGradient from solid at top → transparent below
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-                    .height(fadeMaskHeight)
-                    .background(
-                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                            colorStops = arrayOf(
-                                0.0f to colors.background,
-                                0.35f to colors.background.copy(alpha = 0.55f),
-                                0.7f to colors.background.copy(alpha = 0.16f),
-                                1.0f to colors.background.copy(alpha = 0f),
-                            )
-                        )
-                    )
-            )
-
-            // ── Layer 3: Floating pill navbar ──
-            androidx.compose.animation.AnimatedVisibility(
-                visible = isNavbarVisible,
-                enter = androidx.compose.animation.fadeIn(
-                    animationSpec = androidx.compose.animation.core.tween(
-                        durationMillis = 280,
-                        // Flutter Curves.easeInCubic (reverse curve)
-                        easing = androidx.compose.animation.core.CubicBezierEasing(0.55f, 0.05f, 0.675f, 0.19f)
-                    )
-                ),
-                exit = androidx.compose.animation.fadeOut(
-                    animationSpec = androidx.compose.animation.core.tween(
-                        durationMillis = 280,
-                        // Flutter Curves.easeOutCubic (forward curve)
-                        easing = androidx.compose.animation.core.CubicBezierEasing(0.215f, 0.61f, 0.355f, 1.0f)
-                    )
-                ),
-                modifier = Modifier.align(Alignment.BottomCenter)
-            ) {
-                BottomNavBar(
-                    selectedTab = selectedTab,
-                    onTabSelected = { tab, isDrag ->
-                        isDragTransition = isDrag
-                        selectedTab = tab
-                    },
-                    onInteraction = { isNavInteracting = it },
-                    onDragProgress = { navDragProgress = it }
-                )
-            }
-        }
         } // End Main Content Box
         
         // Navigation Bar Scrim (at wrapper level) - Prevents content visibility during pull-to-refresh
@@ -754,4 +686,5 @@ fun MainScreen(
         )
         } // End Wrapper Box
     }
+}
 }

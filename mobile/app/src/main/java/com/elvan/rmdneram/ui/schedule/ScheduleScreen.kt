@@ -31,6 +31,7 @@ import java.time.Instant
 @Composable
 fun ScheduleScreen(
     viewModel: HomeViewModel = viewModel(),
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     pullRefreshState: androidx.compose.material3.pulltorefresh.PullToRefreshState? = null
 ) {
     // 1. Collect ViewModel State
@@ -205,6 +206,7 @@ fun ScheduleScreen(
 
         onDatePillClick = { showDatePicker = true },
         onDateSwipePrev = { viewModel.onDateSelected(selectedDate.minusDays(1)) },
-        onDateSwipeNext = { viewModel.onDateSelected(selectedDate.plusDays(1)) }
+        onDateSwipeNext = { viewModel.onDateSelected(selectedDate.plusDays(1)) },
+        scrollState = scrollState
     )
 }

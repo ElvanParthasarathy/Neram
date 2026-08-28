@@ -27,7 +27,8 @@ import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 @Composable
 fun NotesScreen(
     onBack: () -> Unit,
-    viewModel: NotesViewModel = viewModel()
+    viewModel: NotesViewModel = viewModel(),
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val path by viewModel.path.collectAsState()
@@ -92,6 +93,7 @@ fun NotesScreen(
         onNotUploaded = { showNotUploadedDialog = true },
         onRetry = { viewModel.navigateUp() },
         onDriveFolderClick = { viewModel.enterDriveFolder(it) },
-        onDriveFileClick = { openUrl(it.link) }
+        onDriveFileClick = { openUrl(it.link) },
+        scrollState = scrollState
     )
 }

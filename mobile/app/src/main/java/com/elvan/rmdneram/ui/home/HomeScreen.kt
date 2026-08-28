@@ -43,6 +43,7 @@ fun HomeScreen(
     userProfile: com.elvan.rmdneram.data.model.UserProfile? = null,
     onProfileClick: () -> Unit = {},
     viewModel: HomeViewModel = viewModel(),
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     pullRefreshState: androidx.compose.material3.pulltorefresh.PullToRefreshState? = null
 ) {
     val colors = rememberHomeColors()
@@ -149,6 +150,7 @@ fun HomeScreen(
 
         onSaveNotice = { viewModel.saveGeneralNotice(it) },
         profileLoaderCompleted = profileLoaderCompleted,
+        scrollState = scrollState,
         onProfileLoaderCompleted = { viewModel.markProfileLoaderCompleted() },
         onProfileClick = onProfileClick
     )
