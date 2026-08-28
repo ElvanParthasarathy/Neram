@@ -170,6 +170,7 @@ private fun ElvanPill(
     Box(
         modifier = modifier
             .height(50.dp)
+            .widthIn(min = 50.dp)
             .cssShadow(
                 color = Color.Black,
                 alpha = 0.05f * liftProgress,
@@ -190,7 +191,7 @@ private fun ElvanPill(
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(horizontal = 6.dp),
+                .padding(horizontal = 5.dp),
             contentAlignment = Alignment.Center
         ) {
             content()
