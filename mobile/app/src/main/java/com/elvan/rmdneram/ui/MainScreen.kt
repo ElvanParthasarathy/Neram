@@ -115,6 +115,44 @@ fun MainScreen(
         NavTab.Calendar -> calendarScrollState
         NavTab.Notes -> notesScrollState
     }
+
+    val notesMode by notesViewModel.notesMode.collectAsState()
+    val notesDrivePath by notesViewModel.drivePath.collectAsState()
+    val notesFolderDisplay = notesDrivePath.map { it.name }.drop(1)
+    val isInsideNotesFolder = notesMode == "folder" && notesFolderDisplay.isNotEmpty()
+
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val statusBarTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val handoffShrinkOffsetDp = 196.dp - statusBarTopPadding
+    val brinkOffsetPx = with(density) { handoffShrinkOffsetDp.toPx().toInt().coerceAtLeast(0) }
+
+    var isNavInteracting by remember { mutableStateOf(false) }
+    var isDragTransition by remember { mutableStateOf(false) }
+    var navDragProgress by remember { mutableFloatStateOf(0f) }
+    // Sync progress with selection when not interacting
+    LaunchedEffect(selectedTab) {
+        if (!isNavInteracting) navDragProgress = selectedTab.ordinal.toFloat()
+    }
+
+    val handleTabSelected: (NavTab, Boolean) -> Unit = { tab, isDrag ->
+        if (selectedTab == tab && !isDrag) {
+            val hasExpanded = selectedTab != NavTab.Calendar && !isInsideNotesFolder
+            val isPastBrink = activeScrollState.firstVisibleItemIndex > 0 || 
+                              activeScrollState.firstVisibleItemScrollOffset > (brinkOffsetPx + 10)
+            scope.launch {
+                if (hasExpanded && isPastBrink) {
+                    // 1st Tap: Scroll to top of list at brink wall (header remains collapsed)
+                    activeScrollState.animateScrollToItem(0, brinkOffsetPx)
+                } else if (activeScrollState.firstVisibleItemIndex > 0 || activeScrollState.firstVisibleItemScrollOffset > 5) {
+                    // 2nd Tap (or static screen): Expand header completely to 0.0
+                    activeScrollState.animateScrollToItem(0, 0)
+                }
+            }
+        } else {
+            isDragTransition = isDrag
+            selectedTab = tab
+        }
+    }
     
     // User Directory State (Hoisted to fix Header Z-Index/Overlay issues)
     var userDirectoryPath by remember { mutableStateOf(listOf<String>()) }
@@ -282,14 +320,6 @@ fun MainScreen(
         }
     }
 
-    var isNavInteracting by remember { mutableStateOf(false) }
-    var isDragTransition by remember { mutableStateOf(false) }
-    var navDragProgress by remember { mutableFloatStateOf(0f) }
-    // Sync progress with selection when not interacting
-    LaunchedEffect(selectedTab) {
-        if (!isNavInteracting) navDragProgress = selectedTab.ordinal.toFloat()
-    }
-
     var isNavbarVisible by remember { mutableStateOf(true) }
     val nestedScrollConnection = remember {
         object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
@@ -331,16 +361,7 @@ fun MainScreen(
         if (currentScreen == "tabs" && isLandscape) {
             SideNavRail(
                 selectedTab = selectedTab,
-                onTabSelected = { tab, isDrag ->
-                    if (selectedTab == tab && !isDrag) {
-                        scope.launch {
-                            activeScrollState.animateScrollToItem(0)
-                        }
-                    } else {
-                        isDragTransition = isDrag
-                        selectedTab = tab
-                    }
-                },
+                onTabSelected = handleTabSelected,
                 modifier = Modifier.align(Alignment.CenterStart)
             )
         }
@@ -395,10 +416,6 @@ fun MainScreen(
         ) { screen ->
             when (screen) {
            "tabs" -> {
-                val notesMode by notesViewModel.notesMode.collectAsState()
-                val notesDrivePath by notesViewModel.drivePath.collectAsState()
-                val notesFolderDisplay = notesDrivePath.map { it.name }.drop(1)
-                val isInsideNotesFolder = notesMode == "folder" && notesFolderDisplay.isNotEmpty()
                 val lang = LocalAppLanguage.current
                 val title = when(selectedTab) {
                     NavTab.Home -> AppStrings.Nav.neram(lang)
@@ -506,16 +523,7 @@ fun MainScreen(
                     navbar = {
                         BottomNavBar(
                             selectedTab = selectedTab,
-                            onTabSelected = { tab, isDrag -> 
-                                if (selectedTab == tab && !isDrag) {
-                                    scope.launch {
-                                        activeScrollState.animateScrollToItem(0)
-                                    }
-                                } else {
-                                    isDragTransition = isDrag
-                                    selectedTab = tab 
-                                }
-                            },
+                            onTabSelected = handleTabSelected,
                             onInteraction = { isNavInteracting = it },
                             onDragProgress = { navDragProgress = it }
                         )
