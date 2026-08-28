@@ -66,6 +66,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import com.elvan.rmdneram.ui.components.shell.cssShadow
 import com.elvan.rmdneram.ui.navigation.MaterialSymbols
 import kotlin.math.floor
+import kotlin.math.roundToInt
+import androidx.compose.ui.unit.IntOffset
 import java.time.LocalDate
 
 /**
@@ -1130,10 +1132,9 @@ fun ViewTypeTabsRow(
     val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
 
-    // Exact Flutter Niril dimensions from elvan_maatri.dart:
-    // layoutWidth = 140.dp, bgWidth = 148.dp, height = 48.dp
-    val layoutWidth = 140.dp
-    val bgWidth = 148.dp
+    // Exact BottomNavBar matching layout dimensions
+    val layoutWidth = 136.dp
+    val bgWidth = 144.dp
     val horizontalPadding = 8.dp
     val verticalPadding = 4.dp
     val totalWidth = (layoutWidth * itemCount) + (horizontalPadding * 2)
@@ -1165,13 +1166,21 @@ fun ViewTypeTabsRow(
         localLockedIndex ?: actualIndex
     }
 
-    // Outer AnimatedScale: 1.02x on drag
+    // Outer AnimatedScale: 1.02x on interaction (BottomNavBar match)
     val containerScale by animateFloatAsState(
         targetValue = if (isInteracting) 1.02f else 1.0f,
         animationSpec = tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
         label = "containerScale"
     )
 
+    // Pill scale on interaction: 1.05x smooth expansion (BottomNavBar match)
+    val pillScale by animateFloatAsState(
+        targetValue = if (isInteracting) 1.05f else 1.0f,
+        animationSpec = tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
+        label = "pillScale"
+    )
+
+    // Exact BottomNavBar pixel offset clamping
     val overlapPx = (bgWidthPx - layoutWidthPx) / 2f
     val maxLeftPx = ((itemCount - 1) * layoutWidthPx) - overlapPx
     val minLeftPx = -overlapPx
@@ -1201,15 +1210,15 @@ fun ViewTypeTabsRow(
                 scaleY = containerScale
                 clip = false
             }
-            .height(48.dp)
+            .height(50.dp)
             .width(totalWidth),
         contentAlignment = Alignment.Center
     ) {
-        // Outer Container (Frosted glass capsule)
+        // Layer 1: Outer Container (Frosted glass capsule beneath selection pill)
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .cssShadow(color = Color.Black, alpha = 0.04f, blurRadius = 12.dp, offsetY = 2.dp)
+                .cssShadow(color = Color.Black, alpha = 0.05f, blurRadius = 16.dp, offsetY = 4.dp)
                 .background(
                     color = if (isDark) Color(0xFF1E1E1E).copy(alpha = 0.88f)
                     else Color(0xFFFFFFFF).copy(alpha = 0.88f),
@@ -1217,131 +1226,136 @@ fun ViewTypeTabsRow(
                 )
                 .border(
                     width = 0.5.dp,
-                    color = if (isDark) Color.White.copy(alpha = 0.08f)
-                    else Color.White.copy(alpha = 0.6f),
+                    color = if (isDark) Color(0xFF333333).copy(alpha = 0.15f)
+                    else Color(0xFFFFFFFF).copy(alpha = 0.6f),
                     shape = CircleShape
                 )
         )
 
-        // Gesture Detection Area
+        // Layer 2: Foreground & Draggable Content (Exact BottomNavBar structure)
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = horizontalPadding, vertical = verticalPadding)
-                .pointerInput(layoutWidthPx) {
+                .pointerInput(Unit) {
                     awaitEachGesture {
-                        val down = awaitFirstDown()
-                        val clickIndex = floor(down.position.x / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
-
-                        var wasDrag = false
-                        hoverIndex = clickIndex
-                        touchOffsetFromCenterPx = down.position.x - ((clickIndex * layoutWidthPx) + (layoutWidthPx / 2f))
+                        val down = awaitFirstDown(requireUnconsumed = false)
                         isInteracting = true
                         onInteraction(true)
-                        onDragProgress(clickIndex.toFloat())
+
+                        val initialX = down.position.x
+                        hoverIndex = floor(initialX / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
+                        val slotCenter = (hoverIndex!! * layoutWidthPx) + (layoutWidthPx / 2f)
+                        touchOffsetFromCenterPx = initialX - slotCenter
+                        dragOffsetPx = null
+
+                        var isDrag = false
+                        val pointerId = down.id
 
                         while (true) {
                             val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                            val change = event.changes.firstOrNull { it.id == pointerId } ?: break
                             if (!change.pressed) {
-                                change.consume()
                                 break
                             }
-
-                            val currentX = change.position.x
-                            if (!wasDrag && kotlin.math.abs(currentX - down.position.x) > 8f) {
-                                wasDrag = true
+                            val currentPos = change.position
+                            if (kotlin.math.abs(currentPos.x - down.position.x) > 4f) {
+                                isDrag = true
+                                val targetCenter = currentPos.x - touchOffsetFromCenterPx
+                                dragOffsetPx = targetCenter
+                                hoverIndex = floor(targetCenter / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
+                                onDragProgress(targetCenter / layoutWidthPx)
+                                change.consume()
                             }
-
-                            if (wasDrag) {
-                                dragOffsetPx = currentX - touchOffsetFromCenterPx
-                                val currentHover = floor((currentX - touchOffsetFromCenterPx) / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
-                                hoverIndex = currentHover
-                                val rawProgress = (currentX - touchOffsetFromCenterPx) / layoutWidthPx
-                                onDragProgress(rawProgress.coerceIn(0f, (itemCount - 1).toFloat()))
-                            }
-                            change.consume()
                         }
 
-                        val finalIndex = hoverIndex ?: clickIndex
-                        localLockedIndex = finalIndex
+                        val finalIndex = hoverIndex
+                        if (finalIndex != null) {
+                            localLockedIndex = finalIndex
+                        }
                         isInteracting = false
+                        onInteraction(false)
                         dragOffsetPx = null
                         hoverIndex = null
-                        onInteraction(false)
 
-                        coroutineScope.launch {
-                            delay(150)
-                            onTabSelected(tabs[finalIndex].id)
+                        if (finalIndex != null) {
+                            coroutineScope.launch {
+                                delay(150)
+                                onTabSelected(tabs[finalIndex].id)
+                            }
                         }
                     }
-                }
+                },
+            contentAlignment = Alignment.CenterStart
         ) {
-            // Layer: Sliding Selection Capsule
-            val pillOffsetDp = with(density) { (animatedLeftPx - if (isInteracting) 4.dp.toPx() else 0f).toDp() }
-            val currentPillWidth = if (isInteracting) bgWidth + 8.dp else bgWidth
-            val currentPillHeight = if (isInteracting) 48.dp else 40.dp
-            val currentPillTop = if (isInteracting) (-4).dp else 0.dp
-
             Box(
                 modifier = Modifier
-                    .offset(x = pillOffsetDp, y = currentPillTop)
-                    .width(currentPillWidth)
-                    .height(currentPillHeight)
-                    .cssShadow(
-                        color = Color.Black,
-                        alpha = if (isDark) 0.15f else 0.04f,
-                        blurRadius = 4.dp,
-                        offsetY = 1.dp
-                    )
-                    .background(
-                        color = if (isDark) Color(0xFF2C2C2C).copy(alpha = 0.95f)
-                        else Color(0xFFE5E5E5).copy(alpha = 0.95f),
-                        shape = CircleShape
-                    )
-            )
-
-            // Items Row (Icons + Labels)
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                    .width(layoutWidth * itemCount)
+                    .fillMaxHeight()
             ) {
-                tabs.forEachIndexed { index, item ->
-                    val isActive = index == activeVisualIndex
-                    val itemColor = if (isActive) {
-                        if (isDark) Color.White else Color(0xFF1A1A1A)
-                    } else {
-                        if (isDark) Color(0xFF8E8E93) else Color(0xFF7C7C80)
-                    }
+                // Master Background Pill (Detached & Draggable)
+                Box(
+                    modifier = Modifier
+                        .offset { IntOffset(animatedLeftPx.roundToInt(), 0) }
+                        .fillMaxHeight()
+                        .width(bgWidth)
+                        .graphicsLayer {
+                            scaleX = pillScale
+                            scaleY = pillScale
+                            transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
+                            clip = false
+                        }
+                        .then(
+                            if (!isDark) Modifier.cssShadow(color = Color.Black, alpha = 0.04f, blurRadius = 4.dp, offsetY = 1.dp) else Modifier
+                        )
+                        .background(
+                            color = if (isDark) Color(0xFF333333)
+                            else Color(0xFFE5E5E5),
+                            shape = CircleShape
+                        )
+                )
 
-                    Box(
-                        modifier = Modifier
-                            .width(layoutWidth)
-                            .fillMaxHeight(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                // Foreground Tabs Content
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    tabs.forEachIndexed { index, item ->
+                        val isActive = index == activeVisualIndex
+                        val itemColor = if (isActive) {
+                            if (isDark) Color.White else Color(0xFF1A1A1A)
+                        } else {
+                            if (isDark) Color(0xFF9E9E9E) else Color(0xFF7C7C80)
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .width(layoutWidth)
+                                .fillMaxHeight(),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = if (isActive) item.activeIcon else item.icon,
-                                contentDescription = item.label,
-                                tint = itemColor,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = item.label,
-                                style = HomeTypography.PillTitle,
-                                fontSize = 14.sp,
-                                fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
-                                color = itemColor,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = if (isActive) item.activeIcon else item.icon,
+                                    contentDescription = item.label,
+                                    tint = itemColor,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = item.label,
+                                    style = HomeTypography.PillTitle,
+                                    fontSize = 14.sp,
+                                    fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
+                                    color = itemColor,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
+                                )
+                            }
                         }
                     }
                 }
