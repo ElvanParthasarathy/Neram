@@ -70,7 +70,12 @@ fun ElvanShell(
     }
 
     // One UI Physics: Brick Wall State
-    var isHeaderExpanded by remember { mutableStateOf(true) }
+    var isHeaderExpanded by remember(scrollState) { 
+        mutableStateOf(
+            scrollState.firstVisibleItemIndex == 0 && 
+            scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx
+        ) 
+    }
     val coroutineScope = rememberCoroutineScope()
 
     // Monitor boundary crossing without recomposing every pixel
@@ -117,7 +122,7 @@ fun ElvanShell(
     }
 
     // Stable NestedScrollConnection — never reallocated during scroll to prevent jank
-    val nestedScrollConnection = remember {
+    val nestedScrollConnection = remember(scrollState) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
