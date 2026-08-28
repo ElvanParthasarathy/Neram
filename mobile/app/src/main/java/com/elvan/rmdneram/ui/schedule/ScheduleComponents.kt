@@ -1173,11 +1173,16 @@ fun ViewTypeTabsRow(
         label = "containerScale"
     )
 
-    // Pill scale on interaction: 1.05x smooth expansion (BottomNavBar match)
-    val pillScale by animateFloatAsState(
-        targetValue = if (isInteracting) 1.05f else 1.0f,
+    // Pill scale on interaction: Symmetrical 4dp expansion in all directions (fills top & bottom completely)
+    val pillScaleX by animateFloatAsState(
+        targetValue = if (isInteracting) 1.055f else 1.0f,
         animationSpec = tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
-        label = "pillScale"
+        label = "pillScaleX"
+    )
+    val pillScaleY by animateFloatAsState(
+        targetValue = if (isInteracting) 1.20f else 1.0f,
+        animationSpec = tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
+        label = "pillScaleY"
     )
 
     // Exact BottomNavBar pixel offset clamping
@@ -1210,7 +1215,7 @@ fun ViewTypeTabsRow(
                 scaleY = containerScale
                 clip = false
             }
-            .height(50.dp)
+            .height(48.dp)
             .width(totalWidth),
         contentAlignment = Alignment.Center
     ) {
@@ -1300,8 +1305,8 @@ fun ViewTypeTabsRow(
                         .fillMaxHeight()
                         .width(bgWidth)
                         .graphicsLayer {
-                            scaleX = pillScale
-                            scaleY = pillScale
+                            scaleX = pillScaleX
+                            scaleY = pillScaleY
                             transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
                             clip = false
                         }
