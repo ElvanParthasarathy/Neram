@@ -24,7 +24,8 @@ fun ElvanExpandedBar(
     scrollOffsetPx: Float,
     collisionOffsetPx: Float,
     expandedHeight: Dp = 280.dp,
-    hasLeadingWidget: Boolean = false
+    hasLeadingWidget: Boolean = false,
+    isHeaderExpanded: Boolean = true
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val density = LocalDensity.current
@@ -77,7 +78,11 @@ fun ElvanExpandedBar(
     } else {
         0f
     }
-    val titleOpacity = (1.0f - liftProgress).coerceIn(0f, 1f)
+    val titleOpacity = if (!isHeaderExpanded) {
+        0f
+    } else {
+        (1.0f - liftProgress).coerceIn(0f, 1f)
+    }
 
     Box(
         modifier = Modifier

@@ -55,6 +55,7 @@ fun ElvanCollapsedBar(
     title: String? = null,
     onBack: (() -> Unit)? = null,
     navOpacity: Float = 1.0f,
+    isHeaderExpanded: Boolean = true,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -68,13 +69,15 @@ fun ElvanCollapsedBar(
     val currentHeightPx = expandedHeightPx - scrollOffset
     val currentTopPx = currentHeightPx - with(density) { 64.dp.toPx() }
     
-    val isPinned = currentTopPx <= ceilingPx
+    val isPinned = !isHeaderExpanded || currentTopPx <= ceilingPx
     val finalTopPx = if (isPinned) ceilingPx else currentTopPx
     val finalTopDp = with(density) { finalTopPx.toDp() }
     
     // Exact Flutter liftProgress: pill container fades in ONLY when the first card reaches the pill (collision)
     val liftStartOffsetPx = collisionOffsetPx - with(density) { 4.dp.toPx() }
-    val liftProgress = if (scrollOffset > liftStartOffsetPx) {
+    val liftProgress = if (!isHeaderExpanded) {
+        1.0f
+    } else if (scrollOffset > liftStartOffsetPx) {
         ((scrollOffset - liftStartOffsetPx) / with(density) { 12.dp.toPx() }).coerceIn(0f, 1f)
     } else {
         0f
