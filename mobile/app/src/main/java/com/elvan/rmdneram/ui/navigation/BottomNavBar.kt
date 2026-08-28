@@ -276,7 +276,7 @@ fun BottomNavBar(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = tab.icon,
+                                imageVector = if (isActive) tab.activeIcon else tab.icon,
                                 contentDescription = tab.label,
                                 tint = color,
                                 modifier = Modifier.size(23.dp)

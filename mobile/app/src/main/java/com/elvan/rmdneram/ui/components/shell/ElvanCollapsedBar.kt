@@ -11,6 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.CaretLeft
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -100,7 +103,7 @@ fun ElvanCollapsedBar(
                     ElvanPill(liftProgress = liftProgress, colors = colors, modifier = Modifier.size(50.dp)) {
                         ElvanTopBarIconButton(onClick = onBack) {
                             Icon(
-                                imageVector = Icons.Filled.ChevronLeft,
+                                imageVector = PhosphorIcons.Regular.CaretLeft,
                                 contentDescription = "Back",
                                 tint = colors.textPrimary,
                                 modifier = Modifier.size(24.dp)

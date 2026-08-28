@@ -18,8 +18,11 @@ import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.runtime.*
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Bell
+import com.adamglin.phosphoricons.regular.DotsThreeVertical
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -462,7 +465,7 @@ fun MainScreen(
                                 onClick = { currentScreen = "notifications" }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Notifications,
+                                    imageVector = PhosphorIcons.Regular.Bell,
                                     contentDescription = "Notifications",
                                     tint = colors.textPrimary,
                                     modifier = Modifier.size(22.dp)
@@ -473,7 +476,7 @@ fun MainScreen(
                                     onClick = { menuExpanded = true }
                                 ) {
                                     Icon(
-                                        Icons.Filled.MoreVert,
+                                        imageVector = PhosphorIcons.Regular.DotsThreeVertical,
                                         contentDescription = "Menu",
                                         tint = colors.textPrimary,
                                         modifier = Modifier.size(22.dp)
