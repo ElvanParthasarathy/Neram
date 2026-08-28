@@ -649,15 +649,6 @@ fun MainScreen(
         
         // Removed Grey Frame Overlay (Rounded Borders) to match Flutter's edge-to-edge ElvanShell
         
-        // Status Bar Scrim (Opaque) - Always needed now
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .windowInsetsTopHeight(WindowInsets.statusBars)
-                .background(colors.background)
-        )
-        
         
         // Secondary Top Bar (for Settings and other secondary screens)
         if (currentScreen != "tabs") {
