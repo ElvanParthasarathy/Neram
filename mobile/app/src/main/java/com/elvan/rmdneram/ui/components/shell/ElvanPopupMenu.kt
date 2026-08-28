@@ -30,6 +30,10 @@ import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 import kotlinx.coroutines.delay
 
+object ElvanMenuState {
+    var isMenuOpen by mutableStateOf(false)
+}
+
 /**
  * Pixel-perfect reproduction of Flutter Niril's ElvanPopupMenu
  * (from elvan_maeladukku_pattiyal.dart).
@@ -52,6 +56,15 @@ fun ElvanPopupMenu(
     items: List<ElvanPopupMenuItem>,
     modifier: Modifier = Modifier
 ) {
+    LaunchedEffect(expanded) {
+        ElvanMenuState.isMenuOpen = expanded
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            ElvanMenuState.isMenuOpen = false
+        }
+    }
+
     if (!expanded) return
 
     val isDark = colors.isDark || colors.background == Color.Black || colors.background.red < 0.2f
@@ -137,7 +150,7 @@ fun ElvanPopupMenu(
                         Icon(
                             imageVector = item.icon,
                             contentDescription = item.title,
-                            tint = if (isDark) Color.White else Color.Black,
+                            tint = if (isDark) Color.White else Color(0xFF1A1A1A),
                             modifier = Modifier.size(22.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -145,7 +158,7 @@ fun ElvanPopupMenu(
                             text = item.title,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
-                            color = if (isDark) Color.White else Color.Black,
+                            color = if (isDark) Color.White else Color(0xFF1A1A1A),
                             fontFamily = LocalAppFontFamily.current
                         )
                         // Breathing margin on right to ensure comfortable padding

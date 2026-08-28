@@ -21,6 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.zIndex
 import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.HomeTypography
@@ -127,10 +130,18 @@ fun ElvanCollapsedBar(
         }
 
         // Right side (Action Buttons Pill)
+        val menuAlpha by animateFloatAsState(
+            targetValue = if (ElvanMenuState.isMenuOpen) 0.0f else 1.0f,
+            animationSpec = tween(durationMillis = 200),
+            label = "menuAlpha"
+        )
         Box(
             modifier = Modifier
                 .padding(end = 16.dp)
                 .align(Alignment.CenterEnd)
+                .graphicsLayer {
+                    alpha = menuAlpha
+                }
         ) {
             ElvanPill(liftProgress = liftProgress, colors = colors) {
                 Row(

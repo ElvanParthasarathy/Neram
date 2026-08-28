@@ -458,11 +458,11 @@ fun MainScreen(
                         } else if (!isInsideNotesFolder) {
                             var menuExpanded by remember { mutableStateOf(false) }
                             com.elvan.rmdneram.ui.components.shell.ElvanTopBarIconButton(
-                                onClick = { currentScreen = "notifications" }
+                                onClick = { /* Dummy search action */ }
                             ) {
                                 Icon(
-                                    imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.Notifications,
-                                    contentDescription = "Notifications",
+                                    imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.Search,
+                                    contentDescription = "Search",
                                     tint = colors.textPrimary,
                                     modifier = Modifier.size(22.dp)
                                 )
