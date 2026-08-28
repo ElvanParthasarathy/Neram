@@ -2,14 +2,14 @@ package com.elvan.rmdneram.ui.navigation
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.PathFillType
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-/**
- * Official Google Material Symbols (Rounded style, weight 500)
- * Source: https://fonts.google.com/icons / google/material-design-icons
- */
 object MaterialSymbols {
     private fun symbol(name: String, pathData: String): ImageVector {
         return ImageVector.Builder(
@@ -39,5 +39,169 @@ object MaterialSymbols {
         val ArrowBack by lazy { symbol("ArrowBack", """M390.13,480L680.3,770.17Q696.74,786.61 696.36,809Q695.98,831.39 679.3,848.07Q662.87,864.5 640.48,864.5Q618.09,864.5 601.65,848.07L297.24,544.65Q283.57,530.98 276.85,514.07Q270.13,497.15 270.13,480Q270.13,462.85 276.85,445.93Q283.57,429.02 297.24,415.35L601.65,111.17Q618.09,94.74 640.86,95Q663.63,95.26 680.3,111.93Q696.74,128.37 696.74,150.88Q696.74,173.39 680.3,189.83L390.13,480Z""") }
         val Description by lazy { symbol("Description", """M320,680L640,680Q648.5,680 654.25,674.25Q660,668.5 660,660Q660,651.5 654.25,645.75Q648.5,640 640,640L320,640Q311.5,640 305.75,645.75Q300,651.5 300,660Q300,668.5 305.75,674.25Q311.5,680 320,680ZM320,520L640,520Q648.5,520 654.25,514.25Q660,508.5 660,500Q660,491.5 654.25,485.75Q648.5,480 640,480L320,480Q311.5,480 305.75,485.75Q300,491.5 300,500Q300,508.5 305.75,514.25Q311.5,520 320,520ZM320,360L480,360Q488.5,360 494.25,354.25Q500,348.5 500,340Q500,331.5 494.25,325.75Q488.5,320 480,320L320,320Q311.5,320 305.75,325.75Q300,331.5 300,340Q300,348.5 305.75,354.25Q311.5,360 320,360ZM240,880Q207,880 183.5,856.5Q160,833 160,800L160,160Q160,127 183.5,103.5Q207,80 240,80L560,80Q576,80 591,86.5Q606,93 617,103L777,263Q787,274 793.5,289Q800,304 800,320L800,800Q800,833 776.5,856.5Q753,880 720,880L240,880ZM240,800L720,800Q720,800 720,800Q720,800 720,800L720,340L540,340Q531.5,340 525.75,334.25Q520,328.5 520,320L520,160L240,160Q240,160 240,160Q240,160 240,160L240,800Q240,800 240,800Q240,800 240,800Z""") }
         val DescriptionFill by lazy { symbol("DescriptionFill", """M240,880Q207,880 183.5,856.5Q160,833 160,800L160,160Q160,127 183.5,103.5Q207,80 240,80L560,80Q576,80 591,86.5Q606,93 617,103L777,263Q787,274 793.5,289Q800,304 800,320L800,800Q800,833 776.5,856.5Q753,880 720,880L240,880ZM320,680L640,680Q648.5,680 654.25,674.25Q660,668.5 660,660Q660,651.5 654.25,645.75Q648.5,640 640,640L320,640Q311.5,640 305.75,645.75Q300,651.5 300,660Q300,668.5 305.75,674.25Q311.5,680 320,680ZM320,520L640,520Q648.5,520 654.25,514.25Q660,508.5 660,500Q660,491.5 654.25,485.75Q648.5,480 640,480L320,480Q311.5,480 305.75,485.75Q300,491.5 300,500Q300,508.5 305.75,514.25Q311.5,520 320,520ZM320,360L480,360Q488.5,360 494.25,354.25Q500,348.5 500,340Q500,331.5 494.25,325.75Q488.5,320 480,320L320,320Q311.5,320 305.75,325.75Q300,331.5 300,340Q300,348.5 305.75,354.25Q311.5,360 320,360Z""") }
+
+        val EventList: ImageVector by lazy {
+            ImageVector.Builder(
+                name = "event_list",
+                defaultWidth = 24.dp,
+                defaultHeight = 24.dp,
+                viewportWidth = 24f,
+                viewportHeight = 24f,
+            ).apply {
+                path(
+                    fill = SolidColor(Color.Black),
+                    fillAlpha = 1f,
+                    stroke = null,
+                    strokeAlpha = 1f,
+                    strokeLineWidth = 1f,
+                    strokeLineCap = StrokeCap.Butt,
+                    strokeLineJoin = StrokeJoin.Bevel,
+                    strokeLineMiter = 1f,
+                    pathFillType = PathFillType.Companion.NonZero,
+                ) {
+                    moveTo(16f, 21f)
+                    quadToRelative(-0.82f, 0f, -1.41f, -0.59f)
+                    reflectiveQuadTo(14f, 19f)
+                    verticalLineTo(15f)
+                    quadToRelative(0f, -0.83f, 0.59f, -1.41f)
+                    reflectiveQuadTo(16f, 13f)
+                    horizontalLineToRelative(4f)
+                    quadToRelative(0.83f, 0f, 1.41f, 0.59f)
+                    quadTo(22f, 14.18f, 22f, 15f)
+                    verticalLineToRelative(4f)
+                    quadToRelative(0f, 0.82f, -0.59f, 1.41f)
+                    reflectiveQuadTo(20f, 21f)
+                    horizontalLineTo(16f)
+                    close()
+                    moveToRelative(0f, -2f)
+                    horizontalLineToRelative(4f)
+                    verticalLineTo(15f)
+                    horizontalLineTo(16f)
+                    verticalLineToRelative(4f)
+                    close()
+                    moveTo(3f, 18f)
+                    quadTo(2.58f, 18f, 2.29f, 17.71f)
+                    quadTo(2f, 17.43f, 2f, 17f)
+                    reflectiveQuadTo(2.29f, 16.29f)
+                    reflectiveQuadTo(3f, 16f)
+                    horizontalLineToRelative(7f)
+                    quadToRelative(0.43f, 0f, 0.71f, 0.29f)
+                    reflectiveQuadTo(11f, 17f)
+                    reflectiveQuadToRelative(-0.29f, 0.71f)
+                    reflectiveQuadTo(10f, 18f)
+                    horizontalLineTo(3f)
+                    close()
+                    moveTo(16f, 11f)
+                    quadToRelative(-0.82f, 0f, -1.41f, -0.59f)
+                    reflectiveQuadTo(14f, 9f)
+                    verticalLineTo(5f)
+                    quadTo(14f, 4.17f, 14.59f, 3.59f)
+                    reflectiveQuadTo(16f, 3f)
+                    horizontalLineToRelative(4f)
+                    quadToRelative(0.83f, 0f, 1.41f, 0.59f)
+                    reflectiveQuadTo(22f, 5f)
+                    verticalLineTo(9f)
+                    quadToRelative(0f, 0.82f, -0.59f, 1.41f)
+                    reflectiveQuadTo(20f, 11f)
+                    horizontalLineTo(16f)
+                    close()
+                    moveTo(16f, 9f)
+                    horizontalLineToRelative(4f)
+                    verticalLineTo(5f)
+                    horizontalLineTo(16f)
+                    verticalLineTo(9f)
+                    close()
+                    moveTo(3f, 8f)
+                    quadTo(2.58f, 8f, 2.29f, 7.71f)
+                    quadTo(2f, 7.43f, 2f, 7f)
+                    reflectiveQuadTo(2.29f, 6.29f)
+                    reflectiveQuadTo(3f, 6f)
+                    horizontalLineToRelative(7f)
+                    quadToRelative(0.43f, 0f, 0.71f, 0.29f)
+                    reflectiveQuadTo(11f, 7f)
+                    reflectiveQuadTo(10.71f, 7.71f)
+                    reflectiveQuadTo(10f, 8f)
+                    horizontalLineTo(3f)
+                    close()
+                    moveToRelative(15f, 9f)
+                    close()
+                    moveTo(18f, 7f)
+                    close()
+                }
+            }.build()
+        }
+
+        val CalendarViewMonth: ImageVector by lazy {
+            ImageVector.Builder(
+                name = "calendar_view_month",
+                defaultWidth = 24.dp,
+                defaultHeight = 24.dp,
+                viewportWidth = 24f,
+                viewportHeight = 24f,
+            ).apply {
+                path(
+                    fill = SolidColor(Color.Black),
+                    fillAlpha = 1f,
+                    stroke = null,
+                    strokeAlpha = 1f,
+                    strokeLineWidth = 1f,
+                    strokeLineCap = StrokeCap.Butt,
+                    strokeLineJoin = StrokeJoin.Bevel,
+                    strokeLineMiter = 1f,
+                    pathFillType = PathFillType.Companion.NonZero,
+                ) {
+                    moveTo(4f, 20f)
+                    quadTo(3.18f, 20f, 2.59f, 19.41f)
+                    reflectiveQuadTo(2f, 18f)
+                    verticalLineTo(6f)
+                    quadTo(2f, 5.18f, 2.59f, 4.59f)
+                    reflectiveQuadTo(4f, 4f)
+                    horizontalLineTo(20f)
+                    quadToRelative(0.83f, 0f, 1.41f, 0.59f)
+                    quadTo(22f, 5.18f, 22f, 6f)
+                    verticalLineTo(18f)
+                    quadToRelative(0f, 0.82f, -0.59f, 1.41f)
+                    reflectiveQuadTo(20f, 20f)
+                    horizontalLineTo(4f)
+                    close()
+                    moveTo(4f, 11f)
+                    horizontalLineTo(8f)
+                    verticalLineTo(6f)
+                    horizontalLineTo(4f)
+                    verticalLineToRelative(5f)
+                    close()
+                    moveToRelative(6f, 0f)
+                    horizontalLineToRelative(4f)
+                    verticalLineTo(6f)
+                    horizontalLineTo(10f)
+                    verticalLineToRelative(5f)
+                    close()
+                    moveToRelative(6f, 0f)
+                    horizontalLineToRelative(4f)
+                    verticalLineTo(6f)
+                    horizontalLineTo(16f)
+                    verticalLineToRelative(5f)
+                    close()
+                    moveTo(8f, 18f)
+                    verticalLineTo(13f)
+                    horizontalLineTo(4f)
+                    verticalLineToRelative(5f)
+                    horizontalLineTo(8f)
+                    close()
+                    moveToRelative(2f, 0f)
+                    horizontalLineToRelative(4f)
+                    verticalLineTo(13f)
+                    horizontalLineTo(10f)
+                    verticalLineToRelative(5f)
+                    close()
+                    moveToRelative(6f, 0f)
+                    horizontalLineToRelative(4f)
+                    verticalLineTo(13f)
+                    horizontalLineTo(16f)
+                    verticalLineToRelative(5f)
+                    close()
+                }
+            }.build()
+        }
     }
 }

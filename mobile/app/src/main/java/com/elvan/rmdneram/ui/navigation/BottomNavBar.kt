@@ -137,7 +137,7 @@ fun BottomNavBar(
     Box(
         modifier = modifier
             .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(bottom = 28.dp)
+            .padding(bottom = 16.dp)
             .graphicsLayer {
                 scaleX = containerScale
                 scaleY = containerScale

@@ -115,7 +115,7 @@ fun ElvanCollapsedBar(
                     Text(
                         text = title,
                         style = HomeTypography.SectionTitle.copy(
-                            fontSize = 20.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = colors.textPrimary
                         ),
@@ -237,7 +237,7 @@ fun ElvanStaticCollapsedBar(
                 Text(
                     text = title,
                     style = HomeTypography.SectionTitle.copy(
-                        fontSize = 20.sp,
+                        fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = colors.textPrimary
                     ),

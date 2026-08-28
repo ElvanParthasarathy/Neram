@@ -305,7 +305,7 @@ fun ElvanShell(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(96.dp + 60.dp + 28.dp + navBarsPadding)
+                    .height(96.dp + 60.dp + 16.dp + navBarsPadding)
                     .background(
                         Brush.verticalGradient(
                             0.0f to Color.Transparent,

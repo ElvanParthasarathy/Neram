@@ -67,7 +67,7 @@ fun ElvanExpandedBar(
     val currentTopPx = currentTextBottomPx - textHeightPx
     val currentTopDp = with(density) { currentTopPx.toDp() }
     
-    val finalScale = 20f / 34f
+    val finalScale = 22f / 34f
     val scale = 1.0f - (1.0f - finalScale) * t
 
     // Lift progress: text fades OUT ONLY when the first card reaches the pill (collision)

@@ -15,12 +15,12 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.filled.Today
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.ScrollState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -103,11 +103,24 @@ fun MainScreen(
     var selectedPdfUrl by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     
+    // Hoist Tab Scroll States to preserve position across tab switching, subpage navigation, and orientation
+    val homeScrollState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
+    val scheduleScrollState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
+    val notesScrollState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
+    val calendarScrollState = rememberSaveable(saver = LazyListState.Saver) { LazyListState() }
+    
+    val activeScrollState = when(selectedTab) {
+        NavTab.Home -> homeScrollState
+        NavTab.Schedule -> scheduleScrollState
+        NavTab.Calendar -> calendarScrollState
+        NavTab.Notes -> notesScrollState
+    }
+    
     // User Directory State (Hoisted to fix Header Z-Index/Overlay issues)
     var userDirectoryPath by remember { mutableStateOf(listOf<String>()) }
     
     // Hoist Settings Scroll State to preserve position
-    val settingsScrollState = rememberScrollState()
+    val settingsScrollState = rememberSaveable(saver = ScrollState.Saver) { ScrollState(0) }
     
     // Track where we came from for Profile screen (Tabs/Home or Settings)
     var profileReferrer by remember { mutableStateOf("tabs") }
@@ -319,8 +332,14 @@ fun MainScreen(
             SideNavRail(
                 selectedTab = selectedTab,
                 onTabSelected = { tab, isDrag ->
-                    isDragTransition = isDrag
-                    selectedTab = tab
+                    if (selectedTab == tab && !isDrag) {
+                        scope.launch {
+                            activeScrollState.animateScrollToItem(0)
+                        }
+                    } else {
+                        isDragTransition = isDrag
+                        selectedTab = tab
+                    }
                 },
                 modifier = Modifier.align(Alignment.CenterStart)
             )
@@ -389,18 +408,6 @@ fun MainScreen(
                 }
                 
                 val useNewDesign = selectedTab != NavTab.Calendar && !isInsideNotesFolder
-                
-                val homeScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
-                val scheduleScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
-                val notesScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
-                val calendarScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
-                
-                val activeScrollState = when(selectedTab) {
-                    NavTab.Home -> homeScrollState
-                    NavTab.Schedule -> scheduleScrollState
-                    NavTab.Calendar -> calendarScrollState
-                    NavTab.Notes -> notesScrollState
-                }
 
                 com.elvan.rmdneram.ui.components.shell.ElvanShell(
                     scrollState = activeScrollState,
@@ -417,7 +424,7 @@ fun MainScreen(
                                 onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.MONTH) }
                             ) {
                                 Icon(
-                                    painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_month_view_custom),
+                                    imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.CalendarViewMonth,
                                     contentDescription = "Month View",
                                     tint = colors.textPrimary,
                                     modifier = Modifier.size(22.dp)
@@ -427,7 +434,7 @@ fun MainScreen(
                                 onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.SCHEDULE) }
                             ) {
                                 Icon(
-                                    painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_list_view_custom),
+                                    imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.EventList,
                                     contentDescription = "List View",
                                     tint = colors.textPrimary,
                                     modifier = Modifier.size(22.dp)
@@ -500,8 +507,14 @@ fun MainScreen(
                         BottomNavBar(
                             selectedTab = selectedTab,
                             onTabSelected = { tab, isDrag -> 
-                                isDragTransition = isDrag
-                                selectedTab = tab 
+                                if (selectedTab == tab && !isDrag) {
+                                    scope.launch {
+                                        activeScrollState.animateScrollToItem(0)
+                                    }
+                                } else {
+                                    isDragTransition = isDrag
+                                    selectedTab = tab 
+                                }
                             },
                             onInteraction = { isNavInteracting = it },
                             onDragProgress = { navDragProgress = it }
