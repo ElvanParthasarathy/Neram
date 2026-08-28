@@ -83,7 +83,16 @@ class MainActivity : ComponentActivity() {
         scheduleDailyAlarm()
 
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = androidx.activity.SystemBarStyle.auto(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            ),
+            navigationBarStyle = androidx.activity.SystemBarStyle.auto(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
         setContent {
             val mainViewModel: MainViewModel = viewModel()
             // Collect theme mode and language from MainViewModel
@@ -155,9 +164,13 @@ class MainActivity : ComponentActivity() {
                 if (!view.isInEditMode) {
                     SideEffect {
                         val window = (view.context as Activity).window
-                        window.statusBarColor = colors.background.toArgb()
-                        window.navigationBarColor = colors.background.toArgb()
+                        window.statusBarColor = android.graphics.Color.TRANSPARENT
+                        window.navigationBarColor = android.graphics.Color.TRANSPARENT
                         window.decorView.setBackgroundColor(colors.background.toArgb())
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            window.isNavigationBarContrastEnforced = false
+                            window.isStatusBarContrastEnforced = false
+                        }
                         
                         // Set system bar icon colors: light icons in dark mode, dark icons in light mode
                         val insetsController = WindowCompat.getInsetsController(window, view)

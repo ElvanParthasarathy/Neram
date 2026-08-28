@@ -18,6 +18,8 @@ import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -475,7 +477,7 @@ fun MainScreen(
                                     items = listOf(
                                         com.elvan.rmdneram.ui.components.shell.ElvanPopupMenuItem(
                                             title = AppStrings.Settings.title(lang),
-                                            icon = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.Settings,
+                                            icon = androidx.compose.material.icons.Icons.Rounded.Settings,
                                             onClick = {
                                                 settingsReferrer = "tabs"
                                                 currentScreen = "settings"
@@ -484,7 +486,7 @@ fun MainScreen(
                                         ),
                                         com.elvan.rmdneram.ui.components.shell.ElvanPopupMenuItem(
                                             title = AppStrings.Settings.importantSites(lang),
-                                            icon = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.Language,
+                                            icon = androidx.compose.material.icons.Icons.Rounded.Language,
                                             onClick = {
                                                 currentScreen = "sites"
                                             }
