@@ -93,7 +93,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
-    implementation("com.adamglin:phosphor-icon:1.0.0")
     
     // Navigation
     implementation(libs.androidx.navigation.compose)

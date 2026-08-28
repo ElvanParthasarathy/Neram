@@ -2,12 +2,6 @@ package com.elvan.rmdneram.ui.navigation
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
-import com.adamglin.PhosphorIcons
-import com.adamglin.phosphoricons.Regular
-import com.adamglin.phosphoricons.Fill
-import com.adamglin.phosphoricons.regular.*
-import com.adamglin.phosphoricons.fill.*
 
 // CSS Color Constants matched to mobile.css
 object NavColors {
@@ -28,30 +22,30 @@ enum class NavTab(
     val label: String
 ) {
     Home(
-        icon = PhosphorIcons.Regular.House,
-        activeIcon = PhosphorIcons.Fill.House,
+        icon = MaterialSymbols.Rounded.Home,
+        activeIcon = MaterialSymbols.Rounded.HomeFill,
         label = "Home"
     ),
     Schedule(
-        icon = PhosphorIcons.Regular.Clock,
-        activeIcon = PhosphorIcons.Fill.Clock,
+        icon = MaterialSymbols.Rounded.Schedule,
+        activeIcon = MaterialSymbols.Rounded.ScheduleFill,
         label = "Schedule"
     ),
     Calendar(
-        icon = PhosphorIcons.Regular.CalendarBlank,
-        activeIcon = PhosphorIcons.Fill.CalendarBlank,
+        icon = MaterialSymbols.Rounded.Calendar,
+        activeIcon = MaterialSymbols.Rounded.CalendarFill,
         label = "Calendar"
     ),
     Notes(
-        icon = PhosphorIcons.Regular.Notebook,
-        activeIcon = PhosphorIcons.Fill.Notebook,
+        icon = MaterialSymbols.Rounded.Notes,
+        activeIcon = MaterialSymbols.Rounded.NotesFill,
         label = "Notes"
     )
 }
 
 object CustomIcons {
-    val Home: ImageVector get() = PhosphorIcons.Regular.House
-    val Clock: ImageVector get() = PhosphorIcons.Regular.Clock
-    val Calendar: ImageVector get() = PhosphorIcons.Regular.CalendarBlank
-    val Book: ImageVector get() = PhosphorIcons.Regular.Notebook
+    val Home: ImageVector get() = MaterialSymbols.Rounded.Home
+    val Clock: ImageVector get() = MaterialSymbols.Rounded.Schedule
+    val Calendar: ImageVector get() = MaterialSymbols.Rounded.Calendar
+    val Book: ImageVector get() = MaterialSymbols.Rounded.Notes
 }
