@@ -1,17 +1,21 @@
 package com.elvan.rmdneram.ui.navigation
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -19,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.elvan.rmdneram.ui.components.shell.cssShadow
 import com.elvan.rmdneram.ui.home.rememberHomeColors
 import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
@@ -43,20 +48,18 @@ fun BottomNavBar(
     val coroutineScope = rememberCoroutineScope()
 
     val itemCount = tabs.size
-    // Flutter: itemCount <= 4 ? 67.0 : 61.0
+    // Exact Flutter dimensions from elvan_kizh_pattai.dart
     val layoutWidth = if (itemCount <= 4) 67.dp else 61.dp
-    // Flutter: itemCount <= 4 ? 75.0 : 69.0
     val bgWidth = if (itemCount <= 4) 75.dp else 69.dp
-    // Flutter: ElvanKizhPattaiBase defaults
     val horizontalPadding = 8.dp
     val verticalPadding = 4.dp
+    val totalWidth = (layoutWidth * itemCount) + (horizontalPadding * 2)
 
     var isInteracting by remember { mutableStateOf(false) }
     var dragOffsetPx by remember { mutableStateOf<Float?>(null) }
     var touchOffsetFromCenterPx by remember { mutableStateOf(0f) }
     var hoverIndex by remember { mutableStateOf<Int?>(null) }
     var localLockedIndex by remember { mutableStateOf<Int?>(null) }
-    // Flutter: _snapNextFrame — instant snap on external tab change to prevent animation replay
     var snapNextFrame by remember { mutableStateOf(false) }
 
     val density = LocalDensity.current
@@ -67,13 +70,11 @@ fun BottomNavBar(
     val actualIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
     LaunchedEffect(actualIndex) {
         localLockedIndex = null
-        // Flutter: _snapNextFrame = true, then post-frame callback sets it false
         snapNextFrame = true
     }
     // Clear snapNextFrame after one composition (mirrors Flutter's addPostFrameCallback)
     LaunchedEffect(snapNextFrame) {
         if (snapNextFrame) {
-            // Yield one frame so the snap() animationSpec takes effect, then switch back
             kotlinx.coroutines.yield()
             snapNextFrame = false
         }
@@ -112,16 +113,13 @@ fun BottomNavBar(
     val maxLeftPx = ((itemCount - 1) * layoutWidthPx) - overlapPx
     val minLeftPx = -overlapPx
 
-    // Flutter: if (_isInteracting && _dragOffset != null) free-float else snap to slot center
     val targetLeftPx = if (isInteracting && dragOffsetPx != null) {
         (dragOffsetPx!! - (bgWidthPx / 2f)).coerceIn(minLeftPx, maxLeftPx)
     } else {
         ((activeVisualIndex * layoutWidthPx) - overlapPx).coerceIn(minLeftPx, maxLeftPx)
     }
 
-    // Flutter: AnimatedPositioned duration logic:
-    //   _snapNextFrame || (_isInteracting && _dragOffset != null) → Duration.zero
-    //   else → 150ms easeOutCubic
+    // Flutter: AnimatedPositioned duration logic
     val animatedLeftPx by animateFloatAsState(
         targetValue = targetLeftPx,
         animationSpec = if (snapNextFrame || (isInteracting && dragOffsetPx != null)) {
@@ -138,90 +136,74 @@ fun BottomNavBar(
     // ── Outer container: AnimatedScale wrapping ElvanKizhPattaiBase ──
     Box(
         modifier = modifier
-            .padding(bottom = 16.dp)
             .windowInsetsPadding(WindowInsets.navigationBars)
-            // Flutter: AnimatedScale on the entire navbar
+            .padding(bottom = 28.dp)
             .graphicsLayer {
                 scaleX = containerScale
                 scaleY = containerScale
-                // Flutter: Stack(clipBehavior: Clip.none) — allow pill overflow
                 clip = false
             }
-            // Flutter: ElvanKizhPattaiBase — BoxShadow(blurRadius: 16, offset: Offset(0,4), alpha: 0.05)
-            .shadow(
-                elevation = 16.dp,
-                shape = RoundedCornerShape(50),
-                clip = false,
-                ambientColor = Color.Black.copy(alpha = 0.05f),
-                spotColor = Color.Black.copy(alpha = 0.05f)
-            )
-            // Flutter: ElvanKizhPattaiBase — color with 0.88 alpha
-            .background(
-                color = if (isDark) Color(0xFF1E1E1E).copy(alpha = 0.88f)
-                        else Color(0xFFFFFFFF).copy(alpha = 0.88f),
-                shape = RoundedCornerShape(50)
-            )
-            // Flutter: ElvanKizhPattaiBase — Border.all(width: 0.5)
-            .border(
-                width = 0.5.dp,
-                color = if (isDark) Color(0xFF333333).copy(alpha = 0.15f)
-                        else Color(0xFFFFFFFF).copy(alpha = 0.6f),
-                shape = RoundedCornerShape(50)
-            )
-            // Flutter: Container(height: 60) — total outer height is 60dp
             .height(60.dp)
-            // Flutter: Padding inside the 60dp container — content area = 52dp
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
-            .pointerInput(Unit) {
-                awaitPointerEventScope {
-                    while (true) {
-                        var event = awaitPointerEvent()
-                        var down = event.changes.firstOrNull { it.pressed }
-                        while (down == null) {
-                            event = awaitPointerEvent()
-                            down = event.changes.firstOrNull { it.pressed }
-                        }
+            .width(totalWidth),
+        contentAlignment = Alignment.Center
+    ) {
+        // ── Layer 1: Background Capsule & Border (Drawn FIRST, beneath content) ──
+        // This ensures the outer capsule border is rendered UNDER the selection pill,
+        // exactly like Flutter's BoxDecoration, so the border never cuts across the pill!
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .cssShadow(color = Color.Black, alpha = 0.05f, blurRadius = 16.dp, offsetY = 4.dp)
+                .background(
+                    color = if (isDark) Color(0xFF1E1E1E).copy(alpha = 0.88f)
+                            else Color(0xFFFFFFFF).copy(alpha = 0.88f),
+                    shape = CircleShape
+                )
+                .border(
+                    width = 0.5.dp,
+                    color = if (isDark) Color(0xFF333333).copy(alpha = 0.15f)
+                            else Color(0xFFFFFFFF).copy(alpha = 0.6f),
+                    shape = CircleShape
+                )
+        )
 
+        // ── Layer 2: Foreground Content (Drawn SECOND, on top of the border) ──
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
                         isInteracting = true
                         onInteraction(true)
 
                         val initialX = down.position.x
-                        // Flutter: .floor().clamp(0, itemCount - 1)
                         hoverIndex = floor(initialX / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
                         val slotCenter = (hoverIndex!! * layoutWidthPx) + (layoutWidthPx / 2f)
-                        // Flutter: _touchOffsetFromCenter = details.localPosition.dx - slotCenter
                         touchOffsetFromCenterPx = initialX - slotCenter
-                        // Flutter: _dragOffset = null — prevents "wiggle" on initial touch
                         dragOffsetPx = null
 
                         var isDrag = false
-                        // Flutter: Track if the first actual drag update has been received
-                        var hasDragStarted = false
+                        val pointerId = down.id
 
-                        while (event.changes.any { it.pressed }) {
-                            event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull() ?: break
-
-                            val previousPos = change.previousPosition
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.firstOrNull { it.id == pointerId } ?: break
+                            if (!change.pressed) {
+                                break
+                            }
                             val currentPos = change.position
-                            if (currentPos.x != previousPos.x || currentPos.y != previousPos.y) {
-                                if (!hasDragStarted) {
-                                    // Flutter: first onHorizontalDragUpdate — start tracking
-                                    hasDragStarted = true
-                                }
+                            if (kotlin.math.abs(currentPos.x - down.position.x) > 4f) {
                                 isDrag = true
-                                val currentX = currentPos.x
-                                // Flutter: targetCenter = details.localPosition.dx - _touchOffsetFromCenter
-                                val targetCenter = currentX - touchOffsetFromCenterPx
+                                val targetCenter = currentPos.x - touchOffsetFromCenterPx
                                 dragOffsetPx = targetCenter
-                                // Flutter: .floor().clamp(0, itemCount - 1)
                                 hoverIndex = floor(targetCenter / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
                                 onDragProgress(targetCenter / layoutWidthPx)
                                 change.consume()
                             }
                         }
 
-                        // Flutter: onHorizontalDragEnd / onTapUp
                         val finalIndex = hoverIndex
                         if (finalIndex != null) {
                             localLockedIndex = finalIndex
@@ -232,92 +214,76 @@ fun BottomNavBar(
                         hoverIndex = null
 
                         if (finalIndex != null) {
-                            // Flutter: Future.delayed(Duration(milliseconds: 150), () => onTabSelected(index))
                             coroutineScope.launch {
                                 delay(150)
                                 onTabSelected(tabs[finalIndex], isDrag)
                             }
                         }
                     }
-                }
-            },
-        // Flutter: Stack(clipBehavior: Clip.none) — allow 1.30x pill to overflow
-        contentAlignment = Alignment.CenterStart
-    ) {
-        // Flutter: AnimatedOpacity(opacity: hideContent ? 0.0 : 1.0)
-        Box(
-            modifier = Modifier
-                .graphicsLayer {
-                    alpha = contentAlpha
-                    clip = false
-                }
-                .width(layoutWidth * itemCount)
-                .fillMaxHeight()
+                },
+            contentAlignment = Alignment.CenterStart
         ) {
-            // ── Master Background Pill (Detached & Draggable) ──
-            // Flutter: AnimatedPositioned + AnimatedScale + Container with decoration
             Box(
                 modifier = Modifier
-                    .offset { IntOffset(animatedLeftPx.roundToInt(), 0) }
-                    .fillMaxHeight()
-                    .width(bgWidth)
                     .graphicsLayer {
-                        scaleX = pillScale
-                        scaleY = pillScale
-                        // Flutter: clipBehavior: Clip.none — pill can overflow parent bounds
+                        alpha = contentAlpha
                         clip = false
                     }
-                    // Flutter: light mode BoxShadow(blurRadius: 4, offset: Offset(0,1), alpha: 0.04)
-                    .then(
-                        if (!isDark) Modifier.shadow(
-                            elevation = 4.dp,
-                            shape = RoundedCornerShape(50),
-                            ambientColor = Color.Black.copy(alpha = 0.04f),
-                            spotColor = Color.Black.copy(alpha = 0.04f)
-                        ) else Modifier
-                    )
-                    // Flutter: color: isDark ? Color(0xFF333333).withValues(alpha: 0.95) : Color(0xFFE5E5E5).withValues(alpha: 0.95)
-                    .background(
-                        color = if (isDark) Color(0xFF333333).copy(alpha = 0.95f)
-                                else Color(0xFFE5E5E5).copy(alpha = 0.95f),
-                        shape = RoundedCornerShape(50)
-                    )
-            )
-
-            // ── Foreground Content ──
-            // Flutter: Row with CrossAxisAlignment.stretch
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically
+                    .width(layoutWidth * itemCount)
+                    .fillMaxHeight()
             ) {
-                tabs.forEachIndexed { index, tab ->
-                    val isActive = index == activeVisualIndex
-                    // Flutter: isActive ? (isDark ? white : Color(0xFF1A1A1A)) : (isDark ? grey.shade500 : Color(0xFF7C7C80))
-                    val color = if (isActive) {
-                        if (isDark) Color.White else Color(0xFF1A1A1A)
-                    } else {
-                        if (isDark) Color(0xFF9E9E9E) else Color(0xFF7C7C80)
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(layoutWidth),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Flutter: Icon(size: 23.0)
-                        Icon(
-                            imageVector = tab.icon,
-                            contentDescription = tab.label,
-                            tint = color,
-                            modifier = Modifier.size(23.dp)
+                // ── Master Background Pill (Detached & Draggable) ──
+                // Renders ON TOP of Layer 1's border!
+                Box(
+                    modifier = Modifier
+                        .offset { IntOffset(animatedLeftPx.roundToInt(), 0) }
+                        .fillMaxHeight()
+                        .width(bgWidth)
+                        .graphicsLayer {
+                            scaleX = pillScale
+                            scaleY = pillScale
+                            transformOrigin = TransformOrigin.Center
+                            clip = false
+                        }
+                        .then(
+                            if (!isDark) Modifier.cssShadow(color = Color.Black, alpha = 0.04f, blurRadius = 4.dp, offsetY = 1.dp) else Modifier
                         )
-                        // Flutter: SizedBox(height: 2)
-                        Spacer(modifier = Modifier.height(2.dp))
-                        // Flutter: Text(fontSize: 9.5, fontWeight: isActive ? w600 : w400, height: 1.2)
-                        Text(
-                            text = when (tab) {
+                        .background(
+                            color = if (isDark) Color(0xFF333333)
+                                    else Color(0xFFE5E5E5),
+                            shape = CircleShape
+                        )
+                )
+
+                // ── Foreground Content ──
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    tabs.forEachIndexed { index, tab ->
+                        val isActive = index == activeVisualIndex
+                        val color = if (isActive) {
+                            if (isDark) Color.White else Color(0xFF1A1A1A)
+                        } else {
+                            if (isDark) Color(0xFF9E9E9E) else Color(0xFF7C7C80)
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(layoutWidth),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = tab.icon,
+                                contentDescription = tab.label,
+                                tint = color,
+                                modifier = Modifier.size(23.dp)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = when (tab) {
                                 NavTab.Home -> AppStrings.Nav.home(lang)
                                 NavTab.Schedule -> AppStrings.Nav.schedule(lang)
                                 NavTab.Calendar -> AppStrings.Nav.calendar(lang)
@@ -335,4 +301,5 @@ fun BottomNavBar(
             }
         }
     }
+}
 }

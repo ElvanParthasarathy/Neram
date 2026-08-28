@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.runtime.*
@@ -411,43 +412,39 @@ fun MainScreen(
                     } else null,
                     actions = {
                         if (selectedTab == NavTab.Calendar) {
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                            com.elvan.rmdneram.ui.components.shell.ElvanTopBarIconButton(
+                                onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.MONTH) }
                             ) {
-                                IconButton(
-                                    onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.MONTH) },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_month_view_custom),
-                                        contentDescription = "Month View",
-                                        tint = colors.textPrimary,
-                                        modifier = Modifier.size(22.dp)
-                                    )
+                                Icon(
+                                    painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_month_view_custom),
+                                    contentDescription = "Month View",
+                                    tint = colors.textPrimary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            com.elvan.rmdneram.ui.components.shell.ElvanTopBarIconButton(
+                                onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.SCHEDULE) }
+                            ) {
+                                Icon(
+                                    painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_list_view_custom),
+                                    contentDescription = "List View",
+                                    tint = colors.textPrimary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            val today = java.time.LocalDate.now()
+                            com.elvan.rmdneram.ui.components.shell.ElvanTopBarIconButton(
+                                onClick = { 
+                                     homeViewModel.triggerCalendarJump(today)
+                                     homeViewModel.updateSelectedDate(today)
+                                     homeViewModel.updateCurrentMonth(java.time.YearMonth.now())
                                 }
-                                IconButton(
-                                    onClick = { homeViewModel.setCalendarView(com.elvan.rmdneram.ui.calendar.CalendarViewType.SCHEDULE) },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_list_view_custom),
-                                        contentDescription = "List View",
-                                        tint = colors.textPrimary,
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                }
-                                val today = java.time.LocalDate.now()
+                            ) {
                                 Box(
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clip(RoundedCornerShape(6.dp))
-                                        .border(1.5.dp, colors.textPrimary, RoundedCornerShape(6.dp))
-                                        .clickable { 
-                                             homeViewModel.triggerCalendarJump(today)
-                                             homeViewModel.updateSelectedDate(today)
-                                             homeViewModel.updateCurrentMonth(java.time.YearMonth.now())
-                                        },
+                                        .border(1.5.dp, colors.textPrimary, RoundedCornerShape(6.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -461,28 +458,49 @@ fun MainScreen(
                             }
                         } else if (!isInsideNotesFolder) {
                             var menuExpanded by remember { mutableStateOf(false) }
-                            IconButton(onClick = { /* TODO: Notifications */ }, modifier = Modifier.size(32.dp)) {
-                                Icon(painter = androidx.compose.ui.res.painterResource(id = com.elvan.rmdneram.R.drawable.ic_notification), contentDescription = "Notifications", tint = colors.textPrimary, modifier = Modifier.size(22.dp))
-                            }
-                            Spacer(Modifier.width(8.dp))
-                            IconButton(onClick = { menuExpanded = true }, modifier = Modifier.size(32.dp)) {
-                                Icon(Icons.Filled.MoreVert, "Menu", tint = colors.textPrimary, modifier = Modifier.size(22.dp))
-                            }
-                            DropdownMenu(
-                                expanded = menuExpanded,
-                                onDismissRequest = { menuExpanded = false },
-                                modifier = Modifier.background(colors.surface)
+                            com.elvan.rmdneram.ui.components.shell.ElvanTopBarIconButton(
+                                onClick = { currentScreen = "notifications" }
                             ) {
-                                DropdownMenuItem(text = { Text(AppStrings.Settings.title(lang), color = colors.textPrimary) }, onClick = { 
-                                    menuExpanded = false
-                                    settingsReferrer = "tabs"
-                                    currentScreen = "settings"
-                                    scope.launch { settingsScrollState.scrollTo(0) }
-                                })
-                                DropdownMenuItem(text = { Text(AppStrings.Settings.importantSites(lang), color = colors.textPrimary) }, onClick = { 
-                                    menuExpanded = false
-                                    currentScreen = "sites"
-                                })
+                                Icon(
+                                    imageVector = Icons.Outlined.Notifications,
+                                    contentDescription = "Notifications",
+                                    tint = colors.textPrimary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Box {
+                                com.elvan.rmdneram.ui.components.shell.ElvanTopBarIconButton(
+                                    onClick = { menuExpanded = true }
+                                ) {
+                                    Icon(
+                                        Icons.Filled.MoreVert,
+                                        contentDescription = "Menu",
+                                        tint = colors.textPrimary,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = menuExpanded,
+                                    onDismissRequest = { menuExpanded = false },
+                                    modifier = Modifier.background(if (colors.isDark) Color(0xFF1E1E1E) else Color.White)
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(AppStrings.Settings.title(lang), color = colors.textPrimary) },
+                                        onClick = { 
+                                            menuExpanded = false
+                                            settingsReferrer = "tabs"
+                                            currentScreen = "settings"
+                                            scope.launch { settingsScrollState.scrollTo(0) }
+                                        }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(AppStrings.Settings.importantSites(lang), color = colors.textPrimary) },
+                                        onClick = { 
+                                            menuExpanded = false
+                                            currentScreen = "sites"
+                                        }
+                                    )
+                                }
                             }
                         }
                     },

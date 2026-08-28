@@ -1,13 +1,12 @@
 package com.elvan.rmdneram.ui.components.shell
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.gestures.animateScrollBy
-
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.Icon
@@ -15,26 +14,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.HomeTypography
-import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 @Composable
 fun ElvanShell(
@@ -42,36 +38,37 @@ fun ElvanShell(
     colors: HomeColors,
     showNavbar: Boolean = true,
     useNewDesign: Boolean = true,
-    title: String,
+    title: String = "",
     onBack: (() -> Unit)? = null,
-    navbar: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
+    navbar: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     var isNavbarVisible by remember { mutableStateOf(true) }
 
     // Constants for physics
-    val expandedHeight = 240.dp
+    val expandedHeight = 280.dp
     val pillHeight = 50.dp
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val ceiling = statusBarHeight + 20.dp
-    // Flutter exact math for Handoff:
-    // maxExtent = 240.0
-    // handoffHeight = ceiling + expandedButtonsBottom + kToolbarHeight = (statusBarHeight + 20) + 8 + 56 = statusBarHeight + 84
-    // handoffShrinkOffset = maxExtent - handoffHeight = 240 - (statusBarHeight + 84) = 156 - statusBarHeight
-    val handoffShrinkOffsetDp = 156.dp - statusBarHeight
     val density = LocalDensity.current
-    val maxScrollPx = with(density) { handoffShrinkOffsetDp.toPx() }
     
-    // We assume the first item in the LazyColumn is a Spacer of height 320.dp (or similar)
+    // Exact Flutter collision math:
+    // collisionOffset = expandedHeight - (ceiling + pillHeight)
+    val collisionOffsetDp = expandedHeight - (ceiling + pillHeight)
+    val collisionOffsetPx = with(density) { collisionOffsetDp.toPx() }
+    
+    // Handoff threshold (when icons reach ceiling)
+    val handoffShrinkOffsetDp = 196.dp - statusBarHeight
+    val handoffShrinkOffsetPx = with(density) { handoffShrinkOffsetDp.toPx() }
+    
     val currentScrollOffset = if (scrollState.firstVisibleItemIndex == 0) {
         scrollState.firstVisibleItemScrollOffset.toFloat()
     } else {
-        with(density) { expandedHeight.toPx() } // Scrolled past the spacer
+        with(density) { expandedHeight.toPx() }
     }
 
     // One UI Physics: Velocity-Based Header Snapping
-    // When the user stops scrolling, if the header is halfway collapsed, snap it!
     val isScrollInProgress = scrollState.isScrollInProgress
     var lastScrollOffset by remember { mutableFloatStateOf(0f) }
     var lastScrollDelta by remember { mutableFloatStateOf(0f) }
@@ -88,19 +85,20 @@ fun ElvanShell(
         }
     }
     
-    // When scrolling stops, check if we need to snap
+    // When scrolling stops, snap and restore visibility
     LaunchedEffect(isScrollInProgress) {
         if (!isScrollInProgress) {
-            if (currentScrollOffset > 0f && currentScrollOffset < maxScrollPx) {
-                // Determine target based on velocity
+            if (!isNavbarVisible) {
+                isNavbarVisible = true
+            }
+            if (currentScrollOffset > 0f && currentScrollOffset < handoffShrinkOffsetPx) {
                 val targetOffset = if (kotlin.math.abs(lastScrollDelta) > 1f) {
-                    if (lastScrollDelta > 0) maxScrollPx else 0f
+                    if (lastScrollDelta > 0) handoffShrinkOffsetPx else 0f
                 } else {
-                    if (currentScrollOffset > maxScrollPx / 2f) maxScrollPx else 0f
+                    if (currentScrollOffset > handoffShrinkOffsetPx / 2f) handoffShrinkOffsetPx else 0f
                 }
                 
                 val distance = kotlin.math.abs(currentScrollOffset - targetOffset)
-                // Adaptive duration: 250 to 450 ms
                 val durationMs = (250f + (distance * 0.5f)).toInt().coerceIn(250, 450)
                 
                 coroutineScope.launch {
@@ -109,7 +107,7 @@ fun ElvanShell(
                         value = scrollDistance,
                         animationSpec = tween(
                             durationMillis = durationMs,
-                            easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f) // Soft, natural deceleration like a weak magnet
+                            easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
                         )
                     )
                 }
@@ -117,19 +115,36 @@ fun ElvanShell(
             lastScrollDelta = 0f
         }
     }
-    
-    val collapseProgress = if (useNewDesign) (currentScrollOffset / maxScrollPx).coerceIn(0f, 1f) else 1f
 
-    val nestedScrollConnection = remember {
+    // True pill threshold: active only when the card has reached the pill
+    val isTruePill = currentScrollOffset >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
+
+    // If we're not in true pill mode (naked state), force visibility to true
+    LaunchedEffect(isTruePill) {
+        if (!isTruePill && !isNavbarVisible) {
+            isNavbarVisible = true
+        }
+    }
+
+    val nestedScrollConnection = remember(isTruePill) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
-                if (delta > 0f && !isNavbarVisible) {
+                if (delta > 2f && !isNavbarVisible) {
+                    // Scrolling UP -> Show bars immediately!
                     isNavbarVisible = true
-                } else if (delta < -2f && source == NestedScrollSource.SideEffect && isNavbarVisible) {
+                } else if (delta < -2f && isNavbarVisible && isTruePill && source == NestedScrollSource.SideEffect) {
+                    // Momentum fling DOWN -> Hide bars!
                     isNavbarVisible = false
                 }
                 return Offset.Zero
+            }
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                if (available.y < -300f && isNavbarVisible && isTruePill) {
+                    // High-speed fling downwards -> Hide bars!
+                    isNavbarVisible = false
+                }
+                return Velocity.Zero
             }
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 if (!isNavbarVisible) isNavbarVisible = true
@@ -137,6 +152,21 @@ fun ElvanShell(
             }
         }
     }
+
+    val navOpacity by animateFloatAsState(
+        targetValue = if (isNavbarVisible) 1.0f else 0.0f,
+        animationSpec = tween(
+            durationMillis = 280,
+            easing = if (isNavbarVisible) 
+                CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f) 
+            else 
+                CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
+        ),
+        label = "navOpacity"
+    )
+
+    // Scroll disappear/fade is only enabled once the true pill has formed
+    val effectiveNavOpacity = if (isTruePill) navOpacity else 1.0f
 
     Box(
         modifier = Modifier
@@ -169,26 +199,27 @@ fun ElvanShell(
             Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .zIndex(100f) // Guarantee text stays above the fade mask
+                    .zIndex(100f)
             ) {
                 ElvanExpandedBar(
                     title = title,
                     colors = colors,
-                    scrollOffsetPx = currentScrollOffset, // Pass raw px
-                    maxScrollPx = maxScrollPx,
+                    scrollOffsetPx = currentScrollOffset,
+                    collisionOffsetPx = collisionOffsetPx,
                     expandedHeight = expandedHeight,
                     hasLeadingWidget = onBack != null
                 )
             }
             
-            // Layer 3: ElvanCollapsedBar (Pill)
+            // Layer 3: ElvanCollapsedBar (Pill) — Fades in only on card collision, and scroll fade operates only when in true pill mode
             ElvanCollapsedBar(
                 scrollOffset = currentScrollOffset,
-                collisionOffsetPx = maxScrollPx,
+                collisionOffsetPx = collisionOffsetPx,
                 colors = colors,
                 expandedHeight = expandedHeight,
                 title = if (useNewDesign) null else title,
                 onBack = onBack,
+                navOpacity = effectiveNavOpacity,
                 actions = actions
             )
         } else {
@@ -226,12 +257,12 @@ fun ElvanShell(
         if (showNavbar) {
             val navBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
             
-            // Fade mask is ALWAYS present when showNavbar is true, doesn't hide
+            // Fade mask is ALWAYS present when showNavbar is true
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(96.dp + 60.dp + 16.dp + navBarsPadding)
+                    .height(96.dp + 60.dp + 28.dp + navBarsPadding)
                     .background(
                         Brush.verticalGradient(
                             0.0f to Color.Transparent,
@@ -242,11 +273,12 @@ fun ElvanShell(
                     )
             )
             
-            AnimatedVisibility(
-                visible = isNavbarVisible,
-                enter = fadeIn(animationSpec = tween(280, easing = CubicBezierEasing(0.55f, 0.05f, 0.675f, 0.19f))),
-                exit = fadeOut(animationSpec = tween(280, easing = CubicBezierEasing(0.215f, 0.61f, 0.355f, 1.0f))),
-                modifier = Modifier.align(Alignment.BottomCenter)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .graphicsLayer {
+                        alpha = effectiveNavOpacity
+                    }
             ) {
                 navbar()
             }

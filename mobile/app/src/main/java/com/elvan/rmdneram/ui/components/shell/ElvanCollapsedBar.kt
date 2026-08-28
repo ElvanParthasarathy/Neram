@@ -1,55 +1,79 @@
 package com.elvan.rmdneram.ui.components.shell
 
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.sp
-import androidx.compose.material3.Text
-
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.elvan.rmdneram.ui.home.HomeColors
+import com.elvan.rmdneram.ui.home.HomeTypography
+
+@Composable
+fun ElvanTopBarIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(bounded = true, radius = 20.dp),
+                onClick = onClick
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
+    }
+}
 
 @Composable
 fun ElvanCollapsedBar(
     scrollOffset: Float, // currentScrollOffset
     collisionOffsetPx: Float,
     colors: HomeColors,
-    expandedHeight: androidx.compose.ui.unit.Dp = 240.dp,
+    expandedHeight: Dp = 280.dp,
     title: String? = null,
     onBack: (() -> Unit)? = null,
+    navOpacity: Float = 1.0f,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val ceiling = statusBarHeight + 20.dp
-    val density = androidx.compose.ui.platform.LocalDensity.current
+    val density = LocalDensity.current
     val ceilingPx = with(density) { ceiling.toPx() }
     
-    // In Flutter, the icons start at a certain distance from the top.
-    // They are positioned relative to the bottom of the expanded header.
-    // Expanded height = expandedHeight.
-    // Current height = expandedHeight - scrollOffset.
-    // expandedButtonsBottom = 8.0, kToolbarHeight = 56.0.
-    // currentTop = currentHeight - 8.0 - 56.0.
+    // In Flutter:
+    // currentTop = currentHeight - 8.0 - kToolbarHeight (64px)
     val expandedHeightPx = with(density) { expandedHeight.toPx() }
     val currentHeightPx = expandedHeightPx - scrollOffset
-    val currentTopPx = currentHeightPx - with(density) { 64.dp.toPx() } // 8 + 56
+    val currentTopPx = currentHeightPx - with(density) { 64.dp.toPx() }
     
     val isPinned = currentTopPx <= ceilingPx
     val finalTopPx = if (isPinned) ceilingPx else currentTopPx
-    
     val finalTopDp = with(density) { finalTopPx.toDp() }
     
-    // Lift progress: pill fades in during the last 12px before collision.
-    // collisionOffsetPx is when the text hits the pill, but wait!
-    // liftStartOffset = collisionOffsetPx - 12px
-    val liftStartOffsetPx = collisionOffsetPx - with(density) { 12.dp.toPx() }
+    // Exact Flutter liftProgress: pill container fades in ONLY when the first card reaches the pill (collision)
+    val liftStartOffsetPx = collisionOffsetPx - with(density) { 4.dp.toPx() }
     val liftProgress = if (scrollOffset > liftStartOffsetPx) {
         ((scrollOffset - liftStartOffsetPx) / with(density) { 12.dp.toPx() }).coerceIn(0f, 1f)
     } else {
@@ -60,30 +84,41 @@ fun ElvanCollapsedBar(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = finalTopDp)
+            .zIndex(150f)
+            .graphicsLayer {
+                this.alpha = navOpacity
+            }
     ) {
+        // Left side (Back Button / Title)
         Box(
-            modifier = Modifier.padding(start = 16.dp).align(Alignment.CenterStart)
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .align(Alignment.CenterStart)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (onBack != null) {
-                    ElvanPill(liftProgress = liftProgress, colors = colors) {
-                        IconButton(onClick = onBack, modifier = Modifier.size(50.dp)) {
-                            Icon(Icons.Filled.ChevronLeft, "Back", tint = colors.textPrimary)
+                    ElvanPill(liftProgress = liftProgress, colors = colors, modifier = Modifier.size(50.dp)) {
+                        ElvanTopBarIconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.Filled.ChevronLeft,
+                                contentDescription = "Back",
+                                tint = colors.textPrimary,
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
                     }
                 }
                 if (title != null) {
                     Text(
                         text = title,
-                        style = com.elvan.rmdneram.ui.home.HomeTypography.SectionTitle.copy(
+                        style = HomeTypography.SectionTitle.copy(
                             fontSize = 20.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            fontWeight = FontWeight.Bold,
                             color = colors.textPrimary
                         ),
                         modifier = Modifier
                             .padding(start = if (onBack != null) 12.dp else 8.dp)
                             .graphicsLayer {
-                                // Fade IN exactly when pill fades IN! (liftProgress)
                                 this.alpha = liftProgress
                             }
                     )
@@ -91,11 +126,17 @@ fun ElvanCollapsedBar(
             }
         }
 
+        // Right side (Action Buttons Pill)
         Box(
-            modifier = Modifier.padding(end = 16.dp).align(Alignment.CenterEnd)
+            modifier = Modifier
+                .padding(end = 16.dp)
+                .align(Alignment.CenterEnd)
         ) {
             ElvanPill(liftProgress = liftProgress, colors = colors) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     actions()
                 }
             }
@@ -107,21 +148,38 @@ fun ElvanCollapsedBar(
 private fun ElvanPill(
     liftProgress: Float,
     colors: HomeColors,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    Surface(
-        shape = CircleShape,
-        color = colors.surface.copy(alpha = (0.88f * liftProgress).coerceIn(0f, 1f)),
-        modifier = Modifier
+    val isDark = colors.isDark || colors.background == Color.Black || colors.background.red < 0.2f
+    val pillBgColor = if (isDark) Color(0xFF1E1E1E) else Color(0xFFFFFFFF)
+    val pillBorderColor = if (isDark) Color(0xFF333333).copy(alpha = 0.15f * liftProgress)
+                          else Color(0xFFFFFFFF).copy(alpha = 0.6f * liftProgress)
+    
+    Box(
+        modifier = modifier
             .height(50.dp)
-            .graphicsLayer {
-                shadowElevation = if (liftProgress > 0f) (16f * liftProgress) else 0f
-                ambientShadowColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.05f)
-                spotShadowColor = androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.05f)
-            }
+            .cssShadow(
+                color = Color.Black,
+                alpha = 0.05f * liftProgress,
+                blurRadius = 16.dp,
+                offsetY = 4.dp
+            )
+            .background(
+                color = pillBgColor.copy(alpha = 0.88f * liftProgress),
+                shape = CircleShape
+            )
+            .border(
+                width = 0.5.dp,
+                color = pillBorderColor,
+                shape = CircleShape
+            ),
+        contentAlignment = Alignment.Center
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(horizontal = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             content()

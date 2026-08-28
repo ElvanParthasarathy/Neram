@@ -83,7 +83,7 @@ fun HomeMainLayout(
                 ),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
-                item { Spacer(Modifier.height(240.dp)) }
+                item { Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing)) }
                 // 1. Header Section
                 item(key = "header", contentType = "header") {
                     PageHeader(

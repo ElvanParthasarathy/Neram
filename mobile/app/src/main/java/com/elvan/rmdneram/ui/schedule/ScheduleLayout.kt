@@ -104,7 +104,7 @@ fun ScheduleMainLayout(
                     bottom = HomeDimens.ContentPaddingBottom
                 )
             ) {
-                item { Spacer(Modifier.height(240.dp)) }
+                item { Spacer(Modifier.height(280.dp)) }
                 // --- Switcher (Movable) ---
                 item {
                     Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {

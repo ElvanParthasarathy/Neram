@@ -514,7 +514,7 @@ private object CssColors {
     // === DARK MODE === (html.dark :root) - Pure black for AMOLED
     object Dark {
         val BgBody = Color.Black                 // Pure black for AMOLED
-        val BgCard = Color(0xFF0E0E0E)           // --bg-card: Darker Grey for Home Cards
+        val BgCard = Color(0xFF111111)           // --bg-card: Matching Niril (0xFF111111)
         val TextPrimary = Color(0xFFFFFFFF)      // --text-primary: #FFFFFF
         val TextSecondary = Color(0xFF9CA3AF)    // --text-secondary: #9CA3AF
         val AccentPrimary = Color(0xFF0A84FF)    // --accent-primary: #0A84FF
