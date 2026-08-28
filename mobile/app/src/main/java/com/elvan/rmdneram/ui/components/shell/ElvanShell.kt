@@ -68,13 +68,14 @@ fun ElvanShell(
         with(density) { expandedHeight.toPx() }
     }
 
-    // One UI Physics: Velocity-Based Header Snapping
+    // One UI Physics: Velocity-Based Header Snapping & Brick Wall State
+    var isHeaderExpanded by remember { mutableStateOf(true) }
     val isScrollInProgress = scrollState.isScrollInProgress
     var lastScrollOffset by remember { mutableFloatStateOf(0f) }
     var lastScrollDelta by remember { mutableFloatStateOf(0f) }
     val coroutineScope = rememberCoroutineScope()
     
-    // Track delta for velocity direction
+    // Track delta and header expansion boundary
     LaunchedEffect(currentScrollOffset) {
         if (isScrollInProgress) {
             val delta = currentScrollOffset - lastScrollOffset
@@ -82,6 +83,11 @@ fun ElvanShell(
                 lastScrollDelta = delta
             }
             lastScrollOffset = currentScrollOffset
+        }
+        if (currentScrollOffset >= handoffShrinkOffsetPx) {
+            if (isHeaderExpanded) {
+                isHeaderExpanded = false
+            }
         }
     }
     
@@ -91,7 +97,8 @@ fun ElvanShell(
             if (!isNavbarVisible) {
                 isNavbarVisible = true
             }
-            if (currentScrollOffset > 0f && currentScrollOffset < handoffShrinkOffsetPx) {
+            // Only snap if user was manually interacting within the header region
+            if (isHeaderExpanded && currentScrollOffset > 0f && currentScrollOffset < handoffShrinkOffsetPx) {
                 val targetOffset = if (kotlin.math.abs(lastScrollDelta) > 1f) {
                     if (lastScrollDelta > 0) handoffShrinkOffsetPx else 0f
                 } else {
@@ -110,6 +117,9 @@ fun ElvanShell(
                             easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
                         )
                     )
+                    if (targetOffset >= handoffShrinkOffsetPx) {
+                        isHeaderExpanded = false
+                    }
                 }
             }
             lastScrollDelta = 0f
@@ -126,10 +136,34 @@ fun ElvanShell(
         }
     }
 
-    val nestedScrollConnection = remember(isTruePill) {
+    val nestedScrollConnection = remember(isTruePill, isHeaderExpanded, handoffShrinkOffsetPx) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
+
+                // ── Brick Wall Physics (matching Flutter ElvanBrickWallPhysics) ──
+                // When the header is collapsed (!isHeaderExpanded):
+                // ONLY allow manual drag (UserInput) to pull down and expand the header.
+                // Momentum flings (SideEffect) are intercepted and blocked at handoffShrinkOffsetPx!
+                if (!isHeaderExpanded) {
+                    if (source == NestedScrollSource.UserInput) {
+                        if (delta > 0f && currentScrollOffset <= handoffShrinkOffsetPx) {
+                            isHeaderExpanded = true
+                        }
+                    } else if (source == NestedScrollSource.SideEffect && delta > 0f) {
+                        if (currentScrollOffset <= handoffShrinkOffsetPx) {
+                            // Hit the brick wall: consume all momentum!
+                            return Offset(0f, delta)
+                        } else if (currentScrollOffset - delta < handoffShrinkOffsetPx) {
+                            // Clamp to stop dead at the brick wall
+                            val allowed = currentScrollOffset - handoffShrinkOffsetPx
+                            val excess = delta - allowed
+                            return Offset(0f, excess)
+                        }
+                    }
+                }
+
+                // ── Navbar hide/show logic ──
                 if (delta > 2f && !isNavbarVisible) {
                     // Scrolling UP -> Show bars immediately!
                     isNavbarVisible = true
@@ -139,13 +173,19 @@ fun ElvanShell(
                 }
                 return Offset.Zero
             }
+
             override suspend fun onPreFling(available: Velocity): Velocity {
+                // If collapsed and fling is travelling upward towards the header, kill it at the brick wall!
+                if (!isHeaderExpanded && available.y > 0f && currentScrollOffset <= handoffShrinkOffsetPx) {
+                    return available
+                }
                 if (available.y < -300f && isNavbarVisible && isTruePill) {
                     // High-speed fling downwards -> Hide bars!
                     isNavbarVisible = false
                 }
                 return Velocity.Zero
             }
+
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 if (!isNavbarVisible) isNavbarVisible = true
                 return Velocity.Zero
