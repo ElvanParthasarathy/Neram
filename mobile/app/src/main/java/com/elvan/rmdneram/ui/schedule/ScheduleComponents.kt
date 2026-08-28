@@ -1219,11 +1219,10 @@ fun ViewTypeTabsRow(
             .width(totalWidth),
         contentAlignment = Alignment.Center
     ) {
-        // Layer 1: Outer Container (Matches card background, no outline)
+        // Layer 1: Outer Container (Matches card background, no outline, no shadow)
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .cssShadow(color = Color.Black, alpha = 0.05f, blurRadius = 16.dp, offsetY = 4.dp)
                 .background(
                     color = colors.surface,
                     shape = CircleShape
@@ -1303,9 +1302,6 @@ fun ViewTypeTabsRow(
                             transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
                             clip = false
                         }
-                        .then(
-                            if (!isDark) Modifier.cssShadow(color = Color.Black, alpha = 0.04f, blurRadius = 4.dp, offsetY = 1.dp) else Modifier
-                        )
                         .background(
                             color = if (isDark) Color(0xFF333333)
                             else Color(0xFFE5E5E5),
