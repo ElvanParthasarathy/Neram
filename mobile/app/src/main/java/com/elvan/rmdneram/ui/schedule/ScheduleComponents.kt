@@ -1219,20 +1219,13 @@ fun ViewTypeTabsRow(
             .width(totalWidth),
         contentAlignment = Alignment.Center
     ) {
-        // Layer 1: Outer Container (Frosted glass capsule beneath selection pill)
+        // Layer 1: Outer Container (Matches card background, no outline)
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .cssShadow(color = Color.Black, alpha = 0.05f, blurRadius = 16.dp, offsetY = 4.dp)
                 .background(
-                    color = if (isDark) Color(0xFF1E1E1E).copy(alpha = 0.88f)
-                    else Color(0xFFFFFFFF).copy(alpha = 0.88f),
-                    shape = CircleShape
-                )
-                .border(
-                    width = 0.5.dp,
-                    color = if (isDark) Color(0xFF333333).copy(alpha = 0.15f)
-                    else Color(0xFFFFFFFF).copy(alpha = 0.6f),
+                    color = colors.surface,
                     shape = CircleShape
                 )
         )
