@@ -39,8 +39,8 @@ private data class SiteLink(
 private val links = listOf(
     SiteLink("RMD College Website", "https://rmd.ac.in/", "Official RMD college website.", Icons.Outlined.Business),
 
-    SiteLink("RMK Nextgen Student", "https://nextgen.rmd.ac.in/", "Nextgen platform for student login and academic tracking.", Icons.Outlined.Person),
-    SiteLink("RMK Nextgen Faculty", "https://nextgenfaculty.rmd.ac.in/login.html", "Faculty login for RMK Nextgen academic management.", Icons.Outlined.People),
+    SiteLink("RMK Nextgen Student", "https://nextgenstudent.rmd.ac.in/", "Nextgen platform for student login and academic tracking.", Icons.Outlined.Person),
+    SiteLink("Elvan Navil", "https://elvannavil.vercel.app/", "Campus news, articles, and student announcements platform.", Icons.Outlined.Article),
     SiteLink("IamNeo", "https://rmk685.examly.io/login", "Learning, assessment, and recruitment solutions.", Icons.Outlined.Code),
     SiteLink("Skill Rack", "https://www.skillrack.com/faces/ui/profile.xhtml", "Daily coding challenges and problem-solving tasks.", Icons.Outlined.Terminal),
 

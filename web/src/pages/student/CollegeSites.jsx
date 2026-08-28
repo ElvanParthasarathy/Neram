@@ -13,15 +13,15 @@ const CollegeSites = () => {
     },
     {
       name: "RMK Nextgen Student",
-      url: "https://nextgen.rmd.ac.in/",
+      url: "https://nextgenstudent.rmd.ac.in/",
       description: "Nextgen platform for student login and academic tracking.",
       icon: "ri-user-follow-fill"
     },
     {
-      name: "RMK Nextgen Faculty",
-      url: "https://nextgenfaculty.rmd.ac.in/login.html",
-      description: "Faculty login for RMK Nextgen academic management.",
-      icon: "ri-team-fill"
+      name: "Elvan Navil",
+      url: "https://elvannavil.vercel.app/",
+      description: "Campus news, articles, and student announcements platform.",
+      icon: "ri-newspaper-fill"
     },
     {
       name: "IamNeo",
