@@ -95,8 +95,8 @@ fun CalendarMainLayout(
     val layoutConfiguration = androidx.compose.ui.platform.LocalConfiguration.current
     val isLayoutLandscape = layoutConfiguration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     
-    // Top padding to clear TopMenuBar
-    val actualTopPadding = topPadding ?: (rememberStatusBarHeight() + HomeDimens.ContentPaddingTop - 20.dp)
+    // Top padding to clear static collapsed TopMenuBar (statusBarHeight + 20.dp + 50.dp + 10.dp)
+    val actualTopPadding = topPadding ?: (rememberStatusBarHeight() + 80.dp)
     
     // No drag sensitivity needed as collapsing is disabled
     val scope = rememberCoroutineScope()

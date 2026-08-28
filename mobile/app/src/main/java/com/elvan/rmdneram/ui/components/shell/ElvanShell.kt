@@ -287,34 +287,13 @@ fun ElvanShell(
                 actions = actions
             )
         } else {
-            // Legacy Flat Top Bar
-            Surface(
-                color = colors.background,
-                modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter)
-            ) {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .height(64.dp)
-                ) {
-                    if (onBack != null) {
-                        IconButton(onClick = onBack, modifier = Modifier.align(Alignment.CenterStart).padding(start = 8.dp)) {
-                            Icon(Icons.Filled.ChevronLeft, "Back", tint = colors.textPrimary)
-                        }
-                    }
-                    Text(
-                        text = title,
-                        style = HomeTypography.SectionTitle.copy(fontSize = 18.sp, color = colors.textPrimary),
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        actions()
-                    }
-                }
-            }
+            // Static Collapsed Top Bar (e.g. Calendar page or inside Notes folder)
+            ElvanStaticCollapsedBar(
+                colors = colors,
+                title = title,
+                onBack = onBack,
+                actions = actions
+            )
         }
 
         // Layer 4: Bottom Fade Mask and Navbar

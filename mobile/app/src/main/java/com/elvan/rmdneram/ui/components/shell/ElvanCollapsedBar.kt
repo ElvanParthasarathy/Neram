@@ -198,3 +198,76 @@ private fun ElvanPill(
         }
     }
 }
+
+@Composable
+fun ElvanStaticCollapsedBar(
+    colors: HomeColors,
+    title: String,
+    onBack: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {}
+) {
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val ceiling = statusBarHeight + 20.dp
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = ceiling)
+            .zIndex(150f)
+    ) {
+        // Left side (Back Button / Title)
+        Box(
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .align(Alignment.CenterStart)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (onBack != null) {
+                    ElvanPill(liftProgress = 1.0f, colors = colors, modifier = Modifier.size(50.dp)) {
+                        ElvanTopBarIconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
+                                contentDescription = "Back",
+                                tint = colors.textPrimary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+                }
+                Text(
+                    text = title,
+                    style = HomeTypography.SectionTitle.copy(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colors.textPrimary
+                    ),
+                    modifier = Modifier.padding(start = if (onBack != null) 12.dp else 8.dp)
+                )
+            }
+        }
+
+        // Right side (Action Buttons Pill)
+        val menuAlpha by animateFloatAsState(
+            targetValue = if (ElvanMenuState.isMenuOpen) 0.0f else 1.0f,
+            animationSpec = tween(durationMillis = 200),
+            label = "staticMenuAlpha"
+        )
+        Box(
+            modifier = Modifier
+                .padding(end = 16.dp)
+                .align(Alignment.CenterEnd)
+                .graphicsLayer {
+                    alpha = menuAlpha
+                }
+        ) {
+            ElvanPill(liftProgress = 1.0f, colors = colors) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    actions()
+                }
+            }
+        }
+    }
+}
