@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -394,11 +393,6 @@ fun MainScreen(
                 val notesScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
                 val calendarScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
                 
-                var isHeaderExpanded by remember { mutableStateOf(true) }
-                val density = LocalDensity.current
-                val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-                val handoffOffsetPx = with(density) { (196.dp - statusBarHeight).toPx() }.toInt()
-
                 val activeScrollState = when(selectedTab) {
                     NavTab.Home -> homeScrollState
                     NavTab.Schedule -> scheduleScrollState
@@ -412,8 +406,6 @@ fun MainScreen(
                     showNavbar = !isLandscape,
                     useNewDesign = useNewDesign,
                     title = title,
-                    isHeaderExpanded = isHeaderExpanded,
-                    onHeaderExpandedChange = { isHeaderExpanded = it },
                     onBack = if (selectedTab == NavTab.Notes && isInsideNotesFolder) {
                         { notesViewModel.navigateUp() }
                     } else null,
@@ -516,27 +508,7 @@ fun MainScreen(
                             selectedTab = selectedTab,
                             onTabSelected = { tab, isDrag -> 
                                 isDragTransition = isDrag
-                                val oldTab = selectedTab
                                 selectedTab = tab 
-                                if (tab != oldTab && tab != NavTab.Calendar) {
-                                    val targetState = when(tab) {
-                                        NavTab.Home -> homeScrollState
-                                        NavTab.Schedule -> scheduleScrollState
-                                        NavTab.Notes -> notesScrollState
-                                        NavTab.Calendar -> null
-                                    }
-                                    targetState?.let { st ->
-                                        scope.launch {
-                                            if (isHeaderExpanded) {
-                                                st.scrollToItem(0, 0)
-                                            } else {
-                                                if (st.firstVisibleItemIndex == 0 && st.firstVisibleItemScrollOffset < handoffOffsetPx) {
-                                                    st.scrollToItem(0, handoffOffsetPx)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
                             },
                             onInteraction = { isNavInteracting = it },
                             onDragProgress = { navDragProgress = it }
