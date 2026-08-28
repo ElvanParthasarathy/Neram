@@ -41,6 +41,8 @@ fun ElvanShell(
     useNewDesign: Boolean = true,
     title: String = "",
     onBack: (() -> Unit)? = null,
+    isHeaderExpanded: Boolean? = null,
+    onHeaderExpandedChange: ((Boolean) -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     navbar: @Composable () -> Unit = {},
     content: @Composable () -> Unit
@@ -69,8 +71,17 @@ fun ElvanShell(
         with(density) { expandedHeight.toPx() }
     }
 
-    // One UI Physics: Brick Wall State
-    var isHeaderExpanded by remember { mutableStateOf(true) }
+    // One UI Physics: Brick Wall State & Reactive Scroll State
+    var internalHeaderExpanded by remember { mutableStateOf(true) }
+    val effectiveHeaderExpanded = isHeaderExpanded ?: internalHeaderExpanded
+    fun setHeaderExpanded(expanded: Boolean) {
+        if (isHeaderExpanded != null) {
+            onHeaderExpandedChange?.invoke(expanded)
+        } else {
+            internalHeaderExpanded = expanded
+        }
+    }
+    val currentScrollState by rememberUpdatedState(scrollState)
     val coroutineScope = rememberCoroutineScope()
 
     // Monitor boundary crossing without recomposing every pixel
@@ -78,8 +89,8 @@ fun ElvanShell(
         snapshotFlow {
             scrollState.firstVisibleItemIndex > 0 || scrollState.firstVisibleItemScrollOffset >= handoffShrinkOffsetPx
         }.distinctUntilChanged().collect { isPastBoundary ->
-            if (isPastBoundary && isHeaderExpanded) {
-                isHeaderExpanded = false
+            if (isPastBoundary && effectiveHeaderExpanded) {
+                setHeaderExpanded(false)
             }
         }
     }
@@ -91,7 +102,7 @@ fun ElvanShell(
                 if (!isNavbarVisible) {
                     isNavbarVisible = true
                 }
-                if (isHeaderExpanded && scrollState.firstVisibleItemIndex == 0) {
+                if (effectiveHeaderExpanded && scrollState.firstVisibleItemIndex == 0) {
                     val offset = scrollState.firstVisibleItemScrollOffset.toFloat()
                     if (offset > 0f && offset < handoffShrinkOffsetPx) {
                         val targetOffset = if (offset > handoffShrinkOffsetPx / 2f) handoffShrinkOffsetPx else 0f
@@ -107,7 +118,7 @@ fun ElvanShell(
                                 )
                             )
                             if (targetOffset >= handoffShrinkOffsetPx) {
-                                isHeaderExpanded = false
+                                setHeaderExpanded(false)
                             }
                         }
                     }
@@ -116,20 +127,20 @@ fun ElvanShell(
         }
     }
 
-    // Stable NestedScrollConnection — never reallocated during scroll to prevent jank
+    // Stable NestedScrollConnection — never reallocated during scroll or tab switch
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
-                val isItem0 = scrollState.firstVisibleItemIndex == 0
-                val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else (handoffShrinkOffsetPx + 10000f)
+                val isItem0 = currentScrollState.firstVisibleItemIndex == 0
+                val offset0 = if (isItem0) currentScrollState.firstVisibleItemScrollOffset.toFloat() else (handoffShrinkOffsetPx + 10000f)
 
                 // ── Brick Wall Brake (zero-lag momentum intercept) ──
-                if (!isHeaderExpanded) {
+                if (!effectiveHeaderExpanded) {
                     if (source == NestedScrollSource.UserInput) {
                         // User finger manually pulling down at the wall releases the brake
-                        if (delta > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
-                            isHeaderExpanded = true
+                        if (delta > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx + with(density) { 10.dp.toPx() }) {
+                            setHeaderExpanded(true)
                         }
                     } else if (source == NestedScrollSource.SideEffect && delta > 0f) {
                         // Fast fling moving upward towards top
@@ -166,10 +177,10 @@ fun ElvanShell(
             ): Offset {
                 // ── Samsung One UI Magnetic Catch-All ──
                 // If a high-speed fling skips past the boundary, instantly pull it back to the collapsed threshold
-                if (!isHeaderExpanded && source == NestedScrollSource.SideEffect) {
-                    if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
+                if (!effectiveHeaderExpanded && source == NestedScrollSource.SideEffect) {
+                    if (currentScrollState.firstVisibleItemIndex == 0 && currentScrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
                         coroutineScope.launch {
-                            scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
+                            currentScrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
                         }
                     }
                 }
@@ -177,9 +188,9 @@ fun ElvanShell(
             }
 
             override suspend fun onPreFling(available: Velocity): Velocity {
-                val isItem0 = scrollState.firstVisibleItemIndex == 0
-                val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else 10000f
-                if (!isHeaderExpanded && available.y > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
+                val isItem0 = currentScrollState.firstVisibleItemIndex == 0
+                val offset0 = if (isItem0) currentScrollState.firstVisibleItemScrollOffset.toFloat() else 10000f
+                if (!effectiveHeaderExpanded && available.y > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
                     return available // Absorb remaining fling velocity at the wall
                 }
                 if (available.y < -300f && isNavbarVisible) {
@@ -194,8 +205,8 @@ fun ElvanShell(
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 if (!isNavbarVisible) isNavbarVisible = true
                 // Magnetic Lock at rest
-                if (!isHeaderExpanded && scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
-                    scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
+                if (!effectiveHeaderExpanded && currentScrollState.firstVisibleItemIndex == 0 && currentScrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
+                    currentScrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
                 }
                 return Velocity.Zero
             }
