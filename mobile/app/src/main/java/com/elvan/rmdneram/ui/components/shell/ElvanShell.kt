@@ -159,6 +159,23 @@ fun ElvanShell(
                 return Offset.Zero
             }
 
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                // ── Samsung One UI Magnetic Catch-All ──
+                // If a high-speed fling skips past the boundary, instantly pull it back to the collapsed threshold
+                if (!isHeaderExpanded && source == NestedScrollSource.SideEffect) {
+                    if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
+                        coroutineScope.launch {
+                            scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
+                        }
+                    }
+                }
+                return Offset.Zero
+            }
+
             override suspend fun onPreFling(available: Velocity): Velocity {
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else 10000f
@@ -176,6 +193,10 @@ fun ElvanShell(
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 if (!isNavbarVisible) isNavbarVisible = true
+                // Magnetic Lock at rest
+                if (!isHeaderExpanded && scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
+                    scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
+                }
                 return Velocity.Zero
             }
         }
