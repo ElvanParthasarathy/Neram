@@ -87,10 +87,10 @@ fun AboutAppScreen(
                // Photo Removed per request
 
                 Text(
-                    "நேரம்",
+                    "à®¨à¯‡à®°à®®à¯",
                     style = HomeTypography.PageTitle.copy(
                         fontSize = 48.sp,
-                        fontFamily = com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
+                        fontFamily = com.elvan.rmdneram.ui.theme.ElvanSansFontFamily
                     ),
                     color = colors.textPrimary
                 )
@@ -118,10 +118,10 @@ fun AboutAppScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 Text(
-                    "Neram (நேரம், meaning 'Time') is a sleek, all-in-one campus companion app designed specifically for RMK Group of Institutions students. It brings together everything you need to stay organized and informed throughout your academic day.\n\nThis application was developed by Jaiprakash Parthasarathy, a student from the ECE Department of RMD Engineering College.",
+                    "Neram (à®¨à¯‡à®°à®®à¯, meaning 'Time') is a sleek, all-in-one campus companion app designed specifically for RMK Group of Institutions students. It brings together everything you need to stay organized and informed throughout your academic day.\n\nThis application was developed by Jaiprakash Parthasarathy, a student from the ECE Department of RMD Engineering College.",
                     style = HomeTypography.MessageBody.copy(
                         lineHeight = 26.sp,
-                        fontFamily = com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
+                        fontFamily = com.elvan.rmdneram.ui.theme.ElvanSansFontFamily
                     ),
                     color = colors.textSecondary,
                     textAlign = TextAlign.Start
@@ -186,7 +186,7 @@ fun AboutAppScreen(
 
             // Footer
             Text(
-                "Built with ❤️ by Elvan Parthasarathy",
+                "Built with â¤ï¸ by Elvan Parthasarathy",
                 style = HomeTypography.PillTime,
                 color = colors.textSecondary.copy(alpha = 0.6f),
                 modifier = Modifier.fillMaxWidth(),

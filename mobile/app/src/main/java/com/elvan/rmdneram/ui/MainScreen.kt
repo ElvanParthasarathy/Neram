@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material3.*
 
 import androidx.compose.material.icons.filled.DateRange
@@ -273,6 +274,31 @@ fun MainScreen(
         if (!isNavInteracting) navDragProgress = selectedTab.ordinal.toFloat()
     }
 
+    var isNavbarVisible by remember { mutableStateOf(true) }
+    val nestedScrollConnection = remember {
+        object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+            override fun onPreScroll(available: androidx.compose.ui.geometry.Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): androidx.compose.ui.geometry.Offset {
+                val delta = available.y
+                if (delta > 0f && !isNavbarVisible) {
+                    // Scrolling UP (content moving down) -> Show immediately
+                    isNavbarVisible = true
+                } else if (delta < -2f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.SideEffect && isNavbarVisible) {
+                    // Scrolling DOWN (content moving up) during a Fling (SideEffect) -> Hide
+                    isNavbarVisible = false
+                }
+                return androidx.compose.ui.geometry.Offset.Zero
+            }
+            
+            override suspend fun onPostFling(consumed: androidx.compose.ui.unit.Velocity, available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
+                // Scroll completely stopped after fling -> Show
+                if (!isNavbarVisible) {
+                    isNavbarVisible = true
+                }
+                return androidx.compose.ui.unit.Velocity.Zero
+            }
+        }
+    }
+
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -283,6 +309,7 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colors.background)
+                .nestedScroll(nestedScrollConnection)
         ) {
         
         // Navigation Rail (Landscape Only)
@@ -461,57 +488,7 @@ fun MainScreen(
             }
         }
         
-        // Grey Frame Overlay - Sits ON TOP of content
-        // Creates the visual "margin" without changing the content layout size
-        val density = androidx.compose.ui.platform.LocalDensity.current
-        val bottomMargin = with(density) {
-            val navBarHeight = WindowInsets.navigationBars.getBottom(this).toFloat()
-            if (currentScreen == "tabs" && !isLandscape) (80.dp.toPx() + navBarHeight) else (12.dp.toPx() + navBarHeight)
-        }
-        val leftMargin = with(density) { 12.dp.toPx() } // Content Box is already padded
-        
-        // Canvas now applies to ALL screens including settings
-        val statusBarHeight = WindowInsets.statusBars.getTop(density).toFloat()
-        androidx.compose.foundation.Canvas(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            val cornerRadius = 24.dp.toPx() // Matches HomeDimens.ItemRadius
-            val topMargin = statusBarHeight + 64.dp.toPx() // Match dynamic TopMenuBar position
-            val rightMargin = 12.dp.toPx()
-            
-            // Outer rectangle (Whole Screen)
-            val outerPath = androidx.compose.ui.graphics.Path().apply {
-                addRect(androidx.compose.ui.geometry.Rect(0f, 0f, size.width, size.height))
-            }
-            
-            // Inner rectangle (The "Hole" / Content Area)
-            val innerPath = androidx.compose.ui.graphics.Path().apply {
-                addRoundRect(
-                    androidx.compose.ui.geometry.RoundRect(
-                        rect = androidx.compose.ui.geometry.Rect(
-                            left = leftMargin,
-                            top = topMargin,
-                            right = size.width - rightMargin,
-                            bottom = size.height - bottomMargin
-                        ),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius)
-                    )
-                )
-            }
-            
-            // Subtract Inner from Outer to create the Frame
-            val framePath = androidx.compose.ui.graphics.Path.combine(
-                androidx.compose.ui.graphics.PathOperation.Difference,
-                outerPath,
-                innerPath
-            )
-            
-            // Draw the Grey Frame
-            drawPath(
-                path = framePath,
-                color = colors.background
-            )
-        }
+        // Removed Grey Frame Overlay (Rounded Borders) to match Flutter's edge-to-edge ElvanShell
         
         // Status Bar Scrim (Opaque) - Always needed now
         Box(
@@ -693,16 +670,77 @@ fun MainScreen(
         }
         // Bottom Navigation (visible only on tabs, hidden on other screens in portrait)
         if (currentScreen == "tabs" && !isLandscape) {
-            BottomNavBar(
-                selectedTab = selectedTab,
-                onTabSelected = { tab, isDrag ->
-                    isDragTransition = isDrag
-                    selectedTab = tab
-                },
-                onInteraction = { isNavInteracting = it },
-                onDragProgress = { navDragProgress = it },
-                modifier = Modifier.align(Alignment.BottomCenter)
+            // ── Layer 2: Bottom boundary gradient fade mask ──
+            // Flutter: LinearGradient from transparent → solid at bottom
+            val navbarHeight = 60.dp
+            val navbarBottomMargin = 28.dp
+            val fadeMaskHeight = 96.dp
+            val navBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(fadeMaskHeight + navbarHeight + navbarBottomMargin + navBarsPadding)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colorStops = arrayOf(
+                                0.0f to colors.background.copy(alpha = 0f),
+                                0.3f to colors.background.copy(alpha = 0.16f),
+                                0.65f to colors.background.copy(alpha = 0.55f),
+                                1.0f to colors.background,
+                            )
+                        )
+                    )
             )
+
+            // ── Layer 2.5: Top boundary gradient fade mask ──
+            // Flutter: LinearGradient from solid at top → transparent below
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(fadeMaskHeight)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colorStops = arrayOf(
+                                0.0f to colors.background,
+                                0.35f to colors.background.copy(alpha = 0.55f),
+                                0.7f to colors.background.copy(alpha = 0.16f),
+                                1.0f to colors.background.copy(alpha = 0f),
+                            )
+                        )
+                    )
+            )
+
+            // ── Layer 3: Floating pill navbar ──
+            androidx.compose.animation.AnimatedVisibility(
+                visible = isNavbarVisible,
+                enter = androidx.compose.animation.fadeIn(
+                    animationSpec = androidx.compose.animation.core.tween(
+                        durationMillis = 280,
+                        // Flutter Curves.easeInCubic (reverse curve)
+                        easing = androidx.compose.animation.core.CubicBezierEasing(0.55f, 0.05f, 0.675f, 0.19f)
+                    )
+                ),
+                exit = androidx.compose.animation.fadeOut(
+                    animationSpec = androidx.compose.animation.core.tween(
+                        durationMillis = 280,
+                        // Flutter Curves.easeOutCubic (forward curve)
+                        easing = androidx.compose.animation.core.CubicBezierEasing(0.215f, 0.61f, 0.355f, 1.0f)
+                    )
+                ),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                BottomNavBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = { tab, isDrag ->
+                        isDragTransition = isDrag
+                        selectedTab = tab
+                    },
+                    onInteraction = { isNavInteracting = it },
+                    onDragProgress = { navDragProgress = it }
+                )
+            }
         }
         } // End Main Content Box
         

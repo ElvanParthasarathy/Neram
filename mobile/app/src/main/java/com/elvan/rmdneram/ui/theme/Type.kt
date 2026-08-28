@@ -34,7 +34,7 @@ private fun createTypography(fontFamily: FontFamily) = Typography(
 )
 
 // App Typography (Unified)
-val Typography = createTypography(GoogleSansFontFamily)
+val Typography = createTypography(ElvanSansFontFamily)
 
 /**
  * Returns the appropriate Typography.

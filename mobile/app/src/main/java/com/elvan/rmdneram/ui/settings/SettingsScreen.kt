@@ -34,7 +34,7 @@ import com.elvan.rmdneram.ui.theme.AppColors
 import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.ui.theme.AppStrings
-import com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
+import com.elvan.rmdneram.ui.theme.ElvanSansFontFamily
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.elvan.rmdneram.data.model.UserProfile
@@ -179,8 +179,8 @@ fun SettingsScreen(
                 SettingsListItem(
                     icon = Icons.Outlined.Group,
                     iconBgColor = AppColors.Purple,
-                    title = if (lang == AppStrings.TAMIL) "நிர்வாகக் குழு" else "Management Team",
-                    description = if (lang == AppStrings.TAMIL) "நிறுவனர்கள் & இயக்குநர் குழு" else "Founders & Board of Directors",
+                    title = if (lang == AppStrings.TAMIL) "à®¨à®¿à®°à¯à®µà®¾à®•à®•à¯ à®•à¯à®´à¯" else "Management Team",
+                    description = if (lang == AppStrings.TAMIL) "à®¨à®¿à®±à¯à®µà®©à®°à¯à®•à®³à¯ & à®‡à®¯à®•à¯à®•à¯à®¨à®°à¯ à®•à¯à®´à¯" else "Founders & Board of Directors",
                     onClick = onNavigateToManagementTeam,
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -189,8 +189,8 @@ fun SettingsScreen(
                 SettingsListItem(
                     icon = Icons.Outlined.AccountBalance,
                     iconBgColor = AppColors.Green,
-                    title = if (lang == AppStrings.TAMIL) "RMK குழு பற்றி" else "About RMK Group",
-                    description = if (lang == AppStrings.TAMIL) "பார்வை, பணி & அடையாளம்" else "Vision, Mission & Identity",
+                    title = if (lang == AppStrings.TAMIL) "RMK à®•à¯à®´à¯ à®ªà®±à¯à®±à®¿" else "About RMK Group",
+                    description = if (lang == AppStrings.TAMIL) "à®ªà®¾à®°à¯à®µà¯ˆ, à®ªà®£à®¿ & à®…à®Ÿà¯ˆà®¯à®¾à®³à®®à¯" else "Vision, Mission & Identity",
                     onClick = onNavigateToAboutRMK,
                     textColor = colors.textPrimary,
                     subTextColor = colors.textSecondary
@@ -215,7 +215,7 @@ fun SettingsScreen(
                     icon = Icons.Outlined.Logout,
                     iconBgColor = AppColors.Red,
                     title = AppStrings.Settings.signOut(lang),
-                    description = if (lang == AppStrings.TAMIL) "நேரம் கணக்கிலிருந்து வெளியேறு" else "Log out of your Neram account",
+                    description = if (lang == AppStrings.TAMIL) "à®¨à¯‡à®°à®®à¯ à®•à®£à®•à¯à®•à®¿à®²à®¿à®°à¯à®¨à¯à®¤à¯ à®µà¯†à®³à®¿à®¯à¯‡à®±à¯" else "Log out of your Neram account",
                     onClick = { showLogoutDialog = true },
                     textColor = AppColors.Red, // Explicitly red for destruction
                     subTextColor = colors.textSecondary

@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
 import com.elvan.rmdneram.ui.theme.AppStrings
-import com.elvan.rmdneram.ui.theme.GoogleSansFontFamily
+import com.elvan.rmdneram.ui.theme.ElvanSansFontFamily
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,7 +42,7 @@ fun LanguageSettingsScreen(
     val cardColor = colors.surface
     
     // Use the resolved effective language for displaying strings
-    // (LocalAppLanguage is already resolved from "system" → actual locale by MainScreen)
+    // (LocalAppLanguage is already resolved from "system" â†’ actual locale by MainScreen)
     val lang = LocalAppLanguage.current
 
     Scaffold(
@@ -143,7 +143,7 @@ fun LanguageSettingsScreen(
                     icon = Icons.Outlined.Language,
                     iconBgColor = AppColors.Orange,
                     title = AppStrings.Settings.tamil(lang),
-                    subtitle = "தமிழ்",
+                    subtitle = "à®¤à®®à®¿à®´à¯",
                     isSelected = currentLanguage == AppStrings.TAMIL,
                     onClick = { onLanguageChange(AppStrings.TAMIL) },
                     textColor = colors.textPrimary,
@@ -157,11 +157,11 @@ fun LanguageSettingsScreen(
             // Info Text
             Text(
                 if (lang == AppStrings.TAMIL) 
-                    "மொழி மாற்றம் வழிசெலுத்தல், முகப்பு மெனு மற்றும் அமைப்புகளுக்கு மட்டுமே பொருந்தும். பாடநேர அட்டவணை தரவு மாறாது."
+                    "à®®à¯Šà®´à®¿ à®®à®¾à®±à¯à®±à®®à¯ à®µà®´à®¿à®šà¯†à®²à¯à®¤à¯à®¤à®²à¯, à®®à¯à®•à®ªà¯à®ªà¯ à®®à¯†à®©à¯ à®®à®±à¯à®±à¯à®®à¯ à®…à®®à¯ˆà®ªà¯à®ªà¯à®•à®³à¯à®•à¯à®•à¯ à®®à®Ÿà¯à®Ÿà¯à®®à¯‡ à®ªà¯Šà®°à¯à®¨à¯à®¤à¯à®®à¯. à®ªà®¾à®Ÿà®¨à¯‡à®° à®…à®Ÿà¯à®Ÿà®µà®£à¯ˆ à®¤à®°à®µà¯ à®®à®¾à®±à®¾à®¤à¯."
                 else 
                     "Language change applies only to navigation, home menu, and settings. Timetable data will not change.",
                 style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = if (lang == AppStrings.TAMIL) GoogleSansFontFamily else null
+                    fontFamily = if (lang == AppStrings.TAMIL) ElvanSansFontFamily else null
                 ),
                 color = colors.textSecondary,
                 modifier = Modifier.padding(horizontal = 12.dp)
