@@ -107,14 +107,18 @@ fun ScheduleMainLayout(
                 item { Spacer(Modifier.height(280.dp)) }
                 // --- Switcher (Movable) ---
                 item {
-                    Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = HomeDimens.ContentPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
                         ViewTypeTabsRow(
                             activeTab = activeTab,
                             onTabSelected = onTabSelected,
                             colors = colors,
                             onInteraction = { isViewTypeSwitching = it },
-                            onDragProgress = { viewTypeDragProgress = it },
-                            modifier = Modifier.fillMaxWidth()
+                            onDragProgress = { viewTypeDragProgress = it }
                         )
                     }
                 }

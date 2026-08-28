@@ -59,6 +59,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.ui.draw.rotate
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.ui.graphics.graphicsLayer
+import com.elvan.rmdneram.ui.components.shell.cssShadow
+import com.elvan.rmdneram.ui.navigation.MaterialSymbols
+import kotlin.math.floor
 import java.time.LocalDate
 
 /**
@@ -1095,167 +1102,244 @@ fun ViewTypeTabsRow(
     onDragProgress: (Float) -> Unit = {}
 ) {
     val lang = LocalAppLanguage.current
-    val tabs = listOf(
-        Triple(AppStrings.Schedule.classesTab(lang), "class", CustomIcons.Calendar),
-        Triple(AppStrings.Schedule.examsTab(lang), "exams", Icons.Default.EmojiEvents)
+    data class TabItem(
+        val label: String,
+        val id: String,
+        val icon: ImageVector,
+        val activeIcon: ImageVector
     )
-    
-    val selectedIndex = tabs.indexOfFirst { it.second == activeTab }.coerceAtLeast(0)
-
-    // "One Pill" Container
-    Surface(
-        modifier = modifier,
-        shape = HomeShapes.Pill,
-        color = colors.surface, // Use Card Color as requested
-    ) {
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp)
-        ) {
-            val width = maxWidth
-            val itemWidth = width / tabs.size
-            
-            // Dynamic Scale: Grow by ~12dp max to avoid clipping large items
-            val maxScale = (1f + (12.dp / itemWidth)).coerceAtMost(1.15f)
-
-            // Interaction State for Zoom Effect
-            var isInteracting by remember { mutableStateOf(false) }
-            val scale by animateFloatAsState(
-                targetValue = if (isInteracting) maxScale else 1.0f,
-                label = "pill_zoom"
+    val tabs = remember(lang) {
+        listOf(
+            TabItem(
+                label = AppStrings.Schedule.classesTab(lang),
+                id = "class",
+                icon = MaterialSymbols.Rounded.Schedule,
+                activeIcon = MaterialSymbols.Rounded.ScheduleFill
+            ),
+            TabItem(
+                label = AppStrings.Schedule.examsTab(lang),
+                id = "exams",
+                icon = MaterialSymbols.Rounded.Description,
+                activeIcon = MaterialSymbols.Rounded.DescriptionFill
             )
-            
-            // Interaction State
-            var currentDragOffset by remember { mutableStateOf<Float?>(null) }
-            val scope = rememberCoroutineScope()
-            // Unified Interaction Handler
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(36.dp)
-                    .zIndex(2f)
-                            .pointerInput(itemWidth) {
-                                awaitPointerEventScope {
-                                    while (true) {
-                                        val down = awaitFirstDown()
-                                        // Don't immediately trigger interaction (wait for drag/long press)
-                                        currentDragOffset = null // Snap on tap
-                                        
-                                        val initialIndex = (down.position.x / itemWidth.toPx()).toInt().coerceIn(0, tabs.size - 1)
-                                        var currentIndex = initialIndex
-                                        var isDrag = false
-                                        val dragThreshold = 10f
+        )
+    }
+    val itemCount = tabs.size
+    val actualIndex = tabs.indexOfFirst { it.id == activeTab }.coerceAtLeast(0)
 
-                                        // Long Press Job (300ms)
-                                        val longPressJob = scope.launch {
-                                            delay(300)
-                                            if (!isDrag) {
-                                                isDrag = true
-                                                isInteracting = true
-                                                onInteraction(true)
-                                                onDragProgress(currentIndex.toFloat())
-                                            }
-                                        }
+    val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
 
-                                        var pointerId = down.id
-                                        while (true) {
-                                            val event = awaitPointerEvent()
-                                            val pointerChange = event.changes.firstOrNull { it.id == pointerId }
-                                            
-                                            if (pointerChange == null || pointerChange.changedToUp() || pointerChange.isConsumed) {
-                                                break
-                                            }
+    // Exact Flutter Niril dimensions from elvan_maatri.dart:
+    // layoutWidth = 140.dp, bgWidth = 148.dp, height = 48.dp
+    val layoutWidth = 140.dp
+    val bgWidth = 148.dp
+    val horizontalPadding = 8.dp
+    val verticalPadding = 4.dp
+    val totalWidth = (layoutWidth * itemCount) + (horizontalPadding * 2)
 
-                                            // Check if drag exceeded threshold
-                                            val dragDistance = (pointerChange.position - down.position).getDistance()
-                                            if (dragDistance > dragThreshold) {
-                                                longPressJob.cancel()
-                                                if (!isDrag) {
-                                                    isDrag = true
-                                                    isInteracting = true
-                                                    onInteraction(true)
-                                                }
-                                                
-                                                currentDragOffset = pointerChange.position.x
-                                                val exactIndex = pointerChange.position.x / itemWidth.toPx()
-                                                onDragProgress(exactIndex.coerceIn(0f, (tabs.size - 1).toFloat()))
-                                                currentIndex = exactIndex.toInt().coerceIn(0, tabs.size - 1)
-                                                
-                                                pointerChange.consume()
-                                            }
-                                        }
+    var isInteracting by remember { mutableStateOf(false) }
+    var dragOffsetPx by remember { mutableStateOf<Float?>(null) }
+    var touchOffsetFromCenterPx by remember { mutableStateOf(0f) }
+    var hoverIndex by remember { mutableStateOf<Int?>(null) }
+    var localLockedIndex by remember { mutableStateOf<Int?>(null) }
+    var snapNextFrame by remember { mutableStateOf(false) }
 
-                                        // Release Logic
-                                        longPressJob.cancel()
-                                        onTabSelected(tabs[currentIndex].second)
-                                        if (isDrag) {
-                                            onInteraction(false)
-                                        }
-                                        isInteracting = false
-                                        currentDragOffset = null
-                                    }
-                                }
-                            }
-            )
+    val layoutWidthPx = with(density) { layoutWidth.toPx() }
+    val bgWidthPx = with(density) { bgWidth.toPx() }
 
-            // Animated Selection Pill
-            val targetOffset = if (isInteracting && currentDragOffset != null) {
-                with(LocalDensity.current) { (currentDragOffset!! - itemWidth.toPx() / 2).toDp() }
-            } else {
-                itemWidth * selectedIndex
+    LaunchedEffect(actualIndex) {
+        localLockedIndex = null
+        snapNextFrame = true
+    }
+    LaunchedEffect(snapNextFrame) {
+        if (snapNextFrame) {
+            kotlinx.coroutines.yield()
+            snapNextFrame = false
+        }
+    }
+
+    val activeVisualIndex = if (isInteracting && hoverIndex != null) {
+        hoverIndex!!
+    } else {
+        localLockedIndex ?: actualIndex
+    }
+
+    // Outer AnimatedScale: 1.02x on drag
+    val containerScale by animateFloatAsState(
+        targetValue = if (isInteracting) 1.02f else 1.0f,
+        animationSpec = tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
+        label = "containerScale"
+    )
+
+    val overlapPx = (bgWidthPx - layoutWidthPx) / 2f
+    val maxLeftPx = ((itemCount - 1) * layoutWidthPx) - overlapPx
+    val minLeftPx = -overlapPx
+
+    val targetLeftPx = if (isInteracting && dragOffsetPx != null) {
+        (dragOffsetPx!! - (bgWidthPx / 2f)).coerceIn(minLeftPx, maxLeftPx)
+    } else {
+        ((activeVisualIndex * layoutWidthPx) - overlapPx).coerceIn(minLeftPx, maxLeftPx)
+    }
+
+    val animatedLeftPx by animateFloatAsState(
+        targetValue = targetLeftPx,
+        animationSpec = if (snapNextFrame || (isInteracting && dragOffsetPx != null)) {
+            snap()
+        } else {
+            tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
+        },
+        label = "pillX"
+    )
+
+    val isDark = colors.isDark
+
+    Box(
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = containerScale
+                scaleY = containerScale
+                clip = false
             }
-            
-            val constrainedTarget = targetOffset.coerceIn(0.dp, width - itemWidth)
+            .height(48.dp)
+            .width(totalWidth),
+        contentAlignment = Alignment.Center
+    ) {
+        // Outer Container (Frosted glass capsule)
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .cssShadow(color = Color.Black, alpha = 0.04f, blurRadius = 12.dp, offsetY = 2.dp)
+                .background(
+                    color = if (isDark) Color(0xFF1E1E1E).copy(alpha = 0.88f)
+                    else Color(0xFFFFFFFF).copy(alpha = 0.88f),
+                    shape = CircleShape
+                )
+                .border(
+                    width = 0.5.dp,
+                    color = if (isDark) Color.White.copy(alpha = 0.08f)
+                    else Color.White.copy(alpha = 0.6f),
+                    shape = CircleShape
+                )
+        )
 
-            val indicatorOffset by animateDpAsState(
-                targetValue = constrainedTarget,
-                animationSpec = if (isInteracting && currentDragOffset != null) snap() else spring(stiffness = Spring.StiffnessMediumLow),
-                label = "indicator"
-            )
-            
+        // Gesture Detection Area
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+                .pointerInput(layoutWidthPx) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown()
+                        val clickIndex = floor(down.position.x / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
+
+                        var wasDrag = false
+                        hoverIndex = clickIndex
+                        touchOffsetFromCenterPx = down.position.x - ((clickIndex * layoutWidthPx) + (layoutWidthPx / 2f))
+                        isInteracting = true
+                        onInteraction(true)
+                        onDragProgress(clickIndex.toFloat())
+
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                            if (!change.pressed) {
+                                change.consume()
+                                break
+                            }
+
+                            val currentX = change.position.x
+                            if (!wasDrag && kotlin.math.abs(currentX - down.position.x) > 8f) {
+                                wasDrag = true
+                            }
+
+                            if (wasDrag) {
+                                dragOffsetPx = currentX - touchOffsetFromCenterPx
+                                val currentHover = floor((currentX - touchOffsetFromCenterPx) / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
+                                hoverIndex = currentHover
+                                val rawProgress = (currentX - touchOffsetFromCenterPx) / layoutWidthPx
+                                onDragProgress(rawProgress.coerceIn(0f, (itemCount - 1).toFloat()))
+                            }
+                            change.consume()
+                        }
+
+                        val finalIndex = hoverIndex ?: clickIndex
+                        localLockedIndex = finalIndex
+                        isInteracting = false
+                        dragOffsetPx = null
+                        hoverIndex = null
+                        onInteraction(false)
+
+                        coroutineScope.launch {
+                            delay(150)
+                            onTabSelected(tabs[finalIndex].id)
+                        }
+                    }
+                }
+        ) {
+            // Layer: Sliding Selection Capsule
+            val pillOffsetDp = with(density) { (animatedLeftPx - if (isInteracting) 4.dp.toPx() else 0f).toDp() }
+            val currentPillWidth = if (isInteracting) bgWidth + 8.dp else bgWidth
+            val currentPillHeight = if (isInteracting) 48.dp else 40.dp
+            val currentPillTop = if (isInteracting) (-4).dp else 0.dp
+
             Box(
                 modifier = Modifier
-                    .offset(x = indicatorOffset)
-                    .width(itemWidth)
-                    .height(36.dp)
-                    .scale(scale)
-                    .clip(HomeShapes.Pill)
-                    // Subtle neutral selection - theme matching
-                    .background(colors.textSecondary.copy(alpha = 0.15f))
+                    .offset(x = pillOffsetDp, y = currentPillTop)
+                    .width(currentPillWidth)
+                    .height(currentPillHeight)
+                    .cssShadow(
+                        color = Color.Black,
+                        alpha = if (isDark) 0.15f else 0.04f,
+                        blurRadius = 4.dp,
+                        offsetY = 1.dp
+                    )
+                    .background(
+                        color = if (isDark) Color(0xFF2C2C2C).copy(alpha = 0.95f)
+                        else Color(0xFFE5E5E5).copy(alpha = 0.95f),
+                        shape = CircleShape
+                    )
             )
 
-            // Content Items (Icon + Text)
+            // Items Row (Icons + Labels)
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                tabs.forEachIndexed { index, (label, _, icon) ->
-                    val distance = abs(indicatorOffset.value - (itemWidth.value * index))
-                    val fraction = 1f - (distance / itemWidth.value).coerceIn(0f, 1f)
-                    
-                    val contentColor = lerp(colors.textSecondary, colors.textPrimary, fraction)
-                    
+                tabs.forEachIndexed { index, item ->
+                    val isActive = index == activeVisualIndex
+                    val itemColor = if (isActive) {
+                        if (isDark) Color.White else Color(0xFF1A1A1A)
+                    } else {
+                        if (isDark) Color(0xFF8E8E93) else Color(0xFF7C7C80)
+                    }
+
                     Box(
                         modifier = Modifier
-                            .width(itemWidth)
-                            .height(36.dp),
+                            .width(layoutWidth)
+                            .fillMaxHeight(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
                             Icon(
-                                imageVector = icon,
-                                contentDescription = null,
-                                tint = contentColor,
-                                modifier = Modifier.size(16.dp)
+                                imageVector = if (isActive) item.activeIcon else item.icon,
+                                contentDescription = item.label,
+                                tint = itemColor,
+                                modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = label,
+                                text = item.label,
                                 style = HomeTypography.PillTitle,
                                 fontSize = 14.sp,
-                                color = contentColor,
-                                fontWeight = if (fraction > 0.5f) FontWeight.Bold else FontWeight.Medium,
+                                fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
+                                color = itemColor,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
                             )
                         }
