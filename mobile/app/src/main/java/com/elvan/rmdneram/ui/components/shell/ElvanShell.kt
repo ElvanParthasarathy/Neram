@@ -111,14 +111,6 @@ fun ElvanShell(
                             }
                         }
                     }
-                } else if (!isHeaderExpanded && scrollState.firstVisibleItemIndex == 0) {
-                    // Exact Flutter jumpTo(handOffOffset) lock: guarantees zero visual leaks
-                    val offset = scrollState.firstVisibleItemScrollOffset.toFloat()
-                    if (offset < handoffShrinkOffsetPx) {
-                        coroutineScope.launch {
-                            scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
-                        }
-                    }
                 }
             }
         }
@@ -253,8 +245,7 @@ fun ElvanShell(
                     scrollOffsetPx = currentScrollOffset,
                     collisionOffsetPx = collisionOffsetPx,
                     expandedHeight = expandedHeight,
-                    hasLeadingWidget = onBack != null,
-                    isHeaderExpanded = isHeaderExpanded
+                    hasLeadingWidget = onBack != null
                 )
             }
             
@@ -267,7 +258,6 @@ fun ElvanShell(
                 title = if (useNewDesign) null else title,
                 onBack = onBack,
                 navOpacity = effectiveNavOpacity,
-                isHeaderExpanded = isHeaderExpanded,
                 actions = actions
             )
         } else {
