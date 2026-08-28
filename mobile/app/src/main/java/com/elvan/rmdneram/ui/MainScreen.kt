@@ -685,15 +685,6 @@ fun MainScreen(
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         } // End Main Content Box
-        
-        // Navigation Bar Scrim (at wrapper level) - Prevents content visibility during pull-to-refresh
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
-                .background(colors.background)
-        )
         } // End Wrapper Box
     }
 }

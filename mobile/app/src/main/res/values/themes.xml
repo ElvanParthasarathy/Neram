@@ -3,10 +3,10 @@
     <!-- Main app theme (Light) - no splash icon, clean light background -->
     <style name="Theme.Neram" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">#FAFAFA</item>
-        <item name="android:statusBarColor">#FAFAFA</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
         <item name="android:windowSplashScreenIconBackgroundColor">#FAFAFA</item>
-        <item name="android:navigationBarColor">#FAFAFA</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>
     </style>
     
