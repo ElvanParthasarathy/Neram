@@ -478,28 +478,29 @@ fun MainScreen(
                                         modifier = Modifier.size(22.dp)
                                     )
                                 }
-                                DropdownMenu(
+                                com.elvan.rmdneram.ui.components.shell.ElvanPopupMenu(
                                     expanded = menuExpanded,
                                     onDismissRequest = { menuExpanded = false },
-                                    modifier = Modifier.background(if (colors.isDark) Color(0xFF1E1E1E) else Color.White)
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(AppStrings.Settings.title(lang), color = colors.textPrimary) },
-                                        onClick = { 
-                                            menuExpanded = false
-                                            settingsReferrer = "tabs"
-                                            currentScreen = "settings"
-                                            scope.launch { settingsScrollState.scrollTo(0) }
-                                        }
+                                    colors = colors,
+                                    items = listOf(
+                                        com.elvan.rmdneram.ui.components.shell.ElvanPopupMenuItem(
+                                            title = AppStrings.Settings.title(lang),
+                                            icon = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.Settings,
+                                            onClick = {
+                                                settingsReferrer = "tabs"
+                                                currentScreen = "settings"
+                                                scope.launch { settingsScrollState.scrollTo(0) }
+                                            }
+                                        ),
+                                        com.elvan.rmdneram.ui.components.shell.ElvanPopupMenuItem(
+                                            title = AppStrings.Settings.importantSites(lang),
+                                            icon = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.Language,
+                                            onClick = {
+                                                currentScreen = "sites"
+                                            }
+                                        )
                                     )
-                                    DropdownMenuItem(
-                                        text = { Text(AppStrings.Settings.importantSites(lang), color = colors.textPrimary) },
-                                        onClick = { 
-                                            menuExpanded = false
-                                            currentScreen = "sites"
-                                        }
-                                    )
-                                }
+                                )
                             }
                         }
                     },
