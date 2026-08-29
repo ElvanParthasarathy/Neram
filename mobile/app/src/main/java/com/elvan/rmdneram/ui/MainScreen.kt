@@ -148,61 +148,40 @@ fun MainScreen(
                               targetScrollState.firstVisibleItemScrollOffset > (brinkOffsetPx + 10)
             scope.launch {
                 if (hasExpanded && isPastBrink) {
-                    // 1st Tap: Scroll directly and smoothly to brink wall without two-phase speed breaker
+                    // 1st Tap: Scroll to brink wall (header stays collapsed)
                     if (targetScrollState.firstVisibleItemIndex == 0) {
-                        val currentOffset = targetScrollState.firstVisibleItemScrollOffset
-                        val delta = (brinkOffsetPx - currentOffset).toFloat()
+                        // Already on item 0 — exact pixel delta known, single smooth curve
+                        val delta = -(targetScrollState.firstVisibleItemScrollOffset - brinkOffsetPx).toFloat()
                         targetScrollState.animateScrollBy(
                             value = delta,
-                            animationSpec = tween(
-                                durationMillis = (180f + (kotlin.math.abs(delta) * 0.2f)).toInt().coerceIn(200, 320),
-                                easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-                            )
+                            animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
                         )
                     } else {
-                        val visibleItems = targetScrollState.layoutInfo.visibleItemsInfo
-                        val firstVisible = visibleItems.firstOrNull()
-                        val firstIndex = firstVisible?.index ?: targetScrollState.firstVisibleItemIndex
-                        val firstOffset = firstVisible?.offset ?: 0
-
-                        val topSpacerHeightPx = with(density) { (280.dp - 16.dp).toPx() }
-                        val sectionSpacingPx = with(density) { 16.dp.toPx() }
-                        val avgItemHeightPx = with(density) { 110.dp.toPx() }
-                        val estimatedItemsHeight = if (firstIndex > 1) (firstIndex - 1) * (avgItemHeightPx + sectionSpacingPx) else 0f
-                        val accumulatedAbove = topSpacerHeightPx + sectionSpacingPx + estimatedItemsHeight
-                        
-                        val estimatedItem0Top = firstOffset - accumulatedAbove
-                        val desiredItem0Top = -brinkOffsetPx.toFloat()
-                        val deltaToScroll = estimatedItem0Top - desiredItem0Top
-
-                        if (deltaToScroll < 0f) {
-                            targetScrollState.animateScrollBy(
-                                value = deltaToScroll,
-                                animationSpec = tween(
-                                    durationMillis = (220f + (kotlin.math.abs(deltaToScroll) * 0.12f)).toInt().coerceIn(240, 380),
-                                    easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-                                )
-                            )
-                        }
-                        if (targetScrollState.firstVisibleItemIndex == 0 && kotlin.math.abs(targetScrollState.firstVisibleItemScrollOffset - brinkOffsetPx) > 0) {
-                            targetScrollState.scrollToItem(0, brinkOffsetPx)
-                        } else if (targetScrollState.firstVisibleItemIndex > 0) {
-                            targetScrollState.scrollToItem(0, brinkOffsetPx)
-                        }
+                        // Deep in list — instant teleport near brink, then smooth runway landing
+                        val runwayPx = with(density) { 120.dp.toPx() }
+                        targetScrollState.scrollToItem(0, brinkOffsetPx + runwayPx.toInt())
+                        targetScrollState.animateScrollBy(
+                            value = -runwayPx,
+                            animationSpec = tween(300, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
+                        )
                     }
                 } else if (targetScrollState.firstVisibleItemIndex > 0 || targetScrollState.firstVisibleItemScrollOffset > 5) {
-                    // 2nd Tap (or static screen): Expand header completely to 0.0 in a single smooth curve
+                    // 2nd Tap: Expand header fully to 0,0
                     if (targetScrollState.firstVisibleItemIndex == 0) {
+                        // Near top — exact pixel delta, single smooth curve
                         val currentOffset = targetScrollState.firstVisibleItemScrollOffset
                         targetScrollState.animateScrollBy(
                             value = -currentOffset.toFloat(),
-                            animationSpec = tween(
-                                durationMillis = (180f + (currentOffset * 0.2f)).toInt().coerceIn(200, 320),
-                                easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-                            )
+                            animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
                         )
                     } else {
-                        targetScrollState.animateScrollToItem(0, 0)
+                        // Deep (shouldn't normally reach here on 2nd tap, but handle gracefully)
+                        val runwayPx = with(density) { 80.dp.toPx() }
+                        targetScrollState.scrollToItem(0, runwayPx.toInt())
+                        targetScrollState.animateScrollBy(
+                            value = -runwayPx,
+                            animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
+                        )
                     }
                 }
             }
