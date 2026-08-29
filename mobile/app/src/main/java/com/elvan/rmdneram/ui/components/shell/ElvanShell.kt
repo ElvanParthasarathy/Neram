@@ -79,8 +79,6 @@ fun ElvanShell(
             scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx
         ) 
     }
-    // Tracks if list was at complete dead stop at the brink wall before a fresh downward pull starts
-    var canUnlockHeaderFromRest by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     // Monitor boundary crossing without recomposing every pixel
@@ -88,9 +86,8 @@ fun ElvanShell(
         snapshotFlow {
             scrollState.firstVisibleItemIndex > 0 || scrollState.firstVisibleItemScrollOffset >= handoffShrinkOffsetPx
         }.distinctUntilChanged().collect { isPastBoundary ->
-            if (isPastBoundary) {
-                if (isHeaderExpanded) isHeaderExpanded = false
-                canUnlockHeaderFromRest = false
+            if (isPastBoundary && isHeaderExpanded) {
+                isHeaderExpanded = false
             }
         }
     }
@@ -119,12 +116,9 @@ fun ElvanShell(
                             )
                             if (targetOffset >= handoffShrinkOffsetPx) {
                                 isHeaderExpanded = false
-                                canUnlockHeaderFromRest = true
                             }
                         }
                     }
-                } else if (!isHeaderExpanded && scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset in (handoffShrinkOffsetPx.toInt() - 6)..(handoffShrinkOffsetPx.toInt() + 6)) {
-                    canUnlockHeaderFromRest = true
                 }
             }
         }
@@ -140,28 +134,24 @@ fun ElvanShell(
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else (handoffShrinkOffsetPx + 10000f)
 
-                // ── Brick Wall Brake (Absolute physical boundary when collapsed) ──
+                // ── Brick Wall Brake (Hard stop for flings / momentum, instant smooth response for finger drags) ──
                 if (!isHeaderExpanded) {
-                    if (delta > 0f) {
-                        // Only allow expansion if the user started a FRESH gesture from a complete dead rest at the wall
-                        val canUnlock = canUnlockHeaderFromRest && source == NestedScrollSource.UserInput && isItem0 && offset0 <= (handoffShrinkOffsetPx + 2f)
-                        
-                        if (canUnlock) {
+                    if (source == NestedScrollSource.UserInput) {
+                        // User's finger is directly touching the screen and pulling down: immediately unlock and expand!
+                        if (delta > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
                             isHeaderExpanded = true
-                            canUnlockHeaderFromRest = false
-                        } else {
-                            // ANY continuous scroll (fling, medium scroll, slow drag from below):
-                            // The expanded region physically DOES NOT EXIST. Stop dead at the brink wall!
-                            if (isItem0) {
-                                if (offset0 <= handoffShrinkOffsetPx) {
-                                    // Exactly at or above wall: brake completely!
-                                    return Offset(0f, delta)
-                                } else if (offset0 - delta < handoffShrinkOffsetPx) {
-                                    // Clamp to stop dead at the brick wall
-                                    val allowed = offset0 - handoffShrinkOffsetPx
-                                    val excess = delta - allowed
-                                    return Offset(0f, excess)
-                                }
+                        }
+                    } else if (delta > 0f) {
+                        // Flings / ballistic momentum / coasting: hard stop at the brick wall!
+                        if (isItem0) {
+                            if (offset0 <= handoffShrinkOffsetPx) {
+                                // Exactly at or above wall: brake completely!
+                                return Offset(0f, delta)
+                            } else if (offset0 - delta < handoffShrinkOffsetPx) {
+                                // Clamp to stop dead at the brick wall
+                                val allowed = offset0 - handoffShrinkOffsetPx
+                                val excess = delta - allowed
+                                return Offset(0f, excess)
                             }
                         }
                     }
@@ -184,7 +174,7 @@ fun ElvanShell(
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                // Hard clamp failsafe: ensure sub-pixel integrity
+                // Hard clamp failsafe: ensure sub-pixel integrity for momentum
                 if (!isHeaderExpanded && source != NestedScrollSource.UserInput) {
                     if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
                         coroutineScope.launch {
