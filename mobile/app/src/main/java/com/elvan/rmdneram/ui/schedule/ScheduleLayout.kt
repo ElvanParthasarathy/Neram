@@ -103,11 +103,12 @@ fun ScheduleMainLayout(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     bottom = HomeDimens.ContentPaddingBottom
-                )
+                ),
+                verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
-                item { Spacer(Modifier.height(280.dp)) }
+                item(key = "spacer_top") { Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing)) }
                 // --- Switcher (Movable) ---
-                item {
+                item(key = "view_type_tabs") {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -124,13 +125,10 @@ fun ScheduleMainLayout(
                     }
                 }
                 
-                item {
-                     Spacer(modifier = Modifier.height(24.dp))
-                }
                 // --- Controls (Status Pill & Date) - Show for BOTH Tabs ---
                 if (activeTab == "class" || activeTab == "exams") {
                     // --- Date Switcher (Home Style) ---
-                    item {
+                    item(key = "date_switcher") {
                         Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
                             DateSection(
                                 formattedDate = selectedDateFormatted,
@@ -151,16 +149,11 @@ fun ScheduleMainLayout(
                         }
                     }
                     
-                    item {
-                         Spacer(modifier = Modifier.height(24.dp))
-                    }
                 }
-
-                // ... (rest of "class" tab content remains unchanged) ...
 
                 // --- Today's Schedule (Animated on Date Swipe) - Only for Class Tab ---
                 if (activeTab == "class") {
-                    item {
+                    item(key = "today_schedule") {
                         androidx.compose.animation.AnimatedContent(
                             targetState = selectedDateFormatted,
                             transitionSpec = {
@@ -188,12 +181,8 @@ fun ScheduleMainLayout(
                         }
                     }
                     
-                    item {
-                        Spacer(modifier = Modifier.height(32.dp))
-                    }
-                    
                     // --- Weekly Overview (Collapsible) - STATIC, doesn't slide ---
-                    item {
+                    item(key = "weekly_overview") {
                         var isExpanded by remember { mutableStateOf(false) } // Default closed
                         
                         // Smart Default Selection: Current Day if valid, else Tuesday
@@ -301,7 +290,7 @@ fun ScheduleMainLayout(
                 
                 // --- EXAMS TAB ---
                 if (activeTab == "exams") {
-                    item {
+                    item(key = "exams_list") {
                         androidx.compose.animation.AnimatedContent(
                             targetState = selectedDate, // Animate on date change
                             transitionSpec = {
@@ -472,17 +461,10 @@ fun ScheduleMainLayout(
                     }
                 }
                 
-                // Small spacer before Course Directory
-                if (activeTab == "class") {
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
-                
                 // --- Course Directory & Staff Info - Only for Class Tab ---
                 if (activeTab == "class") {
                     // --- Course Directory (Collapsible) ---
-                    item {
+                    item(key = "course_directory") {
                         var isCoursesExpanded by remember { mutableStateOf(false) }
                         
                         Column {
@@ -535,13 +517,8 @@ fun ScheduleMainLayout(
                         }
                     }
                     
-                    // Spacer between sections
-                    item {
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                    
                     // --- Staff Info ---
-                    item {
+                    item(key = "staff_info") {
                          val lang = LocalAppLanguage.current
                          Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
                              InfoCard(
