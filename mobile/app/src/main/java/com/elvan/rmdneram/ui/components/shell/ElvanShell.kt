@@ -158,9 +158,9 @@ fun ElvanShell(
                 }
 
                 // ── Navbar hide/show logic ──
-                if (delta > 2f && !isNavbarVisible) {
+                if (delta > 1f && !isNavbarVisible) {
                     isNavbarVisible = true
-                } else if (delta < -2f && isNavbarVisible && (source == NestedScrollSource.UserInput || isFlinging)) {
+                } else if (delta < -2f && isNavbarVisible && isFlinging && source == NestedScrollSource.SideEffect) {
                     val reachedPill = !isItem0 || offset0 >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
                     if (reachedPill) {
                         isNavbarVisible = false
@@ -186,15 +186,16 @@ fun ElvanShell(
             }
 
             override suspend fun onPreFling(available: Velocity): Velocity {
-                isFlinging = true
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else 10000f
                 if (!isHeaderExpanded && available.y > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
                     return available // Absorb remaining fling velocity at the wall
                 }
-                if (available.y < -300f && isNavbarVisible) {
+                // Only fast momentum fling (velocity < -800) triggers hiding when cards reached the pill
+                if (available.y < -800f) {
+                    isFlinging = true
                     val reachedPill = !isItem0 || offset0 >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
-                    if (reachedPill) {
+                    if (reachedPill && isNavbarVisible) {
                         isNavbarVisible = false
                     }
                 }
