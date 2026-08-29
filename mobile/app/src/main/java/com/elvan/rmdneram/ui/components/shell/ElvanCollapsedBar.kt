@@ -73,10 +73,8 @@ fun ElvanCollapsedBar(
     val currentTopPx = currentHeightPx - with(density) { 64.dp.toPx() }
     
     val isPinned = currentTopPx <= ceilingPx
-    
-    // If the hand-off hasn't happened yet (the icons haven't reached the ceiling),
-    // the collapsed bar remains completely invisible (handed over from ElvanExpandedBar)!
-    if (!isPinned) return
+    val finalTopPx = if (isPinned) ceilingPx else currentTopPx
+    val finalTopDp = with(density) { finalTopPx.toDp() }
 
     // Exact Flutter liftProgress: pill container fades in ONLY when the first card reaches the pill (collision)
     val liftStartOffsetPx = collisionOffsetPx - with(density) { 4.dp.toPx() }
@@ -89,13 +87,13 @@ fun ElvanCollapsedBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = ceiling)
+            .padding(top = finalTopDp)
             .zIndex(150f)
             .graphicsLayer {
                 this.alpha = navOpacity
             }
     ) {
-        // Left side: Pinned at ceiling (Back Button / Title)
+        // Left side (Back Button / Title)
         if (onBack != null || title != null) {
             Box(
                 modifier = Modifier

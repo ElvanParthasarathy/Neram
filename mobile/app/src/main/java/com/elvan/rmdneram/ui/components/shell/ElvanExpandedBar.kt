@@ -74,9 +74,9 @@ fun ElvanExpandedBar(
     val currentLeftPx = centeredLeftPx + (targetLeftPx - centeredLeftPx) * t
     val currentLeftDp = with(density) { currentLeftPx.toDp() }
     
-    // 3. Compute Y endpoints (Replicating exact Flutter trajectory with user calibrated alignment)
+    // 3. Compute Y endpoints (Replicating exact Flutter trajectory with calibrated vertical alignment)
     val startTextBottomPx = maxExtentPx - with(density) { 100.dp.toPx() }
-    val targetTextBottomPx = ceilingPx + with(density) { (if (hasLeadingWidget || onBack != null) 44.dp else 37.dp).toPx() }
+    val targetTextBottomPx = ceilingPx + with(density) { 44.dp.toPx() }
     
     val currentTextBottomPx = startTextBottomPx + (targetTextBottomPx - startTextBottomPx) * t
     val currentTopPx = currentTextBottomPx - textHeightPx
@@ -114,49 +114,5 @@ fun ElvanExpandedBar(
                     transformOrigin = TransformOrigin(0f, 1f)
                 }
         )
-
-        // Traveling Back Chevron on Left (Naked when expanded, hands off to CollapsedBar when pinned)
-        if (onBack != null) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .offset(x = 16.dp, y = currentButtonsTopDp)
-                    .size(50.dp)
-                    .graphicsLayer {
-                        alpha = if (isPinned) 0f else 1f
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                ElvanTopBarIconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
-                        contentDescription = "Back",
-                        tint = colors.textPrimary,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-            }
-        }
-
-        // Traveling Actions on Right (ONLY if hasActions is true)
-        if (hasActions) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = (-16).dp, y = currentButtonsTopDp)
-                    .height(50.dp)
-                    .graphicsLayer {
-                        alpha = if (isPinned) 0f else 1f
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    actions()
-                }
-            }
-        }
     }
 }
