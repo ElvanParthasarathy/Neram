@@ -331,6 +331,7 @@ internal fun DateSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(HomeDimens.DatePillHeight)
+                .offset { androidx.compose.ui.unit.IntOffset(animatedOffset.toInt(), 0) }
         ) {
             // Layer 1: The pill background with date text
             Surface(
@@ -355,7 +356,7 @@ internal fun DateSection(
                             onHorizontalDrag = { _, dragAmount ->
                                 totalDrag += dragAmount
                                 // Limit visual feedback offset
-                                offsetX = (totalDrag * 0.3f).coerceIn(-30f, 30f)
+                                offsetX = (totalDrag * 0.35f).coerceIn(-40f, 40f)
                             }
                         )
                     },
@@ -371,8 +372,7 @@ internal fun DateSection(
                     Text(
                         text = formattedDate,
                         style = HomeTypography.DateText,
-                        color = colors.textPrimary,
-                        modifier = Modifier.offset { androidx.compose.ui.unit.IntOffset(animatedOffset.toInt(), 0) }
+                        color = colors.textPrimary
                     )
                 }
             }
