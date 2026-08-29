@@ -121,6 +121,8 @@ fun ElvanShell(
         }
     }
 
+    var isFlinging by remember { mutableStateOf(false) }
+
     // Stable NestedScrollConnection — never reallocated during scroll to prevent jank
     val nestedScrollConnection = remember(scrollState) {
         object : NestedScrollConnection {
@@ -129,15 +131,15 @@ fun ElvanShell(
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else (handoffShrinkOffsetPx + 10000f)
 
-                // ── Brick Wall Brake (zero-lag momentum intercept) ──
+                // ── Brick Wall Brake (zero-lag momentum intercept for finger flings) ──
                 if (!isHeaderExpanded) {
                     if (source == NestedScrollSource.UserInput) {
                         // User finger manually pulling down at the wall releases the brake
                         if (delta > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
                             isHeaderExpanded = true
                         }
-                    } else if (source == NestedScrollSource.SideEffect && delta > 0f) {
-                        // Fast fling moving upward towards top
+                    } else if (isFlinging && source == NestedScrollSource.SideEffect && delta > 0f) {
+                        // Fast ballistic fling moving upward towards top
                         if (isItem0) {
                             if (offset0 <= handoffShrinkOffsetPx) {
                                 // Exactly at or below wall: brake completely!
@@ -155,7 +157,7 @@ fun ElvanShell(
                 // ── Navbar hide/show logic ──
                 if (delta > 2f && !isNavbarVisible) {
                     isNavbarVisible = true
-                } else if (delta < -2f && isNavbarVisible && source == NestedScrollSource.SideEffect) {
+                } else if (delta < -2f && isNavbarVisible && (source == NestedScrollSource.UserInput || isFlinging)) {
                     val reachedPill = !isItem0 || offset0 >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
                     if (reachedPill) {
                         isNavbarVisible = false
@@ -169,9 +171,8 @@ fun ElvanShell(
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                // ── Samsung One UI Magnetic Catch-All ──
-                // If a high-speed fling skips past the boundary, instantly pull it back to the collapsed threshold
-                if (!isHeaderExpanded && source == NestedScrollSource.SideEffect) {
+                // ── Samsung One UI Magnetic Catch-All (only during active ballistic flings) ──
+                if (!isHeaderExpanded && isFlinging && source == NestedScrollSource.SideEffect) {
                     if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
                         coroutineScope.launch {
                             scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
@@ -182,6 +183,7 @@ fun ElvanShell(
             }
 
             override suspend fun onPreFling(available: Velocity): Velocity {
+                isFlinging = true
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else 10000f
                 if (!isHeaderExpanded && available.y > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
@@ -197,6 +199,7 @@ fun ElvanShell(
             }
 
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                isFlinging = false
                 if (!isNavbarVisible) isNavbarVisible = true
                 // Magnetic Lock at rest
                 if (!isHeaderExpanded && scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {

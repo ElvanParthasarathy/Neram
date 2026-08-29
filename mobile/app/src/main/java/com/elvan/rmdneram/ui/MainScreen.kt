@@ -155,6 +155,43 @@ fun MainScreen(
                 }
             }
         } else {
+            val fromTab = selectedTab
+            val toTab = tab
+            val fromState = when (fromTab) {
+                NavTab.Home -> homeScrollState
+                NavTab.Schedule -> scheduleScrollState
+                NavTab.Calendar -> calendarScrollState
+                NavTab.Notes -> notesScrollState
+            }
+            val toState = when (toTab) {
+                NavTab.Home -> homeScrollState
+                NavTab.Schedule -> scheduleScrollState
+                NavTab.Calendar -> calendarScrollState
+                NavTab.Notes -> notesScrollState
+            }
+
+            val fromHasHeader = fromTab == NavTab.Home || fromTab == NavTab.Schedule
+            val toHasHeader = toTab == NavTab.Home || toTab == NavTab.Schedule
+
+            if (fromHasHeader && toHasHeader) {
+                val isFromCollapsed = fromState.firstVisibleItemIndex > 0 || 
+                                      fromState.firstVisibleItemScrollOffset >= brinkOffsetPx
+                if (isFromCollapsed) {
+                    // Sync collapsed: ensure destination tab starts collapsed at the brink wall
+                    if (toState.firstVisibleItemIndex == 0 && toState.firstVisibleItemScrollOffset < brinkOffsetPx) {
+                        scope.launch {
+                            toState.scrollToItem(0, brinkOffsetPx)
+                        }
+                    }
+                } else {
+                    // Sync expanded: if destination tab was resting at the collapsed brink wall, expand it
+                    if (toState.firstVisibleItemIndex == 0 && toState.firstVisibleItemScrollOffset >= (brinkOffsetPx - 10)) {
+                        scope.launch {
+                            toState.scrollToItem(0, 0)
+                        }
+                    }
+                }
+            }
             isDragTransition = isDrag
             selectedTab = tab
         }
