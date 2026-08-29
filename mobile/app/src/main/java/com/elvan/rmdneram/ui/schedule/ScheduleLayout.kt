@@ -535,6 +535,12 @@ fun ScheduleMainLayout(
                          }
                     }
                 }
+
+                // Minimum-height fill: ensures enough scrollable content to fully collapse the header,
+                // even when there's little or no content (e.g. empty exams tab)
+                item(key = "bottom_fill") {
+                    Spacer(Modifier.height(400.dp))
+                }
             }
         }
 
