@@ -78,8 +78,6 @@ fun HomeMainLayout(
                 state = scrollState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
-                    start = HomeDimens.ContentPadding,
-                    end = HomeDimens.ContentPadding,
                     bottom = HomeDimens.ContentPaddingBottom
                 ),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
@@ -87,46 +85,61 @@ fun HomeMainLayout(
                 item { Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing)) }
                 // 1. Header Section
                 item(key = "header", contentType = "header") {
-                    PageHeader(
-                        colors = colors,
-                        userProfile = uiState.userProfile,
-                        showWelcomeMessage = uiState.showWelcomeMessage,
-                        profileLoaderCompleted = profileLoaderCompleted,
-
-                        onProfileLoaderCompleted = onProfileLoaderCompleted,
-                        onProfileClick = onProfileClick
-                    )
-                    
-                    if (uiState.error != null) {
-                        com.elvan.rmdneram.ui.home.components.ErrorBanner(error = uiState.error!!)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = HomeDimens.ContentPadding)
+                    ) {
+                        PageHeader(
+                            colors = colors,
+                            userProfile = uiState.userProfile,
+                            showWelcomeMessage = uiState.showWelcomeMessage,
+                            profileLoaderCompleted = profileLoaderCompleted,
+                            onProfileLoaderCompleted = onProfileLoaderCompleted,
+                            onProfileClick = onProfileClick
+                        )
+                        
+                        if (uiState.error != null) {
+                            com.elvan.rmdneram.ui.home.components.ErrorBanner(error = uiState.error!!)
+                        }
                     }
                 }
                 
                 // 2. Date Picker Section
                 item(key = "date_picker", contentType = "input") {
-                    DateSection(
-                        formattedDate = formattedDate,
-                        colors = colors,
-                        onClick = {
-                            swipeDirection = 0 // Reset animation for tap
-                            onDateClick()
-                        },
-                        onSwipeLeft = { 
-                            swipeDirection = -1 // Next Day
-                            onDateSelected(selectedDate.minusDays(1))
-                        },
-                        onSwipeRight = { 
-                            swipeDirection = 1 // Prev Day
-                            onDateSelected(selectedDate.plusDays(1))
-                        }
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = HomeDimens.ContentPadding)
+                    ) {
+                        DateSection(
+                            formattedDate = formattedDate,
+                            colors = colors,
+                            onClick = {
+                                swipeDirection = 0 // Reset animation for tap
+                                onDateClick()
+                            },
+                            onSwipeLeft = { 
+                                swipeDirection = -1 // Next Day
+                                onDateSelected(selectedDate.minusDays(1))
+                            },
+                            onSwipeRight = { 
+                                swipeDirection = 1 // Prev Day
+                                onDateSelected(selectedDate.plusDays(1))
+                            }
+                        )
+                    }
                 }
                 
                 // 3. Academic Calendar Section with slide animation
                 if (showAcademicCalendarSection) {
                     item(key = "calendar_section", contentType = "calendar_section") {
                         val lang = LocalAppLanguage.current
-                        Column {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = HomeDimens.ContentPadding)
+                        ) {
                             Text(
                                 text = AppStrings.Home.academicCalendar(lang),
                                 style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
@@ -167,67 +180,91 @@ fun HomeMainLayout(
                 
                 // 4. Schedule Section with slide animation
                 item(key = "schedule_section", contentType = "schedule") {
-                    androidx.compose.animation.AnimatedContent(
-                        targetState = formattedDate to scheduleState,
-                        transitionSpec = {
-                            val directionFactor = swipeDirection
-                            if (directionFactor != 0) {
-                                (slideInHorizontally { width -> directionFactor * width } + fadeIn()) togetherWith
-                                    (slideOutHorizontally { width -> -directionFactor * width } + fadeOut())
-                            } else {
-                                // Date Picker Selection: Subtle Scale + Fade (Solid, no flicker)
-                                (fadeIn(animationSpec = tween(220, delayMillis = 90)) + 
-                                 scaleIn(initialScale = 0.95f, animationSpec = tween(220, delayMillis = 90))) togetherWith
-                                (fadeOut(animationSpec = tween(90)))
-                            }
-                        },
-                        label = "scheduleSlide"
-                    ) { (_, state) ->
-                        ScheduleSection(
-                            scheduleState = state,
-                            masterData = uiState.masterData,
-                            isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
-                            colors = colors
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = HomeDimens.ContentPadding)
+                    ) {
+                        androidx.compose.animation.AnimatedContent(
+                            targetState = formattedDate to scheduleState,
+                            transitionSpec = {
+                                val directionFactor = swipeDirection
+                                if (directionFactor != 0) {
+                                    (slideInHorizontally { width -> directionFactor * width } + fadeIn()) togetherWith
+                                        (slideOutHorizontally { width -> -directionFactor * width } + fadeOut())
+                                } else {
+                                    // Date Picker Selection: Subtle Scale + Fade (Solid, no flicker)
+                                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) + 
+                                     scaleIn(initialScale = 0.95f, animationSpec = tween(220, delayMillis = 90))) togetherWith
+                                    (fadeOut(animationSpec = tween(90)))
+                                }
+                            },
+                            label = "scheduleSlide"
+                        ) { (_, state) ->
+                            ScheduleSection(
+                                scheduleState = state,
+                                masterData = uiState.masterData,
+                                isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
+                                colors = colors
+                            )
+                        }
                     }
                 }
                 
                 // 5. Live Updates Section
                 item(key = "updates_section", contentType = "editable") {
-                    UpdatesSection(
-                        sectionName = uiState.userProfile?.section ?: "",
-                        content = todayUpdate?.displayNote ?: "No special updates for today.",
-                        rawContent = todayUpdate?.rawNote ?: "",
-                        author = todayUpdate?.author ?: "System",
-                        canEdit = true,
-                        isSaving = uiState.isSyncing,
-                        isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
-                        isOffline = isOffline,
-                        colors = colors,
-                        onSave = onSaveUpdate
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = HomeDimens.ContentPadding)
+                    ) {
+                        UpdatesSection(
+                            sectionName = uiState.userProfile?.section ?: "",
+                            content = todayUpdate?.displayNote ?: "No special updates for today.",
+                            rawContent = todayUpdate?.rawNote ?: "",
+                            author = todayUpdate?.author ?: "System",
+                            canEdit = true,
+                            isSaving = uiState.isSyncing,
+                            isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
+                            isOffline = isOffline,
+                            colors = colors,
+                            onSave = onSaveUpdate
+                        )
+                    }
                 }
                 
                 // 6. General Notice Section
                 item(key = "notice_section", contentType = "editable") {
-                    GeneralNoticeSection(
-                        content = uiState.sectionUpdates.general.text,
-                        author = uiState.sectionUpdates.general.author.ifEmpty { "System" },
-                        canEdit = true,
-                        isSaving = uiState.isSyncing,
-                        isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
-                        isOffline = isOffline,
-                        colors = colors,
-                        onSave = onSaveNotice
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = HomeDimens.ContentPadding)
+                    ) {
+                        GeneralNoticeSection(
+                            content = uiState.sectionUpdates.general.text,
+                            author = uiState.sectionUpdates.general.author.ifEmpty { "System" },
+                            canEdit = true,
+                            isSaving = uiState.isSyncing,
+                            isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
+                            isOffline = isOffline,
+                            colors = colors,
+                            onSave = onSaveNotice
+                        )
+                    }
                 }
                 
                 // 7. User Academic Details Footer
                 item(key = "footer", contentType = "footer") {
-                    AcademicDetailsGrid(
-                        userProfile = uiState.userProfile,
-                        colors = colors
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = HomeDimens.ContentPadding)
+                    ) {
+                        AcademicDetailsGrid(
+                            userProfile = uiState.userProfile,
+                            colors = colors
+                        )
+                    }
                 }
             }
         }
