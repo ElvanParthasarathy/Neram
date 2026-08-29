@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.luminance // Added for detecting dark mode (
 import com.elvan.rmdneram.data.model.*
 import com.elvan.rmdneram.ui.components.ExpressivePullToRefreshBox
 import com.elvan.rmdneram.ui.home.*
+import com.elvan.rmdneram.ui.components.shell.elvanCollapseMinHeight
 import com.elvan.rmdneram.ui.common.ScheduleLogic
 import com.elvan.rmdneram.utils.DateTimeUtils
 import java.time.format.DateTimeFormatter
@@ -291,11 +292,10 @@ fun ScheduleMainLayout(
                 // --- EXAMS TAB ---
                 if (activeTab == "exams") {
                     item(key = "exams_list") {
-                        val screenHeight = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(min = screenHeight * 0.75f)
+                                .elvanCollapseMinHeight()
                         ) {
                             androidx.compose.animation.AnimatedContent(
                                 targetState = selectedDate, // Animate on date change

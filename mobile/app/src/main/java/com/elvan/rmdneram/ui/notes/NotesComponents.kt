@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.data.model.NotesSubject
 import com.elvan.rmdneram.ui.home.HomeColors
+import com.elvan.rmdneram.ui.components.shell.elvanCollapseMinHeight
 
 /**
  * NotesComponents - Reusable UI widgets for the Notes Screen.
@@ -31,7 +32,6 @@ fun FolderList(
     listState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     onClick: (String) -> Unit
 ) {
-    val screenHeight = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -47,7 +47,7 @@ fun FolderList(
             FolderItem(item, colors) { onClick(item) }
         }
         item {
-            Spacer(modifier = Modifier.height(screenHeight * 0.6f))
+            Spacer(modifier = Modifier.elvanCollapseMinHeight())
         }
     }
 }
@@ -104,7 +104,6 @@ fun FilesList(
     onLinkClick: (String) -> Unit,
     onNotUploaded: () -> Unit = {}
 ) {
-    val screenHeight = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -120,7 +119,7 @@ fun FilesList(
             SubjectItem(subject, colors, onLinkClick, onNotUploaded)
         }
         item {
-            Spacer(modifier = Modifier.height(screenHeight * 0.6f))
+            Spacer(modifier = Modifier.elvanCollapseMinHeight())
         }
     }
 }

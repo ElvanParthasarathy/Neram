@@ -331,3 +331,27 @@ fun ElvanShell(
         }
     }
 }
+
+/**
+ * Standard default metrics and helpers for ElvanShell pages.
+ */
+object ElvanShellDefaults {
+    /**
+     * The recommended minimum height for page content containers below the top spacer
+     * to guarantee that the ElvanShell header can always reach its collapsed brink wall
+     * state, even on pages/tabs with little or no content (e.g. empty exams or few notes).
+     */
+    val MinContentHeight: androidx.compose.ui.unit.Dp
+        @Composable
+        get() = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp * 0.75f
+}
+
+/**
+ * Modifier extension to ensure a content container inside an ElvanShell page
+ * has the minimum height necessary for the collapsing header to function.
+ * If the content is already larger than the minimum height, it expands naturally.
+ */
+@Composable
+fun Modifier.elvanCollapseMinHeight(): Modifier {
+    return this.heightIn(min = ElvanShellDefaults.MinContentHeight)
+}
