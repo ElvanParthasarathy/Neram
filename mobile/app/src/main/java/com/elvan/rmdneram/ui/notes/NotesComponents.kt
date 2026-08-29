@@ -31,7 +31,7 @@ fun FolderList(
     listState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     onClick: (String) -> Unit
 ) {
-    val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
+    val screenHeight = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -39,12 +39,15 @@ fun FolderList(
             start = 16.dp,
             end = 16.dp,
             top = 24.dp,
-            bottom = 120.dp + collapseFill
+            bottom = 120.dp
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items) { item ->
             FolderItem(item, colors) { onClick(item) }
+        }
+        item {
+            Spacer(modifier = Modifier.height(screenHeight * 0.6f))
         }
     }
 }
@@ -101,7 +104,7 @@ fun FilesList(
     onLinkClick: (String) -> Unit,
     onNotUploaded: () -> Unit = {}
 ) {
-    val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
+    val screenHeight = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -109,12 +112,15 @@ fun FilesList(
             start = 16.dp,
             end = 16.dp,
             top = 24.dp,
-            bottom = 120.dp + collapseFill
+            bottom = 120.dp
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(subjects) { subject ->
             SubjectItem(subject, colors, onLinkClick, onNotUploaded)
+        }
+        item {
+            Spacer(modifier = Modifier.height(screenHeight * 0.6f))
         }
     }
 }
@@ -286,7 +292,6 @@ fun DriveList(
     onFolderClick: (com.elvan.rmdneram.data.model.DriveFolder) -> Unit,
     onFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit
 ) {
-    val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -294,7 +299,7 @@ fun DriveList(
             start = 16.dp,
             end = 16.dp,
             top = 24.dp,
-            bottom = 120.dp + collapseFill
+            bottom = 120.dp
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {

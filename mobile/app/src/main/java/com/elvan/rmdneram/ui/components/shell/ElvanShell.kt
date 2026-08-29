@@ -33,14 +33,6 @@ import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.HomeTypography
 import kotlinx.coroutines.launch
 
-/**
- * CompositionLocal providing the dynamic minimum bottom fill height (in Dp) 
- * needed for a page's LazyColumn to have enough scrollable content to fully
- * collapse the shell header. Pages should add this as bottom contentPadding
- * or as a trailing spacer item. Value is 0.dp when no extra fill is needed.
- */
-val LocalShellCollapseFill = compositionLocalOf { 0.dp }
-
 @Composable
 fun ElvanShell(
     scrollState: LazyListState,
@@ -243,32 +235,6 @@ fun ElvanShell(
     // Scroll disappear/fade is only enabled once the true pill has formed
     val effectiveNavOpacity = if (isTruePill) navOpacity else 1.0f
 
-    // Dynamic collapse fill: calculate how much extra bottom space is needed
-    // for the LazyColumn to have enough scrollable height to fully collapse the header.
-    // If content is already tall enough, this is 0.dp.
-    val collapseFillDp = remember(scrollState) { mutableStateOf(0.dp) }
-    LaunchedEffect(scrollState) {
-        snapshotFlow {
-            val layoutInfo = scrollState.layoutInfo
-            val totalContentHeight = layoutInfo.visibleItemsInfo.lastOrNull()?.let {
-                it.offset + it.size
-            } ?: 0
-            val viewportHeight = layoutInfo.viewportSize.height
-            // Need enough height so item 0 can scroll by at least handoffShrinkOffsetPx
-            val neededTotalHeight = viewportHeight + handoffShrinkOffsetPx.toInt() + with(density) { 40.dp.toPx().toInt() }
-            val totalItemsHeight = if (layoutInfo.totalItemsCount <= layoutInfo.visibleItemsInfo.size) {
-                // All items are visible — we know the exact total height
-                totalContentHeight
-            } else {
-                // More items exist off-screen — content is already tall enough
-                neededTotalHeight + 1
-            }
-            val deficit = neededTotalHeight - totalItemsHeight
-            if (deficit > 0) with(density) { deficit.toDp() } else 0.dp
-        }.distinctUntilChanged()
-        .collect { collapseFillDp.value = it }
-    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -276,9 +242,7 @@ fun ElvanShell(
             .background(colors.background)
     ) {
         // Layer 1: Content
-        CompositionLocalProvider(LocalShellCollapseFill provides collapseFillDp.value) {
-            content()
-        }
+        content()
 
         if (useNewDesign) {
             // Layer 2: Top Fade Mask (Solid at top, fading down)

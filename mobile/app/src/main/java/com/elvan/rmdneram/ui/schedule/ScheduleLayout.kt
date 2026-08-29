@@ -98,12 +98,11 @@ fun ScheduleMainLayout(
             showIndicator = false,
             modifier = Modifier.fillMaxSize()
         ) {
-            val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
             LazyColumn(
                 state = scrollState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
-                    bottom = HomeDimens.ContentPaddingBottom + collapseFill
+                    bottom = HomeDimens.ContentPaddingBottom
                 ),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
@@ -292,167 +291,174 @@ fun ScheduleMainLayout(
                 // --- EXAMS TAB ---
                 if (activeTab == "exams") {
                     item(key = "exams_list") {
-                        androidx.compose.animation.AnimatedContent(
-                            targetState = selectedDate, // Animate on date change
-                            transitionSpec = {
-                                val directionFactor = swipeDirection
-                                if (directionFactor != 0) {
-                                    (slideInHorizontally { width -> directionFactor * width } + fadeIn()) togetherWith
-                                    (slideOutHorizontally { width -> -directionFactor * width } + fadeOut())
-                                } else {
-                                    // Date Picker Selection: Subtle Scale + Fade
-                                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) + 
-                                     scaleIn(initialScale = 0.95f, animationSpec = tween(220, delayMillis = 90))) togetherWith
-                                    (fadeOut(animationSpec = tween(90)))
-                                }
-                            },
-                            label = "examContentSlide"
-                        ) { targetDate ->
-                            // Partition exams into Ongoing, Upcoming, and Finished
-                            val (ongoingExams, otherExams) = remember(uiState.masterData.exams, targetDate) {
-                                uiState.masterData.exams.partition { exam ->
-                                    try {
-                                        if (exam.startDate.isNotEmpty() && exam.endDate.isNotEmpty()) {
-                                            val start = java.time.LocalDate.parse(exam.startDate)
-                                            val end = java.time.LocalDate.parse(exam.endDate)
-                                            // Ongoing: Start <= Selected <= End
-                                            !targetDate.isBefore(start) && !targetDate.isAfter(end)
-                                        } else {
-                                            false // Invalid dates -> Treat as others (likely finished or error)
-                                        }
-                                    } catch (e: Exception) {
-                                        false
+                        val screenHeight = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = screenHeight * 0.75f)
+                        ) {
+                            androidx.compose.animation.AnimatedContent(
+                                targetState = selectedDate, // Animate on date change
+                                transitionSpec = {
+                                    val directionFactor = swipeDirection
+                                    if (directionFactor != 0) {
+                                        (slideInHorizontally { width -> directionFactor * width } + fadeIn()) togetherWith
+                                        (slideOutHorizontally { width -> -directionFactor * width } + fadeOut())
+                                    } else {
+                                        // Date Picker Selection: Subtle Scale + Fade
+                                        (fadeIn(animationSpec = tween(220, delayMillis = 90)) + 
+                                         scaleIn(initialScale = 0.95f, animationSpec = tween(220, delayMillis = 90))) togetherWith
+                                        (fadeOut(animationSpec = tween(90)))
                                     }
-                                }
-                            }
-
-                            val (upcomingExams, finishedExams) = remember(otherExams, targetDate) {
-                                val (upcoming, finished) = otherExams.partition { exam ->
-                                    try {
-                                        if (exam.startDate.isNotEmpty()) {
-                                            val start = java.time.LocalDate.parse(exam.startDate)
-                                            // Upcoming: Selected < Start
-                                            targetDate.isBefore(start)
-                                        } else {
+                                },
+                                label = "examContentSlide"
+                            ) { targetDate ->
+                                // Partition exams into Ongoing, Upcoming, and Finished
+                                val (ongoingExams, otherExams) = remember(uiState.masterData.exams, targetDate) {
+                                    uiState.masterData.exams.partition { exam ->
+                                        try {
+                                            if (exam.startDate.isNotEmpty() && exam.endDate.isNotEmpty()) {
+                                                val start = java.time.LocalDate.parse(exam.startDate)
+                                                val end = java.time.LocalDate.parse(exam.endDate)
+                                                // Ongoing: Start <= Selected <= End
+                                                !targetDate.isBefore(start) && !targetDate.isAfter(end)
+                                            } else {
+                                                false // Invalid dates -> Treat as others (likely finished or error)
+                                            }
+                                        } catch (e: Exception) {
                                             false
                                         }
-                                    } catch (e: Exception) {
-                                        false
                                     }
                                 }
-                                Pair(
-                                    upcoming.sortedBy { it.startDate },
-                                    finished.sortedByDescending { it.endDate.ifEmpty { it.startDate } }
-                                )
-                            }
 
-                            Column {
-                                val lang = LocalAppLanguage.current
-                                // 1. Ongoing Exams Section
-                                if (ongoingExams.isNotEmpty()) {
-                                    Text(
-                                        text = AppStrings.Schedule.ongoingExams(lang),
-                                        style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
-                                        color = colors.textSecondary.copy(alpha = 0.8f),
-                                        modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
+                                val (upcomingExams, finishedExams) = remember(otherExams, targetDate) {
+                                    val (upcoming, finished) = otherExams.partition { exam ->
+                                        try {
+                                            if (exam.startDate.isNotEmpty()) {
+                                                val start = java.time.LocalDate.parse(exam.startDate)
+                                                // Upcoming: Selected < Start
+                                                targetDate.isBefore(start)
+                                            } else {
+                                                false
+                                            }
+                                        } catch (e: Exception) {
+                                            false
+                                        }
+                                    }
+                                    Pair(
+                                        upcoming.sortedBy { it.startDate },
+                                        finished.sortedByDescending { it.endDate.ifEmpty { it.startDate } }
                                     )
-                                    ongoingExams.forEach { exam ->
-                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding).padding(bottom = 12.dp)) {
-                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = true, viewDate = targetDate)
-                                        }
-                                    }
-                                } else {
-                                    // No Ongoing Exams (but might have others)
-                                    if (upcomingExams.isNotEmpty() || finishedExams.isNotEmpty()) {
-                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
-                                            EmptyScheduleCard(
-                                                message = AppStrings.Schedule.noOngoingExams(lang),
-                                                colors = colors
-                                            )
-                                            Spacer(modifier = Modifier.height(32.dp))
-                                        }
-                                    } else {
-                                        // No exams at all (Empty DB or fetch)
-                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
-                                            EmptyScheduleCard(
-                                                message = AppStrings.Schedule.noExamTimetables(lang),
-                                                colors = colors
-                                            )
-                                             Spacer(modifier = Modifier.height(32.dp))
-                                        }
-                                    }
                                 }
 
-                                // 2. Upcoming Exams Section
-                                if (upcomingExams.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(
-                                        text = AppStrings.Schedule.upcomingExams(lang),
-                                        style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
-                                        color = colors.textSecondary.copy(alpha = 0.8f),
-                                        modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
-                                    )
-                                    upcomingExams.forEach { exam ->
-                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding).padding(bottom = 12.dp)) {
-                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = false, viewDate = targetDate)
-                                        }
-                                    }
-                                }
-
-                                // 3. Finished Exams Section (Collapsible)
-                                if (finishedExams.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    
-                                    var isFinishedExpanded by remember { mutableStateOf(false) }
-
-                                    Column {
-                                        // Header Row - Button Style (Pill Container)
-                                        Surface(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(horizontal = HomeDimens.ContentPadding)
-                                                .padding(bottom = 12.dp),
-                                            shape = HomeShapes.Card,
-                                            color = colors.surface,
-                                            shadowElevation = 0.dp
-                                        ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .clickable(
-                                                        interactionSource = remember { MutableInteractionSource() },
-                                                        indication = null
-                                                    ) { isFinishedExpanded = !isFinishedExpanded }
-                                                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text(
-                                                    text = AppStrings.Schedule.finishedExams(lang),
-                                                    style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
-                                                    color = colors.textSecondary.copy(alpha = 0.8f)
-                                                )
-                                                Icon(
-                                                    imageVector = if (isFinishedExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                                    contentDescription = if (isFinishedExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
-                                                    tint = colors.textSecondary
-                                                )
+                                Column {
+                                    val lang = LocalAppLanguage.current
+                                    // 1. Ongoing Exams Section
+                                    if (ongoingExams.isNotEmpty()) {
+                                        Text(
+                                            text = AppStrings.Schedule.ongoingExams(lang),
+                                            style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                            color = colors.textSecondary.copy(alpha = 0.8f),
+                                            modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
+                                        )
+                                        ongoingExams.forEach { exam ->
+                                            Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding).padding(bottom = 12.dp)) {
+                                                ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = true, viewDate = targetDate)
                                             }
                                         }
+                                    } else {
+                                        // No Ongoing Exams (but might have others)
+                                        if (upcomingExams.isNotEmpty() || finishedExams.isNotEmpty()) {
+                                            Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
+                                                EmptyScheduleCard(
+                                                    message = AppStrings.Schedule.noOngoingExams(lang),
+                                                    colors = colors
+                                                )
+                                                Spacer(modifier = Modifier.height(32.dp))
+                                            }
+                                        } else {
+                                            // No exams at all (Empty DB or fetch)
+                                            Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
+                                                EmptyScheduleCard(
+                                                    message = AppStrings.Schedule.noExamTimetables(lang),
+                                                    colors = colors
+                                                )
+                                                Spacer(modifier = Modifier.height(32.dp))
+                                            }
+                                        }
+                                    }
+
+                                    // 2. Upcoming Exams Section
+                                    if (upcomingExams.isNotEmpty()) {
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        Text(
+                                            text = AppStrings.Schedule.upcomingExams(lang),
+                                            style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                            color = colors.textSecondary.copy(alpha = 0.8f),
+                                            modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
+                                        )
+                                        upcomingExams.forEach { exam ->
+                                            Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding).padding(bottom = 12.dp)) {
+                                                ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = false, viewDate = targetDate)
+                                            }
+                                        }
+                                    }
+
+                                    // 3. Finished Exams Section (Collapsible)
+                                    if (finishedExams.isNotEmpty()) {
+                                        Spacer(modifier = Modifier.height(16.dp))
                                         
-                                        // Collapsible Content
-                                        androidx.compose.animation.AnimatedVisibility(
-                                            visible = isFinishedExpanded,
-                                            enter = expandVertically() + fadeIn(),
-                                            exit = shrinkVertically() + fadeOut()
-                                        ) {
-                                            Column {
-                                                finishedExams.forEach { exam ->
-                                                    Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
-                                                        ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = false, viewDate = targetDate)
-                                                    }
+                                        var isFinishedExpanded by remember { mutableStateOf(false) }
+
+                                        Column {
+                                            // Header Row - Button Style (Pill Container)
+                                            Surface(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = HomeDimens.ContentPadding)
+                                                    .padding(bottom = 12.dp),
+                                                shape = HomeShapes.Card,
+                                                color = colors.surface,
+                                                shadowElevation = 0.dp
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable(
+                                                            interactionSource = remember { MutableInteractionSource() },
+                                                            indication = null
+                                                        ) { isFinishedExpanded = !isFinishedExpanded }
+                                                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = AppStrings.Schedule.finishedExams(lang),
+                                                        style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                                        color = colors.textSecondary.copy(alpha = 0.8f)
+                                                    )
+                                                    Icon(
+                                                        imageVector = if (isFinishedExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                                        contentDescription = if (isFinishedExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
+                                                        tint = colors.textSecondary
+                                                    )
                                                 }
-                                                Spacer(modifier = Modifier.height(16.dp))
+                                            }
+                                            
+                                            // Collapsible Content
+                                            androidx.compose.animation.AnimatedVisibility(
+                                                visible = isFinishedExpanded,
+                                                enter = expandVertically() + fadeIn(),
+                                                exit = shrinkVertically() + fadeOut()
+                                            ) {
+                                                Column {
+                                                    finishedExams.forEach { exam ->
+                                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
+                                                            ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = false, viewDate = targetDate)
+                                                        }
+                                                    }
+                                                    Spacer(modifier = Modifier.height(16.dp))
+                                                }
                                             }
                                         }
                                     }
