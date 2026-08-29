@@ -70,13 +70,13 @@ fun ElvanExpandedBar(
     // START (t=0): text visually centered on screen (clamped to 16dp margin)
     val centeredLeftPx = maxOf(with(density) { 16.dp.toPx() }, (screenWidthPx - textWidthPx) / 2f)
     // END (t=1): matches exactly ElvanCollapsedBar text padding
-    val targetLeftPx = with(density) { if (hasLeadingWidget || onBack != null) 78.dp.toPx() else 24.dp.toPx() }
+    val targetLeftPx = with(density) { if (hasLeadingWidget || onBack != null) 72.dp.toPx() else 24.dp.toPx() }
     val currentLeftPx = centeredLeftPx + (targetLeftPx - centeredLeftPx) * t
     val currentLeftDp = with(density) { currentLeftPx.toDp() }
     
-    // 3. Compute Y endpoints (Replicating exact Flutter trajectory)
+    // 3. Compute Y endpoints (Replicating exact Flutter trajectory with optical center alignment)
     val startTextBottomPx = maxExtentPx - with(density) { 100.dp.toPx() }
-    val targetTextBottomPx = ceilingPx + with(density) { 39.5.dp.toPx() }
+    val targetTextBottomPx = ceilingPx + with(density) { (if (hasLeadingWidget || onBack != null) 33.5.dp else 37.dp).toPx() }
     
     val currentTextBottomPx = startTextBottomPx + (targetTextBottomPx - startTextBottomPx) * t
     val currentTopPx = currentTextBottomPx - textHeightPx
