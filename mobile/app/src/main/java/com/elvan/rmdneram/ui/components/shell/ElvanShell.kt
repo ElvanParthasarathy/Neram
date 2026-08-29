@@ -134,15 +134,16 @@ fun ElvanShell(
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else (handoffShrinkOffsetPx + 10000f)
 
-                // ── Brick Wall Brake (zero-lag momentum intercept for finger flings) ──
+                // ── Brick Wall Brake (The region above handoffShrinkOffsetPx physically DOES NOT EXIST when collapsed) ──
                 if (!isHeaderExpanded) {
                     if (source == NestedScrollSource.UserInput) {
-                        // User finger manually pulling down at the wall releases the brake
+                        // User finger manually pulling down at the wall unlocks the expanded region
                         if (delta > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
                             isHeaderExpanded = true
                         }
-                    } else if (isFlinging && source == NestedScrollSource.SideEffect && delta > 0f) {
-                        // Fast ballistic fling moving upward towards top
+                    } else if (delta > 0f) {
+                        // Ballistic fling momentum, inertia, side effects:
+                        // Hard physical ceiling at handoffShrinkOffsetPx — zero overshoot!
                         if (isItem0) {
                             if (offset0 <= handoffShrinkOffsetPx) {
                                 // Exactly at or below wall: brake completely!
@@ -174,8 +175,8 @@ fun ElvanShell(
                 available: Offset,
                 source: NestedScrollSource
             ): Offset {
-                // ── Samsung One UI Magnetic Catch-All (only during active ballistic flings) ──
-                if (!isHeaderExpanded && isFlinging && source == NestedScrollSource.SideEffect) {
+                // Hard clamp failsafe: ensure sub-pixel integrity
+                if (!isHeaderExpanded && source != NestedScrollSource.UserInput) {
                     if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
                         coroutineScope.launch {
                             scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
@@ -188,9 +189,15 @@ fun ElvanShell(
             override suspend fun onPreFling(available: Velocity): Velocity {
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else 10000f
-                if (!isHeaderExpanded && available.y > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
-                    return available // Absorb remaining fling velocity at the wall
+
+                // When collapsed: any fling towards the top (available.y > 0) MUST stop dead at the brick wall!
+                if (!isHeaderExpanded && available.y > 0f) {
+                    if (isItem0 && offset0 <= handoffShrinkOffsetPx) {
+                        // Absorb 100% of velocity at the wall — zero movement past the wall!
+                        return available
+                    }
                 }
+
                 // Only fast momentum fling (velocity < -800) triggers hiding when cards reached the pill
                 if (available.y < -800f) {
                     isFlinging = true
