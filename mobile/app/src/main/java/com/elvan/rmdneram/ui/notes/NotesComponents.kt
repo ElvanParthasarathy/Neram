@@ -31,10 +31,16 @@ fun FolderList(
     listState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     onClick: (String) -> Unit
 ) {
+    val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 24.dp,
+            bottom = 120.dp + collapseFill
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(items) { item ->
@@ -95,16 +101,21 @@ fun FilesList(
     onLinkClick: (String) -> Unit,
     onNotUploaded: () -> Unit = {}
 ) {
+    val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 24.dp),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 24.dp,
+            bottom = 120.dp + collapseFill
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(subjects) { subject ->
             SubjectItem(subject, colors, onLinkClick, onNotUploaded)
         }
-        item { Spacer(modifier = Modifier.height(80.dp)) }
     }
 }
 
@@ -275,6 +286,7 @@ fun DriveList(
     onFolderClick: (com.elvan.rmdneram.data.model.DriveFolder) -> Unit,
     onFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit
 ) {
+    val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -282,7 +294,7 @@ fun DriveList(
             start = 16.dp,
             end = 16.dp,
             top = 24.dp,
-            bottom = 120.dp
+            bottom = 120.dp + collapseFill
         ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {

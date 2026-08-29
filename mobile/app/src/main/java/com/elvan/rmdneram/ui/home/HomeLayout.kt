@@ -74,13 +74,14 @@ fun HomeMainLayout(
             showIndicator = false,
             modifier = Modifier.fillMaxSize()
         ) {
+            val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
             LazyColumn(
                 state = scrollState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = HomeDimens.ContentPadding,
                     end = HomeDimens.ContentPadding,
-                    bottom = HomeDimens.ContentPaddingBottom
+                    bottom = HomeDimens.ContentPaddingBottom + collapseFill
                 ),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {

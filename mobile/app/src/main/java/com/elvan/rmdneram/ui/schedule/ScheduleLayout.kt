@@ -98,11 +98,12 @@ fun ScheduleMainLayout(
             showIndicator = false,
             modifier = Modifier.fillMaxSize()
         ) {
+            val collapseFill = com.elvan.rmdneram.ui.components.shell.LocalShellCollapseFill.current
             LazyColumn(
                 state = scrollState,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(
-                    bottom = HomeDimens.ContentPaddingBottom
+                    bottom = HomeDimens.ContentPaddingBottom + collapseFill
                 ),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
@@ -534,12 +535,6 @@ fun ScheduleMainLayout(
                              )
                          }
                     }
-                }
-
-                // Minimum-height fill: ensures enough scrollable content to fully collapse the header,
-                // even when there's little or no content (e.g. empty exams tab)
-                item(key = "bottom_fill") {
-                    Spacer(Modifier.height(400.dp))
                 }
             }
         }

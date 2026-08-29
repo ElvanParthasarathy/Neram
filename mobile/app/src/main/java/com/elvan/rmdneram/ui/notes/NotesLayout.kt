@@ -89,7 +89,8 @@ fun NotesMainLayout(
                             onNotUploaded = onNotUploaded,
                             onRetry = onRetry,
                             onDriveFolderClick = onDriveFolderClick,
-                            onDriveFileClick = onDriveFileClick
+                            onDriveFileClick = onDriveFileClick,
+                            scrollState = scrollState
                         )
                     }
                 }
@@ -150,7 +151,8 @@ fun NotesMainLayout(
                         onNotUploaded = onNotUploaded,
                         onRetry = onRetry,
                         onDriveFolderClick = onDriveFolderClick,
-                        onDriveFileClick = onDriveFileClick
+                        onDriveFileClick = onDriveFileClick,
+                        scrollState = scrollState
                     )
                 }
             }
@@ -170,10 +172,13 @@ private fun NotesContentView(
     onNotUploaded: () -> Unit,
     onRetry: () -> Unit,
     onDriveFolderClick: (com.elvan.rmdneram.data.model.DriveFolder) -> Unit,
-    onDriveFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit
+    onDriveFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState
 ) {
+    val listState = if (path.isEmpty()) scrollState else androidx.compose.foundation.lazy.rememberLazyListState()
+
     if (uiState is NotesUiState.Empty) {
-        FolderList(rootFolders, colors, onClick = onFolderClick)
+        FolderList(rootFolders, colors, listState = listState, onClick = onFolderClick)
     } else {
         when (val state = uiState) {
             is NotesUiState.Loading -> NotesLoadingView(colors)
@@ -181,10 +186,10 @@ private fun NotesContentView(
             is NotesUiState.Browser -> {
                 when (val content = state.content) {
                     is NotesViewContent.Folders -> {
-                        FolderList(content.names, colors, onClick = onFolderClick)
+                        FolderList(content.names, colors, listState = listState, onClick = onFolderClick)
                     }
                     is NotesViewContent.Files -> {
-                        FilesList(content.subjects, colors, onLinkClick = onFileClick, onNotUploaded = onNotUploaded)
+                        FilesList(content.subjects, colors, listState = listState, onLinkClick = onFileClick, onNotUploaded = onNotUploaded)
                     }
                     is NotesViewContent.DriveView -> {
                         DriveList(
@@ -193,6 +198,7 @@ private fun NotesContentView(
                             subjects = content.subjects,
                             colors = colors,
                             isRoot = path.isEmpty(),
+                            listState = listState,
                             onFolderClick = onDriveFolderClick,
                             onFileClick = onDriveFileClick
                         )
