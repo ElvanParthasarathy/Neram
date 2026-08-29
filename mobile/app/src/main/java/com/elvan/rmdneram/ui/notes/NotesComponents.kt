@@ -109,10 +109,6 @@ fun FolderList(
                 FolderItem(item, colors) { onClick(item) }
             }
         }
-
-        item(key = "collapse_spacer") {
-            Spacer(modifier = Modifier.elvanCollapseMinHeight())
-        }
     }
 }
 
@@ -192,10 +188,6 @@ fun FilesList(
             ElvanSectionContainer {
                 SubjectItem(subject, colors, onLinkClick, onNotUploaded)
             }
-        }
-
-        item(key = "collapse_spacer") {
-            Spacer(modifier = Modifier.elvanCollapseMinHeight())
         }
     }
 }
@@ -409,10 +401,6 @@ fun DriveList(
                     NotesEmptyView(colors)
                 }
             }
-        }
-
-        item(key = "collapse_spacer") {
-            Spacer(modifier = Modifier.elvanCollapseMinHeight())
         }
     }
 }
