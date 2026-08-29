@@ -76,9 +76,9 @@ object HomeDimens {
     
     // Sections - matches gap: reduced to 16px
     val SectionSpacing = 16.dp
-    val SectionTitleBottomPadding = 5.dp
+    val SectionTitleBottomPadding = 4.dp
     val ItemSpacing = 12.dp
-    val DateSectionSpacing = 5.dp
+    val DateSectionSpacing = 4.dp
     
     // Shadows
     val CardElevation = 8.dp

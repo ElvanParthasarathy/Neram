@@ -364,7 +364,7 @@ fun ScheduleMainLayout(
                                         text = AppStrings.Schedule.ongoingExams(lang),
                                         style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                         color = colors.textSecondary.copy(alpha = 0.8f),
-                                        modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingLg, bottom = HomeDimens.SectionTitleBottomPadding)
+                                        modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
                                     )
                                     ongoingExams.forEach { exam ->
                                         Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding).padding(bottom = 12.dp)) {
@@ -400,7 +400,7 @@ fun ScheduleMainLayout(
                                         text = AppStrings.Schedule.upcomingExams(lang),
                                         style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                         color = colors.textSecondary.copy(alpha = 0.8f),
-                                        modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingLg, bottom = HomeDimens.SectionTitleBottomPadding)
+                                        modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
                                     )
                                     upcomingExams.forEach { exam ->
                                         Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding).padding(bottom = 12.dp)) {

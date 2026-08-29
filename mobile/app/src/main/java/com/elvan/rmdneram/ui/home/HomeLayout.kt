@@ -131,7 +131,7 @@ fun HomeMainLayout(
                                 text = AppStrings.Home.academicCalendar(lang),
                                 style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                 color = colors.textSecondary.copy(alpha = 0.8f),
-                                modifier = Modifier.padding(start = HomeDimens.SpacingLg, bottom = HomeDimens.SectionTitleBottomPadding)
+                                modifier = Modifier.padding(start = HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
                             )
 
                             androidx.compose.animation.AnimatedContent(

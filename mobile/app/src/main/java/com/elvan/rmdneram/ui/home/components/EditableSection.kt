@@ -207,7 +207,7 @@ private fun EditableSectionContent(
                 text = title,
                 style = HomeTypography.DateLabel.copy(fontFamily = ff),
                 color = colors.textSecondary.copy(alpha = 0.8f),
-                modifier = Modifier.padding(start = HomeDimens.SpacingLg)
+                modifier = Modifier.padding(start = HomeDimens.SpacingXxxl)
             )
             
             if (canEdit && !isEditing) {

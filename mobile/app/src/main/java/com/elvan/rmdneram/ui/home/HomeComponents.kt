@@ -314,7 +314,7 @@ internal fun DateSection(
             text = AppStrings.Home.selectDate(lang),
             style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
             color = colors.textSecondary.copy(alpha = 0.8f),
-            modifier = Modifier.padding(start = HomeDimens.SpacingLg)
+            modifier = Modifier.padding(start = HomeDimens.SpacingXxxl)
         )
         
         // Date Input Group - matches .date-input-group
@@ -537,7 +537,7 @@ internal fun ScheduleSection(
                 text = AppStrings.Home.schedule(lang),
                 style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                 color = colors.textSecondary.copy(alpha = 0.8f),
-                modifier = Modifier.padding(start = HomeDimens.SpacingLg)
+                modifier = Modifier.padding(start = HomeDimens.SpacingXxxl)
             )
             
             // Status Badge - matches .status-badge-small
