@@ -367,7 +367,7 @@ fun ScheduleMainLayout(
                                         modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingLg, bottom = HomeDimens.SectionTitleBottomPadding)
                                     )
                                     ongoingExams.forEach { exam ->
-                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
+                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding).padding(bottom = 12.dp)) {
                                             ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = true, viewDate = targetDate)
                                         }
                                     }
@@ -403,7 +403,7 @@ fun ScheduleMainLayout(
                                         modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingLg, bottom = HomeDimens.SectionTitleBottomPadding)
                                     )
                                     upcomingExams.forEach { exam ->
-                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
+                                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding).padding(bottom = 12.dp)) {
                                             ExamScheduleCard(exam = exam, courses = uiState.masterData.courses, colors = colors, defaultExpanded = false, viewDate = targetDate)
                                         }
                                     }
