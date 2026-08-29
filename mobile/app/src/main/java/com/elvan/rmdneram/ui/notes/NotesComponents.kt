@@ -1,13 +1,14 @@
 package com.elvan.rmdneram.ui.notes
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,38 +16,101 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.data.model.NotesSubject
 import com.elvan.rmdneram.ui.home.HomeColors
-import com.elvan.rmdneram.ui.components.shell.elvanCollapseMinHeight
+import com.elvan.rmdneram.ui.home.HomeDimens
+import com.elvan.rmdneram.ui.home.HomeShapes
+import com.elvan.rmdneram.ui.home.HomeTypography
+import com.elvan.rmdneram.ui.components.shell.*
 
 /**
  * NotesComponents - Reusable UI widgets for the Notes Screen.
+ * Fully integrated with ElvanShell master architecture and Home Card Design System.
  */
+
+@Composable
+fun NotesBreadcrumbHeader(
+    path: List<String>,
+    colors: HomeColors,
+    onBackClick: () -> Unit
+) {
+    ElvanSectionContainer {
+        Surface(
+            shape = HomeShapes.Card,
+            color = colors.surface,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onBackClick() }
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(colors.subtleBackground),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Filled.KeyboardArrowLeft,
+                        contentDescription = "Back",
+                        tint = colors.textPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = path.lastOrNull() ?: "",
+                    style = HomeTypography.PillTitle,
+                    color = colors.textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun FolderList(
     items: List<String>,
     colors: HomeColors,
     listState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
+    path: List<String> = emptyList(),
+    onBackClick: () -> Unit = {},
     onClick: (String) -> Unit
 ) {
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = 24.dp,
-            bottom = 120.dp
+            bottom = HomeDimens.ContentPaddingBottom
         ),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
-        items(items) { item ->
-            FolderItem(item, colors) { onClick(item) }
+        item(key = "spacer_top") {
+            Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
         }
-        item {
+
+        if (path.isNotEmpty()) {
+            item(key = "breadcrumb_header") {
+                NotesBreadcrumbHeader(path = path, colors = colors, onBackClick = onBackClick)
+            }
+        }
+
+        items(items, key = { it }) { item ->
+            ElvanSectionContainer {
+                FolderItem(item, colors) { onClick(item) }
+            }
+        }
+
+        item(key = "collapse_spacer") {
             Spacer(modifier = Modifier.elvanCollapseMinHeight())
         }
     }
@@ -60,14 +124,14 @@ fun FolderItem(
 ) {
     Surface(
         onClick = onClick,
-        shape = com.elvan.rmdneram.ui.home.HomeShapes.Item,
+        shape = HomeShapes.Card,
         color = colors.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+                .padding(horizontal = 20.dp, vertical = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -81,7 +145,7 @@ fun FolderItem(
             
             Text(
                 text = name,
-                style = com.elvan.rmdneram.ui.home.HomeTypography.PillTitle,
+                style = HomeTypography.PillTitle,
                 color = colors.textPrimary,
                 modifier = Modifier.weight(1f)
             )
@@ -101,6 +165,8 @@ fun FilesList(
     subjects: List<NotesSubject>,
     colors: HomeColors,
     listState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
+    path: List<String> = emptyList(),
+    onBackClick: () -> Unit = {},
     onLinkClick: (String) -> Unit,
     onNotUploaded: () -> Unit = {}
 ) {
@@ -108,23 +174,31 @@ fun FilesList(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = 24.dp,
-            bottom = 120.dp
+            bottom = HomeDimens.ContentPaddingBottom
         ),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
-        items(subjects) { subject ->
-            SubjectItem(subject, colors, onLinkClick, onNotUploaded)
+        item(key = "spacer_top") {
+            Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
         }
-        item {
+
+        if (path.isNotEmpty()) {
+            item(key = "breadcrumb_header") {
+                NotesBreadcrumbHeader(path = path, colors = colors, onBackClick = onBackClick)
+            }
+        }
+
+        items(subjects, key = { it.name }) { subject ->
+            ElvanSectionContainer {
+                SubjectItem(subject, colors, onLinkClick, onNotUploaded)
+            }
+        }
+
+        item(key = "collapse_spacer") {
             Spacer(modifier = Modifier.elvanCollapseMinHeight())
         }
     }
 }
-
-
 
 @Composable
 fun SubjectItem(
@@ -138,7 +212,7 @@ fun SubjectItem(
     Column(modifier = Modifier.fillMaxWidth()) {
         // Header: Separate Card for the Dropdown Trigger
         Surface(
-            shape = com.elvan.rmdneram.ui.home.HomeShapes.Card,
+            shape = HomeShapes.Card,
             color = colors.surface,
             modifier = Modifier.fillMaxWidth(),
             shadowElevation = 0.dp
@@ -147,10 +221,10 @@ fun SubjectItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { expanded = !expanded }
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                    .padding(horizontal = 20.dp, vertical = 20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Colored Indicator
+                // Accent indicator
                 Box(
                     modifier = Modifier
                         .width(4.dp)
@@ -163,7 +237,7 @@ fun SubjectItem(
 
                 Text(
                     text = subject.name,
-                    style = com.elvan.rmdneram.ui.home.HomeTypography.PillTitle,
+                    style = HomeTypography.PillTitle,
                     color = colors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
@@ -186,17 +260,16 @@ fun SubjectItem(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp), // Spacing between header and list
+                    .padding(top = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Always show Unit 1 to Unit 5
                 for (unitNumber in 1..5) {
                     val unitKey = "Unit $unitNumber"
                     val url = subject.units[unitKey] ?: subject.units["unit $unitNumber"] ?: ""
                     val isAvailable = url.isNotBlank()
                     
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = HomeShapes.Item,
                         color = if (isAvailable) colors.surface else colors.surface.copy(alpha = 0.6f),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
@@ -222,12 +295,12 @@ fun SubjectItem(
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = unitKey,
-                                style = com.elvan.rmdneram.ui.home.HomeTypography.StatusBadge.copy(fontSize = 14.sp),
+                                style = HomeTypography.StatusBadge.copy(fontSize = 14.sp),
                                 color = if (isAvailable) colors.textPrimary else colors.textSecondary
                             )
                             Spacer(modifier = Modifier.weight(1f))
                             Icon(
-                                if (isAvailable) Icons.Default.OpenInNew else Icons.Default.Lock,
+                                if (isAvailable) Icons.AutoMirrored.Filled.OpenInNew else Icons.Default.Lock,
                                 contentDescription = if (isAvailable) "Open" else "Not Available",
                                 tint = colors.textSecondary.copy(alpha = if (isAvailable) 0.6f else 0.4f),
                                 modifier = Modifier.size(16.dp)
@@ -240,15 +313,14 @@ fun SubjectItem(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun NotesLoadingView(colors: HomeColors) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         ContainedLoadingIndicator(
-            modifier = Modifier.size(com.elvan.rmdneram.ui.home.HomeDimens.RefreshIndicatorSize),
+            modifier = Modifier.size(HomeDimens.RefreshIndicatorSize),
             containerColor = colors.surface,
-            indicatorColor = colors.textSecondary // Secondary Black
+            indicatorColor = colors.textSecondary
         )
     }
 }
@@ -288,6 +360,8 @@ fun DriveList(
     colors: HomeColors,
     isRoot: Boolean,
     listState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
+    path: List<String> = emptyList(),
+    onBackClick: () -> Unit = {},
     onFolderClick: (com.elvan.rmdneram.data.model.DriveFolder) -> Unit,
     onFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit
 ) {
@@ -295,28 +369,50 @@ fun DriveList(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = 24.dp,
-            bottom = 120.dp
+            bottom = HomeDimens.ContentPaddingBottom
         ),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
-        items(folders) { folder ->
-            FolderItem(folder.name, colors) { onFolderClick(folder) }
+        item(key = "spacer_top") {
+            Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
         }
-        items(files) { file ->
-            DriveFileItem(file.name, colors) { onFileClick(file) }
+
+        if (path.isNotEmpty()) {
+            item(key = "breadcrumb_header") {
+                NotesBreadcrumbHeader(path = path, colors = colors, onBackClick = onBackClick)
+            }
         }
-        // Subjects — expandable dropdowns (like fetch mode)
-        items(subjects) { subject ->
-            DriveSubjectItem(subject, colors, onFileClick = { url ->
-                // Open the URL via Android intent
-                onFileClick(com.elvan.rmdneram.data.model.DriveFile(link = url))
-            })
+
+        items(folders, key = { it.id }) { folder ->
+            ElvanSectionContainer {
+                FolderItem(folder.name, colors) { onFolderClick(folder) }
+            }
         }
+
+        items(files, key = { it.id }) { file ->
+            ElvanSectionContainer {
+                DriveFileItem(file.name, colors) { onFileClick(file) }
+            }
+        }
+
+        items(subjects, key = { it.name }) { subject ->
+            ElvanSectionContainer {
+                DriveSubjectItem(subject, colors, onFileClick = { url ->
+                    onFileClick(com.elvan.rmdneram.data.model.DriveFile(link = url))
+                })
+            }
+        }
+
         if (folders.isEmpty() && files.isEmpty() && subjects.isEmpty()) {
-            item { NotesEmptyView(colors) }
+            item(key = "empty") {
+                ElvanSectionContainer {
+                    NotesEmptyView(colors)
+                }
+            }
+        }
+
+        item(key = "collapse_spacer") {
+            Spacer(modifier = Modifier.elvanCollapseMinHeight())
         }
     }
 }
@@ -333,7 +429,7 @@ fun DriveSubjectItem(
     Column(modifier = Modifier.fillMaxWidth()) {
         // Header
         Surface(
-            shape = com.elvan.rmdneram.ui.home.HomeShapes.Card,
+            shape = HomeShapes.Card,
             color = colors.surface,
             modifier = Modifier.fillMaxWidth(),
             shadowElevation = 0.dp
@@ -342,7 +438,7 @@ fun DriveSubjectItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { expanded = !expanded }
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                    .padding(horizontal = 20.dp, vertical = 20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Accent bar
@@ -356,7 +452,7 @@ fun DriveSubjectItem(
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = subject.name,
-                    style = com.elvan.rmdneram.ui.home.HomeTypography.PillTitle,
+                    style = HomeTypography.PillTitle,
                     color = colors.textPrimary,
                     modifier = Modifier.weight(1f)
                 )
@@ -389,7 +485,7 @@ fun DriveSubjectItem(
                     val isAvailable = link.isNotBlank()
 
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = HomeShapes.Item,
                         color = if (isAvailable) colors.surface else colors.surface.copy(alpha = 0.6f),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { if (isAvailable) onFileClick(link) }
@@ -409,12 +505,12 @@ fun DriveSubjectItem(
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = unitName,
-                                style = com.elvan.rmdneram.ui.home.HomeTypography.StatusBadge.copy(fontSize = 14.sp),
+                                style = HomeTypography.StatusBadge.copy(fontSize = 14.sp),
                                 color = if (isAvailable) colors.textPrimary else colors.textSecondary
                             )
                             Spacer(modifier = Modifier.weight(1f))
                             Icon(
-                                if (isAvailable) Icons.Default.OpenInNew else Icons.Default.Lock,
+                                if (isAvailable) Icons.AutoMirrored.Filled.OpenInNew else Icons.Default.Lock,
                                 contentDescription = if (isAvailable) "Open" else "Not Available",
                                 tint = colors.textSecondary.copy(alpha = if (isAvailable) 0.6f else 0.4f),
                                 modifier = Modifier.size(16.dp)
@@ -443,14 +539,14 @@ fun DriveFileItem(
 ) {
     Surface(
         onClick = onClick,
-        shape = com.elvan.rmdneram.ui.home.HomeShapes.Item,
+        shape = HomeShapes.Card,
         color = colors.surface,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 20.dp),
+                .padding(horizontal = 20.dp, vertical = 20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -462,12 +558,12 @@ fun DriveFileItem(
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = name,
-                style = com.elvan.rmdneram.ui.home.HomeTypography.PillTitle,
+                style = HomeTypography.PillTitle,
                 color = colors.textPrimary,
                 modifier = Modifier.weight(1f)
             )
             Icon(
-                Icons.Default.OpenInNew,
+                Icons.AutoMirrored.Filled.OpenInNew,
                 contentDescription = null,
                 tint = colors.textSecondary.copy(alpha = 0.5f),
                 modifier = Modifier.size(20.dp)

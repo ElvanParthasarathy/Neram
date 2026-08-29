@@ -1,12 +1,11 @@
 package com.elvan.rmdneram.ui.notes
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -17,15 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.HomeDimens
-import com.elvan.rmdneram.ui.home.rememberStatusBarHeight
+import com.elvan.rmdneram.ui.components.shell.*
 
 /**
  * Notes Layout - Structural component for the Notes Screen.
@@ -46,106 +39,35 @@ fun NotesMainLayout(
     onDriveFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit = {},
     scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
-    val statusBarHeight = rememberStatusBarHeight()
-    val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop + if (path.isEmpty()) HomeDimens.ExtraHeaderExpansion else 0.dp
-
     val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
         if (notesMode == "folder") {
-            // FOLDER MODE: Header handled by TopMenuBar, content has slide animations
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = topPadding)
-            ) {
-                AnimatedContent(
-                    targetState = Pair(path, uiState),
-                    transitionSpec = {
-                        if (targetState.first.size > initialState.first.size) {
-                            slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
-                        } else if (targetState.first.size < initialState.first.size) {
-                            slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
-                        } else {
-                            fadeIn() togetherWith fadeOut()
-                        }
-                    },
-                    contentKey = { it.first.joinToString("/") },
-                    label = "ContentSlide"
-                ) { (animPath, animState) ->
-                    val pathKey = animPath.joinToString("/")
-                    saveableStateHolder.SaveableStateProvider(pathKey) {
-                        NotesContentView(
-                            uiState = animState,
-                            path = animPath,
-                            rootFolders = rootFolders,
-                            colors = colors,
-                            onFolderClick = onFolderClick,
-                            onFileClick = onFileClick,
-                            onNotUploaded = onNotUploaded,
-                            onRetry = onRetry,
-                            onDriveFolderClick = onDriveFolderClick,
-                            onDriveFileClick = onDriveFileClick,
-                            scrollState = scrollState
-                        )
+            // FOLDER MODE: animated content slide on folder enter/exit
+            AnimatedContent(
+                targetState = Pair(path, uiState),
+                transitionSpec = {
+                    if (targetState.first.size > initialState.first.size) {
+                        slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
+                    } else if (targetState.first.size < initialState.first.size) {
+                        slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
+                    } else {
+                        fadeIn() togetherWith fadeOut()
                     }
-                }
-            }
-        } else {
-            // FETCH MODE: Own chevron header, no animations
-            if (path.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 12.dp, top = topPadding, bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(colors.surface)
-                            .clickable { onBackClick() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back",
-                            tint = colors.textPrimary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = path.last(),
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            fontSize = if (path.last().length > 20) 14.sp else 16.sp,
-                            letterSpacing = 0.sp
-                        ),
-                        color = colors.textPrimary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = if (path.isEmpty()) topPadding else 0.dp)
-            ) {
-                val pathKey = path.joinToString("/")
+                },
+                contentKey = { it.first.joinToString("/") },
+                label = "NotesContentSlide"
+            ) { (animPath, animState) ->
+                val pathKey = animPath.joinToString("/")
                 saveableStateHolder.SaveableStateProvider(pathKey) {
                     NotesContentView(
-                        uiState = uiState,
-                        path = path,
+                        uiState = animState,
+                        path = animPath,
                         rootFolders = rootFolders,
                         colors = colors,
+                        onBackClick = onBackClick,
                         onFolderClick = onFolderClick,
                         onFileClick = onFileClick,
                         onNotUploaded = onNotUploaded,
@@ -155,6 +77,25 @@ fun NotesMainLayout(
                         scrollState = scrollState
                     )
                 }
+            }
+        } else {
+            // FETCH MODE
+            val pathKey = path.joinToString("/")
+            saveableStateHolder.SaveableStateProvider(pathKey) {
+                NotesContentView(
+                    uiState = uiState,
+                    path = path,
+                    rootFolders = rootFolders,
+                    colors = colors,
+                    onBackClick = onBackClick,
+                    onFolderClick = onFolderClick,
+                    onFileClick = onFileClick,
+                    onNotUploaded = onNotUploaded,
+                    onRetry = onRetry,
+                    onDriveFolderClick = onDriveFolderClick,
+                    onDriveFileClick = onDriveFileClick,
+                    scrollState = scrollState
+                )
             }
         }
     }
@@ -167,6 +108,7 @@ private fun NotesContentView(
     path: List<String>,
     rootFolders: List<String>,
     colors: HomeColors,
+    onBackClick: () -> Unit,
     onFolderClick: (String) -> Unit,
     onFileClick: (String) -> Unit,
     onNotUploaded: () -> Unit,
@@ -178,7 +120,14 @@ private fun NotesContentView(
     val listState = if (path.isEmpty()) scrollState else androidx.compose.foundation.lazy.rememberLazyListState()
 
     if (uiState is NotesUiState.Empty) {
-        FolderList(rootFolders, colors, listState = listState, onClick = onFolderClick)
+        FolderList(
+            items = rootFolders,
+            colors = colors,
+            listState = listState,
+            path = path,
+            onBackClick = onBackClick,
+            onClick = onFolderClick
+        )
     } else {
         when (val state = uiState) {
             is NotesUiState.Loading -> NotesLoadingView(colors)
@@ -186,10 +135,25 @@ private fun NotesContentView(
             is NotesUiState.Browser -> {
                 when (val content = state.content) {
                     is NotesViewContent.Folders -> {
-                        FolderList(content.names, colors, listState = listState, onClick = onFolderClick)
+                        FolderList(
+                            items = content.names,
+                            colors = colors,
+                            listState = listState,
+                            path = path,
+                            onBackClick = onBackClick,
+                            onClick = onFolderClick
+                        )
                     }
                     is NotesViewContent.Files -> {
-                        FilesList(content.subjects, colors, listState = listState, onLinkClick = onFileClick, onNotUploaded = onNotUploaded)
+                        FilesList(
+                            subjects = content.subjects,
+                            colors = colors,
+                            listState = listState,
+                            path = path,
+                            onBackClick = onBackClick,
+                            onLinkClick = onFileClick,
+                            onNotUploaded = onNotUploaded
+                        )
                     }
                     is NotesViewContent.DriveView -> {
                         DriveList(
@@ -199,6 +163,8 @@ private fun NotesContentView(
                             colors = colors,
                             isRoot = path.isEmpty(),
                             listState = listState,
+                            path = path,
+                            onBackClick = onBackClick,
                             onFolderClick = onDriveFolderClick,
                             onFileClick = onDriveFileClick
                         )
