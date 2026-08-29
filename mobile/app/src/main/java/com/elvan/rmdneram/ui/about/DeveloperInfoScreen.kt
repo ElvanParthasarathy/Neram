@@ -34,187 +34,155 @@ import com.elvan.rmdneram.ui.theme.AppColors
 import androidx.compose.ui.res.vectorResource
 import com.elvan.rmdneram.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeveloperInfoScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
 
     BackHandler { onBack() }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = colors.background,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Developer Info",
-                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.padding(top = 8.dp)
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = "Developer Info",
+        onBack = onBack,
+        scrollState = scrollState,
+        colors = colors
+    ) {
+        androidx.compose.foundation.lazy.LazyColumn(
+            state = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
+        ) {
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            }
+
+            item(key = "hero_card") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(HomeShapes.Card)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        colors.accent.copy(alpha = 0.8f),
+                                        colors.accent.copy(alpha = 0.4f)
+                                    )
+                                )
+                            )
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            Icons.Default.ChevronLeft,
-                            "Back",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(32.dp)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            Text(
+                                "Hello, I'm",
+                                style = HomeTypography.PillTime,
+                                color = Color.White
+                            )
+                            
+                            Spacer(modifier = Modifier.height(4.dp))
+                            
+                            Text(
+                                text = "Elvan Parthasarathy",
+                                style = HomeTypography.PageTitle.copy(fontSize = 28.sp, fontWeight = FontWeight.Bold),
+                                color = Color.White,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+
+                            Text(
+                                text = "Vibe Coder | Prompt Engineer",
+                                style = HomeTypography.MessageBody.copy(fontSize = 16.sp),
+                                color = Color.White.copy(alpha = 0.8f),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(bottom = 24.dp)
+                            )
+                            
+                            Button(
+                                onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://jaiprakashpartha.vercel.app/") },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = colors.accent,
+                                    contentColor = Color.White
+                                ),
+                                shape = HomeShapes.Pill,
+                                modifier = Modifier.height(48.dp)
+                            ) {
+                                Text("Visit Portfolio", fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+
+            item(key = "contact_info") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column {
+                        Text(
+                            "Contact Info",
+                            style = HomeTypography.SectionTitle,
+                            color = colors.textPrimary,
+                            modifier = Modifier.padding(bottom = 12.dp, start = 8.dp)
+                        )
+                        
+                        ContactItem(
+                            icon = Icons.Default.Phone,
+                            label = "+91 93451 28797",
+                            color = AppColors.GitHub,
+                            onClick = {
+                                try {
+                                     val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:+919345128797"))
+                                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                     context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        )
+                        ContactItem(
+                            icon = Icons.Default.Email,
+                            label = "jaiprakashpartha@gmail.com",
+                            color = AppColors.Instagram,
+                            onClick = {
+                                try {
+                                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                        data = Uri.parse("mailto:jaiprakashpartha@gmail.com")
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    }
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        )
+                        ContactItem(
+                            icon = ImageVector.vectorResource(id = R.drawable.ic_linkedin),
+                            label = "linkedin.com/in/jaiprakashpartha",
+                            color = AppColors.LinkedIn,
+                            iconTint = Color.Unspecified,
+                            onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://www.linkedin.com/in/jaiprakashpartha") }
+                        )
+                        ContactItem(
+                            icon = ImageVector.vectorResource(id = R.drawable.ic_github),
+                            label = "github.com/elvanparthasarathy",
+                            color = colors.textPrimary,
+                            onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://github.com/elvanparthasarathy") }
+                        )
+                        ContactItem(
+                            icon = Icons.Default.LocationOn,
+                            label = "Arani, Tamil Nadu - 632317",
+                            subLabel = "(Currently in Chennai)",
+                            color = AppColors.YouTube,
+                            onClick = {}
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.background,
-                    scrolledContainerColor = colors.background,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-        // Hero Card
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = HomeDimens.ContentPadding)
-                .clip(HomeShapes.Card)
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            colors.accent.copy(alpha = 0.8f),
-                            colors.accent.copy(alpha = 0.4f)
-                        )
-                    )
-                )
-                .padding(32.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // Photo Removed per request
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Text(
-                    "Hello, I'm",
-                    style = HomeTypography.PillTime,
-                    color = Color.White // Fixed for visibility on accent
-                )
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                Text(
-                text = "Elvan Parthasarathy",
-                style = HomeTypography.PageTitle.copy(fontSize = 28.sp, fontWeight = FontWeight.Bold),
-                color = Color.White, // Fixed for visibility on accent
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            Text(
-                text = "Vibe Coder | Prompt Engineer",
-                style = HomeTypography.MessageBody.copy(fontSize = 16.sp),
-                color = Color.White.copy(alpha = 0.8f), // Fixed for visibility on accent
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Button(
-                    onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://jaiprakashpartha.vercel.app/") },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.accent, // Changed from White
-                        contentColor = Color.White      // Changed from accent
-                    ),
-                    shape = HomeShapes.Pill,
-                    modifier = Modifier.height(48.dp)
-                ) {
-                    Text("Visit Portfolio", fontWeight = FontWeight.Bold)
                 }
             }
         }
-        
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        // Contact Links
-        Text(
-            "Contact Info",
-            modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding),
-            style = HomeTypography.SectionTitle,
-            color = colors.textPrimary
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
-            ContactItem(
-                icon = Icons.Default.Phone,
-                label = "+91 93451 28797",
-                color = AppColors.GitHub,
-                onClick = {
-                    try {
-                         val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:+919345128797"))
-                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                         context.startActivity(intent)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            )
-            ContactItem(
-                icon = Icons.Default.Email,
-                label = "jaiprakashpartha@gmail.com",
-                color = AppColors.Instagram,
-                onClick = {
-                    try {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:jaiprakashpartha@gmail.com")
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                        context.startActivity(intent)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-            )
-            ContactItem(
-                icon = ImageVector.vectorResource(id = R.drawable.ic_linkedin),
-                label = "linkedin.com/in/jaiprakashpartha",
-                color = AppColors.LinkedIn,
-                iconTint = Color.Unspecified, // Use original colors
-                onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://www.linkedin.com/in/jaiprakashpartha") }
-            )
-            ContactItem(
-                icon = ImageVector.vectorResource(id = R.drawable.ic_github),
-                label = "github.com/elvanparthasarathy",
-                color = colors.textPrimary, // Dynamic Black/White
-                onClick = { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://github.com/elvanparthasarathy") }
-            )
-            ContactItem(
-                icon = Icons.Default.LocationOn,
-                label = "Arani, Tamil Nadu - 632317",
-                subLabel = "(Currently in Chennai)",
-                color = AppColors.YouTube,
-                onClick = {}
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(48.dp))
-    }
     }
 }
 

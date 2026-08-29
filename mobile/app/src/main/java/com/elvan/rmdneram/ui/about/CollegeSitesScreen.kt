@@ -49,74 +49,78 @@ private val links = listOf(
 
 @Composable
 fun CollegeSitesScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
     val context = LocalContext.current
 
-    val statusBarHeight = rememberStatusBarHeight()
-    val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = "Important Sites",
+        onBack = onBack,
+        scrollState = scrollState,
+        colors = colors
     ) {
-        // TopMenuBar is provided by MainScreen
-
         LazyColumn(
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(top = topPadding, bottom = 100.dp)
+            state = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            }
+
             // Links List
-            items(links) { link ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 6.dp)
-                        .clip(HomeShapes.Item)
-                        .background(colors.surface)
-                        .clickable { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, link.url) }
-                ) {
-                    Row(
+            items(links, key = { it.url }) { link ->
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .clip(HomeShapes.Item)
+                            .background(colors.surface)
+                            .clickable { com.elvan.rmdneram.utils.IntentUtils.openUrl(context, link.url) }
                     ) {
-                        // Circular Icon Container (48dp like React Native)
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .size(48.dp)
-                                .clip(CircleShape)
-                                .background(colors.accent.copy(alpha = 0.1f)),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(link.icon, null, tint = colors.accent, modifier = Modifier.size(24.dp))
+                            // Circular Icon Container
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(colors.accent.copy(alpha = 0.1f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(link.icon, null, tint = colors.accent, modifier = Modifier.size(24.dp))
+                            }
+                            
+                            Spacer(modifier = Modifier.width(16.dp))
+                            
+                            // Content
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    link.name,
+                                    style = HomeTypography.PillTitle,
+                                    color = colors.textPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    link.description,
+                                    style = HomeTypography.FacultyName,
+                                    color = colors.textSecondary,
+                                    maxLines = 2
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.width(8.dp))
+                            
+                            Icon(Icons.Default.ArrowForward, null, tint = colors.textSecondary, modifier = Modifier.size(20.dp))
                         }
-                        
-                        Spacer(modifier = Modifier.width(16.dp))
-                        
-                        // Content
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                link.name,
-                                style = HomeTypography.PillTitle,
-                                color = colors.textPrimary,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                link.description,
-                                style = HomeTypography.FacultyName,
-                                color = colors.textSecondary,
-                                maxLines = 2
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.width(8.dp))
-                        
-                        Icon(Icons.Default.ArrowForward, null, tint = colors.textSecondary, modifier = Modifier.size(20.dp))
                     }
                 }
             }

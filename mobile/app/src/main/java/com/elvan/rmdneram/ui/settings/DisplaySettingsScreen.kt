@@ -4,13 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material3.*
@@ -22,140 +19,104 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
 import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DisplaySettingsScreen(
     currentTheme: String,
     onThemeChange: (String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    
-    // One UI Card Color
+    val lang = LocalAppLanguage.current
     val cardColor = colors.surface
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = colors.background,
-        topBar = {
-            TopAppBar(
-                title = {
-                    val lang = LocalAppLanguage.current
-                    Text(
-                        AppStrings.Settings.display(lang),
-                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp, fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                         Icon(
-                             Icons.Default.ChevronLeft, 
-                             "Back", 
-                             tint = MaterialTheme.colorScheme.onSurface,
-                             modifier = Modifier.size(32.dp)
-                         )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.background,
-                    scrolledContainerColor = colors.background,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = AppStrings.Settings.display(lang),
+        onBack = onBack,
+        scrollState = scrollState,
+        colors = colors
+    ) {
+        LazyColumn(
+            state = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
-            // Top Spacer adjusted to match Home Screen Profile Card alignment
-            // Home Content Top = StatusBar + 85dp
-            // Display Settings Top = StatusBar + 64dp (AppBar) + 21dp (Spacer) = 85dp
-            Spacer(modifier = Modifier.height(21.dp))
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            }
 
-            // 1. Light / Dark / Auto Mode Selector Card
-            // 1. Light / Dark Mode Selector Card (Auto moved below)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(HomeShapes.Item)
-                    .background(cardColor)
-                    .padding(24.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    val lang = LocalAppLanguage.current
-                    // Light Mode Option
-                    ThemeSelectionItem(
-                        label = AppStrings.Display.lightTheme(lang),
-                        isSelected = currentTheme == "light",
-                        backgroundBrush = Brush.linearGradient(listOf(Color(0xFFF2F2F2), Color(0xFFE0E0E0))),
-                        accent = AppColors.Blue, // Blue accent
-                        textColor = colors.textPrimary,
-                        onClick = { onThemeChange("light") } // Switching to light disables auto
-                    )
+            item(key = "theme_card") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(HomeShapes.Item)
+                            .background(cardColor)
+                            .padding(24.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            // Light Mode Option
+                            ThemeSelectionItem(
+                                label = AppStrings.Display.lightTheme(lang),
+                                isSelected = currentTheme == "light",
+                                backgroundBrush = Brush.linearGradient(listOf(Color(0xFFF2F2F2), Color(0xFFE0E0E0))),
+                                accent = AppColors.Blue,
+                                textColor = colors.textPrimary,
+                                onClick = { onThemeChange("light") }
+                            )
 
-                    // Dark Mode Option
-                    ThemeSelectionItem(
-                        label = AppStrings.Display.darkTheme(lang),
-                        isSelected = currentTheme == "dark",
-                        backgroundBrush = Brush.linearGradient(listOf(Color(0xFF1C1C1C), Color.Black)),
-                        accent = AppColors.Blue,
-                        textColor = colors.textPrimary,
-                        onClick = { onThemeChange("dark") } // Switching to dark disables auto
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                Divider(color = colors.glassBorder, thickness = 1.dp)
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                // System Auto Toggle
-                Row(
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .clickable { 
-                           if (currentTheme != "auto") onThemeChange("auto") else onThemeChange("light") // Toggle logic
-                       },
-                   verticalAlignment = Alignment.CenterVertically,
-                   horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    val lang = LocalAppLanguage.current
-                    Column {
-                        Text(AppStrings.Display.systemAuto(lang), style = MaterialTheme.typography.bodyLarge, color = colors.textPrimary)
-                        Text(AppStrings.Display.themeDescription(lang), style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+                            // Dark Mode Option
+                            ThemeSelectionItem(
+                                label = AppStrings.Display.darkTheme(lang),
+                                isSelected = currentTheme == "dark",
+                                backgroundBrush = Brush.linearGradient(listOf(Color(0xFF1C1C1C), Color.Black)),
+                                accent = AppColors.Blue,
+                                textColor = colors.textPrimary,
+                                onClick = { onThemeChange("dark") }
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // System Auto Toggle
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { 
+                                    if (currentTheme != "auto") onThemeChange("auto") else onThemeChange("light")
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text(AppStrings.Display.systemAuto(lang), style = MaterialTheme.typography.bodyLarge, color = colors.textPrimary)
+                                Text(AppStrings.Display.themeDescription(lang), style = MaterialTheme.typography.bodySmall, color = colors.textSecondary)
+                            }
+                            Switch(
+                                checked = currentTheme == "auto",
+                                onCheckedChange = { isChecked ->
+                                    if (isChecked) onThemeChange("auto") else onThemeChange("light")
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White, 
+                                    checkedTrackColor = AppColors.Blue
+                                )
+                            )
+                        }
                     }
-                    Switch(
-                        checked = currentTheme == "auto",
-                        onCheckedChange = { isChecked ->
-                             if (isChecked) onThemeChange("auto") else onThemeChange("light") // Default to light if turning auto off
-                        },
-                        colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color.White, 
-                            checkedTrackColor = AppColors.Blue
-                        )
-                    )
                 }
             }
         }

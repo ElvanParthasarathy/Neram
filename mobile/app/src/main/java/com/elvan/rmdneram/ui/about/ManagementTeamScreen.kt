@@ -23,176 +23,155 @@ import androidx.compose.ui.unit.sp
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManagementTeamScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
-    val scrollState = rememberScrollState()
 
     BackHandler { onBack() }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = colors.background,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Management Team",
-                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.padding(top = 8.dp)
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = "Management Team",
+        onBack = onBack,
+        scrollState = scrollState,
+        colors = colors
+    ) {
+        androidx.compose.foundation.lazy.LazyColumn(
+            state = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
+        ) {
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            }
+
+            item(key = "header_card") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(HomeShapes.Item)
+                            .background(colors.surface)
+                            .padding(24.dp)
                     ) {
-                        Icon(
-                            Icons.Default.ChevronLeft,
-                            "Back",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(32.dp)
+                        Text(
+                            "Management Team",
+                            style = HomeTypography.ExamTitle,
+                            color = colors.textPrimary,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                        Text(
+                            "The visionaries driving excellence and innovation across the RMK Group.",
+                            style = HomeTypography.MessageBody.copy(lineHeight = 26.sp),
+                            color = colors.textSecondary,
+                            textAlign = TextAlign.Start
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.background,
-                    scrolledContainerColor = colors.background,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(scrollState)
-                .padding(horizontal = HomeDimens.ContentPadding)
-                .padding(top = 24.dp, bottom = 100.dp)
-        ) {
-            // Header — LEFT aligned like About App description card
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(HomeShapes.Item)
-                    .background(colors.surface)
-                    .padding(24.dp)
-            ) {
-                Text(
-                    "Management Team",
-                    style = HomeTypography.ExamTitle,
-                    color = colors.textPrimary,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                Text(
-                    "The visionaries driving excellence and innovation across the RMK Group.",
-                    style = HomeTypography.MessageBody.copy(lineHeight = 26.sp),
-                    color = colors.textSecondary,
-                    textAlign = TextAlign.Start
-                )
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            item(key = "founders_section") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column {
+                        Text(
+                            "FOUNDERS",
+                            style = HomeTypography.ExamTag,
+                            color = colors.textSecondary,
+                            modifier = Modifier.padding(bottom = 12.dp, start = 8.dp)
+                        )
 
-            // Founders
-            Text(
-                "FOUNDERS",
-                style = HomeTypography.ExamTag,
-                color = colors.textSecondary,
-                modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(HomeShapes.Item)
-                    .background(colors.surface)
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                ManagementMemberItem(
-                    icon = Icons.Outlined.StarOutline,
-                    iconColor = AppColors.Red,
-                    name = "Thiru. R.S. Munirathinam",
-                    role = "FOUNDER-CHAIRMAN",
-                    bio = "A dedicated visionary and philanthropist who served as a Former Member of the Tamil Nadu State Assembly and founded the R.M.K. Group of Institutions."
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                ManagementMemberItem(
-                    icon = Icons.Outlined.PersonOutline,
-                    iconColor = AppColors.Blue,
-                    name = "Thiru. R.M. Kishore",
-                    role = "VICE-CHAIRMAN",
-                    bio = "Mechanical Engineer with an MBA from UK, focused on transforming learners into achievers with global standards."
-                )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(HomeShapes.Item)
+                                .background(colors.surface)
+                                .padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            ManagementMemberItem(
+                                icon = Icons.Outlined.StarOutline,
+                                iconColor = AppColors.Red,
+                                name = "Thiru. R.S. Munirathinam",
+                                role = "FOUNDER-CHAIRMAN",
+                                bio = "A dedicated visionary and philanthropist who served as a Former Member of the Tamil Nadu State Assembly and founded the R.M.K. Group of Institutions."
+                            )
+                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
+                            ManagementMemberItem(
+                                icon = Icons.Outlined.PersonOutline,
+                                iconColor = AppColors.Blue,
+                                name = "Thiru. R.M. Kishore",
+                                role = "VICE-CHAIRMAN",
+                                bio = "Mechanical Engineer with an MBA from UK, focused on transforming learners into achievers with global standards."
+                            )
+                        }
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            item(key = "board_section") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column {
+                        Text(
+                            "BOARD OF DIRECTORS",
+                            style = HomeTypography.ExamTag,
+                            color = colors.textSecondary,
+                            modifier = Modifier.padding(bottom = 12.dp, start = 8.dp)
+                        )
 
-            // Board of Directors
-            Text(
-                "BOARD OF DIRECTORS",
-                style = HomeTypography.ExamTag,
-                color = colors.textSecondary,
-                modifier = Modifier.padding(bottom = 12.dp, start = 4.dp)
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(HomeShapes.Item)
-                    .background(colors.surface)
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                ManagementMemberItem(
-                    icon = Icons.Outlined.FavoriteBorder,
-                    iconColor = AppColors.Red,
-                    name = "Tmt. Manjula Munirathinam",
-                    role = "CHAIRPERSON",
-                    bio = "Keen social worker and educationalist with over a decade of dedication to the group."
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                ManagementMemberItem(
-                    icon = Icons.Outlined.Work,
-                    iconColor = AppColors.Orange,
-                    name = "Thiru. R. Jothi Naidu",
-                    role = "DIRECTOR",
-                    bio = "Vast experience in industrial management, associated with the group for nearly 30 years."
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                ManagementMemberItem(
-                    icon = Icons.Outlined.PersonOutline,
-                    iconColor = AppColors.Green,
-                    name = "Thiru. Yalamanchi Pradeep",
-                    role = "SECRETARY",
-                    bio = "ECE Engineer (Guindy) with a Master's from Carnegie Mellon University, USA."
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                ManagementMemberItem(
-                    icon = Icons.Outlined.Star,
-                    iconColor = AppColors.Purple,
-                    name = "Dr. Durga Devi Pradeep",
-                    role = "VICE CHAIRPERSON",
-                    bio = "ECE Engineer with an MBA and Ph.D. in Management from Anna University."
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                ManagementMemberItem(
-                    icon = Icons.Outlined.FavoriteBorder,
-                    iconColor = AppColors.Red,
-                    name = "Tmt. Sowmya Kishore",
-                    role = "TRUSTEE",
-                    bio = "ECE Engineer and Psychologist, currently pursuing doctoral research."
-                )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(HomeShapes.Item)
+                                .background(colors.surface)
+                                .padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            ManagementMemberItem(
+                                icon = Icons.Outlined.FavoriteBorder,
+                                iconColor = AppColors.Red,
+                                name = "Tmt. Manjula Munirathinam",
+                                role = "CHAIRPERSON",
+                                bio = "Keen social worker and educationalist with over a decade of dedication to the group."
+                            )
+                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
+                            ManagementMemberItem(
+                                icon = Icons.Outlined.Work,
+                                iconColor = AppColors.Orange,
+                                name = "Thiru. R. Jothi Naidu",
+                                role = "DIRECTOR",
+                                bio = "Vast experience in industrial management, associated with the group for nearly 30 years."
+                            )
+                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
+                            ManagementMemberItem(
+                                icon = Icons.Outlined.PersonOutline,
+                                iconColor = AppColors.Green,
+                                name = "Thiru. Yalamanchi Pradeep",
+                                role = "SECRETARY",
+                                bio = "ECE Engineer (Guindy) with a Master's from Carnegie Mellon University, USA."
+                            )
+                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
+                            ManagementMemberItem(
+                                icon = Icons.Outlined.Star,
+                                iconColor = AppColors.Purple,
+                                name = "Dr. Durga Devi Pradeep",
+                                role = "VICE CHAIRPERSON",
+                                bio = "ECE Engineer with an MBA and Ph.D. in Management from Anna University."
+                            )
+                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
+                            ManagementMemberItem(
+                                icon = Icons.Outlined.FavoriteBorder,
+                                iconColor = AppColors.Red,
+                                name = "Tmt. Sowmya Kishore",
+                                role = "TRUSTEE",
+                                bio = "ECE Engineer and Psychologist, currently pursuing doctoral research."
+                            )
+                        }
+                    }
+                }
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }

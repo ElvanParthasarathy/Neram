@@ -39,7 +39,8 @@ import kotlinx.coroutines.launch
 fun ContactScreen(
     isOffline: Boolean = false,
     onBack: () -> Unit,
-    onSendMessage: (Map<String, Any?>) -> Unit
+    onSendMessage: (Map<String, Any?>) -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
     val context = LocalContext.current
@@ -77,187 +78,169 @@ fun ContactScreen(
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 100.dp)
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = "Contact",
+        onBack = onBack,
+        scrollState = scrollState,
+        colors = colors
     ) {
-        // Header
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, top = 48.dp, bottom = 24.dp),
-            verticalAlignment = Alignment.CenterVertically
+        androidx.compose.foundation.lazy.LazyColumn(
+            state = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(colors.surface)
-                    .clickable { onBack() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.ChevronLeft, "Back", tint = colors.textPrimary, modifier = Modifier.size(20.dp))
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
             }
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column {
-                Text(
-                    "Contact & Complaints", 
-                    style = HomeTypography.PageTitle.copy(fontSize = 28.sp), 
-                    color = colors.textPrimary
-                )
-                Text("Reach out for queries or feedback", style = HomeTypography.FacultyName, color = colors.textSecondary)
-            }
-        }
 
-        // Developer Profile Section
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .clip(HomeShapes.Item)
-                .background(colors.surface)
-                .padding(20.dp)
-        ) {
-            Text("Hello, I Am", style = HomeTypography.FacultyName, color = colors.textSecondary)
-            Text("Jaiprakash Parthasarathy", style = HomeTypography.PageTitle, color = colors.textPrimary)
-            Text("(Also known as: Elvan Parthasarathy)", style = HomeTypography.FacultyName, color = colors.textSecondary)
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Portfolio Button
-            Box(
-                modifier = Modifier
-                    .clip(HomeShapes.Pill)
-                    .background(colors.accent)
-                    .clickable {
-                        com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://jaiprakashpartha.vercel.app/")
-                    }
-                    .padding(horizontal = 20.dp, vertical = 12.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Visit My Portfolio", color = Color.White, fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(Icons.Default.ArrowForward, null, tint = Color.White, modifier = Modifier.size(16.dp))
-                }
-            }
-            
-            Spacer(modifier = Modifier.height(20.dp))
-            HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 32.dp))
-            Spacer(modifier = Modifier.height(20.dp))
-            
-            Text("Contact Info", style = HomeTypography.SectionTitle, color = colors.textPrimary)
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // Contact Items
-            ContactItem(Icons.Outlined.Phone, "+91 93451 28797", colors) {
-                context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:+919345128797")))
-            }
-            ContactItem(Icons.Outlined.Email, "jaiprakashpartha@gmail.com", colors) {
-                context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:jaiprakashpartha@gmail.com")))
-            }
-            ContactItem(Icons.Default.Link, "/in/jaiprakashpartha", colors) {
-                com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://linkedin.com/in/jaiprakashpartha")
-            }
-            ContactItem(Icons.Outlined.Code, "/elvanparthasarathy", colors) {
-                com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://github.com/elvanparthasarathy")
-            }
-            ContactItem(Icons.Outlined.LocationOn, "Arani, Tamil Nadu - 632317\n(Currently in Chennai)", colors, clickable = false) {}
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Message Form Section
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .clip(HomeShapes.Item)
-                .background(colors.surface)
-                .padding(20.dp)
-        ) {
-            Text("Send a Message", style = HomeTypography.SectionTitle, color = colors.textPrimary)
-            Text("Fill out the form below to reach me directly.", style = HomeTypography.FacultyName, color = colors.textSecondary)
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            ContactTextField(value = name, onValueChange = { name = it }, placeholder = "Your Name", colors = colors)
-            Spacer(modifier = Modifier.height(12.dp))
-            ContactTextField(value = mobile, onValueChange = { mobile = it }, placeholder = "Mobile Number", colors = colors, keyboardType = KeyboardType.Phone)
-            Spacer(modifier = Modifier.height(12.dp))
-            ContactTextField(value = email, onValueChange = { email = it }, placeholder = "Email Address", colors = colors, keyboardType = KeyboardType.Email)
-            Spacer(modifier = Modifier.height(12.dp))
-            ContactTextField(value = message, onValueChange = { message = it }, placeholder = "Your Message / Query", colors = colors, singleLine = false, minLines = 4)
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Submit Button
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(HomeShapes.Pill)
-                    .background(if (isSubmitting) colors.accent.copy(alpha = 0.5f) else colors.accent)
-                    .clickable(enabled = !isSubmitting) {
-                        if (isOffline) {
-                            showOfflineDialog = true
-                            return@clickable
-                        }
-                        if (name.isEmpty() || mobile.isEmpty() || email.isEmpty() || message.isEmpty()) {
-                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                            return@clickable
-                        }
-                        isSubmitting = true
-                        scope.launch {
-                            try {
-                                // 1. Save to Firestore (via Repository)
-                                val msgData = hashMapOf(
-                                    "name" to name,
-                                    "mobile" to mobile,
-                                    "email" to email,
-                                    "message" to message,
-                                    "timestamp" to FieldValue.serverTimestamp()
-                                )
-                                onSendMessage(msgData)
-                                
-                                // 2. Send Email (Admin)
-                                val params = mapOf(
-                                    "name" to name,
-                                    "mobile" to mobile,
-                                    "email" to email,
-                                    "message" to message
-                                )
-                                val sentAdmin = EmailHelper.sendEmail(EmailConfig.ADMIN_TEMPLATE_ID, params)
-                                
-                                // 3. Send Auto Reply Email (ignore errors)
-                                EmailHelper.sendEmail(EmailConfig.AUTO_REPLY_TEMPLATE_ID, params)
-                                
-                                if (sentAdmin) {
-                                    Toast.makeText(context, "Message sent successfully!", Toast.LENGTH_LONG).show()
-                                    name = ""; mobile = ""; email = ""; message = ""
-                                } else {
-                                    Toast.makeText(context, "Saved, but failed to send email alert.", Toast.LENGTH_LONG).show()
+            item(key = "developer_profile") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(HomeShapes.Item)
+                            .background(colors.surface)
+                            .padding(20.dp)
+                    ) {
+                        Text("Hello, I Am", style = HomeTypography.FacultyName, color = colors.textSecondary)
+                        Text("Jaiprakash Parthasarathy", style = HomeTypography.PageTitle, color = colors.textPrimary)
+                        Text("(Also known as: Elvan Parthasarathy)", style = HomeTypography.FacultyName, color = colors.textSecondary)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Portfolio Button
+                        Box(
+                            modifier = Modifier
+                                .clip(HomeShapes.Pill)
+                                .background(colors.accent)
+                                .clickable {
+                                    com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://jaiprakashpartha.vercel.app/")
                                 }
-                            } catch (e: Exception) {
-                                Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                            } finally {
-                                isSubmitting = false
+                                .padding(horizontal = 20.dp, vertical = 12.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Visit My Portfolio", color = Color.White, fontWeight = FontWeight.SemiBold)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(Icons.Default.ArrowForward, null, tint = Color.White, modifier = Modifier.size(16.dp))
                             }
                         }
+                        
+                        Spacer(modifier = Modifier.height(20.dp))
+                        HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 32.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
+                        
+                        Text("Contact Info", style = HomeTypography.SectionTitle, color = colors.textPrimary)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        // Contact Items
+                        ContactItem(Icons.Outlined.Phone, "+91 93451 28797", colors) {
+                            context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:+919345128797")))
+                        }
+                        ContactItem(Icons.Outlined.Email, "jaiprakashpartha@gmail.com", colors) {
+                            context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:jaiprakashpartha@gmail.com")))
+                        }
+                        ContactItem(Icons.Default.Link, "/in/jaiprakashpartha", colors) {
+                            com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://linkedin.com/in/jaiprakashpartha")
+                        }
+                        ContactItem(Icons.Outlined.Code, "/elvanparthasarathy", colors) {
+                            com.elvan.rmdneram.utils.IntentUtils.openUrl(context, "https://github.com/elvanparthasarathy")
+                        }
+                        ContactItem(Icons.Outlined.LocationOn, "Arani, Tamil Nadu - 632317\n(Currently in Chennai)", colors, clickable = false) {}
                     }
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                if (isSubmitting) {
-                    com.elvan.rmdneram.ui.components.ExpressiveLoadingIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                } else {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("Send Message", color = Color.White, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(Icons.Default.Send, null, tint = Color.White, modifier = Modifier.size(18.dp))
+                }
+            }
+
+            item(key = "message_form") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(HomeShapes.Item)
+                            .background(colors.surface)
+                            .padding(20.dp)
+                    ) {
+                        Text("Send a Message", style = HomeTypography.SectionTitle, color = colors.textPrimary)
+                        Text("Fill out the form below to reach me directly.", style = HomeTypography.FacultyName, color = colors.textSecondary)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        ContactTextField(value = name, onValueChange = { name = it }, placeholder = "Your Name", colors = colors)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ContactTextField(value = mobile, onValueChange = { mobile = it }, placeholder = "Mobile Number", colors = colors, keyboardType = KeyboardType.Phone)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ContactTextField(value = email, onValueChange = { email = it }, placeholder = "Email Address", colors = colors, keyboardType = KeyboardType.Email)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ContactTextField(value = message, onValueChange = { message = it }, placeholder = "Your Message / Query", colors = colors, singleLine = false, minLines = 4)
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Submit Button
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(HomeShapes.Pill)
+                                .background(if (isSubmitting) colors.accent.copy(alpha = 0.5f) else colors.accent)
+                                .clickable(enabled = !isSubmitting) {
+                                    if (isOffline) {
+                                        showOfflineDialog = true
+                                        return@clickable
+                                    }
+                                    if (name.isEmpty() || mobile.isEmpty() || email.isEmpty() || message.isEmpty()) {
+                                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                                        return@clickable
+                                    }
+                                    isSubmitting = true
+                                    scope.launch {
+                                        try {
+                                            // 1. Save to Firestore (via Repository)
+                                            val msgData = hashMapOf(
+                                                "name" to name,
+                                                "mobile" to mobile,
+                                                "email" to email,
+                                                "message" to message,
+                                                "timestamp" to FieldValue.serverTimestamp()
+                                            )
+                                            onSendMessage(msgData)
+                                            
+                                            // 2. Send Email (Admin)
+                                            val params = mapOf(
+                                                "name" to name,
+                                                "mobile" to mobile,
+                                                "email" to email,
+                                                "message" to message
+                                            )
+                                            val sentAdmin = EmailHelper.sendEmail(EmailConfig.ADMIN_TEMPLATE_ID, params)
+                                            
+                                            // 3. Send Auto Reply Email (ignore errors)
+                                            EmailHelper.sendEmail(EmailConfig.AUTO_REPLY_TEMPLATE_ID, params)
+                                            
+                                            if (sentAdmin) {
+                                                Toast.makeText(context, "Message sent successfully!", Toast.LENGTH_LONG).show()
+                                                name = ""; mobile = ""; email = ""; message = ""
+                                            } else {
+                                                Toast.makeText(context, "Saved, but failed to send email alert.", Toast.LENGTH_LONG).show()
+                                            }
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        } finally {
+                                            isSubmitting = false
+                                        }
+                                    }
+                                }
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isSubmitting) {
+                                com.elvan.rmdneram.ui.components.ExpressiveLoadingIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                            } else {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("Send Message", color = Color.White, fontWeight = FontWeight.Bold)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(Icons.Default.Send, null, tint = Color.White, modifier = Modifier.size(18.dp))
+                                }
+                            }
+                        }
                     }
                 }
             }

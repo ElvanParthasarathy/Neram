@@ -45,14 +45,14 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserDirectoryScreen(
     directoryPath: List<String>,
-    onDirectoryPathChange: (List<String>) -> Unit
+    onDirectoryPathChange: (List<String>) -> Unit,
+    onBack: () -> Unit = {},
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
-    // Removed directoryPath state and BackHandler - hoisted to MainScreen
 
     // Load Data
     var hierarchy by remember { mutableStateOf<Map<String, Map<String, List<String>>>>(emptyMap()) }
@@ -91,30 +91,39 @@ fun UserDirectoryScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
+    val screenTitle = if (directoryPath.isEmpty()) "Directory" else directoryPath.last()
+
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = screenTitle,
+        onBack = {
+            if (directoryPath.isNotEmpty()) {
+                onDirectoryPathChange(directoryPath.dropLast(1))
+            } else {
+                onBack()
+            }
+        },
+        scrollState = scrollState,
+        colors = colors
     ) {
-        // Header is now handled by MainScreen
-        
-        // Content
         LazyColumn(
+            state = scrollState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = com.elvan.rmdneram.ui.home.HomeDimens.ContentPadding,
-                end = com.elvan.rmdneram.ui.home.HomeDimens.ContentPadding,
-                top = com.elvan.rmdneram.ui.home.rememberStatusBarHeight() + com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingTop,
-                bottom = com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingBottom
-            )
+            contentPadding = PaddingValues(bottom = com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(com.elvan.rmdneram.ui.home.HomeDimens.SectionSpacing)
         ) {
-            item {
-                UserDirectoryContent(
-                    hierarchy = hierarchy,
-                    colors = colors,
-                    path = directoryPath,
-                    onPathChange = onDirectoryPathChange
-                )
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - com.elvan.rmdneram.ui.home.HomeDimens.SectionSpacing))
+            }
+
+            item(key = "directory_content") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    UserDirectoryContent(
+                        hierarchy = hierarchy,
+                        colors = colors,
+                        path = directoryPath,
+                        onPathChange = onDirectoryPathChange
+                    )
+                }
             }
         }
     }

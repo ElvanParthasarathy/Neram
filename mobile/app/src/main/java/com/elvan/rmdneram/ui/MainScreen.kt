@@ -763,7 +763,8 @@ fun MainScreen(
                 )
                 "user_directory" -> UserDirectoryScreen(
                     directoryPath = userDirectoryPath,
-                    onDirectoryPathChange = { userDirectoryPath = it }
+                    onDirectoryPathChange = { userDirectoryPath = it },
+                    onBack = { currentScreen = "settings" }
                 )
                 "linked_accounts" -> LinkedAccountsScreen(
                     onBack = { currentScreen = "security" },
@@ -783,9 +784,13 @@ fun MainScreen(
         
         // Removed Grey Frame Overlay (Rounded Borders) to match Flutter's edge-to-edge ElvanShell
         
-        
         // Secondary Top Bar (for legacy screens not yet migrated to ElvanSubShell)
-        val subShellScreens = setOf("settings")
+        val subShellScreens = setOf(
+            "settings", "security", "display", "storage", "complaint", "developer", 
+            "language", "calendar_settings", "profile", "notification_settings",
+            "about_app", "about_rmk", "management_team", "linked_accounts", "sites", 
+            "contact", "user_directory", "notifications", "pdf_viewer"
+        )
         if (currentScreen != "tabs" && currentScreen !in subShellScreens) {
             SecondaryTopBar(
                 title = getScreenTitle(currentScreen),

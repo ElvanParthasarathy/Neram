@@ -76,7 +76,8 @@ private fun extractMobileNumber(mobile: String?): String {
 @Composable
 fun ProfileScreen(
     onBack: () -> Unit = {},
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel = viewModel(),
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val user = Firebase.auth.currentUser
     val colors = rememberHomeColors()
@@ -198,31 +199,30 @@ fun ProfileScreen(
         homeViewModel.performLogout()
     }
     
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = colors.background,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0)
-    ) { _ ->
-        Box(modifier = Modifier.fillMaxSize()) {
-            val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-            
+    Box(modifier = Modifier.fillMaxSize()) {
+        com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+            title = "Profile",
+            onBack = onBack,
+            scrollState = scrollState,
+            colors = colors
+        ) {
             LazyColumn(
+                state = scrollState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    start = HomeDimens.ContentPadding,
-                    end = HomeDimens.ContentPadding,
-                    top = statusBarHeight + HomeDimens.ContentPaddingTop,
-                    bottom = HomeDimens.ContentPaddingBottom
-                ),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+                verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
+                item(key = "spacer_top") {
+                    Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                }
+
                 // Profile Header Card (Flat design matching other pages)
-                item {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                    shape = HomeShapes.Item,
-                    color = colors.surface,
+                item(key = "profile_header") {
+                    com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = HomeShapes.Item,
+                            color = colors.surface,
                     shadowElevation = 0.dp
                 ) {
                     Column(
@@ -334,13 +334,15 @@ fun ProfileScreen(
                     }
                 }
             }
+        }
             
             // Personal Information Card
-            item {
-                M3ProfileSection(
-                    title = "Personal Information",
-                    icon = Icons.Outlined.Person
-                ) {
+            item(key = "personal_info") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    M3ProfileSection(
+                        title = "Personal Information",
+                        icon = Icons.Outlined.Person
+                    ) {
                     M3ProfileField(
                         label = "Full Name",
                         value = formData["displayName"],
@@ -526,126 +528,103 @@ fun ProfileScreen(
                     }
                 }
             }
+        }
             
             // Academic Information Card
-            item {
-                M3ProfileSection(
-                    title = "Academic Details",
-                    icon = Icons.Outlined.School
-                ) {
-                    M3ProfileField(
-                        label = "Batch, Department & Section",
-                        value = listOfNotNull(
-                            formData["batch"],
-                            formData["department"],
-                            formData["section"]
-                        ).takeIf { it.isNotEmpty() }?.joinToString(" • "),
-                        isEditing = editingField == "academic",
-                        onEdit = { editingField = "academic" },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("academic") }
+            item(key = "academic_info") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    M3ProfileSection(
+                        title = "Academic Details",
+                        icon = Icons.Outlined.School
                     ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            M3DropdownField(
-                                value = formData["batch"],
-                                label = "Batch",
-                                enabled = true,
-                                onClick = {
-                                    openSelector("Select Batch", getBatches()) {
-                                        formData = formData + mapOf("batch" to it, "department" to "", "section" to "")
-                                    }
-                                }
-                            )
-                            M3DropdownField(
-                                value = formData["department"],
-                                label = "Department",
-                                enabled = !formData["batch"].isNullOrEmpty(),
-                                onClick = {
-                                    formData["batch"]?.let { batch ->
-                                        openSelector("Select Department", getDepartments(batch)) {
-                                            formData = formData + mapOf("department" to it, "section" to "")
+                        M3ProfileField(
+                            label = "Batch, Department & Section",
+                            value = listOfNotNull(
+                                formData["batch"],
+                                formData["department"],
+                                formData["section"]
+                            ).takeIf { it.isNotEmpty() }?.joinToString(" • "),
+                            isEditing = editingField == "academic",
+                            onEdit = { editingField = "academic" },
+                            onCancel = { editingField = null },
+                            onSave = { handleSave("academic") }
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                M3DropdownField(
+                                    value = formData["batch"],
+                                    label = "Batch",
+                                    enabled = true,
+                                    onClick = {
+                                        openSelector("Select Batch", getBatches()) {
+                                            formData = formData + mapOf("batch" to it, "department" to "", "section" to "")
                                         }
                                     }
-                                }
-                            )
-                            M3DropdownField(
-                                value = formData["section"],
-                                label = "Section",
-                                enabled = !formData["department"].isNullOrEmpty(),
-                                onClick = {
-                                    val batch = formData["batch"] ?: return@M3DropdownField
-                                    val dept = formData["department"] ?: return@M3DropdownField
-                                    openSelector("Select Section", getSections(batch, dept)) {
-                                        formData = formData + ("section" to it)
-                                    }
-                                }
-                            )
-                        }
-                    }
-                    
-                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
-                    
-                    M3ProfileField(
-                        label = "Register Number",
-                        value = formData["registerNo"],
-                        isEditing = editingField == "registerNo",
-                        onEdit = { editingField = "registerNo" },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("registerNo") }
-                    ) {
-                        Column {
-                            Text(
-                                text = "Register Number",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = colors.textSecondary,
-                                modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
-                            )
-                            TextField(
-                                value = formData["registerNo"] ?: "",
-                                onValueChange = { formData = formData + ("registerNo" to it) },
-                                placeholder = { Text("Enter register number") },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = HomeShapes.Pill,
-                                singleLine = true,
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = inputBg,
-                                    unfocusedContainerColor = inputBg,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent
                                 )
-                            )
+                                M3DropdownField(
+                                    value = formData["department"],
+                                    label = "Department",
+                                    enabled = !formData["batch"].isNullOrEmpty(),
+                                    onClick = {
+                                        formData["batch"]?.let { batch ->
+                                            openSelector("Select Department", getDepartments(batch)) {
+                                                formData = formData + mapOf("department" to it, "section" to "")
+                                            }
+                                        }
+                                    }
+                                )
+                                M3DropdownField(
+                                    value = formData["section"],
+                                    label = "Section",
+                                    enabled = !formData["department"].isNullOrEmpty(),
+                                    onClick = {
+                                        val batch = formData["batch"] ?: return@M3DropdownField
+                                        val dept = formData["department"] ?: return@M3DropdownField
+                                        openSelector("Select Section", getSections(batch, dept)) {
+                                            formData = formData + ("section" to it)
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                        
+                        HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
+                        
+                        M3ProfileField(
+                            label = "Register Number",
+                            value = formData["registerNo"],
+                            isEditing = editingField == "registerNo",
+                            onEdit = { editingField = "registerNo" },
+                            onCancel = { editingField = null },
+                            onSave = { handleSave("registerNo") }
+                        ) {
+                            Column {
+                                Text(
+                                    text = "Register Number",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = colors.textSecondary,
+                                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                                )
+                                TextField(
+                                    value = formData["registerNo"] ?: "",
+                                    onValueChange = { formData = formData + ("registerNo" to it) },
+                                    placeholder = { Text("Enter register number") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = HomeShapes.Pill,
+                                    singleLine = true,
+                                    colors = TextFieldDefaults.colors(
+                                        focusedContainerColor = inputBg,
+                                        unfocusedContainerColor = inputBg,
+                                        focusedIndicatorColor = Color.Transparent,
+                                        unfocusedIndicatorColor = Color.Transparent
+                                    )
+                                )
+                            }
                         }
                     }
                 }
             }
-            
         }
-        
-        // Navigation Row (Overlay)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = colors.textPrimary
-                )
-            }
-            
-            IconButton(onClick = { showLogoutConfirm = true }) {
-                Icon(
-                    Icons.Outlined.Logout,
-                    contentDescription = "Sign Out",
-                    tint = colors.danger
-                )
-            }
-        }
+    }
         
         // Snackbar Host
         SnackbarHost(
@@ -661,7 +640,6 @@ fun ProfileScreen(
                 shape = HomeShapes.Pill
             )
         }
-    }
     }
     
     // Selector Bottom Sheet

@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,16 +32,15 @@ import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StorageSettingsScreen(
     onCleanupClick: () -> Unit,
     onCleanupRangeClick: (java.time.LocalDate, java.time.LocalDate) -> Unit,
     isOffline: Boolean = false,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showRangePickerDialog by remember { mutableStateOf(false) }
     var showRangeConfirmDialog by remember { mutableStateOf(false) }
@@ -49,9 +50,7 @@ fun StorageSettingsScreen(
     val scope = rememberCoroutineScope()
     
     val dateRangePickerState = rememberDateRangePickerState()
-    
     val cardColor = colors.surface
-
     val lang = LocalAppLanguage.current
 
     if (showOfflineDialog) {
@@ -84,175 +83,155 @@ fun StorageSettingsScreen(
         )
     }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = colors.background,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        AppStrings.Settings.storageData(lang),
-                        style = HomeTypography.PageTitle.copy(fontSize = 28.sp, fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.ChevronLeft,
-                            "Back",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(32.dp)
+    Box(modifier = Modifier.fillMaxSize()) {
+        com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+            title = AppStrings.Settings.storageData(lang),
+            onBack = onBack,
+            scrollState = scrollState,
+            colors = colors
+        ) {
+            LazyColumn(
+                state = scrollState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+                verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
+            ) {
+                item(key = "spacer_top") {
+                    Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                }
+
+                item(key = "cleanup_section") {
+                    com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                        Column {
+                            // Cleanup Label
+                            Text(
+                                AppStrings.Storage.cleanupOptions(lang),
+                                style = HomeTypography.ExamTag,
+                                color = colors.textSecondary,
+                                modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                            )
+
+                            // Cleanup Card
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(HomeShapes.Item)
+                                    .background(cardColor)
+                            ) {
+                                // Option 1: 30 Days
+                                Row(
+                                   modifier = Modifier
+                                       .fillMaxWidth()
+                                       .clickable { 
+                                           if (isOffline) showOfflineDialog = true 
+                                           else showConfirmDialog = true 
+                                       }
+                                       .padding(horizontal = 20.dp, vertical = 16.dp),
+                                   verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(colors.accent),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.Delete,
+                                            null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            AppStrings.Storage.clearOldUpdates(lang),
+                                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                                            color = colors.textPrimary
+                                        )
+                                        Text(
+                                            AppStrings.Storage.clearOldUpdatesDesc(lang),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = colors.textSecondary
+                                        )
+                                    }
+                                }
+
+                                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+
+                                // Option 2: Range Deletion
+                                Row(
+                                   modifier = Modifier
+                                       .fillMaxWidth()
+                                       .clickable { 
+                                           if (isOffline) showOfflineDialog = true 
+                                           else showRangePickerDialog = true 
+                                       }
+                                       .padding(horizontal = 20.dp, vertical = 16.dp),
+                                   verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(AppColors.Orange),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            Icons.Default.DateRange,
+                                            null,
+                                            tint = Color.White,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            AppStrings.Storage.customRangeDeletion(lang),
+                                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                                            color = colors.textPrimary
+                                        )
+                                        Text(
+                                            AppStrings.Storage.customRangeDesc(lang),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = colors.textSecondary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                item(key = "optimization_info") {
+                    com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                        Text(
+                            AppStrings.Storage.optimizationInfo(lang),
+                            style = HomeTypography.AuthorBadge,
+                            color = colors.textSecondary,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.background,
-                    scrolledContainerColor = colors.background,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-            )
-        },
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier
-                    .padding(bottom = 16.dp)
-            ) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = colors.surface,
-                    contentColor = colors.textPrimary,
-                    shape = HomeShapes.Pill
-                )
+                }
             }
         }
-    ) { paddingValues ->
-        Column(
+
+        SnackbarHost(
+            hostState = snackbarHostState,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = HomeDimens.ContentPadding)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Cleanup Label
-            Text(
-                AppStrings.Storage.cleanupOptions(lang),
-                style = HomeTypography.ExamTag,
-                color = colors.textSecondary,
-                modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
-            )
-
-            // Cleanup Card
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(HomeShapes.Item)
-                    .background(cardColor)
-            ) {
-                // Option 1: 30 Days
-                Row(
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .clickable { 
-                           if (isOffline) showOfflineDialog = true 
-                           else showConfirmDialog = true 
-                       }
-                       .padding(horizontal = 20.dp, vertical = 16.dp),
-                   verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(colors.accent),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Outlined.Delete,
-                            null,
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            AppStrings.Storage.clearOldUpdates(lang),
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                            color = colors.textPrimary
-                        )
-                        Text(
-                            AppStrings.Storage.clearOldUpdatesDesc(lang),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.textSecondary
-                        )
-                    }
-                }
-
-                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-
-                // Option 2: Range Deletion
-                Row(
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .clickable { 
-                           if (isOffline) showOfflineDialog = true 
-                           else showRangePickerDialog = true 
-                       }
-                       .padding(horizontal = 20.dp, vertical = 16.dp),
-                   verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(AppColors.Orange),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Default.DateRange,
-                            null,
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            AppStrings.Storage.customRangeDeletion(lang),
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                            color = colors.textPrimary
-                        )
-                        Text(
-                            AppStrings.Storage.customRangeDesc(lang),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.textSecondary
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Usage Info (Placeholder for future)
-            Text(
-                AppStrings.Storage.optimizationInfo(lang),
-                style = HomeTypography.AuthorBadge,
-                color = colors.textSecondary,
-                modifier = Modifier.padding(horizontal = 24.dp)
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+        ) { data ->
+            Snackbar(
+                snackbarData = data,
+                containerColor = colors.surface,
+                contentColor = colors.textPrimary,
+                shape = HomeShapes.Pill
             )
         }
     }

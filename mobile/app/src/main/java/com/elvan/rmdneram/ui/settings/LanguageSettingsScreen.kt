@@ -30,142 +30,113 @@ import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.ElvanSansFontFamily
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageSettingsScreen(
     currentLanguage: String,
     onLanguageChange: (String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val cardColor = colors.surface
-    
-    // Use the resolved effective language for displaying strings
-    // (LocalAppLanguage is already resolved from "system" â†’ actual locale by MainScreen)
     val lang = LocalAppLanguage.current
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = colors.background,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        AppStrings.Settings.languageOther(lang),
-                        style = HomeTypography.PageTitle.copy(
-                            fontSize = 28.sp,
-                            fontFamily = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
-                        ), 
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier.padding(top = 8.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.ChevronLeft, 
-                            "Back", 
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.background,
-                    scrolledContainerColor = colors.background,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = AppStrings.Settings.languageOther(lang),
+        onBack = onBack,
+        scrollState = scrollState,
+        colors = colors
+    ) {
+        androidx.compose.foundation.lazy.LazyColumn(
+            state = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Language Section Title
-            Text(
-                text = AppStrings.Settings.language(lang).uppercase(),
-                style = HomeTypography.ExamTag,
-                color = colors.textSecondary,
-                modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
-            )
-
-            // Language Options Card
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(HomeShapes.Item)
-                    .background(cardColor)
-            ) {
-                // Device Language Option
-                LanguageOptionItem(
-                    icon = Icons.Outlined.Smartphone,
-                    iconBgColor = AppColors.Blue,
-                    title = AppStrings.Settings.deviceLanguage(lang),
-                    subtitle = "Auto",
-                    isSelected = currentLanguage == AppStrings.SYSTEM,
-                    onClick = { onLanguageChange(AppStrings.SYSTEM) },
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary,
-                    accentColor = colors.accent
-                )
-                
-                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                
-                // English Option
-                LanguageOptionItem(
-                    icon = Icons.Outlined.Language,
-                    iconBgColor = AppColors.Green,
-                    title = AppStrings.Settings.english(lang),
-                    subtitle = "English",
-                    isSelected = currentLanguage == AppStrings.ENGLISH,
-                    onClick = { onLanguageChange(AppStrings.ENGLISH) },
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary,
-                    accentColor = colors.accent
-                )
-                
-                HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                
-                // Tamil Option
-                LanguageOptionItem(
-                    icon = Icons.Outlined.Language,
-                    iconBgColor = AppColors.Orange,
-                    title = AppStrings.Settings.tamil(lang),
-                    subtitle = "à®¤à®®à®¿à®´à¯",
-                    isSelected = currentLanguage == AppStrings.TAMIL,
-                    onClick = { onLanguageChange(AppStrings.TAMIL) },
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary,
-                    accentColor = colors.accent
-                )
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Info Text
-            Text(
-                if (lang == AppStrings.TAMIL) 
-                    "à®®à¯Šà®´à®¿ à®®à®¾à®±à¯à®±à®®à¯ à®µà®´à®¿à®šà¯†à®²à¯à®¤à¯à®¤à®²à¯, à®®à¯à®•à®ªà¯à®ªà¯ à®®à¯†à®©à¯ à®®à®±à¯à®±à¯à®®à¯ à®…à®®à¯ˆà®ªà¯à®ªà¯à®•à®³à¯à®•à¯à®•à¯ à®®à®Ÿà¯à®Ÿà¯à®®à¯‡ à®ªà¯Šà®°à¯à®¨à¯à®¤à¯à®®à¯. à®ªà®¾à®Ÿà®¨à¯‡à®° à®…à®Ÿà¯à®Ÿà®µà®£à¯ˆ à®¤à®°à®µà¯ à®®à®¾à®±à®¾à®¤à¯."
-                else 
-                    "Language change applies only to navigation, home menu, and settings. Timetable data will not change.",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    fontFamily = if (lang == AppStrings.TAMIL) ElvanSansFontFamily else null
-                ),
-                color = colors.textSecondary,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            )
+
+            item(key = "language_section") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column {
+                        // Language Section Title
+                        Text(
+                            text = AppStrings.Settings.language(lang).uppercase(),
+                            style = HomeTypography.ExamTag,
+                            color = colors.textSecondary,
+                            modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                        )
+
+                        // Language Options Card
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(HomeShapes.Item)
+                                .background(cardColor)
+                        ) {
+                            // Device Language Option
+                            LanguageOptionItem(
+                                icon = Icons.Outlined.Smartphone,
+                                iconBgColor = AppColors.Blue,
+                                title = AppStrings.Settings.deviceLanguage(lang),
+                                subtitle = "Auto",
+                                isSelected = currentLanguage == AppStrings.SYSTEM,
+                                onClick = { onLanguageChange(AppStrings.SYSTEM) },
+                                textColor = colors.textPrimary,
+                                subTextColor = colors.textSecondary,
+                                accentColor = colors.accent
+                            )
+                            
+                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                            
+                            // English Option
+                            LanguageOptionItem(
+                                icon = Icons.Outlined.Language,
+                                iconBgColor = AppColors.Green,
+                                title = AppStrings.Settings.english(lang),
+                                subtitle = "English",
+                                isSelected = currentLanguage == AppStrings.ENGLISH,
+                                onClick = { onLanguageChange(AppStrings.ENGLISH) },
+                                textColor = colors.textPrimary,
+                                subTextColor = colors.textSecondary,
+                                accentColor = colors.accent
+                            )
+                            
+                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+
+                            // Tamil Option
+                            LanguageOptionItem(
+                                icon = Icons.Outlined.Language,
+                                iconBgColor = AppColors.Orange,
+                                title = AppStrings.Settings.tamil(lang),
+                                subtitle = "தமிழ்",
+                                isSelected = currentLanguage == AppStrings.TAMIL,
+                                onClick = { onLanguageChange(AppStrings.TAMIL) },
+                                textColor = colors.textPrimary,
+                                subTextColor = colors.textSecondary,
+                                accentColor = colors.accent
+                            )
+                        }
+                    }
+                }
+            }
+
+            item(key = "info_text") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Text(
+                        if (lang == AppStrings.TAMIL) 
+                            "மொழி மாற்றம் வழிசெலுத்தல், முகப்பு மெனு மற்றும் அமைப்புகளுக்கு மட்டுமே பொருந்தும். பாடநேர அட்டவணை தரவு மாறாது."
+                        else 
+                            "Language change applies only to navigation, home menu, and settings. Timetable data will not change.",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = if (lang == AppStrings.TAMIL) ElvanSansFontFamily else null
+                        ),
+                        color = colors.textSecondary,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+            }
         }
     }
 }

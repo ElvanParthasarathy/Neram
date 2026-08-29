@@ -156,101 +156,106 @@ private fun SecurityHub(
     colors: HomeColors,
     onBack: () -> Unit,
     onNavigate: (String) -> Unit,
-    onNavigateToLinkedAccounts: () -> Unit
+    onNavigateToLinkedAccounts: () -> Unit,
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val user = Firebase.auth.currentUser
     val hasPasswordProvider = user?.providerData?.any { it.providerId == "password" } ?: false
+    val lang = LocalAppLanguage.current
     
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = colors.background,
-        topBar = {
-            StandardSettingsHeader(
-                title = "Security",
-                subtitle = "Manage password & account",
-                colors = colors,
-                onBack = onBack
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = HomeDimens.ContentPadding)
-                .padding(top = 16.dp, bottom = 100.dp)
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = AppStrings.Settings.security(lang),
+        onBack = onBack,
+        scrollState = scrollState,
+        colors = colors
+    ) {
+        androidx.compose.foundation.lazy.LazyColumn(
+            state = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
-        val lang = LocalAppLanguage.current
-        Text(
-            text = AppStrings.Settings.account(lang),
-            style = HomeTypography.ExamTag,
-            color = colors.textSecondary,
-            modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
-        )
-        SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-            if (hasPasswordProvider) {
-                SettingsListItem(
-                    icon = Icons.Outlined.Key,
-                    iconBgColor = AppColors.Purple,
-                    title = AppStrings.Settings.changePassword(lang),
-                    description = if (lang == AppStrings.TAMIL) "உங்கள் கடவுச்சொல்லை புதுப்பிக்கவும்" else "Update your login password",
-                    onClick = { onNavigate("password") },
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-            } else {
-                SettingsListItem(
-                    icon = Icons.Outlined.Key,
-                    iconBgColor = AppColors.Purple,
-                    title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
-                    description = if (lang == AppStrings.TAMIL) "மின்னஞ்சல் உள்நுழைவுக்கு கடவுச்சொல் அமைக்கவும்" else "Set a password for email login",
-                    onClick = { onNavigate("create_password") },
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
             }
-            
-            HorizontalDivider(
-                color = colors.glassBorder, 
-                thickness = 1.dp, 
-                modifier = Modifier.padding(start = 72.dp, end = 20.dp)
-            )
-            
-            SettingsListItem(
-                icon = Icons.Outlined.Link,
-                iconBgColor = AppColors.Blue,
-                title = if (lang == AppStrings.TAMIL) "இணைக்கப்பட்ட கணக்குகள்" else "Linked Accounts",
-                description = if (lang == AppStrings.TAMIL) "Google உள்நுழைவை நிர்வகி" else "Manage Google sign-in",
-                onClick = { onNavigateToLinkedAccounts() },
-                textColor = colors.textPrimary,
-                subTextColor = colors.textSecondary
-            )
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            item(key = "account_section") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column {
+                        Text(
+                            text = AppStrings.Settings.account(lang),
+                            style = HomeTypography.ExamTag,
+                            color = colors.textSecondary,
+                            modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                        )
+                        SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
+                            if (hasPasswordProvider) {
+                                SettingsListItem(
+                                    icon = Icons.Outlined.Key,
+                                    iconBgColor = AppColors.Purple,
+                                    title = AppStrings.Settings.changePassword(lang),
+                                    description = if (lang == AppStrings.TAMIL) "உங்கள் கடவுச்சொல்லை புதுப்பிக்கவும்" else "Update your login password",
+                                    onClick = { onNavigate("password") },
+                                    textColor = colors.textPrimary,
+                                    subTextColor = colors.textSecondary
+                                )
+                            } else {
+                                SettingsListItem(
+                                    icon = Icons.Outlined.Key,
+                                    iconBgColor = AppColors.Purple,
+                                    title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
+                                    description = if (lang == AppStrings.TAMIL) "மின்னஞ்சல் உள்நுழைவுக்கு கடவுச்சொல் அமைக்கவும்" else "Set a password for email login",
+                                    onClick = { onNavigate("create_password") },
+                                    textColor = colors.textPrimary,
+                                    subTextColor = colors.textSecondary
+                                )
+                            }
+                            
+                            HorizontalDivider(
+                                color = colors.glassBorder, 
+                                thickness = 1.dp, 
+                                modifier = Modifier.padding(start = 72.dp, end = 20.dp)
+                            )
+                            
+                            SettingsListItem(
+                                icon = Icons.Outlined.Link,
+                                iconBgColor = AppColors.Blue,
+                                title = if (lang == AppStrings.TAMIL) "இணைக்கப்பட்ட கணக்குகள்" else "Linked Accounts",
+                                description = if (lang == AppStrings.TAMIL) "Google உள்நுழைவை நிர்வகி" else "Manage Google sign-in",
+                                onClick = { onNavigateToLinkedAccounts() },
+                                textColor = colors.textPrimary,
+                                subTextColor = colors.textSecondary
+                            )
+                        }
+                    }
+                }
+            }
 
-        Text(
-            text = AppStrings.Settings.dangerZone(lang),
-            style = HomeTypography.ExamTag,
-            color = colors.textSecondary,
-            modifier = Modifier.padding(bottom = 8.dp, start = 24.dp)
-        )
-        SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-            SettingsListItem(
-                icon = Icons.Outlined.Warning,
-                iconBgColor = AppColors.Red,
-                title = AppStrings.Settings.deleteAccount(lang),
-                description = if (lang == AppStrings.TAMIL) "உங்கள் கணக்கை நிரந்தரமாக நீக்கு" else "Permanently remove your account",
-                onClick = { onNavigate("delete") },
-                textColor = colors.danger,
-                subTextColor = colors.textSecondary
-            )
+            item(key = "danger_zone") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    Column {
+                        Text(
+                            text = AppStrings.Settings.dangerZone(lang),
+                            style = HomeTypography.ExamTag,
+                            color = colors.textSecondary,
+                            modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                        )
+                        SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
+                            SettingsListItem(
+                                icon = Icons.Outlined.Warning,
+                                iconBgColor = AppColors.Red,
+                                title = AppStrings.Settings.deleteAccount(lang),
+                                description = if (lang == AppStrings.TAMIL) "உங்கள் கணக்கை நிரந்தரமாக நீக்கு" else "Permanently remove your account",
+                                onClick = { onNavigate("delete") },
+                                textColor = colors.danger,
+                                subTextColor = colors.textSecondary
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
-}
 }
 
 @Composable
