@@ -322,7 +322,20 @@ fun MainScreen(
                 "security" -> currentScreen = "settings"
                 "display" -> currentScreen = "settings"
 
-                "settings" -> currentScreen = settingsReferrer
+                "settings" -> {
+                    val isSettingsCollapsed = settingsScrollState.firstVisibleItemIndex > 0 || 
+                                              settingsScrollState.firstVisibleItemScrollOffset >= brinkOffsetPx
+                    if (isSettingsCollapsed) {
+                        if (activeScrollState.firstVisibleItemIndex == 0 && activeScrollState.firstVisibleItemScrollOffset < brinkOffsetPx) {
+                            scope.launch { activeScrollState.scrollToItem(0, brinkOffsetPx) }
+                        }
+                    } else {
+                        if (activeScrollState.firstVisibleItemIndex == 0 && activeScrollState.firstVisibleItemScrollOffset >= (brinkOffsetPx - 10)) {
+                            scope.launch { activeScrollState.scrollToItem(0, 0) }
+                        }
+                    }
+                    currentScreen = settingsReferrer
+                }
                 "storage" -> currentScreen = "settings"
                 "contact" -> currentScreen = "settings"
                 "complaint" -> currentScreen = "settings"
@@ -578,9 +591,19 @@ fun MainScreen(
                                             title = AppStrings.Settings.title(lang),
                                             icon = androidx.compose.material.icons.Icons.Rounded.Settings,
                                             onClick = {
+                                                val isFromCollapsed = activeScrollState.firstVisibleItemIndex > 0 || 
+                                                                      activeScrollState.firstVisibleItemScrollOffset >= brinkOffsetPx
+                                                if (isFromCollapsed) {
+                                                    if (settingsScrollState.firstVisibleItemIndex == 0 && settingsScrollState.firstVisibleItemScrollOffset < brinkOffsetPx) {
+                                                        scope.launch { settingsScrollState.scrollToItem(0, brinkOffsetPx) }
+                                                    }
+                                                } else {
+                                                    if (settingsScrollState.firstVisibleItemIndex == 0 && settingsScrollState.firstVisibleItemScrollOffset >= (brinkOffsetPx - 10)) {
+                                                        scope.launch { settingsScrollState.scrollToItem(0, 0) }
+                                                    }
+                                                }
                                                 settingsReferrer = "tabs"
                                                 currentScreen = "settings"
-                                                scope.launch { settingsScrollState.scrollToItem(0, 0) }
                                             }
                                         ),
                                         com.elvan.rmdneram.ui.components.shell.ElvanPopupMenuItem(
@@ -671,7 +694,20 @@ fun MainScreen(
                 "settings" -> SettingsScreen(
                     userRole = uiState.userProfile?.role,
                     userProfile = uiState.userProfile,
-                    onBack = { currentScreen = settingsReferrer },
+                    onBack = {
+                        val isSettingsCollapsed = settingsScrollState.firstVisibleItemIndex > 0 || 
+                                                  settingsScrollState.firstVisibleItemScrollOffset >= brinkOffsetPx
+                        if (isSettingsCollapsed) {
+                            if (activeScrollState.firstVisibleItemIndex == 0 && activeScrollState.firstVisibleItemScrollOffset < brinkOffsetPx) {
+                                scope.launch { activeScrollState.scrollToItem(0, brinkOffsetPx) }
+                            }
+                        } else {
+                            if (activeScrollState.firstVisibleItemIndex == 0 && activeScrollState.firstVisibleItemScrollOffset >= (brinkOffsetPx - 10)) {
+                                scope.launch { activeScrollState.scrollToItem(0, 0) }
+                            }
+                        }
+                        currentScreen = settingsReferrer
+                    },
                     onNavigateToProfile = { 
                         currentScreen = "profile" 
                     },
