@@ -76,7 +76,7 @@ fun ElvanExpandedBar(
     
     // 3. Compute Y endpoints (Replicating exact Flutter trajectory with optical center alignment)
     val startTextBottomPx = maxExtentPx - with(density) { 100.dp.toPx() }
-    val targetTextBottomPx = ceilingPx + with(density) { (if (hasLeadingWidget || onBack != null) 33.5.dp else 37.dp).toPx() }
+    val targetTextBottomPx = ceilingPx + with(density) { (if (hasLeadingWidget || onBack != null) 36.5.dp else 37.dp).toPx() }
     
     val currentTextBottomPx = startTextBottomPx + (targetTextBottomPx - startTextBottomPx) * t
     val currentTopPx = currentTextBottomPx - textHeightPx
