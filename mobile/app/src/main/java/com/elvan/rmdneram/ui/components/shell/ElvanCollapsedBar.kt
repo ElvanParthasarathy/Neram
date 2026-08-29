@@ -86,17 +86,16 @@ fun ElvanCollapsedBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = finalTopDp)
             .zIndex(150f)
             .graphicsLayer {
                 this.alpha = navOpacity
             }
     ) {
-        // Left side (Back Button / Title)
+        // Left side: Pinned at ceiling (Back Button / Title)
         Box(
             modifier = Modifier
-                .padding(start = 16.dp)
-                .align(Alignment.CenterStart)
+                .padding(top = ceiling, start = 16.dp)
+                .align(Alignment.TopStart)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (onBack != null) {
@@ -129,7 +128,7 @@ fun ElvanCollapsedBar(
             }
         }
 
-        // Right side (Action Buttons Pill)
+        // Right side (Action Buttons Pill) - Travels with finalTopDp
         val menuAlpha by animateFloatAsState(
             targetValue = if (ElvanMenuState.isMenuOpen) 0.0f else 1.0f,
             animationSpec = tween(durationMillis = 200),
@@ -137,8 +136,8 @@ fun ElvanCollapsedBar(
         )
         Box(
             modifier = Modifier
-                .padding(end = 16.dp)
-                .align(Alignment.CenterEnd)
+                .padding(top = finalTopDp, end = 16.dp)
+                .align(Alignment.TopEnd)
                 .graphicsLayer {
                     alpha = menuAlpha
                 }

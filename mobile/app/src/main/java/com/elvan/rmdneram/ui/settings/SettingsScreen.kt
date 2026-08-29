@@ -10,7 +10,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -62,168 +63,178 @@ fun SettingsScreen(
     onNavigateToAboutRMK: () -> Unit,
     onNavigateToNotifications: () -> Unit = {},
     onLogout: () -> Unit = {},
-    scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
     val lang = LocalAppLanguage.current
     
     var showLogoutDialog by remember { mutableStateOf(false) }
-    
-    val statusBarHeight = rememberStatusBarHeight()
-    val topPadding = statusBarHeight + HomeDimens.ContentPaddingTop
-    
-    // Standard Material 3 Scaffold - REMOVED to use MainScreen's global frame/header
-    // Scaffold(
-    //    topBar = { ... },
-    //    containerColor = colors.background,
-    //    contentWindowInsets = WindowInsets.statusBars
-    // ) { innerPadding ->
-    
-    // Content Wrapper
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            // .padding(innerPadding) // Removed Scaffold padding
-            .background(colors.background) // Ensure background is set
-            .verticalScroll(scrollState)
-            .padding(horizontal = HomeDimens.ContentPadding) // Horizontal padding only
-            .padding(top = topPadding, bottom = 100.dp) // Top padding matches Home Screen
+
+    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+        title = AppStrings.Settings.title(lang),
+        onBack = onBack,
+        scrollState = scrollState,
+        colors = colors
     ) {
+        androidx.compose.foundation.lazy.LazyColumn(
+            state = scrollState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
+        ) {
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            }
+
             // 1. Profile Card
-            OneUIProfileCard(
-                name = userProfile?.displayName ?: "User",
-                email = AppStrings.Settings.neramAccount(lang),
-                photoUrl = userProfile?.photoURL,
-                onClick = onNavigateToProfile,
-                cardColor = colors.surface,
-                borderColor = colors.glassBorder,
-                textColor = colors.textPrimary,
-                subTextColor = colors.textSecondary
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Settings Group: Display
-            SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                SettingsListItem(
-                    icon = Icons.Outlined.Brightness6,
-                    iconBgColor = AppColors.Green,
-                    title = AppStrings.Settings.display(lang),
-                    description = AppStrings.Settings.displayDesc(lang),
-                    onClick = onNavigateToDisplay,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                SettingsListItem(
-                    icon = Icons.Outlined.Language,
-                    iconBgColor = AppColors.Blue,
-                    title = AppStrings.Settings.language(lang),
-                    description = AppStrings.Settings.languageDesc(lang),
-                    onClick = onNavigateToLanguage,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                SettingsListItem(
-                    icon = Icons.Outlined.Storage,
-                    iconBgColor = AppColors.Orange,
-                    title = AppStrings.Settings.storageData(lang),
-                    description = AppStrings.Settings.storageDesc(lang),
-                    onClick = onNavigateToStorage,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                SettingsListItem(
-                    icon = Icons.Outlined.Notifications,
-                    iconBgColor = AppColors.Purple,
-                    title = AppStrings.Settings.pushNotifications(lang),
-                    description = AppStrings.Settings.notificationTimings(lang),
-                    onClick = onNavigateToNotifications,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-
+            item(key = "profile_card") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    OneUIProfileCard(
+                        name = userProfile?.displayName ?: "User",
+                        email = AppStrings.Settings.neramAccount(lang),
+                        photoUrl = userProfile?.photoURL,
+                        onClick = onNavigateToProfile,
+                        cardColor = colors.surface,
+                        borderColor = colors.glassBorder,
+                        textColor = colors.textPrimary,
+                        subTextColor = colors.textSecondary
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // 3. Settings Group: Account
-            SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                SettingsListItem(
-                    icon = Icons.Outlined.Security,
-                    iconBgColor = AppColors.Purple,
-                    title = AppStrings.Settings.security(lang),
-                    description = AppStrings.Settings.securityDesc(lang),
-                    onClick = onNavigateToSecurity,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                SettingsListItem(
-                    icon = Icons.Default.Person,
-                    iconBgColor = AppColors.Blue,
-                    title = AppStrings.Settings.userDirectory(lang),
-                    description = "",
-                    onClick = onNavigateToUserDirectory,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
+            // 2. Settings Group: Display, Language, Storage, Notifications
+            item(key = "display_group") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
+                        SettingsListItem(
+                            icon = Icons.Outlined.Brightness6,
+                            iconBgColor = AppColors.Green,
+                            title = AppStrings.Settings.display(lang),
+                            description = AppStrings.Settings.displayDesc(lang),
+                            onClick = onNavigateToDisplay,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        SettingsListItem(
+                            icon = Icons.Outlined.Language,
+                            iconBgColor = AppColors.Blue,
+                            title = AppStrings.Settings.language(lang),
+                            description = AppStrings.Settings.languageDesc(lang),
+                            onClick = onNavigateToLanguage,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        SettingsListItem(
+                            icon = Icons.Outlined.Storage,
+                            iconBgColor = AppColors.Orange,
+                            title = AppStrings.Settings.storageData(lang),
+                            description = AppStrings.Settings.storageDesc(lang),
+                            onClick = onNavigateToStorage,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        SettingsListItem(
+                            icon = Icons.Outlined.Notifications,
+                            iconBgColor = AppColors.Purple,
+                            title = AppStrings.Settings.pushNotifications(lang),
+                            description = AppStrings.Settings.notificationTimings(lang),
+                            onClick = onNavigateToNotifications,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                    }
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            
+            // 3. Settings Group: Account & Directory
+            item(key = "account_group") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
+                        SettingsListItem(
+                            icon = Icons.Outlined.Security,
+                            iconBgColor = AppColors.Purple,
+                            title = AppStrings.Settings.security(lang),
+                            description = AppStrings.Settings.securityDesc(lang),
+                            onClick = onNavigateToSecurity,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        SettingsListItem(
+                            icon = Icons.Default.Person,
+                            iconBgColor = AppColors.Blue,
+                            title = AppStrings.Settings.userDirectory(lang),
+                            description = "",
+                            onClick = onNavigateToUserDirectory,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                    }
+                }
+            }
+
             // 4. Settings Group: About
-            SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                SettingsListItem(
-                    icon = Icons.Outlined.Group,
-                    iconBgColor = AppColors.Purple,
-                    title = if (lang == AppStrings.TAMIL) "à®¨à®¿à®°à¯à®µà®¾à®•à®•à¯ à®•à¯à®´à¯" else "Management Team",
-                    description = if (lang == AppStrings.TAMIL) "à®¨à®¿à®±à¯à®µà®©à®°à¯à®•à®³à¯ & à®‡à®¯à®•à¯à®•à¯à®¨à®°à¯ à®•à¯à®´à¯" else "Founders & Board of Directors",
-                    onClick = onNavigateToManagementTeam,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                SettingsListItem(
-                    icon = Icons.Outlined.AccountBalance,
-                    iconBgColor = AppColors.Green,
-                    title = if (lang == AppStrings.TAMIL) "RMK à®•à¯à®´à¯ à®ªà®±à¯à®±à®¿" else "About RMK Group",
-                    description = if (lang == AppStrings.TAMIL) "à®ªà®¾à®°à¯à®µà¯ˆ, à®ªà®£à®¿ & à®…à®Ÿà¯ˆà®¯à®¾à®³à®®à¯" else "Vision, Mission & Identity",
-                    onClick = onNavigateToAboutRMK,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
-                Divider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                SettingsListItem(
-                    icon = Icons.Outlined.Info,
-                    iconBgColor = AppColors.Blue,
-                    title = AppStrings.Settings.aboutApp(lang),
-                    description = AppStrings.Settings.aboutAppDesc(lang),
-                    onClick = onNavigateToAboutApp,
-                    textColor = colors.textPrimary,
-                    subTextColor = colors.textSecondary
-                )
+            item(key = "about_group") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
+                        SettingsListItem(
+                            icon = Icons.Outlined.Group,
+                            iconBgColor = AppColors.Purple,
+                            title = AppStrings.Settings.managementTeam(lang),
+                            description = if (lang == AppStrings.TAMIL) "நிறுவனர்கள் & இயக்குநர் குழு" else "Founders & Board of Directors",
+                            onClick = onNavigateToManagementTeam,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        SettingsListItem(
+                            icon = Icons.Outlined.AccountBalance,
+                            iconBgColor = AppColors.Green,
+                            title = AppStrings.Settings.aboutRmk(lang),
+                            description = if (lang == AppStrings.TAMIL) "பார்வை, பணி & அடையாளம்" else "Vision, Mission & Identity",
+                            onClick = onNavigateToAboutRMK,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        SettingsListItem(
+                            icon = Icons.Outlined.Info,
+                            iconBgColor = AppColors.Blue,
+                            title = AppStrings.Settings.aboutApp(lang),
+                            description = AppStrings.Settings.aboutAppDesc(lang),
+                            onClick = onNavigateToAboutApp,
+                            textColor = colors.textPrimary,
+                            subTextColor = colors.textSecondary
+                        )
+                    }
+                }
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
 
             // 5. Settings Group: Account Session
-            SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                SettingsListItem(
-                    icon = Icons.Outlined.Logout,
-                    iconBgColor = AppColors.Red,
-                    title = AppStrings.Settings.signOut(lang),
-                    description = if (lang == AppStrings.TAMIL) "à®¨à¯‡à®°à®®à¯ à®•à®£à®•à¯à®•à®¿à®²à®¿à®°à¯à®¨à¯à®¤à¯ à®µà¯†à®³à®¿à®¯à¯‡à®±à¯" else "Log out of your Neram account",
-                    onClick = { showLogoutDialog = true },
-                    textColor = AppColors.Red, // Explicitly red for destruction
-                    subTextColor = colors.textSecondary
-                )
+            item(key = "session_group") {
+                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                    SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
+                        SettingsListItem(
+                            icon = Icons.AutoMirrored.Outlined.Logout,
+                            iconBgColor = AppColors.Red,
+                            title = AppStrings.Settings.signOut(lang),
+                            description = if (lang == AppStrings.TAMIL) "நேரம் கணக்கிலிருந்து வெளியேறு" else "Log out of your Neram account",
+                            onClick = { showLogoutDialog = true },
+                            textColor = AppColors.Red,
+                            subTextColor = colors.textSecondary
+                        )
+                    }
+                }
             }
-            
-            Spacer(modifier = Modifier.height(24.dp))
+
+            item(key = "dynamic_collapse_spacer") {
+                com.elvan.rmdneram.ui.components.shell.ElvanCollapseSpacer(itemCount = 5, itemHeight = 160.dp)
+            }
         }
+    }
     
     if (showLogoutDialog) {
         AlertDialog(

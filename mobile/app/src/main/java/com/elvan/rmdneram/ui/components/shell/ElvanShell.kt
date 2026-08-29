@@ -335,6 +335,31 @@ fun ElvanShell(
 }
 
 /**
+ * Master Subpage Shell for Jetpack Compose (matching Flutter's ElvanSubpageShell).
+ * A lightweight wrapper around ElvanShell exclusively designed for subpages (Settings, Security, Display, etc.).
+ * Inherently disables the bottom navbar and provides full One UI collapsible physics with the floating back chevron.
+ */
+@Composable
+fun ElvanSubShell(
+    title: String,
+    onBack: () -> Unit,
+    scrollState: LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
+    colors: HomeColors = com.elvan.rmdneram.ui.home.rememberHomeColors(),
+    actions: @Composable RowScope.() -> Unit = {},
+    content: @Composable () -> Unit
+) {
+    ElvanShell(
+        title = title,
+        onBack = onBack,
+        showNavbar = false,
+        scrollState = scrollState,
+        colors = colors,
+        actions = actions,
+        content = content
+    )
+}
+
+/**
  * Standard default metrics and helpers for ElvanShell pages.
  */
 object ElvanShellDefaults {

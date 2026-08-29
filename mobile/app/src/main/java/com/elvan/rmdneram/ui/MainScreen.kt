@@ -232,7 +232,7 @@ fun MainScreen(
     var userDirectoryPath by remember { mutableStateOf(listOf<String>()) }
     
     // Hoist Settings Scroll State to preserve position
-    val settingsScrollState = rememberSaveable(saver = ScrollState.Saver) { ScrollState(0) }
+    val settingsScrollState = rememberSaveable(saver = androidx.compose.foundation.lazy.LazyListState.Saver) { androidx.compose.foundation.lazy.LazyListState(0, 0) }
     
     // Track where we came from for Profile screen (Tabs/Home or Settings)
     var profileReferrer by remember { mutableStateOf("tabs") }
@@ -579,7 +579,7 @@ fun MainScreen(
                                             onClick = {
                                                 settingsReferrer = "tabs"
                                                 currentScreen = "settings"
-                                                scope.launch { settingsScrollState.scrollTo(0) }
+                                                scope.launch { settingsScrollState.scrollToItem(0, 0) }
                                             }
                                         ),
                                         com.elvan.rmdneram.ui.components.shell.ElvanPopupMenuItem(
