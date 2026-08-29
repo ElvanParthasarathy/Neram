@@ -109,6 +109,11 @@ fun FolderList(
                 FolderItem(item, colors) { onClick(item) }
             }
         }
+
+        item(key = "dynamic_collapse_spacer") {
+            val totalItemCount = items.size + (if (path.isNotEmpty()) 1 else 0)
+            ElvanCollapseSpacer(itemCount = totalItemCount)
+        }
     }
 }
 
@@ -188,6 +193,11 @@ fun FilesList(
             ElvanSectionContainer {
                 SubjectItem(subject, colors, onLinkClick, onNotUploaded)
             }
+        }
+
+        item(key = "dynamic_collapse_spacer") {
+            val totalItemCount = subjects.size + (if (path.isNotEmpty()) 1 else 0)
+            ElvanCollapseSpacer(itemCount = totalItemCount)
         }
     }
 }
@@ -401,6 +411,11 @@ fun DriveList(
                     NotesEmptyView(colors)
                 }
             }
+        }
+
+        item(key = "dynamic_collapse_spacer") {
+            val totalItemCount = folders.size + files.size + subjects.size + (if (path.isNotEmpty()) 1 else 0)
+            ElvanCollapseSpacer(itemCount = totalItemCount)
         }
     }
 }

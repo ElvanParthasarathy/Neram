@@ -359,6 +359,33 @@ fun Modifier.elvanCollapseMinHeight(): Modifier {
 }
 
 /**
+ * Master dynamic collapse spacer for LazyColumn in ElvanShell pages.
+ * Dynamically computes the exact minimum height needed so that pages with few or 0 items
+ * can smoothly scroll enough to reach the collapsed brink wall state, without allowing
+ * tall/normal pages to overscroll into empty blank space.
+ */
+@Composable
+fun ElvanCollapseSpacer(
+    itemCount: Int,
+    itemHeight: androidx.compose.ui.unit.Dp = 80.dp,
+    extraHeight: androidx.compose.ui.unit.Dp = 0.dp
+) {
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val collapsedHeaderHeight = statusBarHeight + 20.dp + 50.dp
+    val bottomNavHeight = com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingBottom
+    
+    val targetContentArea = screenHeight - collapsedHeaderHeight - bottomNavHeight
+    val estimatedContentHeight = (itemCount * itemHeight.value).dp + extraHeight
+    
+    val neededSpacer = (targetContentArea - estimatedContentHeight).coerceAtLeast(0.dp)
+    if (neededSpacer > 0.dp) {
+        Spacer(modifier = Modifier.height(neededSpacer))
+    }
+}
+
+/**
  * Master animated slide section for ElvanShell pages.
  * Runs AnimatedContent edge-to-edge across the screen so swipe transitions never get clipped,
  * and automatically applies standard horizontal content padding to the inner container.
