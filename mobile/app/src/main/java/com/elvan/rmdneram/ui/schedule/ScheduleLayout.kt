@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.luminance // Added for detecting dark mode (
 import com.elvan.rmdneram.data.model.*
 import com.elvan.rmdneram.ui.components.ExpressivePullToRefreshBox
 import com.elvan.rmdneram.ui.home.*
-import com.elvan.rmdneram.ui.components.shell.elvanCollapseMinHeight
+import com.elvan.rmdneram.ui.components.shell.*
 import com.elvan.rmdneram.ui.common.ScheduleLogic
 import com.elvan.rmdneram.utils.DateTimeUtils
 import java.time.format.DateTimeFormatter
@@ -110,12 +110,7 @@ fun ScheduleMainLayout(
                 item(key = "spacer_top") { Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing)) }
                 // --- Switcher (Movable) ---
                 item(key = "view_type_tabs") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = HomeDimens.ContentPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    ElvanSectionContainer {
                         ViewTypeTabsRow(
                             activeTab = activeTab,
                             onTabSelected = onTabSelected,
@@ -130,7 +125,7 @@ fun ScheduleMainLayout(
                 if (activeTab == "class" || activeTab == "exams") {
                     // --- Date Switcher (Home Style) ---
                     item(key = "date_switcher") {
-                        Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
+                        ElvanSectionContainer {
                             DateSection(
                                 formattedDate = selectedDateFormatted,
                                 colors = colors,
@@ -149,36 +144,22 @@ fun ScheduleMainLayout(
                             )
                         }
                     }
-                    
                 }
 
                 // --- Today's Schedule (Animated on Date Swipe) - Only for Class Tab ---
                 if (activeTab == "class") {
                     item(key = "today_schedule") {
-                        androidx.compose.animation.AnimatedContent(
+                        ElvanSlideSection(
                             targetState = selectedDateFormatted,
-                            transitionSpec = {
-                                val directionFactor = swipeDirection
-                            if (directionFactor != 0) {
-                                    (slideInHorizontally { width -> directionFactor * width } + fadeIn()) togetherWith
-                                    (slideOutHorizontally { width -> -directionFactor * width } + fadeOut())
-                                } else {
-                                    // Date Picker Selection: Subtle Scale + Fade (Solid, no flicker)
-                                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) + 
-                                     scaleIn(initialScale = 0.95f, animationSpec = tween(220, delayMillis = 90))) togetherWith
-                                    (fadeOut(animationSpec = tween(90)))
-                                }
-                            },
+                            swipeDirection = swipeDirection,
                             label = "scheduleContentSlide"
                         ) { _ ->
-                            Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
-                                ScheduleSection(
-                                    scheduleState = scheduleState,
-                                    masterData = uiState.masterData,
-                                    isLoading = isRefreshing,
-                                    colors = colors
-                                )
-                            }
+                            ScheduleSection(
+                                scheduleState = scheduleState,
+                                masterData = uiState.masterData,
+                                isLoading = isRefreshing,
+                                colors = colors
+                            )
                         }
                     }
                     
@@ -211,29 +192,29 @@ fun ScheduleMainLayout(
                             ) {
                                 Column {
                                     // Header Title Row - Toggles Expansion
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) { isExpanded = !isExpanded }
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val lang = LocalAppLanguage.current
-                        Text(
-                            text = AppStrings.Schedule.weeklySchedule(lang),
-                            style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
-                            color = colors.textSecondary.copy(alpha = 0.8f)
-                        )
-                        Icon(
-                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
-                            tint = colors.textSecondary
-                        )
-                    }
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable(
+                                                interactionSource = remember { MutableInteractionSource() },
+                                                indication = null
+                                            ) { isExpanded = !isExpanded }
+                                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        val lang = LocalAppLanguage.current
+                                        Text(
+                                            text = AppStrings.Schedule.weeklySchedule(lang),
+                                            style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                            color = colors.textSecondary.copy(alpha = 0.8f)
+                                        )
+                                        Icon(
+                                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                                            contentDescription = if (isExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
+                                            tint = colors.textSecondary
+                                        )
+                                    }
                                     
                                     // Collapsible Content Inside Card (Day Tabs)
                                     androidx.compose.animation.AnimatedVisibility(

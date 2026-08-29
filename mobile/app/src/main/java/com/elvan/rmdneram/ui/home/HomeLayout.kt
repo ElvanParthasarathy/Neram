@@ -26,6 +26,8 @@ import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 
+import com.elvan.rmdneram.ui.components.shell.*
+
 /**
  * HomeMainLayout - The structural skeleton of the Home Screen.
  * 
@@ -54,18 +56,12 @@ fun HomeMainLayout(
     onSaveNotice: (String) -> Unit,
     profileLoaderCompleted: Boolean = false,
     scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
-
     onProfileLoaderCompleted: () -> Unit = {},
     onProfileClick: () -> Unit = {}
 ) {
-    // Track swipe direction for animation: -1 = Next Day (Swipe Left), 1 = Prev Day (Swipe Right), 0 = None
     var swipeDirection by remember { mutableIntStateOf(0) }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.background)
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         ExpressivePullToRefreshBox(
             pullRefreshState = pullRefreshState,
             isRefreshing = isRefreshing,
@@ -83,13 +79,10 @@ fun HomeMainLayout(
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
                 item { Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing)) }
+                
                 // 1. Header Section
                 item(key = "header", contentType = "header") {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = HomeDimens.ContentPadding)
-                    ) {
+                    ElvanSectionContainer {
                         PageHeader(
                             colors = colors,
                             userProfile = uiState.userProfile,
@@ -107,11 +100,7 @@ fun HomeMainLayout(
                 
                 // 2. Date Picker Section
                 item(key = "date_picker", contentType = "input") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = HomeDimens.ContentPadding)
-                    ) {
+                    ElvanSectionContainer {
                         DateSection(
                             formattedDate = formattedDate,
                             colors = colors,
@@ -131,93 +120,53 @@ fun HomeMainLayout(
                     }
                 }
                 
-                // 3. Academic Calendar Section with slide animation
+                // 3. Academic Calendar Section with edge-to-edge slide animation
                 if (showAcademicCalendarSection) {
                     item(key = "calendar_section", contentType = "calendar_section") {
                         val lang = LocalAppLanguage.current
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = HomeDimens.ContentPadding)
-                        ) {
-                            Text(
-                                text = AppStrings.Home.academicCalendar(lang),
-                                style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
-                                color = colors.textSecondary.copy(alpha = 0.8f),
-                                modifier = Modifier.padding(start = HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            ElvanSectionTitle(
+                                title = AppStrings.Home.academicCalendar(lang),
+                                colors = colors
                             )
 
-                            androidx.compose.animation.AnimatedContent(
+                            ElvanSlideSection(
                                 targetState = formattedDate to filteredEvents,
-                                transitionSpec = {
-                                    val directionFactor = swipeDirection
-                                    if (directionFactor != 0) {
-                                        (slideInHorizontally { width -> directionFactor * width } + fadeIn()) togetherWith
-                                        (slideOutHorizontally { width -> -directionFactor * width } + fadeOut())
-                                    } else {
-                                        // Date Picker Selection: Subtle Scale + Fade (Solid, no flicker)
-                                        (fadeIn(animationSpec = tween(220, delayMillis = 90)) + 
-                                         scaleIn(initialScale = 0.95f, animationSpec = tween(220, delayMillis = 90))) togetherWith
-                                        (fadeOut(animationSpec = tween(90)))
-                                    }
-                                },
+                                swipeDirection = swipeDirection,
                                 label = "calendarSlide"
                             ) { (_, events) ->
-                                Column {
-                                    if (events.isNotEmpty()) {
-                                        GroupedEventsCard(events = events, colors = colors)
-                                    } else {
-                                        EmptyEventCard(
-                                            message = "No events declared",
-                                            colors = colors
-                                        )
-                                    }
+                                if (events.isNotEmpty()) {
+                                    GroupedEventsCard(events = events, colors = colors)
+                                } else {
+                                    EmptyEventCard(
+                                        message = "No events declared",
+                                        colors = colors
+                                    )
                                 }
                             }
                         }
                     }
                 }
                 
-                // 4. Schedule Section with slide animation
+                // 4. Schedule Section with edge-to-edge slide animation
                 item(key = "schedule_section", contentType = "schedule") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = HomeDimens.ContentPadding)
-                    ) {
-                        androidx.compose.animation.AnimatedContent(
-                            targetState = formattedDate to scheduleState,
-                            transitionSpec = {
-                                val directionFactor = swipeDirection
-                                if (directionFactor != 0) {
-                                    (slideInHorizontally { width -> directionFactor * width } + fadeIn()) togetherWith
-                                        (slideOutHorizontally { width -> -directionFactor * width } + fadeOut())
-                                } else {
-                                    // Date Picker Selection: Subtle Scale + Fade (Solid, no flicker)
-                                    (fadeIn(animationSpec = tween(220, delayMillis = 90)) + 
-                                     scaleIn(initialScale = 0.95f, animationSpec = tween(220, delayMillis = 90))) togetherWith
-                                    (fadeOut(animationSpec = tween(90)))
-                                }
-                            },
-                            label = "scheduleSlide"
-                        ) { (_, state) ->
-                            ScheduleSection(
-                                scheduleState = state,
-                                masterData = uiState.masterData,
-                                isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
-                                colors = colors
-                            )
-                        }
+                    ElvanSlideSection(
+                        targetState = formattedDate to scheduleState,
+                        swipeDirection = swipeDirection,
+                        label = "scheduleSlide"
+                    ) { (_, state) ->
+                        ScheduleSection(
+                            scheduleState = state,
+                            masterData = uiState.masterData,
+                            isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
+                            colors = colors
+                        )
                     }
                 }
                 
                 // 5. Live Updates Section
                 item(key = "updates_section", contentType = "editable") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = HomeDimens.ContentPadding)
-                    ) {
+                    ElvanSectionContainer {
                         UpdatesSection(
                             sectionName = uiState.userProfile?.section ?: "",
                             content = todayUpdate?.displayNote ?: "No special updates for today.",
@@ -235,11 +184,7 @@ fun HomeMainLayout(
                 
                 // 6. General Notice Section
                 item(key = "notice_section", contentType = "editable") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = HomeDimens.ContentPadding)
-                    ) {
+                    ElvanSectionContainer {
                         GeneralNoticeSection(
                             content = uiState.sectionUpdates.general.text,
                             author = uiState.sectionUpdates.general.author.ifEmpty { "System" },
@@ -255,11 +200,7 @@ fun HomeMainLayout(
                 
                 // 7. User Academic Details Footer
                 item(key = "footer", contentType = "footer") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = HomeDimens.ContentPadding)
-                    ) {
+                    ElvanSectionContainer {
                         AcademicDetailsGrid(
                             userProfile = uiState.userProfile,
                             colors = colors

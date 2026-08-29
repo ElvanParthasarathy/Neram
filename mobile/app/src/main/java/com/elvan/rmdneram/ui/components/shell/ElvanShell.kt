@@ -1,8 +1,10 @@
 package com.elvan.rmdneram.ui.components.shell
 
+import androidx.compose.animation.*
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
@@ -354,4 +356,81 @@ object ElvanShellDefaults {
 @Composable
 fun Modifier.elvanCollapseMinHeight(): Modifier {
     return this.heightIn(min = ElvanShellDefaults.MinContentHeight)
+}
+
+/**
+ * Master animated slide section for ElvanShell pages.
+ * Runs AnimatedContent edge-to-edge across the screen so swipe transitions never get clipped,
+ * and automatically applies standard horizontal content padding to the inner container.
+ */
+@Composable
+fun <T> ElvanSlideSection(
+    targetState: T,
+    swipeDirection: Int,
+    modifier: Modifier = Modifier,
+    label: String = "ElvanSlideSection",
+    content: @Composable (T) -> Unit
+) {
+    androidx.compose.animation.AnimatedContent(
+        targetState = targetState,
+        modifier = modifier.fillMaxWidth(),
+        transitionSpec = {
+            val directionFactor = swipeDirection
+            if (directionFactor != 0) {
+                (androidx.compose.animation.slideInHorizontally { width -> directionFactor * width } + androidx.compose.animation.fadeIn()) togetherWith
+                (androidx.compose.animation.slideOutHorizontally { width -> -directionFactor * width } + androidx.compose.animation.fadeOut())
+            } else {
+                (androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(220, delayMillis = 90)) + 
+                 androidx.compose.animation.scaleIn(initialScale = 0.95f, animationSpec = androidx.compose.animation.core.tween(220, delayMillis = 90))) togetherWith
+                (androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(90)))
+            }
+        },
+        label = label
+    ) { state ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = com.elvan.rmdneram.ui.home.HomeDimens.ContentPadding)
+        ) {
+            content(state)
+        }
+    }
+}
+
+/**
+ * Standard container for static (non-animated) section items in ElvanShell pages.
+ */
+@Composable
+fun ElvanSectionContainer(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = com.elvan.rmdneram.ui.home.HomeDimens.ContentPadding),
+        content = content
+    )
+}
+
+/**
+ * Standard section title with consistent start alignment (24.dp) and bottom spacing.
+ */
+@Composable
+fun ElvanSectionTitle(
+    title: String,
+    colors: com.elvan.rmdneram.ui.home.HomeColors,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = title,
+        style = com.elvan.rmdneram.ui.home.HomeTypography.DateLabel.copy(
+            fontFamily = LocalAppFontFamily.current
+        ),
+        color = colors.textSecondary.copy(alpha = 0.8f),
+        modifier = modifier.padding(
+            start = com.elvan.rmdneram.ui.home.HomeDimens.SpacingXxxl,
+            bottom = com.elvan.rmdneram.ui.home.HomeDimens.SectionTitleBottomPadding
+        )
+    )
 }
