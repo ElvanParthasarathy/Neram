@@ -362,7 +362,10 @@ fun ElvanSubShell(
         colors = colors,
         hasActions = hasActions,
         actions = actions,
-        content = content
+        content = {
+            content()
+            ElvanCalibrationDevTool()
+        }
     )
 }
 
