@@ -747,8 +747,9 @@ fun MainScreen(
         // Removed Grey Frame Overlay (Rounded Borders) to match Flutter's edge-to-edge ElvanShell
         
         
-        // Secondary Top Bar (for Settings and other secondary screens)
-        if (currentScreen != "tabs") {
+        // Secondary Top Bar (for legacy screens not yet migrated to ElvanSubShell)
+        val subShellScreens = setOf("settings")
+        if (currentScreen != "tabs" && currentScreen !in subShellScreens) {
             SecondaryTopBar(
                 title = getScreenTitle(currentScreen),
                 onBack = {
