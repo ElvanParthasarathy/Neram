@@ -58,6 +58,7 @@ fun ElvanCollapsedBar(
     title: String? = null,
     onBack: (() -> Unit)? = null,
     navOpacity: Float = 1.0f,
+    hasActions: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -72,9 +73,11 @@ fun ElvanCollapsedBar(
     val currentTopPx = currentHeightPx - with(density) { 64.dp.toPx() }
     
     val isPinned = currentTopPx <= ceilingPx
-    val finalTopPx = if (isPinned) ceilingPx else currentTopPx
-    val finalTopDp = with(density) { finalTopPx.toDp() }
     
+    // If the hand-off hasn't happened yet (the icons haven't reached the ceiling),
+    // the collapsed bar remains completely invisible (handed over from ElvanExpandedBar)!
+    if (!isPinned) return
+
     // Exact Flutter liftProgress: pill container fades in ONLY when the first card reaches the pill (collision)
     val liftStartOffsetPx = collisionOffsetPx - with(density) { 4.dp.toPx() }
     val liftProgress = if (scrollOffset > liftStartOffsetPx) {
@@ -86,68 +89,73 @@ fun ElvanCollapsedBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = ceiling)
             .zIndex(150f)
             .graphicsLayer {
                 this.alpha = navOpacity
             }
     ) {
         // Left side: Pinned at ceiling (Back Button / Title)
-        Box(
-            modifier = Modifier
-                .padding(top = ceiling, start = 16.dp)
-                .align(Alignment.TopStart)
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (onBack != null) {
-                    ElvanPill(liftProgress = liftProgress, colors = colors, modifier = Modifier.size(50.dp)) {
-                        ElvanTopBarIconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colors.textPrimary,
-                                modifier = Modifier.size(22.dp)
-                            )
+        if (onBack != null || title != null) {
+            Box(
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .align(Alignment.CenterStart)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (onBack != null) {
+                        ElvanPill(liftProgress = liftProgress, colors = colors, modifier = Modifier.size(50.dp)) {
+                            ElvanTopBarIconButton(onClick = onBack) {
+                                Icon(
+                                    imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = colors.textPrimary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
                         }
                     }
-                }
-                if (title != null) {
-                    Text(
-                        text = title,
-                        style = HomeTypography.SectionTitle.copy(
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = colors.textPrimary
-                        ),
-                        modifier = Modifier
-                            .padding(start = if (onBack != null) 12.dp else 8.dp)
-                            .graphicsLayer {
-                                this.alpha = liftProgress
-                            }
-                    )
+                    if (title != null) {
+                        Text(
+                            text = title,
+                            style = HomeTypography.SectionTitle.copy(
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = colors.textPrimary
+                            ),
+                            modifier = Modifier
+                                .padding(start = if (onBack != null) 12.dp else 8.dp)
+                                .graphicsLayer {
+                                    this.alpha = liftProgress
+                                }
+                        )
+                    }
                 }
             }
         }
 
-        // Right side (Action Buttons Pill) - Travels with finalTopDp
-        val menuAlpha by animateFloatAsState(
-            targetValue = if (ElvanMenuState.isMenuOpen) 0.0f else 1.0f,
-            animationSpec = tween(durationMillis = 200),
-            label = "menuAlpha"
-        )
-        Box(
-            modifier = Modifier
-                .padding(top = finalTopDp, end = 16.dp)
-                .align(Alignment.TopEnd)
-                .graphicsLayer {
-                    alpha = menuAlpha
-                }
-        ) {
-            ElvanPill(liftProgress = liftProgress, colors = colors) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    actions()
+        // Right side (Action Buttons Pill) - ONLY if hasActions is true!
+        if (hasActions) {
+            val menuAlpha by animateFloatAsState(
+                targetValue = if (ElvanMenuState.isMenuOpen) 0.0f else 1.0f,
+                animationSpec = tween(durationMillis = 200),
+                label = "menuAlpha"
+            )
+            Box(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .align(Alignment.CenterEnd)
+                    .graphicsLayer {
+                        alpha = menuAlpha
+                    }
+            ) {
+                ElvanPill(liftProgress = liftProgress, colors = colors) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        actions()
+                    }
                 }
             }
         }

@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.Icon
 import com.elvan.rmdneram.ui.home.HomeColors
 import com.elvan.rmdneram.ui.home.HomeTypography
 
@@ -24,7 +25,10 @@ fun ElvanExpandedBar(
     scrollOffsetPx: Float,
     collisionOffsetPx: Float,
     expandedHeight: Dp = 280.dp,
-    hasLeadingWidget: Boolean = false
+    hasLeadingWidget: Boolean = false,
+    onBack: (() -> Unit)? = null,
+    hasActions: Boolean = false,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val density = LocalDensity.current
@@ -33,6 +37,17 @@ fun ElvanExpandedBar(
     val maxExtentPx = with(density) { expandedHeight.toPx() }
     val statusBarHeightPx = with(density) { statusBarHeight.toPx() }
     val ceilingPx = statusBarHeightPx + with(density) { 20.dp.toPx() }
+
+    // Floating Buttons Traveling trajectory (from bottom of header to ceiling)
+    val currentHeightPx = maxExtentPx - scrollOffsetPx
+    val expandedButtonsBottomPx = with(density) { 8.dp.toPx() }
+    val toolbarHeightPx = with(density) { 56.dp.toPx() }
+    var currentButtonsTopPx = currentHeightPx - expandedButtonsBottomPx - toolbarHeightPx
+    val isPinned = currentButtonsTopPx <= ceilingPx
+    if (isPinned) {
+        currentButtonsTopPx = ceilingPx
+    }
+    val currentButtonsTopDp = with(density) { currentButtonsTopPx.toDp() }
 
     // Flutter: normalizedProgress 't' hits 1.0 at handoff (when icons reach ceiling)
     val handoffHeightPx = ceilingPx + with(density) { 64.dp.toPx() }
@@ -55,7 +70,7 @@ fun ElvanExpandedBar(
     // START (t=0): text visually centered on screen (clamped to 16dp margin)
     val centeredLeftPx = maxOf(with(density) { 16.dp.toPx() }, (screenWidthPx - textWidthPx) / 2f)
     // END (t=1): matches exactly ElvanCollapsedBar text padding
-    val targetLeftPx = with(density) { if (hasLeadingWidget) 78.dp.toPx() else 24.dp.toPx() }
+    val targetLeftPx = with(density) { if (hasLeadingWidget || onBack != null) 78.dp.toPx() else 24.dp.toPx() }
     val currentLeftPx = centeredLeftPx + (targetLeftPx - centeredLeftPx) * t
     val currentLeftDp = with(density) { currentLeftPx.toDp() }
     
@@ -84,6 +99,7 @@ fun ElvanExpandedBar(
             .fillMaxWidth()
             .height(expandedHeight)
     ) {
+        // Dynamic Title
         Text(
             text = title,
             style = HomeTypography.PageTitle.copy(fontSize = 34.sp),
@@ -98,5 +114,49 @@ fun ElvanExpandedBar(
                     transformOrigin = TransformOrigin(0f, 1f)
                 }
         )
+
+        // Traveling Back Chevron on Left (Naked when expanded, hands off to CollapsedBar when pinned)
+        if (onBack != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .offset(x = 16.dp, y = currentButtonsTopDp)
+                    .size(50.dp)
+                    .graphicsLayer {
+                        alpha = if (isPinned) 0f else 1f
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                ElvanTopBarIconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = com.elvan.rmdneram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
+                        contentDescription = "Back",
+                        tint = colors.textPrimary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+        }
+
+        // Traveling Actions on Right (ONLY if hasActions is true)
+        if (hasActions) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-16).dp, y = currentButtonsTopDp)
+                    .height(50.dp)
+                    .graphicsLayer {
+                        alpha = if (isPinned) 0f else 1f
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    actions()
+                }
+            }
+        }
     }
 }

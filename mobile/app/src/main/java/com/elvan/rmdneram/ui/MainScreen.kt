@@ -509,6 +509,7 @@ fun MainScreen(
                     onBack = if (selectedTab == NavTab.Notes && isInsideNotesFolder) {
                         { notesViewModel.navigateUp() }
                     } else null,
+                    hasActions = selectedTab == NavTab.Calendar || !isInsideNotesFolder,
                     actions = {
                         if (selectedTab == NavTab.Calendar) {
                             com.elvan.rmdneram.ui.components.shell.ElvanTopBarIconButton(

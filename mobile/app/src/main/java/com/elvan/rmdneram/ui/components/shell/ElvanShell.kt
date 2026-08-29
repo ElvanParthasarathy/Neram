@@ -43,6 +43,7 @@ fun ElvanShell(
     useNewDesign: Boolean = true,
     title: String = "",
     onBack: (() -> Unit)? = null,
+    hasActions: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {},
     navbar: @Composable () -> Unit = {},
     content: @Composable () -> Unit
@@ -276,7 +277,10 @@ fun ElvanShell(
                     scrollOffsetPx = currentScrollOffset,
                     collisionOffsetPx = collisionOffsetPx,
                     expandedHeight = expandedHeight,
-                    hasLeadingWidget = onBack != null
+                    hasLeadingWidget = onBack != null,
+                    onBack = onBack,
+                    hasActions = hasActions,
+                    actions = actions
                 )
             }
             
@@ -289,6 +293,7 @@ fun ElvanShell(
                 title = if (useNewDesign) null else title,
                 onBack = onBack,
                 navOpacity = effectiveNavOpacity,
+                hasActions = hasActions,
                 actions = actions
             )
         } else {
@@ -345,6 +350,7 @@ fun ElvanSubShell(
     onBack: () -> Unit,
     scrollState: LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     colors: HomeColors = com.elvan.rmdneram.ui.home.rememberHomeColors(),
+    hasActions: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable () -> Unit
 ) {
@@ -354,6 +360,7 @@ fun ElvanSubShell(
         showNavbar = false,
         scrollState = scrollState,
         colors = colors,
+        hasActions = hasActions,
         actions = actions,
         content = content
     )
