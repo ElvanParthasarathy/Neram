@@ -110,11 +110,14 @@ fun ScheduleMainLayout(
                 item(key = "spacer_top") { Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing)) }
                 // --- Switcher (Movable) ---
                 item(key = "view_type_tabs") {
-                    ElvanSectionContainer {
+                    ElvanSectionContainer(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         ViewTypeTabsRow(
                             activeTab = activeTab,
                             onTabSelected = onTabSelected,
                             colors = colors,
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
                             onInteraction = { isViewTypeSwitching = it },
                             onDragProgress = { viewTypeDragProgress = it }
                         )

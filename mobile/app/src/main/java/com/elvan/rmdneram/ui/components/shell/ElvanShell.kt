@@ -430,12 +430,14 @@ fun <T> ElvanSlideSection(
 @Composable
 fun ElvanSectionContainer(
     modifier: Modifier = Modifier,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = com.elvan.rmdneram.ui.home.HomeDimens.ContentPadding),
+        horizontalAlignment = horizontalAlignment,
         content = content
     )
 }
