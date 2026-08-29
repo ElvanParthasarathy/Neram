@@ -24,6 +24,7 @@ import com.elvan.rmdneram.data.model.*
 import com.elvan.rmdneram.ui.components.ExpressivePullToRefreshBox
 import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 
 /**
  * HomeMainLayout - The structural skeleton of the Home Screen.
@@ -128,9 +129,9 @@ fun HomeMainLayout(
                         Column {
                             Text(
                                 text = AppStrings.Home.academicCalendar(lang),
-                                style = HomeTypography.SectionTitle,
-                                color = colors.textPrimary,
-                                modifier = Modifier.padding(bottom = HomeDimens.SpacingMd)
+                                style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                color = colors.textSecondary.copy(alpha = 0.8f),
+                                modifier = Modifier.padding(start = HomeDimens.SpacingLg, bottom = HomeDimens.SectionTitleBottomPadding)
                             )
 
                             androidx.compose.animation.AnimatedContent(

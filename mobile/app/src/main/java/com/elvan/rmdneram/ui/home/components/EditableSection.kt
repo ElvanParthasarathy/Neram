@@ -196,15 +196,18 @@ private fun EditableSectionContent(
     Column {
         // Header row with title and edit button
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = HomeDimens.SectionTitleBottomPadding),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             val ff = com.elvan.rmdneram.ui.theme.LocalAppFontFamily.current
             Text(
                 text = title,
-                style = HomeTypography.SectionTitle.copy(fontFamily = ff),
-                color = colors.textPrimary
+                style = HomeTypography.DateLabel.copy(fontFamily = ff),
+                color = colors.textSecondary.copy(alpha = 0.8f),
+                modifier = Modifier.padding(start = HomeDimens.SpacingLg)
             )
             
             if (canEdit && !isEditing) {

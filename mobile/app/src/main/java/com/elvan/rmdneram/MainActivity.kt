@@ -83,6 +83,7 @@ class MainActivity : ComponentActivity() {
         scheduleDailyAlarm()
 
         super.onCreate(savedInstanceState)
+        window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
         enableEdgeToEdge(
             statusBarStyle = androidx.activity.SystemBarStyle.auto(
                 android.graphics.Color.TRANSPARENT,
@@ -198,7 +199,7 @@ class MainActivity : ComponentActivity() {
                                     .only(WindowInsetsSides.Horizontal)
                                     .asPaddingValues()
                             ),
-                        color = MaterialTheme.colorScheme.background
+                        color = Color.Transparent
                     ) {
                         // Root Navigation State
                         var currentAuthScreen by remember { mutableStateOf("welcome") } // welcome, login, signup

@@ -529,14 +529,15 @@ internal fun ScheduleSection(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = HomeDimens.SpacingSm),
+                .padding(bottom = HomeDimens.SectionTitleBottomPadding),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = AppStrings.Home.schedule(lang),
-                style = HomeTypography.SectionTitle.copy(fontFamily = LocalAppFontFamily.current),
-                color = colors.textPrimary
+                style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                color = colors.textSecondary.copy(alpha = 0.8f),
+                modifier = Modifier.padding(start = HomeDimens.SpacingLg)
             )
             
             // Status Badge - matches .status-badge-small

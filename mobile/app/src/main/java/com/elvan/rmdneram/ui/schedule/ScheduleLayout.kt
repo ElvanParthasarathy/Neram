@@ -41,6 +41,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.ui.graphics.TransformOrigin
 import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
+import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
 
 /**
  * ScheduleLayout - The structural skeleton of the Schedule Screen.
@@ -234,7 +235,8 @@ fun ScheduleMainLayout(
                         val lang = LocalAppLanguage.current
                         Text(
                             text = AppStrings.Schedule.weeklySchedule(lang),
-                            style = HomeTypography.SectionTitle.copy(color = colors.textSecondary)
+                            style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                            color = colors.textSecondary.copy(alpha = 0.8f)
                         )
                         Icon(
                             imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
@@ -299,8 +301,6 @@ fun ScheduleMainLayout(
                 
                 // --- EXAMS TAB ---
                 if (activeTab == "exams") {
-                // --- EXAMS TAB ---
-                if (activeTab == "exams") {
                     item {
                         androidx.compose.animation.AnimatedContent(
                             targetState = selectedDate, // Animate on date change
@@ -362,9 +362,9 @@ fun ScheduleMainLayout(
                                 if (ongoingExams.isNotEmpty()) {
                                     Text(
                                         text = AppStrings.Schedule.ongoingExams(lang),
-                                        style = HomeTypography.SectionTitle,
-                                        color = colors.textPrimary,
-                                        modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 8.dp)
+                                        style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                        color = colors.textSecondary.copy(alpha = 0.8f),
+                                        modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingLg, bottom = HomeDimens.SectionTitleBottomPadding)
                                     )
                                     ongoingExams.forEach { exam ->
                                         Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
@@ -398,9 +398,9 @@ fun ScheduleMainLayout(
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Text(
                                         text = AppStrings.Schedule.upcomingExams(lang),
-                                        style = HomeTypography.SectionTitle,
-                                        color = colors.textPrimary,
-                                        modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 8.dp)
+                                        style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                        color = colors.textSecondary.copy(alpha = 0.8f),
+                                        modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingLg, bottom = HomeDimens.SectionTitleBottomPadding)
                                     )
                                     upcomingExams.forEach { exam ->
                                         Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding, vertical = 12.dp)) {
@@ -439,7 +439,8 @@ fun ScheduleMainLayout(
                                             ) {
                                                 Text(
                                                     text = AppStrings.Schedule.finishedExams(lang),
-                                                    style = HomeTypography.SectionTitle.copy(color = colors.textSecondary)
+                                                    style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                                    color = colors.textSecondary.copy(alpha = 0.8f)
                                                 )
                                                 Icon(
                                                     imageVector = if (isFinishedExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
@@ -469,7 +470,6 @@ fun ScheduleMainLayout(
                             }
                         }
                     }
-                }
                 }
                 
                 // Small spacer before Course Directory
@@ -510,7 +510,8 @@ fun ScheduleMainLayout(
                                 ) {
                                     Text(
                                         text = AppStrings.Schedule.academicCourses(lang),
-                                        style = HomeTypography.SectionTitle.copy(color = colors.textSecondary)
+                                        style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                        color = colors.textSecondary.copy(alpha = 0.8f)
                                     )
                                     Icon(
                                         imageVector = if (isCoursesExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
