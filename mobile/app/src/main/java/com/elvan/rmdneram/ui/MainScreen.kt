@@ -135,17 +135,23 @@ fun MainScreen(
     }
 
     val handleTabSelected: (NavTab, Boolean) -> Unit = { tab, isDrag ->
-        if (selectedTab == tab && !isDrag) {
-            val hasExpanded = selectedTab != NavTab.Calendar && !isInsideNotesFolder
-            val isPastBrink = activeScrollState.firstVisibleItemIndex > 0 || 
-                              activeScrollState.firstVisibleItemScrollOffset > (brinkOffsetPx + 10)
+        if (selectedTab == tab) {
+            val targetScrollState = when (tab) {
+                NavTab.Home -> homeScrollState
+                NavTab.Schedule -> scheduleScrollState
+                NavTab.Calendar -> calendarScrollState
+                NavTab.Notes -> notesScrollState
+            }
+            val hasExpanded = tab != NavTab.Calendar && !isInsideNotesFolder
+            val isPastBrink = targetScrollState.firstVisibleItemIndex > 0 || 
+                              targetScrollState.firstVisibleItemScrollOffset > (brinkOffsetPx + 10)
             scope.launch {
                 if (hasExpanded && isPastBrink) {
                     // 1st Tap: Scroll to top of list at brink wall (header remains collapsed)
-                    activeScrollState.animateScrollToItem(0, brinkOffsetPx)
-                } else if (activeScrollState.firstVisibleItemIndex > 0 || activeScrollState.firstVisibleItemScrollOffset > 5) {
+                    targetScrollState.animateScrollToItem(0, brinkOffsetPx)
+                } else if (targetScrollState.firstVisibleItemIndex > 0 || targetScrollState.firstVisibleItemScrollOffset > 5) {
                     // 2nd Tap (or static screen): Expand header completely to 0.0
-                    activeScrollState.animateScrollToItem(0, 0)
+                    targetScrollState.animateScrollToItem(0, 0)
                 }
             }
         } else {
@@ -536,10 +542,12 @@ fun MainScreen(
                                 isOffline = uiState.isOffline, 
                                 userProfile = uiState.userProfile,
                                 onProfileClick = {},
+                                viewModel = homeViewModel,
                                 pullRefreshState = homePullRefreshState,
                                 scrollState = homeScrollState
                             )
                             NavTab.Schedule -> ScheduleScreen(
+                                viewModel = homeViewModel,
                                 pullRefreshState = schedulePullRefreshState,
                                 scrollState = scheduleScrollState
                             )
