@@ -23,6 +23,7 @@ object HomeDimens {
     // Layout - matches --screen-edge-spacing: 24px
     val ContentPadding = 12.dp
     val ContentPaddingBottom = 120.dp
+    val SubpageContentPaddingBottom = 32.dp
     val ContentPaddingTop = 85.dp
     val ExtraHeaderExpansion = 80.dp // Top padding below status bar
     

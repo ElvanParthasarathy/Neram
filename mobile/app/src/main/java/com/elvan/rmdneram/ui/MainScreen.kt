@@ -59,7 +59,6 @@ import com.elvan.rmdneram.ui.about.DeveloperInfoScreen
 import com.elvan.rmdneram.ui.about.AboutAppScreen
 import com.elvan.rmdneram.ui.about.AboutRMKScreen
 import com.elvan.rmdneram.ui.about.ManagementTeamScreen
-import com.elvan.rmdneram.ui.settings.StorageSettingsScreen
 import com.elvan.rmdneram.ui.settings.NotificationSettingsScreen
 import com.elvan.rmdneram.ui.settings.LanguageSettingsScreen
 import com.elvan.rmdneram.ui.directory.UserDirectoryScreen
@@ -119,8 +118,9 @@ fun MainScreen(
 
     val notesMode by notesViewModel.notesMode.collectAsState()
     val notesDrivePath by notesViewModel.drivePath.collectAsState()
-    val notesFolderDisplay = notesDrivePath.map { it.name }.drop(1)
-    val isInsideNotesFolder = notesMode == "folder" && notesFolderDisplay.isNotEmpty()
+    val notesPath by notesViewModel.path.collectAsState()
+    val notesFolderDisplay = if (notesMode == "folder") notesDrivePath.map { it.name }.drop(1) else notesPath
+    val isInsideNotesFolder = notesFolderDisplay.isNotEmpty()
 
     val density = androidx.compose.ui.platform.LocalDensity.current
     val statusBarTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -336,7 +336,6 @@ fun MainScreen(
                     }
                     currentScreen = settingsReferrer
                 }
-                "storage" -> currentScreen = "settings"
                 "contact" -> currentScreen = "settings"
                 "complaint" -> currentScreen = "settings"
                 "developer" -> currentScreen = "settings"
@@ -353,7 +352,7 @@ fun MainScreen(
                          currentScreen = "settings"
                      }
                 }
-                "profile" -> currentScreen = "settings"
+                "profile" -> currentScreen = profileReferrer
 
                 "neram_calendar" -> currentScreen = "settings"
                 "linked_accounts" -> currentScreen = "security"
@@ -375,7 +374,7 @@ fun MainScreen(
             "profile" -> 2 // Deep nested from Settings
             "linked_accounts" -> 3 // Deep nested from Security
             "notification_settings" -> 2 // Deep nested from Settings
-            else -> 2 // security, display, storage, complaint, developer, calendar_settings, user_directory, neram_calendar
+            else -> 2 // security, display, complaint, developer, calendar_settings, user_directory, neram_calendar
         }
     }
     
@@ -390,7 +389,6 @@ fun MainScreen(
             "contact" -> AppStrings.Settings.contact(lang)
             "security" -> AppStrings.Settings.security(lang)
             "display" -> AppStrings.Settings.display(lang)
-            "storage" -> AppStrings.Settings.storageData(lang)
             "complaint" -> AppStrings.Settings.feedback(lang)
             "developer" -> AppStrings.Settings.aboutDeveloper(lang)
             "language" -> AppStrings.Settings.language(lang)
@@ -516,7 +514,7 @@ fun MainScreen(
                 com.elvan.rmdneram.ui.components.shell.ElvanShell(
                     scrollState = activeScrollState,
                     colors = colors,
-                    showNavbar = !isLandscape,
+                    showNavbar = !isLandscape && !(selectedTab == NavTab.Notes && isInsideNotesFolder),
                     useNewDesign = useNewDesign,
                     title = title,
                     onBack = if (selectedTab == NavTab.Notes && isInsideNotesFolder) {
@@ -633,7 +631,10 @@ fun MainScreen(
                                 onLogout = onLogout, 
                                 isOffline = uiState.isOffline, 
                                 userProfile = uiState.userProfile,
-                                onProfileClick = {},
+                                onProfileClick = {
+                                    profileReferrer = "tabs"
+                                    currentScreen = "profile"
+                                },
                                 viewModel = homeViewModel,
                                 pullRefreshState = homePullRefreshState,
                                 scrollState = homeScrollState
@@ -683,7 +684,7 @@ fun MainScreen(
                 }
             }
                 "profile" -> ProfileScreen( // Editable Profile from Settings
-                    onBack = { currentScreen = "settings" },
+                    onBack = { currentScreen = profileReferrer },
                     homeViewModel = homeViewModel
                 )
                 "sites" -> CollegeSitesScreen(onBack = { currentScreen = "tabs" })
@@ -709,13 +710,13 @@ fun MainScreen(
                         currentScreen = settingsReferrer
                     },
                     onNavigateToProfile = { 
+                        profileReferrer = "settings"
                         currentScreen = "profile" 
                     },
                     onNavigateToSecurity = { currentScreen = "security" },
                     onNavigateToDisplay = { currentScreen = "display" },
                     onNavigateToComplaint = { currentScreen = "complaint" },
                     onNavigateToDeveloper = { currentScreen = "developer" },
-                    onNavigateToStorage = { currentScreen = "storage" },
                     onNavigateToLanguage = { currentScreen = "language" },
                     onNavigateToCalendarSettings = { currentScreen = "calendar_settings" },
                     onNavigateToUserDirectory = { currentScreen = "user_directory" },
@@ -744,12 +745,6 @@ fun MainScreen(
                 "about_app" -> AboutAppScreen(onBack = { currentScreen = "settings" })
                 "about_rmk" -> AboutRMKScreen(onBack = { currentScreen = "settings" })
                 "management_team" -> ManagementTeamScreen(onBack = { currentScreen = "settings" })
-                "storage" -> StorageSettingsScreen(
-                    onCleanupClick = { homeViewModel.cleanupStorage() },
-                    onCleanupRangeClick = { start, end -> homeViewModel.cleanupStorageRange(start, end) },
-                    isOffline = uiState.isOffline,
-                    onBack = { currentScreen = "settings" }
-                )
                 "notification_settings" -> NotificationSettingsScreen(
                     onBack = { currentScreen = "settings" }
                 )
@@ -786,7 +781,7 @@ fun MainScreen(
         
         // Secondary Top Bar (for legacy screens not yet migrated to ElvanSubShell)
         val subShellScreens = setOf(
-            "settings", "security", "display", "storage", "complaint", "developer", 
+            "settings", "security", "display", "complaint", "developer", 
             "language", "calendar_settings", "profile", "notification_settings",
             "about_app", "about_rmk", "management_team", "linked_accounts", "sites", 
             "contact", "user_directory", "notifications", "pdf_viewer"
@@ -797,7 +792,7 @@ fun MainScreen(
                 onBack = {
                     // Navigate back based on current screen
                     when (currentScreen) {
-                        "security", "display", "storage", "complaint", "developer", 
+                        "security", "display", "complaint", "developer", 
                         "language", "calendar_settings", "profile", "notification_settings",
                         "about_app", "about_rmk", "management_team" -> currentScreen = "settings"
                         "linked_accounts" -> currentScreen = "security"

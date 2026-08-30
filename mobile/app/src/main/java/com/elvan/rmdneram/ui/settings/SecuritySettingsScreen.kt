@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.elvan.rmdneram.ui.components.shell.*
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
 import com.elvan.rmdneram.ui.theme.AppStrings
@@ -163,7 +164,7 @@ private fun SecurityHub(
     val hasPasswordProvider = user?.providerData?.any { it.providerId == "password" } ?: false
     val lang = LocalAppLanguage.current
     
-    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+    ElvanSubShell(
         title = AppStrings.Settings.security(lang),
         onBack = onBack,
         scrollState = scrollState,
@@ -172,7 +173,7 @@ private fun SecurityHub(
         androidx.compose.foundation.lazy.LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
             verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
             item(key = "spacer_top") {
@@ -180,79 +181,63 @@ private fun SecurityHub(
             }
 
             item(key = "account_section") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    Column {
-                        Text(
-                            text = AppStrings.Settings.account(lang),
-                            style = HomeTypography.ExamTag,
-                            color = colors.textSecondary,
-                            modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
-                        )
-                        SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                            if (hasPasswordProvider) {
-                                SettingsListItem(
-                                    icon = Icons.Outlined.Key,
-                                    iconBgColor = AppColors.Purple,
-                                    title = AppStrings.Settings.changePassword(lang),
-                                    description = if (lang == AppStrings.TAMIL) "உங்கள் கடவுச்சொல்லை புதுப்பிக்கவும்" else "Update your login password",
-                                    onClick = { onNavigate("password") },
-                                    textColor = colors.textPrimary,
-                                    subTextColor = colors.textSecondary
-                                )
-                            } else {
-                                SettingsListItem(
-                                    icon = Icons.Outlined.Key,
-                                    iconBgColor = AppColors.Purple,
-                                    title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
-                                    description = if (lang == AppStrings.TAMIL) "மின்னஞ்சல் உள்நுழைவுக்கு கடவுச்சொல் அமைக்கவும்" else "Set a password for email login",
-                                    onClick = { onNavigate("create_password") },
-                                    textColor = colors.textPrimary,
-                                    subTextColor = colors.textSecondary
-                                )
-                            }
-                            
-                            HorizontalDivider(
-                                color = colors.glassBorder, 
-                                thickness = 1.dp, 
-                                modifier = Modifier.padding(start = 72.dp, end = 20.dp)
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = AppStrings.Settings.account(lang),
+                        colors = colors
+                    ) {
+                        if (hasPasswordProvider) {
+                            ElvanSettingsRow(
+                                icon = Icons.Outlined.Key,
+                                title = AppStrings.Settings.changePassword(lang),
+                                description = if (lang == AppStrings.TAMIL) "உங்கள் கடவுச்சொல்லை புதுப்பிக்கவும்" else "Update your login password",
+                                onClick = { onNavigate("password") },
+                                colors = colors
                             )
-                            
-                            SettingsListItem(
-                                icon = Icons.Outlined.Link,
-                                iconBgColor = AppColors.Blue,
-                                title = if (lang == AppStrings.TAMIL) "இணைக்கப்பட்ட கணக்குகள்" else "Linked Accounts",
-                                description = if (lang == AppStrings.TAMIL) "Google உள்நுழைவை நிர்வகி" else "Manage Google sign-in",
-                                onClick = { onNavigateToLinkedAccounts() },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary
+                        } else {
+                            ElvanSettingsRow(
+                                icon = Icons.Outlined.Key,
+                                title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
+                                description = if (lang == AppStrings.TAMIL) "மின்னஞ்சல் உள்நுழைவுக்கு கடவுச்சொல் அமைக்கவும்" else "Set a password for email login",
+                                onClick = { onNavigate("create_password") },
+                                colors = colors
                             )
                         }
+                        
+                        ElvanSettingsDivider(colors = colors)
+                        
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Link,
+                            title = if (lang == AppStrings.TAMIL) "இணைக்கப்பட்ட கணக்குகள்" else "Linked Accounts",
+                            description = if (lang == AppStrings.TAMIL) "Google உள்நுழைவை நிர்வகி" else "Manage Google sign-in",
+                            onClick = { onNavigateToLinkedAccounts() },
+                            colors = colors
+                        )
                     }
                 }
             }
 
             item(key = "danger_zone") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    Column {
-                        Text(
-                            text = AppStrings.Settings.dangerZone(lang),
-                            style = HomeTypography.ExamTag,
-                            color = colors.textSecondary,
-                            modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = AppStrings.Settings.dangerZone(lang),
+                        colors = colors
+                    ) {
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Warning,
+                            title = AppStrings.Settings.deleteAccount(lang),
+                            description = if (lang == AppStrings.TAMIL) "உங்கள் கணக்கை நிரந்தரமாக நீக்கு" else "Permanently remove your account",
+                            onClick = { onNavigate("delete") },
+                            titleColor = AppColors.Red,
+                            iconTint = AppColors.Red,
+                            colors = colors
                         )
-                        SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                            SettingsListItem(
-                                icon = Icons.Outlined.Warning,
-                                iconBgColor = AppColors.Red,
-                                title = AppStrings.Settings.deleteAccount(lang),
-                                description = if (lang == AppStrings.TAMIL) "உங்கள் கணக்கை நிரந்தரமாக நீக்கு" else "Permanently remove your account",
-                                onClick = { onNavigate("delete") },
-                                textColor = colors.danger,
-                                subTextColor = colors.textSecondary
-                            )
-                        }
                     }
                 }
+            }
+
+            item(key = "spacer_bottom") {
+                ElvanCollapseSpacer(itemCount = 2, itemHeight = 100.dp)
             }
         }
     }

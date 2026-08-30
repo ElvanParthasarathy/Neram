@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import SettingsHub from "./settings/SettingsHub";
 import DisplaySettings from "./settings/DisplaySettings";
-import StorageSettings from "./settings/StorageSettings";
 import SecuritySettings from "./settings/SecuritySettings";
+import StorageSettings from "../admin/settings/StorageSettings";
 import UserDirectoryView from "./settings/UserDirectoryView";
 import ProfileView from "./settings/ProfileView";
 import FeedbackView from "./settings/FeedbackView";

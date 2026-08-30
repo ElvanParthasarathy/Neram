@@ -1,29 +1,20 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { auth } from "../../../firebase";
 import {
     RiSunLine,
     RiDatabase2Line,
-    RiNotification3Line,
     RiShieldKeyholeLine,
     RiUser3Line,
-    RiFeedbackLine,
-    RiCodeSSlashLine,
     RiBuilding4Line,
     RiUserStarLine,
     RiInformationLine,
     RiUser3Fill,
     RiLogoutBoxRLine,
 } from "react-icons/ri";
-import { SettingsGroup, SettingsDivider, SettingsItem } from "./SettingsShared";
+import { SettingsGroup, SettingsDivider, SettingsItem } from "../../student/settings/SettingsShared";
 
-import { getHardcodedRole } from "../../../data/admins";
-
-const SettingsHub = ({ userProfile, onNavigate }) => {
+const AdminSettingsHub = ({ userProfile, onNavigate }) => {
     const [showSignOut, setShowSignOut] = useState(false);
-
-    const emailRole = auth.currentUser?.email ? getHardcodedRole(auth.currentUser.email) : null;
-    const userRole = emailRole || userProfile?.role || 'student';
-    const isAdmin = userRole === 'super_admin' || userRole === 'faculty' || userRole === 'rep' || userRole === 'admin';
 
     return (
         <>
@@ -43,16 +34,16 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                     )}
                 </div>
                 <div className="s2-profile-text">
-                    <div className="s2-profile-title">Neram Account</div>
+                    <div className="s2-profile-title">Admin Account</div>
                     <div className="s2-profile-sub">
-                        {userProfile?.displayName || "User"}
+                        {userProfile?.displayName || userProfile?.name || "Administrator"}
                     </div>
                 </div>
             </div>
 
             <div className="s2-spacer-md" />
 
-            {/* Group 1: Display & Admin Storage */}
+            {/* Group 1: Display / Storage & Data */}
             <SettingsGroup>
                 <SettingsItem
                     icon={<RiSunLine />}
@@ -61,18 +52,14 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                     desc="Theme, appearance"
                     onClick={() => onNavigate("display")}
                 />
-                {isAdmin && (
-                    <>
-                        <SettingsDivider />
-                        <SettingsItem
-                            icon={<RiDatabase2Line />}
-                            iconColor="orange"
-                            title="Storage & Data"
-                            desc="Manage & erase live updates"
-                            onClick={() => onNavigate("storage")}
-                        />
-                    </>
-                )}
+                <SettingsDivider />
+                <SettingsItem
+                    icon={<RiDatabase2Line />}
+                    iconColor="orange"
+                    title="Storage & Data"
+                    desc="Manage and erase live updates"
+                    onClick={() => onNavigate("storage")}
+                />
             </SettingsGroup>
 
             <div className="s2-spacer-sm" />
@@ -91,18 +78,14 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                     icon={<RiUser3Line />}
                     iconColor="blue"
                     title="User Directory"
-                    desc="View students"
+                    desc="View registered users"
                     onClick={() => onNavigate("directory")}
                 />
             </SettingsGroup>
 
             <div className="s2-spacer-sm" />
 
-
-
-            <div className="s2-spacer-sm" />
-
-            {/* Group 4: About */}
+            {/* Group 3: About */}
             <SettingsGroup>
                 <SettingsItem
                     icon={<RiUserStarLine />}
@@ -131,13 +114,13 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
 
             <div className="s2-spacer-md" />
 
-            {/* Group 5: Sign Out */}
+            {/* Group 4: Sign Out */}
             <SettingsGroup>
                 <SettingsItem
                     icon={<RiLogoutBoxRLine />}
                     iconColor="red"
                     title="Sign Out"
-                    desc="Log out of your account"
+                    desc="Log out of your admin account"
                     onClick={() => setShowSignOut(true)}
                     danger
                 />
@@ -148,7 +131,7 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                 <div className="s2-dialog-overlay" onClick={() => setShowSignOut(false)}>
                     <div className="s2-dialog" onClick={e => e.stopPropagation()}>
                         <div className="s2-dialog-title">Sign Out?</div>
-                        <div className="s2-dialog-text">Are you sure you want to sign out of your account?</div>
+                        <div className="s2-dialog-text">Are you sure you want to sign out of your admin account?</div>
                         <div className="s2-dialog-actions">
                             <button
                                 className="s2-dialog-btn cancel"
@@ -166,9 +149,8 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                     </div>
                 </div>
             )}
-
         </>
     );
 };
 
-export default SettingsHub;
+export default AdminSettingsHub;

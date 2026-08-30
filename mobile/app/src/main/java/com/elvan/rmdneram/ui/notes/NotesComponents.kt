@@ -86,22 +86,17 @@ fun FolderList(
     onBackClick: () -> Unit = {},
     onClick: (String) -> Unit
 ) {
+    val isSubpage = path.isNotEmpty()
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            bottom = HomeDimens.ContentPaddingBottom
+            bottom = if (isSubpage) HomeDimens.SubpageContentPaddingBottom else HomeDimens.ContentPaddingBottom
         ),
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
         item(key = "spacer_top") {
             Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
-        }
-
-        if (path.isNotEmpty()) {
-            item(key = "breadcrumb_header") {
-                NotesBreadcrumbHeader(path = path, colors = colors, onBackClick = onBackClick)
-            }
         }
 
         items(items, key = { it }) { item ->
@@ -111,8 +106,7 @@ fun FolderList(
         }
 
         item(key = "dynamic_collapse_spacer") {
-            val totalItemCount = items.size + (if (path.isNotEmpty()) 1 else 0)
-            ElvanCollapseSpacer(itemCount = totalItemCount)
+            ElvanCollapseSpacer(itemCount = items.size, isSubpage = isSubpage)
         }
     }
 }
@@ -171,22 +165,17 @@ fun FilesList(
     onLinkClick: (String) -> Unit,
     onNotUploaded: () -> Unit = {}
 ) {
+    val isSubpage = path.isNotEmpty()
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            bottom = HomeDimens.ContentPaddingBottom
+            bottom = if (isSubpage) HomeDimens.SubpageContentPaddingBottom else HomeDimens.ContentPaddingBottom
         ),
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
         item(key = "spacer_top") {
             Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
-        }
-
-        if (path.isNotEmpty()) {
-            item(key = "breadcrumb_header") {
-                NotesBreadcrumbHeader(path = path, colors = colors, onBackClick = onBackClick)
-            }
         }
 
         items(subjects, key = { it.name }) { subject ->
@@ -196,8 +185,7 @@ fun FilesList(
         }
 
         item(key = "dynamic_collapse_spacer") {
-            val totalItemCount = subjects.size + (if (path.isNotEmpty()) 1 else 0)
-            ElvanCollapseSpacer(itemCount = totalItemCount)
+            ElvanCollapseSpacer(itemCount = subjects.size, isSubpage = isSubpage)
         }
     }
 }
@@ -367,22 +355,17 @@ fun DriveList(
     onFolderClick: (com.elvan.rmdneram.data.model.DriveFolder) -> Unit,
     onFileClick: (com.elvan.rmdneram.data.model.DriveFile) -> Unit
 ) {
+    val isSubpage = path.isNotEmpty()
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
-            bottom = HomeDimens.ContentPaddingBottom
+            bottom = if (isSubpage) HomeDimens.SubpageContentPaddingBottom else HomeDimens.ContentPaddingBottom
         ),
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
         item(key = "spacer_top") {
             Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
-        }
-
-        if (path.isNotEmpty()) {
-            item(key = "breadcrumb_header") {
-                NotesBreadcrumbHeader(path = path, colors = colors, onBackClick = onBackClick)
-            }
         }
 
         items(folders, key = { it.id }) { folder ->
@@ -414,8 +397,8 @@ fun DriveList(
         }
 
         item(key = "dynamic_collapse_spacer") {
-            val totalItemCount = folders.size + files.size + subjects.size + (if (path.isNotEmpty()) 1 else 0)
-            ElvanCollapseSpacer(itemCount = totalItemCount)
+            val totalItemCount = folders.size + files.size + subjects.size
+            ElvanCollapseSpacer(itemCount = totalItemCount, isSubpage = isSubpage)
         }
     }
 }

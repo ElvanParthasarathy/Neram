@@ -108,7 +108,7 @@ fun UserDirectoryScreen(
         LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingBottom),
+            contentPadding = PaddingValues(bottom = com.elvan.rmdneram.ui.home.HomeDimens.SubpageContentPaddingBottom),
             verticalArrangement = Arrangement.spacedBy(com.elvan.rmdneram.ui.home.HomeDimens.SectionSpacing)
         ) {
             item(key = "spacer_top") {
@@ -124,6 +124,10 @@ fun UserDirectoryScreen(
                         onPathChange = onDirectoryPathChange
                     )
                 }
+            }
+
+            item(key = "spacer_bottom") {
+                com.elvan.rmdneram.ui.components.shell.ElvanCollapseSpacer(itemCount = 4, itemHeight = 70.dp)
             }
         }
     }

@@ -41,7 +41,7 @@ fun AboutRMKScreen(
         androidx.compose.foundation.lazy.LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
             verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
             item(key = "spacer_top") {
@@ -226,6 +226,10 @@ fun AboutRMKScreen(
                         }
                     }
                 }
+            }
+
+            item(key = "spacer_bottom") {
+                com.elvan.rmdneram.ui.components.shell.ElvanCollapseSpacer(itemCount = 8, itemHeight = 80.dp)
             }
         }
     }

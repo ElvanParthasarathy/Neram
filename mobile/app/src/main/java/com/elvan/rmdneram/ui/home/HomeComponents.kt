@@ -153,7 +153,14 @@ internal fun PageHeader(
                             Surface(
                                 shape = CircleShape,
                                 color = colors.subtleBackground,
-                                modifier = Modifier.size(HomeDimens.AvatarSize)
+                                modifier = Modifier
+                                    .size(HomeDimens.AvatarSize)
+                                    .clip(CircleShape)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = ripple(color = if (colors.isDark) Color.White.copy(alpha = 0.20f) else Color.Black.copy(alpha = 0.10f), bounded = true),
+                                        onClick = onProfileClick
+                                    )
                             ) {
                                 val photoUrl = userProfile.photoURL
                                 

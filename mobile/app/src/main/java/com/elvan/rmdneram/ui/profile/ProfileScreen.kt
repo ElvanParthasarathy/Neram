@@ -209,7 +209,7 @@ fun ProfileScreen(
             LazyColumn(
                 state = scrollState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+                contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
                 item(key = "spacer_top") {
@@ -622,6 +622,10 @@ fun ProfileScreen(
                         }
                     }
                 }
+            }
+
+            item(key = "spacer_bottom") {
+                com.elvan.rmdneram.ui.components.shell.ElvanCollapseSpacer(itemCount = 6, itemHeight = 90.dp)
             }
         }
     }

@@ -314,9 +314,9 @@ fun ElvanShell(
         }
 
         // Layer 4: Bottom Fade Mask and Navbar
+        val navBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        
         if (showNavbar) {
-            val navBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-            
             // Fade mask is ALWAYS present when showNavbar is true
             Box(
                 modifier = Modifier
@@ -342,6 +342,22 @@ fun ElvanShell(
             ) {
                 navbar()
             }
+        } else {
+            // Subpages (Settings, Profile, etc.) — Fade mask over system navigation bar
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(56.dp + navBarsPadding)
+                    .background(
+                        Brush.verticalGradient(
+                            0.0f to Color.Transparent,
+                            0.35f to colors.background.copy(alpha = 0.25f),
+                            0.7f to colors.background.copy(alpha = 0.70f),
+                            1.0f to colors.background
+                        )
+                    )
+            )
         }
     }
 }
@@ -405,20 +421,21 @@ fun Modifier.elvanCollapseMinHeight(): Modifier {
  */
 @Composable
 fun ElvanCollapseSpacer(
-    itemCount: Int,
+    itemCount: Int = 0,
     itemHeight: androidx.compose.ui.unit.Dp = 80.dp,
-    extraHeight: androidx.compose.ui.unit.Dp = 0.dp
+    extraHeight: androidx.compose.ui.unit.Dp = 0.dp,
+    isSubpage: Boolean = true
 ) {
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val collapsedHeaderHeight = statusBarHeight + 20.dp + 50.dp
-    val bottomNavHeight = com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingBottom
+    val bottomPadding = if (isSubpage) com.elvan.rmdneram.ui.home.HomeDimens.SubpageContentPaddingBottom else com.elvan.rmdneram.ui.home.HomeDimens.ContentPaddingBottom
     
-    val targetContentArea = screenHeight - collapsedHeaderHeight - bottomNavHeight
+    val minRequiredContentHeight = screenHeight - collapsedHeaderHeight - bottomPadding
     val estimatedContentHeight = (itemCount * itemHeight.value).dp + extraHeight
     
-    val neededSpacer = (targetContentArea - estimatedContentHeight).coerceAtLeast(0.dp)
+    val neededSpacer = (minRequiredContentHeight - estimatedContentHeight).coerceAtLeast(0.dp)
     if (neededSpacer > 0.dp) {
         Spacer(modifier = Modifier.height(neededSpacer))
     }

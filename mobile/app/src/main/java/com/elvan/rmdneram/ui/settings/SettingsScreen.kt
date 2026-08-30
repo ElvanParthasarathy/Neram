@@ -1,49 +1,26 @@
 package com.elvan.rmdneram.ui.settings
 
-import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.automirrored.outlined.*
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.elvan.rmdneram.ui.home.*
-import com.elvan.rmdneram.ui.navigation.CustomIcons
-import com.elvan.rmdneram.ui.theme.AppColors
-import com.elvan.rmdneram.ui.theme.LocalAppFontFamily
-import com.elvan.rmdneram.ui.theme.LocalAppLanguage
-import com.elvan.rmdneram.ui.theme.AppStrings
-import com.elvan.rmdneram.ui.theme.ElvanSansFontFamily
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.elvan.rmdneram.data.model.UserProfile
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import androidx.compose.ui.layout.ContentScale
+import com.elvan.rmdneram.ui.components.shell.*
+import com.elvan.rmdneram.ui.home.*
+import com.elvan.rmdneram.ui.theme.AppColors
+import com.elvan.rmdneram.ui.theme.AppStrings
+import com.elvan.rmdneram.ui.theme.LocalAppLanguage
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     userRole: String? = null,
@@ -54,7 +31,6 @@ fun SettingsScreen(
     onNavigateToDisplay: () -> Unit,
     onNavigateToComplaint: () -> Unit,
     onNavigateToDeveloper: () -> Unit,
-    onNavigateToStorage: () -> Unit,
     onNavigateToLanguage: () -> Unit,
     onNavigateToCalendarSettings: () -> Unit,
     onNavigateToUserDirectory: () -> Unit,
@@ -63,87 +39,68 @@ fun SettingsScreen(
     onNavigateToAboutRMK: () -> Unit,
     onNavigateToNotifications: () -> Unit = {},
     onLogout: () -> Unit = {},
-    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
     val lang = LocalAppLanguage.current
     
     var showLogoutDialog by remember { mutableStateOf(false) }
 
-    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+    ElvanSubShell(
         title = AppStrings.Settings.title(lang),
         onBack = onBack,
         scrollState = scrollState,
         colors = colors
     ) {
-        androidx.compose.foundation.lazy.LazyColumn(
+        LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
             verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
             item(key = "spacer_top") {
                 Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
             }
 
-            // 1. Profile Card
+            // 1. Mode Switcher & Profile (Big Pill)
             item(key = "profile_card") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    OneUIProfileCard(
-                        name = userProfile?.displayName ?: "User",
-                        email = AppStrings.Settings.neramAccount(lang),
+                ElvanSectionContainer {
+                    ElvanProfilePillCard(
+                        title = AppStrings.Settings.neramAccount(lang),
+                        subtitle = userProfile?.displayName ?: "User",
                         photoUrl = userProfile?.photoURL,
                         onClick = onNavigateToProfile,
-                        cardColor = colors.surface,
-                        borderColor = colors.glassBorder,
-                        textColor = colors.textPrimary,
-                        subTextColor = colors.textSecondary
+                        colors = colors
                     )
                 }
             }
 
-            // 2. Settings Group: Display, Language, Storage, Notifications
+            // 2. Settings Group: User & Display & System Preferences
             item(key = "display_group") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                        SettingsListItem(
+                ElvanSectionContainer {
+                    ElvanSettingsSection(colors = colors) {
+                        ElvanSettingsRow(
                             icon = Icons.Outlined.Brightness6,
-                            iconBgColor = AppColors.Green,
                             title = AppStrings.Settings.display(lang),
                             description = AppStrings.Settings.displayDesc(lang),
                             onClick = onNavigateToDisplay,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
+                            colors = colors
                         )
-                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                        SettingsListItem(
+                        ElvanSettingsDivider(colors = colors)
+                        ElvanSettingsRow(
                             icon = Icons.Outlined.Language,
-                            iconBgColor = AppColors.Blue,
                             title = AppStrings.Settings.language(lang),
                             description = AppStrings.Settings.languageDesc(lang),
                             onClick = onNavigateToLanguage,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
+                            colors = colors
                         )
-                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                        SettingsListItem(
-                            icon = Icons.Outlined.Storage,
-                            iconBgColor = AppColors.Orange,
-                            title = AppStrings.Settings.storageData(lang),
-                            description = AppStrings.Settings.storageDesc(lang),
-                            onClick = onNavigateToStorage,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
-                        )
-                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                        SettingsListItem(
+                        ElvanSettingsDivider(colors = colors)
+                        ElvanSettingsRow(
                             icon = Icons.Outlined.Notifications,
-                            iconBgColor = AppColors.Purple,
                             title = AppStrings.Settings.pushNotifications(lang),
                             description = AppStrings.Settings.notificationTimings(lang),
                             onClick = onNavigateToNotifications,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
+                            colors = colors
                         )
                     }
                 }
@@ -151,63 +108,53 @@ fun SettingsScreen(
 
             // 3. Settings Group: Account & Directory
             item(key = "account_group") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                        SettingsListItem(
-                            icon = Icons.Outlined.Security,
-                            iconBgColor = AppColors.Purple,
+                ElvanSectionContainer {
+                    ElvanSettingsSection(colors = colors) {
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Lock,
                             title = AppStrings.Settings.security(lang),
                             description = AppStrings.Settings.securityDesc(lang),
                             onClick = onNavigateToSecurity,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
+                            colors = colors
                         )
-                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                        SettingsListItem(
-                            icon = Icons.Default.Person,
-                            iconBgColor = AppColors.Blue,
+                        ElvanSettingsDivider(colors = colors)
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Person,
                             title = AppStrings.Settings.userDirectory(lang),
-                            description = "",
+                            description = if (lang == AppStrings.TAMIL) "மாணவர்கள் & ஆசிரியர்கள் அடைவு" else "Students & faculty directory",
                             onClick = onNavigateToUserDirectory,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
+                            colors = colors
                         )
                     }
                 }
             }
 
-            // 4. Settings Group: About
+            // 4. Settings Group: About & Institution
             item(key = "about_group") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                        SettingsListItem(
-                            icon = Icons.Outlined.Group,
-                            iconBgColor = AppColors.Purple,
+                ElvanSectionContainer {
+                    ElvanSettingsSection(colors = colors) {
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Groups,
                             title = AppStrings.Settings.managementTeam(lang),
                             description = if (lang == AppStrings.TAMIL) "நிறுவனர்கள் & இயக்குநர் குழு" else "Founders & Board of Directors",
                             onClick = onNavigateToManagementTeam,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
+                            colors = colors
                         )
-                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                        SettingsListItem(
+                        ElvanSettingsDivider(colors = colors)
+                        ElvanSettingsRow(
                             icon = Icons.Outlined.AccountBalance,
-                            iconBgColor = AppColors.Green,
                             title = AppStrings.Settings.aboutRmk(lang),
                             description = if (lang == AppStrings.TAMIL) "பார்வை, பணி & அடையாளம்" else "Vision, Mission & Identity",
                             onClick = onNavigateToAboutRMK,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
+                            colors = colors
                         )
-                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                        SettingsListItem(
+                        ElvanSettingsDivider(colors = colors)
+                        ElvanSettingsRow(
                             icon = Icons.Outlined.Info,
-                            iconBgColor = AppColors.Blue,
                             title = AppStrings.Settings.aboutApp(lang),
                             description = AppStrings.Settings.aboutAppDesc(lang),
                             onClick = onNavigateToAboutApp,
-                            textColor = colors.textPrimary,
-                            subTextColor = colors.textSecondary
+                            colors = colors
                         )
                     }
                 }
@@ -215,43 +162,48 @@ fun SettingsScreen(
 
             // 5. Settings Group: Account Session
             item(key = "session_group") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    SettingsListGroup(cardColor = colors.surface, borderColor = colors.glassBorder) {
-                        SettingsListItem(
+                ElvanSectionContainer {
+                    ElvanSettingsSection(colors = colors) {
+                        ElvanSettingsRow(
                             icon = Icons.AutoMirrored.Outlined.Logout,
-                            iconBgColor = AppColors.Red,
                             title = AppStrings.Settings.signOut(lang),
                             description = if (lang == AppStrings.TAMIL) "நேரம் கணக்கிலிருந்து வெளியேறு" else "Log out of your Neram account",
                             onClick = { showLogoutDialog = true },
-                            textColor = AppColors.Red,
-                            subTextColor = colors.textSecondary
+                            titleColor = AppColors.Red,
+                            iconTint = AppColors.Red,
+                            colors = colors
                         )
                     }
                 }
             }
 
             item(key = "dynamic_collapse_spacer") {
-                com.elvan.rmdneram.ui.components.shell.ElvanCollapseSpacer(itemCount = 5, itemHeight = 160.dp)
+                ElvanCollapseSpacer(itemCount = 5, itemHeight = 160.dp)
             }
         }
     }
     
     if (showLogoutDialog) {
+        val isDark = colors.isDark
+        val dialogCardColor = if (isDark) Color(0xFF111111) else Color.White
+        val cancelBtnBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            containerColor = colors.surface,
+            containerColor = dialogCardColor,
+            shape = RoundedCornerShape(24.dp),
             title = {
                 Text(
                     AppStrings.Settings.signOutConfirm(lang),
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, fontSize = 20.sp),
                     color = colors.textPrimary
                 )
             },
             text = {
                 Text(
                     AppStrings.Settings.signOutMessage(lang),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.textSecondary
+                    style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
+                    color = colors.textPrimary.copy(alpha = 0.6f)
                 )
             },
             confirmButton = {
@@ -264,175 +216,25 @@ fun SettingsScreen(
                         containerColor = AppColors.Red,
                         contentColor = Color.White
                     ),
-                    shape = RoundedCornerShape(50), // Pill shape
+                    shape = RoundedCornerShape(50),
                     elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
                     Text(AppStrings.Settings.signOut(lang), fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
-                 FilledTonalButton(
+                FilledTonalButton(
                     onClick = { showLogoutDialog = false },
                     colors = ButtonDefaults.filledTonalButtonColors(
-                        containerColor = colors.subtleBackground,
+                        containerColor = cancelBtnBg,
                         contentColor = colors.textPrimary
                     ),
-                    shape = RoundedCornerShape(50), // Pill shape
+                    shape = RoundedCornerShape(50),
                     elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
                     Text(AppStrings.Home.cancel(lang), fontWeight = FontWeight.SemiBold)
                 }
             }
         )
-    }
-    // } // Scaffold removed
-}
-
-@Composable
-fun OneUIProfileCard(
-    name: String,
-    email: String,
-    photoUrl: String? = null,
-    onClick: () -> Unit,
-    cardColor: Color,
-    borderColor: Color,
-    textColor: Color,
-    subTextColor: Color
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(100.dp)) // Big Pill Shape for outer ripples
-            .clickable { onClick() },
-        shape = RoundedCornerShape(100.dp), // Explicit Big Pill
-        color = cardColor,
-        shadowElevation = 0.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(12.dp), // HeaderPillPadding
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Profile Picture (Left Side) - Matches PageHeader
-            Surface(
-                shape = CircleShape,
-                color = subTextColor.copy(alpha=0.1f), 
-                modifier = Modifier.size(56.dp) // HomeDimens.AvatarSize
-            ) {
-                 if (photoUrl != null) {
-                     AsyncImage(
-                         model = ImageRequest.Builder(LocalContext.current)
-                             .data(photoUrl)
-                             .crossfade(true)
-                             .build(),
-                         contentDescription = "Profile",
-                         modifier = Modifier.fillMaxSize(),
-                         contentScale = ContentScale.Crop
-                     )
-                 } else {
-                     Box(contentAlignment = Alignment.Center) {
-                         Icon(
-                             Icons.Filled.Person, 
-                             contentDescription = null, 
-                             tint = textColor,
-                             modifier = Modifier.size(28.dp)
-                         )
-                     }
-                 }
-            }
-            
-            Spacer(modifier = Modifier.width(16.dp)) // HomeDimens.SpacingXl
-
-            Column(modifier = Modifier.weight(1f)) {
-                // Top Text: "Neram Account" (Bold, Large)
-                Text(
-                    text = AppStrings.Settings.neramAccount(LocalAppLanguage.current),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold, 
-                        fontSize = 20.sp // Match PageHeader "Welcome" size
-                    ),
-                    color = textColor
-                )
-                // Bottom Text: User Name (Grey, Smaller)
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 14.sp
-                    ),
-                    color = subTextColor,
-                    maxLines = 1
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun SettingsListGroup(
-    cardColor: Color,
-    borderColor: Color = Color.Transparent, // Kept for compatibility, but not used
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(HomeShapes.Item) // Match Home Screen Radius
-            .background(cardColor)
-            // No border - flat design matching Home screen
-    ) {
-        content()
-    }
-}
-
-@Composable
-fun SettingsListItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    iconBgColor: Color,
-    title: String,
-    description: String,
-    onClick: () -> Unit,
-    textColor: Color,
-    subTextColor: Color
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Colored Icon Circle
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(iconBgColor),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                icon, 
-                null, 
-                tint = Color.White, 
-                modifier = Modifier.size(20.dp)
-            )
-        }
-        
-        Spacer(modifier = Modifier.width(16.dp))
-        
-        Column(modifier = Modifier.weight(1f)) {
-            val ff = LocalAppFontFamily.current
-            Text(
-                title, 
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium, fontFamily = ff), 
-                color = textColor
-            )
-            if (description.isNotEmpty()) {
-                Text(
-                    description, 
-                    style = MaterialTheme.typography.bodySmall.copy(fontFamily = ff), 
-                    color = subTextColor
-                )
-            }
-        }
     }
 }

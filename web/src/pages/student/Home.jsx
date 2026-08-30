@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 import { ref, update, onValue } from "firebase/database";
 import "../../styles/student/home.css";
@@ -31,6 +32,7 @@ const Home = ({
     activeProfile,
     hideHeader = false,
 }) => {
+    const navigate = useNavigate();
     // ---------- STATE ----------
     const [currentDate, setCurrentDate] = useState(new Date());
     const { masterData = {}, allCalendar = [], sectionUpdates = {}, isSyncing } =
@@ -375,7 +377,12 @@ const Home = ({
                             <div className="h2-profile-section">
                                 <div className="h2-section-title">Profile</div>
                                 <div className="h2-profile-pill">
-                                    <div className="h2-avatar">
+                                    <div 
+                                        className="h2-avatar"
+                                        style={{ cursor: "pointer" }}
+                                        onClick={() => navigate("/settings#profile")}
+                                        title="Profile Settings"
+                                    >
                                         {userProfile?.photoURL ? (
                                             <img
                                                 src={userProfile.photoURL}

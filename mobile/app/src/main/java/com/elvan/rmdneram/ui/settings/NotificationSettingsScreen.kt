@@ -1,36 +1,33 @@
 package com.elvan.rmdneram.ui.settings
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.elvan.rmdneram.ui.components.shell.*
 import com.elvan.rmdneram.ui.home.*
-import com.elvan.rmdneram.ui.theme.AppColors
 import com.elvan.rmdneram.ui.theme.AppStrings
 import com.elvan.rmdneram.ui.theme.LocalAppLanguage
-import androidx.compose.foundation.clickable
 import com.elvan.rmdneram.utils.AlarmScheduler
-import java.util.Calendar
 import java.util.Locale
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.material3.TimePickerState
 
 /**
  * Notification Settings Screen for controlling notification channels and preferences.
@@ -39,7 +36,7 @@ import androidx.compose.material3.TimePickerState
 @Composable
 fun NotificationSettingsScreen(
     onBack: () -> Unit = {},
-    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = rememberLazyListState()
 ) {
     val context = LocalContext.current
     val colors = rememberHomeColors()
@@ -119,16 +116,16 @@ fun NotificationSettingsScreen(
         }
     }
 
-    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+    ElvanSubShell(
         title = AppStrings.Settings.notificationSettings(lang),
         onBack = onBack,
         scrollState = scrollState,
         colors = colors
     ) {
-        androidx.compose.foundation.lazy.LazyColumn(
+        LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
             verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
             item(key = "spacer_top") {
@@ -136,228 +133,303 @@ fun NotificationSettingsScreen(
             }
 
             item(key = "push_notifications") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    Column {
-                        // Section: Push Notifications
-                        Text(
-                            text = AppStrings.Settings.pushNotifications(lang),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = colors.textSecondary,
-                            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = AppStrings.Settings.pushNotifications(lang),
+                        colors = colors
+                    ) {
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Article,
+                            title = if (lang == AppStrings.TAMIL) "தினசரி புதுப்பிப்புகள்" else "Daily Updates",
+                            description = if (lang == AppStrings.TAMIL) "தினசரி வகுப்பு குறிப்புகள் & கல்வி புதுப்பிப்புகள்" else "Daily class notes & academic updates",
+                            onClick = {
+                                val next = !dailyUpdateEnabled
+                                dailyUpdateEnabled = next
+                                prefs.edit().putBoolean("daily_update", next).apply()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = dailyUpdateEnabled,
+                                    onCheckedChange = {
+                                        dailyUpdateEnabled = it
+                                        prefs.edit().putBoolean("daily_update", it).apply()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
                         )
-                        
-                        SettingsListGroup(cardColor = colors.surface) {
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.Article,
-                                iconBgColor = AppColors.Orange,
-                                title = if (lang == AppStrings.TAMIL) "தினசரி புதுப்பிப்புகள்" else "Daily Updates",
-                                description = if (lang == AppStrings.TAMIL) "தினசரி வகுப்பு குறிப்புகள் & கல்வி புதுப்பிப்புகள்" else "Daily class notes & academic updates",
-                                checked = dailyUpdateEnabled,
-                                onCheckedChange = {
-                                    dailyUpdateEnabled = it
-                                    prefs.edit().putBoolean("daily_update", it).apply()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        ElvanSettingsDivider(colors = colors)
 
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.Campaign,
-                                iconBgColor = AppColors.Blue,
-                                title = if (lang == AppStrings.TAMIL) "பொது அறிவிப்புகள்" else "General Notices",
-                                description = if (lang == AppStrings.TAMIL) "கல்லூரியின் பொது அறிவிப்புகள்" else "General announcements from college",
-                                checked = generalNoticeEnabled,
-                                onCheckedChange = {
-                                    generalNoticeEnabled = it
-                                    prefs.edit().putBoolean("general_notice", it).apply()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Campaign,
+                            title = if (lang == AppStrings.TAMIL) "பொது அறிவிப்புகள்" else "General Notices",
+                            description = if (lang == AppStrings.TAMIL) "கல்லூரியின் பொது அறிவிப்புகள்" else "General announcements from college",
+                            onClick = {
+                                val next = !generalNoticeEnabled
+                                generalNoticeEnabled = next
+                                prefs.edit().putBoolean("general_notice", next).apply()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = generalNoticeEnabled,
+                                    onCheckedChange = {
+                                        generalNoticeEnabled = it
+                                        prefs.edit().putBoolean("general_notice", it).apply()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
+                        )
+                        ElvanSettingsDivider(colors = colors)
 
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.ViewTimeline,
-                                iconBgColor = AppColors.Green,
-                                title = if (lang == AppStrings.TAMIL) "வகுப்பு அட்டவணை" else "Class Schedule",
-                                description = if (lang == AppStrings.TAMIL) "இன்றைய நேர அட்டவணை மற்றும் பாடங்கள்" else "Today's timetable and subjects",
-                                checked = classScheduleEnabled,
-                                onCheckedChange = {
-                                    classScheduleEnabled = it
-                                    prefs.edit().putBoolean("class_schedule", it).apply()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.ViewTimeline,
+                            title = if (lang == AppStrings.TAMIL) "வகுப்பு அட்டவணை" else "Class Schedule",
+                            description = if (lang == AppStrings.TAMIL) "இன்றைய நேர அட்டவணை மற்றும் பாடங்கள்" else "Today's timetable and subjects",
+                            onClick = {
+                                val next = !classScheduleEnabled
+                                classScheduleEnabled = next
+                                prefs.edit().putBoolean("class_schedule", next).apply()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = classScheduleEnabled,
+                                    onCheckedChange = {
+                                        classScheduleEnabled = it
+                                        prefs.edit().putBoolean("class_schedule", it).apply()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
+                        )
+                        ElvanSettingsDivider(colors = colors)
 
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.Science,
-                                iconBgColor = AppColors.Teal,
-                                title = "Lab Reminders",
-                                description = "Batch-specific labs and labcoat alerts",
-                                checked = labRemindersEnabled,
-                                onCheckedChange = {
-                                    labRemindersEnabled = it
-                                    prefs.edit().putBoolean("lab_reminders", it).apply()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Science,
+                            title = "Lab Reminders",
+                            description = "Batch-specific labs and labcoat alerts",
+                            onClick = {
+                                val next = !labRemindersEnabled
+                                labRemindersEnabled = next
+                                prefs.edit().putBoolean("lab_reminders", next).apply()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = labRemindersEnabled,
+                                    onCheckedChange = {
+                                        labRemindersEnabled = it
+                                        prefs.edit().putBoolean("lab_reminders", it).apply()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
+                        )
+                        ElvanSettingsDivider(colors = colors)
 
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.AutoStories,
-                                iconBgColor = AppColors.Yellow,
-                                title = "Study Reminders",
-                                description = "Motivation for upcoming exams",
-                                checked = studyRemindersEnabled,
-                                onCheckedChange = {
-                                    studyRemindersEnabled = it
-                                    prefs.edit().putBoolean("study_reminders", it).apply()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                            
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.School,
-                                iconBgColor = AppColors.Red,
-                                title = "Exam Alerts",
-                                description = "Reminders for Today / Tomorrow exams",
-                                checked = examAlertsEnabled,
-                                onCheckedChange = {
-                                    examAlertsEnabled = it
-                                    prefs.edit().putBoolean("exam_alerts", it).apply()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                            
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.CalendarMonth,
-                                iconBgColor = AppColors.Pink,
-                                title = "Event Reminders",
-                                description = "Holidays and special events",
-                                checked = eventRemindersEnabled,
-                                onCheckedChange = {
-                                    eventRemindersEnabled = it
-                                    prefs.edit().putBoolean("event_reminders", it).apply()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                            
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.NotificationsActive,
-                                iconBgColor = AppColors.Purple,
-                                title = "Instant Alerts",
-                                description = "Critical instant announcements",
-                                checked = instantAlertsEnabled,
-                                onCheckedChange = {
-                                    instantAlertsEnabled = it
-                                    prefs.edit().putBoolean("instant_alerts", it).apply()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                        }
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.AutoStories,
+                            title = "Study Reminders",
+                            description = "Motivation for upcoming exams",
+                            onClick = {
+                                val next = !studyRemindersEnabled
+                                studyRemindersEnabled = next
+                                prefs.edit().putBoolean("study_reminders", next).apply()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = studyRemindersEnabled,
+                                    onCheckedChange = {
+                                        studyRemindersEnabled = it
+                                        prefs.edit().putBoolean("study_reminders", it).apply()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
+                        )
+                        ElvanSettingsDivider(colors = colors)
+
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.School,
+                            title = "Exam Alerts",
+                            description = "Reminders for Today / Tomorrow exams",
+                            onClick = {
+                                val next = !examAlertsEnabled
+                                examAlertsEnabled = next
+                                prefs.edit().putBoolean("exam_alerts", next).apply()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = examAlertsEnabled,
+                                    onCheckedChange = {
+                                        examAlertsEnabled = it
+                                        prefs.edit().putBoolean("exam_alerts", it).apply()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
+                        )
+                        ElvanSettingsDivider(colors = colors)
+
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.CalendarMonth,
+                            title = "Event Reminders",
+                            description = "Holidays and special events",
+                            onClick = {
+                                val next = !eventRemindersEnabled
+                                eventRemindersEnabled = next
+                                prefs.edit().putBoolean("event_reminders", next).apply()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = eventRemindersEnabled,
+                                    onCheckedChange = {
+                                        eventRemindersEnabled = it
+                                        prefs.edit().putBoolean("event_reminders", it).apply()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
+                        )
+                        ElvanSettingsDivider(colors = colors)
+
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.NotificationsActive,
+                            title = "Instant Alerts",
+                            description = "Critical instant announcements",
+                            onClick = {
+                                val next = !instantAlertsEnabled
+                                instantAlertsEnabled = next
+                                prefs.edit().putBoolean("instant_alerts", next).apply()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = instantAlertsEnabled,
+                                    onCheckedChange = {
+                                        instantAlertsEnabled = it
+                                        prefs.edit().putBoolean("instant_alerts", it).apply()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
+                        )
                     }
                 }
             }
 
             item(key = "notification_timings") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    Column {
-                        // Section: Notification Timings
-                        Text(
-                            text = AppStrings.Settings.notificationTimings(lang),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                            color = colors.textSecondary,
-                            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = AppStrings.Settings.notificationTimings(lang),
+                        colors = colors
+                    ) {
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Schedule,
+                            title = "Use Custom Times",
+                            description = if (useCustomTimes) "Using 3 custom alarm times" else "Using default college timings",
+                            onClick = {
+                                val next = !useCustomTimes
+                                useCustomTimes = next
+                                prefs.edit().putBoolean("use_custom_times", next).apply()
+                                refreshAlarms()
+                            },
+                            customTrailing = {
+                                ElvanSettingsSwitch(
+                                    checked = useCustomTimes,
+                                    onCheckedChange = {
+                                        useCustomTimes = it
+                                        prefs.edit().putBoolean("use_custom_times", it).apply()
+                                        refreshAlarms()
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            colors = colors
                         )
-                        
-                        SettingsListGroup(cardColor = colors.surface) {
-                            NotificationToggleItem(
-                                icon = Icons.Outlined.Schedule,
-                                iconBgColor = AppColors.Teal,
-                                title = "Use Custom Times",
-                                description = if (useCustomTimes) "Using 3 custom alarm times" else "Using default college timings",
-                                checked = useCustomTimes,
-                                onCheckedChange = {
-                                    useCustomTimes = it
-                                    prefs.edit().putBoolean("use_custom_times", it).apply()
-                                    refreshAlarms()
-                                },
-                                textColor = colors.textPrimary,
-                                subTextColor = colors.textSecondary,
-                                accentColor = colors.accent
-                            )
-                            
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                            
-                            // Render 3 Timing Rows
-                            val slots = listOf(
-                                Triple("Morning Wake", if (useCustomTimes) customTime1Hour else 5, if (useCustomTimes) customTime1Minute else 30),
-                                Triple("Pre-College", if (useCustomTimes) customTime2Hour else 6, if (useCustomTimes) customTime2Minute else 30),
-                                Triple("College Entry", if (useCustomTimes) customTime3Hour else 7, if (useCustomTimes) customTime3Minute else 30)
-                            )
-                            
-                            slots.forEachIndexed { index, slotData ->
-                                val (label, hour, minute) = slotData
-                                val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
-                                val amPm = if (hour >= 12) "PM" else "AM"
-                                val displayTime = String.format(Locale.getDefault(), "%02d:%02d %s", displayHour, minute, amPm)
-                                
+
+                        ElvanSettingsDivider(colors = colors)
+
+                        // Render 3 Timing Rows
+                        val slots = listOf(
+                            Triple("Morning Wake", if (useCustomTimes) customTime1Hour else 5, if (useCustomTimes) customTime1Minute else 30),
+                            Triple("Pre-College", if (useCustomTimes) customTime2Hour else 6, if (useCustomTimes) customTime2Minute else 30),
+                            Triple("College Entry", if (useCustomTimes) customTime3Hour else 7, if (useCustomTimes) customTime3Minute else 30)
+                        )
+
+                        slots.forEachIndexed { index, slotData ->
+                            val (label, hour, minute) = slotData
+                            val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
+                            val amPm = if (hour >= 12) "PM" else "AM"
+                            val displayTime = String.format(Locale.getDefault(), "%02d:%02d %s", displayHour, minute, amPm)
+
+                            val timeRowRipple = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f)
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable(
+                                        enabled = useCustomTimes,
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = ripple(color = timeRowRipple, bounded = true)
+                                    ) {
+                                        showTimePickerForSlot = index + 1
+                                    },
+                                color = Color.Transparent
+                            ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable(enabled = useCustomTimes) {
-                                            showTimePickerForSlot = index + 1
-                                        }
-                                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                                        .padding(horizontal = 16.dp, vertical = 16.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    // Clock Icon
-                                    Icon(
-                                        Icons.Outlined.Alarm, 
-                                        contentDescription = null, 
-                                        tint = if (useCustomTimes) colors.accent else colors.textSecondary.copy(alpha = 0.5f), 
-                                        modifier = Modifier.padding(start = 8.dp).size(24.dp)
-                                    )
-                                    
-                                    Spacer(modifier = Modifier.width(24.dp))
-                                    
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            label, 
-                                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium), 
-                                            color = if (useCustomTimes) colors.textPrimary else colors.textSecondary.copy(alpha = 0.5f)
+                                    val isDark = colors.isDark
+                                    val iconBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(iconBg),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.Alarm,
+                                            contentDescription = null,
+                                            tint = if (useCustomTimes) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f),
+                                            modifier = Modifier.size(20.dp)
                                         )
                                     }
-                                    
+
+                                    Spacer(modifier = Modifier.width(16.dp))
+
                                     Text(
-                                        displayTime, 
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), 
-                                        color = if (useCustomTimes) colors.accent else colors.textSecondary.copy(alpha = 0.5f)
+                                        text = label,
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Medium
+                                        ),
+                                        color = if (useCustomTimes) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f),
+                                        modifier = Modifier.weight(1f)
+                                    )
+
+                                    Text(
+                                        text = displayTime,
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        ),
+                                        color = if (useCustomTimes) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f)
                                     )
                                 }
-                                
-                                if (index < slots.lastIndex) {
-                                    HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 72.dp, end = 20.dp))
-                                }
+                            }
+
+                            if (index < slots.lastIndex) {
+                                ElvanSettingsDivider(colors = colors)
                             }
                         }
                     }
@@ -365,72 +437,20 @@ fun NotificationSettingsScreen(
             }
 
             item(key = "notification_note") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
+                ElvanSectionContainer {
                     Text(
                         text = AppStrings.Settings.notificationNote(lang),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.textSecondary,
+                        color = colors.textPrimary.copy(alpha = 0.5f),
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun NotificationToggleItem(
-    icon: ImageVector,
-    iconBgColor: Color,
-    title: String,
-    description: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    textColor: Color,
-    subTextColor: Color,
-    accentColor: Color
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Icon Circle
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .background(iconBgColor, shape = RoundedCornerShape(50)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(icon, null, tint = Color.White, modifier = Modifier.size(20.dp))
+            item(key = "spacer_bottom") {
+                ElvanCollapseSpacer(itemCount = 6, itemHeight = 90.dp)
+            }
         }
-        
-        Spacer(modifier = Modifier.width(16.dp))
-        
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                title, 
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium), 
-                color = textColor
-            )
-            Text(
-                description, 
-                style = MaterialTheme.typography.bodySmall, 
-                color = subTextColor
-            )
-        }
-        
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = accentColor,
-                uncheckedThumbColor = Color.White,
-                uncheckedTrackColor = subTextColor.copy(alpha = 0.3f)
-            )
-        )
     }
 }
 

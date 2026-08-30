@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "../../styles/student/settings.css";
 
-// Reuse Student Components
-import SettingsHub from "../student/settings/SettingsHub";
+// Admin Components
+import AdminSettingsHub from "./settings/AdminSettingsHub";
+import StorageSettings from "./settings/StorageSettings";
+import AdminProfile from "./modules/AdminProfile";
+
+// Shared Views
 import DisplaySettings from "../student/settings/DisplaySettings";
-import StorageSettings from "../student/settings/StorageSettings";
 import SecuritySettings from "../student/settings/SecuritySettings";
 import UserDirectoryView from "../student/settings/UserDirectoryView";
 import FeedbackView from "../student/settings/FeedbackView";
@@ -12,9 +15,6 @@ import DeveloperPage from "../student/settings/DeveloperPage";
 import AboutPage from "../student/settings/AboutPage";
 import AboutRMKPage from "../student/settings/AboutRMKPage";
 import FoundersPage from "../student/settings/FoundersPage";
-
-// Admin Specific
-import AdminProfile from "./modules/AdminProfile";
 
 /* ── Welcome placeholder for empty detail panel ── */
 const SettingsWelcome = () => (
@@ -168,7 +168,7 @@ const AdminSettings = ({ userProfile }) => {
             <div className="s2-content-grid">
                 {/* LEFT: Hub navigation */}
                 <div className={`s2-col-left ${currentView !== "hub" && isMobile ? "s2-hide-mobile" : ""}`}>
-                    <SettingsHub userProfile={userProfile} onNavigate={handleNavigate} />
+                    <AdminSettingsHub userProfile={userProfile} onNavigate={handleNavigate} />
                 </div>
 
                 {/* RIGHT: Detail view */}

@@ -19,7 +19,8 @@ import {
     RiFolderLine,
     RiComputerLine,
     RiUser3Fill,
-    RiNotificationBadgeLine
+    RiNotificationBadgeLine,
+    RiDatabase2Line
 } from "react-icons/ri";
 import { getHardcodedRole } from '../../data/admins';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -110,6 +111,7 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         notifications: 'Notifications',
         pending: 'Pending Requests',
         special_classes: 'Special Classes',
+        storage: 'Storage & Data',
     }[activeModule] || 'Admin Panel';
 
     // --- MOBILE BACK NAVIGATION ---
@@ -343,22 +345,23 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                             )}
 
                             {/* SYSTEM */}
-                            {(canViewStructure || canViewNotifications) && (
-                                <>
-                                    <div className="drawer-divider" />
-                                    <div className="drawer-group-label">System</div>
-                                    {canViewStructure && (
-                                        <button onClick={() => handleNav('structure')} className={`admin-drawer-item ${activeModule === 'structure' ? 'active' : ''}`}>
-                                            <div className="drawer-icon"><RiListCheck /></div> <span>Structure</span>
-                                        </button>
-                                    )}
-                                    {canViewNotifications && (
-                                        <button onClick={() => handleNav('notifications')} className={`admin-drawer-item ${activeModule === 'notifications' ? 'active' : ''}`}>
-                                            <div className="drawer-icon"><RiNotificationBadgeLine /></div> <span>Notifications</span>
-                                        </button>
-                                    )}
-                                </>
-                            )}
+                            <>
+                                <div className="drawer-divider" />
+                                <div className="drawer-group-label">System</div>
+                                {canViewStructure && (
+                                    <button onClick={() => handleNav('structure')} className={`admin-drawer-item ${activeModule === 'structure' ? 'active' : ''}`}>
+                                        <div className="drawer-icon"><RiListCheck /></div> <span>Structure</span>
+                                    </button>
+                                )}
+                                {canViewNotifications && (
+                                    <button onClick={() => handleNav('notifications')} className={`admin-drawer-item ${activeModule === 'notifications' ? 'active' : ''}`}>
+                                        <div className="drawer-icon"><RiNotificationBadgeLine /></div> <span>Notifications</span>
+                                    </button>
+                                )}
+                                <button onClick={() => handleNav('storage')} className={`admin-drawer-item ${activeModule === 'storage' ? 'active' : ''}`}>
+                                    <div className="drawer-icon"><RiDatabase2Line /></div> <span>Storage & Data</span>
+                                </button>
+                            </>
 
                         </div>
 

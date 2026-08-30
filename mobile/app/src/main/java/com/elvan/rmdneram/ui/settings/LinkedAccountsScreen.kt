@@ -20,8 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import com.elvan.rmdneram.ui.components.shell.*
 import com.elvan.rmdneram.ui.home.*
 import com.elvan.rmdneram.ui.theme.AppColors
 import com.elvan.rmdneram.ui.theme.AppStrings
@@ -146,16 +150,16 @@ fun LinkedAccountsScreen(
         )
     }
 
-    com.elvan.rmdneram.ui.components.shell.ElvanSubShell(
+    ElvanSubShell(
         title = AppStrings.Settings.linkedAccounts(lang),
         onBack = onBack,
         scrollState = scrollState,
         colors = colors
     ) {
-        androidx.compose.foundation.lazy.LazyColumn(
+        LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(bottom = HomeDimens.ContentPaddingBottom),
+            contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
             verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
             item(key = "spacer_top") {
@@ -163,120 +167,125 @@ fun LinkedAccountsScreen(
             }
 
             item(key = "google_section") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    Column {
-                        // Section: Sign-in Methods
-                        Text(AppStrings.LinkedAccounts.signInMethods(lang), style = HomeTypography.ExamTag, color = colors.textSecondary)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        // Google Account Card
-                        Column(
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = AppStrings.LinkedAccounts.signInMethods(lang),
+                        colors = colors
+                    ) {
+                        // Google Account Row
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(HomeShapes.Item)
-                                .background(colors.surface)
+                                .padding(horizontal = 16.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Google Photo or Fallback Icon
-                                if (isGoogleLinked && googlePhotoUrl != null) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .data(googlePhotoUrl)
-                                            .crossfade(true)
-                                            .build(),
-                                        contentDescription = "Google Profile",
-                                        modifier = Modifier
-                                            .size(44.dp)
-                                            .clip(CircleShape)
-                                            .border(2.dp, AppColors.GoogleBlue, CircleShape)
-                                    )
-                                } else {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(44.dp)
-                                            .clip(HomeShapes.Item)
-                                            .background(
-                                                if (isGoogleLinked) AppColors.GoogleBlue.copy(alpha = 0.1f) 
-                                                else colors.subtleBackground
-                                            ),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            "G", 
-                                            fontWeight = FontWeight.Bold, 
-                                            color = if (isGoogleLinked) AppColors.GoogleBlue else colors.textSecondary,
-                                            style = HomeTypography.SectionTitle
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text("Google", style = HomeTypography.PillTitle, color = colors.textPrimary)
-                                    if (isGoogleLinked) {
-                                        Text(
-                                            googleEmail,
-                                            style = HomeTypography.FacultyName,
-                                            color = colors.textSecondary,
-                                            maxLines = 1
-                                        )
-                                    } else {
-                                        Text(
-                                            AppStrings.LinkedAccounts.notConnected(lang),
-                                            style = HomeTypography.FacultyName,
-                                            color = colors.textSecondary
-                                        )
-                                    }
-                                }
-                                
-                                // Status Badge
+                            val isDark = colors.isDark
+                            val iconBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+
+                            // Google Photo or Fallback Icon
+                            if (isGoogleLinked && googlePhotoUrl != null) {
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(googlePhotoUrl)
+                                        .crossfade(true)
+                                        .build(),
+                                    contentDescription = "Google Profile",
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                )
+                            } else {
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(20.dp))
-                                        .background(
-                                            if (isGoogleLinked) colors.success.copy(alpha = 0.15f) 
-                                            else colors.subtleBackground
-                                        )
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(iconBg),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        if (isGoogleLinked) AppStrings.LinkedAccounts.connected(lang) else AppStrings.LinkedAccounts.notLinked(lang),
-                                        style = HomeTypography.StatusBadge,
-                                        color = if (isGoogleLinked) colors.success else colors.textSecondary
+                                        "G",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        color = colors.textPrimary
                                     )
                                 }
                             }
-                            
-                            // Action Button
-                            if (isGoogleLinked) {
-                                HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 76.dp, end = 20.dp))
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "Google",
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Medium),
+                                    color = colors.textPrimary
+                                )
+                                Text(
+                                    if (isGoogleLinked) googleEmail else AppStrings.LinkedAccounts.notConnected(lang),
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
+                                    color = colors.textPrimary.copy(alpha = 0.5f),
+                                    maxLines = 1
+                                )
+                            }
+
+                            // Status Badge
+                            Surface(
+                                shape = RoundedCornerShape(20.dp),
+                                color = if (isGoogleLinked) colors.success.copy(alpha = 0.15f) else (if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f))
+                            ) {
+                                Text(
+                                    text = if (isGoogleLinked) AppStrings.LinkedAccounts.connected(lang) else AppStrings.LinkedAccounts.notLinked(lang),
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = if (isGoogleLinked) colors.success else colors.textPrimary.copy(alpha = 0.6f),
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+
+                        // Action Button
+                        if (isGoogleLinked) {
+                            ElvanSettingsDivider(colors = colors)
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { showUnlinkDialog = true },
+                                color = Color.Transparent
+                            ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { showUnlinkDialog = true }
                                         .padding(16.dp),
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    Text(AppStrings.LinkedAccounts.unlinkGoogle(lang), color = colors.danger, fontWeight = FontWeight.Medium)
+                                    Text(
+                                        AppStrings.LinkedAccounts.unlinkGoogle(lang),
+                                        color = AppColors.Red,
+                                        fontWeight = FontWeight.Medium,
+                                        fontSize = 14.sp
+                                    )
                                 }
-                            } else {
-                                HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 76.dp, end = 20.dp))
+                            }
+                        } else {
+                            ElvanSettingsDivider(colors = colors)
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onGoogleLink() },
+                                color = Color.Transparent
+                            ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { onGoogleLink() }
                                         .padding(16.dp),
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     if (isLinking) {
-                                        CircularProgressIndicator(color = colors.accent, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                                        CircularProgressIndicator(color = colors.textPrimary, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                                     } else {
-                                        Text(AppStrings.LinkedAccounts.linkGoogle(lang), color = colors.accent, fontWeight = FontWeight.Medium)
+                                        Text(
+                                            AppStrings.LinkedAccounts.linkGoogle(lang),
+                                            color = colors.textPrimary,
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 14.sp
+                                        )
                                     }
                                 }
                             }
@@ -286,124 +295,70 @@ fun LinkedAccountsScreen(
             }
 
             item(key = "email_section") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    Column {
-                        // Email & Password Section
-                        Text(AppStrings.LinkedAccounts.emailPassword(lang), style = HomeTypography.ExamTag, color = colors.textSecondary)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(colors.surface)
-                        ) {
-                            // Email Row
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(44.dp)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(colors.accent.copy(alpha = 0.1f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(Icons.Outlined.Email, null, tint = colors.accent, modifier = Modifier.size(22.dp))
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(AppStrings.LinkedAccounts.email(lang), style = HomeTypography.PillTitle, color = colors.textPrimary)
-                                    Text(
-                                        primaryEmail,
-                                        style = HomeTypography.FacultyName,
-                                        color = colors.textSecondary,
-                                        maxLines = 1
-                                    )
-                                }
-                                
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = AppStrings.LinkedAccounts.emailPassword(lang),
+                        colors = colors
+                    ) {
+                        // Email Row
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Email,
+                            title = AppStrings.LinkedAccounts.email(lang),
+                            description = primaryEmail,
+                            onClick = {},
+                            customTrailing = {
                                 Icon(Icons.Outlined.CheckCircle, null, tint = colors.success, modifier = Modifier.size(20.dp))
-                            }
-                            
-                            HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(start = 76.dp, end = 20.dp))
-                            
-                            // Password Row
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(44.dp)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(
-                                            if (hasPassword) colors.success.copy(alpha = 0.1f) 
-                                            else colors.warning.copy(alpha = 0.1f)
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        Icons.Outlined.Key, 
-                                        null, 
-                                        tint = if (hasPassword) colors.success else colors.warning, 
-                                        modifier = Modifier.size(22.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(AppStrings.LinkedAccounts.password(lang), style = HomeTypography.PillTitle, color = colors.textPrimary)
-                                    Text(
-                                        if (hasPassword) AppStrings.LinkedAccounts.passwordSet(lang) else AppStrings.LinkedAccounts.noPasswordSet(lang),
-                                        style = HomeTypography.FacultyName,
-                                        color = colors.textSecondary
-                                    )
-                                }
-                                
+                            },
+                            colors = colors
+                        )
+
+                        ElvanSettingsDivider(colors = colors)
+
+                        // Password Row
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.Key,
+                            title = AppStrings.LinkedAccounts.password(lang),
+                            description = if (hasPassword) AppStrings.LinkedAccounts.passwordSet(lang) else AppStrings.LinkedAccounts.noPasswordSet(lang),
+                            onClick = {
+                                if (!hasPassword) onBack()
+                            },
+                            customTrailing = {
                                 if (hasPassword) {
                                     Icon(Icons.Outlined.CheckCircle, null, tint = colors.success, modifier = Modifier.size(20.dp))
                                 } else {
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(HomeShapes.Item)
-                                            .background(colors.accent.copy(alpha = 0.1f))
-                                            .clickable { onBack() }
-                                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    Surface(
+                                        shape = RoundedCornerShape(20.dp),
+                                        color = if (colors.isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f),
+                                        modifier = Modifier.clickable { onBack() }
                                     ) {
-                                        Text(AppStrings.LinkedAccounts.create(lang), style = HomeTypography.StatusBadge, color = colors.accent)
+                                        Text(
+                                            AppStrings.LinkedAccounts.create(lang),
+                                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                            color = colors.textPrimary,
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                        )
                                     }
                                 }
-                            }
-                        }
+                            },
+                            colors = colors
+                        )
                     }
                 }
             }
 
             item(key = "info_box") {
-                com.elvan.rmdneram.ui.components.shell.ElvanSectionContainer {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(HomeShapes.Item)
-                            .background(colors.subtleBackground)
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Icon(Icons.Outlined.Info, null, tint = colors.textSecondary, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            AppStrings.LinkedAccounts.infoMessage(lang),
-                            style = HomeTypography.FacultyName,
-                            color = colors.textSecondary
-                        )
-                    }
+                ElvanSectionContainer {
+                    Text(
+                        text = AppStrings.LinkedAccounts.infoMessage(lang),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.textPrimary.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
                 }
+            }
+
+            item(key = "spacer_bottom") {
+                ElvanCollapseSpacer(itemCount = 2, itemHeight = 100.dp)
             }
         }
     }
