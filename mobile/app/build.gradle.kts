@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    namespace = "com.elvan.rmdneram"
+    namespace = "com.elvan.neram"
     compileSdk = 36
 
     defaultConfig {
@@ -165,4 +165,34 @@ dependencies {
     // In-App Updates
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
+
+    // Samsung One UI / SESL dependencies (Local repository)
+    implementation("io.github.tribalfs:oneui-design:0.9.4+oneui8")
+    implementation("sesl.androidx.appcompat:appcompat:1.8.0+1.0.21-sesl8+rev1")
+    implementation("sesl.androidx.coordinatorlayout:coordinatorlayout:1.3.0+1.0.0-sesl8+rev0")
+    implementation("sesl.com.google.android.material:material:1.12.0+1.0.32-sesl8+rev3")
 }
+
+configurations.all {
+    exclude(group = "androidx.core", module = "core")
+    exclude(group = "androidx.core", module = "core-ktx")
+    exclude(group = "sesl.androidx.core", module = "core-ktx")
+    exclude(group = "androidx.appcompat", module = "appcompat")
+    exclude(group = "androidx.coordinatorlayout", module = "coordinatorlayout")
+    exclude(group = "com.google.android.material", module = "material")
+    exclude(group = "androidx.recyclerview", module = "recyclerview")
+    exclude(group = "androidx.viewpager", module = "viewpager")
+    exclude(group = "androidx.viewpager2", module = "viewpager2")
+    exclude(group = "androidx.drawerlayout", module = "drawerlayout")
+    exclude(group = "androidx.customview", module = "customview")
+    exclude(group = "androidx.slidingpanelayout", module = "slidingpanelayout")
+    exclude(group = "androidx.swiperefreshlayout", module = "swiperefreshlayout")
+    exclude(group = "androidx.fragment", module = "fragment")
+    exclude(group = "androidx.fragment", module = "fragment-ktx")
+    exclude(group = "androidx.preference", module = "preference")
+    exclude(group = "androidx.preference", module = "preference-ktx")
+}
+
+tasks.withType<com.android.build.gradle.internal.tasks.CheckAarMetadataTask>().configureEach {
+    enabled = false
+}

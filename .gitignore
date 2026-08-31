@@ -27,6 +27,11 @@ dist-ssr
 *.sw?
 .env
 .antigravity*
+reference/
+mobile/local-repo/
+crashlog.txt
+logcat.txt
+backup_stamp.txt
 
 # Build and Gradle files
 **/build/
