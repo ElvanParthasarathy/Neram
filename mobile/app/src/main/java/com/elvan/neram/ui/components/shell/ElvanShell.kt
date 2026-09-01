@@ -242,7 +242,7 @@ private fun ElvanShellContent(
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val isListAtTop = isItem0 && scrollState.firstVisibleItemScrollOffset == 0
 
-                // Header fling snap (when user was interacting in header region)
+                // Header fling snap (when user was interacting in header region at top)
                 if (headerCollapsePx > 0f && headerCollapsePx < handoffShrinkOffsetPx && isListAtTop) {
                     val target = if (headerCollapsePx > handoffShrinkOffsetPx / 2f || available.y < -300f) handoffShrinkOffsetPx else 0f
                     val distance = kotlin.math.abs(headerCollapsePx - target)
@@ -252,11 +252,6 @@ private fun ElvanShellContent(
                         targetValue = target,
                         animationSpec = tween(durationMillis = durationMs, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
                     ) { value, _ -> headerCollapsePx = value }
-                    return available
-                }
-
-                // If flinging towards top (available.y > 0) and header is collapsed, absorb 100% velocity at the brick wall!
-                if (available.y > 0f && headerCollapsePx >= handoffShrinkOffsetPx) {
                     return available
                 }
 
