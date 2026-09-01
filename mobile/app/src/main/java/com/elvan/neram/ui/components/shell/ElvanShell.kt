@@ -185,19 +185,22 @@ private fun ElvanShellContent(
                     return Offset(0f, consumedY)
                 }
 
-                // 2. Dragging DOWN (delta > 0): When list is at top, Header expands
+                // 2. Dragging DOWN (delta > 0): When list is at top, Header expands ONLY on direct finger drag
                 if (delta > 0f && isListAtTop && headerCollapsePx > 0f) {
                     if (source == NestedScrollSource.UserInput) {
                         isHeaderExpanded = true
+                        val newCollapse = (headerCollapsePx - delta).coerceIn(0f, handoffShrinkOffsetPx)
+                        val consumedY = -(newCollapse - headerCollapsePx)
+                        headerCollapsePx = newCollapse
+                        return Offset(0f, consumedY)
+                    } else {
+                        // Flings / ballistic momentum / coasting: hard stop at the brick wall!
+                        return Offset(0f, delta)
                     }
-                    val newCollapse = (headerCollapsePx - delta).coerceIn(0f, handoffShrinkOffsetPx)
-                    val consumedY = -(newCollapse - headerCollapsePx)
-                    headerCollapsePx = newCollapse
-                    return Offset(0f, consumedY)
                 }
 
                 // 3. Brick Wall Brake (Hard stop for flings at wall)
-                if (!isHeaderExpanded && delta > 0f && source != NestedScrollSource.UserInput) {
+                if (delta > 0f && source != NestedScrollSource.UserInput) {
                     if (isListAtTop && headerCollapsePx >= handoffShrinkOffsetPx) {
                         return Offset(0f, delta)
                     }
@@ -223,20 +226,24 @@ private fun ElvanShellContent(
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val isListAtTop = isItem0 && scrollState.firstVisibleItemScrollOffset == 0
                 if (available.y > 0f && isListAtTop && headerCollapsePx > 0f) {
-                    val newCollapse = (headerCollapsePx - available.y).coerceIn(0f, handoffShrinkOffsetPx)
-                    val consumedY = -(newCollapse - headerCollapsePx)
-                    headerCollapsePx = newCollapse
-                    return Offset(0f, consumedY)
+                    if (source == NestedScrollSource.UserInput) {
+                        val newCollapse = (headerCollapsePx - available.y).coerceIn(0f, handoffShrinkOffsetPx)
+                        val consumedY = -(newCollapse - headerCollapsePx)
+                        headerCollapsePx = newCollapse
+                        return Offset(0f, consumedY)
+                    } else {
+                        return Offset(0f, available.y)
+                    }
                 }
                 return Offset.Zero
             }
 
             override suspend fun onPreFling(available: Velocity): Velocity {
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
-                val offset0 = if (isItem0) currentScrollOffset else 10000f
+                val isListAtTop = isItem0 && scrollState.firstVisibleItemScrollOffset == 0
 
-                // Header fling snap
-                if (headerCollapsePx > 0f && headerCollapsePx < handoffShrinkOffsetPx) {
+                // Header fling snap (when user was interacting in header region)
+                if (headerCollapsePx > 0f && headerCollapsePx < handoffShrinkOffsetPx && isListAtTop) {
                     val target = if (headerCollapsePx > handoffShrinkOffsetPx / 2f || available.y < -300f) handoffShrinkOffsetPx else 0f
                     val distance = kotlin.math.abs(headerCollapsePx - target)
                     val durationMs = (200f + (distance * 0.4f)).toInt().coerceIn(200, 350)
@@ -248,17 +255,15 @@ private fun ElvanShellContent(
                     return available
                 }
 
-                // Ballistic momentum stop at wall
-                if (!isHeaderExpanded && available.y > 0f) {
-                    if (isItem0 && offset0 <= handoffShrinkOffsetPx) {
-                        return available
-                    }
+                // If flinging towards top (available.y > 0) and header is collapsed, absorb 100% velocity at the brick wall!
+                if (available.y > 0f && headerCollapsePx >= handoffShrinkOffsetPx) {
+                    return available
                 }
 
                 // Navbar hiding on fast downward fling
                 if (available.y < -800f) {
                     isFlinging = true
-                    val reachedPill = !isItem0 || offset0 >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
+                    val reachedPill = !isItem0 || currentScrollOffset >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
                     if (reachedPill && isNavbarVisible) {
                         isNavbarVisible = false
                     }
