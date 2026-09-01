@@ -192,7 +192,7 @@ private fun ElvanShellContent(
                     return Offset(0f, consumedY)
                 }
 
-                // 2. Dragging DOWN (delta > 0): When list is at top, Header expands ONLY on direct finger drag
+                // 2. Dragging DOWN (delta > 0): When list is at top, Header expands on direct finger drag
                 if (delta > 0f && isListAtTop && headerCollapsePx > 0f) {
                     if (source == NestedScrollSource.UserInput) {
                         isHeaderExpanded = true
@@ -248,13 +248,16 @@ private fun ElvanShellContent(
             override suspend fun onPreFling(available: Velocity): Velocity {
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val isListAtTop = isItem0 && scrollState.firstVisibleItemScrollOffset == 0
+                val isSubpage = onBack != null
 
                 // Samsung One UI / OneElvan native snap physics
                 if (headerCollapsePx > 0f && headerCollapsePx < handoffShrinkOffsetPx && isListAtTop) {
                     val currentProgress = headerCollapsePx / handoffShrinkOffsetPx
                     val target = when {
+                        isSubpage && available.y < -100f -> handoffShrinkOffsetPx // Upward flick on subpage -> Collapses and locks!
                         available.y < -500f -> handoffShrinkOffsetPx
                         available.y > 500f -> 0f
+                        isSubpage && currentProgress >= 0.2f -> handoffShrinkOffsetPx // 20% threshold for short subpages
                         currentProgress >= 0.4f -> handoffShrinkOffsetPx
                         else -> 0f
                     }
