@@ -69,7 +69,7 @@ fun ScheduleMainLayout(
     onDatePillClick: () -> Unit,
     onDateSwipePrev: () -> Unit,
     onDateSwipeNext: () -> Unit,
-    scrollState: androidx.compose.foundation.lazy.LazyListState = com.elvan.neram.ui.components.shell.LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     // ... existing state ...
     // Interaction Overlay State for View Type Switcher

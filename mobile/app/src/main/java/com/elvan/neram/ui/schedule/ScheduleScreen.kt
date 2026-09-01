@@ -31,7 +31,7 @@ import java.time.Instant
 @Composable
 fun ScheduleScreen(
     viewModel: HomeViewModel = viewModel(),
-    scrollState: androidx.compose.foundation.lazy.LazyListState = com.elvan.neram.ui.components.shell.LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState(),
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     pullRefreshState: androidx.compose.material3.pulltorefresh.PullToRefreshState? = null
 ) {
     // 1. Collect ViewModel State

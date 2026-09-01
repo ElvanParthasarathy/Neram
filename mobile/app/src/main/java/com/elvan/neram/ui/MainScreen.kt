@@ -121,11 +121,6 @@ fun MainScreen(
     val notesFolderDisplay = if (notesMode == "folder") notesDrivePath.map { it.name }.drop(1) else notesPath
     val isInsideNotesFolder = notesFolderDisplay.isNotEmpty()
 
-    val density = androidx.compose.ui.platform.LocalDensity.current
-    val statusBarTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val handoffShrinkOffsetDp = 196.dp - statusBarTopPadding
-    val brinkOffsetPx = with(density) { handoffShrinkOffsetDp.toPx().toInt().coerceAtLeast(0) }
-
     var isNavInteracting by remember { mutableStateOf(false) }
     var isDragTransition by remember { mutableStateOf(false) }
     var navDragProgress by remember { mutableFloatStateOf(0f) }
@@ -142,86 +137,8 @@ fun MainScreen(
                 NavTab.Calendar -> calendarScrollState
                 NavTab.Notes -> notesScrollState
             }
-            val hasExpanded = tab != NavTab.Calendar && !isInsideNotesFolder
-            val isPastBrink = targetScrollState.firstVisibleItemIndex > 0 || 
-                              targetScrollState.firstVisibleItemScrollOffset > (brinkOffsetPx + 10)
-            scope.launch {
-                if (hasExpanded && isPastBrink) {
-                    // 1st Tap: Scroll to brink wall (header stays collapsed)
-                    if (targetScrollState.firstVisibleItemIndex == 0) {
-                        // Already on item 0 — exact pixel delta known, single smooth curve
-                        val delta = -(targetScrollState.firstVisibleItemScrollOffset - brinkOffsetPx).toFloat()
-                        targetScrollState.animateScrollBy(
-                            value = delta,
-                            animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
-                        )
-                    } else {
-                        // Deep in list — instant teleport near brink, then smooth runway landing
-                        val runwayPx = with(density) { 120.dp.toPx() }
-                        targetScrollState.scrollToItem(0, brinkOffsetPx + runwayPx.toInt())
-                        targetScrollState.animateScrollBy(
-                            value = -runwayPx,
-                            animationSpec = tween(300, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
-                        )
-                    }
-                } else if (targetScrollState.firstVisibleItemIndex > 0 || targetScrollState.firstVisibleItemScrollOffset > 5) {
-                    // 2nd Tap: Expand header fully to 0,0
-                    if (targetScrollState.firstVisibleItemIndex == 0) {
-                        // Near top — exact pixel delta, single smooth curve
-                        val currentOffset = targetScrollState.firstVisibleItemScrollOffset
-                        targetScrollState.animateScrollBy(
-                            value = -currentOffset.toFloat(),
-                            animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
-                        )
-                    } else {
-                        // Deep (shouldn't normally reach here on 2nd tap, but handle gracefully)
-                        val runwayPx = with(density) { 80.dp.toPx() }
-                        targetScrollState.scrollToItem(0, runwayPx.toInt())
-                        targetScrollState.animateScrollBy(
-                            value = -runwayPx,
-                            animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
-                        )
-                    }
-                }
-            }
+            scope.launch { targetScrollState.animateScrollToItem(0, 0) }
         } else {
-            val fromTab = selectedTab
-            val toTab = tab
-            val fromState = when (fromTab) {
-                NavTab.Home -> homeScrollState
-                NavTab.Schedule -> scheduleScrollState
-                NavTab.Calendar -> calendarScrollState
-                NavTab.Notes -> notesScrollState
-            }
-            val toState = when (toTab) {
-                NavTab.Home -> homeScrollState
-                NavTab.Schedule -> scheduleScrollState
-                NavTab.Calendar -> calendarScrollState
-                NavTab.Notes -> notesScrollState
-            }
-
-            val fromHasHeader = fromTab == NavTab.Home || fromTab == NavTab.Schedule
-            val toHasHeader = toTab == NavTab.Home || toTab == NavTab.Schedule
-
-            if (fromHasHeader && toHasHeader) {
-                val isFromCollapsed = fromState.firstVisibleItemIndex > 0 || 
-                                      fromState.firstVisibleItemScrollOffset >= brinkOffsetPx
-                if (isFromCollapsed) {
-                    // Sync collapsed: ensure destination tab starts collapsed at the brink wall
-                    if (toState.firstVisibleItemIndex == 0 && toState.firstVisibleItemScrollOffset < brinkOffsetPx) {
-                        scope.launch {
-                            toState.scrollToItem(0, brinkOffsetPx)
-                        }
-                    }
-                } else {
-                    // Sync expanded: if destination tab was resting at the collapsed brink wall, expand it
-                    if (toState.firstVisibleItemIndex == 0 && toState.firstVisibleItemScrollOffset >= (brinkOffsetPx - 10)) {
-                        scope.launch {
-                            toState.scrollToItem(0, 0)
-                        }
-                    }
-                }
-            }
             isDragTransition = isDrag
             selectedTab = tab
         }
@@ -322,17 +239,6 @@ fun MainScreen(
                 "display" -> currentScreen = "settings"
 
                 "settings" -> {
-                    val isSettingsCollapsed = settingsScrollState.firstVisibleItemIndex > 0 || 
-                                              settingsScrollState.firstVisibleItemScrollOffset >= brinkOffsetPx
-                    if (isSettingsCollapsed) {
-                        if (activeScrollState.firstVisibleItemIndex == 0 && activeScrollState.firstVisibleItemScrollOffset < brinkOffsetPx) {
-                            scope.launch { activeScrollState.scrollToItem(0, brinkOffsetPx) }
-                        }
-                    } else {
-                        if (activeScrollState.firstVisibleItemIndex == 0 && activeScrollState.firstVisibleItemScrollOffset >= (brinkOffsetPx - 10)) {
-                            scope.launch { activeScrollState.scrollToItem(0, 0) }
-                        }
-                    }
                     currentScreen = settingsReferrer
                 }
                 "contact" -> currentScreen = "settings"
@@ -584,17 +490,6 @@ fun MainScreen(
                                             title = AppStrings.Settings.title(lang),
                                             icon = androidx.compose.material.icons.Icons.Rounded.Settings,
                                             onClick = {
-                                                val isFromCollapsed = activeScrollState.firstVisibleItemIndex > 0 || 
-                                                                      activeScrollState.firstVisibleItemScrollOffset >= brinkOffsetPx
-                                                if (isFromCollapsed) {
-                                                    if (settingsScrollState.firstVisibleItemIndex == 0 && settingsScrollState.firstVisibleItemScrollOffset < brinkOffsetPx) {
-                                                        scope.launch { settingsScrollState.scrollToItem(0, brinkOffsetPx) }
-                                                    }
-                                                } else {
-                                                    if (settingsScrollState.firstVisibleItemIndex == 0 && settingsScrollState.firstVisibleItemScrollOffset >= (brinkOffsetPx - 10)) {
-                                                        scope.launch { settingsScrollState.scrollToItem(0, 0) }
-                                                    }
-                                                }
                                                 settingsReferrer = "tabs"
                                                 currentScreen = "settings"
                                             }
@@ -717,17 +612,6 @@ fun MainScreen(
                 "settings" -> ElvanSubShell(
                     title = getScreenTitle("settings"),
                     onBack = {
-                        val isSettingsCollapsed = settingsScrollState.firstVisibleItemIndex > 0 || 
-                                                  settingsScrollState.firstVisibleItemScrollOffset >= brinkOffsetPx
-                        if (isSettingsCollapsed) {
-                            if (activeScrollState.firstVisibleItemIndex == 0 && activeScrollState.firstVisibleItemScrollOffset < brinkOffsetPx) {
-                                scope.launch { activeScrollState.scrollToItem(0, brinkOffsetPx) }
-                            }
-                        } else {
-                            if (activeScrollState.firstVisibleItemIndex == 0 && activeScrollState.firstVisibleItemScrollOffset >= (brinkOffsetPx - 10)) {
-                                scope.launch { activeScrollState.scrollToItem(0, 0) }
-                            }
-                        }
                         currentScreen = settingsReferrer
                     },
                     scrollState = settingsScrollState,
