@@ -215,7 +215,7 @@ fun ProfileScreen(
                     com.elvan.neram.ui.components.shell.ElvanSectionContainer {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = HomeShapes.Item,
+                            shape = HomeShapes.Card,
                             color = colors.surface,
                     shadowElevation = 0.dp
                 ) {
@@ -823,7 +823,7 @@ private fun M3ProfileSection(
     Surface(
         modifier = Modifier
             .fillMaxWidth(),
-        shape = HomeShapes.Item,
+        shape = HomeShapes.Card,
         color = colors.surface,
         shadowElevation = 0.dp
     ) {

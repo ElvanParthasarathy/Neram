@@ -651,16 +651,10 @@ fun MainScreen(
                         scrollState = settingsScrollState
                     )
                 }
-                "security" -> ElvanSubShell(
-                    title = getScreenTitle("security"),
+                "security" -> SecuritySettingsScreen(
                     onBack = { currentScreen = "settings" },
-                    colors = colors
-                ) {
-                    SecuritySettingsScreen(
-                        onBack = { currentScreen = "settings" },
-                        onNavigateToLinkedAccounts = { currentScreen = "linked_accounts" }
-                    )
-                }
+                    onNavigateToLinkedAccounts = { currentScreen = "linked_accounts" }
+                )
                 "display" -> ElvanSubShell(
                     title = getScreenTitle("display"),
                     onBack = { currentScreen = "settings" },
