@@ -158,7 +158,7 @@ private fun SecurityHub(
     colors: HomeColors,
     onNavigate: (String) -> Unit,
     onNavigateToLinkedAccounts: () -> Unit,
-    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val user = Firebase.auth.currentUser
     val hasPasswordProvider = user?.providerData?.any { it.providerId == "password" } ?: false
