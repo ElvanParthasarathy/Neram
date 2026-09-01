@@ -92,8 +92,6 @@ private fun ElvanShellContent(
     navbar: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    var isNavbarVisible by remember { mutableStateOf(true) }
-
     // Constants for physics
     val expandedHeight = 280.dp
     val pillHeight = 50.dp
@@ -110,7 +108,14 @@ private fun ElvanShellContent(
     val handoffShrinkOffsetPx = with(density) { handoffShrinkOffsetDp.toPx() }
     
     // Dynamic header collapse offset (0f = fully expanded, handoffShrinkOffsetPx = collapsed)
-    var headerCollapsePx by remember(scrollState) { mutableFloatStateOf(0f) }
+    var headerCollapsePx by remember(scrollState) { 
+        mutableFloatStateOf(
+            if (scrollState.firstVisibleItemIndex > 0 || scrollState.firstVisibleItemScrollOffset > 0) 
+                handoffShrinkOffsetPx 
+            else 
+                0f
+        ) 
+    }
 
     val rawScrollOffset = if (scrollState.firstVisibleItemIndex == 0) {
         scrollState.firstVisibleItemScrollOffset.toFloat()
@@ -142,38 +147,7 @@ private fun ElvanShellContent(
         }
     }
 
-    // Snap only when user interaction finishes
-    LaunchedEffect(scrollState, handoffShrinkOffsetPx) {
-        snapshotFlow { scrollState.isScrollInProgress }.collect { inProgress ->
-            if (!inProgress) {
-                if (!isNavbarVisible) {
-                    isNavbarVisible = true
-                }
-                if (isHeaderExpanded && scrollState.firstVisibleItemIndex == 0) {
-                    val offset = scrollState.firstVisibleItemScrollOffset.toFloat()
-                    if (offset > 0f && offset < handoffShrinkOffsetPx) {
-                        val targetOffset = if (offset > handoffShrinkOffsetPx / 2f) handoffShrinkOffsetPx else 0f
-                        val distance = kotlin.math.abs(offset - targetOffset)
-                        val durationMs = (200f + (distance * 0.4f)).toInt().coerceIn(200, 350)
-                        
-                        coroutineScope.launch {
-                            scrollState.animateScrollBy(
-                                value = targetOffset - offset,
-                                animationSpec = tween(
-                                    durationMillis = durationMs,
-                                    easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-                                )
-                            )
-                            if (targetOffset >= handoffShrinkOffsetPx) {
-                                isHeaderExpanded = false
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
+    var isNavbarVisible by remember { mutableStateOf(true) }
     var isFlinging by remember { mutableStateOf(false) }
 
     // Stable NestedScrollConnection
@@ -312,6 +286,7 @@ private fun ElvanShellContent(
                 coroutineScope.launch {
                     if (scrollState.firstVisibleItemIndex > 0 || scrollState.firstVisibleItemScrollOffset > 0) {
                         // 1st Tap: Scroll list to top smoothly (Stage 1 Collapsed)
+                        headerCollapsePx = handoffShrinkOffsetPx
                         scrollState.animateScrollToItem(0, 0)
                     } else {
                         // 2nd Tap: Toggle between Collapsed (Stage 1) and Expanded (Stage 2)
