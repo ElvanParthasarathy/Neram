@@ -33,6 +33,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +43,7 @@ import com.elvan.neram.ui.home.HomeTypography
 import kotlinx.coroutines.launch
 
 val LocalElvanScrollState = compositionLocalOf<LazyListState?> { null }
+val LocalElvanTopSpacerHeight = compositionLocalOf<Dp> { 280.dp - com.elvan.neram.ui.home.HomeDimens.SectionSpacing }
 
 @Composable
 fun ElvanShell(
@@ -56,20 +58,18 @@ fun ElvanShell(
     navbar: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
-    CompositionLocalProvider(LocalElvanScrollState provides scrollState) {
-        ElvanShellContent(
-            scrollState = scrollState,
-            colors = colors,
-            showNavbar = showNavbar,
-            useNewDesign = useNewDesign,
-            title = title,
-            onBack = onBack,
-            hasActions = hasActions,
-            actions = actions,
-            navbar = navbar,
-            content = content
-        )
-    }
+    ElvanShellContent(
+        scrollState = scrollState,
+        colors = colors,
+        showNavbar = showNavbar,
+        useNewDesign = useNewDesign,
+        title = title,
+        onBack = onBack,
+        hasActions = hasActions,
+        actions = actions,
+        navbar = navbar,
+        content = content
+    )
 }
 
 @Composable
@@ -94,24 +94,26 @@ private fun ElvanShellContent(
     val ceiling = statusBarHeight + 20.dp
     val density = LocalDensity.current
     
-    // Exact Flutter collision math:
-    // collisionOffset = expandedHeight - (ceiling + pillHeight)
+    // Collision offset (when cards reach the pill)
     val collisionOffsetDp = expandedHeight - (ceiling + pillHeight)
     val collisionOffsetPx = with(density) { collisionOffsetDp.toPx() }
     
-    // Handoff threshold (when icons reach ceiling)
+    // Max collapse range for the top bar
     val handoffShrinkOffsetDp = 196.dp - statusBarHeight
     val handoffShrinkOffsetPx = with(density) { handoffShrinkOffsetDp.toPx() }
     
-    // Synthetic drag offset for small content pages (where LazyColumn cannot scroll forward)
-    var syntheticDragOffset by remember { mutableFloatStateOf(0f) }
+    // Dynamic header collapse offset (0f = fully expanded, handoffShrinkOffsetPx = collapsed)
+    var headerCollapsePx by remember(scrollState) { mutableFloatStateOf(0f) }
 
     val rawScrollOffset = if (scrollState.firstVisibleItemIndex == 0) {
         scrollState.firstVisibleItemScrollOffset.toFloat()
     } else {
         with(density) { expandedHeight.toPx() }
     }
-    val currentScrollOffset = (rawScrollOffset + syntheticDragOffset).coerceAtMost(with(density) { expandedHeight.toPx() })
+    val currentScrollOffset = (headerCollapsePx + rawScrollOffset).coerceAtMost(with(density) { expandedHeight.toPx() })
+
+    // Dynamic top spacer height passed to all child LazyColumns
+    val topSpacerHeight = (expandedHeight - com.elvan.neram.ui.home.HomeDimens.SectionSpacing - with(density) { headerCollapsePx.toDp() }).coerceAtLeast(0.dp)
 
     // One UI Physics: Brick Wall State
     var isHeaderExpanded by remember(scrollState) { 
@@ -122,8 +124,8 @@ private fun ElvanShellContent(
     }
     val coroutineScope = rememberCoroutineScope()
 
-    // Monitor boundary crossing without recomposing every pixel
-    LaunchedEffect(scrollState, handoffShrinkOffsetPx, syntheticDragOffset) {
+    // Monitor boundary crossing
+    LaunchedEffect(scrollState, handoffShrinkOffsetPx, headerCollapsePx) {
         snapshotFlow {
             scrollState.firstVisibleItemIndex > 0 || currentScrollOffset >= handoffShrinkOffsetPx
         }.distinctUntilChanged().collect { isPastBoundary ->
@@ -133,7 +135,7 @@ private fun ElvanShellContent(
         }
     }
 
-    // Snap only when user interaction in the header region finishes
+    // Snap only when user interaction finishes
     LaunchedEffect(scrollState, handoffShrinkOffsetPx) {
         snapshotFlow { scrollState.isScrollInProgress }.collect { inProgress ->
             if (!inProgress) {
@@ -167,66 +169,45 @@ private fun ElvanShellContent(
 
     var isFlinging by remember { mutableStateOf(false) }
 
-    // Stable NestedScrollConnection — never reallocated during scroll to prevent jank
+    // Stable NestedScrollConnection
     val nestedScrollConnection = remember(scrollState, handoffShrinkOffsetPx, collisionOffsetPx, density) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
-                val offset0 = if (isItem0) scrollState.firstVisibleItemScrollOffset.toFloat() else (handoffShrinkOffsetPx + 10000f)
+                val isListAtTop = isItem0 && scrollState.firstVisibleItemScrollOffset == 0
 
-                // ── Small Content Drag Handling (Short/Empty pages) ──
-                val canScrollForward = scrollState.canScrollForward
-                if (!canScrollForward && isItem0) {
-                    if (delta < 0f && syntheticDragOffset < handoffShrinkOffsetPx) {
-                        // Dragging UP on a short list: collapse header directly
-                        val newOffset = (syntheticDragOffset - delta).coerceIn(0f, handoffShrinkOffsetPx)
-                        val consumedY = -(newOffset - syntheticDragOffset)
-                        syntheticDragOffset = newOffset
-                        return Offset(0f, consumedY)
-                    } else if (delta > 0f && syntheticDragOffset > 0f) {
-                        // Dragging DOWN on a short list: expand header directly
-                        val newOffset = (syntheticDragOffset - delta).coerceIn(0f, handoffShrinkOffsetPx)
-                        val consumedY = -(newOffset - syntheticDragOffset)
-                        syntheticDragOffset = newOffset
-                        return Offset(0f, consumedY)
-                    }
+                // 1. Dragging UP (delta < 0): Header collapses FIRST before list scrolls
+                if (delta < 0f && headerCollapsePx < handoffShrinkOffsetPx) {
+                    val newCollapse = (headerCollapsePx - delta).coerceIn(0f, handoffShrinkOffsetPx)
+                    val consumedY = -(newCollapse - headerCollapsePx)
+                    headerCollapsePx = newCollapse
+                    return Offset(0f, consumedY)
                 }
 
-                // ── Brick Wall Brake (Hard stop for flings / momentum, instant smooth response for finger drags) ──
-                if (!isHeaderExpanded) {
+                // 2. Dragging DOWN (delta > 0): When list is at top, Header expands
+                if (delta > 0f && isListAtTop && headerCollapsePx > 0f) {
                     if (source == NestedScrollSource.UserInput) {
-                        // User's finger is directly touching the screen and pulling down: immediately unlock and expand!
-                        if (delta > 0f && isItem0 && offset0 <= handoffShrinkOffsetPx) {
-                            isHeaderExpanded = true
-                            if (syntheticDragOffset > 0f) {
-                                val newOffset = (syntheticDragOffset - delta).coerceIn(0f, handoffShrinkOffsetPx)
-                                val consumedY = -(newOffset - syntheticDragOffset)
-                                syntheticDragOffset = newOffset
-                                return Offset(0f, consumedY)
-                            }
-                        }
-                    } else if (delta > 0f) {
-                        // Flings / ballistic momentum / coasting: hard stop at the brick wall!
-                        if (isItem0) {
-                            if (offset0 <= handoffShrinkOffsetPx) {
-                                // Exactly at or above wall: brake completely!
-                                return Offset(0f, delta)
-                            } else if (offset0 - delta < handoffShrinkOffsetPx) {
-                                // Clamp to stop dead at the brick wall
-                                val allowed = offset0 - handoffShrinkOffsetPx
-                                val excess = delta - allowed
-                                return Offset(0f, excess)
-                            }
-                        }
+                        isHeaderExpanded = true
+                    }
+                    val newCollapse = (headerCollapsePx - delta).coerceIn(0f, handoffShrinkOffsetPx)
+                    val consumedY = -(newCollapse - headerCollapsePx)
+                    headerCollapsePx = newCollapse
+                    return Offset(0f, consumedY)
+                }
+
+                // 3. Brick Wall Brake (Hard stop for flings at wall)
+                if (!isHeaderExpanded && delta > 0f && source != NestedScrollSource.UserInput) {
+                    if (isListAtTop && headerCollapsePx >= handoffShrinkOffsetPx) {
+                        return Offset(0f, delta)
                     }
                 }
 
-                // ── Navbar hide/show logic ──
+                // 4. Navbar hide/show logic
                 if (delta > 1f && !isNavbarVisible) {
                     isNavbarVisible = true
                 } else if (delta < -2f && isNavbarVisible && isFlinging && source == NestedScrollSource.SideEffect) {
-                    val reachedPill = !isItem0 || offset0 >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
+                    val reachedPill = !isItem0 || currentScrollOffset >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
                     if (reachedPill) {
                         isNavbarVisible = false
                     }
@@ -240,21 +221,12 @@ private fun ElvanShellContent(
                 source: NestedScrollSource
             ): Offset {
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
-                // Expanding when list is at top and user drags down
-                if (available.y > 0f && isItem0 && syntheticDragOffset > 0f) {
-                    val newOffset = (syntheticDragOffset - available.y).coerceIn(0f, handoffShrinkOffsetPx)
-                    val consumedY = -(newOffset - syntheticDragOffset)
-                    syntheticDragOffset = newOffset
+                val isListAtTop = isItem0 && scrollState.firstVisibleItemScrollOffset == 0
+                if (available.y > 0f && isListAtTop && headerCollapsePx > 0f) {
+                    val newCollapse = (headerCollapsePx - available.y).coerceIn(0f, handoffShrinkOffsetPx)
+                    val consumedY = -(newCollapse - headerCollapsePx)
+                    headerCollapsePx = newCollapse
                     return Offset(0f, consumedY)
-                }
-
-                // Hard clamp failsafe: ensure sub-pixel integrity for momentum
-                if (!isHeaderExpanded && source != NestedScrollSource.UserInput) {
-                    if (scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx && syntheticDragOffset == 0f) {
-                        coroutineScope.launch {
-                            scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
-                        }
-                    }
                 }
                 return Offset.Zero
             }
@@ -263,28 +235,27 @@ private fun ElvanShellContent(
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val offset0 = if (isItem0) currentScrollOffset else 10000f
 
-                // Small content fling snap
-                if (syntheticDragOffset > 0f && syntheticDragOffset < handoffShrinkOffsetPx) {
-                    val target = if (syntheticDragOffset > handoffShrinkOffsetPx / 2f || available.y < -300f) handoffShrinkOffsetPx else 0f
-                    val distance = kotlin.math.abs(syntheticDragOffset - target)
+                // Header fling snap
+                if (headerCollapsePx > 0f && headerCollapsePx < handoffShrinkOffsetPx) {
+                    val target = if (headerCollapsePx > handoffShrinkOffsetPx / 2f || available.y < -300f) handoffShrinkOffsetPx else 0f
+                    val distance = kotlin.math.abs(headerCollapsePx - target)
                     val durationMs = (200f + (distance * 0.4f)).toInt().coerceIn(200, 350)
                     androidx.compose.animation.core.animate(
-                        initialValue = syntheticDragOffset,
+                        initialValue = headerCollapsePx,
                         targetValue = target,
                         animationSpec = tween(durationMillis = durationMs, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
-                    ) { value, _ -> syntheticDragOffset = value }
+                    ) { value, _ -> headerCollapsePx = value }
                     return available
                 }
 
-                // When collapsed: any fling towards the top (available.y > 0) MUST stop dead at the brick wall!
+                // Ballistic momentum stop at wall
                 if (!isHeaderExpanded && available.y > 0f) {
                     if (isItem0 && offset0 <= handoffShrinkOffsetPx) {
-                        // Absorb 100% of velocity at the wall — zero movement past the wall!
                         return available
                     }
                 }
 
-                // Only fast momentum fling (velocity < -800) triggers hiding when cards reached the pill
+                // Navbar hiding on fast downward fling
                 if (available.y < -800f) {
                     isFlinging = true
                     val reachedPill = !isItem0 || offset0 >= (collisionOffsetPx - with(density) { 4.dp.toPx() })
@@ -298,10 +269,6 @@ private fun ElvanShellContent(
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 isFlinging = false
                 if (!isNavbarVisible) isNavbarVisible = true
-                // Magnetic Lock at rest
-                if (!isHeaderExpanded && scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset < handoffShrinkOffsetPx) {
-                    scrollState.scrollToItem(0, handoffShrinkOffsetPx.toInt())
-                }
                 return Velocity.Zero
             }
         }
@@ -332,22 +299,22 @@ private fun ElvanShellContent(
     // Scroll disappear/fade is only enabled once the true pill has formed
     val effectiveNavOpacity = if (isTruePill) navOpacity else 1.0f
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(nestedScrollConnection)
-            .background(colors.background)
+    CompositionLocalProvider(
+        LocalElvanScrollState provides scrollState,
+        LocalElvanTopSpacerHeight provides topSpacerHeight
     ) {
-        // Layer 1: Content
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer {
-                    translationY = -syntheticDragOffset
-                }
+                .nestedScroll(nestedScrollConnection)
+                .background(colors.background)
         ) {
-            content()
-        }
+            // Layer 1: Content (100% Full screen, ZERO translation, ZERO bottom clipping)
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                content()
+            }
 
         if (useNewDesign) {
             // Layer 2: Top Fade Mask (Solid at top, fading down)
@@ -437,24 +404,9 @@ private fun ElvanShellContent(
             ) {
                 navbar()
             }
-        } else {
-            // Subpages (Settings, Profile, etc.) — Fade mask over system navigation bar
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(56.dp + navBarsPadding)
-                    .background(
-                        Brush.verticalGradient(
-                            0.0f to Color.Transparent,
-                            0.35f to colors.background.copy(alpha = 0.25f),
-                            0.7f to colors.background.copy(alpha = 0.70f),
-                            1.0f to colors.background
-                        )
-                    )
-            )
         }
     }
+}
 }
 
 /**

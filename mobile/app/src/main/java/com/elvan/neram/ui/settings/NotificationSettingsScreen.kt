@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.settings
+package com.elvan.neram.ui.settings
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -123,7 +123,7 @@ fun NotificationSettingsScreen(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
             item(key = "spacer_top") {
-                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
             }
 
             item(key = "push_notifications") {

@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.about
+package com.elvan.neram.ui.about
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -38,7 +38,7 @@ fun ManagementTeamScreen(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
             item(key = "spacer_top") {
-                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
             }
 
             item(key = "header_card") {

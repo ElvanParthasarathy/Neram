@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.settings
+package com.elvan.neram.ui.settings
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -171,7 +171,7 @@ private fun SecurityHub(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
             item(key = "spacer_top") {
-                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
             }
 
             item(key = "account_section") {

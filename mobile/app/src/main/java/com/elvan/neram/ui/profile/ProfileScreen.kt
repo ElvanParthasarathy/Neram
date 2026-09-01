@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.profile
+package com.elvan.neram.ui.profile
 
 import com.elvan.neram.ui.home.*
 
@@ -207,7 +207,7 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
                 item(key = "spacer_top") {
-                    Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                    Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
                 }
 
                 // Profile Header Card (Flat design matching other pages)

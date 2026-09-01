@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.settings
+package com.elvan.neram.ui.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -51,7 +51,7 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
             item(key = "spacer_top") {
-                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
             }
 
             // 1. Mode Switcher & Profile (Big Pill)

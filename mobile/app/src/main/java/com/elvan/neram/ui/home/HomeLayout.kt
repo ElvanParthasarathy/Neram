@@ -78,7 +78,7 @@ fun HomeMainLayout(
                 ),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
-                item { Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing)) }
+                item(key = "spacer_top") { Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current)) }
                 
                 // 1. Header Section
                 item(key = "header", contentType = "header") {

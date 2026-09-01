@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.about
+package com.elvan.neram.ui.about
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -89,7 +89,7 @@ fun ComplaintScreen(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
             item(key = "spacer_top") {
-                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
             }
 
             item(key = "form_fields") {

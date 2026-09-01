@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.schedule
+package com.elvan.neram.ui.schedule
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -107,7 +107,7 @@ fun ScheduleMainLayout(
                 ),
                 verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
             ) {
-                item(key = "spacer_top") { Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing)) }
+                item(key = "spacer_top") { Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current)) }
                 // --- Switcher (Movable) ---
                 item(key = "view_type_tabs") {
                     ElvanSectionContainer(

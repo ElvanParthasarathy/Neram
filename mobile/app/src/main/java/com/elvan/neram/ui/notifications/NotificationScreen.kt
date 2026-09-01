@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.notifications
+package com.elvan.neram.ui.notifications
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,7 +55,7 @@ fun NotificationScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item(key = "spacer_top") {
-            Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
         }
 
         if (notifications.isEmpty()) {

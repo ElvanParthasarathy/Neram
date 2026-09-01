@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.about
+package com.elvan.neram.ui.about
 
 import android.content.Intent
 import android.net.Uri
@@ -86,7 +86,7 @@ fun ContactScreen(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
             item(key = "spacer_top") {
-                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
             }
 
             item(key = "developer_profile") {

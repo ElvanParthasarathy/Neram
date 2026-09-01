@@ -46,7 +46,7 @@ fun DisplaySettingsScreen(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
             item(key = "spacer_top") {
-                Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+                Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
             }
 
             item(key = "theme_section") {

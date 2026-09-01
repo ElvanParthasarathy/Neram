@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.directory
+package com.elvan.neram.ui.directory
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
@@ -99,7 +99,7 @@ fun UserDirectoryScreen(
         verticalArrangement = Arrangement.spacedBy(com.elvan.neram.ui.home.HomeDimens.SectionSpacing)
     ) {
         item(key = "spacer_top") {
-            Spacer(Modifier.height(280.dp - com.elvan.neram.ui.home.HomeDimens.SectionSpacing))
+            Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
         }
 
         item(key = "directory_content") {

@@ -96,7 +96,7 @@ fun FolderList(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
         item(key = "spacer_top") {
-            Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
         }
 
         items(items, key = { it }) { item ->
@@ -161,7 +161,7 @@ fun FilesList(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
         item(key = "spacer_top") {
-            Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
         }
 
         items(subjects, key = { it.name }) { subject ->
@@ -347,7 +347,7 @@ fun DriveList(
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
         item(key = "spacer_top") {
-            Spacer(Modifier.height(280.dp - HomeDimens.SectionSpacing))
+            Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
         }
 
         items(folders, key = { it.id }) { folder ->
