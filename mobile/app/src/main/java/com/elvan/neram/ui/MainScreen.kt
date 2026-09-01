@@ -341,8 +341,13 @@ fun MainScreen(
     val configuration = androidx.compose.ui.platform.LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // Provide language to all children
-    CompositionLocalProvider(LocalAppLanguage provides effectiveLanguage) {
+    val globalHeaderExpanded = rememberSaveable { mutableStateOf(true) }
+
+    // Provide language and global header expanded state to all children
+    CompositionLocalProvider(
+        LocalAppLanguage provides effectiveLanguage,
+        com.elvan.neram.ui.components.shell.LocalGlobalHeaderExpanded provides globalHeaderExpanded
+    ) {
         // Wrapper Box - contains main content + navigation bar scrim
         Box(
             modifier = Modifier

@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 
 val LocalElvanScrollState = compositionLocalOf<LazyListState?> { null }
 val LocalElvanTopSpacerHeight = compositionLocalOf<Dp> { 280.dp - com.elvan.neram.ui.home.HomeDimens.SectionSpacing }
+val LocalGlobalHeaderExpanded = compositionLocalOf<MutableState<Boolean>> { mutableStateOf(true) }
 
 class ElvanShellController(
     val toggleHeader: () -> Unit = {},
@@ -109,8 +110,21 @@ private fun ElvanShellContent(
     val handoffShrinkOffsetDp = 196.dp - statusBarHeight
     val handoffShrinkOffsetPx = with(density) { handoffShrinkOffsetDp.toPx() }
     
+    val globalHeaderExpanded = LocalGlobalHeaderExpanded.current
+
     // Dynamic header collapse offset (0f = fully expanded, handoffShrinkOffsetPx = collapsed)
-    var headerCollapsePx by remember(scrollState) { mutableFloatStateOf(0f) }
+    var headerCollapsePx by remember(scrollState, globalHeaderExpanded.value) { 
+        mutableFloatStateOf(if (globalHeaderExpanded.value) 0f else handoffShrinkOffsetPx) 
+    }
+
+    // Keep global header expanded state in sync when collapse finishes
+    LaunchedEffect(headerCollapsePx, handoffShrinkOffsetPx) {
+        if (headerCollapsePx >= handoffShrinkOffsetPx && globalHeaderExpanded.value) {
+            globalHeaderExpanded.value = false
+        } else if (headerCollapsePx == 0f && !globalHeaderExpanded.value) {
+            globalHeaderExpanded.value = true
+        }
+    }
 
     val rawScrollOffset = if (scrollState.firstVisibleItemIndex == 0) {
         scrollState.firstVisibleItemScrollOffset.toFloat()
@@ -301,7 +315,7 @@ private fun ElvanShellContent(
     // Scroll disappear/fade is only enabled once the true pill has formed
     val effectiveNavOpacity = if (isTruePill) navOpacity else 1.0f
 
-    val shellController = remember(scrollState, handoffShrinkOffsetPx) {
+    val shellController = remember(scrollState, handoffShrinkOffsetPx, globalHeaderExpanded) {
         ElvanShellController(
             toggleHeader = {
                 coroutineScope.launch {
@@ -310,7 +324,8 @@ private fun ElvanShellContent(
                         scrollState.animateScrollToItem(0, 0)
                     } else {
                         // 2nd Tap: Toggle between Collapsed (Stage 1) and Expanded (Stage 2)
-                        val target = if (headerCollapsePx > handoffShrinkOffsetPx / 2f) 0f else handoffShrinkOffsetPx
+                        val willExpand = headerCollapsePx > handoffShrinkOffsetPx / 2f
+                        val target = if (willExpand) 0f else handoffShrinkOffsetPx
                         androidx.compose.animation.core.animate(
                             initialValue = headerCollapsePx,
                             targetValue = target,
@@ -319,6 +334,7 @@ private fun ElvanShellContent(
                                 easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
                             )
                         ) { value, _ -> headerCollapsePx = value }
+                        globalHeaderExpanded.value = willExpand
                     }
                 }
             },
@@ -332,6 +348,7 @@ private fun ElvanShellContent(
                         targetValue = 0f,
                         animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
                     ) { value, _ -> headerCollapsePx = value }
+                    globalHeaderExpanded.value = true
                 }
             },
             collapseHeader = {
@@ -341,6 +358,7 @@ private fun ElvanShellContent(
                         targetValue = handoffShrinkOffsetPx,
                         animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
                     ) { value, _ -> headerCollapsePx = value }
+                    globalHeaderExpanded.value = false
                 }
             }
         )
