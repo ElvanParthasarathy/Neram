@@ -110,7 +110,11 @@ private fun ElvanShellContent(
     val handoffShrinkOffsetPx = with(density) { handoffShrinkOffsetDp.toPx() }
     
     // Dynamic header collapse offset (0f = fully expanded, handoffShrinkOffsetPx = collapsed)
-    var headerCollapsePx by remember(scrollState) { mutableFloatStateOf(0f) }
+    var headerCollapsePx by remember(scrollState) { 
+        mutableFloatStateOf(
+            if (scrollState.firstVisibleItemIndex > 0 || scrollState.firstVisibleItemScrollOffset > 0) handoffShrinkOffsetPx else 0f
+        ) 
+    }
 
     val rawScrollOffset = if (scrollState.firstVisibleItemIndex == 0) {
         scrollState.firstVisibleItemScrollOffset.toFloat()

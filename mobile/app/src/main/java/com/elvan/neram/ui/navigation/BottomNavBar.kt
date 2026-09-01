@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.navigation
+package com.elvan.neram.ui.navigation
 
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -66,7 +66,10 @@ fun BottomNavBar(
     val layoutWidthPx = with(density) { layoutWidth.toPx() }
     val bgWidthPx = with(density) { bgWidth.toPx() }
 
-    // Sync external state changes (mirrors Flutter didUpdateWidget)
+    val currentOnTabSelected by rememberUpdatedState(onTabSelected)
+    val currentOnInteraction by rememberUpdatedState(onInteraction)
+    val currentOnDragProgress by rememberUpdatedState(onDragProgress)
+
     val actualIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
     LaunchedEffect(actualIndex) {
         localLockedIndex = null
@@ -176,7 +179,7 @@ fun BottomNavBar(
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
                         isInteracting = true
-                        onInteraction(true)
+                        currentOnInteraction(true)
 
                         val initialX = down.position.x
                         hoverIndex = floor(initialX / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
@@ -199,7 +202,7 @@ fun BottomNavBar(
                                 val targetCenter = currentPos.x - touchOffsetFromCenterPx
                                 dragOffsetPx = targetCenter
                                 hoverIndex = floor(targetCenter / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
-                                onDragProgress(targetCenter / layoutWidthPx)
+                                currentOnDragProgress(targetCenter / layoutWidthPx)
                                 change.consume()
                             }
                         }
@@ -209,14 +212,14 @@ fun BottomNavBar(
                             localLockedIndex = finalIndex
                         }
                         isInteracting = false
-                        onInteraction(false)
+                        currentOnInteraction(false)
                         dragOffsetPx = null
                         hoverIndex = null
 
                         if (finalIndex != null) {
                             coroutineScope.launch {
                                 delay(150)
-                                onTabSelected(tabs[finalIndex], isDrag)
+                                currentOnTabSelected(tabs[finalIndex], isDrag)
                             }
                         }
                     }
