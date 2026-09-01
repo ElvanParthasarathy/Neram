@@ -45,6 +45,13 @@ import kotlinx.coroutines.launch
 val LocalElvanScrollState = compositionLocalOf<LazyListState?> { null }
 val LocalElvanTopSpacerHeight = compositionLocalOf<Dp> { 280.dp - com.elvan.neram.ui.home.HomeDimens.SectionSpacing }
 
+class ElvanShellController(
+    val toggleHeader: () -> Unit = {},
+    val expandHeader: () -> Unit = {},
+    val collapseHeader: () -> Unit = {}
+)
+val LocalElvanShellController = compositionLocalOf { ElvanShellController() }
+
 @Composable
 fun ElvanShell(
     scrollState: LazyListState,
@@ -299,9 +306,55 @@ private fun ElvanShellContent(
     // Scroll disappear/fade is only enabled once the true pill has formed
     val effectiveNavOpacity = if (isTruePill) navOpacity else 1.0f
 
+    val shellController = remember(scrollState, handoffShrinkOffsetPx) {
+        ElvanShellController(
+            toggleHeader = {
+                coroutineScope.launch {
+                    if (scrollState.firstVisibleItemIndex > 0 || scrollState.firstVisibleItemScrollOffset > 0) {
+                        // 1st Tap: Scroll list to top smoothly (Stage 1 Collapsed)
+                        scrollState.animateScrollToItem(0, 0)
+                    } else {
+                        // 2nd Tap: Toggle between Collapsed (Stage 1) and Expanded (Stage 2)
+                        val target = if (headerCollapsePx > handoffShrinkOffsetPx / 2f) 0f else handoffShrinkOffsetPx
+                        androidx.compose.animation.core.animate(
+                            initialValue = headerCollapsePx,
+                            targetValue = target,
+                            animationSpec = tween(
+                                durationMillis = 280,
+                                easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
+                            )
+                        ) { value, _ -> headerCollapsePx = value }
+                    }
+                }
+            },
+            expandHeader = {
+                coroutineScope.launch {
+                    if (scrollState.firstVisibleItemIndex > 0 || scrollState.firstVisibleItemScrollOffset > 0) {
+                        scrollState.scrollToItem(0, 0)
+                    }
+                    androidx.compose.animation.core.animate(
+                        initialValue = headerCollapsePx,
+                        targetValue = 0f,
+                        animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
+                    ) { value, _ -> headerCollapsePx = value }
+                }
+            },
+            collapseHeader = {
+                coroutineScope.launch {
+                    androidx.compose.animation.core.animate(
+                        initialValue = headerCollapsePx,
+                        targetValue = handoffShrinkOffsetPx,
+                        animationSpec = tween(280, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
+                    ) { value, _ -> headerCollapsePx = value }
+                }
+            }
+        )
+    }
+
     CompositionLocalProvider(
         LocalElvanScrollState provides scrollState,
-        LocalElvanTopSpacerHeight provides topSpacerHeight
+        LocalElvanTopSpacerHeight provides topSpacerHeight,
+        LocalElvanShellController provides shellController
     ) {
         Box(
             modifier = Modifier

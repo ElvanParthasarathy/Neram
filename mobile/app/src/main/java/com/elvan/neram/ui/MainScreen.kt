@@ -613,9 +613,25 @@ fun MainScreen(
                     },
                     navbar = {
                         if (!isLandscape) {
+                            val shellController = com.elvan.neram.ui.components.shell.LocalElvanShellController.current
                             BottomNavBar(
                                 selectedTab = selectedTab,
-                                onTabSelected = handleTabSelected,
+                                onTabSelected = { tab, isDrag ->
+                                    if (selectedTab == tab) {
+                                        if (tab == NavTab.Calendar || (tab == NavTab.Notes && isInsideNotesFolder)) {
+                                            val targetScrollState = when (tab) {
+                                                NavTab.Calendar -> calendarScrollState
+                                                NavTab.Notes -> notesScrollState
+                                                else -> homeScrollState
+                                            }
+                                            scope.launch { targetScrollState.animateScrollToItem(0, 0) }
+                                        } else {
+                                            shellController.toggleHeader()
+                                        }
+                                    } else {
+                                        handleTabSelected(tab, isDrag)
+                                    }
+                                },
                                 onInteraction = { isNavInteracting = it },
                                 onDragProgress = { navDragProgress = it }
                             )
