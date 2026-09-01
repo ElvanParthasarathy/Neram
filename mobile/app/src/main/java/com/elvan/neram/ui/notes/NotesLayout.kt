@@ -1,6 +1,7 @@
-﻿package com.elvan.neram.ui.notes
+package com.elvan.neram.ui.notes
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -44,47 +45,44 @@ fun NotesMainLayout(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (notesMode == "folder") {
-            // FOLDER MODE: animated content slide on folder enter/exit
-            AnimatedContent(
-                targetState = Pair(path, uiState),
-                transitionSpec = {
-                    if (targetState.first.size > initialState.first.size) {
-                        slideInHorizontally { it } togetherWith slideOutHorizontally { -it }
-                    } else if (targetState.first.size < initialState.first.size) {
-                        slideInHorizontally { -it } togetherWith slideOutHorizontally { it }
-                    } else {
-                        fadeIn() togetherWith fadeOut()
-                    }
-                },
-                contentKey = { it.first.joinToString("/") },
-                label = "NotesContentSlide"
-            ) { (animPath, animState) ->
-                val pathKey = animPath.joinToString("/")
-                saveableStateHolder.SaveableStateProvider(pathKey) {
-                    NotesContentView(
-                        uiState = animState,
-                        path = animPath,
-                        rootFolders = rootFolders,
-                        colors = colors,
-                        onBackClick = onBackClick,
-                        onFolderClick = onFolderClick,
-                        onFileClick = onFileClick,
-                        onNotUploaded = onNotUploaded,
-                        onRetry = onRetry,
-                        onDriveFolderClick = onDriveFolderClick,
-                        onDriveFileClick = onDriveFileClick,
-                        scrollState = scrollState
-                    )
+        // Unified animated content slide on folder enter/exit (both Fetch and Folder modes)
+        AnimatedContent(
+            targetState = Pair(path, uiState),
+            transitionSpec = {
+                val isDeeper = targetState.first.size > initialState.first.size
+                val isShallower = targetState.first.size < initialState.first.size
+                if (isDeeper) {
+                    // Entering folder: slide in from right (+width), exit to left (-width)
+                    (slideInHorizontally(
+                        initialOffsetX = { width -> (width * 0.85f).toInt() },
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy)
+                    ) + fadeIn(animationSpec = tween(220))) togetherWith
+                    (slideOutHorizontally(
+                        targetOffsetX = { width -> -(width * 0.35f).toInt() },
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy)
+                    ) + fadeOut(animationSpec = tween(180)))
+                } else if (isShallower) {
+                    // Going back: slide in from left (-width), exit to right (+width)
+                    (slideInHorizontally(
+                        initialOffsetX = { width -> -(width * 0.35f).toInt() },
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy)
+                    ) + fadeIn(animationSpec = tween(220))) togetherWith
+                    (slideOutHorizontally(
+                        targetOffsetX = { width -> (width * 0.85f).toInt() },
+                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy)
+                    ) + fadeOut(animationSpec = tween(180)))
+                } else {
+                    fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(200))
                 }
-            }
-        } else {
-            // FETCH MODE
-            val pathKey = path.joinToString("/")
+            },
+            contentKey = { it.first.joinToString("/") },
+            label = "NotesContentSlide"
+        ) { (animPath, animState) ->
+            val pathKey = animPath.joinToString("/")
             saveableStateHolder.SaveableStateProvider(pathKey) {
                 NotesContentView(
-                    uiState = uiState,
-                    path = path,
+                    uiState = animState,
+                    path = animPath,
                     rootFolders = rootFolders,
                     colors = colors,
                     onBackClick = onBackClick,
@@ -117,7 +115,7 @@ private fun NotesContentView(
     onDriveFileClick: (com.elvan.neram.data.model.DriveFile) -> Unit,
     scrollState: androidx.compose.foundation.lazy.LazyListState
 ) {
-    val listState = if (path.isEmpty()) scrollState else androidx.compose.foundation.lazy.rememberLazyListState()
+    val listState = scrollState
 
     if (uiState is NotesUiState.Empty) {
         FolderList(

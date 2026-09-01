@@ -1,29 +1,32 @@
-﻿package com.elvan.neram.ui.common
+package com.elvan.neram.ui.common
 
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex // Added import
+import androidx.compose.ui.zIndex
 import androidx.compose.ui.viewinterop.AndroidView
 import com.elvan.neram.ui.home.HomeColors
 import com.elvan.neram.ui.home.HomeShapes
 import com.elvan.neram.ui.home.HomeTypography
 import com.elvan.neram.ui.components.ExpressiveLoadingIndicator
 import com.github.barteksc.pdfviewer.PDFView
+import com.github.barteksc.pdfviewer.util.FitPolicy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,6 +37,8 @@ import java.net.URL
 @Composable
 fun PdfViewerScreen(
     url: String,
+    title: String = "Academic Calendar",
+    onBack: () -> Unit = {},
     colors: HomeColors = com.elvan.neram.ui.home.rememberHomeColors()
 ) {
     val context = LocalContext.current
@@ -73,23 +78,24 @@ fun PdfViewerScreen(
         downloadPdf()
     }
 
-    LaunchedEffect(url) {
-        downloadPdf()
-    }
-
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    val topPadding = statusBarHeight + 20.dp + 50.dp + 16.dp
+    val ceiling = statusBarHeight + 20.dp
+    val fadeHeight = ceiling + 50.dp + 32.dp
+
+    val pillColor = if (colors.isDark) Color(0xFF242424) else Color.White
+    val contentColor = if (colors.isDark) Color.White else Color(0xFF1E1E1E)
+    val canvasBg = if (colors.isDark) Color(0xFF121212) else Color(0xFFF2F4F7)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = topPadding)
-            .background(colors.surface),
-        contentAlignment = Alignment.Center
+            .background(canvasBg)
     ) {
+        // LAYER 1: Full Edge-to-Edge PDF Canvas / Loading / Error
         when {
             isLoading -> {
                 Column(
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -104,6 +110,7 @@ fun PdfViewerScreen(
             }
             isError -> {
                 Column(
+                    modifier = Modifier.fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -132,9 +139,11 @@ fun PdfViewerScreen(
                 }
             }
             pdfFile != null -> {
-                val currentFile = pdfFile!! // Safe unwrap
+                val currentFile = pdfFile!!
                 AndroidView(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = ceiling + 50.dp + 8.dp),
                     factory = { ctx ->
                         PDFView(ctx, null)
                     },
@@ -144,14 +153,55 @@ fun PdfViewerScreen(
                             .swipeHorizontal(false)
                             .enableDoubletap(true)
                             .defaultPage(0)
-                            .enableAnnotationRendering(false)
+                            .enableAnnotationRendering(true)
                             .password(null)
                             .scrollHandle(null)
                             .enableAntialiasing(true)
-                            .spacing(10) // spacing between pages in dp
+                            .spacing(12)
+                            .pageFitPolicy(FitPolicy.WIDTH)
                             .load()
                     }
                 )
+            }
+        }
+
+        // LAYER 2: Home-style Top Fade Gradient (Smooth content fade into top bar)
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(fadeHeight)
+                .zIndex(100f)
+                .background(
+                    Brush.verticalGradient(
+                        0.0f to colors.background,
+                        0.40f to colors.background.copy(alpha = 0.85f),
+                        0.70f to colors.background.copy(alpha = 0.35f),
+                        1.0f to Color.Transparent
+                    )
+                )
+        )
+
+        // LAYER 3: Floating Subpage-style Back Chevron Pill Alone (Matching all other subpages)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = ceiling, start = 16.dp, end = 16.dp)
+                .zIndex(150f)
+        ) {
+            com.elvan.neram.ui.components.shell.ElvanPill(
+                liftProgress = 1.0f,
+                colors = colors,
+                modifier = Modifier.size(50.dp)
+            ) {
+                com.elvan.neram.ui.components.shell.ElvanTopBarIconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
+                        contentDescription = "Back",
+                        tint = colors.textPrimary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
             }
         }
     }

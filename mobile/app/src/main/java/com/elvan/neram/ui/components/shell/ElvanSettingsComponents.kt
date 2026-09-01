@@ -1,14 +1,19 @@
-﻿package com.elvan.neram.ui.components.shell
+package com.elvan.neram.ui.components.shell
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -17,11 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -216,7 +223,7 @@ fun ElvanSettingsDivider(
 }
 
 /**
- * ElvanSettingsSwitch — Monochrome switch matching Flutter's `ElvanSettingsSwitch`.
+ * ElvanSettingsSwitch — One UI Blue switch matching One UI style.
  */
 @Composable
 fun ElvanSettingsSwitch(
@@ -231,8 +238,8 @@ fun ElvanSettingsSwitch(
         onCheckedChange = onCheckedChange,
         modifier = modifier,
         colors = SwitchDefaults.colors(
-            checkedThumbColor = if (isDark) Color(0xFF111111) else Color.White,
-            checkedTrackColor = if (isDark) Color.White else Color.Black,
+            checkedThumbColor = Color.White,
+            checkedTrackColor = colors.accent,
             uncheckedThumbColor = if (isDark) Color.White.copy(alpha = 0.6f) else Color.Black.copy(alpha = 0.6f),
             uncheckedTrackColor = if (isDark) Color.White.copy(alpha = 0.1f) else Color.Black.copy(alpha = 0.1f),
             checkedBorderColor = Color.Transparent,
@@ -389,7 +396,7 @@ fun <T> ElvanRadioSettingsRow(
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
-                    tint = colors.textPrimary,
+                    tint = colors.accent,
                     modifier = Modifier.size(24.dp)
                 )
             } else {
@@ -398,4 +405,360 @@ fun <T> ElvanRadioSettingsRow(
         }
     }
 }
+
+/**
+ * ElvanSettingsAnimatedExpand — Smoothly expands and collapses between read-only display and edit modes
+ * using the native vertical expand and fade transitions.
+ */
+@Composable
+fun ElvanSettingsAnimatedExpand(
+    isEditing: Boolean,
+    modifier: Modifier = Modifier,
+    displayContent: @Composable () -> Unit,
+    editContent: @Composable () -> Unit
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        AnimatedVisibility(
+            visible = !isEditing,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            displayContent()
+        }
+        AnimatedVisibility(
+            visible = isEditing,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            editContent()
+        }
+    }
+}
+
+/**
+ * ElvanSettingsDisplayRow — Read-only state showing title label, primary value, optional subtitle, and circular edit button.
+ * Mirrors Flutter's `ElvanSettingsDisplayRow` exactly.
+ *
+ * Padding: 16.dp horizontal, 14.dp vertical
+ * Title: 14.sp, onSurface 60% alpha
+ * Value: 14.sp, FontWeight.Medium
+ * Edit button: 40.dp circle with subtle monochrome tint and 20.dp edit icon
+ */
+@Composable
+fun ElvanSettingsDisplayRow(
+    title: String,
+    primaryValue: String,
+    modifier: Modifier = Modifier,
+    secondaryValue: String? = null,
+    onEdit: (() -> Unit)? = null,
+    onTap: (() -> Unit)? = null,
+    icon: ImageVector = Icons.Rounded.Edit,
+    iconColor: Color? = null,
+    primaryWidget: (@Composable () -> Unit)? = null,
+    colors: HomeColors = rememberHomeColors()
+) {
+    val isDark = colors.isDark
+    val ff = LocalAppFontFamily.current
+    val rippleColor = if (isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f)
+    val defaultIconBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(
+                if (onTap != null) Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(color = rippleColor, bounded = true),
+                    onClick = onTap
+                ) else Modifier
+            ),
+        color = Color.Transparent
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = title,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal,
+                        lineHeight = 18.sp
+                    ),
+                    color = colors.textPrimary.copy(alpha = 0.6f)
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                if (primaryWidget != null) {
+                    primaryWidget()
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+                if (primaryWidget == null || primaryValue.isNotEmpty()) {
+                    Text(
+                        text = if (primaryValue.isEmpty()) "-" else primaryValue,
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 18.sp
+                        ),
+                        color = colors.textPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                if (!secondaryValue.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = secondaryValue,
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal,
+                            lineHeight = 16.sp
+                        ),
+                        color = colors.textPrimary.copy(alpha = 0.6f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
+            if (onEdit != null) {
+                Spacer(modifier = Modifier.width(12.dp))
+                Surface(
+                    shape = CircleShape,
+                    color = iconColor?.copy(alpha = 0.1f) ?: defaultIconBg,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(color = rippleColor, bounded = true),
+                            onClick = onEdit
+                        )
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = "Edit",
+                            tint = iconColor ?: colors.textPrimary.copy(alpha = 0.6f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * ElvanSettingsEditContainer — Tinted container for edit mode forms with Cancel and Save buttons.
+ * Mirrors Flutter's `ElvanSettingsEditContainer` exactly.
+ */
+@Composable
+fun ElvanSettingsEditContainer(
+    title: String,
+    onCancel: () -> Unit,
+    onSave: () -> Unit,
+    modifier: Modifier = Modifier,
+    cancelText: String = "Cancel",
+    saveText: String = "Save",
+    colors: HomeColors = rememberHomeColors(),
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val ff = LocalAppFontFamily.current
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            text = title,
+            style = TextStyle(
+                fontFamily = ff,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
+            ),
+            color = colors.textPrimary
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        content()
+        Spacer(modifier = Modifier.height(16.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(
+                onClick = onCancel,
+                shape = RoundedCornerShape(50)
+            ) {
+                Text(
+                    text = cancelText,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = colors.textPrimary.copy(alpha = 0.7f)
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                onClick = onSave,
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colors.accent,
+                    contentColor = Color.White
+                ),
+                elevation = ButtonDefaults.buttonElevation(0.dp)
+            ) {
+                Text(
+                    text = saveText,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                )
+            }
+        }
+    }
+}
+
+/**
+ * ElvanSettingsTextField — Pill-shaped text field with dynamic fill color matching Flutter's `ElvanSettingsTextField`.
+ */
+@Composable
+fun ElvanSettingsTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    prefixText: String? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    singleLine: Boolean = true,
+    readOnly: Boolean = false,
+    onClick: (() -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
+    colors: HomeColors = rememberHomeColors()
+) {
+    val isDark = colors.isDark
+    val ff = LocalAppFontFamily.current
+    val fieldBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            text = label,
+            style = TextStyle(
+                fontFamily = ff,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Normal,
+                letterSpacing = 0.3.sp
+            ),
+            color = colors.textPrimary.copy(alpha = 0.5f),
+            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+        )
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clip(RoundedCornerShape(100))
+                .then(
+                    if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+                ),
+            shape = RoundedCornerShape(100),
+            color = fieldBg,
+            shadowElevation = 0.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (prefixText != null) {
+                    Text(
+                        text = prefixText,
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        color = colors.textPrimary.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (value.isEmpty() && placeholder.isNotEmpty()) {
+                        Text(
+                            text = placeholder,
+                            style = TextStyle(
+                                fontFamily = ff,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            color = colors.textPrimary.copy(alpha = 0.35f)
+                        )
+                    }
+
+                    if (readOnly) {
+                        Text(
+                            text = value,
+                            style = TextStyle(
+                                fontFamily = ff,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal
+                            ),
+                            color = colors.textPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    } else {
+                        BasicTextField(
+                            value = value,
+                            onValueChange = onValueChange,
+                            singleLine = singleLine,
+                            keyboardOptions = keyboardOptions,
+                            textStyle = TextStyle(
+                                fontFamily = ff,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                color = colors.textPrimary
+                            ),
+                            cursorBrush = SolidColor(colors.textPrimary),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
+                if (trailingIcon != null) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    trailingIcon()
+                }
+            }
+        }
+    }
+}
+
 

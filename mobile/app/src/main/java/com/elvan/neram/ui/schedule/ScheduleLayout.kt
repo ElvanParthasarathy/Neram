@@ -198,9 +198,10 @@ fun ScheduleMainLayout(
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
+                                            .clip(HomeShapes.Card)
                                             .clickable(
                                                 interactionSource = remember { MutableInteractionSource() },
-                                                indication = null
+                                                indication = ripple(color = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f), bounded = true)
                                             ) { isExpanded = !isExpanded }
                                             .padding(horizontal = 16.dp, vertical = 14.dp),
                                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -408,9 +409,10 @@ fun ScheduleMainLayout(
                                                 Row(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
+                                                        .clip(HomeShapes.Card)
                                                         .clickable(
                                                             interactionSource = remember { MutableInteractionSource() },
-                                                            indication = null
+                                                            indication = ripple(color = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f), bounded = true)
                                                         ) { isFinishedExpanded = !isFinishedExpanded }
                                                     .padding(horizontal = 16.dp, vertical = 14.dp),
                                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -473,9 +475,10 @@ fun ScheduleMainLayout(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .clip(HomeShapes.Card)
                                         .clickable(
                                             interactionSource = remember { MutableInteractionSource() },
-                                            indication = null
+                                            indication = ripple(color = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f), bounded = true)
                                         ) { isCoursesExpanded = !isCoursesExpanded }
                                         .padding(horizontal = 16.dp, vertical = 14.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,

@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.home
+package com.elvan.neram.ui.home
 
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -77,7 +77,7 @@ object HomeDimens {
     
     // Sections - matches gap: reduced to 16px
     val SectionSpacing = 16.dp
-    val SectionTitleBottomPadding = 4.dp
+    val SectionTitleBottomPadding = 12.dp
     val ItemSpacing = 12.dp
     val DateSectionSpacing = 4.dp
     
@@ -501,7 +501,7 @@ private object CssColors {
         val BgCard = Color(0xFFFFFFFF)           // --bg-card: rgba(255,255,255,0.9) -> solid
         val TextPrimary = Color(0xFF1D1D1F)      // --text-primary: #1D1D1F
         val TextSecondary = Color(0xFF6B7280)    // --text-secondary: #6B7280
-        val AccentPrimary = Color(0xFF007AFF)    // --accent-primary: #007AFF
+        val AccentPrimary = Color(0xFF0072DE)    // --accent-primary: #0072DE (OneElvan SESL blue)
         val AccentDanger = Color(0xFFFF3B30)     // --accent-danger: #FF3B30
         val BgButtonSecondary = Color(0x26787880) // --bg-button-secondary: rgba(120,120,128,0.15)
         val NavSelection = Color(0x1A000000)     // --bg-nav-selection: rgba(0,0,0,0.1)
@@ -518,7 +518,7 @@ private object CssColors {
         val BgCard = Color(0xFF111111)           // --bg-card: Matching Niril (0xFF111111)
         val TextPrimary = Color(0xFFFFFFFF)      // --text-primary: #FFFFFF
         val TextSecondary = Color(0xFF9CA3AF)    // --text-secondary: #9CA3AF
-        val AccentPrimary = Color(0xFF0A84FF)    // --accent-primary: #0A84FF
+        val AccentPrimary = Color(0xFF0072DE)    // --accent-primary: #0072DE (OneElvan SESL blue)
         val AccentDanger = Color(0xFFFF453A)     // --accent-danger: #FF453A
         val BgButtonSecondary = Color(0x1FFFFFFF) // --bg-button-secondary: rgba(255,255,255,0.12)
         val NavSelection = Color(0xE62C2C2E)     // --bg-nav-selection: rgba(44,44,46,0.9)

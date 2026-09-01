@@ -2,6 +2,7 @@ package com.elvan.neram.ui.directory
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -183,12 +184,18 @@ private fun UserDirectoryContent(
         transitionSpec = {
             if (targetState.size > initialState.size) {
                 // Forward: Slide In from Right
-                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) + fadeIn() togetherWith
-                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left) + fadeOut()
+                slideIntoContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioNoBouncy)
+                ) togetherWith 
+                fadeOut(targetAlpha = 0.9f, animationSpec = tween(durationMillis = 50))
             } else {
-                // Backward: Slide In from Left
-                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) + fadeIn() togetherWith
-                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) + fadeOut()
+                // Backward: Slide Out to Right
+                fadeIn(initialAlpha = 0.9f) togetherWith 
+                slideOutOfContainer(
+                    towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                    animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioNoBouncy)
+                )
             }
         },
         label = "DirectoryTransition"

@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.auth
+package com.elvan.neram.ui.auth
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
@@ -46,7 +46,7 @@ import kotlin.math.sin
 // ============== THEME-AWARE COLORS ==============
 object AuthColors {
     // Accent colors (same for both themes)
-    val NeramBlue = Color(0xFF007AFF)
+    val NeramBlue = Color(0xFF0072DE)
     val NeramBlueLight = Color(0xFF4DA3FF)
     
     // Theme colors will be computed at runtime

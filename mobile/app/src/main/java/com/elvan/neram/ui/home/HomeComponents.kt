@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.home
+package com.elvan.neram.ui.home
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -17,13 +17,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.EventBusy
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -142,25 +143,24 @@ internal fun PageHeader(
                 ) {
                     // Profile or Skeleton
                     if (userProfile != null) {
+                        val profileRippleColor = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f)
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(RoundedCornerShape(HomeDimens.BigPillRadius)) // Clip for ripple
-                                .clip(RoundedCornerShape(HomeDimens.BigPillRadius)) // Clip for ripple
+                                .clip(RoundedCornerShape(HomeDimens.BigPillRadius))
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = ripple(color = profileRippleColor, bounded = true),
+                                    onClick = onProfileClick
+                                )
                                 .padding(HomeDimens.HeaderPillPadding),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Surface(
                                 shape = CircleShape,
                                 color = colors.subtleBackground,
-                                modifier = Modifier
-                                    .size(HomeDimens.AvatarSize)
-                                    .clip(CircleShape)
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = ripple(color = if (colors.isDark) Color.White.copy(alpha = 0.20f) else Color.Black.copy(alpha = 0.10f), bounded = true),
-                                        onClick = onProfileClick
-                                    )
+                                modifier = Modifier.size(HomeDimens.AvatarSize)
                             ) {
                                 val photoUrl = userProfile.photoURL
                                 
@@ -399,7 +399,7 @@ internal fun DateSection(
             )
             
             val elevation by animateDpAsState(
-                targetValue = if (isPressed) 2.dp else 6.dp, 
+                targetValue = if (isPressed) 0.5.dp else 2.5.dp, 
                 animationSpec = if (isPressed) {
                     tween(50) // Instant actuation
                 } else {
@@ -414,7 +414,12 @@ internal fun DateSection(
                     .padding(end = HomeDimens.SpacingSm)
                     .size(HomeDimens.CalendarIconSize)
                     .scale(scale)
-                    .shadow(elevation, CircleShape)
+                    .shadow(
+                        elevation = if (colors.isDark) 0.dp else elevation,
+                        shape = CircleShape,
+                        spotColor = colors.accent.copy(alpha = 0.25f),
+                        ambientColor = Color.Black.copy(alpha = 0.05f)
+                    )
                     .background(colors.accent, CircleShape)
                     .clip(CircleShape)
                     .pointerInput(Unit) {
@@ -686,62 +691,97 @@ internal fun FullDayEventCard(
     event: CalendarEvent,
     colors: HomeColors
 ) {
-    Card(
+    val lang = LocalAppLanguage.current
+    val ff = LocalAppFontFamily.current
+    val cardBg = colors.accent
+    val pillBg = Color.White.copy(alpha = 0.2f)
+
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = HomeDimens.SpacingXl),
-        shape = HomeShapes.Card,
-        colors = CardDefaults.cardColors(containerColor = colors.accent)
+            .padding(bottom = HomeDimens.SpacingLg),
+        shape = RoundedCornerShape(24.dp),
+        color = cardBg,
+        shadowElevation = 0.dp
     ) {
-        Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
-            val lang = LocalAppLanguage.current
-            Text(
-                text = AppStrings.Home.todaysEvent(lang),
-                style = HomeTypography.ExamTag.copy(fontFamily = LocalAppFontFamily.current),
-                color = Color.White.copy(alpha = 0.8f)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.DateRange,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(30.dp)
             )
-            
-            Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-            
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.9f),
-                    modifier = Modifier.size(HomeDimens.IconSizeXl)
+                Text(
+                    text = event.title,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 22.sp
+                    ),
+                    color = Color.White,
+                    softWrap = true
                 )
-                
-                Column {
+
+                val desc = event.description ?: AppStrings.Home.noClasses(lang)
+                if (desc.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = event.title,
-                        style = HomeTypography.ExamTitle,
-                        color = Color.White
+                        text = desc,
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Normal,
+                            lineHeight = 16.sp
+                        ),
+                        color = Color.White.copy(alpha = 0.85f),
+                        softWrap = true
                     )
-                    Text(
-                        text = event.description ?: AppStrings.Home.fullDayEvent(lang),
-                        style = HomeTypography.ExamSubtitle,
-                        color = Color.White.copy(alpha = 0.9f)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingSm),
-                        verticalAlignment = Alignment.CenterVertically
+                }
+
+                Spacer(modifier = Modifier.height(9.dp))
+
+                // Bottom Meta Pills Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(100),
+                        color = pillBg
                     ) {
-                        MetaChip(
-                            icon = Icons.Outlined.Schedule,
-                            text = AppStrings.Home.fullDay(lang),
-                            colors = colors
-                        )
-                        MetaChip(
-                            icon = Icons.Outlined.Info,
-                            text = AppStrings.Home.noClasses(lang),
-                            colors = colors
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 7.5.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Schedule,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(10.5.dp)
+                            )
+                            Text(
+                                text = AppStrings.Home.fullDay(lang),
+                                style = TextStyle(
+                                    fontFamily = ff,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                color = Color.White
+                            )
+                        }
                     }
                 }
             }
@@ -757,64 +797,96 @@ internal fun HalfDayEventCard(
     event: CalendarEvent,
     colors: HomeColors
 ) {
-    Card(
+    val lang = LocalAppLanguage.current
+    val ff = LocalAppFontFamily.current
+    val cardBg = colors.accent
+    val pillBg = Color.White.copy(alpha = 0.2f)
+    val timeFormatted = "${DateTimeUtils.formatTimeForDisplay(event.startTime ?: "09:00")} - ${DateTimeUtils.formatTimeForDisplay(event.endTime ?: "12:00")}"
+
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = HomeDimens.SpacingXl),
-        shape = HomeShapes.Card,
-        colors = CardDefaults.cardColors(containerColor = colors.accent)
+            .padding(bottom = HomeDimens.SpacingLg),
+        shape = RoundedCornerShape(24.dp),
+        color = cardBg,
+        shadowElevation = 0.dp
     ) {
-        Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
-            val lang = LocalAppLanguage.current
-            Text(
-                text = AppStrings.Home.specialEvent(lang),
-                style = HomeTypography.ExamTag,
-                color = Color.White.copy(alpha = 0.8f)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.DateRange,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(30.dp)
             )
-            
-            Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-            
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.9f),
-                    modifier = Modifier.size(HomeDimens.IconSizeXl)
+                Text(
+                    text = event.title,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 22.sp
+                    ),
+                    color = Color.White,
+                    softWrap = true
                 )
-                
-                Column {
+
+                if (!event.description.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = event.title,
-                        style = HomeTypography.ExamTitle,
-                        color = Color.White
+                        text = event.description,
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Normal,
+                            lineHeight = 16.sp
+                        ),
+                        color = Color.White.copy(alpha = 0.85f),
+                        softWrap = true
                     )
-                    Text(
-                        text = event.description ?: AppStrings.Home.specialSession(lang),
-                        style = HomeTypography.ExamSubtitle,
-                        color = Color.White.copy(alpha = 0.9f)
-                    )
-                    
-                    if (event.type != "Event") {
-                        Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-                        
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingSm),
-                            verticalAlignment = Alignment.CenterVertically
+                }
+
+                if (event.type != "Event") {
+                    Spacer(modifier = Modifier.height(9.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(100),
+                            color = pillBg
                         ) {
-                            val time = "${DateTimeUtils.formatTimeForDisplay(event.startTime ?: "09:00")} - ${DateTimeUtils.formatTimeForDisplay(event.endTime ?: "12:00")}"
-                            MetaChip(
-                                icon = Icons.Outlined.Schedule,
-                                text = time,
-                                colors = colors
-                            )
-                            MetaChip(
-                                icon = Icons.Outlined.Info,
-                                text = AppStrings.Home.event(lang),
-                                colors = colors
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 7.5.dp, vertical = 3.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Schedule,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(10.5.dp)
+                                )
+                                Text(
+                                    text = timeFormatted,
+                                    style = TextStyle(
+                                        fontFamily = ff,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
@@ -824,7 +896,7 @@ internal fun HalfDayEventCard(
 }
 
 /**
- * Exam Card - Matches .exam-mini-card
+ * Exam Card - Matches new minimal Elvan design language with accent background
  */
 @Composable
 internal fun ExamCard(
@@ -850,66 +922,131 @@ internal fun ExamCard(
         cleanName = cleanName.replace(Regex(pattern, RegexOption.IGNORE_CASE), "").trim()
     }
     val courseName = cleanName.trimEnd('-', ' ', '/')
-    
-    Card(
+    val lang = LocalAppLanguage.current
+    val ff = LocalAppFontFamily.current
+    val cardBg = colors.accent
+    val pillBg = Color.White.copy(alpha = 0.2f)
+    val timeFormatted = "${DateTimeUtils.formatTimeForDisplay(subject.startTime)} - ${DateTimeUtils.formatTimeForDisplay(subject.endTime)}"
+
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = HomeDimens.SpacingXl),
-        shape = HomeShapes.Card,
-        colors = CardDefaults.cardColors(containerColor = colors.accent)
+            .padding(bottom = HomeDimens.SpacingLg),
+        shape = RoundedCornerShape(24.dp),
+        color = cardBg,
+        shadowElevation = 0.dp
     ) {
-        Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
-            val lang = LocalAppLanguage.current
-            Text(
-                text = AppStrings.Home.todaysExam(lang),
-                style = HomeTypography.ExamTag.copy(fontFamily = LocalAppFontFamily.current),
-                color = Color.White.copy(alpha = 0.8f)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.EmojiEvents,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(30.dp)
             )
-            
-            Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-            
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                Icon(
-                    imageVector = Icons.Default.EmojiEvents,
-                    contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.9f),
-                    modifier = Modifier
-                        .size(HomeDimens.IconSizeXxl)
-                        .padding(top = HomeDimens.SpacingXxxs)
+                Text(
+                    text = courseName,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 22.sp
+                    ),
+                    color = Color.White,
+                    softWrap = true
                 )
-                
-                Column {
-                    Text(
-                        text = exam.title,
-                        style = HomeTypography.ExamTitle,
-                        color = Color.White
-                    )
-                    Text(
-                        text = "${subject.code}: $courseName",
-                        style = HomeTypography.ExamSubtitle,
-                        color = Color.White.copy(alpha = 0.9f)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingSm),
-                        verticalAlignment = Alignment.CenterVertically
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                // Subtitle: Code • Exam Title
+                Text(
+                    text = "${subject.code} • ${exam.title}",
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.Normal,
+                        lineHeight = 16.sp
+                    ),
+                    color = Color.White.copy(alpha = 0.85f),
+                    softWrap = true,
+                    maxLines = 3
+                )
+
+                Spacer(modifier = Modifier.height(9.dp))
+
+                // Bottom Meta Pills Row: Time Pill + Portion Pill side-by-side
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Time Pill
+                    Surface(
+                        shape = RoundedCornerShape(100),
+                        color = pillBg
                     ) {
-                        MetaChip(
-                            icon = Icons.Outlined.Schedule,
-                            text = "${DateTimeUtils.formatTimeForDisplay(subject.startTime)} - ${DateTimeUtils.formatTimeForDisplay(subject.endTime)}",
-                            colors = colors
-                        )
-                        if (subject.portion.isNotEmpty()) {
-                            MetaChip(
-                                icon = Icons.Outlined.Info,
-                                text = subject.portion,
-                                colors = colors
+                        Row(
+                            modifier = Modifier.padding(horizontal = 7.5.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Schedule,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(10.5.dp)
                             )
+                            Text(
+                                text = timeFormatted,
+                                style = TextStyle(
+                                    fontFamily = ff,
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                color = Color.White
+                            )
+                        }
+                    }
+
+                    // Portion Pill (Compact side-by-side pill with flexible fit)
+                    if (subject.portion.isNotEmpty()) {
+                        Surface(
+                            modifier = Modifier.weight(1f, fill = false),
+                            shape = RoundedCornerShape(100),
+                            color = pillBg
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 7.5.dp, vertical = 3.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Outlined.MenuBook,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(10.5.dp)
+                                )
+                                Text(
+                                    text = subject.portion,
+                                    style = TextStyle(
+                                        fontFamily = ff,
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    color = Color.White,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
                 }
@@ -919,7 +1056,7 @@ internal fun ExamCard(
 }
 
 /**
- * Practical Exam Mini Card - Matches web Dashboard practical exam layout
+ * Practical Exam Mini Card - Matches new minimal Elvan design layout
  */
 @Composable
 internal fun PracticalExamMiniCard(
@@ -927,52 +1064,66 @@ internal fun PracticalExamMiniCard(
     batchGroups: List<TodayBatchGroup>,
     colors: HomeColors
 ) {
+    val lang = LocalAppLanguage.current
+    val ff = LocalAppFontFamily.current
+    val cardBg = colors.accent
+    val pillBg = Color.White.copy(alpha = 0.2f)
+
     Column(
-        modifier = Modifier.padding(bottom = HomeDimens.SpacingXl),
-        verticalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = HomeDimens.SpacingLg),
+        verticalArrangement = Arrangement.spacedBy(HomeDimens.SpacingLg)
     ) {
         batchGroups.forEach { group ->
-            // Blue header card - matching standard ExamCard style
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(bottom = HomeDimens.SpacingSm),
-                shape = HomeShapes.Card,
-                colors = CardDefaults.cardColors(containerColor = colors.accent)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                color = cardBg,
+                shadowElevation = 0.dp
             ) {
-                Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
-                    val lang = LocalAppLanguage.current
-                    Text(
-                        text = AppStrings.Home.todaysPracticalExam(lang),
-                        style = HomeTypography.ExamTag.copy(fontFamily = LocalAppFontFamily.current),
-                        color = Color.White.copy(alpha = 0.8f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Science,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(30.dp)
                     )
-                    
-                    Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-                    
-                    Row(
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+
+                    Column(
+                        modifier = Modifier.weight(1f)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.EmojiEvents,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.9f),
-                            modifier = Modifier
-                                .size(HomeDimens.IconSizeXxl)
-                                .padding(top = HomeDimens.SpacingXxxs)
+                        Text(
+                            text = group.subjectName,
+                            style = TextStyle(
+                                fontFamily = ff,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                lineHeight = 22.sp
+                            ),
+                            color = Color.White,
+                            softWrap = true
                         )
-                        
-                        Column {
-                            Text(
-                                text = exam.title,
-                                style = HomeTypography.ExamTitle,
-                                color = Color.White
-                            )
-                            Text(
-                                text = "${group.code}: ${group.subjectName}",
-                                style = HomeTypography.ExamSubtitle,
-                                color = Color.White.copy(alpha = 0.9f)
-                            )
-                        }
+
+                        Spacer(modifier = Modifier.height(2.dp))
+
+                        Text(
+                            text = "${group.code} • ${exam.title}",
+                            style = TextStyle(
+                                fontFamily = ff,
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Normal,
+                                lineHeight = 16.sp
+                            ),
+                            color = Color.White.copy(alpha = 0.85f),
+                            softWrap = true
+                        )
                     }
                 }
             }
@@ -995,7 +1146,7 @@ internal fun PracticalExamMiniCard(
                             faculty = facultyInfo
                         )
                     ),
-                    isLab = false // We don't need the generic LAB badge here since we use the circle letter
+                    isLab = false
                 )
             }
 
@@ -1501,50 +1652,63 @@ internal fun SpecialClassMiniCard(
     specialClass: SpecialClass,
     colors: HomeColors
 ) {
+    val ff = LocalAppFontFamily.current
+    val cardBg = colors.accent
+    val pillBg = Color.White.copy(alpha = 0.2f)
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = HomeDimens.SpacingXl),
-        verticalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+            .padding(bottom = HomeDimens.SpacingLg),
+        verticalArrangement = Arrangement.spacedBy(HomeDimens.SpacingLg)
     ) {
-        // 1. Blue header card - matching standard ExamCard style
-        Card(
-            modifier = Modifier.fillMaxWidth().padding(bottom = HomeDimens.SpacingSm),
-            shape = HomeShapes.Card,
-            colors = CardDefaults.cardColors(containerColor = colors.accent)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            color = cardBg,
+            shadowElevation = 0.dp
         ) {
-            Column(modifier = Modifier.padding(HomeDimens.SpacingXxxl)) {
-                Text(
-                    text = specialClass.typeTitle.uppercase(),
-                    style = HomeTypography.ExamTag,
-                    color = Color.White.copy(alpha = 0.8f)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Computer,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(30.dp)
                 )
-                
-                Spacer(modifier = Modifier.height(HomeDimens.SpacingLg))
-                
-                Row(
-                    verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingXl)
+
+                Column(
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Computer,
-                        contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.9f),
-                        modifier = Modifier
-                            .size(HomeDimens.IconSizeXxl)
-                            .padding(top = HomeDimens.SpacingXxxs)
+                    Text(
+                        text = if (specialClass.title.isNotEmpty()) specialClass.title else "Scheduled for Today",
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            lineHeight = 22.sp
+                        ),
+                        color = Color.White,
+                        softWrap = true
                     )
-                    
-                    Column {
+
+                    if (specialClass.desc.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = if (specialClass.title.isNotEmpty()) specialClass.title else "Scheduled for Today",
-                            style = HomeTypography.ExamTitle,
-                            color = Color.White
-                        )
-                        Text(
-                            text = if (specialClass.desc.isNotEmpty()) specialClass.desc else "Special classroom session or online meeting",
-                            style = HomeTypography.ExamSubtitle,
-                            color = Color.White.copy(alpha = 0.9f)
+                            text = specialClass.desc,
+                            style = TextStyle(
+                                fontFamily = ff,
+                                fontSize = 12.5.sp,
+                                fontWeight = FontWeight.Normal,
+                                lineHeight = 16.sp
+                            ),
+                            color = Color.White.copy(alpha = 0.85f),
+                            softWrap = true
                         )
                     }
                 }

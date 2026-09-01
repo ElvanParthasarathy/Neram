@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.notes
+package com.elvan.neram.ui.notes
 
 import android.content.Intent
 import android.net.Uri
@@ -73,6 +73,10 @@ fun NotesScreen(
         drivePath.map { it.name }.drop(1)
     } else {
         path
+    }
+
+    LaunchedEffect(currentPathDisplay) {
+        scrollState.scrollToItem(0, 0)
     }
 
     NotesMainLayout(

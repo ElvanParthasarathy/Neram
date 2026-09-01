@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.theme
+package com.elvan.neram.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
@@ -10,6 +10,6 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-// Neram Brand Colors
-val NeramBlue = Color(0xFF007AFF)
-val NeramBlueDark = Color(0xFF0A84FF)
+// Neram Brand Colors (OneElvan SESL Brand Blue: #0072DE)
+val NeramBlue = Color(0xFF0072DE)
+val NeramBlueDark = Color(0xFF0072DE)

@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.components.shell
+package com.elvan.neram.ui.components.shell
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -84,52 +84,55 @@ fun ElvanCollapsedBar(
         0f
     }
 
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = finalTopDp)
+            .padding(top = finalTopDp, start = 16.dp, end = 16.dp)
             .zIndex(150f)
             .graphicsLayer {
                 this.alpha = navOpacity
-            }
+            },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         // Left side (Back Button / Title)
         if (onBack != null || title != null) {
-            Box(
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .align(Alignment.CenterStart)
+            Row(
+                modifier = Modifier.weight(1f, fill = false),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    if (onBack != null) {
-                        ElvanPill(liftProgress = liftProgress, colors = colors, modifier = Modifier.size(50.dp)) {
-                            ElvanTopBarIconButton(onClick = onBack) {
-                                Icon(
-                                    imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
-                                    contentDescription = "Back",
-                                    tint = colors.textPrimary,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
+                if (onBack != null) {
+                    ElvanPill(liftProgress = liftProgress, colors = colors, modifier = Modifier.size(50.dp)) {
+                        ElvanTopBarIconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
+                                contentDescription = "Back",
+                                tint = colors.textPrimary,
+                                modifier = Modifier.size(22.dp)
+                            )
                         }
                     }
-                    if (title != null) {
-                        Text(
-                            text = title,
-                            style = HomeTypography.SectionTitle.copy(
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colors.textPrimary
-                            ),
-                            modifier = Modifier
-                                .padding(start = if (onBack != null) 12.dp else 8.dp)
-                                .graphicsLayer {
-                                    this.alpha = liftProgress
-                                }
-                        )
-                    }
+                }
+                if (title != null) {
+                    Text(
+                        text = title,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                        style = HomeTypography.SectionTitle.copy(
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = colors.textPrimary
+                        ),
+                        modifier = Modifier
+                            .padding(start = if (onBack != null) 12.dp else 8.dp, end = if (hasActions) 8.dp else 0.dp)
+                            .graphicsLayer {
+                                this.alpha = liftProgress
+                            }
+                    )
                 }
             }
+        } else {
+            Spacer(modifier = Modifier.weight(1f, fill = false))
         }
 
         // Right side (Action Buttons Pill) - ONLY if hasActions is true!
@@ -140,12 +143,9 @@ fun ElvanCollapsedBar(
                 label = "menuAlpha"
             )
             Box(
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .align(Alignment.CenterEnd)
-                    .graphicsLayer {
-                        alpha = menuAlpha
-                    }
+                modifier = Modifier.graphicsLayer {
+                    alpha = menuAlpha
+                }
             ) {
                 ElvanPill(liftProgress = liftProgress, colors = colors) {
                     Row(
@@ -161,7 +161,7 @@ fun ElvanCollapsedBar(
 }
 
 @Composable
-private fun ElvanPill(
+fun ElvanPill(
     liftProgress: Float,
     colors: HomeColors,
     modifier: Modifier = Modifier,
@@ -209,68 +209,69 @@ fun ElvanStaticCollapsedBar(
     colors: HomeColors,
     title: String,
     onBack: (() -> Unit)? = null,
+    hasActions: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val ceiling = statusBarHeight + 20.dp
 
-    Box(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = ceiling)
-            .zIndex(150f)
+            .padding(top = ceiling, start = 16.dp, end = 16.dp)
+            .zIndex(150f),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         // Left side (Back Button / Title)
-        Box(
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .align(Alignment.CenterStart)
+        Row(
+            modifier = Modifier.weight(1f, fill = false),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (onBack != null) {
-                    ElvanPill(liftProgress = 1.0f, colors = colors, modifier = Modifier.size(50.dp)) {
-                        ElvanTopBarIconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
-                                contentDescription = "Back",
-                                tint = colors.textPrimary,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
+            if (onBack != null) {
+                ElvanPill(liftProgress = 1.0f, colors = colors, modifier = Modifier.size(50.dp)) {
+                    ElvanTopBarIconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
+                            contentDescription = "Back",
+                            tint = colors.textPrimary,
+                            modifier = Modifier.size(22.dp)
+                        )
                     }
                 }
-                Text(
-                    text = title,
-                    style = HomeTypography.SectionTitle.copy(
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colors.textPrimary
-                    ),
-                    modifier = Modifier.padding(start = if (onBack != null) 12.dp else 8.dp)
-                )
             }
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                style = HomeTypography.SectionTitle.copy(
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = colors.textPrimary
+                ),
+                modifier = Modifier.padding(start = if (onBack != null) 12.dp else 8.dp, end = if (hasActions) 8.dp else 0.dp)
+            )
         }
 
-        // Right side (Action Buttons Pill)
-        val menuAlpha by animateFloatAsState(
-            targetValue = if (ElvanMenuState.isMenuOpen) 0.0f else 1.0f,
-            animationSpec = tween(durationMillis = 200),
-            label = "staticMenuAlpha"
-        )
-        Box(
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .align(Alignment.CenterEnd)
-                .graphicsLayer {
+        // Right side (Action Buttons Pill) - ONLY if hasActions is true
+        if (hasActions) {
+            val menuAlpha by animateFloatAsState(
+                targetValue = if (ElvanMenuState.isMenuOpen) 0.0f else 1.0f,
+                animationSpec = tween(durationMillis = 200),
+                label = "staticMenuAlpha"
+            )
+            Box(
+                modifier = Modifier.graphicsLayer {
                     alpha = menuAlpha
                 }
-        ) {
-            ElvanPill(liftProgress = 1.0f, colors = colors) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    actions()
+            ) {
+                ElvanPill(liftProgress = 1.0f, colors = colors) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        actions()
+                    }
                 }
             }
         }

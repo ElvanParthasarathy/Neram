@@ -358,7 +358,7 @@ fun SplashScreen(isDarkTheme: Boolean = false) {
     val shapeColor = if (isDarkTheme) Color.White.copy(alpha = 0.03f) else Color(0xFFE8F0FE)
     val textPrimary = if (isDarkTheme) Color.White else Color(0xFF1A1A1A)
     val textSecondary = if (isDarkTheme) Color.White.copy(alpha = 0.6f) else Color(0xFF666666)
-    val accentBlue = Color(0xFF007AFF)
+    val accentBlue = Color(0xFF0072DE)
     
     Box(
         modifier = Modifier

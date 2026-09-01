@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.schedule
+package com.elvan.neram.ui.schedule
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -30,7 +31,9 @@ import com.elvan.neram.data.model.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.navigation.CustomIcons
 import com.elvan.neram.ui.theme.AppStrings
+import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import androidx.compose.ui.text.TextStyle
 import com.elvan.neram.utils.DateTimeUtils
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
@@ -287,63 +290,131 @@ fun MajorEventCard(
     colors: HomeColors,
     isCycleTest: Boolean = false
 ) {
-    // Styling similar to Home Screen's ExamCard/EventCard
-    // Home Screen always uses Accent (Blue) for the main featured card, regardless of exam type.
-    val cardColor = colors.accent
-    val contentColor = Color.White
-    
-    Card(
+    val ff = LocalAppFontFamily.current
+    val cardBg = colors.accent
+    val pillBg = Color.White.copy(alpha = 0.2f)
+
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp),
-        shape = HomeShapes.Card,
-        colors = CardDefaults.cardColors(containerColor = cardColor)
+        shape = RoundedCornerShape(24.dp),
+        color = cardBg,
+        shadowElevation = 0.dp
     ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            // 1. Top Event Tag
-            Text(
-                text = tag,
-                style = HomeTypography.ExamTag,
-                color = contentColor.copy(alpha = 0.8f)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(30.dp)
             )
-            
-            Spacer(modifier = Modifier.height(12.dp))
-            
-            // 2. Icon + Main Content Row
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = contentColor.copy(alpha = 0.9f),
-                    modifier = Modifier.size(HomeDimens.IconSizeXxl).padding(top = HomeDimens.SpacingXxxs)
+                Text(
+                    text = title,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        lineHeight = 22.sp
+                    ),
+                    color = Color.White,
+                    softWrap = true
                 )
-                
-                Column {
-                    Text(
-                        text = title,
-                        style = HomeTypography.ExamTitle,
-                        color = contentColor
-                    )
+
+                if (subtitle.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = subtitle,
-                        style = HomeTypography.ExamSubtitle,
-                        color = contentColor.copy(alpha = 0.9f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Normal,
+                            lineHeight = 16.sp
+                        ),
+                        color = Color.White.copy(alpha = 0.85f),
+                        softWrap = true,
+                        maxLines = 3
                     )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-            // 3. Meta Data Pills
+                }
+
+                // 3. Bottom Meta Row: Time Pill + Portion/Details Pill side-by-side
+                if (meta1.isNotEmpty() || meta2.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(9.dp))
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingSm), // 6dp
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        MetaChip(text = meta1, icon = Icons.Default.Schedule, contentColor = contentColor)
-                        MetaChip(text = meta2, icon = Icons.Outlined.Info, contentColor = contentColor)
+                        if (meta1.isNotEmpty()) {
+                            Surface(
+                                shape = RoundedCornerShape(100),
+                                color = pillBg
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 7.5.dp, vertical = 3.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Schedule,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(10.5.dp)
+                                    )
+                                    Text(
+                                        text = meta1,
+                                        style = TextStyle(
+                                            fontFamily = ff,
+                                            fontSize = 10.5.sp,
+                                            fontWeight = FontWeight.Medium
+                                        ),
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        }
+
+                        if (meta2.isNotEmpty()) {
+                            Surface(
+                                modifier = Modifier.weight(1f, fill = false),
+                                shape = RoundedCornerShape(100),
+                                color = pillBg
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 7.5.dp, vertical = 3.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(3.5.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Outlined.MenuBook,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(10.5.dp)
+                                    )
+                                    Text(
+                                        text = meta2,
+                                        style = TextStyle(
+                                            fontFamily = ff,
+                                            fontSize = 10.5.sp,
+                                            fontWeight = FontWeight.Medium
+                                        ),
+                                        color = Color.White,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -635,13 +706,13 @@ fun ExamScheduleCard(
         shadowElevation = 0.dp
     ) {
         Column {
-            // ── Clickable Header ──
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(HomeShapes.Card)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = null
+                        indication = ripple(color = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f), bounded = true)
                     ) { isExpanded = !isExpanded }
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -876,9 +947,10 @@ private fun PracDateGroup(
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(100))
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
-                    indication = null
+                    indication = ripple(color = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f), bounded = true)
                 ) { isOpen = !isOpen },
             shape = RoundedCornerShape(100),
             color = pillBg

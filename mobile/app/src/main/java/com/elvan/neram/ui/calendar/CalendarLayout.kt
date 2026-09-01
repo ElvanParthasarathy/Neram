@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.calendar
+package com.elvan.neram.ui.calendar
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ripple
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
@@ -268,6 +269,71 @@ fun CalendarMainLayout(
                         val calendarHeightPx = with(density) { calendarHeightDp.toPx() }
                     
                         val agendaOffsetAnim = remember { Animatable(calendarHeightPx) }
+                        val bottomScrollState = rememberScrollState()
+
+                        // Nested Scroll connection: allows swiping up/down anywhere in the bottom card
+                        val nestedScrollConnection = remember(calendarHeightPx) {
+                            object : NestedScrollConnection {
+                                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                                    val delta = available.y
+                                    val currentOffset = agendaOffsetAnim.value
+
+                                    // 1. Dragging UP (delta < 0) when bottom card is not fully expanded
+                                    if (delta < 0 && currentOffset > 0f) {
+                                        val newOffset = (currentOffset + delta).coerceIn(0f, calendarHeightPx)
+                                        val consumed = newOffset - currentOffset
+                                        scope.launch { agendaOffsetAnim.snapTo(newOffset) }
+                                        return Offset(0f, consumed)
+                                    }
+
+                                    // 2. Dragging DOWN (delta > 0) when inner scroll is at top and card can be pulled down
+                                    if (delta > 0 && bottomScrollState.value == 0 && currentOffset < calendarHeightPx) {
+                                        val newOffset = (currentOffset + delta).coerceIn(0f, calendarHeightPx)
+                                        val consumed = newOffset - currentOffset
+                                        scope.launch { agendaOffsetAnim.snapTo(newOffset) }
+                                        return Offset(0f, consumed)
+                                    }
+
+                                    return Offset.Zero
+                                }
+
+                                override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                                    val delta = available.y
+                                    val currentOffset = agendaOffsetAnim.value
+
+                                    // If inner scroll reaches top and there's remaining downward scroll, pull card down
+                                    if (delta > 0 && currentOffset < calendarHeightPx) {
+                                        val newOffset = (currentOffset + delta).coerceIn(0f, calendarHeightPx)
+                                        val consumedY = newOffset - currentOffset
+                                        scope.launch { agendaOffsetAnim.snapTo(newOffset) }
+                                        return Offset(0f, consumedY)
+                                    }
+
+                                    return Offset.Zero
+                                }
+
+                                override suspend fun onPreFling(available: Velocity): Velocity {
+                                    val vy = available.y
+                                    val current = agendaOffsetAnim.value
+
+                                    if (vy < -400f && current > 0f) {
+                                        // Swiped UP fast -> expand to 0f
+                                        agendaOffsetAnim.animateTo(0f, spring(stiffness = Spring.StiffnessLow))
+                                        return available
+                                    } else if (vy > 400f && bottomScrollState.value == 0 && current < calendarHeightPx) {
+                                        // Swiped DOWN fast -> collapse to calendarHeightPx
+                                        agendaOffsetAnim.animateTo(calendarHeightPx, spring(stiffness = Spring.StiffnessLow))
+                                        return available
+                                    } else if (current > 0f && current < calendarHeightPx) {
+                                        val target = if (current < calendarHeightPx / 2f) 0f else calendarHeightPx
+                                        agendaOffsetAnim.animateTo(target, spring(stiffness = Spring.StiffnessLow))
+                                        return available
+                                    }
+
+                                    return Velocity.Zero
+                                }
+                            }
+                        }
 
                         Box(modifier = Modifier.fillMaxSize()) {
                         
@@ -297,7 +363,8 @@ fun CalendarMainLayout(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(screenHeight) 
-                                        .offset { IntOffset(0, agendaOffsetAnim.value.toInt()) } 
+                                        .offset { IntOffset(0, agendaOffsetAnim.value.toInt()) }
+                                        .nestedScroll(nestedScrollConnection)
                                         .background(Color.Transparent)
                                 ) {
                                     Column(
@@ -305,7 +372,7 @@ fun CalendarMainLayout(
                                             .fillMaxSize()
                                             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)) 
                                             .background(colors.calendarBottomBackground)
-                                            .verticalScroll(rememberScrollState())
+                                            .verticalScroll(bottomScrollState)
                                             .padding(top = 0.dp) 
                                     ) {
                                         // --- THE HANDLE (SHUTTER) ---
@@ -314,8 +381,14 @@ fun CalendarMainLayout(
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .height(32.dp)
-                                                .background(colors.calendarBottomBackground) 
+                                                .height(36.dp)
+                                                .background(colors.calendarBottomBackground)
+                                                .clickable {
+                                                    scope.launch {
+                                                        val target = if (agendaOffsetAnim.value < calendarHeightPx / 2f) calendarHeightPx else 0f
+                                                        agendaOffsetAnim.animateTo(target, spring(stiffness = Spring.StiffnessLow))
+                                                    }
+                                                }
                                                 .pointerInput(Unit) {
                                                     detectVerticalDragGestures(
                                                         onDragStart = { accDrag = 0f },
@@ -327,7 +400,7 @@ fun CalendarMainLayout(
                                                                 val target = when {
                                                                     accDrag < -threshold -> 0f 
                                                                     accDrag > threshold -> calendarHeightPx
-                                                                    else -> if (current < calendarHeightPx / 2) 0f else calendarHeightPx
+                                                                    else -> if (current < calendarHeightPx / 2f) 0f else calendarHeightPx
                                                                 }
                                                             
                                                                 agendaOffsetAnim.animateTo(
@@ -350,10 +423,10 @@ fun CalendarMainLayout(
                                             // Visual Pill
                                             Box(
                                                 modifier = Modifier
-                                                    .width(32.dp)
-                                                    .height(4.dp)
+                                                    .width(36.dp)
+                                                    .height(4.5.dp)
                                                     .clip(CircleShape)
-                                                    .background(colors.textSecondary.copy(alpha = 0.2f))
+                                                    .background(colors.textSecondary.copy(alpha = 0.25f))
                                             )
                                         }
                                     
@@ -442,7 +515,7 @@ fun CalendarMainLayout(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 12.dp),
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -473,7 +546,7 @@ fun CalendarMainLayout(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.KeyboardArrowLeft,
+                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                     contentDescription = "Previous Month",
                                     tint = colors.textPrimary
                                 )
@@ -494,7 +567,7 @@ fun CalendarMainLayout(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    imageVector = Icons.Filled.KeyboardArrowRight,
+                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                     contentDescription = "Next Month",
                                     tint = colors.textPrimary
                                 )
@@ -553,7 +626,7 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 16.dp),
             shape = HomeShapes.Card,
             color = colors.surface,
             shadowElevation = 0.dp, // Flat
@@ -562,9 +635,10 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(HomeShapes.Card)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
-                        indication = null
+                        indication = ripple(color = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f), bounded = true)
                     ) { isDocsExpanded = !isDocsExpanded }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -596,7 +670,7 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
             exit = shrinkVertically() + fadeOut()
         ) {
             Column(
-                modifier = Modifier.padding(top = 12.dp, start = 24.dp, end = 24.dp)
+                modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp)
             ) {
                 Surface(
                     modifier = Modifier

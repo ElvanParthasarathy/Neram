@@ -113,7 +113,11 @@ private fun ElvanShellContent(
     val globalHeaderExpanded = LocalGlobalHeaderExpanded.current
 
     // Dynamic header collapse offset (0f = fully expanded, handoffShrinkOffsetPx = collapsed)
-    var headerCollapsePx by remember(scrollState, globalHeaderExpanded.value) { 
+    // Key on scrollState ONLY — NOT globalHeaderExpanded.value.
+    // Including globalHeaderExpanded.value as a key destroys and recreates the MutableFloatState
+    // every time the global state flips, leaving the NestedScrollConnection with a stale
+    // reference to the old dead state (since its remember keys don't include globalHeaderExpanded).
+    var headerCollapsePx by remember(scrollState) { 
         mutableFloatStateOf(if (globalHeaderExpanded.value) 0f else handoffShrinkOffsetPx) 
     }
 
@@ -437,6 +441,7 @@ private fun ElvanShellContent(
                 colors = colors,
                 title = title,
                 onBack = onBack,
+                hasActions = hasActions,
                 actions = actions
             )
         }

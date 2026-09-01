@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.calendar
+package com.elvan.neram.ui.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -833,7 +833,7 @@ fun SelectedDaySection(
     }
 
     Column(
-        modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp) // Reduced vertical padding (16->4)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
         // Redesigned Header: "17 SAT       :-)"
         Row(
@@ -996,7 +996,7 @@ fun AgendaItem(event: CalendarEvent, isSelected: Boolean, colors: HomeColors) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 6.dp),
+            .padding(horizontal = 16.dp),
         shape = HomeShapes.Card,
         color = colors.surface,
         shadowElevation = 0.dp
@@ -1311,8 +1311,8 @@ fun MonthScheduleList(
                         }
                     }
                 },
-            contentPadding = PaddingValues(bottom = 80.dp, top = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            contentPadding = PaddingValues(bottom = 80.dp, top = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Header Content (Official Documents)
             item {

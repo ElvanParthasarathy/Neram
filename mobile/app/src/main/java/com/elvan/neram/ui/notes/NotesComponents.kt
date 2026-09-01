@@ -122,18 +122,15 @@ fun FolderItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onClick() }
-                .padding(16.dp),
+                .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(colors.subtleBackground),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Folder, null, tint = colors.accent, modifier = Modifier.size(20.dp))
-            }
+            Icon(
+                imageVector = Icons.Default.Folder,
+                contentDescription = null,
+                tint = colors.accent,
+                modifier = Modifier.size(26.dp)
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Text(name, style = HomeTypography.PillTitle, color = colors.textPrimary, modifier = Modifier.weight(1f))
             Icon(Icons.Default.ChevronRight, null, tint = colors.textSecondary.copy(alpha = 0.5f))

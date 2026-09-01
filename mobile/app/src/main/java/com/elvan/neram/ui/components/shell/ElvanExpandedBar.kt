@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.components.shell
+package com.elvan.neram.ui.components.shell
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
@@ -8,6 +8,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -62,13 +63,19 @@ fun ElvanExpandedBar(
             style = HomeTypography.PageTitle.copy(fontSize = 34.sp)
         )
     }
-    val textWidthPx = textLayoutResult.size.width.toFloat()
-    val textHeightPx = textLayoutResult.size.height.toFloat()
     val screenWidthPx = with(density) { screenWidth.toPx() }
+    val maxAvailableWidthPx = screenWidthPx - with(density) { 32.dp.toPx() }
+    val rawTextWidthPx = textLayoutResult.size.width.toFloat()
+    val textWidthPx = minOf(rawTextWidthPx, maxAvailableWidthPx)
+    val textHeightPx = textLayoutResult.size.height.toFloat()
     
     // 2. Compute X endpoints
-    // START (t=0): text visually centered on screen (clamped to 16dp margin)
-    val centeredLeftPx = maxOf(with(density) { 16.dp.toPx() }, (screenWidthPx - textWidthPx) / 2f)
+    // START (t=0): text visually centered on screen (clamped to 16dp margin when larger than screen)
+    val centeredLeftPx = if (rawTextWidthPx > maxAvailableWidthPx) {
+        with(density) { 16.dp.toPx() }
+    } else {
+        (screenWidthPx - textWidthPx) / 2f
+    }
     // END (t=1): matches exactly ElvanCollapsedBar text padding
     val targetLeftPx = with(density) { if (hasLeadingWidget || onBack != null) 74.dp.toPx() else 24.dp.toPx() }
     val currentLeftPx = centeredLeftPx + (targetLeftPx - centeredLeftPx) * t
@@ -94,6 +101,9 @@ fun ElvanExpandedBar(
     }
     val titleOpacity = (1.0f - liftProgress).coerceIn(0f, 1f)
 
+    // Full screen margin width allowance
+    val maxAllowedWidthDp = (screenWidth - 32.dp)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,11 +112,15 @@ fun ElvanExpandedBar(
         // Dynamic Title
         Text(
             text = title,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
             style = HomeTypography.PageTitle.copy(fontSize = 34.sp),
             color = colors.textPrimary,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset(x = currentLeftDp, y = currentTopDp)
+                .widthIn(max = maxAllowedWidthDp)
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale

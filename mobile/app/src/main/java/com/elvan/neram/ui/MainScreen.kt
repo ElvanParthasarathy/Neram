@@ -422,7 +422,7 @@ fun MainScreen(
                     NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else AppStrings.Nav.notes(lang)
                 }
                 
-                val useNewDesign = selectedTab != NavTab.Calendar && !isInsideNotesFolder
+                val useNewDesign = selectedTab != NavTab.Calendar
 
                 com.elvan.neram.ui.components.shell.ElvanShell(
                     scrollState = activeScrollState,
@@ -653,7 +653,8 @@ fun MainScreen(
                 }
                 "security" -> SecuritySettingsScreen(
                     onBack = { currentScreen = "settings" },
-                    onNavigateToLinkedAccounts = { currentScreen = "linked_accounts" }
+                    onNavigateToLinkedAccounts = { currentScreen = "linked_accounts" },
+                    onLogout = onLogout
                 )
                 "display" -> ElvanSubShell(
                     title = getScreenTitle("display"),
@@ -755,19 +756,12 @@ fun MainScreen(
                 ) {
                     com.elvan.neram.ui.notifications.NotificationScreen()
                 }
-                "pdf_viewer" -> com.elvan.neram.ui.components.shell.ElvanShell(
-                    scrollState = androidx.compose.foundation.lazy.rememberLazyListState(),
-                    colors = colors,
-                    useNewDesign = false,
+                "pdf_viewer" -> com.elvan.neram.ui.common.PdfViewerScreen(
+                    url = selectedPdfUrl,
                     title = getScreenTitle("pdf_viewer"),
                     onBack = { currentScreen = "tabs" },
-                    showNavbar = false
-                ) {
-                    com.elvan.neram.ui.common.PdfViewerScreen(
-                        url = selectedPdfUrl,
-                        colors = colors
-                    )
-                }
+                    colors = colors
+                )
             }
         }
         } // End Main Content Box

@@ -1,58 +1,60 @@
 package com.elvan.neram.ui.profile
 
-import com.elvan.neram.ui.home.*
-
+import android.content.res.Configuration
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.elvan.neram.ui.home.HomeViewModel
-import com.elvan.neram.ui.home.rememberHomeColors
-import com.elvan.neram.ui.home.HomeShapes
-import com.elvan.neram.ui.home.HomeDimens
+import com.elvan.neram.ui.components.shell.*
+import com.elvan.neram.ui.home.*
+import com.elvan.neram.ui.theme.AppColors
+import com.elvan.neram.ui.theme.AppStrings
+import com.elvan.neram.ui.theme.LocalAppFontFamily
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.CoroutineScope
 
 // India-only mobile format
 private fun formatMobileForDisplay(mobile: String?): String? {
     if (mobile.isNullOrBlank()) return null
-    // Strip any leading "91" country code and spaces
     val clean = mobile.replace(" ", "").replace("+", "")
     val number = if (clean.startsWith("91") && clean.length > 10) {
         clean.substring(2)
@@ -77,11 +79,13 @@ private fun extractMobileNumber(mobile: String?): String {
 fun ProfileScreen(
     onBack: () -> Unit = {},
     homeViewModel: HomeViewModel = viewModel(),
-    scrollState: androidx.compose.foundation.lazy.LazyListState = com.elvan.neram.ui.components.shell.LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val user = Firebase.auth.currentUser
     val colors = rememberHomeColors()
-    val inputBg = if (colors.isDark) colors.textSecondary.copy(alpha = 0.15f) else colors.background
+    val isDark = colors.isDark
+    val lang = LocalAppLanguage.current
+    val ff = LocalAppFontFamily.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     
@@ -132,7 +136,9 @@ fun ProfileScreen(
                 }
                 override fun onCancelled(error: DatabaseError) {}
             }
-            userRef?.addValueEventListener(userListener!!)
+            userRef?.let { ref ->
+                userListener?.let { listener -> ref.addValueEventListener(listener) }
+            }
             
             hierarchyRef = Firebase.database.getReference("academic_hierarchy")
             hierarchyListener = object : ValueEventListener {
@@ -154,12 +160,14 @@ fun ProfileScreen(
                 }
                 override fun onCancelled(error: DatabaseError) {}
             }
-            hierarchyRef?.addValueEventListener(hierarchyListener!!)
+            hierarchyRef?.let { ref ->
+                hierarchyListener?.let { listener -> ref.addValueEventListener(listener) }
+            }
         }
         
         onDispose {
-            userListener?.let { userRef?.removeEventListener(it) }
-            hierarchyListener?.let { hierarchyRef?.removeEventListener(it) }
+            userRef?.let { ref -> userListener?.let { listener -> ref.removeEventListener(listener) } }
+            hierarchyRef?.let { ref -> hierarchyListener?.let { listener -> ref.removeEventListener(listener) } }
         }
     }
     
@@ -198,6 +206,18 @@ fun ProfileScreen(
     fun handleLogout() {
         homeViewModel.performLogout()
     }
+
+    val cardColor = if (isDark) Color(0xFF111111) else Color.White
+    val avatarBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+    val buttonBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+
+    val formattedBirthday = formData["birthday"]?.let {
+        try {
+            LocalDate.parse(it).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        } catch (e: Exception) {
+            it
+        }
+    }
     
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -206,414 +226,508 @@ fun ProfileScreen(
             contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
             verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
         ) {
-                item(key = "spacer_top") {
-                    Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
-                }
+            item(key = "spacer_top") {
+                Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
+            }
 
-                // Profile Header Card (Flat design matching other pages)
-                item(key = "profile_header") {
-                    com.elvan.neram.ui.components.shell.ElvanSectionContainer {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = HomeShapes.Card,
-                            color = colors.surface,
-                    shadowElevation = 0.dp
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+            // 1. Profile Header Card (Matching Flutter Elvan style)
+            item(key = "profile_header") {
+                ElvanSectionContainer {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(24.dp),
+                        color = cardColor,
+                        shadowElevation = 0.dp
                     ) {
-                        // Avatar
-                        val photoUrl = formData["photoURL"]
-                        Box(
+                        Column(
                             modifier = Modifier
-                                .size(120.dp)
-                                .clip(CircleShape)
-                                .background(colors.accent.copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .padding(vertical = 28.dp, horizontal = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            if (!photoUrl.isNullOrEmpty()) {
-                                AsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current)
-                                        .data(photoUrl)
-                                        .crossfade(true)
-                                        .build(),
-                                    contentDescription = "Profile Photo",
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else {
-                                Text(
-                                    text = (formData["displayName"] ?: user?.email ?: "U").take(1).uppercase(),
-                                    style = MaterialTheme.typography.displayMedium,
-                                    color = colors.accent
-                                )
-                            }
-                        }
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        // Name
-                        Text(
-                            text = formData["displayName"] ?: "Your Name",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = colors.textPrimary
-                        )
-                        
-                        Spacer(modifier = Modifier.height(4.dp))
-                        
-                        // Email
-                        Text(
-                            text = user?.email ?: "",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = colors.textSecondary
-                        )
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        // Sync Photo Button
-                        FilledTonalButton(
-                            onClick = {
-                                val googleProvider = user?.providerData?.find { it.providerId == "google.com" }
-                                val googlePhotoUrl = googleProvider?.photoUrl
-                                
-                                when {
-                                    googlePhotoUrl != null -> {
-                                        user?.uid?.let { uid ->
-                                            Firebase.database.getReference("users/$uid/photoURL")
-                                                .setValue(googlePhotoUrl.toString())
-                                                .addOnSuccessListener {
-                                                    scope.launch {
-                                                        snackbarHostState.showSnackbar("Photo synced successfully")
-                                                    }
-                                                }
-                                                .addOnFailureListener { e ->
-                                                    scope.launch {
-                                                        snackbarHostState.showSnackbar("Sync failed: ${e.message}")
-                                                    }
-                                                }
-                                        }
-                                    }
-                                    googleProvider == null -> {
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar("No Google account linked")
-                                        }
-                                    }
-                                    else -> {
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar("No photo found in Google account")
-                                        }
+                            // Avatar (108dp circle)
+                            val photoUrl = formData["photoURL"]
+                            Surface(
+                                modifier = Modifier.size(108.dp),
+                                shape = CircleShape,
+                                color = avatarBg
+                            ) {
+                                if (!photoUrl.isNullOrEmpty()) {
+                                    AsyncImage(
+                                        model = ImageRequest.Builder(LocalContext.current)
+                                            .data(photoUrl)
+                                            .crossfade(true)
+                                            .build(),
+                                        contentDescription = "Profile Photo",
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {
+                                        Text(
+                                            text = (formData["displayName"] ?: user?.email ?: "U").take(1).uppercase(),
+                                            style = TextStyle(
+                                                fontFamily = ff,
+                                                fontSize = 40.sp,
+                                                fontWeight = FontWeight.Bold
+                                            ),
+                                            color = colors.textPrimary
+                                        )
                                     }
                                 }
-                            },
-                            shape = HomeShapes.Pill,
-                            colors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = colors.accent.copy(alpha = 0.15f),
-                                contentColor = colors.accent
-                            )
-                        ) {
-                            Icon(
-                                Icons.Default.Sync,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Sync Google Photo")
-                        }
-                    }
-                }
-            }
-        }
-            
-            // Personal Information Card
-            item(key = "personal_info") {
-                com.elvan.neram.ui.components.shell.ElvanSectionContainer {
-                    M3ProfileSection(
-                        title = "Personal Information",
-                        icon = Icons.Outlined.Person
-                    ) {
-                    M3ProfileField(
-                        label = "Full Name",
-                        value = formData["displayName"],
-                        isEditing = editingField == "name",
-                        onEdit = {
-                            val full = formData["displayName"] ?: ""
-                            val lastSpace = full.lastIndexOf(" ")
-                            if (lastSpace == -1) {
-                                firstName = full
-                                lastName = ""
-                            } else {
-                                firstName = full.substring(0, lastSpace)
-                                lastName = full.substring(lastSpace + 1)
                             }
-                            editingField = "name"
-                        },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("name") }
-                    ) {
-                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Column {
-                                Text(
-                                    text = "First Name",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = colors.textSecondary,
-                                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
-                                )
-                                TextField(
-                                    value = firstName,
-                                    onValueChange = { firstName = it },
-                                    placeholder = { Text("Enter first name") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = HomeShapes.Pill,
-                                    singleLine = true,
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = inputBg,
-                                        unfocusedContainerColor = inputBg,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent
-                                    )
-                                )
-                            }
-                            Column {
-                                Text(
-                                    text = "Last Name",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = colors.textSecondary,
-                                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
-                                )
-                                TextField(
-                                    value = lastName,
-                                    onValueChange = { lastName = it },
-                                    placeholder = { Text("Enter last name") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = HomeShapes.Pill,
-                                    singleLine = true,
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = inputBg,
-                                        unfocusedContainerColor = inputBg,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent
-                                    )
-                                )
-                            }
-                        }
-                    }
-                    
-                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
-                    
-                    M3ProfileField(
-                        label = "Mobile",
-                        value = formatMobileForDisplay(formData["mobile"]),
-                        isEditing = editingField == "mobile",
-                        onEdit = { 
-                            mobileNumber = extractMobileNumber(formData["mobile"])
-                            editingField = "mobile" 
-                        },
-                        onCancel = { editingField = null },
-                        onSave = { 
-                            // Save only the 10-digit number
-                            formData = formData + ("mobile" to mobileNumber)
-                            handleSave("mobile") 
-                        }
-                    ) {
-                        Column {
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            // Display Name
                             Text(
-                                text = "Mobile Number",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = colors.textSecondary,
-                                modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                                text = formData["displayName"] ?: (if (lang == AppStrings.TAMIL) "உங்கள் பெயர்" else "Your Name"),
+                                style = TextStyle(
+                                    fontFamily = ff,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                color = colors.textPrimary,
+                                textAlign = TextAlign.Center
                             )
-                            TextField(
-                                value = mobileNumber,
-                                onValueChange = { 
-                                    val digits = it.filter { c -> c.isDigit() }.take(10)
-                                    mobileNumber = digits
-                                },
-                                placeholder = { Text("10-digit number") },
-                                prefix = { Text("+91 ") },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = HomeShapes.Pill,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                                singleLine = true,
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = inputBg,
-                                    unfocusedContainerColor = inputBg,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent
-                                )
-                            )
-                        }
-                    }
-                    
-                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
-                    
-                    M3ProfileField(
-                        label = "Date of Birth",
-                        value = formData["birthday"]?.let { 
-                            try { LocalDate.parse(it).format(DateTimeFormatter.ofPattern("dd MMM yyyy")) } 
-                            catch (e: Exception) { it }
-                        },
-                        isEditing = editingField == "birthday",
-                        onEdit = { 
-                            editingField = "birthday"
-                            showDatePicker = true
-                        },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("birthday") }
-                    ) {
-                        Column {
+                            
+                            Spacer(modifier = Modifier.height(4.dp))
+                            
+                            // Email
                             Text(
-                                text = "Date of Birth",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = colors.textSecondary,
-                                modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                                text = user?.email ?: "",
+                                style = TextStyle(
+                                    fontFamily = ff,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Normal
+                                ),
+                                color = colors.textPrimary.copy(alpha = 0.5f),
+                                textAlign = TextAlign.Center
                             )
-                            TextField(
-                                value = formData["birthday"]?.let {
-                                    try { LocalDate.parse(it).format(DateTimeFormatter.ofPattern("dd MMM yyyy")) }
-                                    catch (e: Exception) { it }
-                                } ?: "",
-                                onValueChange = {},
-                                placeholder = { Text("Select date") },
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = HomeShapes.Pill,
-                                readOnly = true,
-                                trailingIcon = {
-                                    IconButton(onClick = { showDatePicker = true }) {
-                                        Icon(Icons.Outlined.CalendarMonth, null, tint = colors.accent)
-                                    }
-                                },
-                                singleLine = true,
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = inputBg,
-                                    unfocusedContainerColor = inputBg,
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent
-                                )
-                            )
-                        }
-                    }
-                    
-                    HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
-                    
-                    M3ProfileField(
-                        label = "Gender",
-                        value = formData["gender"],
-                        isEditing = editingField == "gender",
-                        onEdit = { editingField = "gender" },
-                        onCancel = { editingField = null },
-                        onSave = { handleSave("gender") }
-                    ) {
-                        M3DropdownField(
-                            value = formData["gender"],
-                            label = "Gender",
-                            enabled = true,
-                            onClick = {
-                                openSelector("Select Gender", listOf("Male", "Female", "Other")) {
-                                    formData = formData + ("gender" to it)
-                                }
-                            }
-                        )
-                    }
-                }
-            }
-        }
-            
-            // Academic Information Card
-            item(key = "academic_info") {
-                com.elvan.neram.ui.components.shell.ElvanSectionContainer {
-                    M3ProfileSection(
-                        title = "Academic Details",
-                        icon = Icons.Outlined.School
-                    ) {
-                        M3ProfileField(
-                            label = "Batch, Department & Section",
-                            value = listOfNotNull(
-                                formData["batch"],
-                                formData["department"],
-                                formData["section"]
-                            ).takeIf { it.isNotEmpty() }?.joinToString(" • "),
-                            isEditing = editingField == "academic",
-                            onEdit = { editingField = "academic" },
-                            onCancel = { editingField = null },
-                            onSave = { handleSave("academic") }
-                        ) {
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                M3DropdownField(
-                                    value = formData["batch"],
-                                    label = "Batch",
-                                    enabled = true,
-                                    onClick = {
-                                        openSelector("Select Batch", getBatches()) {
-                                            formData = formData + mapOf("batch" to it, "department" to "", "section" to "")
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            // Sync Photo Pill Button (Monochrome / Subtle)
+                            Button(
+                                onClick = {
+                                    val googleProvider = user?.providerData?.find { it.providerId == "google.com" }
+                                    val googlePhotoUrl = googleProvider?.photoUrl
+                                    
+                                    when {
+                                        googlePhotoUrl != null -> {
+                                            user.uid.let { uid ->
+                                                Firebase.database.getReference("users/$uid/photoURL")
+                                                    .setValue(googlePhotoUrl.toString())
+                                                    .addOnSuccessListener {
+                                                        scope.launch {
+                                                            snackbarHostState.showSnackbar(
+                                                                if (lang == AppStrings.TAMIL) "படம் வெற்றிகரமாக ஒத்திசைக்கப்பட்டது" else "Photo synced successfully"
+                                                            )
+                                                        }
+                                                    }
+                                                    .addOnFailureListener { e ->
+                                                        scope.launch {
+                                                            snackbarHostState.showSnackbar(
+                                                                (if (lang == AppStrings.TAMIL) "ஒத்திசைவு தோல்வி: " else "Sync failed: ") + (e.message ?: "")
+                                                            )
+                                                        }
+                                                    }
+                                            }
                                         }
-                                    }
-                                )
-                                M3DropdownField(
-                                    value = formData["department"],
-                                    label = "Department",
-                                    enabled = !formData["batch"].isNullOrEmpty(),
-                                    onClick = {
-                                        formData["batch"]?.let { batch ->
-                                            openSelector("Select Department", getDepartments(batch)) {
-                                                formData = formData + mapOf("department" to it, "section" to "")
+                                        googleProvider == null -> {
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    if (lang == AppStrings.TAMIL) "Google கணக்கு இணைக்கப்படவில்லை" else "No Google account linked"
+                                                )
+                                            }
+                                        }
+                                        else -> {
+                                            scope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    if (lang == AppStrings.TAMIL) "Google கணக்கில் புகைப்படம் இல்லை" else "No photo found in Google account"
+                                                )
                                             }
                                         }
                                     }
+                                },
+                                shape = RoundedCornerShape(50),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = buttonBg,
+                                    contentColor = colors.textPrimary
+                                ),
+                                elevation = ButtonDefaults.buttonElevation(0.dp),
+                                contentPadding = PaddingValues(horizontal = 18.dp, vertical = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Sync,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(18.dp),
+                                    tint = colors.textPrimary
                                 )
-                                M3DropdownField(
-                                    value = formData["section"],
-                                    label = "Section",
-                                    enabled = !formData["department"].isNullOrEmpty(),
-                                    onClick = {
-                                        val batch = formData["batch"] ?: return@M3DropdownField
-                                        val dept = formData["department"] ?: return@M3DropdownField
-                                        openSelector("Select Section", getSections(batch, dept)) {
-                                            formData = formData + ("section" to it)
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        
-                        HorizontalDivider(color = colors.glassBorder, modifier = Modifier.padding(vertical = 8.dp))
-                        
-                        M3ProfileField(
-                            label = "Register Number",
-                            value = formData["registerNo"],
-                            isEditing = editingField == "registerNo",
-                            onEdit = { editingField = "registerNo" },
-                            onCancel = { editingField = null },
-                            onSave = { handleSave("registerNo") }
-                        ) {
-                            Column {
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "Register Number",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = colors.textSecondary,
-                                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
-                                )
-                                TextField(
-                                    value = formData["registerNo"] ?: "",
-                                    onValueChange = { formData = formData + ("registerNo" to it) },
-                                    placeholder = { Text("Enter register number") },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = HomeShapes.Pill,
-                                    singleLine = true,
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = inputBg,
-                                        unfocusedContainerColor = inputBg,
-                                        focusedIndicatorColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent
+                                    text = if (lang == AppStrings.TAMIL) "Google படத்தை ஒத்திசை" else "Sync Google Photo",
+                                    style = TextStyle(
+                                        fontFamily = ff,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium
                                     )
                                 )
                             }
                         }
+                    }
+                }
+            }
+            
+            // 2. Personal Information Section
+            item(key = "personal_info") {
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = if (lang == AppStrings.TAMIL) "தனிப்பட்ட விவரங்கள்" else "Personal Information",
+                        colors = colors
+                    ) {
+                        // Full Name Row
+                        ElvanSettingsAnimatedExpand(
+                            isEditing = editingField == "name",
+                            displayContent = {
+                                ElvanSettingsDisplayRow(
+                                    title = if (lang == AppStrings.TAMIL) "முழுப் பெயர்" else "Full Name",
+                                    primaryValue = formData["displayName"] ?: "",
+                                    onEdit = {
+                                        val full = formData["displayName"] ?: ""
+                                        val lastSpace = full.lastIndexOf(" ")
+                                        if (lastSpace == -1) {
+                                            firstName = full
+                                            lastName = ""
+                                        } else {
+                                            firstName = full.substring(0, lastSpace)
+                                            lastName = full.substring(lastSpace + 1)
+                                        }
+                                        editingField = "name"
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            editContent = {
+                                ElvanSettingsEditContainer(
+                                    title = if (lang == AppStrings.TAMIL) "பெயரைத் திருத்து" else "Edit Name",
+                                    onCancel = { editingField = null },
+                                    onSave = { handleSave("name") },
+                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    colors = colors
+                                ) {
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "முதல் பெயர்" else "First Name",
+                                        value = firstName,
+                                        onValueChange = { firstName = it },
+                                        placeholder = if (lang == AppStrings.TAMIL) "முதல் பெயரை உள்ளிடவும்" else "Enter first name",
+                                        colors = colors
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "கடைசி பெயர்" else "Last Name",
+                                        value = lastName,
+                                        onValueChange = { lastName = it },
+                                        placeholder = if (lang == AppStrings.TAMIL) "கடைசி பெயரை உள்ளிடவும்" else "Enter last name",
+                                        colors = colors
+                                    )
+                                }
+                            }
+                        )
+
+                        ElvanSettingsDivider(colors = colors)
+
+                        // Mobile Row
+                        ElvanSettingsAnimatedExpand(
+                            isEditing = editingField == "mobile",
+                            displayContent = {
+                                ElvanSettingsDisplayRow(
+                                    title = if (lang == AppStrings.TAMIL) "கைபேசி எண்" else "Mobile Number",
+                                    primaryValue = formatMobileForDisplay(formData["mobile"]) ?: "",
+                                    onEdit = {
+                                        mobileNumber = extractMobileNumber(formData["mobile"])
+                                        editingField = "mobile"
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            editContent = {
+                                ElvanSettingsEditContainer(
+                                    title = if (lang == AppStrings.TAMIL) "கைபேசி எண்ணைத் திருத்து" else "Edit Mobile Number",
+                                    onCancel = { editingField = null },
+                                    onSave = {
+                                        formData = formData + ("mobile" to mobileNumber)
+                                        handleSave("mobile")
+                                    },
+                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    colors = colors
+                                ) {
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "கைபேசி எண்" else "Mobile Number",
+                                        value = mobileNumber,
+                                        onValueChange = {
+                                            mobileNumber = it.filter { c -> c.isDigit() }.take(10)
+                                        },
+                                        placeholder = if (lang == AppStrings.TAMIL) "10-இலக்க எண்" else "10-digit number",
+                                        prefixText = "+91 ",
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                        colors = colors
+                                    )
+                                }
+                            }
+                        )
+
+                        ElvanSettingsDivider(colors = colors)
+
+                        // Date of Birth Row
+                        ElvanSettingsAnimatedExpand(
+                            isEditing = editingField == "birthday",
+                            displayContent = {
+                                ElvanSettingsDisplayRow(
+                                    title = if (lang == AppStrings.TAMIL) "பிறந்த தேதி" else "Date of Birth",
+                                    primaryValue = formattedBirthday ?: "",
+                                    onEdit = {
+                                        editingField = "birthday"
+                                        showDatePicker = true
+                                    },
+                                    colors = colors
+                                )
+                            },
+                            editContent = {
+                                ElvanSettingsEditContainer(
+                                    title = if (lang == AppStrings.TAMIL) "பிறந்த தேதியைத் திருத்து" else "Edit Date of Birth",
+                                    onCancel = { editingField = null },
+                                    onSave = { handleSave("birthday") },
+                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    colors = colors
+                                ) {
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "பிறந்த தேதி" else "Date of Birth",
+                                        value = formattedBirthday ?: "",
+                                        onValueChange = {},
+                                        placeholder = if (lang == AppStrings.TAMIL) "தேதியைத் தேர்ந்தெடுக்கவும்" else "Select date",
+                                        readOnly = true,
+                                        onClick = { showDatePicker = true },
+                                        trailingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Outlined.CalendarMonth,
+                                                contentDescription = null,
+                                                tint = colors.textPrimary.copy(alpha = 0.5f),
+                                                modifier = Modifier.size(20.dp)
+                                            )
+                                        },
+                                        colors = colors
+                                    )
+                                }
+                            }
+                        )
+
+                        ElvanSettingsDivider(colors = colors)
+
+                        // Gender Row
+                        ElvanSettingsAnimatedExpand(
+                            isEditing = editingField == "gender",
+                            displayContent = {
+                                ElvanSettingsDisplayRow(
+                                    title = if (lang == AppStrings.TAMIL) "பாலினம்" else "Gender",
+                                    primaryValue = formData["gender"] ?: "",
+                                    onEdit = { editingField = "gender" },
+                                    colors = colors
+                                )
+                            },
+                            editContent = {
+                                ElvanSettingsEditContainer(
+                                    title = if (lang == AppStrings.TAMIL) "பாலினத்தைத் தேர்ந்தெடுக்கவும்" else "Select Gender",
+                                    onCancel = { editingField = null },
+                                    onSave = { handleSave("gender") },
+                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    colors = colors
+                                ) {
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "பாலினம்" else "Gender",
+                                        value = formData["gender"] ?: "",
+                                        onValueChange = {},
+                                        placeholder = if (lang == AppStrings.TAMIL) "பாலினத்தைத் தேர்ந்தெடுக்கவும்" else "Select Gender",
+                                        readOnly = true,
+                                        onClick = {
+                                            openSelector(
+                                                if (lang == AppStrings.TAMIL) "பாலினத்தைத் தேர்ந்தெடுக்கவும்" else "Select Gender",
+                                                listOf("Male", "Female", "Other")
+                                            ) {
+                                                formData = formData + ("gender" to it)
+                                            }
+                                        },
+                                        trailingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowDropDown,
+                                                contentDescription = null,
+                                                tint = colors.textPrimary.copy(alpha = 0.5f),
+                                                modifier = Modifier.size(22.dp)
+                                            )
+                                        },
+                                        colors = colors
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+            
+            // 3. Academic Details Section
+            item(key = "academic_info") {
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = if (lang == AppStrings.TAMIL) "கல்வி விவரங்கள்" else "Academic Details",
+                        colors = colors
+                    ) {
+                        // Academic Enrollment (Batch, Dept, Section)
+                        ElvanSettingsAnimatedExpand(
+                            isEditing = editingField == "academic",
+                            displayContent = {
+                                ElvanSettingsDisplayRow(
+                                    title = if (lang == AppStrings.TAMIL) "தொகுதி, துறை & பிரிவு" else "Batch, Department & Section",
+                                    primaryValue = listOfNotNull(
+                                        formData["batch"],
+                                        formData["department"],
+                                        formData["section"]
+                                    ).takeIf { it.isNotEmpty() }?.joinToString(" • ") ?: "",
+                                    onEdit = { editingField = "academic" },
+                                    colors = colors
+                                )
+                            },
+                            editContent = {
+                                ElvanSettingsEditContainer(
+                                    title = if (lang == AppStrings.TAMIL) "கல்வி விவரங்களைத் திருத்து" else "Edit Academic Details",
+                                    onCancel = { editingField = null },
+                                    onSave = { handleSave("academic") },
+                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    colors = colors
+                                ) {
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "தொகுதி" else "Batch",
+                                        value = formData["batch"] ?: "",
+                                        onValueChange = {},
+                                        placeholder = if (lang == AppStrings.TAMIL) "தொகுதியைத் தேர்ந்தெடுக்கவும்" else "Select Batch",
+                                        readOnly = true,
+                                        onClick = {
+                                            openSelector(
+                                                if (lang == AppStrings.TAMIL) "தொகுதியைத் தேர்ந்தெடுக்கவும்" else "Select Batch",
+                                                getBatches()
+                                            ) {
+                                                formData = formData + mapOf("batch" to it, "department" to "", "section" to "")
+                                            }
+                                        },
+                                        trailingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowDropDown,
+                                                contentDescription = null,
+                                                tint = colors.textPrimary.copy(alpha = 0.5f),
+                                                modifier = Modifier.size(22.dp)
+                                            )
+                                        },
+                                        colors = colors
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "துறை" else "Department",
+                                        value = formData["department"] ?: "",
+                                        onValueChange = {},
+                                        placeholder = if (lang == AppStrings.TAMIL) "துறையைத் தேர்ந்தெடுக்கவும்" else "Select Department",
+                                        readOnly = true,
+                                        onClick = {
+                                            formData["batch"]?.let { batch ->
+                                                openSelector(
+                                                    if (lang == AppStrings.TAMIL) "துறையைத் தேர்ந்தெடுக்கவும்" else "Select Department",
+                                                    getDepartments(batch)
+                                                ) {
+                                                    formData = formData + mapOf("department" to it, "section" to "")
+                                                }
+                                            }
+                                        },
+                                        trailingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowDropDown,
+                                                contentDescription = null,
+                                                tint = colors.textPrimary.copy(alpha = 0.5f),
+                                                modifier = Modifier.size(22.dp)
+                                            )
+                                        },
+                                        colors = colors
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "பிரிவு" else "Section",
+                                        value = formData["section"] ?: "",
+                                        onValueChange = {},
+                                        placeholder = if (lang == AppStrings.TAMIL) "பிரிவைத் தேர்ந்தெடுக்கவும்" else "Select Section",
+                                        readOnly = true,
+                                        onClick = {
+                                            val batch = formData["batch"] ?: return@ElvanSettingsTextField
+                                            val dept = formData["department"] ?: return@ElvanSettingsTextField
+                                            openSelector(
+                                                if (lang == AppStrings.TAMIL) "பிரிவைத் தேர்ந்தெடுக்கவும்" else "Select Section",
+                                                getSections(batch, dept)
+                                            ) {
+                                                formData = formData + ("section" to it)
+                                            }
+                                        },
+                                        trailingIcon = {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowDropDown,
+                                                contentDescription = null,
+                                                tint = colors.textPrimary.copy(alpha = 0.5f),
+                                                modifier = Modifier.size(22.dp)
+                                            )
+                                        },
+                                        colors = colors
+                                    )
+                                }
+                            }
+                        )
+
+                        ElvanSettingsDivider(colors = colors)
+
+                        // Register Number Row
+                        ElvanSettingsAnimatedExpand(
+                            isEditing = editingField == "registerNo",
+                            displayContent = {
+                                ElvanSettingsDisplayRow(
+                                    title = if (lang == AppStrings.TAMIL) "பதிவு எண்" else "Register Number",
+                                    primaryValue = formData["registerNo"] ?: "",
+                                    onEdit = { editingField = "registerNo" },
+                                    colors = colors
+                                )
+                            },
+                            editContent = {
+                                ElvanSettingsEditContainer(
+                                    title = if (lang == AppStrings.TAMIL) "பதிவு எண்ணைத் திருத்து" else "Edit Register Number",
+                                    onCancel = { editingField = null },
+                                    onSave = { handleSave("registerNo") },
+                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    colors = colors
+                                ) {
+                                    ElvanSettingsTextField(
+                                        label = if (lang == AppStrings.TAMIL) "பதிவு எண்" else "Register Number",
+                                        value = formData["registerNo"] ?: "",
+                                        onValueChange = { formData = formData + ("registerNo" to it) },
+                                        placeholder = if (lang == AppStrings.TAMIL) "பதிவு எண்ணை உள்ளிடவும்" else "Enter register number",
+                                        colors = colors
+                                    )
+                                }
+                            }
+                        )
                     }
                 }
             }
@@ -628,9 +742,9 @@ fun ProfileScreen(
         ) { data ->
             Snackbar(
                 snackbarData = data,
-                containerColor = colors.surface,
+                containerColor = cardColor,
                 contentColor = colors.textPrimary,
-                shape = HomeShapes.Pill
+                shape = RoundedCornerShape(50)
             )
         }
     }
@@ -639,8 +753,8 @@ fun ProfileScreen(
     if (showSelectorModal) {
         ModalBottomSheet(
             onDismissRequest = { showSelectorModal = false },
-            shape = MaterialTheme.shapes.extraLarge,
-            containerColor = colors.surface,
+            shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+            containerColor = cardColor,
             contentColor = colors.textPrimary,
             scrimColor = Color.Black.copy(alpha = 0.5f)
         ) {
@@ -651,144 +765,203 @@ fun ProfileScreen(
             ) {
                 Text(
                     text = selectorTitle,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
                     color = colors.textPrimary,
                     modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
                 )
                 
-                HorizontalDivider(color = colors.glassBorder)
+                ElvanSettingsDivider(colors = colors, indent = 0.dp, endIndent = 0.dp)
                 
                 selectorOptions.forEach { option ->
-                    ListItem(
-                        headlineContent = { 
-                            Text(option, color = colors.textPrimary) 
-                        },
-                        modifier = Modifier.clickable {
-                            onSelectorSelect(option)
-                            showSelectorModal = false
-                        },
-                        trailingContent = {
-                            Icon(Icons.Default.ChevronRight, null, tint = colors.accent)
-                        },
-                        colors = ListItemDefaults.colors(
-                            containerColor = Color.Transparent
-                        )
-                    )
+                    val isOptionSelected = when (selectorTitle) {
+                        "Select Gender", "பாலினத்தைத் தேர்ந்தெடுக்கவும்" -> formData["gender"] == option
+                        "Select Batch", "தொகுதியைத் தேர்ந்தெடுக்கவும்" -> formData["batch"] == option
+                        "Select Department", "துறையைத் தேர்ந்தெடுக்கவும்" -> formData["department"] == option
+                        "Select Section", "பிரிவைத் தேர்ந்தெடுக்கவும்" -> formData["section"] == option
+                        else -> false
+                    }
+                    
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(color = if (isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f), bounded = true),
+                                onClick = {
+                                    onSelectorSelect(option)
+                                    showSelectorModal = false
+                                }
+                            ),
+                        color = Color.Transparent
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = option,
+                                style = TextStyle(
+                                    fontFamily = ff,
+                                    fontSize = 16.sp,
+                                    fontWeight = if (isOptionSelected) FontWeight.SemiBold else FontWeight.Normal
+                                ),
+                                color = colors.textPrimary,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (isOptionSelected) {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    tint = colors.textPrimary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
     }
     
-    // Date Picker
+    // Date Picker Dialog
     if (showDatePicker) {
-        val config = androidx.compose.ui.platform.LocalConfiguration.current
-        val isLandscape = config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        val config = LocalConfiguration.current
+        val isLandscape = config.orientation == Configuration.ORIENTATION_LANDSCAPE
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = formData["birthday"]?.let {
                 try { 
-                    LocalDate.parse(it).atStartOfDay(java.time.ZoneOffset.UTC)
+                    LocalDate.parse(it).atStartOfDay(ZoneOffset.UTC)
                         .toInstant().toEpochMilli()
                 } catch (e: Exception) { null }
             },
             initialDisplayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
         )
         
-        // Force correct mode when orientation changes while picker is open
         LaunchedEffect(isLandscape) {
             datePickerState.displayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
         }
         
+        val dialogBgColor = if (isDark) Color(0xFF1E1E1E) else Color.White
+
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = HomeDimens.SpacingMd, end = HomeDimens.SpacingMd, bottom = HomeDimens.SpacingMd),
-                    horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingMd)
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
                         onClick = { showDatePicker = false },
-                        shape = HomeShapes.Pill,
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = colors.subtleBackground,
-                            contentColor = colors.textSecondary
+                            containerColor = buttonBg,
+                            contentColor = colors.textPrimary
                         ),
+                        elevation = ButtonDefaults.buttonElevation(0.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("Cancel", style = HomeTypography.PillButton)
+                        Text(
+                            text = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                            style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                        )
                     }
                     Button(
                         onClick = {
                             datePickerState.selectedDateMillis?.let { millis ->
-                                val date = java.time.Instant.ofEpochMilli(millis)
-                                    .atZone(java.time.ZoneOffset.UTC)
+                                val date = Instant.ofEpochMilli(millis)
+                                    .atZone(ZoneOffset.UTC)
                                     .toLocalDate()
                                 formData = formData + ("birthday" to date.toString())
                             }
                             showDatePicker = false
                         },
-                        shape = HomeShapes.Pill,
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = colors.accent,
                             contentColor = Color.White
                         ),
+                        elevation = ButtonDefaults.buttonElevation(0.dp),
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("OK", style = HomeTypography.PillButton)
+                        Text(
+                            text = if (lang == AppStrings.TAMIL) "சரி" else "OK",
+                            style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        )
                     }
                 }
             },
             dismissButton = null,
             colors = DatePickerDefaults.colors(
-                containerColor = colors.surface,
+                containerColor = dialogBgColor,
                 titleContentColor = colors.textPrimary,
                 headlineContentColor = colors.textPrimary,
-                weekdayContentColor = colors.textSecondary,
-                subheadContentColor = colors.textSecondary,
-                navigationContentColor = colors.accent,
+                weekdayContentColor = colors.textPrimary.copy(alpha = 0.5f),
+                subheadContentColor = colors.textPrimary.copy(alpha = 0.5f),
+                navigationContentColor = colors.textPrimary,
                 yearContentColor = colors.textPrimary,
-                currentYearContentColor = colors.accent,
-                selectedYearContentColor = colors.textPrimary,
-                selectedYearContainerColor = colors.accent,
+                currentYearContentColor = colors.textPrimary,
+                selectedYearContentColor = if (isDark) Color(0xFF111111) else Color.White,
+                selectedYearContainerColor = colors.textPrimary,
                 dayContentColor = colors.textPrimary,
-                selectedDayContentColor = colors.textPrimary,
-                selectedDayContainerColor = colors.accent,
-                todayContentColor = colors.accent,
-                todayDateBorderColor = colors.accent
+                selectedDayContentColor = if (isDark) Color(0xFF111111) else Color.White,
+                selectedDayContainerColor = colors.textPrimary,
+                todayContentColor = colors.textPrimary,
+                todayDateBorderColor = colors.textPrimary
             )
         ) {
             DatePicker(
                 state = datePickerState,
                 showModeToggle = false,
                 colors = DatePickerDefaults.colors(
-                    containerColor = colors.surface,
+                    containerColor = dialogBgColor,
                     titleContentColor = colors.textPrimary,
                     headlineContentColor = colors.textPrimary,
-                    weekdayContentColor = colors.textSecondary,
-                    subheadContentColor = colors.textSecondary,
-                    navigationContentColor = colors.accent,
+                    weekdayContentColor = colors.textPrimary.copy(alpha = 0.5f),
+                    subheadContentColor = colors.textPrimary.copy(alpha = 0.5f),
+                    navigationContentColor = colors.textPrimary,
                     yearContentColor = colors.textPrimary,
-                    currentYearContentColor = colors.accent,
-                    selectedYearContentColor = colors.textPrimary,
-                    selectedYearContainerColor = colors.accent,
+                    currentYearContentColor = colors.textPrimary,
+                    selectedYearContentColor = if (isDark) Color(0xFF111111) else Color.White,
+                    selectedYearContainerColor = colors.textPrimary,
                     dayContentColor = colors.textPrimary,
-                    selectedDayContentColor = colors.textPrimary,
-                    selectedDayContainerColor = colors.accent,
-                    todayContentColor = colors.accent,
-                    todayDateBorderColor = colors.accent
+                    selectedDayContentColor = if (isDark) Color(0xFF111111) else Color.White,
+                    selectedDayContainerColor = colors.textPrimary,
+                    todayContentColor = colors.textPrimary,
+                    todayDateBorderColor = colors.textPrimary
                 )
             )
         }
     }
     
-    // Logout Confirmation
+    // Logout Confirmation Dialog
     if (showLogoutConfirm) {
         AlertDialog(
             onDismissRequest = { showLogoutConfirm = false },
-            icon = { Icon(Icons.Outlined.Logout, null, tint = MaterialTheme.colorScheme.error) },
-            title = { Text("Sign Out") },
-            text = { Text("Are you sure you want to sign out of your account?") },
+            containerColor = cardColor,
+            shape = RoundedCornerShape(24.dp),
+            icon = { Icon(Icons.AutoMirrored.Outlined.Logout, null, tint = AppColors.Red) },
+            title = {
+                Text(
+                    text = AppStrings.Settings.signOutConfirm(lang),
+                    style = TextStyle(fontFamily = ff, fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                    color = colors.textPrimary
+                )
+            },
+            text = {
+                Text(
+                    text = AppStrings.Settings.signOutMessage(lang),
+                    style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Normal),
+                    color = colors.textPrimary.copy(alpha = 0.6f)
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = {
@@ -796,209 +969,34 @@ fun ProfileScreen(
                         showLogoutConfirm = false
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
+                        containerColor = AppColors.Red,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(50),
+                    elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
-                    Text("Sign Out")
+                    Text(
+                        text = AppStrings.Settings.signOut(lang),
+                        style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    )
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { showLogoutConfirm = false }) {
-                    Text("Cancel")
-                }
-            }
-        )
-    }
-}
-
-// ==================== M3 COMPONENTS ====================
-
-@Composable
-private fun M3ProfileSection(
-    title: String,
-    icon: ImageVector,
-    colors: com.elvan.neram.ui.home.HomeColors = rememberHomeColors(),
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = HomeShapes.Card,
-        color = colors.surface,
-        shadowElevation = 0.dp
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
-                // Icon in blue circle
-                Surface(
-                    shape = CircleShape,
-                    color = colors.accent,
-                    modifier = Modifier.size(40.dp)
+                FilledTonalButton(
+                    onClick = { showLogoutConfirm = false },
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = buttonBg,
+                        contentColor = colors.textPrimary
+                    ),
+                    shape = RoundedCornerShape(50),
+                    elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Icon(
-                            icon,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = colors.textPrimary
-                )
-            }
-            content()
-        }
-    }
-}
-
-@Composable
-private fun M3ProfileField(
-    label: String,
-    value: String?,
-    isEditing: Boolean,
-    onEdit: () -> Unit,
-    onCancel: () -> Unit,
-    onSave: () -> Unit,
-    colors: com.elvan.neram.ui.home.HomeColors = rememberHomeColors(),
-    editContent: @Composable () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        AnimatedVisibility(
-            visible = !isEditing,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
-        ) {
-            ListItem(
-                headlineContent = {
                     Text(
-                        text = value ?: "Not set",
-                        color = if (value != null) 
-                            MaterialTheme.colorScheme.onSurface 
-                        else 
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                        text = AppStrings.Home.cancel(lang),
+                        style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     )
-                },
-                overlineContent = {
-                    Text(
-                        text = label,
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                },
-                trailingContent = {
-                    FilledTonalIconButton(
-                        onClick = onEdit,
-                        modifier = Modifier.size(40.dp),
-                        colors = IconButtonDefaults.filledTonalIconButtonColors(
-                            containerColor = colors.subtleBackground,
-                            contentColor = colors.textSecondary
-                        )
-                    ) {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = "Edit",
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                },
-                colors = ListItemDefaults.colors(
-                    containerColor = Color.Transparent
-                )
-            )
-        }
-        
-        AnimatedVisibility(
-            visible = isEditing,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            ) {
-                // No title label when editing
-                
-                editContent()
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    OutlinedButton(
-                        onClick = onCancel,
-                        shape = HomeShapes.Pill
-                    ) {
-                        Text("Cancel")
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Button(
-                        onClick = onSave,
-                        shape = HomeShapes.Pill,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colors.accent
-                        )
-                    ) {
-                        Text("Save")
-                    }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun M3DropdownField(
-    value: String?,
-    label: String,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    colors: com.elvan.neram.ui.home.HomeColors = rememberHomeColors()
-) {
-    Column {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.textSecondary,
-            modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
-        )
-        TextField(
-            value = value ?: "",
-            onValueChange = {},
-            placeholder = { Text("Select $label") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(enabled = enabled) { onClick() },
-            shape = HomeShapes.Pill,
-            readOnly = true,
-            enabled = enabled,
-            trailingIcon = {
-                IconButton(onClick = onClick, enabled = enabled) {
-                    Icon(Icons.Default.ArrowDropDown, null, tint = if (enabled) colors.accent else colors.textSecondary)
-                }
-            },
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = if (colors.isDark) colors.textSecondary.copy(alpha = 0.15f) else colors.background,
-                unfocusedContainerColor = if (colors.isDark) colors.textSecondary.copy(alpha = 0.15f) else colors.background,
-                disabledContainerColor = (if (colors.isDark) colors.textSecondary.copy(alpha = 0.15f) else colors.background).copy(alpha = 0.5f),
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            )
         )
     }
 }
