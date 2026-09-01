@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.home
+package com.elvan.neram.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -42,10 +42,13 @@ fun HomeScreen(
     isOffline: Boolean = false,
     userProfile: com.elvan.neram.data.model.UserProfile? = null,
     onProfileClick: () -> Unit = {},
+    onNavigateToTab: (com.elvan.neram.ui.navigation.NavTab) -> Unit = {},
+    onNavigateToScreen: (String) -> Unit = {},
     viewModel: HomeViewModel = viewModel(),
     scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     pullRefreshState: androidx.compose.material3.pulltorefresh.PullToRefreshState? = null
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     val colors = rememberHomeColors()
     val uiState by viewModel.uiState.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
@@ -55,6 +58,7 @@ fun HomeScreen(
     val todayEvents by viewModel.todayEvents.collectAsState()
     val academicCalendarEvents by viewModel.academicCalendarEvents.collectAsState()
     val todayUpdate by viewModel.todayUpdate.collectAsState()
+    val activeFeatureCards by viewModel.activeFeatureCards.collectAsState()
     
     var showDatePicker by remember { mutableStateOf(false) }
     var showOfflineDialog by remember { mutableStateOf(false) }
@@ -98,8 +102,6 @@ fun HomeScreen(
                 }
             },
             containerColor = colors.surface,
-            titleContentColor = colors.textPrimary,
-            textContentColor = colors.textSecondary,
             shape = HomeShapes.Item
         )
     }
@@ -112,13 +114,9 @@ fun HomeScreen(
     // =========================================================================
     // MAIN LAYOUT (Delegated)
     // =========================================================================
+    val effectiveLang = com.elvan.neram.ui.theme.AppStrings.getEffectiveLanguage(com.elvan.neram.ui.theme.LocalAppLanguage.current, androidx.compose.ui.platform.LocalContext.current)
+    val appLocale = if (effectiveLang == com.elvan.neram.ui.theme.AppStrings.TAMIL) java.util.Locale("ta", "IN") else java.util.Locale.US
     val profileLoaderCompleted by viewModel.profileLoaderCompleted.collectAsState()
-    
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val langPref = com.elvan.neram.ui.theme.LocalAppLanguage.current
-    val appLocale = remember(langPref) {
-        if (com.elvan.neram.ui.theme.AppStrings.getEffectiveLanguage(langPref, context) == com.elvan.neram.ui.theme.AppStrings.TAMIL) java.util.Locale("ta", "IN") else java.util.Locale.ENGLISH
-    }
     
     HomeMainLayout(
         uiState = uiState,
@@ -147,10 +145,32 @@ fun HomeScreen(
         selectedDate = selectedDate,
         onDateSelected = { viewModel.onDateSelected(it) },
         onSaveUpdate = { viewModel.saveDailyUpdate(it) },
-
         onSaveNotice = { viewModel.saveGeneralNotice(it) },
         profileLoaderCompleted = profileLoaderCompleted,
         scrollState = scrollState,
+        featureCards = activeFeatureCards,
+        onDismissFeatureCard = { viewModel.dismissFeatureCard(it) },
+        onFeatureCardAction = { route ->
+            when (route.lowercase().trim()) {
+                "notes" -> onNavigateToTab(com.elvan.neram.ui.navigation.NavTab.Notes)
+                "schedule" -> onNavigateToTab(com.elvan.neram.ui.navigation.NavTab.Schedule)
+                "calendar" -> onNavigateToTab(com.elvan.neram.ui.navigation.NavTab.Calendar)
+                "settings", "settings/language", "language" -> onNavigateToScreen("language")
+                "profile" -> onNavigateToScreen("profile")
+                "display" -> onNavigateToScreen("display")
+                "about", "about_app" -> onNavigateToScreen("about_app")
+                else -> {
+                    if (route.startsWith("http://") || route.startsWith("https://")) {
+                        try {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(route))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {}
+                    } else if (route.isNotBlank()) {
+                        onNavigateToScreen(route)
+                    }
+                }
+            }
+        },
         onProfileLoaderCompleted = { viewModel.markProfileLoaderCompleted() },
         onProfileClick = onProfileClick
     )

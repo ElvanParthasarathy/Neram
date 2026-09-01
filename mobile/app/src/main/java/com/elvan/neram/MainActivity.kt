@@ -217,7 +217,7 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         if (!uiState.isAuthInitialized) {
-                            SplashScreen(isDarkTheme = useDarkTheme)
+                            SplashScreen(isDarkTheme = useDarkTheme, language = effectiveLanguage)
                         } else if (uiState.isAuthenticated) {
                             if (uiState.isOnboardingComplete) {
                                 // CASE 1: Authenticated & Onboarding Complete -> HOME
@@ -235,7 +235,7 @@ class MainActivity : AppCompatActivity() {
                                 // Check if loading profile first to avoid flickering
                                 if (uiState.userProfile == null) {
                                     // Profile loading... show splash instead of loader
-                                    SplashScreen(isDarkTheme = useDarkTheme)
+                                    SplashScreen(isDarkTheme = useDarkTheme, language = effectiveLanguage)
                                 } else {
                                     com.elvan.neram.ui.onboarding.OnboardingScreen(
                                         academicHierarchy = uiState.academicHierarchy,
@@ -352,13 +352,15 @@ class MainActivity : AppCompatActivity() {
 }
 
 @Composable
-fun SplashScreen(isDarkTheme: Boolean = false) {
+fun SplashScreen(
+    isDarkTheme: Boolean = false,
+    language: String = com.elvan.neram.ui.theme.AppStrings.ENGLISH
+) {
     // Use explicit colors based on app theme preference
     val backgroundColor = if (isDarkTheme) Color(0xFF0A0A0A) else Color(0xFFFAFAFA)
     val shapeColor = if (isDarkTheme) Color.White.copy(alpha = 0.03f) else Color(0xFFE8F0FE)
     val textPrimary = if (isDarkTheme) Color.White else Color(0xFF1A1A1A)
     val textSecondary = if (isDarkTheme) Color.White.copy(alpha = 0.6f) else Color(0xFF666666)
-    val accentBlue = Color(0xFF0072DE)
     
     Box(
         modifier = Modifier
@@ -401,30 +403,23 @@ fun SplashScreen(isDarkTheme: Boolean = false) {
             )
         }
         
-        // Footer: "FROM Elvan Parthasarathy"
-        Column(
+        // Footer: Language-aware Branding ("Elvan Navil" / "எல்வன் நவில்")
+        val isTamil = language == com.elvan.neram.ui.theme.AppStrings.TAMIL
+        val brandingText = if (isTamil) "எல்வன் நவில்" else "Elvan Navil"
+        val tightSpacing = if (isTamil) 0.sp else (-0.3).sp
+
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 48.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(bottom = 52.dp)
         ) {
             Text(
-                text = "RMK",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    color = textSecondary,
-                    letterSpacing = 3.sp
-                )
-            )
-            
-            Spacer(modifier = Modifier.height(2.dp))
-            
-            Text(
-                text = "Group of Institutions",
-                style = MaterialTheme.typography.labelSmall.copy(
-                    letterSpacing = 1.5.sp,
-                    color = textSecondary.copy(alpha = 0.6f),
-                    fontWeight = FontWeight.Normal
+                text = brandingText,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    letterSpacing = tightSpacing,
+                    color = textSecondary.copy(alpha = 0.85f),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = if (isTamil) 15.sp else 16.sp
                 )
             )
         }

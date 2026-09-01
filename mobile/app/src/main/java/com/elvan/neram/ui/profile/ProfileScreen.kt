@@ -34,6 +34,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.elvan.neram.data.local.NeramDatabase
+import com.elvan.neram.data.local.entity.MasterDataEntity
+import com.elvan.neram.data.local.entity.UserEntity
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.theme.AppColors
@@ -46,11 +49,14 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import kotlinx.coroutines.launch
 
 // India-only mobile format
 private fun formatMobileForDisplay(mobile: String?): String? {
@@ -82,6 +88,7 @@ fun ProfileScreen(
     scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val user = Firebase.auth.currentUser
+    val context = LocalContext.current
     val colors = rememberHomeColors()
     val isDark = colors.isDark
     val lang = LocalAppLanguage.current
@@ -89,10 +96,35 @@ fun ProfileScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     
+    // Room DB instance for offline cache
+    val db = remember { NeramDatabase.getDatabase(context) }
+    val masterDataDao = remember { db.masterDataDao() }
+    val userDao = remember { db.userDao() }
+
+    // Instant initial profile from ViewModel cache if available
+    val homeUiState by homeViewModel.uiState.collectAsState()
+    val initialProfile = homeUiState.userProfile
+    val initialHierarchy = homeUiState.academicHierarchy
+
     // State
-    var formData by remember { mutableStateOf(mapOf<String, String>()) }
+    var formData by remember {
+        mutableStateOf<Map<String, String>>(
+            if (initialProfile != null) {
+                mapOf(
+                    "uid" to initialProfile.uid,
+                    "email" to initialProfile.email,
+                    "displayName" to initialProfile.displayName,
+                    "photoURL" to (initialProfile.photoURL ?: ""),
+                    "role" to initialProfile.role,
+                    "batch" to initialProfile.batch,
+                    "department" to initialProfile.department,
+                    "section" to initialProfile.section
+                ).filterValues { it.isNotEmpty() }
+            } else emptyMap()
+        )
+    }
     var editingField by remember { mutableStateOf<String?>(null) }
-    var hierarchy by remember { mutableStateOf<Map<String, Map<String, List<String>>>>(emptyMap()) }
+    var hierarchy by remember { mutableStateOf<Map<String, Map<String, List<String>>>>(initialHierarchy) }
     
     // Modals
     var showSelectorModal by remember { mutableStateOf(false) }
@@ -109,7 +141,40 @@ fun ProfileScreen(
     // Mobile editing state (just the 10-digit number)
     var mobileNumber by remember { mutableStateOf("") }
     
-    // Load user data
+    // 1. FAST OFFLINE-FIRST CACHE LOAD (Loads instantly from Room SQLite even when offline)
+    LaunchedEffect(user?.uid) {
+        user?.uid?.let { uid ->
+            // Load local detailed profile from Room DB
+            val cachedProfileEntity = masterDataDao.getMasterDataById("user_profile_details_$uid")
+            if (cachedProfileEntity != null) {
+                try {
+                    val type = object : TypeToken<Map<String, String>>() {}.type
+                    val cachedMap: Map<String, String> = Gson().fromJson(cachedProfileEntity.json, type)
+                    if (cachedMap.isNotEmpty()) {
+                        formData = cachedMap
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("ProfileScreen", "Error loading cached profile", e)
+                }
+            }
+            
+            // Load local hierarchy from Room DB
+            val cachedHierarchyEntity = masterDataDao.getMasterDataById("academic_hierarchy")
+            if (cachedHierarchyEntity != null) {
+                try {
+                    val type = object : TypeToken<Map<String, Map<String, List<String>>>>() {}.type
+                    val cachedH: Map<String, Map<String, List<String>>> = Gson().fromJson(cachedHierarchyEntity.json, type)
+                    if (cachedH.isNotEmpty()) {
+                        hierarchy = cachedH
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("ProfileScreen", "Error loading cached hierarchy", e)
+                }
+            }
+        }
+    }
+
+    // 2. LIVE FIREBASE SYNC (Syncs in background when online and caches locally)
     DisposableEffect(user?.uid) {
         var userListener: ValueEventListener? = null
         var hierarchyListener: ValueEventListener? = null
@@ -129,7 +194,34 @@ fun ProfileScreen(
                                 data[key] = value
                             }
                         }
-                        formData = data
+                        if (data.isNotEmpty()) {
+                            formData = data
+                            // Persist to Room DB so it's always available offline
+                            scope.launch(Dispatchers.IO) {
+                                try {
+                                    masterDataDao.insertMasterData(
+                                        MasterDataEntity(
+                                            id = "user_profile_details_$uid",
+                                            json = Gson().toJson(data)
+                                        )
+                                    )
+                                    userDao.insertUserProfile(
+                                        UserEntity(
+                                            uid = uid,
+                                            email = data["email"] ?: user.email ?: "",
+                                            displayName = data["displayName"] ?: "",
+                                            photoURL = data["photoURL"],
+                                            role = data["role"] ?: "student",
+                                            batch = data["batch"] ?: "",
+                                            department = data["department"] ?: "",
+                                            section = data["section"] ?: ""
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    android.util.Log.e("ProfileScreen", "Failed to cache user profile to Room", e)
+                                }
+                            }
+                        }
                     } catch (e: Exception) {
                         android.util.Log.e("ProfileScreen", "Error parsing user data", e)
                     }
@@ -155,7 +247,21 @@ fun ProfileScreen(
                             }
                             result[batch] = depts
                         }
-                        hierarchy = result
+                        if (result.isNotEmpty()) {
+                            hierarchy = result
+                            scope.launch(Dispatchers.IO) {
+                                try {
+                                    masterDataDao.insertMasterData(
+                                        MasterDataEntity(
+                                            id = "academic_hierarchy",
+                                            json = Gson().toJson(result)
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    android.util.Log.e("ProfileScreen", "Failed to cache hierarchy to Room", e)
+                                }
+                            }
+                        }
                     } catch (e: Exception) {}
                 }
                 override fun onCancelled(error: DatabaseError) {}
@@ -185,7 +291,7 @@ fun ProfileScreen(
     
     fun handleSave(field: String) {
         user?.uid?.let { uid ->
-            val updates = when (field) {
+            val updates: Map<String, String> = when (field) {
                 "name" -> mapOf(
                     "displayName" to "$firstName $lastName".trim(),
                     "firstName" to firstName,
@@ -196,9 +302,47 @@ fun ProfileScreen(
                     "department" to (formData["department"] ?: ""),
                     "section" to (formData["section"] ?: "")
                 )
+                "mobile" -> mapOf("mobile" to mobileNumber.trim())
                 else -> mapOf(field to (formData[field] ?: ""))
             }
-            Firebase.database.getReference("users/$uid").updateChildren(updates)
+            
+            // 1. Immediately update formData in memory
+            val updatedMap = formData.toMutableMap()
+            updates.forEach { (k, v) -> updatedMap[k] = v }
+            formData = updatedMap
+
+            // 2. Persist to Room DB immediately (offline-safe)
+            scope.launch(Dispatchers.IO) {
+                try {
+                    masterDataDao.insertMasterData(
+                        MasterDataEntity(
+                            id = "user_profile_details_$uid",
+                            json = Gson().toJson(updatedMap)
+                        )
+                    )
+                    userDao.insertUserProfile(
+                        UserEntity(
+                            uid = uid,
+                            email = updatedMap["email"] ?: user.email ?: "",
+                            displayName = updatedMap["displayName"] ?: "",
+                            photoURL = updatedMap["photoURL"],
+                            role = updatedMap["role"] ?: "student",
+                            batch = updatedMap["batch"] ?: "",
+                            department = updatedMap["department"] ?: "",
+                            section = updatedMap["section"] ?: ""
+                        )
+                    )
+                } catch (e: Exception) {
+                    android.util.Log.e("ProfileScreen", "Failed to cache profile locally", e)
+                }
+            }
+
+            // 3. Queue update to Firebase Realtime Database
+            try {
+                Firebase.database.getReference("users/$uid").updateChildren(updates as Map<String, Any>)
+            } catch (e: Exception) {
+                android.util.Log.e("ProfileScreen", "Error updating Firebase", e)
+            }
         }
         editingField = null
     }
@@ -321,6 +465,32 @@ fun ProfileScreen(
                                     when {
                                         googlePhotoUrl != null -> {
                                             user.uid.let { uid ->
+                                                val updatedMap = formData + ("photoURL" to googlePhotoUrl.toString())
+                                                formData = updatedMap
+                                                scope.launch(Dispatchers.IO) {
+                                                    try {
+                                                        masterDataDao.insertMasterData(
+                                                            MasterDataEntity(
+                                                                id = "user_profile_details_$uid",
+                                                                json = Gson().toJson(updatedMap)
+                                                            )
+                                                        )
+                                                        userDao.insertUserProfile(
+                                                            UserEntity(
+                                                                uid = uid,
+                                                                email = updatedMap["email"] ?: user.email ?: "",
+                                                                displayName = updatedMap["displayName"] ?: "",
+                                                                photoURL = googlePhotoUrl.toString(),
+                                                                role = updatedMap["role"] ?: "student",
+                                                                batch = updatedMap["batch"] ?: "",
+                                                                department = updatedMap["department"] ?: "",
+                                                                section = updatedMap["section"] ?: ""
+                                                            )
+                                                        )
+                                                    } catch (e: Exception) {
+                                                        android.util.Log.e("ProfileScreen", "Failed to cache synced photo locally", e)
+                                                    }
+                                                }
                                                 Firebase.database.getReference("users/$uid/photoURL")
                                                     .setValue(googlePhotoUrl.toString())
                                                     .addOnSuccessListener {
@@ -879,7 +1049,22 @@ fun ProfileScreen(
                                 val date = Instant.ofEpochMilli(millis)
                                     .atZone(ZoneOffset.UTC)
                                     .toLocalDate()
-                                formData = formData + ("birthday" to date.toString())
+                                val updatedMap = formData + ("birthday" to date.toString())
+                                formData = updatedMap
+                                user?.uid?.let { uid ->
+                                    scope.launch(Dispatchers.IO) {
+                                        try {
+                                            masterDataDao.insertMasterData(
+                                                MasterDataEntity(
+                                                    id = "user_profile_details_$uid",
+                                                    json = Gson().toJson(updatedMap)
+                                                )
+                                            )
+                                        } catch (e: Exception) {
+                                            android.util.Log.e("ProfileScreen", "Failed to cache birthday locally", e)
+                                        }
+                                    }
+                                }
                             }
                             showDatePicker = false
                         },

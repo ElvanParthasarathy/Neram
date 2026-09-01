@@ -3,12 +3,12 @@ package com.elvan.neram.ui.settings
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,7 +31,7 @@ import com.elvan.neram.utils.AlarmScheduler
 import java.util.Locale
 
 /**
- * Notification Settings Screen for controlling notification channels and preferences.
+ * Notification Settings Screen with Master On/Off switch and granular channel toggles.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +46,10 @@ fun NotificationSettingsScreen(
     // Read preferences
     val prefs = remember { context.getSharedPreferences("notification_settings", Context.MODE_PRIVATE) }
     
+    // Master Switch
+    var masterNotificationsEnabled by remember { mutableStateOf(prefs.getBoolean("master_notifications_enabled", true)) }
+
+    // Channel toggles
     var dailyUpdateEnabled by remember { mutableStateOf(prefs.getBoolean("daily_update", true)) }
     var generalNoticeEnabled by remember { mutableStateOf(prefs.getBoolean("general_notice", true)) }
     var classScheduleEnabled by remember { mutableStateOf(prefs.getBoolean("class_schedule", true)) }
@@ -69,7 +74,6 @@ fun NotificationSettingsScreen(
     // State for Material 3 Time Picker
     var showTimePickerForSlot by remember { mutableStateOf<Int?>(null) }
     
-    // Remember the time picker state when opening
     val timePickerState = if (showTimePickerForSlot != null) {
         val initialHour = when (showTimePickerForSlot) {
             1 -> customTime1Hour
@@ -116,17 +120,53 @@ fun NotificationSettingsScreen(
         }
     }
 
+    val subSectionAlpha = if (masterNotificationsEnabled) 1f else 0.38f
+
     LazyColumn(
         state = scrollState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
-            item(key = "spacer_top") {
-                Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
-            }
+        item(key = "spacer_top") {
+            Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
+        }
 
-            item(key = "push_notifications") {
+        // 1. MASTER SWITCH SECTION
+        item(key = "master_notifications") {
+            ElvanSectionContainer {
+                ElvanSettingsSection(
+                    title = if (lang == AppStrings.TAMIL) "முக்கிய அமைப்பு" else "General",
+                    colors = colors
+                ) {
+                    ElvanSettingsRow(
+                        icon = Icons.Outlined.NotificationsActive,
+                        title = if (lang == AppStrings.TAMIL) "அனைத்து அறிவிப்புகள்" else "Allow Notifications",
+                        description = if (lang == AppStrings.TAMIL) "அனைத்து பயன்பாட்டு அறிவிப்புகளையும் அனுமதிக்கவும்" else "Master switch for all app notifications",
+                        onClick = {
+                            val next = !masterNotificationsEnabled
+                            masterNotificationsEnabled = next
+                            prefs.edit().putBoolean("master_notifications_enabled", next).apply()
+                        },
+                        customTrailing = {
+                            ElvanSettingsSwitch(
+                                checked = masterNotificationsEnabled,
+                                onCheckedChange = {
+                                    masterNotificationsEnabled = it
+                                    prefs.edit().putBoolean("master_notifications_enabled", it).apply()
+                                },
+                                colors = colors
+                            )
+                        },
+                        colors = colors
+                    )
+                }
+            }
+        }
+
+        // 2. CHANNELS / PUSH NOTIFICATIONS
+        item(key = "push_notifications") {
+            Box(modifier = Modifier.graphicsLayer { alpha = subSectionAlpha }) {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
                         title = AppStrings.Settings.pushNotifications(lang),
@@ -137,16 +177,21 @@ fun NotificationSettingsScreen(
                             title = if (lang == AppStrings.TAMIL) "தினசரி புதுப்பிப்புகள்" else "Daily Updates",
                             description = if (lang == AppStrings.TAMIL) "தினசரி வகுப்பு குறிப்புகள் & கல்வி புதுப்பிப்புகள்" else "Daily class notes & academic updates",
                             onClick = {
-                                val next = !dailyUpdateEnabled
-                                dailyUpdateEnabled = next
-                                prefs.edit().putBoolean("daily_update", next).apply()
+                                if (masterNotificationsEnabled) {
+                                    val next = !dailyUpdateEnabled
+                                    dailyUpdateEnabled = next
+                                    prefs.edit().putBoolean("daily_update", next).apply()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = dailyUpdateEnabled,
+                                    checked = dailyUpdateEnabled && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        dailyUpdateEnabled = it
-                                        prefs.edit().putBoolean("daily_update", it).apply()
+                                        if (masterNotificationsEnabled) {
+                                            dailyUpdateEnabled = it
+                                            prefs.edit().putBoolean("daily_update", it).apply()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -160,16 +205,21 @@ fun NotificationSettingsScreen(
                             title = if (lang == AppStrings.TAMIL) "பொது அறிவிப்புகள்" else "General Notices",
                             description = if (lang == AppStrings.TAMIL) "கல்லூரியின் பொது அறிவிப்புகள்" else "General announcements from college",
                             onClick = {
-                                val next = !generalNoticeEnabled
-                                generalNoticeEnabled = next
-                                prefs.edit().putBoolean("general_notice", next).apply()
+                                if (masterNotificationsEnabled) {
+                                    val next = !generalNoticeEnabled
+                                    generalNoticeEnabled = next
+                                    prefs.edit().putBoolean("general_notice", next).apply()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = generalNoticeEnabled,
+                                    checked = generalNoticeEnabled && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        generalNoticeEnabled = it
-                                        prefs.edit().putBoolean("general_notice", it).apply()
+                                        if (masterNotificationsEnabled) {
+                                            generalNoticeEnabled = it
+                                            prefs.edit().putBoolean("general_notice", it).apply()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -183,16 +233,21 @@ fun NotificationSettingsScreen(
                             title = if (lang == AppStrings.TAMIL) "வகுப்பு அட்டவணை" else "Class Schedule",
                             description = if (lang == AppStrings.TAMIL) "இன்றைய நேர அட்டவணை மற்றும் பாடங்கள்" else "Today's timetable and subjects",
                             onClick = {
-                                val next = !classScheduleEnabled
-                                classScheduleEnabled = next
-                                prefs.edit().putBoolean("class_schedule", next).apply()
+                                if (masterNotificationsEnabled) {
+                                    val next = !classScheduleEnabled
+                                    classScheduleEnabled = next
+                                    prefs.edit().putBoolean("class_schedule", next).apply()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = classScheduleEnabled,
+                                    checked = classScheduleEnabled && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        classScheduleEnabled = it
-                                        prefs.edit().putBoolean("class_schedule", it).apply()
+                                        if (masterNotificationsEnabled) {
+                                            classScheduleEnabled = it
+                                            prefs.edit().putBoolean("class_schedule", it).apply()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -206,16 +261,21 @@ fun NotificationSettingsScreen(
                             title = "Lab Reminders",
                             description = "Batch-specific labs and labcoat alerts",
                             onClick = {
-                                val next = !labRemindersEnabled
-                                labRemindersEnabled = next
-                                prefs.edit().putBoolean("lab_reminders", next).apply()
+                                if (masterNotificationsEnabled) {
+                                    val next = !labRemindersEnabled
+                                    labRemindersEnabled = next
+                                    prefs.edit().putBoolean("lab_reminders", next).apply()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = labRemindersEnabled,
+                                    checked = labRemindersEnabled && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        labRemindersEnabled = it
-                                        prefs.edit().putBoolean("lab_reminders", it).apply()
+                                        if (masterNotificationsEnabled) {
+                                            labRemindersEnabled = it
+                                            prefs.edit().putBoolean("lab_reminders", it).apply()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -229,16 +289,21 @@ fun NotificationSettingsScreen(
                             title = "Study Reminders",
                             description = "Motivation for upcoming exams",
                             onClick = {
-                                val next = !studyRemindersEnabled
-                                studyRemindersEnabled = next
-                                prefs.edit().putBoolean("study_reminders", next).apply()
+                                if (masterNotificationsEnabled) {
+                                    val next = !studyRemindersEnabled
+                                    studyRemindersEnabled = next
+                                    prefs.edit().putBoolean("study_reminders", next).apply()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = studyRemindersEnabled,
+                                    checked = studyRemindersEnabled && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        studyRemindersEnabled = it
-                                        prefs.edit().putBoolean("study_reminders", it).apply()
+                                        if (masterNotificationsEnabled) {
+                                            studyRemindersEnabled = it
+                                            prefs.edit().putBoolean("study_reminders", it).apply()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -252,16 +317,21 @@ fun NotificationSettingsScreen(
                             title = "Exam Alerts",
                             description = "Reminders for Today / Tomorrow exams",
                             onClick = {
-                                val next = !examAlertsEnabled
-                                examAlertsEnabled = next
-                                prefs.edit().putBoolean("exam_alerts", next).apply()
+                                if (masterNotificationsEnabled) {
+                                    val next = !examAlertsEnabled
+                                    examAlertsEnabled = next
+                                    prefs.edit().putBoolean("exam_alerts", next).apply()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = examAlertsEnabled,
+                                    checked = examAlertsEnabled && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        examAlertsEnabled = it
-                                        prefs.edit().putBoolean("exam_alerts", it).apply()
+                                        if (masterNotificationsEnabled) {
+                                            examAlertsEnabled = it
+                                            prefs.edit().putBoolean("exam_alerts", it).apply()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -275,16 +345,21 @@ fun NotificationSettingsScreen(
                             title = "Event Reminders",
                             description = "Holidays and special events",
                             onClick = {
-                                val next = !eventRemindersEnabled
-                                eventRemindersEnabled = next
-                                prefs.edit().putBoolean("event_reminders", next).apply()
+                                if (masterNotificationsEnabled) {
+                                    val next = !eventRemindersEnabled
+                                    eventRemindersEnabled = next
+                                    prefs.edit().putBoolean("event_reminders", next).apply()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = eventRemindersEnabled,
+                                    checked = eventRemindersEnabled && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        eventRemindersEnabled = it
-                                        prefs.edit().putBoolean("event_reminders", it).apply()
+                                        if (masterNotificationsEnabled) {
+                                            eventRemindersEnabled = it
+                                            prefs.edit().putBoolean("event_reminders", it).apply()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -298,16 +373,21 @@ fun NotificationSettingsScreen(
                             title = "Instant Alerts",
                             description = "Critical instant announcements",
                             onClick = {
-                                val next = !instantAlertsEnabled
-                                instantAlertsEnabled = next
-                                prefs.edit().putBoolean("instant_alerts", next).apply()
+                                if (masterNotificationsEnabled) {
+                                    val next = !instantAlertsEnabled
+                                    instantAlertsEnabled = next
+                                    prefs.edit().putBoolean("instant_alerts", next).apply()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = instantAlertsEnabled,
+                                    checked = instantAlertsEnabled && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        instantAlertsEnabled = it
-                                        prefs.edit().putBoolean("instant_alerts", it).apply()
+                                        if (masterNotificationsEnabled) {
+                                            instantAlertsEnabled = it
+                                            prefs.edit().putBoolean("instant_alerts", it).apply()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -317,8 +397,11 @@ fun NotificationSettingsScreen(
                     }
                 }
             }
+        }
 
-            item(key = "notification_timings") {
+        // 3. NOTIFICATION TIMINGS
+        item(key = "notification_timings") {
+            Box(modifier = Modifier.graphicsLayer { alpha = subSectionAlpha }) {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
                         title = AppStrings.Settings.notificationTimings(lang),
@@ -329,18 +412,23 @@ fun NotificationSettingsScreen(
                             title = "Use Custom Times",
                             description = if (useCustomTimes) "Using 3 custom alarm times" else "Using default college timings",
                             onClick = {
-                                val next = !useCustomTimes
-                                useCustomTimes = next
-                                prefs.edit().putBoolean("use_custom_times", next).apply()
-                                refreshAlarms()
+                                if (masterNotificationsEnabled) {
+                                    val next = !useCustomTimes
+                                    useCustomTimes = next
+                                    prefs.edit().putBoolean("use_custom_times", next).apply()
+                                    refreshAlarms()
+                                }
                             },
                             customTrailing = {
                                 ElvanSettingsSwitch(
-                                    checked = useCustomTimes,
+                                    checked = useCustomTimes && masterNotificationsEnabled,
+                                    enabled = masterNotificationsEnabled,
                                     onCheckedChange = {
-                                        useCustomTimes = it
-                                        prefs.edit().putBoolean("use_custom_times", it).apply()
-                                        refreshAlarms()
+                                        if (masterNotificationsEnabled) {
+                                            useCustomTimes = it
+                                            prefs.edit().putBoolean("use_custom_times", it).apply()
+                                            refreshAlarms()
+                                        }
                                     },
                                     colors = colors
                                 )
@@ -357,6 +445,8 @@ fun NotificationSettingsScreen(
                             Triple("College Entry", if (useCustomTimes) customTime3Hour else 7, if (useCustomTimes) customTime3Minute else 30)
                         )
 
+                        val timeEnabled = masterNotificationsEnabled && useCustomTimes
+
                         slots.forEachIndexed { index, slotData ->
                             val (label, hour, minute) = slotData
                             val displayHour = if (hour == 0) 12 else if (hour > 12) hour - 12 else hour
@@ -368,7 +458,7 @@ fun NotificationSettingsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable(
-                                        enabled = useCustomTimes,
+                                        enabled = timeEnabled,
                                         interactionSource = remember { MutableInteractionSource() },
                                         indication = ripple(color = timeRowRipple, bounded = true)
                                     ) {
@@ -394,7 +484,7 @@ fun NotificationSettingsScreen(
                                         Icon(
                                             Icons.Outlined.Alarm,
                                             contentDescription = null,
-                                            tint = if (useCustomTimes) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f),
+                                            tint = if (timeEnabled) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f),
                                             modifier = Modifier.size(20.dp)
                                         )
                                     }
@@ -407,7 +497,7 @@ fun NotificationSettingsScreen(
                                             fontSize = 15.sp,
                                             fontWeight = FontWeight.Medium
                                         ),
-                                        color = if (useCustomTimes) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f),
+                                        color = if (timeEnabled) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f),
                                         modifier = Modifier.weight(1f)
                                     )
 
@@ -417,7 +507,7 @@ fun NotificationSettingsScreen(
                                             fontSize = 15.sp,
                                             fontWeight = FontWeight.SemiBold
                                         ),
-                                        color = if (useCustomTimes) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f)
+                                        color = if (timeEnabled) colors.textPrimary else colors.textPrimary.copy(alpha = 0.3f)
                                     )
                                 }
                             }
@@ -429,18 +519,19 @@ fun NotificationSettingsScreen(
                     }
                 }
             }
+        }
 
-            item(key = "notification_note") {
-                ElvanSectionContainer {
-                    Text(
-                        text = AppStrings.Settings.notificationNote(lang),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.textPrimary.copy(alpha = 0.5f),
-                        modifier = Modifier.padding(horizontal = 8.dp)
-                    )
-                }
+        item(key = "notification_note") {
+            ElvanSectionContainer {
+                Text(
+                    text = AppStrings.Settings.notificationNote(lang),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.textPrimary.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         }
+    }
 }
 
 @Composable
@@ -448,53 +539,45 @@ fun M3TimePickerDialog(
     title: String = "Select Time",
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
-    toggle: @Composable () -> Unit = {},
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
-    androidx.compose.ui.window.Dialog(
+    AlertDialog(
         onDismissRequest = onCancel,
-        properties = androidx.compose.ui.window.DialogProperties(
-            usePlatformDefaultWidth = false
-        ),
-    ) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
-            modifier = Modifier
-                .width(IntrinsicSize.Min)
-                .height(IntrinsicSize.Min)
-                .background(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface
-                ),
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium
+        title = {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
                 )
+            )
+        },
+        text = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
                 content()
-                Row(
-                    modifier = Modifier
-                        .height(40.dp)
-                        .fillMaxWidth()
-                ) {
-                    toggle()
-                    Spacer(modifier = Modifier.weight(1f))
-                    TextButton(
-                        onClick = onCancel
-                    ) { Text("Cancel") }
-                    TextButton(
-                        onClick = onConfirm
-                    ) { Text("OK") }
-                }
             }
-        }
-    }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(
+                    "OK",
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onCancel) {
+                Text(
+                    "Cancel",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        shape = RoundedCornerShape(28.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    )
 }

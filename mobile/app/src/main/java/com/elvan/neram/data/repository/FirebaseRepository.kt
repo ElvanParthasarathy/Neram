@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.data.repository
+package com.elvan.neram.data.repository
 
 import android.content.Context
 import android.util.Log
@@ -44,6 +44,7 @@ class FirebaseRepository(private val context: Context) {
     private val database = FirebaseDatabase.getInstance()
     private val localDb = NeramDatabase.getDatabase(context)
     private val scope = CoroutineScope(Dispatchers.IO)
+    private val gson = com.google.gson.Gson()
     
     // Academic hierarchy state (network-only, but safe)
     private val _academicHierarchy = MutableStateFlow<Map<String, Map<String, List<String>>>>(emptyMap())
@@ -117,6 +118,7 @@ class FirebaseRepository(private val context: Context) {
     private var sectionUpdatesListener: ListenerInfo? = null
     private var sectionEventsListener: ListenerInfo? = null
     private var academicHierarchyListener: ListenerInfo? = null
+    private var featureCardsListener: ListenerInfo? = null
     
     private fun removeListener(listenerInfo: ListenerInfo?) {
         listenerInfo?.let {
@@ -127,6 +129,93 @@ class FirebaseRepository(private val context: Context) {
                 Log.w(TAG, "Failed to remove listener: ${e.message}")
             }
         }
+    }
+    
+    // ==================== FEATURE CARDS / TIPS BANNERS ====================
+    
+    fun getFeatureCards(): Flow<FeatureCardsConfig> {
+        startFeatureCardsSync()
+        return localDb.masterDataDao().getMasterDataByIdFlow("feature_cards").map { entity ->
+            if (entity != null) {
+                try {
+                    gson.fromJson(entity.json, FeatureCardsConfig::class.java) ?: FeatureCardsConfig()
+                } catch (e: Exception) {
+                    FeatureCardsConfig()
+                }
+            } else {
+                FeatureCardsConfig()
+            }
+        }
+    }
+
+    private fun startFeatureCardsSync() {
+        removeListener(featureCardsListener)
+        val ref = database.getReference("settings/feature_cards")
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                try {
+                    val enabled = snapshot.child("enabled").getValue(Boolean::class.java) ?: true
+                    val cardsList = mutableListOf<FeatureCard>()
+                    val cardsSnap = snapshot.child("cards")
+                    if (cardsSnap.exists()) {
+                        cardsSnap.children.forEach { child ->
+                            val id = child.child("id").getValue(String::class.java) ?: child.key ?: ""
+                            val type = child.child("type").getValue(String::class.java) 
+                                ?: child.child("badge").getValue(String::class.java) ?: "UPDATE"
+                            val message = child.child("message").getValue(String::class.java)
+                                ?: child.child("description").getValue(String::class.java)
+                                ?: child.child("title").getValue(String::class.java) ?: ""
+                            val messageTa = child.child("messageTa").getValue(String::class.java)
+                                ?: child.child("descriptionTa").getValue(String::class.java)
+                                ?: child.child("titleTa").getValue(String::class.java) ?: ""
+                            val actionRoute = child.child("actionRoute").getValue(String::class.java) ?: ""
+                            val cardEnabled = child.child("enabled").getValue(Boolean::class.java) ?: true
+
+                            if (message.isNotBlank()) {
+                                cardsList.add(
+                                    FeatureCard(
+                                        id = id,
+                                        type = type,
+                                        message = message,
+                                        messageTa = messageTa,
+                                        title = message,
+                                        titleTa = messageTa,
+                                        description = message,
+                                        descriptionTa = messageTa,
+                                        badge = type,
+                                        actionRoute = actionRoute,
+                                        enabled = cardEnabled
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    // No hardcoded fallbacks — only show what admin creates in the panel
+                    val config = FeatureCardsConfig(enabled = enabled, cards = cardsList)
+                    scope.launch {
+                        try {
+                            localDb.masterDataDao().insertMasterData(
+                                MasterDataEntity(
+                                    id = "feature_cards",
+                                    json = gson.toJson(config)
+                                )
+                            )
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to cache feature cards: ${e.message}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error parsing feature cards", e)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.w(TAG, "Feature cards sync cancelled: ${error.message}")
+            }
+        }
+        ref.addValueEventListener(listener)
+        featureCardsListener = ListenerInfo(ref, listener)
     }
     
     // ==================== USER PROFILE ====================

@@ -1,51 +1,36 @@
 package com.elvan.neram.ui.directory
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.elvan.neram.ui.home.HomeColors
-import com.elvan.neram.ui.home.HomeShapes
-import com.elvan.neram.ui.home.HomeTypography
-import com.elvan.neram.ui.home.rememberHomeColors
-import com.google.firebase.auth.ktx.auth
+import com.elvan.neram.ui.components.shell.*
+import com.elvan.neram.ui.home.*
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-
-import com.elvan.neram.ui.components.shell.LocalElvanScrollState
 
 @Composable
 fun UserDirectoryScreen(
@@ -56,14 +41,13 @@ fun UserDirectoryScreen(
 ) {
     val colors = rememberHomeColors()
 
-    // Load Data
+    // Load Hierarchy Data
     var hierarchy by remember { mutableStateOf<Map<String, Map<String, List<String>>>>(emptyMap()) }
     
     DisposableEffect(Unit) { 
         var hierarchyListener: ValueEventListener? = null
         var hierarchyRef: com.google.firebase.database.DatabaseReference? = null
 
-        // Load Hierarchy
         hierarchyRef = Firebase.database.getReference("academic_hierarchy")
         hierarchyListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -96,22 +80,20 @@ fun UserDirectoryScreen(
     LazyColumn(
         state = scrollState,
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = com.elvan.neram.ui.home.HomeDimens.SubpageContentPaddingBottom),
-        verticalArrangement = Arrangement.spacedBy(com.elvan.neram.ui.home.HomeDimens.SectionSpacing)
+        contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
+        verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
         item(key = "spacer_top") {
-            Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
+            Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
         }
 
         item(key = "directory_content") {
-            com.elvan.neram.ui.components.shell.ElvanSectionContainer {
-                UserDirectoryContent(
-                    hierarchy = hierarchy,
-                    colors = colors,
-                    path = directoryPath,
-                    onPathChange = onDirectoryPathChange
-                )
-            }
+            UserDirectoryContent(
+                hierarchy = hierarchy,
+                colors = colors,
+                path = directoryPath,
+                onPathChange = onDirectoryPathChange
+            )
         }
     }
 }
@@ -125,8 +107,6 @@ private fun UserDirectoryContent(
 ) {
     var users by remember { mutableStateOf(listOf<Map<String, String>>()) }
     var usersLoading by remember { mutableStateOf(false) }
-    
-    // Removed auto-set path logic
     
     // Fetch users when at section level
     LaunchedEffect(path) {
@@ -174,7 +154,6 @@ private fun UserDirectoryContent(
                 usersLoading = false
             }
         } else {
-            // Reset users when navigating away from section level
             users = emptyList()
         }
     }
@@ -183,16 +162,12 @@ private fun UserDirectoryContent(
         targetState = path,
         transitionSpec = {
             if (targetState.size > initialState.size) {
-                // Forward: Slide In from Right
                 slideIntoContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Left,
                     animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioNoBouncy)
-                ) togetherWith 
-                fadeOut(targetAlpha = 0.9f, animationSpec = tween(durationMillis = 50))
+                ) togetherWith fadeOut(targetAlpha = 0.9f, animationSpec = tween(durationMillis = 50))
             } else {
-                // Backward: Slide Out to Right
-                fadeIn(initialAlpha = 0.9f) togetherWith 
-                slideOutOfContainer(
+                fadeIn(initialAlpha = 0.9f) togetherWith slideOutOfContainer(
                     towards = AnimatedContentTransitionScope.SlideDirection.Right,
                     animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioNoBouncy)
                 )
@@ -202,88 +177,167 @@ private fun UserDirectoryContent(
     ) { currentPath ->
         val level = currentPath.size
         
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // CONTENT
-            if (level == 0) {
-                // Batch Select
-                Text("Select Batch", style = HomeTypography.SectionTitle, color = colors.textPrimary)
-                Spacer(modifier = Modifier.height(16.dp))
-                hierarchy.keys.sorted().forEach { batch ->
-                    DirectoryFolderItem(
-                        name = "Batch $batch",
-                        colors = colors,
-                        onClick = { onPathChange(currentPath + batch) }
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+        when (level) {
+            0 -> {
+                // Batch Selection
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = "Select Batch",
+                        colors = colors
+                    ) {
+                        val batches = hierarchy.keys.sorted()
+                        if (batches.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Loading academic batches...",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colors.textSecondary
+                                )
+                            }
+                        } else {
+                            batches.forEachIndexed { index, batch ->
+                                ElvanSettingsRow(
+                                    icon = Icons.Outlined.Folder,
+                                    title = "Batch $batch",
+                                    description = "View departments in batch $batch",
+                                    onClick = { onPathChange(currentPath + batch) },
+                                    colors = colors
+                                )
+                                if (index < batches.lastIndex) {
+                                    ElvanSettingsDivider(colors = colors)
+                                }
+                            }
+                        }
+                    }
                 }
-            } else if (level == 1) {
-                // Dept Select
+            }
+            1 -> {
+                // Dept Selection
                 val batch = currentPath[0]
-                val depts = hierarchy[batch] ?: emptyMap()
+                val depts = (hierarchy[batch] ?: emptyMap()).keys.sorted()
                 
-                // Header removed - using Screen-level header
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                depts.keys.sorted().forEach { dept ->
-                    DirectoryFolderItem(
-                        name = dept,
-                        colors = colors,
-                        onClick = { onPathChange(currentPath + dept) }
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = "Select Department (Batch $batch)",
+                        colors = colors
+                    ) {
+                        if (depts.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "No departments found",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colors.textSecondary
+                                )
+                            }
+                        } else {
+                            depts.forEachIndexed { index, dept ->
+                                ElvanSettingsRow(
+                                    icon = Icons.Outlined.Folder,
+                                    title = dept,
+                                    description = "View sections in $dept",
+                                    onClick = { onPathChange(currentPath + dept) },
+                                    colors = colors
+                                )
+                                if (index < depts.lastIndex) {
+                                    ElvanSettingsDivider(colors = colors)
+                                }
+                            }
+                        }
+                    }
                 }
-            } else if (level == 2) {
-                // Section Select
+            }
+            2 -> {
+                // Section Selection
                 val batch = currentPath[0]
                 val dept = currentPath[1]
-                val sections = hierarchy[batch]?.get(dept) ?: emptyList()
+                val sections = (hierarchy[batch]?.get(dept) ?: emptyList()).sorted()
                 
-                // Header removed
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                sections.sorted().forEach { section ->
-                    DirectoryFolderItem(
-                        name = "Section $section",
-                        colors = colors,
-                        onClick = { onPathChange(currentPath + section) }
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = "Select Section ($dept)",
+                        colors = colors
+                    ) {
+                        if (sections.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "No sections found",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colors.textSecondary
+                                )
+                            }
+                        } else {
+                            sections.forEachIndexed { index, section ->
+                                ElvanSettingsRow(
+                                    icon = Icons.Outlined.Folder,
+                                    title = "Section $section",
+                                    description = "View students in section $section",
+                                    onClick = { onPathChange(currentPath + section) },
+                                    colors = colors
+                                )
+                                if (index < sections.lastIndex) {
+                                    ElvanSettingsDivider(colors = colors)
+                                }
+                            }
+                        }
+                    }
                 }
-            } else {
-                // User List - Keep existing list style
-                // path size >= 3
+            }
+            else -> {
+                // Users List
                 val batch = currentPath.getOrNull(0) ?: ""
                 val dept = currentPath.getOrNull(1) ?: ""
                 val section = currentPath.getOrNull(2) ?: ""
-                
-                // Header removed
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                if (usersLoading) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
+
+                ElvanSectionContainer {
+                    ElvanSettingsSection(
+                        title = "Students ($dept - Sec $section)",
+                        colors = colors
                     ) {
-                        com.elvan.neram.ui.components.ExpressiveLoadingIndicator(color = colors.accent)
-                    }
-                } else if (users.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No users found in this section.", color = colors.textSecondary)
-                    }
-                } else {
-                    users.forEach { user ->
-                        UserCard(user = user, colors = colors)
-                        Spacer(modifier = Modifier.height(8.dp))
+                        if (usersLoading) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(140.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                com.elvan.neram.ui.components.ExpressiveLoadingIndicator(color = colors.accent)
+                            }
+                        } else if (users.isEmpty()) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "No students found in this section.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colors.textSecondary
+                                )
+                            }
+                        } else {
+                            users.forEachIndexed { index, user ->
+                                UserDirectoryRow(user = user, colors = colors)
+                                if (index < users.lastIndex) {
+                                    ElvanSettingsDivider(colors = colors)
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -292,61 +346,14 @@ private fun UserDirectoryContent(
 }
 
 @Composable
-private fun DirectoryFolderItem(
-    name: String,
-    colors: HomeColors,
-    onClick: () -> Unit
-) {
-    Surface(
-        onClick = onClick,
-        shape = HomeShapes.Item,
-        color = colors.surface,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Default.Folder,
-                contentDescription = null,
-                tint = colors.accent,
-                modifier = Modifier.size(28.dp)
-            )
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Text(
-                text = name,
-                style = HomeTypography.PillTitle,
-                color = colors.textPrimary,
-                modifier = Modifier.weight(1f)
-            )
-            
-            Icon(
-                Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = colors.textSecondary.copy(alpha = 0.5f),
-                modifier = Modifier.size(20.dp)
-            )
-        }
-    }
-}
-
-@Composable
-private fun UserCard(
+private fun UserDirectoryRow(
     user: Map<String, String>,
     colors: HomeColors
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(HomeShapes.Item)
-            .background(colors.surface)
-            // Removed border
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Avatar
@@ -359,41 +366,49 @@ private fun UserCard(
                     .build(),
                 contentDescription = "User Photo",
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(42.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
         } else {
+            val isDark = colors.isDark
+            val iconBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
             Box(
                 modifier = Modifier
-                    .size(44.dp)
+                    .size(42.dp)
                     .clip(CircleShape)
-                    .background(colors.subtleBackground),
+                    .background(iconBg),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Default.Person,
-                    null,
+                    Icons.Outlined.Person,
+                    contentDescription = null,
                     tint = colors.textSecondary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
         }
         
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(14.dp))
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                user["displayName"] ?: "Unknown",
-                style = HomeTypography.PillTitle,
-                color = colors.textPrimary,
-                fontWeight = FontWeight.SemiBold
+                text = user["displayName"] ?: "Unknown",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium
+                ),
+                color = colors.textPrimary
             )
-            Text(
-                user["registerNo"] ?: "No Register No",
-                style = HomeTypography.FacultyName,
-                color = colors.textSecondary
-            )
+            val regNo = user["registerNo"]
+            if (!regNo.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = regNo,
+                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
+                    color = colors.textSecondary
+                )
+            }
         }
     }
 }

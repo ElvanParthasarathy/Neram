@@ -98,6 +98,7 @@ fun NotesScreen(
         onRetry = { viewModel.navigateUp() },
         onDriveFolderClick = { viewModel.enterDriveFolder(it) },
         onDriveFileClick = { openUrl(it.link) },
-        scrollState = scrollState
+        scrollState = scrollState,
+        drivePath = drivePath
     )
 }

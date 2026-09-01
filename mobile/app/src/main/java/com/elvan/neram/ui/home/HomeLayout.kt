@@ -56,6 +56,9 @@ fun HomeMainLayout(
     onSaveNotice: (String) -> Unit,
     profileLoaderCompleted: Boolean = false,
     scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
+    featureCards: List<FeatureCard> = emptyList(),
+    onDismissFeatureCard: (String) -> Unit = {},
+    onFeatureCardAction: (String) -> Unit = {},
     onProfileLoaderCompleted: () -> Unit = {},
     onProfileClick: () -> Unit = {}
 ) {
@@ -124,17 +127,22 @@ fun HomeMainLayout(
                 if (showAcademicCalendarSection) {
                     item(key = "calendar_section", contentType = "calendar_section") {
                         val lang = LocalAppLanguage.current
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            ElvanSectionTitle(
-                                title = AppStrings.Home.academicCalendar(lang),
-                                colors = colors
-                            )
+                        ElvanSlideSection(
+                            targetState = formattedDate to filteredEvents,
+                            swipeDirection = swipeDirection,
+                            label = "calendarSlide"
+                        ) { (_, events) ->
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    text = AppStrings.Home.academicCalendar(lang),
+                                    style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
+                                    color = colors.textSecondary.copy(alpha = 0.8f),
+                                    modifier = Modifier.padding(
+                                        start = HomeDimens.SpacingXxxl,
+                                        bottom = HomeDimens.SectionTitleBottomPadding
+                                    )
+                                )
 
-                            ElvanSlideSection(
-                                targetState = formattedDate to filteredEvents,
-                                swipeDirection = swipeDirection,
-                                label = "calendarSlide"
-                            ) { (_, events) ->
                                 if (events.isNotEmpty()) {
                                     GroupedEventsCard(events = events, colors = colors)
                                 } else {

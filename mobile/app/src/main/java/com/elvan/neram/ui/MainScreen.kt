@@ -161,6 +161,8 @@ fun MainScreen(
     var profileReferrer by remember { mutableStateOf("tabs") }
     // Track where we came from for Settings screen (Tabs/Home or Profile)
     var settingsReferrer by remember { mutableStateOf("tabs") }
+    // Track where we came from for Sub-settings screens (Settings or Home Banner)
+    var subpageReferrer by remember { mutableStateOf("settings") }
 
     // Reset settings scroll when entering from tabs (not from sub-settings)
     // Removed LaunchedEffect here - handled imperatively in TopMenuBar callback
@@ -229,6 +231,7 @@ fun MainScreen(
     val homeUiState by homeViewModel.uiState.collectAsState()
     val calendarCurrentMonth by homeViewModel.currentMonth.collectAsState()
     val calendarView by homeViewModel.calendarView.collectAsState()
+    val activeFeatureCards by homeViewModel.activeFeatureCards.collectAsState()
     val unreadCount by homeViewModel.unreadNotifs.collectAsState()
     val colors = rememberHomeColors()
     
@@ -242,8 +245,8 @@ fun MainScreen(
     BackHandler(enabled = currentScreen != "tabs" || selectedTab != NavTab.Home) {
         if (currentScreen != "tabs") {
             when (currentScreen) {
-                "security" -> currentScreen = "settings"
-                "display" -> currentScreen = "settings"
+                "security" -> currentScreen = subpageReferrer
+                "display" -> currentScreen = subpageReferrer
 
                 "settings" -> {
                     currentScreen = settingsReferrer
@@ -251,8 +254,8 @@ fun MainScreen(
                 "contact" -> currentScreen = "settings"
                 "complaint" -> currentScreen = "settings"
                 "developer" -> currentScreen = "settings"
-                "language" -> currentScreen = "settings"
-                "about_app" -> currentScreen = "settings"
+                "language" -> currentScreen = subpageReferrer
+                "about_app" -> currentScreen = subpageReferrer
                 "about_rmk" -> currentScreen = "settings"
                 "management_team" -> currentScreen = "settings"
                 "linked_accounts" -> currentScreen = "security"
@@ -430,6 +433,23 @@ fun MainScreen(
                     showNavbar = !isLandscape && !(selectedTab == NavTab.Notes && isInsideNotesFolder),
                     useNewDesign = useNewDesign,
                     title = title,
+                    banners = if (selectedTab == NavTab.Home) activeFeatureCards else emptyList(),
+                    onBannerClick = { route ->
+                        subpageReferrer = "tabs"
+                        when (route) {
+                            "language" -> currentScreen = "language"
+                            "display" -> currentScreen = "display"
+                            "security" -> currentScreen = "security"
+                            "profile" -> { profileReferrer = "tabs"; currentScreen = "profile" }
+                            "about_app" -> currentScreen = "about_app"
+                            "notes" -> { selectedTab = NavTab.Notes; currentScreen = "tabs" }
+                            "schedule" -> { selectedTab = NavTab.Schedule; currentScreen = "tabs" }
+                            "calendar" -> { selectedTab = NavTab.Calendar; currentScreen = "tabs" }
+                        }
+                    },
+                    onDismissBanner = { cardId ->
+                        homeViewModel.dismissFeatureCard(cardId)
+                    },
                     onBack = if (selectedTab == NavTab.Notes && isInsideNotesFolder) {
                         { notesViewModel.navigateUp() }
                     } else null,
@@ -519,6 +539,20 @@ fun MainScreen(
                             }
                         }
                     },
+                    refreshIndicator = {
+                        if (selectedTab == NavTab.Home || selectedTab == NavTab.Schedule) {
+                            val refreshState = if (selectedTab == NavTab.Home) homePullRefreshState else schedulePullRefreshState
+                            val fraction = refreshState.distanceFraction
+                            val isRefreshing = homeUiState.isSyncing
+                            val targetOffset = if (isRefreshing) com.elvan.neram.ui.home.HomeAnimations.PullRefresh.RefreshingOffset else (fraction * com.elvan.neram.ui.home.HomeAnimations.PullRefresh.MaxOffset).coerceIn(0f, com.elvan.neram.ui.home.HomeAnimations.PullRefresh.MaxOffset)
+                            val animatedOffset by animateFloatAsState(targetValue = targetOffset, label = "offset")
+                            if (isRefreshing || fraction > 0f) {
+                                com.elvan.neram.ui.components.ExpressiveRefreshIndicator(
+                                    isRefreshing = isRefreshing, fraction = fraction, colors = colors, animatedOffset = animatedOffset
+                                )
+                            }
+                        }
+                    },
                     navbar = {
                         if (!isLandscape) {
                             val shellController = com.elvan.neram.ui.components.shell.LocalElvanShellController.current
@@ -546,7 +580,6 @@ fun MainScreen(
                         }
                     }
                 ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
                         when (selectedTab) {
                             NavTab.Home -> HomeScreen(
                                 onLogout = onLogout, 
@@ -556,14 +589,16 @@ fun MainScreen(
                                     profileReferrer = "tabs"
                                     currentScreen = "profile"
                                 },
+                                onNavigateToTab = { selectedTab = it },
+                                onNavigateToScreen = { currentScreen = it },
                                 viewModel = homeViewModel,
                                 pullRefreshState = homePullRefreshState,
                                 scrollState = homeScrollState
                             )
                             NavTab.Schedule -> ScheduleScreen(
                                 viewModel = homeViewModel,
-                                pullRefreshState = schedulePullRefreshState,
-                                scrollState = scheduleScrollState
+                                scrollState = scheduleScrollState,
+                                pullRefreshState = schedulePullRefreshState
                             )
                             NavTab.Calendar -> com.elvan.neram.ui.calendar.CalendarScreen(
                                 viewModel = homeViewModel,
@@ -578,21 +613,6 @@ fun MainScreen(
                                 scrollState = notesScrollState
                             ) 
                         }
-
-                        // Pull to Refresh Indicators
-                        if (selectedTab == NavTab.Home || selectedTab == NavTab.Schedule) {
-                            val refreshState = if (selectedTab == NavTab.Home) homePullRefreshState else schedulePullRefreshState
-                            val fraction = refreshState.distanceFraction
-                            val isRefreshing = homeUiState.isSyncing
-                            val targetOffset = if (isRefreshing) com.elvan.neram.ui.home.HomeAnimations.PullRefresh.RefreshingOffset else (fraction * com.elvan.neram.ui.home.HomeAnimations.PullRefresh.MaxOffset).coerceIn(0f, com.elvan.neram.ui.home.HomeAnimations.PullRefresh.MaxOffset)
-                            val animatedOffset by animateFloatAsState(targetValue = targetOffset, label = "offset")
-                            if (isRefreshing || fraction > 0f) {
-                                 com.elvan.neram.ui.components.ExpressiveRefreshIndicator(
-                                     isRefreshing = isRefreshing, fraction = fraction, colors = colors, animatedOffset = animatedOffset, modifier = Modifier.align(Alignment.TopCenter)
-                                 )
-                            }
-                        }
-                    }
                 }
             }
             "profile" -> ElvanSubShell(
@@ -637,13 +657,13 @@ fun MainScreen(
                             profileReferrer = "settings"
                             currentScreen = "profile" 
                         },
-                        onNavigateToSecurity = { currentScreen = "security" },
-                        onNavigateToDisplay = { currentScreen = "display" },
+                        onNavigateToSecurity = { subpageReferrer = "settings"; currentScreen = "security" },
+                        onNavigateToDisplay = { subpageReferrer = "settings"; currentScreen = "display" },
                         onNavigateToComplaint = { currentScreen = "complaint" },
                         onNavigateToDeveloper = { currentScreen = "developer" },
-                        onNavigateToLanguage = { currentScreen = "language" },
+                        onNavigateToLanguage = { subpageReferrer = "settings"; currentScreen = "language" },
                         onNavigateToUserDirectory = { currentScreen = "user_directory" },
-                        onNavigateToAboutApp = { currentScreen = "about_app" },
+                        onNavigateToAboutApp = { subpageReferrer = "settings"; currentScreen = "about_app" },
                         onNavigateToManagementTeam = { currentScreen = "management_team" },
                         onNavigateToAboutRMK = { currentScreen = "about_rmk" },
                         onNavigateToNotifications = { currentScreen = "notification_settings" },
@@ -652,13 +672,13 @@ fun MainScreen(
                     )
                 }
                 "security" -> SecuritySettingsScreen(
-                    onBack = { currentScreen = "settings" },
+                    onBack = { currentScreen = subpageReferrer },
                     onNavigateToLinkedAccounts = { currentScreen = "linked_accounts" },
                     onLogout = onLogout
                 )
                 "display" -> ElvanSubShell(
                     title = getScreenTitle("display"),
-                    onBack = { currentScreen = "settings" },
+                    onBack = { currentScreen = subpageReferrer },
                     colors = colors
                 ) {
                     DisplaySettingsScreen(
@@ -685,7 +705,7 @@ fun MainScreen(
                 }
                 "about_app" -> ElvanSubShell(
                     title = getScreenTitle("about_app"),
-                    onBack = { currentScreen = "settings" },
+                    onBack = { currentScreen = subpageReferrer },
                     colors = colors
                 ) {
                     AboutAppScreen()
@@ -713,7 +733,7 @@ fun MainScreen(
                 }
                 "language" -> ElvanSubShell(
                     title = getScreenTitle("language"),
-                    onBack = { currentScreen = "settings" },
+                    onBack = { currentScreen = subpageReferrer },
                     colors = colors
                 ) {
                     com.elvan.neram.ui.settings.LanguageSettingsScreen(

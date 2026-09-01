@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.home
+package com.elvan.neram.ui.home
 
 import android.app.Application
 import android.util.Log
@@ -437,6 +437,26 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         // The repository.getAcademicHierarchy() is combined into the main flow
     }
     
+    // 0. Feature Cards / Tips Banners Flow (Session-only dismissal; reappears on app restart)
+    private val _dismissedCardIds = MutableStateFlow<Set<String>>(emptySet())
+
+    fun dismissFeatureCard(cardId: String) {
+        _dismissedCardIds.value = _dismissedCardIds.value + cardId
+    }
+
+    val activeFeatureCards: StateFlow<ImmutableList<FeatureCard>> = combine(
+        repository.getFeatureCards(),
+        _dismissedCardIds
+    ) { config, dismissed ->
+        if (!config.enabled) {
+            persistentListOf()
+        } else {
+            config.cards
+                .filter { it.enabled && !dismissed.contains(it.id) }
+                .toImmutableList()
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
+
     // StateFlow for specific data slices to minimize recomposition
     
     // 1a. Academic Calendar Events Flow — ONLY global calendar events (matches web's globalEvents)

@@ -62,7 +62,11 @@ fun ElvanShell(
     title: String = "",
     onBack: (() -> Unit)? = null,
     hasActions: Boolean = false,
+    banners: List<com.elvan.neram.data.model.FeatureCard> = emptyList(),
+    onBannerClick: ((String) -> Unit)? = null,
+    onDismissBanner: ((String) -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
+    refreshIndicator: (@Composable () -> Unit)? = null,
     navbar: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
@@ -74,7 +78,11 @@ fun ElvanShell(
         title = title,
         onBack = onBack,
         hasActions = hasActions,
+        banners = banners,
+        onBannerClick = onBannerClick,
+        onDismissBanner = onDismissBanner,
         actions = actions,
+        refreshIndicator = refreshIndicator,
         navbar = navbar,
         content = content
     )
@@ -89,7 +97,11 @@ private fun ElvanShellContent(
     title: String = "",
     onBack: (() -> Unit)? = null,
     hasActions: Boolean = false,
+    banners: List<com.elvan.neram.data.model.FeatureCard> = emptyList(),
+    onBannerClick: ((String) -> Unit)? = null,
+    onDismissBanner: ((String) -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
+    refreshIndicator: (@Composable () -> Unit)? = null,
     navbar: @Composable () -> Unit = {},
     content: @Composable () -> Unit
 ) {
@@ -160,32 +172,7 @@ private fun ElvanShellContent(
         }
     }
 
-    // Snap header collapse only when interaction finishes at the top of the list
-    LaunchedEffect(scrollState, handoffShrinkOffsetPx) {
-        snapshotFlow { scrollState.isScrollInProgress }.collect { inProgress ->
-            if (!inProgress) {
-                if (!isNavbarVisible) {
-                    isNavbarVisible = true
-                }
-                val isListAtTop = scrollState.firstVisibleItemIndex == 0 && scrollState.firstVisibleItemScrollOffset == 0
-                if (isListAtTop && headerCollapsePx > 0f && headerCollapsePx < handoffShrinkOffsetPx) {
-                    val target = if (headerCollapsePx > handoffShrinkOffsetPx / 2f) handoffShrinkOffsetPx else 0f
-                    val distance = kotlin.math.abs(headerCollapsePx - target)
-                    val durationMs = (200f + (distance * 0.4f)).toInt().coerceIn(200, 350)
-                    coroutineScope.launch {
-                        androidx.compose.animation.core.animate(
-                            initialValue = headerCollapsePx,
-                            targetValue = target,
-                            animationSpec = tween(
-                                durationMillis = durationMs,
-                                easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
-                            )
-                        ) { value, _ -> headerCollapsePx = value }
-                    }
-                }
-            }
-        }
-    }
+
 
     var isFlinging by remember { mutableStateOf(false) }
 
@@ -262,15 +249,22 @@ private fun ElvanShellContent(
                 val isItem0 = scrollState.firstVisibleItemIndex == 0
                 val isListAtTop = isItem0 && scrollState.firstVisibleItemScrollOffset == 0
 
-                // Header fling snap (when user was interacting in header region at top)
+                // Samsung One UI / OneElvan native snap physics
                 if (headerCollapsePx > 0f && headerCollapsePx < handoffShrinkOffsetPx && isListAtTop) {
-                    val target = if (headerCollapsePx > handoffShrinkOffsetPx / 2f || available.y < -300f) handoffShrinkOffsetPx else 0f
-                    val distance = kotlin.math.abs(headerCollapsePx - target)
-                    val durationMs = (200f + (distance * 0.4f)).toInt().coerceIn(200, 350)
+                    val currentProgress = headerCollapsePx / handoffShrinkOffsetPx
+                    val target = when {
+                        available.y < -500f -> handoffShrinkOffsetPx
+                        available.y > 500f -> 0f
+                        currentProgress >= 0.4f -> handoffShrinkOffsetPx
+                        else -> 0f
+                    }
                     androidx.compose.animation.core.animate(
                         initialValue = headerCollapsePx,
                         targetValue = target,
-                        animationSpec = tween(durationMillis = durationMs, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
+                        animationSpec = tween(
+                            durationMillis = 260,
+                            easing = androidx.compose.animation.core.CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
+                        )
                     ) { value, _ -> headerCollapsePx = value }
                     return available
                 }
@@ -419,6 +413,9 @@ private fun ElvanShellContent(
                     hasLeadingWidget = onBack != null,
                     onBack = onBack,
                     hasActions = hasActions,
+                    banners = banners,
+                    onBannerClick = onBannerClick,
+                    onDismissBanner = onDismissBanner,
                     actions = actions
                 )
             }
@@ -446,7 +443,21 @@ private fun ElvanShellContent(
             )
         }
 
-        // Layer 4: Bottom Fade Mask and Navbar
+        // Layer 4: Pull-to-refresh spinner (floating on top of banner with zIndex(150f))
+        if (refreshIndicator != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .padding(top = statusBarHeight + 12.dp)
+                    .zIndex(150f),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                refreshIndicator()
+            }
+        }
+
+        // Layer 5: Bottom Fade Mask and Navbar
         val navBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
         
         if (showNavbar) {

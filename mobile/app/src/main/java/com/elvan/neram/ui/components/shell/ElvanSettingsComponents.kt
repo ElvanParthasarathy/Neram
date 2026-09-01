@@ -230,20 +230,28 @@ fun ElvanSettingsSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     colors: HomeColors = rememberHomeColors()
 ) {
     val isDark = colors.isDark
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
+        enabled = enabled,
         modifier = modifier,
         colors = SwitchDefaults.colors(
             checkedThumbColor = Color.White,
             checkedTrackColor = colors.accent,
             uncheckedThumbColor = if (isDark) Color.White.copy(alpha = 0.6f) else Color.Black.copy(alpha = 0.6f),
             uncheckedTrackColor = if (isDark) Color.White.copy(alpha = 0.1f) else Color.Black.copy(alpha = 0.1f),
+            disabledCheckedThumbColor = Color.White.copy(alpha = 0.6f),
+            disabledCheckedTrackColor = (if (isDark) Color.White else Color.Black).copy(alpha = 0.15f),
+            disabledUncheckedThumbColor = (if (isDark) Color.White else Color.Black).copy(alpha = 0.3f),
+            disabledUncheckedTrackColor = (if (isDark) Color.White else Color.Black).copy(alpha = 0.06f),
             checkedBorderColor = Color.Transparent,
-            uncheckedBorderColor = Color.Transparent
+            uncheckedBorderColor = Color.Transparent,
+            disabledCheckedBorderColor = Color.Transparent,
+            disabledUncheckedBorderColor = Color.Transparent
         )
     )
 }

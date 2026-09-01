@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.data.local.dao
+package com.elvan.neram.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -14,6 +14,9 @@ interface MasterDataDao {
 
     @Query("SELECT * FROM master_data WHERE id = :id LIMIT 1")
     suspend fun getMasterDataById(id: String): MasterDataEntity?
+
+    @Query("SELECT * FROM master_data WHERE id = :id LIMIT 1")
+    fun getMasterDataByIdFlow(id: String): Flow<MasterDataEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMasterData(data: MasterDataEntity)

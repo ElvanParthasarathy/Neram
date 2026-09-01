@@ -38,19 +38,23 @@ fun NotesMainLayout(
     onRetry: () -> Unit,
     onDriveFolderClick: (com.elvan.neram.data.model.DriveFolder) -> Unit = {},
     onDriveFileClick: (com.elvan.neram.data.model.DriveFile) -> Unit = {},
-    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
+    drivePath: List<com.elvan.neram.data.model.DriveFolder> = emptyList()
 ) {
     val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
+
+    val navDepth = if (notesMode == "folder") drivePath.size - 1 else path.size
+    val navKey = if (notesMode == "folder") drivePath.map { it.id }.joinToString("/") else path.joinToString("/")
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
         // Unified animated content slide on folder enter/exit (both Fetch and Folder modes)
         AnimatedContent(
-            targetState = Pair(path, uiState),
+            targetState = Triple(navKey, navDepth, uiState),
             transitionSpec = {
-                val isDeeper = targetState.first.size > initialState.first.size
-                val isShallower = targetState.first.size < initialState.first.size
+                val isDeeper = targetState.second > initialState.second
+                val isShallower = targetState.second < initialState.second
                 if (isDeeper) {
                     // Entering folder: slide in from right (+width), exit to left (-width)
                     (slideInHorizontally(
@@ -75,14 +79,13 @@ fun NotesMainLayout(
                     fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(200))
                 }
             },
-            contentKey = { it.first.joinToString("/") },
+            contentKey = { it.first },
             label = "NotesContentSlide"
-        ) { (animPath, animState) ->
-            val pathKey = animPath.joinToString("/")
-            saveableStateHolder.SaveableStateProvider(pathKey) {
+        ) { (key, _, animState) ->
+            saveableStateHolder.SaveableStateProvider(key) {
                 NotesContentView(
                     uiState = animState,
-                    path = animPath,
+                    path = path,
                     rootFolders = rootFolders,
                     colors = colors,
                     onBackClick = onBackClick,
