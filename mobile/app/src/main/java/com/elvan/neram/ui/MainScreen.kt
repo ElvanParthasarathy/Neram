@@ -502,6 +502,7 @@ fun MainScreen(
                                             title = AppStrings.Settings.title(lang),
                                             icon = androidx.compose.material.icons.Icons.Rounded.Settings,
                                             onClick = {
+                                                scope.launch { settingsScrollState.scrollToItem(0, 0) }
                                                 settingsReferrer = "tabs"
                                                 currentScreen = "settings"
                                             }
