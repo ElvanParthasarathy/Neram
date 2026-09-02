@@ -823,9 +823,12 @@ fun SelectedDaySection(
     Column(
         modifier = Modifier.padding(horizontal = 16.dp).padding(top = 10.dp, bottom = 4.dp)
     ) {
-        // Redesigned Header: "17 SAT       :-)"
+        // Redesigned Header: "3 SAT       :-)" starting past the curve of the event cards
         Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), // Reduced bottom padding (16->8)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 14.dp, end = 6.dp)
+                .padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -848,24 +851,24 @@ fun SelectedDaySection(
             // Smiley Icon (Refresh Button)
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(48.dp) // Increased from 32dp
+                modifier = Modifier.size(48.dp)
             ) {
                 if (isRefreshing) {
                     androidx.compose.material3.ContainedLoadingIndicator(
-                        modifier = Modifier.size(44.dp), // Increased from 28dp
+                        modifier = Modifier.size(44.dp),
                         containerColor = colors.surface,
                         indicatorColor = colors.accent
                     )
                 } else {
                     androidx.compose.material3.IconButton(
                         onClick = onRefresh,
-                        modifier = Modifier.size(48.dp) // Increased from 32dp
+                        modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Face, 
                             contentDescription = K.refresh.tr(langPref),
                             tint = colors.textSecondary,
-                            modifier = Modifier.size(32.dp) // Increased from 24dp
+                            modifier = Modifier.size(32.dp)
                         )
                     }
                 }
@@ -876,7 +879,8 @@ fun SelectedDaySection(
             Text(
                 text = K.noAcademicEventsScheduled.tr(langPref),
                 fontSize = 14.sp,
-                color = colors.textSecondary.copy(alpha = 0.7f)
+                color = colors.textSecondary.copy(alpha = 0.7f),
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp)
             )
         } else {
             events.forEach { event ->
