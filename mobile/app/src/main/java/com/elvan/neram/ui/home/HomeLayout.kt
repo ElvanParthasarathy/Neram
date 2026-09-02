@@ -25,6 +25,8 @@ import com.elvan.neram.ui.components.ExpressivePullToRefreshBox
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.theme.LocalAppFontFamily
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 import com.elvan.neram.ui.components.shell.*
 
@@ -63,6 +65,7 @@ fun HomeMainLayout(
     onProfileClick: () -> Unit = {}
 ) {
     var swipeDirection by remember { mutableIntStateOf(0) }
+    val lang = LocalAppLanguage.current
 
     Box(modifier = Modifier.fillMaxSize()) {
         ExpressivePullToRefreshBox(
@@ -147,7 +150,7 @@ fun HomeMainLayout(
                                     GroupedEventsCard(events = events, colors = colors)
                                 } else {
                                     EmptyEventCard(
-                                        message = "No events declared",
+                                        message = K.noEventsDeclared.tr(lang),
                                         colors = colors
                                     )
                                 }
@@ -177,9 +180,9 @@ fun HomeMainLayout(
                     ElvanSectionContainer {
                         UpdatesSection(
                             sectionName = uiState.userProfile?.section ?: "",
-                            content = todayUpdate?.displayNote ?: "No special updates for today.",
+                            content = todayUpdate?.displayNote ?: K.noUpdates.tr(lang),
                             rawContent = todayUpdate?.rawNote ?: "",
-                            author = todayUpdate?.author ?: "System",
+                            author = todayUpdate?.author ?: K.system.tr(lang),
                             canEdit = true,
                             isSaving = uiState.isSyncing,
                             isLoading = uiState.isLoading || !uiState.isCalendarLoaded,
@@ -195,7 +198,7 @@ fun HomeMainLayout(
                     ElvanSectionContainer {
                         GeneralNoticeSection(
                             content = uiState.sectionUpdates.general.text,
-                            author = uiState.sectionUpdates.general.author.ifEmpty { "System" },
+                            author = uiState.sectionUpdates.general.author.ifEmpty { K.system.tr(lang) },
                             canEdit = true,
                             isSaving = uiState.isSyncing,
                             isLoading = uiState.isLoading || !uiState.isCalendarLoaded,

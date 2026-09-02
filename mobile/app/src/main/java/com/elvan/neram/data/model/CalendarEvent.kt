@@ -1,7 +1,9 @@
-﻿package com.elvan.neram.data.model
+package com.elvan.neram.data.model
 
 import androidx.compose.runtime.Immutable
 import com.elvan.neram.utils.DateTimeUtils
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 @Immutable
 data class CalendarEvent(
@@ -43,7 +45,7 @@ data class CalendarEvent(
     /**
      * Get formatted time range for display
      */
-    fun getTimeRangeDisplay(): String {
+    fun getTimeRangeDisplay(lang: String = "en"): String {
         // Preference: Calculated from start/end (so we can enforce AM/PM format)
         if (startTime != null || endTime != null) {
             return when {
@@ -54,6 +56,6 @@ data class CalendarEvent(
         }
         
         // Fallback to fullTime (formatted)
-        return if (fullTime != null) DateTimeUtils.formatTimeRange(fullTime) else "All Day"
+        return if (fullTime != null) DateTimeUtils.formatTimeRange(fullTime) else K.allDay.tr(lang)
     }
 }

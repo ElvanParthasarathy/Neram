@@ -35,6 +35,8 @@ import com.elvan.neram.ui.home.HomeColors
 import com.elvan.neram.ui.home.HomeTypography
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 @Composable
 fun ElvanExpandedBar(
@@ -266,8 +268,8 @@ private fun MonochromeBannerCard(
     modifier: Modifier = Modifier
 ) {
     val isClickable = banner.actionRoute.isNotBlank()
-    val rawType = banner.getEffectiveType()
-    val typeStr = rawType.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+    val lang = LocalAppLanguage.current
+    val typeStr = banner.getLocalizedBadge(lang)
     val symbol = "✦"
 
     Surface(
@@ -309,7 +311,7 @@ private fun MonochromeBannerCard(
                         modifier = Modifier.offset(y = (-0.5).dp)
                     )
                     Text(
-                        text = typeStr,
+                        text = if (lang == "en") typeStr.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } else typeStr,
                         style = TextStyle(
                             fontFamily = ff,
                             fontWeight = FontWeight.SemiBold,
@@ -330,7 +332,7 @@ private fun MonochromeBannerCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,
-                        contentDescription = "Dismiss",
+                        contentDescription = K.dismiss.tr(lang),
                         tint = colors.textSecondary.copy(alpha = 0.7f),
                         modifier = Modifier.size(17.dp)
                     )
@@ -341,7 +343,7 @@ private fun MonochromeBannerCard(
 
             // Middle: Message Text
             Text(
-                text = banner.message,
+                text = banner.getLocalizedMessage(lang),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 style = TextStyle(
@@ -370,7 +372,7 @@ private fun MonochromeBannerCard(
                             .padding(horizontal = 12.dp, vertical = 5.dp)
                     ) {
                         Text(
-                            text = "Open",
+                            text = K.open.tr(lang),
                             style = TextStyle(
                                 fontFamily = ff,
                                 fontSize = 12.sp,
@@ -380,7 +382,7 @@ private fun MonochromeBannerCard(
                         )
                         Icon(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                            contentDescription = "Open",
+                            contentDescription = K.open.tr(lang),
                             tint = colors.textPrimary,
                             modifier = Modifier.size(13.dp)
                         )

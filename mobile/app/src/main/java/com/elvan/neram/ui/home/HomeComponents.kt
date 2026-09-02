@@ -54,6 +54,9 @@ import com.elvan.neram.ui.navigation.CustomIcons
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
 import com.elvan.neram.utils.DateTimeUtils
 import kotlinx.coroutines.delay
 
@@ -163,10 +166,18 @@ internal fun PageHeader(
                                 modifier = Modifier.size(HomeDimens.AvatarSize)
                             ) {
                                 val photoUrl = userProfile.photoURL
+                                val isPhotoBlank = photoUrl.isNullOrBlank()
                                 
-                                // Local state for tracking first load progress
-                                // (ViewModel state persists across navigation)
-                                var isImageLoaded by remember { mutableStateOf(profileLoaderCompleted) }
+                                // If no photo, complete loader immediately
+                                var isImageLoaded by remember(photoUrl) { 
+                                    mutableStateOf(profileLoaderCompleted || isPhotoBlank) 
+                                }
+                                
+                                LaunchedEffect(photoUrl) {
+                                    if (isPhotoBlank && !profileLoaderCompleted) {
+                                        onProfileLoaderCompleted()
+                                    }
+                                }
                                 
                                 // Notify ViewModel when image load is complete
                                 LaunchedEffect(isImageLoaded) {
@@ -175,37 +186,73 @@ internal fun PageHeader(
                                     }
                                 }
 
-                                SubcomposeAsyncImage(
-                                    model = photoUrl,
-                                    contentDescription = "Profile",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                ) {
-                                    val state = painter.state
-                                    
-                                    // Track when image loads
-                                    LaunchedEffect(state) {
-                                        if (state is AsyncImagePainter.State.Success) {
-                                            isImageLoaded = true
-                                        }
+                                if (isPhotoBlank) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(colors.accent.copy(alpha = 0.15f))
+                                    ) {
+                                        Text(
+                                            text = userProfile.displayName.trim().takeIf { it.isNotEmpty() }?.take(1)?.uppercase() ?: "U",
+                                            style = HomeTypography.PillTitle.copy(
+                                                fontSize = 20.sp,
+                                                fontWeight = FontWeight.Bold
+                                            ),
+                                            color = colors.accent
+                                        )
                                     }
-                                    
-                                    // Show loader ONLY on first load (before ViewModel state is set)
-                                    // Once profileLoaderCompleted is true, never show loader again
-                                    val showLoader = !profileLoaderCompleted && !isImageLoaded
-                                    
-                                    if (showLoader) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                            // Loading Indicator
-                                            ExpressiveDotsLoader(
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .padding(HomeDimens.LoaderPadding),
-                                                color = colors.accent
-                                            )
+                                } else {
+                                    SubcomposeAsyncImage(
+                                        model = photoUrl,
+                                        contentDescription = K.profile.tr(LocalAppLanguage.current),
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    ) {
+                                        val state = painter.state
+                                        
+                                        // Track when image loads or fails
+                                        LaunchedEffect(state) {
+                                            if (state is AsyncImagePainter.State.Success || state is AsyncImagePainter.State.Error) {
+                                                isImageLoaded = true
+                                            }
                                         }
-                                    } else {
-                                        SubcomposeAsyncImageContent()
+                                        
+                                        // Show loader ONLY on first load (before ViewModel state is set)
+                                        val showLoader = !profileLoaderCompleted && !isImageLoaded
+                                        
+                                        when {
+                                            showLoader -> {
+                                                Box(contentAlignment = Alignment.Center) {
+                                                    ExpressiveDotsLoader(
+                                                        modifier = Modifier
+                                                            .fillMaxSize()
+                                                            .padding(HomeDimens.LoaderPadding),
+                                                        color = colors.accent
+                                                    )
+                                                }
+                                            }
+                                            state is AsyncImagePainter.State.Error -> {
+                                                Box(
+                                                    contentAlignment = Alignment.Center,
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .background(colors.accent.copy(alpha = 0.15f))
+                                                ) {
+                                                    Text(
+                                                        text = userProfile.displayName.trim().takeIf { it.isNotEmpty() }?.take(1)?.uppercase() ?: "U",
+                                                        style = HomeTypography.PillTitle.copy(
+                                                            fontSize = 20.sp,
+                                                            fontWeight = FontWeight.Bold
+                                                        ),
+                                                        color = colors.accent
+                                                    )
+                                                }
+                                            }
+                                            else -> {
+                                                SubcomposeAsyncImageContent()
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -223,7 +270,7 @@ internal fun PageHeader(
                                     Spacer(modifier = Modifier.width(HomeDimens.SpacingMd))
                                     Icon(
                                         imageVector = Icons.Filled.AutoAwesome,
-                                        contentDescription = "Sparkle",
+                                        contentDescription = null,
                                         tint = colors.accent,
                                         modifier = Modifier.size(HomeDimens.IconSizeMd)
                                     )
@@ -436,7 +483,7 @@ internal fun DateSection(
             ) {
                 Icon(
                     imageVector = CustomIcons.Calendar,
-                    contentDescription = "Select date",
+                    contentDescription = K.selectDate.tr(LocalAppLanguage.current),
                     tint = Color.White,
                     modifier = Modifier.size(HomeDimens.IconSizeSm)
                 )
@@ -453,6 +500,7 @@ internal fun GroupedEventsCard(
     events: List<CalendarEvent>,
     colors: HomeColors
 ) {
+    val lang = LocalAppLanguage.current
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = HomeShapes.Item,
@@ -506,7 +554,7 @@ internal fun GroupedEventsCard(
                         )
                         Spacer(modifier = Modifier.height(HomeDimens.SpacingXs))
                         Text(
-                            text = event.getTimeRangeDisplay(),
+                            text = event.getTimeRangeDisplay(lang),
                             style = HomeTypography.PillTime,
                             color = colors.textSecondary
                         )
@@ -553,8 +601,10 @@ internal fun ScheduleSection(
             )
             
             // Status Badge - matches .status-badge-small
-            val isHoliday = scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true)
-            val badgeText = if (isHoliday) AppStrings.Home.holiday(lang) else scheduleState.scheduleStatus.uppercase()
+            val isHoliday = scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true) ||
+                            scheduleState.scheduleStatus.contains("விடுமுறை", ignoreCase = true) ||
+                            scheduleState.scheduleStatus.contains("Vidumurai", ignoreCase = true)
+            val badgeText = if (isHoliday) K.holiday.tr(lang) else scheduleState.scheduleStatus
             
             Surface(
                 shape = HomeShapes.StatusBadge,
@@ -576,7 +626,7 @@ internal fun ScheduleSection(
         }
         
         // Use Shared Logic for robust display (matches ScheduleScreen)
-        val config = ScheduleLogic.calculateDisplayConfig(scheduleState)
+        val config = ScheduleLogic.calculateDisplayConfig(scheduleState, lang)
 
         if (isLoading) {
             Box(
@@ -668,8 +718,11 @@ internal fun ScheduleSection(
             
             // F. Empty State (If nothing shown above)
             if (!hasContent) {
-                val displayStatus = if (scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true)) {
-                    "Holiday"
+                val isHoliday = scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true) ||
+                                scheduleState.scheduleStatus.contains("விடுமுறை", ignoreCase = true) ||
+                                scheduleState.scheduleStatus.contains("Vidumurai", ignoreCase = true)
+                val displayStatus = if (isHoliday) {
+                    K.holiday.tr(lang)
                 } else {
                     scheduleState.scheduleStatus
                 }
@@ -1132,7 +1185,7 @@ internal fun PracticalExamMiniCard(
             val batchPeriods = group.batches.mapIndexed { index, batch ->
                 val timeStr = "${DateTimeUtils.formatTimeForDisplay(batch.startTime)} - ${DateTimeUtils.formatTimeForDisplay(batch.endTime)}"
                 val facultyInfo = buildString {
-                    if (batch.totalCount.isNotEmpty()) append("${batch.totalCount} Students")
+                    if (batch.totalCount.isNotEmpty()) append(K.studentsCount.trWithLang(lang, batch.totalCount))
                     if (batch.totalCount.isNotEmpty() && group.code.isNotEmpty()) append(" • ")
                     if (group.code.isNotEmpty()) append(group.code)
                 }
@@ -1567,24 +1620,25 @@ internal fun AcademicDetailsGrid(
     userProfile: UserProfile?,
     colors: HomeColors
 ) {
+    val lang = LocalAppLanguage.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         InfoItem(
-            label = "Batch",
+            label = K.batch.tr(lang),
             value = userProfile?.batch ?: "-",
             colors = colors,
             modifier = Modifier.weight(1f)
         )
         InfoItem(
-            label = "Dept",
+            label = K.dept.tr(lang),
             value = userProfile?.department ?: "-",
             colors = colors,
             modifier = Modifier.weight(1f)
         )
         InfoItem(
-            label = "Sec",
+            label = K.sec.tr(lang),
             value = userProfile?.section ?: "-",
             colors = colors,
             modifier = Modifier.weight(1f)
@@ -1653,6 +1707,7 @@ internal fun SpecialClassMiniCard(
     colors: HomeColors
 ) {
     val ff = LocalAppFontFamily.current
+    val lang = LocalAppLanguage.current
     val cardBg = colors.accent
     val pillBg = Color.White.copy(alpha = 0.2f)
 
@@ -1686,7 +1741,7 @@ internal fun SpecialClassMiniCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = if (specialClass.title.isNotEmpty()) specialClass.title else "Scheduled for Today",
+                        text = if (specialClass.title.isNotEmpty()) specialClass.title else K.scheduledForToday.tr(lang),
                         style = TextStyle(
                             fontFamily = ff,
                             fontSize = 17.sp,

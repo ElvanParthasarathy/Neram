@@ -37,6 +37,9 @@ import coil.request.ImageRequest
 import com.elvan.neram.ui.home.HomeColors
 import com.elvan.neram.ui.home.rememberHomeColors
 import com.elvan.neram.ui.theme.LocalAppFontFamily
+import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 /**
  * ElvanSettingsSection — Groups rows inside a single rounded card with slit dividers.
@@ -305,7 +308,7 @@ fun ElvanProfilePillCard(
                             .data(photoUrl)
                             .crossfade(true)
                             .build(),
-                        contentDescription = "Profile",
+                        contentDescription = K.profile.tr(LocalAppLanguage.current),
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(CircleShape),
@@ -556,9 +559,10 @@ fun ElvanSettingsDisplayRow(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.fillMaxSize()
                     ) {
+                        val lang = LocalAppLanguage.current
                         Icon(
                             imageVector = icon,
-                            contentDescription = "Edit",
+                            contentDescription = K.edit.tr(lang),
                             tint = iconColor ?: colors.textPrimary.copy(alpha = 0.6f),
                             modifier = Modifier.size(20.dp)
                         )
@@ -579,12 +583,15 @@ fun ElvanSettingsEditContainer(
     onCancel: () -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
-    cancelText: String = "Cancel",
-    saveText: String = "Save",
+    cancelText: String? = null,
+    saveText: String? = null,
     colors: HomeColors = rememberHomeColors(),
     content: @Composable ColumnScope.() -> Unit
 ) {
     val ff = LocalAppFontFamily.current
+    val lang = LocalAppLanguage.current
+    val effectiveCancel = cancelText ?: K.cancel.tr(lang)
+    val effectiveSave = saveText ?: K.save.tr(lang)
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -613,7 +620,7 @@ fun ElvanSettingsEditContainer(
                 shape = RoundedCornerShape(50)
             ) {
                 Text(
-                    text = cancelText,
+                    text = effectiveCancel,
                     style = TextStyle(
                         fontFamily = ff,
                         fontSize = 14.sp,
@@ -633,7 +640,7 @@ fun ElvanSettingsEditContainer(
                 elevation = ButtonDefaults.buttonElevation(0.dp)
             ) {
                 Text(
-                    text = saveText,
+                    text = effectiveSave,
                     style = TextStyle(
                         fontFamily = ff,
                         fontSize = 14.sp,

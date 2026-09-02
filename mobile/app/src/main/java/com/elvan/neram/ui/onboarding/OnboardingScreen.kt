@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.onboarding
+package com.elvan.neram.ui.onboarding
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -37,6 +37,9 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.delay
 
 private const val TAG = "OnboardingScreen"
@@ -192,9 +195,10 @@ fun OnboardingScreen(
             ) {
                 val textPrimary = AuthColors.textPrimary()
                 val textSecondary = AuthColors.textSecondary()
+                val lang = LocalAppLanguage.current
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        text = "Profile Setup",
+                        text = K.profileSetup.tr(lang),
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.ExtraBold
                         ),
@@ -202,7 +206,7 @@ fun OnboardingScreen(
                     )
                     
                     Text(
-                        text = "Select your academic details below",
+                        text = K.selectAcademicDetailsBelow.tr(lang),
                         style = MaterialTheme.typography.bodyMedium,
                         color = textSecondary,
                         modifier = Modifier.padding(top = 8.dp)
@@ -212,6 +216,7 @@ fun OnboardingScreen(
             
             Spacer(modifier = Modifier.height(48.dp))
         
+        val lang = LocalAppLanguage.current
         // FORM FIELDS (Pill Shaped)
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -223,12 +228,12 @@ fun OnboardingScreen(
                 enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { 30 })
             ) {
                 PillDropdownField(
-                    label = "ACADEMIC BATCH",
+                    label = K.academicBatch.tr(lang).uppercase(),
                     value = selectedBatch,
-                    placeholder = "Select Year",
+                    placeholder = K.selectYear.tr(lang),
                     isLoading = isHierarchyLoading,
                     onClick = {
-                        sheetTitle = "Select Batch"
+                        sheetTitle = K.selectBatch.tr(lang)
                         sheetOptions = batches
                         onOptionSelected = { 
                             selectedBatch = it
@@ -246,11 +251,11 @@ fun OnboardingScreen(
                 enter = fadeIn() + slideInVertically { -10 }
             ) {
                 PillDropdownField(
-                    label = "DEPARTMENT",
+                    label = K.department.tr(lang).uppercase(),
                     value = selectedDept,
-                    placeholder = "Select Department",
+                    placeholder = K.selectDepartment.tr(lang),
                     onClick = {
-                        sheetTitle = "Select Department"
+                        sheetTitle = K.selectDepartment.tr(lang)
                         sheetOptions = departments
                         onOptionSelected = { 
                             selectedDept = it
@@ -267,11 +272,11 @@ fun OnboardingScreen(
                 enter = fadeIn() + slideInVertically { -10 }
             ) {
                 PillDropdownField(
-                    label = "SECTION",
+                    label = K.section.tr(lang).uppercase(),
                     value = selectedSection,
-                    placeholder = "Select Section",
+                    placeholder = K.selectSection.tr(lang),
                     onClick = {
-                        sheetTitle = "Select Section"
+                        sheetTitle = K.selectSection.tr(lang)
                         sheetOptions = sections
                         onOptionSelected = { selectedSection = it }
                         showSheet = true
@@ -288,7 +293,7 @@ fun OnboardingScreen(
             enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { 30 })
         ) {
             AnimatedAuthButton(
-                text = "Complete Setup",
+                text = K.completeSetup.tr(lang),
                 onClick = {
                     if (selectedDept != null && selectedBatch != null && selectedSection != null) {
                         isLoading = true
@@ -386,6 +391,7 @@ private fun PillDropdownField(
     val textSecondary = AuthColors.textSecondary()
     val textMuted = AuthColors.textMuted()
     val inputBg = AuthColors.inputBackground()
+    val lang = LocalAppLanguage.current
     
     // Animate background on touch could be added here if needed, but Surface handles simple ripple
     
@@ -430,7 +436,7 @@ private fun PillDropdownField(
                 Box(modifier = Modifier.weight(1f)) {
                     if (value.isNullOrEmpty()) {
                         Text(
-                            text = if (isLoading) "Loading..." else placeholder,
+                            text = if (isLoading) K.loading.tr(lang) else placeholder,
                             color = textMuted,
                             style = MaterialTheme.typography.bodyLarge,
                             textAlign = TextAlign.Start

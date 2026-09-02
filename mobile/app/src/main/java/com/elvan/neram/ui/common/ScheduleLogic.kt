@@ -1,6 +1,9 @@
-﻿package com.elvan.neram.ui.common
+package com.elvan.neram.ui.common
 
 import com.elvan.neram.ui.home.ScheduleState
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
 
 /**
  * Configuration for displaying schedule sections.
@@ -22,7 +25,7 @@ object ScheduleLogic {
      * Calculates the display configuration based on ScheduleState.
      * This unifies the logic between HomeScreen and ScheduleScreen.
      */
-    fun calculateDisplayConfig(state: ScheduleState): ScheduleDisplayConfig {
+    fun calculateDisplayConfig(state: ScheduleState, lang: String = "en"): ScheduleDisplayConfig {
         var showFullDay = false
         var showExam = false
         var showSpecialClass = false
@@ -33,6 +36,7 @@ object ScheduleLogic {
 
         // 1. Special Class (Dominant Override)
         if (state.todaySpecialClasses.isNotEmpty()) {
+            val specialTitle = state.todaySpecialClasses.first().title.ifBlank { state.todaySpecialClasses.first().typeTitle }
             return ScheduleDisplayConfig(
                 showFullDayEvent = false,
                 showExamCard = false,
@@ -40,7 +44,7 @@ object ScheduleLogic {
                 showHalfDayEvent = false,
                 showTimetable = false,
                 showSuspensionNotice = true,
-                suspensionReason = "Classes suspended due to ${state.todaySpecialClasses.first().typeTitle}."
+                suspensionReason = K.classesSuspendedDueTo.trWithLang(lang, specialTitle)
             )
         }
 
@@ -67,10 +71,11 @@ object ScheduleLogic {
         if (showFullDay && (!isExamPeriod || isCycleTestPeriod)) {
             showSuspended = true
             val eventTitle = state.fullDayEvents.firstOrNull()?.title ?: ""
-            suspensionReason = "Day reserved for $eventTitle."
+            suspensionReason = K.dayReservedFor.trWithLang(lang, eventTitle)
         } else if (isExamPeriod && !isCycleTestPeriod) {
             showSuspended = true
-            suspensionReason = "Regular classes are suspended during the ${state.activeExamPeriod?.title} period."
+            val examTitle = state.activeExamPeriod?.title ?: ""
+            suspensionReason = K.regularClassesSuspendedDuring.trWithLang(lang, examTitle)
         } else if (hasPeriods) {
             showTimetable = true
         }

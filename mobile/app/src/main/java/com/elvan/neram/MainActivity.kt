@@ -406,7 +406,7 @@ fun SplashScreen(
         // Footer: Language-aware Branding ("Elvan Navil" / "எல்வன் நவில்")
         val isTamil = language == com.elvan.neram.ui.theme.AppStrings.TAMIL
         val brandingText = if (isTamil) "எல்வன் நவில்" else "Elvan Navil"
-        val tightSpacing = if (isTamil) 0.sp else (-0.3).sp
+        val tightSpacing = if (isTamil) 0.sp else (-0.2).sp
 
         Box(
             modifier = Modifier
@@ -417,9 +417,9 @@ fun SplashScreen(
                 text = brandingText,
                 style = MaterialTheme.typography.titleMedium.copy(
                     letterSpacing = tightSpacing,
-                    color = textSecondary.copy(alpha = 0.85f),
+                    color = textPrimary.copy(alpha = 0.38f),
                     fontWeight = FontWeight.Medium,
-                    fontSize = if (isTamil) 15.sp else 16.sp
+                    fontSize = if (isTamil) 17.5.sp else 18.5.sp
                 )
             )
         }

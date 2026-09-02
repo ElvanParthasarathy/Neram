@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +25,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -40,6 +43,7 @@ fun UserDirectoryScreen(
     scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
+    val lang = LocalAppLanguage.current
 
     // Load Hierarchy Data
     var hierarchy by remember { mutableStateOf<Map<String, Map<String, List<String>>>>(emptyMap()) }
@@ -92,7 +96,8 @@ fun UserDirectoryScreen(
                 hierarchy = hierarchy,
                 colors = colors,
                 path = directoryPath,
-                onPathChange = onDirectoryPathChange
+                onPathChange = onDirectoryPathChange,
+                lang = lang
             )
         }
     }
@@ -103,7 +108,8 @@ private fun UserDirectoryContent(
     hierarchy: Map<String, Map<String, List<String>>>,
     colors: HomeColors,
     path: List<String>,
-    onPathChange: (List<String>) -> Unit
+    onPathChange: (List<String>) -> Unit,
+    lang: String
 ) {
     var users by remember { mutableStateOf(listOf<Map<String, String>>()) }
     var usersLoading by remember { mutableStateOf(false) }
@@ -129,7 +135,7 @@ private fun UserDirectoryContent(
                                             field.getValue(String::class.java)?.let { value ->
                                                 field.key?.let { key -> data[key] = value }
                                             }
-                                        } catch (e: Exception) {
+                                        } catch (_: Exception) {
                                             // Skip non-string fields
                                         }
                                     }
@@ -140,7 +146,7 @@ private fun UserDirectoryContent(
                                     }
                                 }
                                 users = filtered.sortedBy { it["displayName"] ?: "" }
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 users = emptyList()
                             } finally {
                                 usersLoading = false
@@ -150,7 +156,7 @@ private fun UserDirectoryContent(
                             usersLoading = false
                         }
                     })
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 usersLoading = false
             }
         } else {
@@ -182,7 +188,7 @@ private fun UserDirectoryContent(
                 // Batch Selection
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = "Select Batch",
+                        title = K.selectBatchTitle.tr(lang),
                         colors = colors
                     ) {
                         val batches = hierarchy.keys.sorted()
@@ -194,7 +200,7 @@ private fun UserDirectoryContent(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "Loading academic batches...",
+                                    text = K.loading.tr(lang),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = colors.textSecondary
                                 )
@@ -203,8 +209,8 @@ private fun UserDirectoryContent(
                             batches.forEachIndexed { index, batch ->
                                 ElvanSettingsRow(
                                     icon = Icons.Outlined.Folder,
-                                    title = "Batch $batch",
-                                    description = "View departments in batch $batch",
+                                    title = "${K.batch.tr(lang)} $batch",
+                                    description = K.viewDeptsInBatch.trWithLang(lang, batch),
                                     onClick = { onPathChange(currentPath + batch) },
                                     colors = colors
                                 )
@@ -223,7 +229,7 @@ private fun UserDirectoryContent(
                 
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = "Select Department (Batch $batch)",
+                        title = K.selectDeptBatch.trWithLang(lang, batch),
                         colors = colors
                     ) {
                         if (depts.isEmpty()) {
@@ -234,7 +240,7 @@ private fun UserDirectoryContent(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "No departments found",
+                                    text = K.noUsersFound.tr(lang),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = colors.textSecondary
                                 )
@@ -244,7 +250,7 @@ private fun UserDirectoryContent(
                                 ElvanSettingsRow(
                                     icon = Icons.Outlined.Folder,
                                     title = dept,
-                                    description = "View sections in $dept",
+                                    description = K.viewSectionsInDept.trWithLang(lang, dept),
                                     onClick = { onPathChange(currentPath + dept) },
                                     colors = colors
                                 )
@@ -264,7 +270,7 @@ private fun UserDirectoryContent(
                 
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = "Select Section ($dept)",
+                        title = K.selectSectionDept.trWithLang(lang, dept),
                         colors = colors
                     ) {
                         if (sections.isEmpty()) {
@@ -275,7 +281,7 @@ private fun UserDirectoryContent(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "No sections found",
+                                    text = K.noUsersFound.tr(lang),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = colors.textSecondary
                                 )
@@ -284,8 +290,8 @@ private fun UserDirectoryContent(
                             sections.forEachIndexed { index, section ->
                                 ElvanSettingsRow(
                                     icon = Icons.Outlined.Folder,
-                                    title = "Section $section",
-                                    description = "View students in section $section",
+                                    title = "${K.section.tr(lang)} $section",
+                                    description = K.viewStudentsInSection.trWithLang(lang, section),
                                     onClick = { onPathChange(currentPath + section) },
                                     colors = colors
                                 )
@@ -299,13 +305,12 @@ private fun UserDirectoryContent(
             }
             else -> {
                 // Users List
-                val batch = currentPath.getOrNull(0) ?: ""
                 val dept = currentPath.getOrNull(1) ?: ""
                 val section = currentPath.getOrNull(2) ?: ""
 
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = "Students ($dept - Sec $section)",
+                        title = "${K.roleStudent.tr(lang)} ($dept - ${K.section.tr(lang)} $section)",
                         colors = colors
                     ) {
                         if (usersLoading) {
@@ -325,7 +330,7 @@ private fun UserDirectoryContent(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "No students found in this section.",
+                                    text = K.noUsersFound.tr(lang),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = colors.textSecondary
                                 )
@@ -364,7 +369,7 @@ private fun UserDirectoryRow(
                     .data(photoUrl)
                     .crossfade(true)
                     .build(),
-                contentDescription = "User Photo",
+                contentDescription = null,
                 modifier = Modifier
                     .size(42.dp)
                     .clip(CircleShape),
@@ -393,7 +398,7 @@ private fun UserDirectoryRow(
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = user["displayName"] ?: "Unknown",
+                text = user["displayName"] ?: "User",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium

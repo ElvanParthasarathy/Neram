@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.home.components
+package com.elvan.neram.ui.home.components
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -25,6 +25,8 @@ import com.elvan.neram.ui.home.HomeShapes
 import com.elvan.neram.ui.home.HomeTypography
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.draw.clip
 
@@ -271,7 +273,7 @@ private fun EditableSectionContent(
                                 .fillMaxWidth()
                                 .defaultMinSize(minHeight = 100.dp)
                                 .background(colors.subtleBackground, RoundedCornerShape(16.dp)),
-                            placeholder = { Text("Type here...") },
+                            placeholder = { Text(K.typeHere.tr(LocalAppLanguage.current)) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color.Transparent,
                                 unfocusedBorderColor = Color.Transparent,

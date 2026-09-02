@@ -30,9 +30,11 @@ import androidx.compose.ui.unit.sp
 import com.elvan.neram.data.model.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.navigation.CustomIcons
+import com.elvan.neram.ui.mozhiyaakkam.*
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import java.time.DayOfWeek
 import androidx.compose.ui.text.TextStyle
 import com.elvan.neram.utils.DateTimeUtils
 import androidx.compose.ui.graphics.luminance
@@ -127,11 +129,11 @@ fun DayTabsRow(
     // Hardcoded days for now as per original code (Tue-Sat)
     val lang = LocalAppLanguage.current
     val days = listOf(
-        AppStrings.Schedule.dayTuesday(lang),
-        AppStrings.Schedule.dayWednesday(lang),
-        AppStrings.Schedule.dayThursday(lang),
-        AppStrings.Schedule.dayFriday(lang),
-        AppStrings.Schedule.daySaturday(lang)
+        DayOfWeek.TUESDAY.toMozhiName(lang, isShort = true),
+        DayOfWeek.WEDNESDAY.toMozhiName(lang, isShort = true),
+        DayOfWeek.THURSDAY.toMozhiName(lang, isShort = true),
+        DayOfWeek.FRIDAY.toMozhiName(lang, isShort = true),
+        DayOfWeek.SATURDAY.toMozhiName(lang, isShort = true)
     )
     val fullDays = listOf("Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
     
@@ -738,9 +740,10 @@ fun ExamScheduleCard(
                         )
                     }
                 }
+                val lang = LocalAppLanguage.current
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = if (isExpanded) K.collapse.tr(lang) else K.expand.tr(lang),
                     tint = colors.textSecondary,
                     modifier = Modifier.rotate(chevronRotation)
                 )
@@ -1076,7 +1079,7 @@ private fun PracDateGroup(
 @Composable
 fun CourseDirectoryTable(courses: List<Course>, colors: HomeColors) {
     if (courses.isEmpty()) {
-         Text("No courses found", modifier = Modifier.padding(16.dp), color = colors.textSecondary)
+         Text(K.noCoursesFound.tr(LocalAppLanguage.current), modifier = Modifier.padding(16.dp), color = colors.textSecondary)
     } else {
         Column(
             modifier = Modifier.fillMaxWidth(),

@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.auth
+package com.elvan.neram.ui.auth
 
 import android.util.Log
 import androidx.compose.animation.*
@@ -26,6 +26,9 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ServerValue
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.delay
 
 // Web Client ID from google-services.json (client_type: 3)
@@ -37,6 +40,7 @@ fun SignupScreen(
     onSignupSuccess: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
+    val lang = LocalAppLanguage.current
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var regNo by remember { mutableStateOf("") }
@@ -143,16 +147,24 @@ fun SignupScreen(
                             }
                         } else {
                             isLoading = false
-                            error = authTask.exception?.message ?: "Google Sign-In Failed"
+                            android.util.Log.e("GoogleSignIn", "Firebase auth error in signup", authTask.exception)
+                            error = authTask.exception?.message ?: K.googleSignInFailed.tr(lang)
                         }
                     }
             } else {
                 isLoading = false
-                error = "Google Sign-In Failed: No ID Token"
+                error = "${K.googleSignInFailed.tr(lang)}: ${K.noIdTokenReceived.tr(lang)}"
             }
         } catch (e: ApiException) {
-            error = "Google Sign-In Failed: ${e.statusCode}"
             isLoading = false
+            android.util.Log.e("GoogleSignIn", "ApiException in signup: ${e.statusCode}", e)
+            if (e.statusCode != 12501) {
+                error = "${K.googleSignInFailed.tr(lang)} (${e.statusCode})"
+            }
+        } catch (e: Exception) {
+            isLoading = false
+            android.util.Log.e("GoogleSignIn", "General exception in signup", e)
+            error = "${K.googleSignInFailed.tr(lang)}: ${e.message}"
         }
     }
 
@@ -174,19 +186,19 @@ fun SignupScreen(
         error = null
         if (firstName.length < 2) {
             isLoading = false
-            error = "First Name must be at least 2 characters"
+            error = K.firstNameTooShort.tr(lang)
         } else if (lastName.isEmpty()) {
             isLoading = false
-            error = "Last Name is required"
+            error = "${K.lastName.tr(lang)} ${K.isRequired.tr(lang)}"
         } else if (regNo.length < 5) {
             isLoading = false
-            error = "Invalid Register Number"
+            error = K.invalidRegisterNumber.tr(lang)
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             isLoading = false
-            error = "Invalid email address"
+            error = K.invalidEmailFormat.tr(lang)
         } else if (password.length < 6) {
             isLoading = false
-            error = "Password must be at least 6 characters"
+            error = K.passwordTooShort.tr(lang)
         } else {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
@@ -212,11 +224,11 @@ fun SignupScreen(
                             }
                         } else {
                             isLoading = false
-                            error = "Signup failed - no user created"
+                            error = K.signupFailedNoUser.tr(lang)
                         }
                     } else {
                         isLoading = false
-                        error = task.exception?.message ?: "Signup Failed"
+                        error = task.exception?.message ?: K.signupFailed.tr(lang)
                     }
                 }
         }
@@ -240,8 +252,8 @@ fun SignupScreen(
                 enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { -30 })
             ) {
                 StepHeader(
-                    title = "Create Account",
-                    subtitle = "Fill in your details to get started"
+                    title = K.createAccount.tr(lang),
+                    subtitle = K.fillDetailsToGetStarted.tr(lang)
                 )
             }
 
@@ -260,17 +272,17 @@ fun SignupScreen(
                         AuthTextField(
                             value = firstName,
                             onValueChange = { firstName = it; error = null },
-                            label = "First Name",
+                            label = K.firstName.tr(lang),
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                             isError = error?.contains("First Name") == true,
-                            errorMessage = null // Show error at bottom or handle distinct errors better if needed
+                            errorMessage = null
                         )
                         
                         AuthTextField(
                             value = lastName,
                             onValueChange = { lastName = it; error = null },
-                            label = "Last Name",
+                            label = K.lastName.tr(lang),
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                             isError = error?.contains("Last Name") == true,
@@ -292,7 +304,7 @@ fun SignupScreen(
                     AuthTextField(
                         value = regNo,
                         onValueChange = { regNo = it; error = null },
-                        label = "Register Number",
+                        label = K.registerNumber.tr(lang),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
                         isError = error?.contains("Register") == true,
                         errorMessage = if (error?.contains("Register") == true) error else null
@@ -303,7 +315,7 @@ fun SignupScreen(
                     AuthTextField(
                         value = email,
                         onValueChange = { email = it; error = null },
-                        label = "Email Address",
+                        label = K.emailAddress.tr(lang),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                         isError = error?.contains("email") == true,
                         errorMessage = if (error?.contains("email") == true) error else null
@@ -314,7 +326,7 @@ fun SignupScreen(
                     AuthTextField(
                         value = password,
                         onValueChange = { password = it; error = null },
-                        label = "Password",
+                        label = K.password.tr(lang),
                         isPassword = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                         isError = error?.contains("Password") == true || error?.contains("password") == true,
@@ -345,7 +357,7 @@ fun SignupScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     AnimatedAuthButton(
-                        text = "Create Account",
+                        text = K.createAccount.tr(lang),
                         onClick = { handleSignup() },
                         isLoading = isLoading
                     )
@@ -357,7 +369,7 @@ fun SignupScreen(
                     Spacer(modifier = Modifier.height(20.dp))
 
                     GoogleAuthButton(
-                        text = "Sign up with Google",
+                        text = K.signUpWithGoogle.tr(lang),
                         onClick = { handleGoogleSignup() },
                         isLoading = isLoading
                     )
@@ -365,8 +377,8 @@ fun SignupScreen(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     AuthLinkText(
-                        prefix = "Already have an account? ",
-                        linkText = "Log In",
+                        prefix = K.alreadyHaveAccount.tr(lang),
+                        linkText = K.logIn.tr(lang),
                         onClick = onNavigateToLogin
                     )
 

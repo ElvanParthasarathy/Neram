@@ -41,6 +41,8 @@ import com.elvan.neram.ui.home.HomeShapes
 import com.elvan.neram.ui.home.HomeTypography
 import com.elvan.neram.ui.home.HomeDimens
 import com.elvan.neram.ui.home.rememberStatusBarHeight
+import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.*
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -137,13 +139,12 @@ fun CalendarMainLayout(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center // Align title to Center
                 ) {
+                     val lang = LocalAppLanguage.current
                      val currentYear = java.time.LocalDate.now().year
-                     val monthName = currentMonth.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH).uppercase()
-                     
                      val titleText = if (currentMonth.year == currentYear) {
-                         monthName
+                         currentMonth.month.toMozhiName(lang, isShort = false).uppercase()
                      } else {
-                         "$monthName ${currentMonth.year}"
+                         currentMonth.toMozhiString(lang, isShort = false)
                      }
 
                      // Month Title (Clickable but Plain Text Visual)
@@ -190,13 +191,12 @@ fun CalendarMainLayout(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
                                 ) {
+                                    val lang = LocalAppLanguage.current
                                     val currentYear = java.time.LocalDate.now().year
-                                    val monthName = currentMonth.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH).uppercase()
-                                    
                                     val titleText = if (currentMonth.year == currentYear) {
-                                        monthName
+                                        currentMonth.month.toMozhiName(lang, isShort = false).uppercase()
                                     } else {
-                                        "$monthName ${currentMonth.year}"
+                                        currentMonth.toMozhiString(lang, isShort = false)
                                     }
                                     
                                     Box(
@@ -519,9 +519,9 @@ fun CalendarMainLayout(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Left: Month Title (Clickable to open Month Picker)
+                        val lang = LocalAppLanguage.current
                         Text(
-                            text = "${currentScheduleMonth.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())} ${currentScheduleMonth.year}",
+                            text = currentScheduleMonth.toMozhiString(lang, isShort = false),
                             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                             color = colors.textPrimary,
                             modifier = Modifier
@@ -547,7 +547,7 @@ fun CalendarMainLayout(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                    contentDescription = "Previous Month",
+                                    contentDescription = K.previousMonth.tr(lang),
                                     tint = colors.textPrimary
                                 )
                             }
@@ -568,7 +568,7 @@ fun CalendarMainLayout(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = "Next Month",
+                                    contentDescription = K.nextMonth.tr(lang),
                                     tint = colors.textPrimary
                                 )
                             }
@@ -606,6 +606,7 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
     var isDocsExpanded by remember { mutableStateOf(false) }
     val context = androidx.compose.ui.platform.LocalContext.current
     val haptics = LocalHapticFeedback.current
+    val lang = LocalAppLanguage.current
     var pdfUrl by remember { mutableStateOf("https://raw.githubusercontent.com/ElvanParthasarathy/RmdNeramPublic/main/Pdfs/academic-calendar.pdf") }
 
     LaunchedEffect(Unit) {
@@ -629,8 +630,7 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
                 .padding(horizontal = 16.dp),
             shape = HomeShapes.Card,
             color = colors.surface,
-            shadowElevation = 0.dp, // Flat
-            // border = BorderStroke(1.dp, colors.border.copy(alpha = 0.1f)) // REMOVED BORDER
+            shadowElevation = 0.dp,
         ) {
             Row(
                 modifier = Modifier
@@ -646,7 +646,7 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
             ) {
                 // Title
                 Text(
-                    text = "Official Documents",
+                    text = K.officialDocuments.tr(lang),
                     style = HomeTypography.SectionTitle.copy(color = colors.textSecondary)
                 )
 
@@ -656,7 +656,7 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
                     // Expand Icon
                     Icon(
                         imageVector = if (isDocsExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (isDocsExpanded) "Collapse" else "Expand",
+                        contentDescription = if (isDocsExpanded) K.collapse.tr(lang) else K.expand.tr(lang),
                         tint = colors.textSecondary
                     )
                 }
@@ -685,12 +685,11 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
                                 val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                                 val clip = android.content.ClipData.newPlainText("PDF Link", pdfUrl)
                                 clipboard.setPrimaryClip(clip)
-                                android.widget.Toast.makeText(context, "Link copied to clipboard", android.widget.Toast.LENGTH_SHORT).show()
+                                android.widget.Toast.makeText(context, K.linkCopiedToClipboard.tr(lang), android.widget.Toast.LENGTH_SHORT).show()
                             }
                         ),
                     shape = HomeShapes.Item,
                     color = colors.surface,
-                    // border = BorderStroke(1.dp, colors.border.copy(alpha = 0.1f)) // REMOVED BORDER
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
@@ -699,18 +698,16 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
                     ) {
                         Column {
                             Text(
-                                text = "Academic Calendar",
+                                text = K.academicCalendar.tr(lang),
                                 style = HomeTypography.PillTitle,
                                 color = colors.textPrimary
                             )
                             Text(
-                                text = "Download PDF for offline use",
+                                text = K.downloadPdfForOffline.tr(lang),
                                 fontSize = 12.sp,
                                 color = colors.textSecondary
                             )
                         }
-                        // Download Button (Replaces Description Icon)
-
                     }
                 }
             }

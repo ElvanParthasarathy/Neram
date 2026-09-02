@@ -39,6 +39,9 @@ import com.elvan.neram.data.local.entity.MasterDataEntity
 import com.elvan.neram.data.local.entity.UserEntity
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.toMozhiFullDate
 import com.elvan.neram.ui.theme.AppColors
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
@@ -402,7 +405,7 @@ fun ProfileScreen(
                                             .data(photoUrl)
                                             .crossfade(true)
                                             .build(),
-                                        contentDescription = "Profile Photo",
+                                        contentDescription = null,
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clip(CircleShape),
@@ -430,7 +433,7 @@ fun ProfileScreen(
                             
                             // Display Name
                             Text(
-                                text = formData["displayName"] ?: (if (lang == AppStrings.TAMIL) "உங்கள் பெயர்" else "Your Name"),
+                                text = formData["displayName"] ?: K.yourName.tr(lang),
                                 style = TextStyle(
                                     fontFamily = ff,
                                     fontSize = 20.sp,
@@ -496,14 +499,14 @@ fun ProfileScreen(
                                                     .addOnSuccessListener {
                                                         scope.launch {
                                                             snackbarHostState.showSnackbar(
-                                                                if (lang == AppStrings.TAMIL) "படம் வெற்றிகரமாக ஒத்திசைக்கப்பட்டது" else "Photo synced successfully"
+                                                                K.photoSyncedSuccess.tr(lang)
                                                             )
                                                         }
                                                     }
                                                     .addOnFailureListener { e ->
                                                         scope.launch {
                                                             snackbarHostState.showSnackbar(
-                                                                (if (lang == AppStrings.TAMIL) "ஒத்திசைவு தோல்வி: " else "Sync failed: ") + (e.message ?: "")
+                                                                K.syncFailed.tr(lang) + (e.message ?: "")
                                                             )
                                                         }
                                                     }
@@ -512,14 +515,14 @@ fun ProfileScreen(
                                         googleProvider == null -> {
                                             scope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    if (lang == AppStrings.TAMIL) "Google கணக்கு இணைக்கப்படவில்லை" else "No Google account linked"
+                                                    K.noGoogleAccountLinked.tr(lang)
                                                 )
                                             }
                                         }
                                         else -> {
                                             scope.launch {
                                                 snackbarHostState.showSnackbar(
-                                                    if (lang == AppStrings.TAMIL) "Google கணக்கில் புகைப்படம் இல்லை" else "No photo found in Google account"
+                                                    K.noPhotoInGoogleAccount.tr(lang)
                                                 )
                                             }
                                         }
@@ -541,7 +544,7 @@ fun ProfileScreen(
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "Google படத்தை ஒத்திசை" else "Sync Google Photo",
+                                    text = K.syncGooglePhoto.tr(lang),
                                     style = TextStyle(
                                         fontFamily = ff,
                                         fontSize = 14.sp,
@@ -558,7 +561,7 @@ fun ProfileScreen(
             item(key = "personal_info") {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = if (lang == AppStrings.TAMIL) "தனிப்பட்ட விவரங்கள்" else "Personal Information",
+                        title = K.personalInfo.tr(lang),
                         colors = colors
                     ) {
                         // Full Name Row
@@ -566,7 +569,7 @@ fun ProfileScreen(
                             isEditing = editingField == "name",
                             displayContent = {
                                 ElvanSettingsDisplayRow(
-                                    title = if (lang == AppStrings.TAMIL) "முழுப் பெயர்" else "Full Name",
+                                    title = K.fullName.tr(lang),
                                     primaryValue = formData["displayName"] ?: "",
                                     onEdit = {
                                         val full = formData["displayName"] ?: ""
@@ -585,26 +588,26 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = if (lang == AppStrings.TAMIL) "பெயரைத் திருத்து" else "Edit Name",
+                                    title = K.editName.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("name") },
-                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
-                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    cancelText = K.cancel.tr(lang),
+                                    saveText = K.save.tr(lang),
                                     colors = colors
                                 ) {
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "முதல் பெயர்" else "First Name",
+                                        label = K.firstName.tr(lang),
                                         value = firstName,
                                         onValueChange = { firstName = it },
-                                        placeholder = if (lang == AppStrings.TAMIL) "முதல் பெயரை உள்ளிடவும்" else "Enter first name",
+                                        placeholder = K.enterFirstName.tr(lang),
                                         colors = colors
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "கடைசி பெயர்" else "Last Name",
+                                        label = K.lastName.tr(lang),
                                         value = lastName,
                                         onValueChange = { lastName = it },
-                                        placeholder = if (lang == AppStrings.TAMIL) "கடைசி பெயரை உள்ளிடவும்" else "Enter last name",
+                                        placeholder = K.enterLastName.tr(lang),
                                         colors = colors
                                     )
                                 }
@@ -618,7 +621,7 @@ fun ProfileScreen(
                             isEditing = editingField == "mobile",
                             displayContent = {
                                 ElvanSettingsDisplayRow(
-                                    title = if (lang == AppStrings.TAMIL) "கைபேசி எண்" else "Mobile Number",
+                                    title = K.mobileNumber.tr(lang),
                                     primaryValue = formatMobileForDisplay(formData["mobile"]) ?: "",
                                     onEdit = {
                                         mobileNumber = extractMobileNumber(formData["mobile"])
@@ -629,23 +632,23 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = if (lang == AppStrings.TAMIL) "கைபேசி எண்ணைத் திருத்து" else "Edit Mobile Number",
+                                    title = K.editMobileNumber.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = {
                                         formData = formData + ("mobile" to mobileNumber)
                                         handleSave("mobile")
                                     },
-                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
-                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    cancelText = K.cancel.tr(lang),
+                                    saveText = K.save.tr(lang),
                                     colors = colors
                                 ) {
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "கைபேசி எண்" else "Mobile Number",
+                                        label = K.mobileNumber.tr(lang),
                                         value = mobileNumber,
                                         onValueChange = {
                                             mobileNumber = it.filter { c -> c.isDigit() }.take(10)
                                         },
-                                        placeholder = if (lang == AppStrings.TAMIL) "10-இலக்க எண்" else "10-digit number",
+                                        placeholder = K.tenDigitNumber.tr(lang),
                                         prefixText = "+91 ",
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                                         colors = colors
@@ -661,7 +664,7 @@ fun ProfileScreen(
                             isEditing = editingField == "birthday",
                             displayContent = {
                                 ElvanSettingsDisplayRow(
-                                    title = if (lang == AppStrings.TAMIL) "பிறந்த தேதி" else "Date of Birth",
+                                    title = K.dateOfBirth.tr(lang),
                                     primaryValue = formattedBirthday ?: "",
                                     onEdit = {
                                         editingField = "birthday"
@@ -672,18 +675,18 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = if (lang == AppStrings.TAMIL) "பிறந்த தேதியைத் திருத்து" else "Edit Date of Birth",
+                                    title = K.editDateOfBirth.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("birthday") },
-                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
-                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    cancelText = K.cancel.tr(lang),
+                                    saveText = K.save.tr(lang),
                                     colors = colors
                                 ) {
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "பிறந்த தேதி" else "Date of Birth",
+                                        label = K.dateOfBirth.tr(lang),
                                         value = formattedBirthday ?: "",
                                         onValueChange = {},
-                                        placeholder = if (lang == AppStrings.TAMIL) "தேதியைத் தேர்ந்தெடுக்கவும்" else "Select date",
+                                        placeholder = K.selectDate.tr(lang),
                                         readOnly = true,
                                         onClick = { showDatePicker = true },
                                         trailingIcon = {
@@ -706,34 +709,52 @@ fun ProfileScreen(
                         ElvanSettingsAnimatedExpand(
                             isEditing = editingField == "gender",
                             displayContent = {
+                                val genderDisplay = when (formData["gender"]?.trim()?.lowercase()) {
+                                    "male", "ஆண்", "aan" -> K.male.tr(lang)
+                                    "female", "பெண்", "pen" -> K.female.tr(lang)
+                                    "other", "மற்றவை", "matravai" -> K.genderOther.tr(lang)
+                                    else -> formData["gender"] ?: ""
+                                }
                                 ElvanSettingsDisplayRow(
-                                    title = if (lang == AppStrings.TAMIL) "பாலினம்" else "Gender",
-                                    primaryValue = formData["gender"] ?: "",
+                                    title = K.gender.tr(lang),
+                                    primaryValue = genderDisplay,
                                     onEdit = { editingField = "gender" },
                                     colors = colors
                                 )
                             },
                             editContent = {
+                                val genderDisplay = when (formData["gender"]?.trim()?.lowercase()) {
+                                    "male", "ஆண்", "aan" -> K.male.tr(lang)
+                                    "female", "பெண்", "pen" -> K.female.tr(lang)
+                                    "other", "மற்றவை", "matravai" -> K.genderOther.tr(lang)
+                                    else -> formData["gender"] ?: ""
+                                }
                                 ElvanSettingsEditContainer(
-                                    title = if (lang == AppStrings.TAMIL) "பாலினத்தைத் தேர்ந்தெடுக்கவும்" else "Select Gender",
+                                    title = K.selectGender.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("gender") },
-                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
-                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    cancelText = K.cancel.tr(lang),
+                                    saveText = K.save.tr(lang),
                                     colors = colors
                                 ) {
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "பாலினம்" else "Gender",
-                                        value = formData["gender"] ?: "",
+                                        label = K.gender.tr(lang),
+                                        value = genderDisplay,
                                         onValueChange = {},
-                                        placeholder = if (lang == AppStrings.TAMIL) "பாலினத்தைத் தேர்ந்தெடுக்கவும்" else "Select Gender",
+                                        placeholder = K.selectGender.tr(lang),
                                         readOnly = true,
                                         onClick = {
                                             openSelector(
-                                                if (lang == AppStrings.TAMIL) "பாலினத்தைத் தேர்ந்தெடுக்கவும்" else "Select Gender",
-                                                listOf("Male", "Female", "Other")
-                                            ) {
-                                                formData = formData + ("gender" to it)
+                                                K.selectGender.tr(lang),
+                                                listOf(K.male.tr(lang), K.female.tr(lang), K.genderOther.tr(lang))
+                                            ) { selected ->
+                                                val canonical = when (selected) {
+                                                    K.male.tr(lang) -> "Male"
+                                                    K.female.tr(lang) -> "Female"
+                                                    K.genderOther.tr(lang) -> "Other"
+                                                    else -> selected
+                                                }
+                                                formData = formData + ("gender" to canonical)
                                             }
                                         },
                                         trailingIcon = {
@@ -757,7 +778,7 @@ fun ProfileScreen(
             item(key = "academic_info") {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = if (lang == AppStrings.TAMIL) "கல்வி விவரங்கள்" else "Academic Details",
+                        title = K.academicDetails.tr(lang),
                         colors = colors
                     ) {
                         // Academic Enrollment (Batch, Dept, Section)
@@ -765,7 +786,7 @@ fun ProfileScreen(
                             isEditing = editingField == "academic",
                             displayContent = {
                                 ElvanSettingsDisplayRow(
-                                    title = if (lang == AppStrings.TAMIL) "தொகுதி, துறை & பிரிவு" else "Batch, Department & Section",
+                                    title = K.batchDeptSection.tr(lang),
                                     primaryValue = listOfNotNull(
                                         formData["batch"],
                                         formData["department"],
@@ -777,22 +798,22 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = if (lang == AppStrings.TAMIL) "கல்வி விவரங்களைத் திருத்து" else "Edit Academic Details",
+                                    title = K.editAcademicDetails.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("academic") },
-                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
-                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    cancelText = K.cancel.tr(lang),
+                                    saveText = K.save.tr(lang),
                                     colors = colors
                                 ) {
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "தொகுதி" else "Batch",
+                                        label = K.batch.tr(lang),
                                         value = formData["batch"] ?: "",
                                         onValueChange = {},
-                                        placeholder = if (lang == AppStrings.TAMIL) "தொகுதியைத் தேர்ந்தெடுக்கவும்" else "Select Batch",
+                                        placeholder = K.selectBatch.tr(lang),
                                         readOnly = true,
                                         onClick = {
                                             openSelector(
-                                                if (lang == AppStrings.TAMIL) "தொகுதியைத் தேர்ந்தெடுக்கவும்" else "Select Batch",
+                                                K.selectBatch.tr(lang),
                                                 getBatches()
                                             ) {
                                                 formData = formData + mapOf("batch" to it, "department" to "", "section" to "")
@@ -810,15 +831,15 @@ fun ProfileScreen(
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "துறை" else "Department",
+                                        label = K.department.tr(lang),
                                         value = formData["department"] ?: "",
                                         onValueChange = {},
-                                        placeholder = if (lang == AppStrings.TAMIL) "துறையைத் தேர்ந்தெடுக்கவும்" else "Select Department",
+                                        placeholder = K.selectDepartment.tr(lang),
                                         readOnly = true,
                                         onClick = {
                                             formData["batch"]?.let { batch ->
                                                 openSelector(
-                                                    if (lang == AppStrings.TAMIL) "துறையைத் தேர்ந்தெடுக்கவும்" else "Select Department",
+                                                    K.selectDepartment.tr(lang),
                                                     getDepartments(batch)
                                                 ) {
                                                     formData = formData + mapOf("department" to it, "section" to "")
@@ -837,16 +858,16 @@ fun ProfileScreen(
                                     )
                                     Spacer(modifier = Modifier.height(12.dp))
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "பிரிவு" else "Section",
+                                        label = K.section.tr(lang),
                                         value = formData["section"] ?: "",
                                         onValueChange = {},
-                                        placeholder = if (lang == AppStrings.TAMIL) "பிரிவைத் தேர்ந்தெடுக்கவும்" else "Select Section",
+                                        placeholder = K.selectSection.tr(lang),
                                         readOnly = true,
                                         onClick = {
                                             val batch = formData["batch"] ?: return@ElvanSettingsTextField
                                             val dept = formData["department"] ?: return@ElvanSettingsTextField
                                             openSelector(
-                                                if (lang == AppStrings.TAMIL) "பிரிவைத் தேர்ந்தெடுக்கவும்" else "Select Section",
+                                                K.selectSection.tr(lang),
                                                 getSections(batch, dept)
                                             ) {
                                                 formData = formData + ("section" to it)
@@ -873,7 +894,7 @@ fun ProfileScreen(
                             isEditing = editingField == "registerNo",
                             displayContent = {
                                 ElvanSettingsDisplayRow(
-                                    title = if (lang == AppStrings.TAMIL) "பதிவு எண்" else "Register Number",
+                                    title = K.registerNumber.tr(lang),
                                     primaryValue = formData["registerNo"] ?: "",
                                     onEdit = { editingField = "registerNo" },
                                     colors = colors
@@ -881,18 +902,18 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = if (lang == AppStrings.TAMIL) "பதிவு எண்ணைத் திருத்து" else "Edit Register Number",
+                                    title = K.editRegisterNumber.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("registerNo") },
-                                    cancelText = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
-                                    saveText = if (lang == AppStrings.TAMIL) "சேமி" else "Save",
+                                    cancelText = K.cancel.tr(lang),
+                                    saveText = K.save.tr(lang),
                                     colors = colors
                                 ) {
                                     ElvanSettingsTextField(
-                                        label = if (lang == AppStrings.TAMIL) "பதிவு எண்" else "Register Number",
+                                        label = K.registerNumber.tr(lang),
                                         value = formData["registerNo"] ?: "",
                                         onValueChange = { formData = formData + ("registerNo" to it) },
-                                        placeholder = if (lang == AppStrings.TAMIL) "பதிவு எண்ணை உள்ளிடவும்" else "Enter register number",
+                                        placeholder = K.enterRegisterNumber.tr(lang),
                                         colors = colors
                                     )
                                 }
@@ -948,10 +969,18 @@ fun ProfileScreen(
                 
                 selectorOptions.forEach { option ->
                     val isOptionSelected = when (selectorTitle) {
-                        "Select Gender", "பாலினத்தைத் தேர்ந்தெடுக்கவும்" -> formData["gender"] == option
-                        "Select Batch", "தொகுதியைத் தேர்ந்தெடுக்கவும்" -> formData["batch"] == option
-                        "Select Department", "துறையைத் தேர்ந்தெடுக்கவும்" -> formData["department"] == option
-                        "Select Section", "பிரிவைத் தேர்ந்தெடுக்கவும்" -> formData["section"] == option
+                        K.selectGender.tr(lang), "Select Gender", "பாலினத்தைத் தேர்ந்தெடுக்கவும்", "Paalinathai thernthedu" -> {
+                            val genderDisplay = when (formData["gender"]?.trim()?.lowercase()) {
+                                "male", "ஆண்", "aan" -> K.male.tr(lang)
+                                "female", "பெண்", "pen" -> K.female.tr(lang)
+                                "other", "மற்றவை", "matravai" -> K.genderOther.tr(lang)
+                                else -> formData["gender"] ?: ""
+                            }
+                            genderDisplay == option
+                        }
+                        K.selectBatch.tr(lang), "Select Batch", "தொகுதியைத் தேர்ந்தெடுக்கவும்" -> formData["batch"] == option
+                        K.selectDepartment.tr(lang), "Select Department", "துறையைத் தேர்ந்தெடுக்கவும்" -> formData["department"] == option
+                        K.selectSection.tr(lang), "Select Section", "பிரிவைத் தேர்ந்தெடுக்கவும்" -> formData["section"] == option
                         else -> false
                     }
                     
@@ -1001,129 +1030,32 @@ fun ProfileScreen(
     
     // Date Picker Dialog
     if (showDatePicker) {
-        val config = LocalConfiguration.current
-        val isLandscape = config.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = formData["birthday"]?.let {
-                try { 
-                    LocalDate.parse(it).atStartOfDay(ZoneOffset.UTC)
-                        .toInstant().toEpochMilli()
-                } catch (e: Exception) { null }
-            },
-            initialDisplayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
-        )
-        
-        LaunchedEffect(isLandscape) {
-            datePickerState.displayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
-        }
-        
-        val dialogBgColor = if (isDark) Color(0xFF1E1E1E) else Color.White
+        val initialBirthday = formData["birthday"]?.let {
+            try { LocalDate.parse(it) } catch (e: Exception) { null }
+        } ?: LocalDate.now()
 
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Button(
-                        onClick = { showDatePicker = false },
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = buttonBg,
-                            contentColor = colors.textPrimary
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(0.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
-                            style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                        )
-                    }
-                    Button(
-                        onClick = {
-                            datePickerState.selectedDateMillis?.let { millis ->
-                                val date = Instant.ofEpochMilli(millis)
-                                    .atZone(ZoneOffset.UTC)
-                                    .toLocalDate()
-                                val updatedMap = formData + ("birthday" to date.toString())
-                                formData = updatedMap
-                                user?.uid?.let { uid ->
-                                    scope.launch(Dispatchers.IO) {
-                                        try {
-                                            masterDataDao.insertMasterData(
-                                                MasterDataEntity(
-                                                    id = "user_profile_details_$uid",
-                                                    json = Gson().toJson(updatedMap)
-                                                )
-                                            )
-                                        } catch (e: Exception) {
-                                            android.util.Log.e("ProfileScreen", "Failed to cache birthday locally", e)
-                                        }
-                                    }
-                                }
-                            }
-                            showDatePicker = false
-                        },
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colors.accent,
-                            contentColor = Color.White
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(0.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = if (lang == AppStrings.TAMIL) "சரி" else "OK",
-                            style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                        )
+        com.elvan.neram.ui.common.NeramDatePickerDialog(
+            initialDate = initialBirthday,
+            onDateSelected = { date ->
+                val updatedMap = formData + ("birthday" to date.toString())
+                formData = updatedMap
+                user?.uid?.let { uid ->
+                    scope.launch(Dispatchers.IO) {
+                        try {
+                            masterDataDao.insertMasterData(
+                                MasterDataEntity(
+                                    id = "user_profile_details_$uid",
+                                    json = Gson().toJson(updatedMap)
+                                )
+                            )
+                        } catch (e: Exception) {
+                            android.util.Log.e("ProfileScreen", "Failed to cache birthday locally", e)
+                        }
                     }
                 }
             },
-            dismissButton = null,
-            colors = DatePickerDefaults.colors(
-                containerColor = dialogBgColor,
-                titleContentColor = colors.textPrimary,
-                headlineContentColor = colors.textPrimary,
-                weekdayContentColor = colors.textPrimary.copy(alpha = 0.5f),
-                subheadContentColor = colors.textPrimary.copy(alpha = 0.5f),
-                navigationContentColor = colors.textPrimary,
-                yearContentColor = colors.textPrimary,
-                currentYearContentColor = colors.textPrimary,
-                selectedYearContentColor = if (isDark) Color(0xFF111111) else Color.White,
-                selectedYearContainerColor = colors.textPrimary,
-                dayContentColor = colors.textPrimary,
-                selectedDayContentColor = if (isDark) Color(0xFF111111) else Color.White,
-                selectedDayContainerColor = colors.textPrimary,
-                todayContentColor = colors.textPrimary,
-                todayDateBorderColor = colors.textPrimary
-            )
-        ) {
-            DatePicker(
-                state = datePickerState,
-                showModeToggle = false,
-                colors = DatePickerDefaults.colors(
-                    containerColor = dialogBgColor,
-                    titleContentColor = colors.textPrimary,
-                    headlineContentColor = colors.textPrimary,
-                    weekdayContentColor = colors.textPrimary.copy(alpha = 0.5f),
-                    subheadContentColor = colors.textPrimary.copy(alpha = 0.5f),
-                    navigationContentColor = colors.textPrimary,
-                    yearContentColor = colors.textPrimary,
-                    currentYearContentColor = colors.textPrimary,
-                    selectedYearContentColor = if (isDark) Color(0xFF111111) else Color.White,
-                    selectedYearContainerColor = colors.textPrimary,
-                    dayContentColor = colors.textPrimary,
-                    selectedDayContentColor = if (isDark) Color(0xFF111111) else Color.White,
-                    selectedDayContainerColor = colors.textPrimary,
-                    todayContentColor = colors.textPrimary,
-                    todayDateBorderColor = colors.textPrimary
-                )
-            )
-        }
+            onDismissRequest = { showDatePicker = false }
+        )
     }
     
     // Logout Confirmation Dialog

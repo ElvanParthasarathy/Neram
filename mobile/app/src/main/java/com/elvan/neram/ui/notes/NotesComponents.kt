@@ -25,6 +25,9 @@ import com.elvan.neram.ui.home.HomeDimens
 import com.elvan.neram.ui.home.HomeShapes
 import com.elvan.neram.ui.home.HomeTypography
 import com.elvan.neram.ui.components.shell.*
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppLanguage
 
 /**
  * NotesComponents - Reusable UI widgets for the Notes Screen.
@@ -37,16 +40,17 @@ fun NotesBreadcrumbHeader(
     colors: HomeColors,
     onBackClick: () -> Unit
 ) {
+    val lang = LocalAppLanguage.current
     ElvanSectionContainer {
         Surface(
-            shape = HomeShapes.Card,
+            onClick = onBackClick,
+            shape = HomeShapes.Item,
             color = colors.surface,
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onBackClick() }
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -59,7 +63,7 @@ fun NotesBreadcrumbHeader(
                 ) {
                     Icon(
                         Icons.Filled.KeyboardArrowLeft,
-                        contentDescription = "Back",
+                        contentDescription = K.back.tr(lang),
                         tint = colors.textPrimary,
                         modifier = Modifier.size(24.dp)
                     )
@@ -177,6 +181,7 @@ fun SubjectItem(
     onNotUploaded: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val lang = LocalAppLanguage.current
 
     Column(modifier = Modifier.fillMaxWidth()) {
         // Header: Separate Card for the Dropdown Trigger
@@ -213,7 +218,7 @@ fun SubjectItem(
 
                 Icon(
                     if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    contentDescription = if (expanded) K.collapse.tr(lang) else K.expand.tr(lang),
                     tint = colors.textSecondary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -270,7 +275,7 @@ fun SubjectItem(
                             Spacer(modifier = Modifier.weight(1f))
                             Icon(
                                 if (isAvailable) Icons.AutoMirrored.Filled.OpenInNew else Icons.Default.Lock,
-                                contentDescription = if (isAvailable) "Open" else "Not Available",
+                                contentDescription = if (isAvailable) K.open.tr(lang) else K.notAvailable.tr(lang),
                                 tint = colors.textSecondary.copy(alpha = if (isAvailable) 0.6f else 0.4f),
                                 modifier = Modifier.size(16.dp)
                             )
@@ -303,21 +308,23 @@ fun NotesErrorView(message: String, colors: HomeColors, onRetry: () -> Unit) {
     ) {
         Icon(Icons.Default.Warning, null, tint = colors.danger, modifier = Modifier.size(48.dp))
         Spacer(modifier = Modifier.height(8.dp))
+        val lang = LocalAppLanguage.current
         Text(message, color = colors.textSecondary)
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = onRetry,
             colors = ButtonDefaults.buttonColors(containerColor = colors.accent)
         ) {
-            Text("Go Back")
+            Text(K.goBack.tr(lang))
         }
     }
 }
 
 @Composable
 fun NotesEmptyView(colors: HomeColors) {
+    val lang = LocalAppLanguage.current
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("No items here", color = colors.textSecondary)
+        Text(K.noItemsHere.tr(lang), color = colors.textSecondary)
     }
 }
 
@@ -384,6 +391,7 @@ fun DriveSubjectItem(
     colors: HomeColors,
     onFileClick: (String) -> Unit
 ) {
+    val lang = LocalAppLanguage.current
     var expanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -418,7 +426,7 @@ fun DriveSubjectItem(
                 )
                 Icon(
                     if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    contentDescription = if (expanded) K.collapse.tr(lang) else K.expand.tr(lang),
                     tint = colors.textSecondary,
                     modifier = Modifier.size(24.dp)
                 )
@@ -471,7 +479,7 @@ fun DriveSubjectItem(
                             Spacer(modifier = Modifier.weight(1f))
                             Icon(
                                 if (isAvailable) Icons.AutoMirrored.Filled.OpenInNew else Icons.Default.Lock,
-                                contentDescription = if (isAvailable) "Open" else "Not Available",
+                                contentDescription = if (isAvailable) K.open.tr(lang) else null,
                                 tint = colors.textSecondary.copy(alpha = if (isAvailable) 0.6f else 0.4f),
                                 modifier = Modifier.size(16.dp)
                             )
@@ -483,7 +491,7 @@ fun DriveSubjectItem(
                         modifier = Modifier.fillMaxWidth().padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No units added yet", color = colors.textSecondary, fontSize = 13.sp)
+                        Text(K.noUnitsAddedYet.tr(lang), color = colors.textSecondary, fontSize = 13.sp)
                     }
                 }
             }

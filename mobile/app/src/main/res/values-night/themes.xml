@@ -12,11 +12,24 @@
         <item name="android:windowSplashScreenIconBackgroundColor">#0A0A0A</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:textColorHighlight">#330D84FF</item>
+        <item name="android:textColorLink">#0D84FF</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#A0A0A0</item>
     </style>
     
     <!-- Splash theme for backwards compatibility (pre-Android 12) -->
     <style name="Theme.Neram.Splash" parent="Theme.Neram">
         <item name="colorPrimary">#0D84FF</item>
         <item name="colorAccent">#0D84FF</item>
+    </style>
+
+    <style name="OneUI.Neram.DatePickerDialog" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="colorPrimary">#0D84FF</item>
+        <item name="colorAccent">#0D84FF</item>
+        <item name="android:textColorHighlight">#330D84FF</item>
+        <item name="android:textColorLink">#0D84FF</item>
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <item name="android:textColorSecondary">#A0A0A0</item>
     </style>
 </resources>

@@ -1,13 +1,11 @@
 package com.elvan.neram.ui.about
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -20,152 +18,139 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.theme.AppColors
-
-import com.elvan.neram.ui.components.shell.LocalElvanScrollState
+import com.elvan.neram.ui.theme.LocalAppLanguage
 
 @Composable
 fun ManagementTeamScreen(
-    scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
+    val lang = LocalAppLanguage.current
 
-    androidx.compose.foundation.lazy.LazyColumn(
+    LazyColumn(
         state = scrollState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
-            item(key = "spacer_top") {
-                Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
-            }
+        item(key = "spacer_top") {
+            Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
+        }
 
-            item(key = "header_card") {
-                com.elvan.neram.ui.components.shell.ElvanSectionContainer {
+        item(key = "header_card") {
+            ElvanSectionContainer {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(HomeShapes.Item)
+                        .background(colors.surface)
+                        .padding(24.dp)
+                ) {
+                    Text(
+                        text = K.managementTeam.tr(lang),
+                        style = HomeTypography.ExamTitle,
+                        color = colors.textPrimary,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Text(
+                        text = K.managementTeamDesc.tr(lang),
+                        style = HomeTypography.MessageBody.copy(lineHeight = 26.sp),
+                        color = colors.textSecondary,
+                        textAlign = TextAlign.Start
+                    )
+                }
+            }
+        }
+
+        item(key = "founders_section") {
+            ElvanSectionContainer {
+                Column {
+                    Text(
+                        text = K.founders.tr(lang).uppercase(),
+                        style = HomeTypography.ExamTag,
+                        color = colors.textSecondary,
+                        modifier = Modifier.padding(bottom = 12.dp, start = 8.dp)
+                    )
+
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(HomeShapes.Item)
                             .background(colors.surface)
-                            .padding(24.dp)
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        Text(
-                            "Management Team",
-                            style = HomeTypography.ExamTitle,
-                            color = colors.textPrimary,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                        ManagementMemberItem(
+                            icon = Icons.Outlined.StarOutline,
+                            iconColor = AppColors.Red,
+                            name = "Thiru. R.S. Munirathinam",
+                            role = K.founderChairman.tr(lang).uppercase(),
+                            bio = K.rsMunirathinamBio.tr(lang)
                         )
-                        Text(
-                            "The visionaries driving excellence and innovation across the RMK Group.",
-                            style = HomeTypography.MessageBody.copy(lineHeight = 26.sp),
-                            color = colors.textSecondary,
-                            textAlign = TextAlign.Start
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
+                        ManagementMemberItem(
+                            icon = Icons.Outlined.PersonOutline,
+                            iconColor = AppColors.Blue,
+                            name = "Thiru. R.M. Kishore",
+                            role = K.viceChairman.tr(lang).uppercase(),
+                            bio = K.rmKishoreBio.tr(lang)
                         )
-                    }
-                }
-            }
-
-            item(key = "founders_section") {
-                com.elvan.neram.ui.components.shell.ElvanSectionContainer {
-                    Column {
-                        Text(
-                            "FOUNDERS",
-                            style = HomeTypography.ExamTag,
-                            color = colors.textSecondary,
-                            modifier = Modifier.padding(bottom = 12.dp, start = 8.dp)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(HomeShapes.Item)
-                                .background(colors.surface)
-                                .padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            ManagementMemberItem(
-                                icon = Icons.Outlined.StarOutline,
-                                iconColor = AppColors.Red,
-                                name = "Thiru. R.S. Munirathinam",
-                                role = "FOUNDER-CHAIRMAN",
-                                bio = "A dedicated visionary and philanthropist who served as a Former Member of the Tamil Nadu State Assembly and founded the R.M.K. Group of Institutions."
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                            ManagementMemberItem(
-                                icon = Icons.Outlined.PersonOutline,
-                                iconColor = AppColors.Blue,
-                                name = "Thiru. R.M. Kishore",
-                                role = "VICE-CHAIRMAN",
-                                bio = "Mechanical Engineer with an MBA from UK, focused on transforming learners into achievers with global standards."
-                            )
-                        }
-                    }
-                }
-            }
-
-            item(key = "board_section") {
-                com.elvan.neram.ui.components.shell.ElvanSectionContainer {
-                    Column {
-                        Text(
-                            "BOARD OF DIRECTORS",
-                            style = HomeTypography.ExamTag,
-                            color = colors.textSecondary,
-                            modifier = Modifier.padding(bottom = 12.dp, start = 8.dp)
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(HomeShapes.Item)
-                                .background(colors.surface)
-                                .padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            ManagementMemberItem(
-                                icon = Icons.Outlined.FavoriteBorder,
-                                iconColor = AppColors.Red,
-                                name = "Tmt. Manjula Munirathinam",
-                                role = "CHAIRPERSON",
-                                bio = "Keen social worker and educationalist with over a decade of dedication to the group."
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                            ManagementMemberItem(
-                                icon = Icons.Outlined.Work,
-                                iconColor = AppColors.Orange,
-                                name = "Thiru. R. Jothi Naidu",
-                                role = "DIRECTOR",
-                                bio = "Vast experience in industrial management, associated with the group for nearly 30 years."
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                            ManagementMemberItem(
-                                icon = Icons.Outlined.PersonOutline,
-                                iconColor = AppColors.Green,
-                                name = "Thiru. Yalamanchi Pradeep",
-                                role = "SECRETARY",
-                                bio = "ECE Engineer (Guindy) with a Master's from Carnegie Mellon University, USA."
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                            ManagementMemberItem(
-                                icon = Icons.Outlined.Star,
-                                iconColor = AppColors.Purple,
-                                name = "Dr. Durga Devi Pradeep",
-                                role = "VICE CHAIRPERSON",
-                                bio = "ECE Engineer with an MBA and Ph.D. in Management from Anna University."
-                            )
-                            HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
-                            ManagementMemberItem(
-                                icon = Icons.Outlined.FavoriteBorder,
-                                iconColor = AppColors.Red,
-                                name = "Tmt. Sowmya Kishore",
-                                role = "TRUSTEE",
-                                bio = "ECE Engineer and Psychologist, currently pursuing doctoral research."
-                            )
-                        }
                     }
                 }
             }
         }
+
+        item(key = "board_section") {
+            ElvanSectionContainer {
+                Column {
+                    Text(
+                        text = K.boardOfDirectors.tr(lang).uppercase(),
+                        style = HomeTypography.ExamTag,
+                        color = colors.textSecondary,
+                        modifier = Modifier.padding(bottom = 12.dp, start = 8.dp)
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(HomeShapes.Item)
+                            .background(colors.surface)
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        ManagementMemberItem(
+                            icon = Icons.Outlined.FavoriteBorder,
+                            iconColor = AppColors.Red,
+                            name = "Tmt. Manjula Munirathinam",
+                            role = K.chairperson.tr(lang).uppercase(),
+                            bio = K.manjulaMunirathinamBio.tr(lang)
+                        )
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
+                        ManagementMemberItem(
+                            icon = Icons.Outlined.Work,
+                            iconColor = AppColors.Orange,
+                            name = "Thiru. R. Jothi Naidu",
+                            role = K.director.tr(lang).uppercase(),
+                            bio = K.jothiNaiduBio.tr(lang)
+                        )
+                        HorizontalDivider(color = colors.glassBorder, thickness = 1.dp, modifier = Modifier.padding(start = 52.dp))
+                        ManagementMemberItem(
+                            icon = Icons.Outlined.PersonOutline,
+                            iconColor = AppColors.Green,
+                            name = "Thiru. Yalamanchi Pradeep",
+                            role = K.secretary.tr(lang).uppercase(),
+                            bio = K.yalamanchiPradeepBio.tr(lang)
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

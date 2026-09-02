@@ -1,10 +1,10 @@
 package com.elvan.neram.ui.about
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -12,15 +12,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.elvan.neram.R
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.theme.ElvanSansFontFamily
 import com.elvan.neram.ui.theme.LocalAppFontFamily
+import com.elvan.neram.ui.theme.LocalAppLanguage
 
 @Composable
 fun AboutAppScreen(
@@ -28,6 +34,7 @@ fun AboutAppScreen(
 ) {
     val colors = rememberHomeColors()
     val ff = LocalAppFontFamily.current
+    val lang = LocalAppLanguage.current
 
     LazyColumn(
         state = scrollState,
@@ -35,137 +42,148 @@ fun AboutAppScreen(
         contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
-            item(key = "spacer_top") {
-                Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
-            }
+        item(key = "spacer_top") {
+            Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
+        }
 
-            item(key = "app_header") {
-                ElvanSectionContainer {
-                    Column(
+        // App Header with Official Vector App Icon
+        item(key = "app_header") {
+            ElvanSectionContainer {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val isDark = colors.isDark
+                    val logoBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+                    
+                    // Increased logo icon size inside
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .size(88.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(logoBg),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            "நேரம்",
-                            style = TextStyle(
-                                fontSize = 48.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = ElvanSansFontFamily
-                            ),
-                            color = colors.textPrimary
-                        )
-                        Text(
-                            "Neram",
-                            style = TextStyle(
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                fontFamily = ff
-                            ),
-                            color = colors.textPrimary.copy(alpha = 0.5f)
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_splash_logo),
+                            contentDescription = K.navNeram.tr(lang),
+                            tint = colors.textPrimary,
+                            modifier = Modifier.size(68.dp)
                         )
                     }
-                }
-            }
 
-            item(key = "description_card") {
-                ElvanSectionContainer {
-                    ElvanSettingsSection(colors = colors) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp)
-                        ) {
-                            Text(
-                                "What is Neram?",
-                                style = TextStyle(
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontFamily = ff
-                                ),
-                                color = colors.textPrimary,
-                                modifier = Modifier.padding(bottom = 12.dp)
-                            )
-                            Text(
-                                "Neram (நேரம், meaning 'Time') is a sleek, all-in-one campus companion app designed specifically for RMK Group of Institutions students. It brings together everything you need to stay organized and informed throughout your academic day.\n\nThis application was developed by Jaiprakash Parthasarathy, a student from the ECE Department of RMD Engineering College.",
-                                style = TextStyle(
-                                    fontSize = 14.sp,
-                                    lineHeight = 22.sp,
-                                    fontFamily = ff
-                                ),
-                                color = colors.textPrimary.copy(alpha = 0.6f),
-                                textAlign = TextAlign.Start
-                            )
-                        }
-                    }
-                }
-            }
+                    Spacer(modifier = Modifier.height(10.dp))
 
-            item(key = "features_section") {
-                ElvanSectionContainer {
-                    ElvanSettingsSection(
-                        title = "FEATURES",
-                        colors = colors
-                    ) {
-                        ElvanSettingsRow(
-                            icon = Icons.Outlined.CalendarMonth,
-                            title = "Smart Timetable",
-                            description = "View your daily class schedule with faculty info, room numbers, and real-time updates.",
-                            onClick = {},
-                            colors = colors
-                        )
-                        ElvanSettingsDivider(colors = colors)
-                        ElvanSettingsRow(
-                            icon = Icons.Outlined.DateRange,
-                            title = "Exam Calendar",
-                            description = "Track upcoming exams, internals, and important academic events with countdown timers.",
-                            onClick = {},
-                            colors = colors
-                        )
-                        ElvanSettingsDivider(colors = colors)
-                        ElvanSettingsRow(
-                            icon = Icons.Outlined.Campaign,
-                            title = "Campus Announcements",
-                            description = "Get instant notifications for news, circulars, and announcements from the college.",
-                            onClick = {},
-                            colors = colors
-                        )
-                        ElvanSettingsDivider(colors = colors)
-                        ElvanSettingsRow(
-                            icon = Icons.Outlined.OfflineBolt,
-                            title = "Offline Support",
-                            description = "Access your timetable and cached data even without an internet connection.",
-                            onClick = {},
-                            colors = colors
-                        )
-                        ElvanSettingsDivider(colors = colors)
-                        ElvanSettingsRow(
-                            icon = Icons.Outlined.Sync,
-                            title = "Cloud Sync",
-                            description = "Your schedule and preferences sync seamlessly across devices with Firebase.",
-                            onClick = {},
-                            colors = colors
-                        )
-                    }
-                }
-            }
-
-            item(key = "footer") {
-                ElvanSectionContainer {
+                    // Language-aware single name alone
+                    val appName = K.navNeram.tr(lang)
                     Text(
-                        "Built with ❤️ by Elvan Parthasarathy",
+                        text = appName,
                         style = TextStyle(
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = ElvanSansFontFamily
+                        ),
+                        color = colors.textPrimary
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Subtle "From Elvan Navil" below name
+                    Text(
+                        text = K.fromElvanNavil.tr(lang),
+                        style = TextStyle(
+                            fontSize = 13.5.sp,
+                            fontWeight = FontWeight.Normal,
                             fontFamily = ff
                         ),
-                        color = colors.textPrimary.copy(alpha = 0.4f),
-                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                        textAlign = TextAlign.Center
+                        color = colors.textSecondary.copy(alpha = 0.85f)
                     )
                 }
             }
         }
-}
 
+        item(key = "description_card") {
+            ElvanSectionContainer {
+                ElvanSettingsSection(colors = colors) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp)
+                    ) {
+                        Text(
+                            text = K.whatIsNeram.tr(lang),
+                            style = TextStyle(
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                fontFamily = ff
+                            ),
+                            color = colors.textPrimary,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        Text(
+                            text = K.aboutNeramDesc.tr(lang),
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                lineHeight = 22.sp,
+                                fontFamily = ff
+                            ),
+                            color = colors.textPrimary.copy(alpha = 0.7f),
+                            textAlign = TextAlign.Start
+                        )
+                    }
+                }
+            }
+        }
+
+        item(key = "features_section") {
+            ElvanSectionContainer {
+                ElvanSettingsSection(
+                    title = K.features.tr(lang),
+                    colors = colors
+                ) {
+                    ElvanSettingsRow(
+                        icon = Icons.Outlined.CalendarMonth,
+                        title = K.smartTimetable.tr(lang),
+                        description = K.smartTimetableDesc.tr(lang),
+                        onClick = {},
+                        colors = colors
+                    )
+                    ElvanSettingsDivider(colors = colors)
+                    ElvanSettingsRow(
+                        icon = Icons.Outlined.DateRange,
+                        title = K.examCalendar.tr(lang),
+                        description = K.examCalendarDesc.tr(lang),
+                        onClick = {},
+                        colors = colors
+                    )
+                    ElvanSettingsDivider(colors = colors)
+                    ElvanSettingsRow(
+                        icon = Icons.Outlined.Campaign,
+                        title = K.campusAnnouncements.tr(lang),
+                        description = K.campusAnnouncementsDesc.tr(lang),
+                        onClick = {},
+                        colors = colors
+                    )
+                    ElvanSettingsDivider(colors = colors)
+                    ElvanSettingsRow(
+                        icon = Icons.Outlined.OfflineBolt,
+                        title = K.offlineSupport.tr(lang),
+                        description = K.offlineSupportDesc.tr(lang),
+                        onClick = {},
+                        colors = colors
+                    )
+                    ElvanSettingsDivider(colors = colors)
+                    ElvanSettingsRow(
+                        icon = Icons.Outlined.Sync,
+                        title = K.cloudSync.tr(lang),
+                        description = K.cloudSyncDesc.tr(lang),
+                        onClick = {},
+                        colors = colors
+                    )
+                }
+            }
+        }
+    }
+}

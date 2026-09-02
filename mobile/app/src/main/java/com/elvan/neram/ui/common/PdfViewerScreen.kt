@@ -23,8 +23,10 @@ import androidx.compose.ui.zIndex
 import androidx.compose.ui.viewinterop.AndroidView
 import com.elvan.neram.ui.home.HomeColors
 import com.elvan.neram.ui.home.HomeShapes
-import com.elvan.neram.ui.home.HomeTypography
 import com.elvan.neram.ui.components.ExpressiveLoadingIndicator
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.util.FitPolicy
 import kotlinx.coroutines.Dispatchers
@@ -37,31 +39,40 @@ import java.net.URL
 @Composable
 fun PdfViewerScreen(
     url: String,
-    title: String = "Academic Calendar",
+    title: String? = null,
     onBack: () -> Unit = {},
     colors: HomeColors = com.elvan.neram.ui.home.rememberHomeColors()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val lang = LocalAppLanguage.current
+    val headerTitle = title ?: K.academicCalendar.tr(lang)
     
     var pdfFile by remember { mutableStateOf<File?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var isError by remember { mutableStateOf(false) }
 
-    // Download Logic
     fun downloadPdf() {
+        isLoading = true
+        isError = false
         scope.launch {
-            isLoading = true
-            isError = false
             try {
                 val file = withContext(Dispatchers.IO) {
-                    val fileName = "temp_pdf_${System.currentTimeMillis()}.pdf"
-                    val file = File(context.cacheDir, fileName)
-                    URL(url).openStream().use { input ->
-                        FileOutputStream(file).use { output ->
-                            input.copyTo(output)
-                        }
+                    val uri = URL(url)
+                    val connection = uri.openConnection()
+                    connection.connect()
+                    
+                    val file = File(context.cacheDir, "temp_view.pdf")
+                    val output = FileOutputStream(file)
+                    val input = connection.getInputStream()
+                    
+                    val buffer = ByteArray(4096)
+                    var bytesRead: Int
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
                     }
+                    output.close()
+                    input.close()
                     file
                 }
                 pdfFile = file
@@ -81,10 +92,7 @@ fun PdfViewerScreen(
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val ceiling = statusBarHeight + 20.dp
     val fadeHeight = ceiling + 50.dp + 32.dp
-
-    val pillColor = if (colors.isDark) Color(0xFF242424) else Color.White
-    val contentColor = if (colors.isDark) Color.White else Color(0xFF1E1E1E)
-    val canvasBg = if (colors.isDark) Color(0xFF121212) else Color(0xFFF2F4F7)
+    val canvasBg = colors.background
 
     Box(
         modifier = Modifier
@@ -102,8 +110,8 @@ fun PdfViewerScreen(
                     ExpressiveLoadingIndicator(color = colors.accent)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Downloading PDF...",
-                        style = HomeTypography.PillTitle,
+                        text = K.downloadingPdf.tr(lang),
+                        style = com.elvan.neram.ui.home.HomeTypography.PillTitle,
                         color = colors.textSecondary
                     )
                 }
@@ -116,14 +124,14 @@ fun PdfViewerScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ErrorOutline,
-                        contentDescription = "Error",
+                        contentDescription = K.error.tr(lang),
                         tint = colors.danger,
                         modifier = Modifier.size(48.dp)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Failed to load document",
-                        style = HomeTypography.PillTitle,
+                        text = K.failedToLoadDocument.tr(lang),
+                        style = com.elvan.neram.ui.home.HomeTypography.PillTitle,
                         color = colors.textPrimary
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -134,7 +142,7 @@ fun PdfViewerScreen(
                     ) {
                         Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Retry")
+                        Text(K.retry.tr(lang))
                     }
                 }
             }
@@ -197,7 +205,7 @@ fun PdfViewerScreen(
                 com.elvan.neram.ui.components.shell.ElvanTopBarIconButton(onClick = onBack) {
                     Icon(
                         imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = K.back.tr(lang),
                         tint = colors.textPrimary,
                         modifier = Modifier.size(22.dp)
                     )

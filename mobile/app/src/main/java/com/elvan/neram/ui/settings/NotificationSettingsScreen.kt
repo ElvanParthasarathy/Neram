@@ -25,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.utils.AlarmScheduler
@@ -136,13 +138,13 @@ fun NotificationSettingsScreen(
         item(key = "master_notifications") {
             ElvanSectionContainer {
                 ElvanSettingsSection(
-                    title = if (lang == AppStrings.TAMIL) "முக்கிய அமைப்பு" else "General",
+                    title = K.settings.tr(lang),
                     colors = colors
                 ) {
                     ElvanSettingsRow(
                         icon = Icons.Outlined.NotificationsActive,
-                        title = if (lang == AppStrings.TAMIL) "அனைத்து அறிவிப்புகள்" else "Allow Notifications",
-                        description = if (lang == AppStrings.TAMIL) "அனைத்து பயன்பாட்டு அறிவிப்புகளையும் அனுமதிக்கவும்" else "Master switch for all app notifications",
+                        title = K.allowNotifications.tr(lang),
+                        description = K.masterNotificationSwitch.tr(lang),
                         onClick = {
                             val next = !masterNotificationsEnabled
                             masterNotificationsEnabled = next
@@ -169,13 +171,13 @@ fun NotificationSettingsScreen(
             Box(modifier = Modifier.graphicsLayer { alpha = subSectionAlpha }) {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = AppStrings.Settings.pushNotifications(lang),
+                        title = K.pushNotifications.tr(lang),
                         colors = colors
                     ) {
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Article,
-                            title = if (lang == AppStrings.TAMIL) "தினசரி புதுப்பிப்புகள்" else "Daily Updates",
-                            description = if (lang == AppStrings.TAMIL) "தினசரி வகுப்பு குறிப்புகள் & கல்வி புதுப்பிப்புகள்" else "Daily class notes & academic updates",
+                            title = K.dailyUpdates.tr(lang),
+                            description = K.dailyUpdatesDesc.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !dailyUpdateEnabled
@@ -202,8 +204,8 @@ fun NotificationSettingsScreen(
 
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Campaign,
-                            title = if (lang == AppStrings.TAMIL) "பொது அறிவிப்புகள்" else "General Notices",
-                            description = if (lang == AppStrings.TAMIL) "கல்லூரியின் பொது அறிவிப்புகள்" else "General announcements from college",
+                            title = K.generalNoticesTitle.tr(lang),
+                            description = K.generalNoticesDesc.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !generalNoticeEnabled
@@ -230,8 +232,8 @@ fun NotificationSettingsScreen(
 
                         ElvanSettingsRow(
                             icon = Icons.Outlined.ViewTimeline,
-                            title = if (lang == AppStrings.TAMIL) "வகுப்பு அட்டவணை" else "Class Schedule",
-                            description = if (lang == AppStrings.TAMIL) "இன்றைய நேர அட்டவணை மற்றும் பாடங்கள்" else "Today's timetable and subjects",
+                            title = K.classScheduleTitle.tr(lang),
+                            description = K.classScheduleDesc.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !classScheduleEnabled
@@ -258,8 +260,8 @@ fun NotificationSettingsScreen(
 
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Science,
-                            title = "Lab Reminders",
-                            description = "Batch-specific labs and labcoat alerts",
+                            title = K.labReminders.tr(lang),
+                            description = K.labRemindersDesc.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !labRemindersEnabled
@@ -286,8 +288,8 @@ fun NotificationSettingsScreen(
 
                         ElvanSettingsRow(
                             icon = Icons.Outlined.AutoStories,
-                            title = "Study Reminders",
-                            description = "Motivation for upcoming exams",
+                            title = K.studyReminders.tr(lang),
+                            description = K.studyRemindersDesc.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !studyRemindersEnabled
@@ -314,8 +316,8 @@ fun NotificationSettingsScreen(
 
                         ElvanSettingsRow(
                             icon = Icons.Outlined.School,
-                            title = "Exam Alerts",
-                            description = "Reminders for Today / Tomorrow exams",
+                            title = K.examAlerts.tr(lang),
+                            description = K.examAlertsDesc.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !examAlertsEnabled
@@ -342,8 +344,8 @@ fun NotificationSettingsScreen(
 
                         ElvanSettingsRow(
                             icon = Icons.Outlined.CalendarMonth,
-                            title = "Event Reminders",
-                            description = "Holidays and special events",
+                            title = K.eventReminders.tr(lang),
+                            description = K.eventRemindersDesc.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !eventRemindersEnabled
@@ -370,8 +372,8 @@ fun NotificationSettingsScreen(
 
                         ElvanSettingsRow(
                             icon = Icons.Outlined.NotificationsActive,
-                            title = "Instant Alerts",
-                            description = "Critical instant announcements",
+                            title = K.instantAlerts.tr(lang),
+                            description = K.instantAlertsDesc.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !instantAlertsEnabled
@@ -404,13 +406,13 @@ fun NotificationSettingsScreen(
             Box(modifier = Modifier.graphicsLayer { alpha = subSectionAlpha }) {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = AppStrings.Settings.notificationTimings(lang),
+                        title = K.notificationTimings.tr(lang),
                         colors = colors
                     ) {
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Schedule,
-                            title = "Use Custom Times",
-                            description = if (useCustomTimes) "Using 3 custom alarm times" else "Using default college timings",
+                            title = K.useCustomTimes.tr(lang),
+                            description = if (useCustomTimes) K.usingCustomTimes.tr(lang) else K.usingDefaultTimes.tr(lang),
                             onClick = {
                                 if (masterNotificationsEnabled) {
                                     val next = !useCustomTimes
@@ -440,9 +442,9 @@ fun NotificationSettingsScreen(
 
                         // Render 3 Timing Rows
                         val slots = listOf(
-                            Triple("Morning Wake", if (useCustomTimes) customTime1Hour else 5, if (useCustomTimes) customTime1Minute else 30),
-                            Triple("Pre-College", if (useCustomTimes) customTime2Hour else 6, if (useCustomTimes) customTime2Minute else 30),
-                            Triple("College Entry", if (useCustomTimes) customTime3Hour else 7, if (useCustomTimes) customTime3Minute else 30)
+                            Triple(K.morningWake.tr(lang), if (useCustomTimes) customTime1Hour else 5, if (useCustomTimes) customTime1Minute else 30),
+                            Triple(K.preCollege.tr(lang), if (useCustomTimes) customTime2Hour else 6, if (useCustomTimes) customTime2Minute else 30),
+                            Triple(K.collegeEntry.tr(lang), if (useCustomTimes) customTime3Hour else 7, if (useCustomTimes) customTime3Minute else 30)
                         )
 
                         val timeEnabled = masterNotificationsEnabled && useCustomTimes
@@ -536,16 +538,18 @@ fun NotificationSettingsScreen(
 
 @Composable
 fun M3TimePickerDialog(
-    title: String = "Select Time",
+    title: String? = null,
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    val lang = LocalAppLanguage.current
+    val effectiveTitle = title ?: K.selectTime.tr(lang)
     AlertDialog(
         onDismissRequest = onCancel,
         title = {
             Text(
-                text = title,
+                text = effectiveTitle,
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
@@ -563,7 +567,7 @@ fun M3TimePickerDialog(
         confirmButton = {
             TextButton(onClick = onConfirm) {
                 Text(
-                    "OK",
+                    K.ok.tr(lang),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -572,7 +576,7 @@ fun M3TimePickerDialog(
         dismissButton = {
             TextButton(onClick = onCancel) {
                 Text(
-                    "Cancel",
+                    K.cancel.tr(lang),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

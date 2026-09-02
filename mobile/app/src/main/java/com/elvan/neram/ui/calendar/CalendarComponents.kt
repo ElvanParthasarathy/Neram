@@ -57,6 +57,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.platform.LocalContext
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.*
 import java.util.Locale
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -184,9 +185,9 @@ fun CalendarWidget(
         if (showHeader) {
             val currentYear = java.time.Year.now().value
             val monthTitle = if (currentMonth.year == currentYear) {
-                currentMonth.month.getDisplayName(TextStyle.SHORT, appLocale).uppercase()
+                currentMonth.month.toMozhiName(langPref, isShort = false).uppercase()
             } else {
-                "${currentMonth.month.getDisplayName(TextStyle.SHORT, appLocale).replaceFirstChar { it.uppercase() }} ${currentMonth.year}"
+                currentMonth.toMozhiString(langPref, isShort = false)
             }
             
             Box(
@@ -209,24 +210,9 @@ fun CalendarWidget(
         // Days Grid Headers (Sunday Start)
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             val daysOfWeek = listOf(DayOfWeek.SUNDAY) + DayOfWeek.values().filter { it != DayOfWeek.SUNDAY }
-            // Tamil day abbreviations: ஞா(யிறு), தி(ங்கள்), செ(வ்வாய்), பு(தன்), வி(யாழன்), வெ(ள்ளி), ச(னி)
-            val tamilDayAbbr = mapOf(
-                DayOfWeek.SUNDAY to "ஞா",
-                DayOfWeek.MONDAY to "தி",
-                DayOfWeek.TUESDAY to "செ",
-                DayOfWeek.WEDNESDAY to "பு",
-                DayOfWeek.THURSDAY to "வி",
-                DayOfWeek.FRIDAY to "வெ",
-                DayOfWeek.SATURDAY to "ச"
-            )
-            val isTamil = langPref == AppStrings.TAMIL || AppStrings.getEffectiveLanguage(langPref, context) == AppStrings.TAMIL
             daysOfWeek.forEach { day ->
                 val isSunday = day == DayOfWeek.SUNDAY
-                val dayText = if (isTamil) {
-                    tamilDayAbbr[day] ?: day.getDisplayName(TextStyle.SHORT, appLocale).take(1).uppercase()
-                } else {
-                    day.getDisplayName(TextStyle.SHORT, appLocale).take(1).uppercase()
-                }
+                val dayText = day.toMozhiName(langPref, isSingleLetter = true)
                 Text(
                     text = dayText,
                     fontSize = 12.sp,
@@ -337,7 +323,7 @@ fun YearMonthPickerDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = month.getDisplayName(TextStyle.SHORT, appLocale).uppercase(),
+                                    text = month.toMozhiName(langPref, isShort = true).uppercase(),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = if (isSelected) Color.White else colors.textPrimary
@@ -850,7 +836,7 @@ fun SelectedDaySection(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, appLocale).uppercase(),
+                    text = date.dayOfWeek.toMozhiName(langPref, isShort = true).uppercase(),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = colors.textSecondary
@@ -875,7 +861,7 @@ fun SelectedDaySection(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Face, 
-                            contentDescription = "Refresh",
+                            contentDescription = K.refresh.tr(langPref),
                             tint = colors.textSecondary,
                             modifier = Modifier.size(32.dp) // Increased from 24dp
                         )
@@ -886,7 +872,7 @@ fun SelectedDaySection(
         
         if (events.isEmpty()) {
             Text(
-                text = "No academic events scheduled.",
+                text = K.noAcademicEventsScheduled.tr(langPref),
                 fontSize = 14.sp,
                 color = colors.textSecondary.copy(alpha = 0.7f)
             )
@@ -1015,7 +1001,7 @@ fun AgendaItem(event: CalendarEvent, isSelected: Boolean, colors: HomeColors) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, appLocale).uppercase(),
+                    text = date.dayOfWeek.toMozhiName(langPref, isShort = true).uppercase(),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = colors.textSecondary
@@ -1042,16 +1028,81 @@ fun AgendaItem(event: CalendarEvent, isSelected: Boolean, colors: HomeColors) {
             Spacer(modifier = Modifier.width(12.dp))
             
             // Content
-            Column {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(vertical = 4.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = event.title,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
+                    color = colors.textPrimary,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+                val desc = event.description
+                if (!desc.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = desc,
+                        fontSize = 13.sp,
+                        color = colors.textSecondary,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    )
+                } else {
+                    Text(
+                        text = event.getTimeRangeDisplay(),
+                        fontSize = 13.sp,
+                        color = colors.textSecondary
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Event List Section for the selected month in Calendar.
+ */
+@Composable
+fun MonthEventList(
+    month: YearMonth,
+    events: List<CalendarEvent>,
+    colors: HomeColors,
+    modifier: Modifier = Modifier,
+    onDayClick: (LocalDate) -> Unit = {}
+) {
+    val langPref = LocalAppLanguage.current
+    if (events.isEmpty()) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(32.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = null,
+                    tint = colors.textSecondary.copy(alpha = 0.4f),
+                    modifier = Modifier.size(48.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = K.noEventsScheduled.tr(langPref),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
                     color = colors.textPrimary
                 )
                 Text(
-                    text = event.getTimeRangeDisplay(),
-                    fontSize = 13.sp,
+                    text = "${month.month.toMozhiMonthName(langPref)} ${month.year}",
+                    fontSize = 14.sp,
                     color = colors.textSecondary
                 )
             }
@@ -1260,13 +1311,13 @@ fun MonthScheduleList(
                 Spacer(modifier = Modifier.height(24.dp))
                 
                 Text(
-                    text = "No academic events",
+                    text = K.noAcademicEvents.tr(langPref),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = colors.textPrimary
                 )
                 Text(
-                    text = "for ${month.month.getDisplayName(TextStyle.FULL, appLocale)}",
+                    text = "${month.month.toMozhiMonthName(langPref)} ${month.year}",
                     fontSize = 14.sp,
                     color = colors.textSecondary
                 )

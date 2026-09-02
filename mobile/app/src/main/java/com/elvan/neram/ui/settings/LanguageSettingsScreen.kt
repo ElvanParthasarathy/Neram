@@ -11,6 +11,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
@@ -31,63 +33,71 @@ fun LanguageSettingsScreen(
         contentPadding = PaddingValues(bottom = HomeDimens.SubpageContentPaddingBottom),
         verticalArrangement = Arrangement.spacedBy(HomeDimens.SectionSpacing)
     ) {
-            item(key = "spacer_top") {
-                Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
-            }
+        item(key = "spacer_top") {
+            Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
+        }
 
-            item(key = "language_section") {
-                ElvanSectionContainer {
-                    ElvanSettingsSection(colors = colors) {
-                        // System default / Device Language Option
-                        ElvanRadioSettingsRow(
-                            title = AppStrings.Settings.deviceLanguage(lang),
-                            value = AppStrings.SYSTEM,
-                            groupValue = currentLanguage,
-                            onSelected = { onLanguageChange(AppStrings.SYSTEM) },
-                            colors = colors
-                        )
+        item(key = "language_section") {
+            ElvanSectionContainer {
+                ElvanSettingsSection(colors = colors) {
+                    // 1. System default / Device Language Option
+                    ElvanRadioSettingsRow(
+                        title = K.deviceLanguage.tr(lang),
+                        value = AppStrings.SYSTEM,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(AppStrings.SYSTEM) },
+                        colors = colors
+                    )
 
-                        ElvanSettingsDivider(colors = colors)
+                    ElvanSettingsDivider(colors = colors)
 
-                        // English Option
-                        ElvanRadioSettingsRow(
-                            title = AppStrings.Settings.english(lang),
-                            value = AppStrings.ENGLISH,
-                            groupValue = currentLanguage,
-                            onSelected = { onLanguageChange(AppStrings.ENGLISH) },
-                            colors = colors
-                        )
+                    // 2. English Option
+                    ElvanRadioSettingsRow(
+                        title = K.english.tr(lang),
+                        value = AppStrings.ENGLISH,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(AppStrings.ENGLISH) },
+                        colors = colors
+                    )
 
-                        ElvanSettingsDivider(colors = colors)
+                    ElvanSettingsDivider(colors = colors)
 
-                        // Tamil Option
-                        ElvanRadioSettingsRow(
-                            title = AppStrings.Settings.tamil(lang),
-                            value = AppStrings.TAMIL,
-                            groupValue = currentLanguage,
-                            onSelected = { onLanguageChange(AppStrings.TAMIL) },
-                            colors = colors
-                        )
-                    }
-                }
-            }
+                    // 3. Tamil Option (தமிழ்)
+                    ElvanRadioSettingsRow(
+                        title = K.tamil.tr(lang),
+                        value = AppStrings.TAMIL,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(AppStrings.TAMIL) },
+                        colors = colors
+                    )
 
-            item(key = "info_text") {
-                ElvanSectionContainer {
-                    Text(
-                        text = if (lang == AppStrings.TAMIL)
-                            "மொழி மாற்றம் வழிசெலுத்தல், முகப்பு மெனு மற்றும் அமைப்புகளுக்கு மட்டுமே பொருந்தும். பாடநேர அட்டவணை தரவு மாறாது."
-                        else
-                            "Language change applies only to navigation, home menu, and settings. Timetable data will not change.",
-                        style = TextStyle(
-                            fontFamily = ff,
-                            fontSize = 13.sp,
-                            lineHeight = 18.sp
-                        ),
-                        color = colors.textPrimary.copy(alpha = 0.5f),
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                    ElvanSettingsDivider(colors = colors)
+
+                    // 4. Tanglish / Tamil Latin Option
+                    ElvanRadioSettingsRow(
+                        title = K.tamilLatin.tr(lang),
+                        value = AppStrings.TAMIL_LATIN,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(AppStrings.TAMIL_LATIN) },
+                        colors = colors
                     )
                 }
             }
         }
+
+        item(key = "info_text") {
+            ElvanSectionContainer {
+                Text(
+                    text = K.languageInfo.tr(lang),
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 13.sp,
+                        lineHeight = 18.sp
+                    ),
+                    color = colors.textPrimary.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+        }
+    }
 }

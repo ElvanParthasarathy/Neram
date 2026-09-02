@@ -1,32 +1,39 @@
-package com.elvan.neram.ui.home.components
+﻿package com.elvan.neram.ui.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.data.model.FeatureCard
 import com.elvan.neram.ui.home.HomeColors
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 /**
- * Simple Banner / Tips Carousel
+ * Banner / Tips Carousel with compact locked height and bottom sheet expansion.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ElvanTipsCarousel(
     cards: List<FeatureCard>,
@@ -38,6 +45,7 @@ fun ElvanTipsCarousel(
     if (cards.isEmpty()) return
 
     val lang = LocalAppLanguage.current
+    var selectedDetailCard by remember { mutableStateOf<FeatureCard?>(null) }
 
     if (cards.size == 1) {
         val card = cards.first()
@@ -47,6 +55,7 @@ fun ElvanTipsCarousel(
             lang = lang,
             onDismiss = { onDismiss(card.id) },
             onAction = { onAction(card.actionRoute) },
+            onExpand = { selectedDetailCard = card },
             modifier = modifier
         )
     } else {
@@ -68,7 +77,8 @@ fun ElvanTipsCarousel(
                         colors = colors,
                         lang = lang,
                         onDismiss = { onDismiss(card.id) },
-                        onAction = { onAction(card.actionRoute) }
+                        onAction = { onAction(card.actionRoute) },
+                        onExpand = { selectedDetailCard = card }
                     )
                 }
             }
@@ -101,10 +111,24 @@ fun ElvanTipsCarousel(
             }
         }
     }
+
+    // Detail Bottom Sheet when expanded
+    selectedDetailCard?.let { card ->
+        FeatureCardDetailBottomSheet(
+            card = card,
+            colors = colors,
+            lang = lang,
+            onDismissRequest = { selectedDetailCard = null },
+            onAction = {
+                selectedDetailCard = null
+                onAction(card.actionRoute)
+            }
+        )
+    }
 }
 
 /**
- * Simple Banner Card (Standard Neram Surface Card)
+ * Compact Locked-Size Banner Card
  */
 @Composable
 fun ElvanTipsCard(
@@ -113,13 +137,21 @@ fun ElvanTipsCard(
     lang: String,
     onDismiss: () -> Unit,
     onAction: () -> Unit,
+    onExpand: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val ff = LocalAppFontFamily.current
     val isDark = colors.isDark
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = ripple(color = colors.accent.copy(alpha = 0.2f)),
+                onClick = onExpand
+            ),
         shape = RoundedCornerShape(20.dp),
         color = colors.surface,
         shadowElevation = 0.dp
@@ -136,9 +168,10 @@ fun ElvanTipsCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Typable Tag from Admin Panel
-                if (card.badge.isNotBlank()) {
+                val badgeText = card.getLocalizedBadge(lang)
+                if (badgeText.isNotBlank()) {
                     Text(
-                        text = card.badge.uppercase(),
+                        text = if (lang == "en") badgeText.uppercase() else badgeText,
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp,
@@ -160,28 +193,30 @@ fun ElvanTipsCard(
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.Close,
-                        contentDescription = "Dismiss",
+                        contentDescription = K.dismiss.tr(lang),
                         modifier = Modifier.size(15.dp),
                         tint = colors.textSecondary.copy(alpha = 0.6f)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // Title
+            // Title (Max 1 line locked)
             Text(
                 text = card.getLocalizedTitle(lang),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontFamily = ff,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.5.sp,
-                    lineHeight = 20.sp
+                    fontSize = 15.sp,
+                    lineHeight = 19.sp
                 ),
-                color = colors.textPrimary
+                color = colors.textPrimary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
 
-            // Description
+            // Description (Max 2 lines locked)
             val desc = card.getLocalizedDescription(lang)
             if (desc.isNotBlank()) {
                 Spacer(modifier = Modifier.height(3.dp))
@@ -190,38 +225,174 @@ fun ElvanTipsCard(
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = ff,
                         fontWeight = FontWeight.Normal,
-                        fontSize = 13.sp,
-                        lineHeight = 18.sp
+                        fontSize = 12.5.sp,
+                        lineHeight = 17.sp
+                    ),
+                    color = colors.textSecondary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            // Bottom Row: Action or Read More
+            val hasAction = card.actionRoute.isNotBlank() || card.actionText.isNotBlank()
+            val isLongContent = desc.length > 70 || desc.contains("\n")
+
+            if (hasAction || isLongContent) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (hasAction) {
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50))
+                                .clickable(onClick = onAction)
+                                .padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = card.getLocalizedActionText(lang),
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontFamily = ff,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 12.sp
+                                ),
+                                color = colors.accent
+                            )
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
+                                contentDescription = null,
+                                modifier = Modifier.size(12.dp),
+                                tint = colors.accent
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(1.dp))
+                    }
+
+                    if (isLongContent) {
+                        Text(
+                            text = K.readMore.tr(lang),
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontFamily = ff,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.5.sp
+                            ),
+                            color = colors.accent,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50))
+                                .clickable(onClick = onExpand)
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Full details bottom sheet modal when user expands a card.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FeatureCardDetailBottomSheet(
+    card: FeatureCard,
+    colors: HomeColors,
+    lang: String,
+    onDismissRequest: () -> Unit,
+    onAction: () -> Unit
+) {
+    val ff = LocalAppFontFamily.current
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        containerColor = colors.surface,
+        contentColor = colors.textPrimary,
+        scrimColor = Color.Black.copy(alpha = 0.5f)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Top Badge
+            val badgeText = card.getLocalizedBadge(lang)
+            if (badgeText.isNotBlank()) {
+                Text(
+                    text = if (lang == "en") badgeText.uppercase() else badgeText,
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
+                        letterSpacing = 0.5.sp
+                    ),
+                    color = colors.accent,
+                    modifier = Modifier.padding(bottom = 6.dp)
+                )
+            }
+
+            // Full Title
+            Text(
+                text = card.getLocalizedTitle(lang),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontFamily = ff,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 20.sp,
+                    lineHeight = 26.sp
+                ),
+                color = colors.textPrimary
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Full Description
+            val desc = card.getLocalizedDescription(lang)
+            if (desc.isNotBlank()) {
+                Text(
+                    text = desc,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = ff,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 15.sp,
+                        lineHeight = 22.sp
                     ),
                     color = colors.textSecondary
                 )
             }
 
-            // Action Button
-            if (card.actionRoute.isNotBlank() || card.actionText.isNotBlank()) {
-                Spacer(modifier = Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .clickable(onClick = onAction)
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+            // Action Button inside bottom sheet
+            val hasAction = card.actionRoute.isNotBlank() || card.actionText.isNotBlank()
+            if (hasAction) {
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onAction,
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = colors.accent,
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = card.getLocalizedActionText(lang),
-                        style = MaterialTheme.typography.labelMedium.copy(
+                        style = MaterialTheme.typography.labelLarge.copy(
                             fontFamily = ff,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 12.5.sp
+                            fontWeight = FontWeight.Bold
                         ),
-                        color = colors.accent
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
                         contentDescription = null,
-                        modifier = Modifier.size(13.dp),
-                        tint = colors.accent
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }

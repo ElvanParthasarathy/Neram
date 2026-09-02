@@ -1,6 +1,8 @@
-﻿package com.elvan.neram.ui.navigation
+package com.elvan.neram.ui.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 enum class NavTab(
     val icon: ImageVector,
@@ -26,7 +28,14 @@ enum class NavTab(
         icon = MaterialSymbols.Rounded.Notes,
         activeIcon = MaterialSymbols.Rounded.NotesFill,
         label = "Notes"
-    )
+    );
+
+    fun getLocalizedLabel(lang: String): String = when (this) {
+        Home -> K.home.tr(lang)
+        Schedule -> K.schedule.tr(lang)
+        Calendar -> K.calendar.tr(lang)
+        Notes -> K.notes.tr(lang)
+    }
 }
 
 object CustomIcons {

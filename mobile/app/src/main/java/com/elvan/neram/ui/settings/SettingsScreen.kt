@@ -20,12 +20,15 @@ import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.theme.AppColors
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 @Composable
 fun SettingsScreen(
     userRole: String? = null,
     userProfile: UserProfile? = null,
     onNavigateToProfile: () -> Unit,
+    onNavigateToAccount: () -> Unit = {},
     onNavigateToSecurity: () -> Unit,
     onNavigateToDisplay: () -> Unit,
     onNavigateToComplaint: () -> Unit,
@@ -33,8 +36,9 @@ fun SettingsScreen(
     onNavigateToLanguage: () -> Unit,
     onNavigateToUserDirectory: () -> Unit,
     onNavigateToAboutApp: () -> Unit,
-    onNavigateToManagementTeam: () -> Unit,
-    onNavigateToAboutRMK: () -> Unit,
+    onNavigateToElvanNavil: () -> Unit = {},
+    onNavigateToManagementTeam: () -> Unit = {},
+    onNavigateToAboutRMK: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onLogout: () -> Unit = {},
     scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: rememberLazyListState()
@@ -103,17 +107,25 @@ fun SettingsScreen(
                 ElvanSectionContainer {
                     ElvanSettingsSection(colors = colors) {
                         ElvanSettingsRow(
+                            icon = Icons.Outlined.ManageAccounts,
+                            title = K.accounts.tr(lang),
+                            description = K.accountsDesc.tr(lang),
+                            onClick = onNavigateToAccount,
+                            colors = colors
+                        )
+                        ElvanSettingsDivider(colors = colors)
+                        ElvanSettingsRow(
                             icon = Icons.Outlined.Lock,
-                            title = AppStrings.Settings.security(lang),
-                            description = AppStrings.Settings.securityDesc(lang),
+                            title = K.security.tr(lang),
+                            description = K.securityDesc.tr(lang),
                             onClick = onNavigateToSecurity,
                             colors = colors
                         )
                         ElvanSettingsDivider(colors = colors)
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Person,
-                            title = AppStrings.Settings.userDirectory(lang),
-                            description = if (lang == AppStrings.TAMIL) "மாணவர்கள் & ஆசிரியர்கள் அடைவு" else "Students & faculty directory",
+                            title = K.userDirectory.tr(lang),
+                            description = K.userDirectoryDesc.tr(lang),
                             onClick = onNavigateToUserDirectory,
                             colors = colors
                         )
@@ -121,23 +133,15 @@ fun SettingsScreen(
                 }
             }
 
-            // 4. Settings Group: About & Institution
+            // 4. Settings Group: About & Brand
             item(key = "about_group") {
                 ElvanSectionContainer {
                     ElvanSettingsSection(colors = colors) {
                         ElvanSettingsRow(
-                            icon = Icons.Outlined.Groups,
-                            title = AppStrings.Settings.managementTeam(lang),
-                            description = if (lang == AppStrings.TAMIL) "நிறுவனர்கள் & இயக்குநர் குழு" else "Founders & Board of Directors",
-                            onClick = onNavigateToManagementTeam,
-                            colors = colors
-                        )
-                        ElvanSettingsDivider(colors = colors)
-                        ElvanSettingsRow(
-                            icon = Icons.Outlined.AccountBalance,
-                            title = AppStrings.Settings.aboutRmk(lang),
-                            description = if (lang == AppStrings.TAMIL) "பார்வை, பணி & அடையாளம்" else "Vision, Mission & Identity",
-                            onClick = onNavigateToAboutRMK,
+                            icon = Icons.Outlined.Code,
+                            title = K.aboutDeveloper.tr(lang),
+                            description = K.aboutDeveloperDesc.tr(lang),
+                            onClick = onNavigateToDeveloper,
                             colors = colors
                         )
                         ElvanSettingsDivider(colors = colors)
@@ -146,6 +150,14 @@ fun SettingsScreen(
                             title = AppStrings.Settings.aboutApp(lang),
                             description = AppStrings.Settings.aboutAppDesc(lang),
                             onClick = onNavigateToAboutApp,
+                            colors = colors
+                        )
+                        ElvanSettingsDivider(colors = colors)
+                        ElvanSettingsRow(
+                            icon = Icons.Outlined.AutoAwesome,
+                            title = AppStrings.Settings.elvanNavil(lang),
+                            description = AppStrings.Settings.elvanNavilDesc(lang),
+                            onClick = onNavigateToElvanNavil,
                             colors = colors
                         )
                     }

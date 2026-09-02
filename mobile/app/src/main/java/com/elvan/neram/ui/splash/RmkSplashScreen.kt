@@ -61,7 +61,7 @@ fun RmkSplashScreen(isDarkTheme: Boolean = false) {
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_splash_logo),
-                contentDescription = "Neram Logo",
+                contentDescription = null,
                 modifier = Modifier.size(180.dp),
                 colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(textPrimary)
             )

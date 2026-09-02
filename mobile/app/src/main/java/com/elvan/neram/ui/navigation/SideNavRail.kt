@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.navigation
+package com.elvan.neram.ui.navigation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
@@ -46,17 +46,12 @@ fun SideNavRail(
                 icon = {
                     Icon(
                         imageVector = tab.icon,
-                        contentDescription = tab.label
+                        contentDescription = tab.getLocalizedLabel(lang)
                     )
                 },
                 label = {
                     Text(
-                        text = when(tab) {
-                            NavTab.Home -> AppStrings.Nav.home(lang)
-                            NavTab.Schedule -> AppStrings.Nav.schedule(lang)
-                            NavTab.Calendar -> AppStrings.Nav.calendar(lang)
-                            NavTab.Notes -> AppStrings.Nav.notes(lang)
-                        },
+                        text = tab.getLocalizedLabel(lang),
                         fontSize = 11.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         fontFamily = LocalAppFontFamily.current

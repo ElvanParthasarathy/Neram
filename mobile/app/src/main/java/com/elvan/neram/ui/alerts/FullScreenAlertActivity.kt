@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.alerts
+package com.elvan.neram.ui.alerts
 
 import android.app.KeyguardManager
 import android.content.Context
@@ -22,17 +22,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.theme.NeramTheme
+import com.elvan.neram.ui.theme.LocalAppLanguage
 
 class FullScreenAlertActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         showOnLockScreen()
         super.onCreate(savedInstanceState)
         
-        val title = intent.getStringExtra("title") ?: "Emergency Alert"
-        val message = intent.getStringExtra("message") ?: "Important update from college."
+        val rawTitle = intent.getStringExtra("title")
+        val rawMessage = intent.getStringExtra("message")
         
         setContent {
+            val lang = LocalAppLanguage.current
+            val title = rawTitle ?: K.cardAlert.tr(lang)
+            val message = rawMessage ?: K.instantAlertsDesc.tr(lang)
+
             NeramTheme(darkTheme = true) { // Always dark for alerts
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -87,7 +94,7 @@ class FullScreenAlertActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .height(56.dp)
                         ) {
-                            Text("Dismiss", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            Text(K.dismiss.tr(lang), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }

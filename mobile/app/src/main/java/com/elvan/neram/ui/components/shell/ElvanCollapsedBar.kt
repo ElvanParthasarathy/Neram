@@ -27,6 +27,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.zIndex
 import com.elvan.neram.ui.home.HomeColors
 import com.elvan.neram.ui.home.HomeTypography
+import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 @Composable
 fun ElvanTopBarIconButton(
@@ -102,11 +105,12 @@ fun ElvanCollapsedBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (onBack != null) {
+                    val lang = LocalAppLanguage.current
                     ElvanPill(liftProgress = liftProgress, colors = colors, modifier = Modifier.size(50.dp)) {
                         ElvanTopBarIconButton(onClick = onBack) {
                             Icon(
                                 imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
-                                contentDescription = "Back",
+                                contentDescription = K.back.tr(lang),
                                 tint = colors.textPrimary,
                                 modifier = Modifier.size(22.dp)
                             )
@@ -229,11 +233,12 @@ fun ElvanStaticCollapsedBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (onBack != null) {
+                val lang = LocalAppLanguage.current
                 ElvanPill(liftProgress = 1.0f, colors = colors, modifier = Modifier.size(50.dp)) {
                     ElvanTopBarIconButton(onClick = onBack) {
                         Icon(
                             imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = K.back.tr(lang),
                             tint = colors.textPrimary,
                             modifier = Modifier.size(22.dp)
                         )

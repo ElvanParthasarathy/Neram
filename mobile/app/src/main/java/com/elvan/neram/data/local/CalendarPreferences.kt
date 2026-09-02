@@ -1,10 +1,12 @@
-﻿package com.elvan.neram.data.local
+package com.elvan.neram.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.DayOfWeek
+import com.elvan.neram.ui.mozhiyaakkam.toMozhiName
 
 /**
  * Preferences for NeramCalendar settings.
@@ -60,15 +62,15 @@ class CalendarPreferences(context: Context) {
         prefs.edit().putInt("week_start_day", day).apply()
     }
     
-    fun getWeekStartDayName(): String = when (_weekStartDay.value) {
-        1 -> "Monday"
-        2 -> "Tuesday"
-        3 -> "Wednesday"
-        4 -> "Thursday"
-        5 -> "Friday"
-        6 -> "Saturday"
-        7 -> "Sunday"
-        else -> "Monday"
+    fun getWeekStartDayName(lang: String = "en"): String = when (_weekStartDay.value) {
+        1 -> DayOfWeek.MONDAY.toMozhiName(lang)
+        2 -> DayOfWeek.TUESDAY.toMozhiName(lang)
+        3 -> DayOfWeek.WEDNESDAY.toMozhiName(lang)
+        4 -> DayOfWeek.THURSDAY.toMozhiName(lang)
+        5 -> DayOfWeek.FRIDAY.toMozhiName(lang)
+        6 -> DayOfWeek.SATURDAY.toMozhiName(lang)
+        7 -> DayOfWeek.SUNDAY.toMozhiName(lang)
+        else -> DayOfWeek.MONDAY.toMozhiName(lang)
     }
     
     // Default Calendar ID for new events

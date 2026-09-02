@@ -46,6 +46,9 @@ import com.elvan.neram.ui.theme.AppColors
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -109,8 +112,6 @@ fun SecuritySettingsScreen(
                 SecurityHub(
                     colors = colors,
                     onNavigate = { currentView = it },
-                    onNavigateToLinkedAccounts = onNavigateToLinkedAccounts,
-                    onLogout = onLogout,
                     scrollState = scrollState
                 )
             }
@@ -125,7 +126,7 @@ fun SecuritySettingsScreen(
                 )
             }
             "create_password" -> ElvanSubShell(
-                title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
+                title = com.elvan.neram.ui.mozhiyaakkam.K.createPassword.tr(lang),
                 onBack = { currentView = "hub" },
                 colors = colors
             ) {
@@ -152,14 +153,11 @@ fun SecuritySettingsScreen(
 private fun SecurityHub(
     colors: HomeColors,
     onNavigate: (String) -> Unit,
-    onNavigateToLinkedAccounts: () -> Unit,
-    onLogout: () -> Unit,
     scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val user = Firebase.auth.currentUser
     val hasPasswordProvider = user?.providerData?.any { it.providerId == "password" } ?: false
     val lang = LocalAppLanguage.current
-    var showLogoutDialog by remember { mutableStateOf(false) }
     
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -172,51 +170,29 @@ private fun SecurityHub(
                 Spacer(Modifier.height(LocalElvanTopSpacerHeight.current))
             }
 
-            item(key = "account_section") {
+            item(key = "password_section") {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = AppStrings.Settings.account(lang),
+                        title = K.changePassword.tr(lang),
                         colors = colors
                     ) {
                         if (hasPasswordProvider) {
                             ElvanSettingsRow(
                                 icon = Icons.Outlined.Key,
-                                title = AppStrings.Settings.changePassword(lang),
-                                description = if (lang == AppStrings.TAMIL) "உங்கள் கடவுச்சொல்லை புதுப்பிக்கவும்" else "Update your login password",
+                                title = K.changePassword.tr(lang),
+                                description = K.updateLoginPassword.tr(lang),
                                 onClick = { onNavigate("password") },
                                 colors = colors
                             )
                         } else {
                             ElvanSettingsRow(
                                 icon = Icons.Outlined.Key,
-                                title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
-                                description = if (lang == AppStrings.TAMIL) "மின்னஞ்சல் உள்நுழைவுக்கு கடவுச்சொல் அமைக்கவும்" else "Set a password for email login",
+                                title = K.createPasswordTitle.tr(lang),
+                                description = K.setPasswordEmailLogin.tr(lang),
                                 onClick = { onNavigate("create_password") },
                                 colors = colors
                             )
                         }
-                        
-                        ElvanSettingsDivider(colors = colors)
-                        
-                        ElvanSettingsRow(
-                            icon = Icons.Outlined.Link,
-                            title = if (lang == AppStrings.TAMIL) "இணைக்கப்பட்ட கணக்குகள்" else "Linked Accounts",
-                            description = if (lang == AppStrings.TAMIL) "Google உள்நுழைவை நிர்வகி" else "Manage Google sign-in",
-                            onClick = { onNavigateToLinkedAccounts() },
-                            colors = colors
-                        )
-
-                        ElvanSettingsDivider(colors = colors)
-
-                        ElvanSettingsRow(
-                            icon = Icons.AutoMirrored.Outlined.Logout,
-                            title = AppStrings.Settings.signOut(lang),
-                            description = if (lang == AppStrings.TAMIL) "நேரம் கணக்கிலிருந்து வெளியேறு" else "Log out of your Neram account",
-                            onClick = { showLogoutDialog = true },
-                            titleColor = AppColors.Red,
-                            iconTint = AppColors.Red,
-                            colors = colors
-                        )
                     }
                 }
             }
@@ -224,13 +200,13 @@ private fun SecurityHub(
             item(key = "danger_zone") {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = AppStrings.Settings.dangerZone(lang),
+                        title = K.dangerZone.tr(lang),
                         colors = colors
                     ) {
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Warning,
-                            title = AppStrings.Settings.deleteAccount(lang),
-                            description = if (lang == AppStrings.TAMIL) "உங்கள் கணக்கை நிரந்தரமாக நீக்கு" else "Permanently remove your account",
+                            title = K.deleteAccount.tr(lang),
+                            description = K.permanentlyRemoveAccount.tr(lang),
                             onClick = { onNavigate("delete") },
                             titleColor = AppColors.Red,
                             iconTint = AppColors.Red,
@@ -239,63 +215,6 @@ private fun SecurityHub(
                     }
                 }
             }
-        }
-
-        if (showLogoutDialog) {
-            val isDark = colors.isDark
-            val dialogCardColor = if (isDark) Color(0xFF111111) else Color.White
-            val cancelBtnBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
-            val ff = LocalAppFontFamily.current
-
-            AlertDialog(
-                onDismissRequest = { showLogoutDialog = false },
-                containerColor = dialogCardColor,
-                shape = RoundedCornerShape(24.dp),
-                icon = { Icon(Icons.AutoMirrored.Outlined.Logout, null, tint = AppColors.Red) },
-                title = {
-                    Text(
-                        AppStrings.Settings.signOutConfirm(lang),
-                        style = TextStyle(fontFamily = ff, fontSize = 20.sp, fontWeight = FontWeight.Bold),
-                        color = colors.textPrimary
-                    )
-                },
-                text = {
-                    Text(
-                        AppStrings.Settings.signOutMessage(lang),
-                        style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Normal),
-                        color = colors.textPrimary.copy(alpha = 0.6f)
-                    )
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            showLogoutDialog = false
-                            onLogout()
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = AppColors.Red,
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(50),
-                        elevation = ButtonDefaults.buttonElevation(0.dp)
-                    ) {
-                        Text(AppStrings.Settings.signOut(lang), style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold))
-                    }
-                },
-                dismissButton = {
-                    FilledTonalButton(
-                        onClick = { showLogoutDialog = false },
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = cancelBtnBg,
-                            contentColor = colors.textPrimary
-                        ),
-                        shape = RoundedCornerShape(50),
-                        elevation = ButtonDefaults.buttonElevation(0.dp)
-                    ) {
-                        Text(AppStrings.Home.cancel(lang), style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium))
-                    }
-                }
-            )
         }
     }
 }
@@ -341,7 +260,7 @@ private fun ChangePasswordFlow(
         item(key = "content_card") {
             ElvanSectionContainer {
                 ElvanSettingsSection(
-                    title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் மாற்றம்" else "Change Password",
+                    title = K.changePassword.tr(lang),
                     colors = colors
                 ) {
                     Column(
@@ -383,7 +302,7 @@ private fun ChangePasswordFlow(
                         when (step) {
                             1 -> {
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "உங்கள் தற்போதைய கடவுச்சொல்லை உள்ளிடவும்" else "Enter your current password",
+                                    text = K.enterCurrentPassword.tr(lang),
                                     style = TextStyle(
                                         fontFamily = ff,
                                         fontSize = 17.sp,
@@ -395,7 +314,7 @@ private fun ChangePasswordFlow(
                                 Spacer(modifier = Modifier.height(6.dp))
                                 
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "தொடர்வதற்கு முன் உங்கள் அடையாளத்தை உறுதிப்படுத்தவும்." else "Confirm your identity before setting a new password.",
+                                    text = K.confirmIdentityBeforeNewPassword.tr(lang),
                                     style = TextStyle(
                                         fontFamily = ff,
                                         fontSize = 13.sp,
@@ -407,10 +326,10 @@ private fun ChangePasswordFlow(
                                 Spacer(modifier = Modifier.height(20.dp))
                                 
                                 ElvanPasswordTextField(
-                                    label = if (lang == AppStrings.TAMIL) "தற்போதைய கடவுச்சொல்" else "Current Password",
+                                    label = K.currentPassword.tr(lang),
                                     value = currentPassword,
                                     onValueChange = { currentPassword = it; errorMessage = null },
-                                    placeholder = if (lang == AppStrings.TAMIL) "கடவுச்சொல்லை உள்ளிடவும்" else "Enter current password",
+                                    placeholder = K.enterCurrentPassword.tr(lang),
                                     showPassword = showPassword,
                                     onToggleVisibility = { showPassword = !showPassword },
                                     colors = colors
@@ -431,7 +350,7 @@ private fun ChangePasswordFlow(
                                 Button(
                                     onClick = {
                                         if (currentPassword.isEmpty()) {
-                                            errorMessage = if (lang == AppStrings.TAMIL) "கடவுச்சொல்லை உள்ளிடவும்" else "Please enter your password"
+                                            errorMessage = K.enterCurrentPassword.tr(lang)
                                             return@Button
                                         }
                                         isProcessing = true
@@ -444,7 +363,7 @@ private fun ChangePasswordFlow(
                                                 }
                                                 .addOnFailureListener {
                                                     isProcessing = false
-                                                    errorMessage = if (lang == AppStrings.TAMIL) "தவறான கடவுச்சொல்" else "Incorrect password"
+                                                    errorMessage = K.incorrectPassword.tr(lang)
                                                 }
                                         }
                                     },
@@ -467,7 +386,7 @@ private fun ChangePasswordFlow(
                                         )
                                     } else {
                                         Text(
-                                            text = if (lang == AppStrings.TAMIL) "சரிபார்த்து தொடரவும்" else "Verify & Continue",
+                                            text = K.verifyAndContinue.tr(lang),
                                             style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                         )
                                     }
@@ -482,7 +401,7 @@ private fun ChangePasswordFlow(
                                                 .addOnSuccessListener {
                                                     Toast.makeText(
                                                         context,
-                                                        if (lang == AppStrings.TAMIL) "மீட்டமைப்பு மின்னஞ்சல் $email முகவரிக்கு அனுப்பப்பட்டது" else "Reset email sent to $email",
+                                                        K.resetEmailSent.trWithLang(lang, email),
                                                         Toast.LENGTH_LONG
                                                     ).show()
                                                 }
@@ -494,7 +413,7 @@ private fun ChangePasswordFlow(
                                     modifier = Modifier.align(Alignment.CenterHorizontally)
                                 ) {
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "கடவுச்சொல் மறந்துவிட்டதா?" else "Forgot Password?",
+                                        text = K.forgotPassword.tr(lang),
                                         style = TextStyle(
                                             fontFamily = ff,
                                             fontSize = 14.sp,
@@ -507,7 +426,7 @@ private fun ChangePasswordFlow(
                             
                             2 -> {
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "புதிய கடவுச்சொல்லை உருவாக்கவும்" else "Create your new password",
+                                    text = K.createNewPassword.tr(lang),
                                     style = TextStyle(
                                         fontFamily = ff,
                                         fontSize = 17.sp,
@@ -519,10 +438,10 @@ private fun ChangePasswordFlow(
                                 Spacer(modifier = Modifier.height(20.dp))
                                 
                                 ElvanPasswordTextField(
-                                    label = if (lang == AppStrings.TAMIL) "புதிய கடவுச்சொல்" else "New Password",
+                                    label = K.newPassword.tr(lang),
                                     value = newPassword,
                                     onValueChange = { newPassword = it },
-                                    placeholder = if (lang == AppStrings.TAMIL) "புதிய கடவுச்சொல்லை உள்ளிடவும்" else "Enter new password",
+                                    placeholder = K.enterNewPassword.tr(lang),
                                     showPassword = showPassword,
                                     onToggleVisibility = { showPassword = !showPassword },
                                     colors = colors
@@ -531,10 +450,10 @@ private fun ChangePasswordFlow(
                                 Spacer(modifier = Modifier.height(12.dp))
                                 
                                 ElvanPasswordTextField(
-                                    label = if (lang == AppStrings.TAMIL) "கடவுச்சொல்லை உறுதிப்படுத்தவும்" else "Confirm New Password",
+                                    label = K.confirmNewPassword.tr(lang),
                                     value = confirmPassword,
                                     onValueChange = { confirmPassword = it },
-                                    placeholder = if (lang == AppStrings.TAMIL) "மீண்டும் உள்ளிடவும்" else "Confirm password",
+                                    placeholder = K.confirmPassword.tr(lang),
                                     showPassword = showPassword,
                                     onToggleVisibility = { showPassword = !showPassword },
                                     colors = colors
@@ -549,13 +468,13 @@ private fun ChangePasswordFlow(
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         ValidationRow(
-                                            text = if (lang == AppStrings.TAMIL) "குறைந்தது 6 எழுத்துக்கள்" else "At least 6 characters",
+                                            text = K.atLeast6Chars.tr(lang),
                                             isValid = passwordValid,
                                             colors = colors
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
                                         ValidationRow(
-                                            text = if (lang == AppStrings.TAMIL) "கடவுச்சொற்கள் பொருந்துகின்றன" else "Passwords match",
+                                            text = K.passwordsMatch.tr(lang),
                                             isValid = passwordsMatch,
                                             colors = colors
                                         )
@@ -596,7 +515,7 @@ private fun ChangePasswordFlow(
                                         )
                                     } else {
                                         Text(
-                                            text = if (lang == AppStrings.TAMIL) "கடவுச்சொல்லைப் புதுப்பிக்கவும்" else "Update Password",
+                                            text = K.updatePassword.tr(lang),
                                             style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                         )
                                     }
@@ -629,7 +548,7 @@ private fun ChangePasswordFlow(
                                     }
                                     Spacer(modifier = Modifier.height(20.dp))
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "கடவுச்சொல் புதுப்பிக்கப்பட்டது!" else "Password Updated!",
+                                        text = K.passwordUpdated.tr(lang),
                                         style = TextStyle(
                                             fontFamily = ff,
                                             fontSize = 20.sp,
@@ -639,7 +558,7 @@ private fun ChangePasswordFlow(
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "பாதுகாப்பு அமைப்புகளுக்குத் திரும்புகிறது..." else "Returning to security settings...",
+                                        text = K.returningToSecuritySettings.tr(lang),
                                         style = TextStyle(
                                             fontFamily = ff,
                                             fontSize = 14.sp,
@@ -686,7 +605,7 @@ private fun CreatePasswordFlow(
                     val credential = GoogleAuthProvider.getCredential(idToken, null)
                     user?.reauthenticate(credential)
                         ?.addOnSuccessListener {
-                            Toast.makeText(context, "Identity verified! Trying again...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, K.identityVerifiedTryingAgain.tr(lang), Toast.LENGTH_SHORT).show()
                             isProcessing = true
                             user.updatePassword(newPassword)
                                 .addOnSuccessListener {
@@ -699,11 +618,11 @@ private fun CreatePasswordFlow(
                                 }
                         }
                         ?.addOnFailureListener { e ->
-                            Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                 }
             } catch (e: ApiException) {
-                Toast.makeText(context, "Verification failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.statusCode}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -711,8 +630,8 @@ private fun CreatePasswordFlow(
     if (showReauthDialog) {
         AlertDialog(
             onDismissRequest = { showReauthDialog = false },
-            title = { Text("Verify Custom Identity", style = TextStyle(fontFamily = ff, fontSize = 18.sp, fontWeight = FontWeight.Bold), color = colors.textPrimary) },
-            text = { Text("For security, please sign in with Google again to create a password.", style = TextStyle(fontFamily = ff, fontSize = 14.sp), color = colors.textPrimary.copy(alpha = 0.7f)) },
+            title = { Text(K.verifyCustomIdentity.tr(lang), style = TextStyle(fontFamily = ff, fontSize = 18.sp, fontWeight = FontWeight.Bold), color = colors.textPrimary) },
+            text = { Text(K.verifyGoogleForPasswordDesc.tr(lang), style = TextStyle(fontFamily = ff, fontSize = 14.sp), color = colors.textPrimary.copy(alpha = 0.7f)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -727,12 +646,12 @@ private fun CreatePasswordFlow(
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = colors.textPrimary, contentColor = if (isDark) Color(0xFF111111) else Color.White)
                 ) {
-                    Text("Verify", style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold))
+                    Text(K.verify.tr(lang), style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showReauthDialog = false }) {
-                    Text("Cancel", style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium), color = colors.textPrimary)
+                    Text(K.cancel.tr(lang), style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium), color = colors.textPrimary)
                 }
             },
             containerColor = if (isDark) Color(0xFF111111) else Color.White,
@@ -762,7 +681,7 @@ private fun CreatePasswordFlow(
         item(key = "content_card") {
             ElvanSectionContainer {
                 ElvanSettingsSection(
-                    title = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
+                    title = K.createPasswordTitle.tr(lang),
                     colors = colors
                 ) {
                     Column(
@@ -789,7 +708,7 @@ private fun CreatePasswordFlow(
                                         )
                                         Spacer(modifier = Modifier.width(12.dp))
                                         Text(
-                                            text = if (lang == AppStrings.TAMIL) "Google மூலம் உள்நுழைந்துள்ளீர்கள். மின்னஞ்சல் மூலமும் உள்நுழைய கடவுச்சொல் ஒன்றை உருவாக்கவும்." else "You signed in with Google. Create a password to also sign in with email.",
+                                            text = K.signedInWithGoogleCreatePassword.tr(lang),
                                             style = TextStyle(
                                                 fontFamily = ff,
                                                 fontSize = 13.sp,
@@ -803,10 +722,10 @@ private fun CreatePasswordFlow(
                                 Spacer(modifier = Modifier.height(20.dp))
                                 
                                 ElvanPasswordTextField(
-                                    label = if (lang == AppStrings.TAMIL) "புதிய கடவுச்சொல்" else "New Password",
+                                    label = K.newPassword.tr(lang),
                                     value = newPassword,
                                     onValueChange = { newPassword = it },
-                                    placeholder = if (lang == AppStrings.TAMIL) "கடவுச்சொல்லை உள்ளிடவும்" else "Enter password",
+                                    placeholder = K.enterNewPassword.tr(lang),
                                     showPassword = showPassword,
                                     onToggleVisibility = { showPassword = !showPassword },
                                     colors = colors
@@ -815,10 +734,10 @@ private fun CreatePasswordFlow(
                                 Spacer(modifier = Modifier.height(12.dp))
                                 
                                 ElvanPasswordTextField(
-                                    label = if (lang == AppStrings.TAMIL) "கடவுச்சொல்லை உறுதிப்படுத்தவும்" else "Confirm Password",
+                                    label = K.confirmNewPassword.tr(lang),
                                     value = confirmPassword,
                                     onValueChange = { confirmPassword = it },
-                                    placeholder = if (lang == AppStrings.TAMIL) "மீண்டும் உள்ளிடவும்" else "Confirm password",
+                                    placeholder = K.confirmPassword.tr(lang),
                                     showPassword = showPassword,
                                     onToggleVisibility = { showPassword = !showPassword },
                                     colors = colors
@@ -833,13 +752,13 @@ private fun CreatePasswordFlow(
                                 ) {
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         ValidationRow(
-                                            text = if (lang == AppStrings.TAMIL) "குறைந்தது 6 எழுத்துக்கள்" else "At least 6 characters",
+                                            text = K.atLeast6Chars.tr(lang),
                                             isValid = passwordValid,
                                             colors = colors
                                         )
                                         Spacer(modifier = Modifier.height(10.dp))
                                         ValidationRow(
-                                            text = if (lang == AppStrings.TAMIL) "கடவுச்சொற்கள் பொருந்துகின்றன" else "Passwords match",
+                                            text = K.passwordsMatch.tr(lang),
                                             isValid = passwordsMatch,
                                             colors = colors
                                         )
@@ -884,7 +803,7 @@ private fun CreatePasswordFlow(
                                         )
                                     } else {
                                         Text(
-                                            text = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
+                                            text = K.createPassword.tr(lang),
                                             style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                         )
                                     }
@@ -917,7 +836,7 @@ private fun CreatePasswordFlow(
                                     }
                                     Spacer(modifier = Modifier.height(20.dp))
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கப்பட்டது!" else "Password Created!",
+                                        text = K.passwordCreated.tr(lang),
                                         style = TextStyle(
                                             fontFamily = ff,
                                             fontSize = 20.sp,
@@ -927,7 +846,7 @@ private fun CreatePasswordFlow(
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "நீங்கள் இப்போது மின்னஞ்சல் மூலமும் உள்நுழையலாம்." else "You can now sign in with email too.",
+                                        text = K.canNowSignInWithEmail.tr(lang),
                                         style = TextStyle(
                                             fontFamily = ff,
                                             fontSize = 14.sp,
@@ -953,7 +872,7 @@ fun LinkedAccountsScreen(
     val lang = LocalAppLanguage.current
     
     ElvanSubShell(
-        title = if (lang == AppStrings.TAMIL) "இணைக்கப்பட்ட கணக்குகள்" else "Linked Accounts",
+        title = K.linkedAccounts.tr(lang),
         onBack = onBack,
         colors = colors
     ) {
@@ -998,26 +917,26 @@ private fun LinkedAccountsView(
                             val credential = GoogleAuthProvider.getCredential(idToken, null)
                             user?.linkWithCredential(credential)
                                 ?.addOnSuccessListener {
-                                    Toast.makeText(context, "Google account linked!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, K.googleAccountLinked.tr(lang), Toast.LENGTH_SHORT).show()
                                     isLinking = false
                                     onBack()
                                 }
                                 ?.addOnFailureListener { e ->
-                                    Toast.makeText(context, e.message ?: "Link failed", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message ?: ""}", Toast.LENGTH_LONG).show()
                                     isLinking = false
                                 }
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Link failed: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message}", Toast.LENGTH_LONG).show()
                             isLinking = false
                         }
                     }
                 } ?: run {
                     isLinking = false
-                    Toast.makeText(context, "No ID Token received", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, K.noIdTokenReceived.tr(lang), Toast.LENGTH_SHORT).show()
                 }
             } catch (e: ApiException) {
                 isLinking = false
-                Toast.makeText(context, "Google Sign-In Failed: ${e.statusCode}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "${K.googleSignInFailed.tr(lang)}: ${e.statusCode}", Toast.LENGTH_LONG).show()
             }
         } else {
             isLinking = false
@@ -1037,7 +956,7 @@ private fun LinkedAccountsView(
         } catch (e: Exception) {
             isLinking = false
             e.printStackTrace()
-            Toast.makeText(context, "Could not launch Google Sign-In: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "${K.couldNotLaunchGoogleSignIn.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -1046,22 +965,21 @@ private fun LinkedAccountsView(
             onDismissRequest = { showUnlinkDialog = false },
             title = {
                 Text(
-                    text = if (lang == AppStrings.TAMIL) "Google கணக்கை துண்டிக்கவா?" else "Unlink Google Account?",
+                    text = K.unlinkGoogleAccount.tr(lang),
                     style = TextStyle(fontFamily = ff, fontSize = 18.sp, fontWeight = FontWeight.Bold),
                     color = colors.textPrimary
                 )
             },
             text = {
-                Column {
-                    Text(
-                        text = if (hasPassword) 
-                            (if (lang == AppStrings.TAMIL) "துண்டித்த பிறகு உங்கள் மின்னஞ்சல் மற்றும் கடவுச்சொல்லைப் பயன்படுத்தி உள்நுழைய வேண்டும்." else "You will need to sign in with your email and password after unlinking.")
-                        else 
-                            (if (lang == AppStrings.TAMIL) "Google கணக்கை துண்டிக்கும் முன் கடவுச்சொல் ஒன்றை உருவாக்க வேண்டும்." else "You must create a password first before unlinking Google, otherwise you won't be able to sign in."),
-                        style = TextStyle(fontFamily = ff, fontSize = 14.sp),
-                        color = colors.textPrimary.copy(alpha = 0.7f)
-                    )
-                }
+                Text(
+                    text = if (hasPassword) {
+                        K.unlinkGoogleDescHasPassword.tr(lang)
+                    } else {
+                        K.unlinkGoogleDescNoPassword.tr(lang)
+                    },
+                    style = TextStyle(fontFamily = ff, fontSize = 14.sp),
+                    color = colors.textPrimary.copy(alpha = 0.7f)
+                )
             },
             confirmButton = {
                 if (hasPassword) {
@@ -1070,13 +988,13 @@ private fun LinkedAccountsView(
                             isUnlinking = true
                             user?.unlink("google.com")
                                 ?.addOnSuccessListener {
-                                    Toast.makeText(context, "Google account unlinked", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, K.googleAccountUnlinked.tr(lang), Toast.LENGTH_SHORT).show()
                                     showUnlinkDialog = false
                                     isUnlinking = false
                                     onBack()
                                 }
                                 ?.addOnFailureListener { e ->
-                                    Toast.makeText(context, e.message ?: "Failed to unlink", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, e.message ?: K.failedToUnlink.tr(lang), Toast.LENGTH_SHORT).show()
                                     isUnlinking = false
                                 }
                         },
@@ -1085,7 +1003,7 @@ private fun LinkedAccountsView(
                         enabled = !isUnlinking
                     ) {
                         Text(
-                            text = if (lang == AppStrings.TAMIL) "துண்டி" else "Unlink",
+                            text = K.unlink.tr(lang),
                             style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         )
                     }
@@ -1099,7 +1017,7 @@ private fun LinkedAccountsView(
                         colors = ButtonDefaults.buttonColors(containerColor = colors.textPrimary, contentColor = if (isDark) Color(0xFF111111) else Color.White)
                     ) {
                         Text(
-                            text = if (lang == AppStrings.TAMIL) "கடவுச்சொல் உருவாக்கு" else "Create Password",
+                            text = K.createPasswordTitle.tr(lang),
                             style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                         )
                     }
@@ -1108,7 +1026,7 @@ private fun LinkedAccountsView(
             dismissButton = {
                 TextButton(onClick = { showUnlinkDialog = false }) {
                     Text(
-                        text = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                        text = K.cancel.tr(lang),
                         style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium),
                         color = colors.textPrimary
                     )
@@ -1131,7 +1049,7 @@ private fun LinkedAccountsView(
         item(key = "accounts_card") {
             ElvanSectionContainer {
                 ElvanSettingsSection(
-                    title = if (lang == AppStrings.TAMIL) "உள்நுழைவு முறைகள்" else "Sign-in Methods",
+                    title = K.signInMethods.tr(lang),
                     colors = colors
                 ) {
                     Row(
@@ -1146,7 +1064,7 @@ private fun LinkedAccountsView(
                                     .data(googlePhotoUrl)
                                     .crossfade(true)
                                     .build(),
-                                contentDescription = "Google Profile",
+                                contentDescription = K.googleProfile.tr(lang),
                                 modifier = Modifier
                                     .size(40.dp)
                                     .clip(CircleShape)
@@ -1174,12 +1092,12 @@ private fun LinkedAccountsView(
                         
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Google",
+                                text = K.google.tr(lang),
                                 style = TextStyle(fontFamily = ff, fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
                                 color = colors.textPrimary
                             )
                             Text(
-                                text = if (isGoogleLinked) googleEmail else (if (lang == AppStrings.TAMIL) "இணைக்கப்படவில்லை" else "Not connected"),
+                                text = if (isGoogleLinked) googleEmail else com.elvan.neram.ui.theme.AppStrings.LinkedAccounts.notLinked(lang),
                                 style = TextStyle(fontFamily = ff, fontSize = 13.sp, fontWeight = FontWeight.Normal),
                                 color = colors.textPrimary.copy(alpha = 0.5f),
                                 maxLines = 1
@@ -1198,7 +1116,7 @@ private fun LinkedAccountsView(
                                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                             ) {
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "துண்டி" else "Unlink",
+                                    text = K.unlink.tr(lang),
                                     style = TextStyle(fontFamily = ff, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                 )
                             }
@@ -1222,7 +1140,7 @@ private fun LinkedAccountsView(
                                     )
                                 } else {
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "இணை" else "Link",
+                                        text = K.verify.tr(lang),
                                         style = TextStyle(fontFamily = ff, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                                     )
                                 }
@@ -1260,7 +1178,7 @@ private fun LinkedAccountsView(
                         
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = if (lang == AppStrings.TAMIL) "மின்னஞ்சல்" else "Email",
+                                text = K.emailAddress.tr(lang),
                                 style = TextStyle(fontFamily = ff, fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
                                 color = colors.textPrimary
                             )
@@ -1310,15 +1228,15 @@ private fun LinkedAccountsView(
                         
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = if (lang == AppStrings.TAMIL) "கடவுச்சொல்" else "Password",
+                                text = K.currentPassword.tr(lang),
                                 style = TextStyle(fontFamily = ff, fontSize = 15.sp, fontWeight = FontWeight.SemiBold),
                                 color = colors.textPrimary
                             )
                             Text(
                                 text = if (hasPassword) 
-                                    (if (lang == AppStrings.TAMIL) "கடவுச்சொல் அமைக்கப்பட்டுள்ளது" else "Password set")
+                                    K.passwordSet.tr(lang)
                                 else 
-                                    (if (lang == AppStrings.TAMIL) "கடவுச்சொல் அமைக்கப்படவில்லை" else "No password set"),
+                                    K.noPasswordSet.tr(lang),
                                 style = TextStyle(fontFamily = ff, fontSize = 13.sp, fontWeight = FontWeight.Normal),
                                 color = colors.textPrimary.copy(alpha = 0.5f)
                             )
@@ -1343,7 +1261,7 @@ private fun LinkedAccountsView(
                                 contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
                             ) {
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "அமை" else "Create",
+                                    text = K.createPasswordTitle.tr(lang),
                                     style = TextStyle(fontFamily = ff, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                                 )
                             }
@@ -1385,12 +1303,12 @@ private fun DeleteAccountFlow(
                     val credential = GoogleAuthProvider.getCredential(idToken, null)
                     user?.reauthenticate(credential)
                         ?.addOnSuccessListener {
-                            Toast.makeText(context, "Identity verified! Deleting account...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, K.identityVerifiedDeletingAccount.tr(lang), Toast.LENGTH_SHORT).show()
                             user.let { u ->
                                 Firebase.database.getReference("users/${u.uid}").removeValue()
                                 u.delete()
                                     .addOnSuccessListener {
-                                        Toast.makeText(context, "Account deleted", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, K.accountDeleted.tr(lang), Toast.LENGTH_SHORT).show()
                                     }
                                     .addOnFailureListener { e ->
                                         isProcessing = false
@@ -1399,11 +1317,11 @@ private fun DeleteAccountFlow(
                             }
                         }
                         ?.addOnFailureListener { e ->
-                            Toast.makeText(context, "Verification failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                 }
             } catch (e: ApiException) {
-                Toast.makeText(context, "Verification failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.statusCode}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -1411,8 +1329,8 @@ private fun DeleteAccountFlow(
     if (showReauthDialog) {
         AlertDialog(
             onDismissRequest = { showReauthDialog = false },
-            title = { Text("Verify Identity for Deletion", style = TextStyle(fontFamily = ff, fontSize = 18.sp, fontWeight = FontWeight.Bold), color = colors.textPrimary) },
-            text = { Text("Deleting your account is a sensitive action. Please sign in with Google again to confirm.", style = TextStyle(fontFamily = ff, fontSize = 14.sp), color = colors.textPrimary.copy(alpha = 0.7f)) },
+            title = { Text(K.verifyIdentityForDeletion.tr(lang), style = TextStyle(fontFamily = ff, fontSize = 18.sp, fontWeight = FontWeight.Bold), color = colors.textPrimary) },
+            text = { Text(K.verifyGoogleForDeletionDesc.tr(lang), style = TextStyle(fontFamily = ff, fontSize = 14.sp), color = colors.textPrimary.copy(alpha = 0.7f)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -1427,12 +1345,12 @@ private fun DeleteAccountFlow(
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = AppColors.Red, contentColor = Color.White)
                 ) {
-                    Text("Verify", style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold))
+                    Text(K.verify.tr(lang), style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showReauthDialog = false }) {
-                    Text("Cancel", style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium), color = colors.textPrimary)
+                    Text(K.cancel.tr(lang), style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium), color = colors.textPrimary)
                 }
             },
             containerColor = if (isDark) Color(0xFF111111) else Color.White,
@@ -1452,7 +1370,7 @@ private fun DeleteAccountFlow(
         item(key = "content_card") {
             ElvanSectionContainer {
                 ElvanSettingsSection(
-                    title = AppStrings.Settings.deleteAccount(lang),
+                    title = K.deleteAccount.tr(lang),
                     colors = colors
                 ) {
                     Column(
@@ -1477,17 +1395,14 @@ private fun DeleteAccountFlow(
                                             )
                                             Spacer(modifier = Modifier.width(10.dp))
                                             Text(
-                                                text = if (lang == AppStrings.TAMIL) "இந்த நடவடிக்கை நிரந்தரமானது" else "This action is permanent",
+                                                text = K.thisActionIsPermanent.tr(lang),
                                                 style = TextStyle(fontFamily = ff, fontSize = 15.sp, fontWeight = FontWeight.Bold),
                                                 color = AppColors.Red
                                             )
                                         }
                                         Spacer(modifier = Modifier.height(12.dp))
                                         Text(
-                                            text = if (lang == AppStrings.TAMIL) 
-                                                "• உங்கள் தரவு அனைத்தும் நிரந்தரமாக நீக்கப்படும்\n• அட்டவணை மற்றும் அமைப்புகள் அழிக்கப்படும்\n• கணக்கை மீட்டெடுக்க முடியாது\n• எப்போது வேண்டுமானாலும் புதிய கணக்கு உருவாக்கலாம்"
-                                            else 
-                                                "• All your data will be permanently deleted\n• Your schedule and preferences will be lost\n• You will not be able to recover your account\n• You can create a new account anytime",
+                                            text = K.deleteAccountWarning.tr(lang),
                                             style = TextStyle(fontFamily = ff, fontSize = 13.sp, lineHeight = 20.sp),
                                             color = colors.textPrimary.copy(alpha = 0.8f)
                                         )
@@ -1509,7 +1424,7 @@ private fun DeleteAccountFlow(
                                     elevation = ButtonDefaults.buttonElevation(0.dp)
                                 ) {
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "புரிந்து கொண்டேன், தொடரவும்" else "I understand, continue",
+                                        text = K.iUnderstandContinue.tr(lang),
                                         style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                     )
                                 }
@@ -1529,7 +1444,7 @@ private fun DeleteAccountFlow(
                                     elevation = ButtonDefaults.buttonElevation(0.dp)
                                 ) {
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "கைவிடு" else "Cancel",
+                                        text = K.cancel.tr(lang),
                                         style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                                     )
                                 }
@@ -1537,7 +1452,7 @@ private fun DeleteAccountFlow(
                             
                             2 -> {
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "நிச்சயமாக நீக்க விரும்புகிறீர்களா?" else "Are you absolutely sure?",
+                                    text = K.confirmDeletion.tr(lang),
                                     style = TextStyle(fontFamily = ff, fontSize = 17.sp, fontWeight = FontWeight.SemiBold),
                                     color = colors.textPrimary
                                 )
@@ -1570,7 +1485,7 @@ private fun DeleteAccountFlow(
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = if (lang == AppStrings.TAMIL) "இந்த நடவடிக்கை மாற்ற முடியாதது மற்றும் அனைத்து தரவும் நிரந்தரமாக நீக்கப்படும் என்பதை நான் புரிந்துகொள்கிறேன்." else "I understand that this action cannot be undone and all my data will be permanently deleted.",
+                                            text = K.confirmDeletionDesc.tr(lang),
                                             style = TextStyle(fontFamily = ff, fontSize = 13.sp),
                                             color = colors.textPrimary
                                         )
@@ -1593,7 +1508,7 @@ private fun DeleteAccountFlow(
                                     enabled = understood
                                 ) {
                                     Text(
-                                        text = if (lang == AppStrings.TAMIL) "நீக்கத் தொடரவும்" else "Proceed to Delete",
+                                        text = K.iUnderstandContinue.tr(lang),
                                         style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                     )
                                 }
@@ -1601,13 +1516,13 @@ private fun DeleteAccountFlow(
                             
                             3 -> {
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "உங்கள் அடையாளத்தை உறுதிப்படுத்தவும்" else "Verify your identity",
+                                    text = K.verifyIdentity.tr(lang),
                                     style = TextStyle(fontFamily = ff, fontSize = 17.sp, fontWeight = FontWeight.SemiBold),
                                     color = colors.textPrimary
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = if (lang == AppStrings.TAMIL) "கணக்கு நீக்கத்தை உறுதிப்படுத்த உங்கள் கடவுச்சொல்லை உள்ளிடவும்." else "Enter your password to confirm permanent deletion.",
+                                    text = K.confirmDeletionDesc.tr(lang),
                                     style = TextStyle(fontFamily = ff, fontSize = 13.sp),
                                     color = colors.textPrimary.copy(alpha = 0.5f)
                                 )
@@ -1615,10 +1530,10 @@ private fun DeleteAccountFlow(
                                 Spacer(modifier = Modifier.height(20.dp))
                                 
                                 ElvanPasswordTextField(
-                                    label = if (lang == AppStrings.TAMIL) "கடவுச்சொல்" else "Password",
+                                    label = K.password.tr(lang),
                                     value = password,
                                     onValueChange = { password = it; errorMessage = null },
-                                    placeholder = if (lang == AppStrings.TAMIL) "கடவுச்சொல்லை உள்ளிடவும்" else "Enter password",
+                                    placeholder = K.enterCurrentPassword.tr(lang),
                                     showPassword = showPassword,
                                     onToggleVisibility = { showPassword = !showPassword },
                                     colors = colors
@@ -1639,7 +1554,7 @@ private fun DeleteAccountFlow(
                                 Button(
                                     onClick = {
                                         if (password.isEmpty()) {
-                                            errorMessage = if (lang == AppStrings.TAMIL) "கடவுச்சொல்லை உள்ளிடவும்" else "Please enter your password"
+                                            errorMessage = K.enterCurrentPassword.tr(lang)
                                             return@Button
                                         }
                                         isProcessing = true
@@ -1651,7 +1566,7 @@ private fun DeleteAccountFlow(
                                                         Firebase.database.getReference("users/${u.uid}").removeValue()
                                                         u.delete()
                                                             .addOnSuccessListener {
-                                                                Toast.makeText(context, "Account deleted", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context, K.accountDeleted.tr(lang), Toast.LENGTH_SHORT).show()
                                                             }
                                                             .addOnFailureListener { e ->
                                                                 isProcessing = false
@@ -1664,7 +1579,7 @@ private fun DeleteAccountFlow(
                                                     if (e is FirebaseAuthRecentLoginRequiredException) {
                                                         showReauthDialog = true
                                                     } else {
-                                                        errorMessage = if (lang == AppStrings.TAMIL) "தவறான கடவுச்சொல்" else "Incorrect password"
+                                                        errorMessage = K.incorrectPassword.tr(lang)
                                                     }
                                                 }
                                         }
@@ -1688,7 +1603,7 @@ private fun DeleteAccountFlow(
                                         )
                                     } else {
                                         Text(
-                                            text = if (lang == AppStrings.TAMIL) "என் கணக்கை நிரந்தரமாக நீக்கு" else "Delete My Account Forever",
+                                            text = K.deleteAccountPermanently.tr(lang),
                                             style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                         )
                                     }

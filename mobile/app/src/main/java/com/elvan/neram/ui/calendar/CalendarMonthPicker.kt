@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.calendar
+package com.elvan.neram.ui.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,6 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.elvan.neram.ui.home.HomeColors
 import com.elvan.neram.ui.home.HomeShapes
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.toMozhiName
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import java.time.Month
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -35,6 +39,7 @@ fun MonthYearPickerDialog(
     onMonthYearSelected: (YearMonth) -> Unit,
     colors: HomeColors
 ) {
+    val lang = LocalAppLanguage.current
     if (visible) {
         var selectedYear by remember(currentMonth) { mutableIntStateOf(currentMonth.year) }
         var selectedMonth by remember(currentMonth) { mutableStateOf(currentMonth.month) }
@@ -70,7 +75,7 @@ fun MonthYearPickerDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                contentDescription = "Previous Year",
+                                contentDescription = K.previousYear.tr(lang),
                                 tint = colors.textPrimary
                             )
                         }
@@ -93,7 +98,7 @@ fun MonthYearPickerDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = "Next Year",
+                                contentDescription = K.nextYear.tr(lang),
                                 tint = colors.textPrimary
                             )
                         }
@@ -120,7 +125,7 @@ fun MonthYearPickerDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = month.getDisplayName(TextStyle.SHORT, Locale.ENGLISH).uppercase(),
+                                    text = month.toMozhiName(lang, isShort = true).uppercase(),
                                     color = if (isSelected) androidx.compose.ui.graphics.Color.White else colors.textPrimary,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     fontSize = 13.sp
@@ -132,6 +137,7 @@ fun MonthYearPickerDialog(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Footer: Actions
+                    val lang = LocalAppLanguage.current
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End,
@@ -146,7 +152,7 @@ fun MonthYearPickerDialog(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Cancel",
+                                text = K.cancel.tr(lang),
                                 color = colors.textSecondary,
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 14.sp // Smaller font size
@@ -168,7 +174,7 @@ fun MonthYearPickerDialog(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "OK",
+                                text = K.ok.tr(lang),
                                 color = androidx.compose.ui.graphics.Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp // Smaller font size

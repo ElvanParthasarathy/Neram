@@ -30,6 +30,8 @@ import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.theme.AppColors
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
@@ -103,12 +105,12 @@ fun LinkedAccountsScreen(
                             isUnlinking = true
                             user?.unlink("google.com")
                                 ?.addOnSuccessListener {
-                                    Toast.makeText(context, "Google account unlinked", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, K.googleAccountUnlinked.tr(lang), Toast.LENGTH_SHORT).show()
                                     showUnlinkDialog = false
                                     isUnlinking = false
                                 }
                                 ?.addOnFailureListener { e ->
-                                    Toast.makeText(context, e.message ?: "Failed to unlink", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, e.message ?: K.failedToUnlink.tr(lang), Toast.LENGTH_SHORT).show()
                                     isUnlinking = false
                                 }
                         },
@@ -183,7 +185,7 @@ fun LinkedAccountsScreen(
                                         .data(googlePhotoUrl)
                                         .crossfade(true)
                                         .build(),
-                                    contentDescription = "Google Profile",
+                                    contentDescription = K.googleProfile.tr(lang),
                                     modifier = Modifier
                                         .size(36.dp)
                                         .clip(CircleShape)
@@ -208,7 +210,7 @@ fun LinkedAccountsScreen(
 
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    "Google",
+                                    K.google.tr(lang),
                                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Medium),
                                     color = colors.textPrimary
                                 )

@@ -40,6 +40,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            if (keystorePropertiesFile.exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -171,6 +176,8 @@ dependencies {
     implementation("sesl.androidx.appcompat:appcompat:1.8.0+1.0.21-sesl8+rev1")
     implementation("sesl.androidx.coordinatorlayout:coordinatorlayout:1.3.0+1.0.0-sesl8+rev0")
     implementation("sesl.com.google.android.material:material:1.12.0+1.0.32-sesl8+rev3")
+    implementation("sesl.androidx.picker:picker-basic:1.0.7+1.0.7-sesl8+rev2")
+    implementation("sesl.androidx.picker:picker-app:1.0.6+1.0.6-sesl8+rev0")
 }
 
 configurations.all {

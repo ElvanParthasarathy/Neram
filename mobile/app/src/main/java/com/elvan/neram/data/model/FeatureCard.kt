@@ -1,6 +1,8 @@
 package com.elvan.neram.data.model
 
 import androidx.compose.runtime.Immutable
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 @Immutable
 data class FeatureCard(
@@ -24,9 +26,10 @@ data class FeatureCard(
     }
 
     fun getLocalizedMessage(lang: String): String {
+        val isTa = lang == "ta" || lang == "ta-Latn"
         val enMsg = if (message.isNotBlank()) message else if (description.isNotBlank()) description else title
         val taMsg = if (messageTa.isNotBlank()) messageTa else if (descriptionTa.isNotBlank()) descriptionTa else titleTa
-        return if (lang == "ta" && taMsg.isNotBlank()) taMsg else enMsg
+        return if (isTa && taMsg.isNotBlank()) taMsg else enMsg
     }
 
     fun getLocalizedTitle(lang: String): String = getLocalizedMessage(lang)
@@ -34,9 +37,23 @@ data class FeatureCard(
     fun getLocalizedDescription(lang: String): String = getLocalizedMessage(lang)
 
     fun getLocalizedActionText(lang: String): String {
-        if (lang == "ta" && actionTextTa.isNotBlank()) return actionTextTa
+        val isTa = lang == "ta" || lang == "ta-Latn"
+        if (isTa && actionTextTa.isNotBlank()) return actionTextTa
         if (actionText.isNotBlank()) return actionText
-        return if (lang == "ta") "பார்" else "Explore"
+        return K.explore.tr(lang)
+    }
+
+    fun getLocalizedBadge(lang: String): String {
+        val raw = (if (badge.isNotBlank()) badge else type).trim().uppercase()
+        return when (raw) {
+            "UPDATE" -> K.cardUpdate.tr(lang)
+            "ALERT" -> K.cardAlert.tr(lang)
+            "NEWS" -> K.cardNews.tr(lang)
+            "TIP" -> K.cardTip.tr(lang)
+            "NOTICE" -> K.cardNotice.tr(lang)
+            "FEATURE" -> K.cardFeature.tr(lang)
+            else -> if (lang == "en") raw else raw
+        }
     }
 }
 

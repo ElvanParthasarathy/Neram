@@ -16,8 +16,10 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import kotlinx.coroutines.flow.distinctUntilChanged
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.IntOffset
+import kotlinx.coroutines.delay
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
@@ -583,9 +585,7 @@ fun <T> ElvanSlideSection(
                 (androidx.compose.animation.slideInHorizontally { width -> directionFactor * width } + androidx.compose.animation.fadeIn()) togetherWith
                 (androidx.compose.animation.slideOutHorizontally { width -> -directionFactor * width } + androidx.compose.animation.fadeOut())
             } else {
-                (androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(220, delayMillis = 90)) + 
-                 androidx.compose.animation.scaleIn(initialScale = 0.95f, animationSpec = androidx.compose.animation.core.tween(220, delayMillis = 90))) togetherWith
-                (androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(90)))
+                androidx.compose.animation.EnterTransition.None togetherWith androidx.compose.animation.ExitTransition.None
             }
         },
         label = label
@@ -639,3 +639,4 @@ fun ElvanSectionTitle(
         )
     )
 }
+

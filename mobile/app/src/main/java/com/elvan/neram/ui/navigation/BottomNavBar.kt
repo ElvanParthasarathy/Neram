@@ -280,18 +280,13 @@ fun BottomNavBar(
                         ) {
                             Icon(
                                 imageVector = if (isActive) tab.activeIcon else tab.icon,
-                                contentDescription = tab.label,
+                                contentDescription = tab.getLocalizedLabel(lang),
                                 tint = color,
                                 modifier = Modifier.size(23.dp)
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = when (tab) {
-                                NavTab.Home -> AppStrings.Nav.home(lang)
-                                NavTab.Schedule -> AppStrings.Nav.schedule(lang)
-                                NavTab.Calendar -> AppStrings.Nav.calendar(lang)
-                                NavTab.Notes -> AppStrings.Nav.notes(lang)
-                            },
+                                text = tab.getLocalizedLabel(lang),
                             color = color,
                             fontSize = 9.5.sp,
                             fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal,

@@ -39,6 +39,8 @@ import com.elvan.neram.ui.home.HomeScreen
 import com.elvan.neram.ui.home.rememberHomeColors
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.theme.AppStrings
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import androidx.compose.runtime.CompositionLocalProvider
 import com.elvan.neram.ui.navigation.BottomNavBar
 import com.elvan.neram.ui.navigation.NavTab
@@ -50,6 +52,7 @@ import android.content.res.Configuration
 import com.elvan.neram.ui.about.CollegeSitesScreen
 import com.elvan.neram.ui.about.ContactScreen
 import com.elvan.neram.ui.settings.SettingsScreen
+import com.elvan.neram.ui.settings.AccountSettingsScreen
 import com.elvan.neram.ui.settings.DisplaySettingsScreen
 import com.elvan.neram.ui.settings.SecuritySettingsScreen
 import com.elvan.neram.ui.settings.LinkedAccountsScreen
@@ -58,6 +61,7 @@ import com.elvan.neram.ui.about.DeveloperInfoScreen
 import com.elvan.neram.ui.about.AboutAppScreen
 import com.elvan.neram.ui.about.AboutRMKScreen
 import com.elvan.neram.ui.about.ManagementTeamScreen
+import com.elvan.neram.ui.about.ElvanNavilScreen
 import com.elvan.neram.ui.settings.NotificationSettingsScreen
 import com.elvan.neram.ui.components.shell.ElvanSubShell
 import com.elvan.neram.ui.directory.UserDirectoryScreen
@@ -170,6 +174,7 @@ fun MainScreen(
     // Google Link state and launcher - hoisted here where Activity context is GUARANTEED
     var isGoogleLinking by remember { mutableStateOf(false) }
     val context = androidx.compose.ui.platform.LocalContext.current
+    val lang = LocalAppLanguage.current
     
     val googleLinkLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -184,25 +189,25 @@ fun MainScreen(
                             val credential = GoogleAuthProvider.getCredential(idToken, null)
                             Firebase.auth.currentUser?.linkWithCredential(credential)
                                 ?.addOnSuccessListener {
-                                    Toast.makeText(context, "Google account linked!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, K.googleAccountLinked.tr(lang), Toast.LENGTH_SHORT).show()
                                     isGoogleLinking = false
                                 }
                                 ?.addOnFailureListener { e ->
-                                    Toast.makeText(context, e.message ?: "Link failed", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message ?: ""}", Toast.LENGTH_LONG).show()
                                     isGoogleLinking = false
                                 }
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Link failed: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message}", Toast.LENGTH_LONG).show()
                             isGoogleLinking = false
                         }
                     }
                 } ?: run {
                     isGoogleLinking = false
-                    Toast.makeText(context, "No ID Token received", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, K.noIdTokenReceived.tr(lang), Toast.LENGTH_SHORT).show()
                 }
             } catch (e: ApiException) {
                 isGoogleLinking = false
-                Toast.makeText(context, "Google Sign-In Failed: ${e.statusCode}", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "${K.googleSignInFailed.tr(lang)}: ${e.statusCode}", Toast.LENGTH_LONG).show()
             }
         } else {
             isGoogleLinking = false
@@ -222,7 +227,7 @@ fun MainScreen(
         } catch (e: Exception) {
             isGoogleLinking = false
             e.printStackTrace()
-            Toast.makeText(context, "Could not launch Google Sign-In: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "${K.couldNotLaunchGoogleSignIn.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -245,6 +250,7 @@ fun MainScreen(
     BackHandler(enabled = currentScreen != "tabs" || selectedTab != NavTab.Home) {
         if (currentScreen != "tabs") {
             when (currentScreen) {
+                "account" -> currentScreen = subpageReferrer
                 "security" -> currentScreen = subpageReferrer
                 "display" -> currentScreen = subpageReferrer
 
@@ -254,11 +260,12 @@ fun MainScreen(
                 "contact" -> currentScreen = "settings"
                 "complaint" -> currentScreen = "settings"
                 "developer" -> currentScreen = "settings"
+                "elvan_navil" -> currentScreen = "settings"
                 "language" -> currentScreen = subpageReferrer
                 "about_app" -> currentScreen = subpageReferrer
                 "about_rmk" -> currentScreen = "settings"
                 "management_team" -> currentScreen = "settings"
-                "linked_accounts" -> currentScreen = "security"
+                "linked_accounts" -> currentScreen = "account"
                 "user_directory" -> {
                      if (userDirectoryPath.isNotEmpty()) {
                          userDirectoryPath = userDirectoryPath.dropLast(1)
@@ -283,9 +290,9 @@ fun MainScreen(
             "tabs" -> 0
             "sites", "contact", "settings" -> 1
             "profile" -> 2 // Deep nested from Settings
-            "linked_accounts" -> 3 // Deep nested from Security
+            "linked_accounts" -> 3 // Deep nested from Account
             "notification_settings" -> 2 // Deep nested from Settings
-            else -> 2 // security, display, complaint, developer, user_directory
+            else -> 2 // account, security, display, complaint, developer, elvan_navil, user_directory
         }
     }
     
@@ -295,6 +302,7 @@ fun MainScreen(
         val lang = LocalAppLanguage.current
         return when (screen) {
             "settings" -> AppStrings.Settings.title(lang)
+            "account" -> AppStrings.Settings.account(lang)
             "profile" -> AppStrings.Settings.editProfile(lang)
             "sites" -> AppStrings.Settings.importantSites(lang)
             "contact" -> AppStrings.Settings.contact(lang)
@@ -302,6 +310,7 @@ fun MainScreen(
             "display" -> AppStrings.Settings.display(lang)
             "complaint" -> AppStrings.Settings.feedback(lang)
             "developer" -> AppStrings.Settings.aboutDeveloper(lang)
+            "elvan_navil" -> AppStrings.Settings.elvanNavil(lang)
             "language" -> AppStrings.Settings.language(lang)
             "calendar_settings" -> AppStrings.Settings.calendarSettings(lang)
             "user_directory" -> if (userDirectoryPath.isEmpty()) AppStrings.Settings.userDirectory(lang) else userDirectoryPath.last()
@@ -455,13 +464,14 @@ fun MainScreen(
                     } else null,
                     hasActions = selectedTab == NavTab.Calendar || !isInsideNotesFolder,
                     actions = {
+                        val lang = LocalAppLanguage.current
                         if (selectedTab == NavTab.Calendar) {
                             com.elvan.neram.ui.components.shell.ElvanTopBarIconButton(
                                 onClick = { homeViewModel.setCalendarView(com.elvan.neram.ui.calendar.CalendarViewType.MONTH) }
                             ) {
                                 Icon(
                                     imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.CalendarViewMonth,
-                                    contentDescription = "Month View",
+                                    contentDescription = K.monthView.tr(lang),
                                     tint = colors.textPrimary,
                                     modifier = Modifier.size(22.dp)
                                 )
@@ -471,7 +481,7 @@ fun MainScreen(
                             ) {
                                 Icon(
                                     imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.EventList,
-                                    contentDescription = "List View",
+                                    contentDescription = K.listView.tr(lang),
                                     tint = colors.textPrimary,
                                     modifier = Modifier.size(22.dp)
                                 )
@@ -508,7 +518,7 @@ fun MainScreen(
                                 ) {
                                     Icon(
                                         imageVector = com.elvan.neram.ui.navigation.MaterialSymbols.Rounded.MoreVert,
-                                        contentDescription = "Menu",
+                                        contentDescription = K.menu.tr(lang),
                                         tint = colors.textPrimary,
                                         modifier = Modifier.size(22.dp)
                                     )
@@ -657,10 +667,12 @@ fun MainScreen(
                             profileReferrer = "settings"
                             currentScreen = "profile" 
                         },
+                        onNavigateToAccount = { subpageReferrer = "settings"; currentScreen = "account" },
                         onNavigateToSecurity = { subpageReferrer = "settings"; currentScreen = "security" },
                         onNavigateToDisplay = { subpageReferrer = "settings"; currentScreen = "display" },
                         onNavigateToComplaint = { currentScreen = "complaint" },
-                        onNavigateToDeveloper = { currentScreen = "developer" },
+                        onNavigateToDeveloper = { subpageReferrer = "settings"; currentScreen = "developer" },
+                        onNavigateToElvanNavil = { subpageReferrer = "settings"; currentScreen = "elvan_navil" },
                         onNavigateToLanguage = { subpageReferrer = "settings"; currentScreen = "language" },
                         onNavigateToUserDirectory = { currentScreen = "user_directory" },
                         onNavigateToAboutApp = { subpageReferrer = "settings"; currentScreen = "about_app" },
@@ -671,10 +683,13 @@ fun MainScreen(
                         scrollState = settingsScrollState
                     )
                 }
-                "security" -> SecuritySettingsScreen(
+                "account" -> AccountSettingsScreen(
                     onBack = { currentScreen = subpageReferrer },
                     onNavigateToLinkedAccounts = { currentScreen = "linked_accounts" },
                     onLogout = onLogout
+                )
+                "security" -> SecuritySettingsScreen(
+                    onBack = { currentScreen = subpageReferrer }
                 )
                 "display" -> ElvanSubShell(
                     title = getScreenTitle("display"),
@@ -702,6 +717,13 @@ fun MainScreen(
                     colors = colors
                 ) {
                     DeveloperInfoScreen()
+                }
+                "elvan_navil" -> ElvanSubShell(
+                    title = getScreenTitle("elvan_navil"),
+                    onBack = { currentScreen = "settings" },
+                    colors = colors
+                ) {
+                    ElvanNavilScreen()
                 }
                 "about_app" -> ElvanSubShell(
                     title = getScreenTitle("about_app"),

@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.calendar
+package com.elvan.neram.ui.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.ui.home.rememberHomeColors
+import com.elvan.neram.ui.mozhiyaakkam.*
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -44,6 +46,7 @@ fun NeramCalendarScheduleView(
     }
     
     if (events.isEmpty()) {
+        val lang = LocalAppLanguage.current
         Box(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -57,7 +60,7 @@ fun NeramCalendarScheduleView(
                     fontSize = 48.sp
                 )
                 Text(
-                    text = "No upcoming events",
+                    text = K.noUpcomingEvents.tr(lang),
                     style = MaterialTheme.typography.bodyLarge,
                     color = colors.textSecondary
                 )
@@ -111,14 +114,15 @@ private fun DateHeader(
             )
         }
         
+        val lang = LocalAppLanguage.current
         Column {
             Text(
-                text = date.dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() },
+                text = date.dayOfWeek.toKtxMozhiName(lang, isShort = false),
                 fontWeight = FontWeight.SemiBold,
                 color = colors.textPrimary
             )
             Text(
-                text = "${date.month.name.lowercase().replaceFirstChar { it.uppercase() }} ${date.year}",
+                text = date.toKtxMozhiMonthYear(lang, isShort = false),
                 fontSize = 12.sp,
                 color = colors.textSecondary
             )
@@ -168,8 +172,9 @@ private fun EventCard(
                         color = colors.textSecondary
                     )
                 } else {
+                    val lang = LocalAppLanguage.current
                     Text(
-                        text = "All day",
+                        text = K.allDay.tr(lang),
                         fontSize = 12.sp,
                         color = colors.textSecondary
                     )

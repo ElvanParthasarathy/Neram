@@ -28,6 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.statusBars
@@ -47,6 +50,7 @@ fun NotificationScreen(
 ) {
     val notifications by viewModel.notifications.collectAsState()
     val colors = rememberHomeColors()
+    val lang = LocalAppLanguage.current
 
     LazyColumn(
         state = scrollState,
@@ -59,18 +63,15 @@ fun NotificationScreen(
         }
 
         if (notifications.isEmpty()) {
-            item(key = "empty_notifications") {
+            item(key = "empty_state") {
                 com.elvan.neram.ui.components.shell.ElvanSectionContainer {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 48.dp),
+                            .padding(vertical = 60.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(
                                 imageVector = Icons.Default.Notifications,
                                 contentDescription = null,
@@ -79,7 +80,7 @@ fun NotificationScreen(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "No Notifications",
+                                text = K.noNotifications.tr(lang),
                                 color = colors.textSecondary,
                                 style = MaterialTheme.typography.titleMedium
                             )
@@ -100,13 +101,13 @@ fun NotificationScreen(
                         TextButton(onClick = { viewModel.markAllAsRead() }) {
                             Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Mark all read", color = colors.accent)
+                            Text(K.markAllRead.tr(lang), color = colors.accent)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         TextButton(onClick = { viewModel.clearAll() }) {
                             Icon(Icons.Default.Delete, null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Clear all", color = colors.danger)
+                            Text(K.clearAll.tr(lang), color = colors.danger)
                         }
                     }
                 }

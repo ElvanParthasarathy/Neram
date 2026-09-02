@@ -24,6 +24,13 @@ import java.util.Locale
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import com.elvan.neram.data.preferences.LanguageManager
+import com.elvan.neram.ui.theme.AppStrings
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
+import com.elvan.neram.ui.mozhiyaakkam.toMozhiName
+import com.elvan.neram.ui.mozhiyaakkam.toMozhiFullDate
 
 /**
  * UI State for HomeScreen
@@ -165,6 +172,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     // SharedPreferences for instant cache - WhatsApp level startup
     private val prefs = application.getSharedPreferences("instant_cache", android.content.Context.MODE_PRIVATE)
     private val gson = com.google.gson.Gson()
+    private val languageManager = LanguageManager(application)
     
     // Instant cache read from SharedPreferences - reads in MICROSECONDS, not milliseconds
     private val _cachedInitialState: HomeUiState = try {
@@ -326,7 +334,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
      */
     val uiState: StateFlow<HomeUiState> = authStateFlow.flatMapLatest { uid ->
         if (uid == null) {
-            flowOf(HomeUiState(isLoading = false, error = "User not logged in."))
+            flowOf(HomeUiState(isLoading = false, error = K.userNotLoggedIn))
         } else {
             // 1. Get profile flow from local DB (cached first)
             repository.getUserProfile(uid)
@@ -490,8 +498,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     val scheduleState: StateFlow<ScheduleState> = combine(
         uiState.map { it.masterData }.distinctUntilChanged(),
         todayEvents,
-        _selectedDate
-    ) { masterData, currentEvents, date ->
+        _selectedDate,
+        languageManager.languageCode
+    ) { masterData, currentEvents, date, langPref ->
+        val effectiveLang = AppStrings.getEffectiveLanguage(langPref, getApplication())
         val dateStr = date.format(dateFormatter)
         
         // Detect active exam period
@@ -533,7 +543,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val todaySpecialClasses = masterData.specialClasses.filter { it.date == dateStr }.toImmutableList()
         
         // Resolve day order
-        val (dayOrder, scheduleStatus) = resolveDayOrder(date, currentEvents, todaySpecialClasses.firstOrNull())
+        val (dayOrder, scheduleStatus) = resolveDayOrder(date, currentEvents, todaySpecialClasses.firstOrNull(), effectiveLang)
         
         // Build period list
         val periods = if (dayOrder.isNotEmpty()) {
@@ -585,13 +595,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     val todayUpdate: StateFlow<DailyUpdateDisplay?> = combine(
         uiState.map { it.sectionUpdates.daily }.distinctUntilChanged(),
         _selectedDate,
-        scheduleState
-    ) { dailyMap, date, schedule ->
+        scheduleState,
+        languageManager.languageCode
+    ) { dailyMap, date, schedule, langPref ->
+        val effectiveLang = AppStrings.getEffectiveLanguage(langPref, getApplication())
         val dateStr = date.format(dateFormatter)
         val visibleServerUpdate = dailyMap[dateStr]
         
         // Automated lab reminder logic
-        val isHoliday = schedule.scheduleStatus.contains("Holiday", ignoreCase = true)
+        val isHoliday = schedule.scheduleStatus.contains("Holiday", ignoreCase = true) ||
+                        schedule.scheduleStatus.contains("விடுமுறை", ignoreCase = true) ||
+                        schedule.scheduleStatus.contains("Vidumurai", ignoreCase = true)
         val hasFullDayEvent = schedule.fullDayEvents.isNotEmpty()
         val isMajorExam = schedule.activeExamPeriod != null && !schedule.activeExamPeriod.type.contains("CT")
         val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam || schedule.todaySpecialClasses.isNotEmpty() || schedule.occasionEvent != null
@@ -601,16 +615,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         
         val rawNote = visibleServerUpdate?.note ?: ""
         var finalNote = rawNote
-        var finalAuthor = visibleServerUpdate?.author ?: "System Reminder"
+        var finalAuthor = visibleServerUpdate?.author ?: K.systemReminder.tr(effectiveLang)
 
         val automatedNotices = mutableListOf<String>()
         
         if (hasLabToday) {
-            automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
+            automatedNotices.add(K.bringLabcoatsEssentials.tr(effectiveLang))
         }
         
         if (hasExamToday) {
-            automatedNotices.add("📖 Study well for the test! Score well and get full marks! All the best! 🎯")
+            automatedNotices.add(K.studyWellExamWish.tr(effectiveLang))
         }
 
         if (automatedNotices.isNotEmpty()) {
@@ -637,12 +651,22 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Resolve day order based on calendar events
      */
-    private fun resolveDayOrder(date: LocalDate, events: List<CalendarEvent>, specialClass: SpecialClass? = null): Pair<String, String> {
+    private fun resolveDayOrder(date: LocalDate, events: List<CalendarEvent>, specialClass: SpecialClass? = null, lang: String = "en"): Pair<String, String> {
         if (specialClass != null) {
-            return "SPECIAL" to "Classes suspended due to ${specialClass.title.ifBlank { specialClass.typeTitle }}."
+            val reason = specialClass.title.ifBlank { specialClass.typeTitle }
+            return "SPECIAL" to K.classesSuspendedDueTo.trWithLang(lang, reason)
         }
 
-        val weekdayName = date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.ENGLISH)
+        val weekdayNameEn = when (date.dayOfWeek) {
+            DayOfWeek.MONDAY -> "Monday"
+            DayOfWeek.TUESDAY -> "Tuesday"
+            DayOfWeek.WEDNESDAY -> "Wednesday"
+            DayOfWeek.THURSDAY -> "Thursday"
+            DayOfWeek.FRIDAY -> "Friday"
+            DayOfWeek.SATURDAY -> "Saturday"
+            DayOfWeek.SUNDAY -> "Sunday"
+        }
+        val weekdayNameLocalized = date.dayOfWeek.toMozhiName(lang)
         
         val holidayEvent = events.find { it.isHoliday() }
         val occasionEvent = events.find { it.isOccasion() }
@@ -654,19 +678,31 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
         
         return when {
-            holidayEvent != null -> "" to "Holiday: ${holidayEvent.title}"
-            occasionEvent != null -> "" to "Occasion"
-            fullDayEvt != null -> "" to "Event Day"
+            holidayEvent != null -> "" to "${K.holiday.tr(lang)}: ${holidayEvent.title}"
+            occasionEvent != null -> "" to K.specialEvent.tr(lang)
+            fullDayEvt != null -> "" to K.fullDayEvent.tr(lang)
             workingDayEvent != null -> {
-                val foundOrder = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
-                    .find { workingDayEvent.title.contains(it, ignoreCase = true) }
+                val dayMap = listOf(
+                    "Monday" to DayOfWeek.MONDAY,
+                    "Tuesday" to DayOfWeek.TUESDAY,
+                    "Wednesday" to DayOfWeek.WEDNESDAY,
+                    "Thursday" to DayOfWeek.THURSDAY,
+                    "Friday" to DayOfWeek.FRIDAY,
+                    "Saturday" to DayOfWeek.SATURDAY
+                )
+                val foundDay = dayMap.find { workingDayEvent.title.contains(it.first, ignoreCase = true) }
+                val ro = foundDay?.first ?: (if (date.dayOfWeek == DayOfWeek.SUNDAY) "" else weekdayNameEn)
+                val localizedDay = foundDay?.second?.toMozhiName(lang) ?: (if (date.dayOfWeek == DayOfWeek.SUNDAY) "" else weekdayNameLocalized)
                 
-                val ro = foundOrder ?: (if (date.dayOfWeek == DayOfWeek.SUNDAY) "" else weekdayName)
-                val rs = if (foundOrder != null) "Following $foundOrder Order" else "Working Day ($ro)"
+                val rs = if (foundDay != null) {
+                    K.followingOrder.trWithLang(lang, localizedDay)
+                } else {
+                    "${K.workingDay.tr(lang)} ($localizedDay)"
+                }
                 ro to rs
             }
-            date.dayOfWeek == DayOfWeek.SUNDAY -> "" to "Holiday"
-            else -> "" to "No Academic Calendar Scheduled"
+            date.dayOfWeek == DayOfWeek.SUNDAY -> "" to K.holiday.tr(lang)
+            else -> "" to K.noAcademicCalendarScheduled.tr(lang)
         }
     }
     
@@ -783,6 +819,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Get formatted date string for display
      */
+    fun getFormattedDate(lang: String): String {
+        return _selectedDate.value.toMozhiFullDate(lang)
+    }
+
     fun getFormattedDate(locale: Locale = Locale.getDefault()): String {
         val date = _selectedDate.value
         return date.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy", locale))
@@ -846,7 +886,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 kotlinx.coroutines.delay(1000)
                 saveJob.join()
             } catch (e: Exception) {
-                _uiFlags.update { it.copy(error = "Failed to save update") }
+                _uiFlags.update { it.copy(error = K.failedToSaveUpdate) }
             } finally {
                 _uiFlags.update { it.copy(isSyncing = false) }
             }
@@ -874,7 +914,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 kotlinx.coroutines.delay(1000)
                 saveJob.join()
             } catch (e: Exception) {
-                _uiFlags.update { it.copy(error = "Failed to save notice") }
+                _uiFlags.update { it.copy(error = K.failedToSaveNotice) }
             } finally {
                 _uiFlags.update { it.copy(isSyncing = false) }
             }
@@ -901,7 +941,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 ))
 
             } catch (e: Exception) {
-                _uiFlags.update { it.copy(error = "Failed to update placement") }
+                _uiFlags.update { it.copy(error = K.failedToUpdatePlacement) }
             } finally {
                 _uiFlags.update { it.copy(isSyncing = false) }
             }
@@ -929,7 +969,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 repository.cleanupOldUpdates(profile.batch, profile.department, profile.section)
                 Log.d("HomeViewModel", "Storage cleanup complete")
             } catch (e: Exception) {
-                _uiFlags.update { it.copy(error = "Cleanup failed") }
+                _uiFlags.update { it.copy(error = K.cleanupFailed) }
                 Log.e("HomeViewModel", "Cleanup failed", e)
             } finally {
                 _uiFlags.update { it.copy(isSyncing = false) }
@@ -955,7 +995,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 )
                 Log.d("HomeViewModel", "Range cleanup complete: $startDate to $endDate")
             } catch (e: Exception) {
-                _uiFlags.update { it.copy(error = "Cleanup failed") }
+                _uiFlags.update { it.copy(error = K.cleanupFailed) }
                 Log.e("HomeViewModel", "Range cleanup failed", e)
             } finally {
                 _uiFlags.update { it.copy(isSyncing = false) }

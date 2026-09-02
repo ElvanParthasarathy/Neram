@@ -97,6 +97,14 @@ fossify-commons = { group = "org.fossify", name = "commons", version.ref = "foss
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 joda-time = { group = "joda-time", name = "joda-time", version.ref = "joda" }
 
+# Samsung One UI SESL
+sesl-appcompat = { module = "sesl.androidx.appcompat:appcompat", version = "1.8.0+1.0.21-sesl8+rev1" }
+sesl-pickerBasic = { module = "sesl.androidx.picker:picker-basic", version = "1.0.7+1.0.7-sesl8+rev2" }
+sesl-pickerApp = { module = "sesl.androidx.picker:picker-app", version = "1.0.6+1.0.6-sesl8+rev0" }
+sesl-material = { module = "sesl.com.google.android.material:material", version = "1.12.0+1.0.32-sesl8+rev3" }
+sesl-core = { module = "sesl.androidx.core:core", version = "1.19.0+1.0.7-sesl8+rev1" }
+sesl-coreKtx = { module = "sesl.androidx.core:core-ktx", version = "1.19.0+1.0.0-sesl8+rev0" }
+
 [plugins]
 
 android-application = { id = "com.android.application", version.ref = "agp" }

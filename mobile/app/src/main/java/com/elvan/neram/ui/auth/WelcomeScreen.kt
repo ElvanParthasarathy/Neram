@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.auth
+package com.elvan.neram.ui.auth
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -18,12 +18,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.R
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.delay
 
 @Composable
 fun WelcomeScreen(
     onContinue: () -> Unit
 ) {
+    val lang = LocalAppLanguage.current
     // Staggered reveal states
     var showLogo by remember { mutableStateOf(false) }
     var showTitle by remember { mutableStateOf(false) }
@@ -42,61 +46,61 @@ fun WelcomeScreen(
         showButton = true
     }
 
-    // Floating animation for logo
+    // Continuous floating/pulse animation for logo
     val infiniteTransition = rememberInfiniteTransition(label = "logo_float")
-    val logoOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 12f,
+    
+    val floatOffset by infiniteTransition.animateFloat(
+        initialValue = -8f,
+        targetValue = 8f,
         animationSpec = infiniteRepeatable(
-            animation = tween(2000, easing = EaseInOutSine),
+            animation = tween(3000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "float_offset"
     )
-    
-    // Pulsing glow for logo
-    val logoScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
+
+    val logoPulse by infiniteTransition.animateFloat(
+        initialValue = 0.95f,
         targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = EaseInOutSine),
+            animation = tween(4000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "logo_pulse"
     )
 
-    AuthGradientBackground {
+    AuthBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 24.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(1f))
 
-            // ===== ANIMATED LOGO =====
+            // ===== LOGO ANIMATION =====
             AnimatedVisibility(
                 visible = showLogo,
-                enter = fadeIn(animationSpec = tween(800)) + 
-                        scaleIn(initialScale = 0.3f, animationSpec = tween(800, easing = EaseOutBack))
+                enter = scaleIn(
+                    initialScale = 0.5f,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessLow
+                    )
+                ) + fadeIn(animationSpec = tween(500))
             ) {
                 Box(
+                    contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(200.dp)
-                        .graphicsLayer {
-                            translationY = -logoOffset
-                            scaleX = logoScale
-                            scaleY = logoScale
-                        },
-                    contentAlignment = Alignment.Center
+                        .offset(y = floatOffset.dp)
+                        .scale(logoPulse)
                 ) {
-                    // Glow effect behind logo
+                    // Outer glow/pulse ring
                     Box(
                         modifier = Modifier
-                            .size(180.dp)
+                            .size(200.dp)
                             .graphicsLayer {
                                 alpha = 0.3f
                                 scaleX = 1.3f
@@ -106,7 +110,7 @@ fun WelcomeScreen(
                     
                     Image(
                         painter = painterResource(id = R.drawable.ic_splash_logo),
-                        contentDescription = "Neram Logo",
+                        contentDescription = null,
                         modifier = Modifier.size(180.dp),
                         colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(AuthColors.textPrimary())
                     )
@@ -121,7 +125,7 @@ fun WelcomeScreen(
                         slideInVertically(initialOffsetY = { 30 }, animationSpec = tween(600))
             ) {
                 Text(
-                    text = "Welcome to Neram",
+                    text = K.welcomeToNeram.tr(lang),
                     style = MaterialTheme.typography.displaySmall.copy(
                         fontWeight = FontWeight.ExtraBold,
                         color = AuthColors.textPrimary()
@@ -138,7 +142,7 @@ fun WelcomeScreen(
                         slideInVertically(initialOffsetY = { 20 }, animationSpec = tween(600))
             ) {
                 Text(
-                    text = "Your College Time, Sorted.",
+                    text = K.collegeTimeSorted.tr(lang),
                     style = MaterialTheme.typography.titleMedium.copy(
                         color = AuthColors.textSecondary(),
                         fontWeight = FontWeight.Medium
@@ -160,7 +164,7 @@ fun WelcomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Tap \"Agree and Continue\" to get started with Neram.",
+                        text = K.tapAgreeAndContinue.tr(lang),
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = AuthColors.textMuted(),
                             fontSize = 11.sp,
@@ -171,7 +175,7 @@ fun WelcomeScreen(
                     )
 
                     AnimatedAuthButton(
-                        text = "Agree and Continue",
+                        text = K.agreeAndContinue.tr(lang),
                         onClick = onContinue
                     )
                     

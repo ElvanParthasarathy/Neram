@@ -40,6 +40,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.components.ExpressiveLoadingIndicator
 import kotlin.math.sin
 
@@ -76,6 +79,12 @@ object AuthColors {
 }
 
 // ============== ANIMATED BACKGROUND WITH MATERIAL 3 SHAPES ==============
+@Composable
+fun AuthBackground(
+    modifier: Modifier = Modifier,
+    content: @Composable BoxScope.() -> Unit
+) = AuthGradientBackground(modifier = modifier, content = content)
+
 @Composable
 fun AuthGradientBackground(
     modifier: Modifier = Modifier,
@@ -247,6 +256,7 @@ fun AuthTextField(
     val textPrimary = AuthColors.textPrimary()
     val textSecondary = AuthColors.textSecondary()
     val inputBg = AuthColors.inputBackground()
+    val lang = LocalAppLanguage.current
     
     // Animate background on focus
     val backgroundColor by animateColorAsState(
@@ -268,7 +278,7 @@ fun AuthTextField(
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
                             imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                            contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                            contentDescription = if (passwordVisible) K.hidePassword.tr(lang) else K.showPassword.tr(lang),
                             tint = textSecondary
                         )
                     }
@@ -353,11 +363,13 @@ fun StepHeader(
 // ============== GOOGLE BUTTON (FILLED STYLE) ==============
 @Composable
 fun GoogleAuthButton(
-    text: String = "Continue with Google",
+    text: String? = null,
     onClick: () -> Unit,
     isLoading: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    val lang = LocalAppLanguage.current
+    val displayText = text ?: K.continueWithGoogle.tr(lang)
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     
@@ -411,7 +423,7 @@ fun GoogleAuthButton(
                     modifier = Modifier.padding(end = 12.dp)
                 )
                 Text(
-                    text = text,
+                    text = displayText,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Medium,
                         fontSize = 16.sp
@@ -425,6 +437,7 @@ fun GoogleAuthButton(
 // ============== DIVIDER WITH TEXT ==============
 @Composable
 fun OrDivider(modifier: Modifier = Modifier) {
+    val lang = LocalAppLanguage.current
     val dividerColor = AuthColors.divider()
     val textMuted = AuthColors.textMuted()
     
@@ -437,7 +450,7 @@ fun OrDivider(modifier: Modifier = Modifier) {
             color = dividerColor
         )
         Text(
-            " OR ",
+            K.orDivider.tr(lang),
             style = MaterialTheme.typography.bodySmall,
             color = textMuted,
             modifier = Modifier.padding(horizontal = 16.dp)

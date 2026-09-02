@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.calendar
+package com.elvan.neram.ui.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.ui.home.rememberHomeColors
+import com.elvan.neram.ui.mozhiyaakkam.*
+import com.elvan.neram.ui.theme.LocalAppLanguage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.Month
@@ -42,9 +44,15 @@ fun NeramCalendarTopAppBar(
     onDayClick: (LocalDate) -> Unit = {}
 ) {
     val colors = rememberHomeColors()
+    val lang = LocalAppLanguage.current
     
-    Column(modifier = modifier.fillMaxWidth()) {
-        // Month/Year Title Row
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colors.background)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        // Top Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -52,23 +60,22 @@ fun NeramCalendarTopAppBar(
         ) {
             Column {
                 Text(
-                    text = "${selectedMonth.name.lowercase().replaceFirstChar { it.uppercase() }} $selectedYear",
-                    style = MaterialTheme.typography.headlineSmall,
+                    text = "${selectedMonth.toKtxMozhiName(lang, isShort = false)} $selectedYear",
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = colors.textPrimary
                 )
                 Text(
-                    text = "${events.size} events",
-                    style = MaterialTheme.typography.bodySmall,
+                    text = "${events.size} ${K.eventsCount.tr(lang)} • ${holidays.size} ${K.holidaysCount.tr(lang)}",
+                    fontSize = 13.sp,
                     color = colors.textSecondary
                 )
             }
             
-            // Today Button
             IconButton(onClick = onTodayClick) {
                 Icon(
                     Icons.Default.Today,
-                    contentDescription = "Go to Today",
+                    contentDescription = K.goToToday.tr(lang),
                     tint = colors.accent
                 )
             }
@@ -85,21 +92,21 @@ fun NeramCalendarTopAppBar(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             ViewTab(
-                label = "Month",
+                label = K.viewMonth.tr(lang),
                 icon = Icons.Outlined.CalendarMonth,
                 isSelected = currentView == CalendarViewType.MONTH,
                 onClick = { onViewChange(CalendarViewType.MONTH) },
                 colors = colors
             )
             ViewTab(
-                label = "Schedule",
+                label = K.viewSchedule.tr(lang),
                 icon = Icons.Outlined.ViewAgenda,
                 isSelected = currentView == CalendarViewType.SCHEDULE,
                 onClick = { onViewChange(CalendarViewType.SCHEDULE) },
                 colors = colors
             )
             ViewTab(
-                label = "Year",
+                label = K.viewYear.tr(lang),
                 icon = Icons.Outlined.CalendarViewMonth,
                 isSelected = currentView == CalendarViewType.YEAR,
                 onClick = { onViewChange(CalendarViewType.YEAR) },

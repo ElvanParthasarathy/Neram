@@ -9,9 +9,13 @@ import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.components.ExpressivePullToRefreshBox
 import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.toMozhiFullDate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
 import java.time.format.DateTimeFormatter
@@ -34,6 +38,9 @@ fun ScheduleScreen(
     scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     pullRefreshState: androidx.compose.material3.pulltorefresh.PullToRefreshState? = null
 ) {
+    val lang = LocalAppLanguage.current
+    val effectiveLang = lang
+
     // 1. Collect ViewModel State
     val scheduleState by viewModel.scheduleState.collectAsState()
     val selectedDate by viewModel.selectedDate.collectAsState()
@@ -53,7 +60,6 @@ fun ScheduleScreen(
 
     // 4. Handle Offline Dialog
     if (showOfflineDialog) {
-        val lang = LocalAppLanguage.current
         AlertDialog(
             onDismissRequest = { showOfflineDialog = false },
             title = { Text(AppStrings.Home.offline(lang), style = HomeTypography.PillTitle) },
@@ -79,98 +85,14 @@ fun ScheduleScreen(
 
     // 5. Handle Date Picker Dialog
     if (showDatePicker) {
-        key(selectedDate) {
-            val config = androidx.compose.ui.platform.LocalConfiguration.current
-            val isLandscape = config.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
-            val datePickerState = rememberDatePickerState(
-                initialSelectedDateMillis = selectedDate.atStartOfDay(ZoneOffset.UTC)
-                    .toInstant().toEpochMilli(),
-                initialDisplayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
-            )
-            
-            // Force correct mode when orientation changes while picker is open
-            LaunchedEffect(isLandscape) {
-                datePickerState.displayMode = if (isLandscape) DisplayMode.Input else DisplayMode.Picker
-            }
-            
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                    confirmButton = {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = HomeDimens.SpacingMd, end = HomeDimens.SpacingMd, bottom = HomeDimens.SpacingMd),
-                            horizontalArrangement = Arrangement.spacedBy(HomeDimens.SpacingMd)
-                        ) {
-                            val lang = LocalAppLanguage.current
-                            Button(
-                                onClick = { showDatePicker = false },
-                                shape = HomeShapes.Pill,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = colors.subtleBackground,
-                                    contentColor = colors.textSecondary
-                                ),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(AppStrings.Home.cancel(lang), style = HomeTypography.PillButton)
-                            }
-                            Button(
-                                onClick = {
-                                    datePickerState.selectedDateMillis?.let { millis ->
-                                        val date = Instant.ofEpochMilli(millis)
-                                            .atZone(ZoneOffset.UTC)
-                                            .toLocalDate()
-                                        viewModel.onDateSelected(date)
-                                    }
-                                    showDatePicker = false
-                                },
-                                shape = HomeShapes.Pill,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = colors.accent,
-                                    contentColor = androidx.compose.ui.graphics.Color.White
-                                ),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("OK", style = HomeTypography.PillButton)
-                            }
-                        }
-                    },
-                    dismissButton = null,
-                    colors = DatePickerDefaults.colors(
-                        containerColor = colors.surface,
-                    )
-                ) {
-                    DatePicker(
-                        state = datePickerState,
-                        showModeToggle = false,
-                        title = {
-                            Text(
-                                text = com.elvan.neram.ui.theme.AppStrings.Home.selectDate(com.elvan.neram.ui.theme.AppStrings.getEffectiveLanguage(com.elvan.neram.ui.theme.LocalAppLanguage.current, androidx.compose.ui.platform.LocalContext.current)),
-                                modifier = Modifier.padding(start = 24.dp, end = 12.dp, top = 16.dp),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = colors.accent
-                            )
-                        },
-                        colors = DatePickerDefaults.colors(
-                            containerColor = colors.surface,
-                            titleContentColor = colors.accent,
-                            headlineContentColor = colors.textPrimary,
-                            weekdayContentColor = colors.textSecondary,
-                            subheadContentColor = colors.textSecondary,
-                            yearContentColor = colors.textSecondary,
-                            currentYearContentColor = colors.accent,
-                            selectedYearContentColor = androidx.compose.ui.graphics.Color.White,
-                            selectedYearContainerColor = colors.accent,
-                            dayContentColor = colors.textPrimary,
-                            selectedDayContainerColor = colors.accent,
-                            selectedDayContentColor = androidx.compose.ui.graphics.Color.White,
-                            todayContentColor = colors.accent,
-                            todayDateBorderColor = colors.accent
-                        )
-                    )
-                }
-            }
-        }
+        com.elvan.neram.ui.common.NeramDatePickerDialog(
+            initialDate = selectedDate,
+            onDateSelected = { date ->
+                viewModel.onDateSelected(date)
+            },
+            onDismissRequest = { showDatePicker = false }
+        )
+    }
     
 
 
@@ -201,8 +123,8 @@ fun ScheduleScreen(
         pullRefreshState = effectivePullRefreshState,
         isRefreshing = uiState.isSyncing || isSimulatingOfflineRefresh,
         onRefresh = onRefresh,
-        selectedDate = selectedDate, // Added this line
-        selectedDateFormatted = selectedDate.format(DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")),
+        selectedDate = selectedDate,
+        selectedDateFormatted = selectedDate.toMozhiFullDate(effectiveLang),
 
         onDatePillClick = { showDatePicker = true },
         onDateSwipePrev = { viewModel.onDateSelected(selectedDate.minusDays(1)) },
