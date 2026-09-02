@@ -10,11 +10,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -128,6 +128,7 @@ fun ElvanExpandedBar(
 
     val maxAllowedWidthDp = (screenWidth - 32.dp)
     val activeBanners = remember(banners) { banners.filter { it.enabled && it.message.isNotBlank() } }
+    var selectedDetailBanner by remember { mutableStateOf<FeatureCard?>(null) }
 
     Box(
         modifier = Modifier
@@ -174,7 +175,7 @@ fun ElvanExpandedBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
-                    .offset(y = statusBarHeight + 32.dp)
+                    .offset(y = statusBarHeight + 30.dp)
                     .graphicsLayer {
                         this.alpha = bannerOpacity
                     },
@@ -182,7 +183,7 @@ fun ElvanExpandedBar(
             ) {
                 if (activeBanners.size == 1) {
                     val singleBanner = activeBanners.first()
-                    Box(modifier = Modifier.padding(horizontal = 26.dp)) {
+                    Box(modifier = Modifier.padding(horizontal = 20.dp)) {
                         MonochromeBannerCard(
                             banner = singleBanner,
                             colors = colors,
@@ -194,6 +195,9 @@ fun ElvanExpandedBar(
                             },
                             onDismiss = {
                                 onDismissBanner?.invoke(singleBanner.id)
+                            },
+                            onExpand = {
+                                selectedDetailBanner = singleBanner
                             }
                         )
                     }
@@ -206,7 +210,7 @@ fun ElvanExpandedBar(
                         HorizontalPager(
                             state = pagerState,
                             modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(horizontal = 24.dp),
+                            contentPadding = PaddingValues(horizontal = 20.dp),
                             pageSpacing = 10.dp
                         ) { page ->
                             val item = activeBanners.getOrNull(page)
@@ -222,20 +226,23 @@ fun ElvanExpandedBar(
                                     },
                                     onDismiss = {
                                         onDismissBanner?.invoke(item.id)
+                                    },
+                                    onExpand = {
+                                        selectedDetailBanner = item
                                     }
                                 )
                             }
                         }
 
                         // Subtle, monochrome minimal dot indicators
-                        Spacer(modifier = Modifier.height(10.dp))
+                        Spacer(modifier = Modifier.height(6.dp))
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             repeat(activeBanners.size) { index ->
                                 val isSelected = pagerState.currentPage == index
-                                val dotWidth = if (isSelected) 14.dp else 4.dp
+                                val dotWidth = if (isSelected) 12.dp else 4.dp
                                 val dotColor = if (isSelected) {
                                     if (colors.isDark) Color.White.copy(alpha = 0.9f) else Color.Black.copy(alpha = 0.85f)
                                 } else {
@@ -244,7 +251,7 @@ fun ElvanExpandedBar(
 
                                 Box(
                                     modifier = Modifier
-                                        .height(4.dp)
+                                        .height(3.5.dp)
                                         .width(dotWidth)
                                         .clip(CircleShape)
                                         .background(dotColor)
@@ -256,6 +263,23 @@ fun ElvanExpandedBar(
             }
         }
     }
+
+    // Modal Bottom Sheet when description text is truncated
+    selectedDetailBanner?.let { banner ->
+        com.elvan.neram.ui.home.components.FeatureCardDetailBottomSheet(
+            card = banner,
+            colors = colors,
+            lang = lang,
+            onDismissRequest = { selectedDetailBanner = null },
+            onAction = {
+                val route = banner.actionRoute
+                selectedDetailBanner = null
+                if (route.isNotBlank()) {
+                    onBannerClick?.invoke(route)
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -265,28 +289,41 @@ private fun MonochromeBannerCard(
     ff: androidx.compose.ui.text.font.FontFamily?,
     onClick: () -> Unit,
     onDismiss: () -> Unit,
+    onExpand: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val isClickable = banner.actionRoute.isNotBlank()
     val lang = LocalAppLanguage.current
     val typeStr = banner.getLocalizedBadge(lang)
     val symbol = "✦"
+    val desc = banner.getLocalizedMessage(lang)
+    var isTruncated by remember { mutableStateOf(false) }
+    val isLong = isTruncated || desc.length > 120 || desc.lines().size > 3
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .clickable(enabled = isClickable, onClick = onClick),
-        shape = RoundedCornerShape(24.dp),
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(
+                enabled = isLong || isClickable,
+                onClick = {
+                    if (isLong) {
+                        onExpand()
+                    } else {
+                        onClick()
+                    }
+                }
+            ),
+        shape = RoundedCornerShape(20.dp),
         color = colors.surface,
         shadowElevation = 0.dp
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, end = 12.dp, top = 14.dp, bottom = 18.dp)
+                .padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)
         ) {
-            // Top Row: Type Pill with Sparkle Symbol + Large Easy-Touch Close (×) Button
+            // Top Row: Type Pill with Sparkle Symbol + Close (×) Button
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -299,12 +336,12 @@ private fun MonochromeBannerCard(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
                         .background(colors.textPrimary.copy(alpha = 0.08f))
-                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = symbol,
                         style = TextStyle(
-                            fontSize = 11.5.sp,
+                            fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
                         ),
                         color = colors.textPrimary,
@@ -315,17 +352,17 @@ private fun MonochromeBannerCard(
                         style = TextStyle(
                             fontFamily = ff,
                             fontWeight = FontWeight.SemiBold,
-                            fontSize = 11.sp,
+                            fontSize = 10.5.sp,
                             letterSpacing = 0.2.sp
                         ),
                         color = colors.textPrimary
                     )
                 }
 
-                // Generous 38dp Touch-Target Close (×) Button
+                // Easy-Touch Close (×) Button
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(34.dp)
                         .clip(CircleShape)
                         .clickable(onClick = onDismiss),
                     contentAlignment = Alignment.Center
@@ -333,49 +370,55 @@ private fun MonochromeBannerCard(
                     Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = K.dismiss.tr(lang),
-                        tint = colors.textSecondary.copy(alpha = 0.7f),
-                        modifier = Modifier.size(17.dp)
+                        tint = colors.textSecondary.copy(alpha = 0.8f),
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // Middle: Message Text
+            // Middle: Message Text (Default 3 lines with visual overflow detection)
             Text(
-                text = banner.getLocalizedMessage(lang),
+                text = desc,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
+                onTextLayout = { textLayoutResult ->
+                    if (textLayoutResult.hasVisualOverflow) {
+                        isTruncated = true
+                    }
+                },
                 style = TextStyle(
                     fontFamily = ff,
-                    fontSize = 14.5.sp,
+                    fontSize = 13.5.sp,
                     fontWeight = FontWeight.Medium,
-                    lineHeight = 20.5.sp
+                    lineHeight = 18.sp
                 ),
                 color = colors.textPrimary,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = 6.dp)
             )
 
             // Bottom Row: Tappable Monochrome Pill Button (When clickable)
             if (isClickable) {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
                             .background(colors.textPrimary.copy(alpha = 0.1f))
-                            .padding(horizontal = 12.dp, vertical = 5.dp)
+                            .clickable(onClick = onClick)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = K.open.tr(lang),
                             style = TextStyle(
                                 fontFamily = ff,
-                                fontSize = 12.sp,
+                                fontSize = 11.5.sp,
                                 fontWeight = FontWeight.SemiBold
                             ),
                             color = colors.textPrimary
@@ -384,7 +427,7 @@ private fun MonochromeBannerCard(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
                             contentDescription = K.open.tr(lang),
                             tint = colors.textPrimary,
-                            modifier = Modifier.size(13.dp)
+                            modifier = Modifier.size(12.dp)
                         )
                     }
                 }

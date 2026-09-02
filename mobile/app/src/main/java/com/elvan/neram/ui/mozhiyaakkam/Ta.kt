@@ -882,101 +882,101 @@ val ta: Map<String, TaVar> = mapOf(
 
     // ── Months of Year ──
     K.monthJan to TaVar(
-        ta = "சனவரி",
-        latn = "Sanavari"
+        ta = "சேன்யுவரி",
+        latn = "Chaenyuvari"
     ),
     K.monthFeb to TaVar(
-        ta = "பிப்ரவரி",
-        latn = "Pibravari"
+        ta = "ஃபெபுருவரி",
+        latn = "Feburuvari"
     ),
     K.monthMar to TaVar(
-        ta = "மார்ச்சு",
-        latn = "Maarchu"
+        ta = "மாழ்ச்சு",
+        latn = "Maazhchu"
     ),
     K.monthApr to TaVar(
-        ta = "ஏப்ரல்",
-        latn = "Aepral"
+        ta = "ஏப்பிரல்",
+        latn = "Aeppiral"
     ),
     K.monthMay to TaVar(
-        ta = "மே",
-        latn = "Mae"
+        ta = "மேய்",
+        latn = "Mey"
     ),
     K.monthJun to TaVar(
-        ta = "சூன்",
-        latn = "Shoon"
+        ta = "சியூன்",
+        latn = "Chiyoon"
     ),
     K.monthJul to TaVar(
-        ta = "சூலை",
-        latn = "Shoolai"
+        ta = "சியூலை",
+        latn = "Chiyoolai"
     ),
     K.monthAug to TaVar(
-        ta = "ஆகத்து",
-        latn = "Aagathu"
+        ta = "ஔகத்து",
+        latn = "Augathu"
     ),
     K.monthSep to TaVar(
-        ta = "செப்டம்பர்",
-        latn = "Septembar"
+        ta = "செப்புதெம்பழ்",
+        latn = "Chepputhembazh"
     ),
     K.monthOct to TaVar(
-        ta = "அக்டோபர்",
-        latn = "Aktoabar"
+        ta = "அக்குதௌபழ்",
+        latn = "Akkuthoubazh"
     ),
     K.monthNov to TaVar(
-        ta = "நவம்பர்",
-        latn = "Navambar"
+        ta = "நொவெம்பழ்",
+        latn = "Novembazh"
     ),
     K.monthDec to TaVar(
-        ta = "திசம்பர்",
-        latn = "Dhisambar"
+        ta = "திசெம்பழ்",
+        latn = "Thisembazh"
     ),
 
     K.monthJanShort to TaVar(
-        ta = "சன",
-        latn = "San"
+        ta = "சேன்",
+        latn = "Chae"
     ),
     K.monthFebShort to TaVar(
-        ta = "பிப்",
-        latn = "Pib"
+        ta = "ஃபெப்",
+        latn = "Feb"
     ),
     K.monthMarShort to TaVar(
-        ta = "மார்",
-        latn = "Maar"
+        ta = "மாழ்",
+        latn = "Maazh"
     ),
     K.monthAprShort to TaVar(
         ta = "ஏப்",
         latn = "Aep"
     ),
     K.monthMayShort to TaVar(
-        ta = "மே",
-        latn = "Mae"
+        ta = "மேய்",
+        latn = "Mey"
     ),
     K.monthJunShort to TaVar(
-        ta = "சூன்",
-        latn = "Shoon"
+        ta = "சியூன்",
+        latn = "Chiyoon"
     ),
     K.monthJulShort to TaVar(
-        ta = "சூலை",
-        latn = "Shoolai"
+        ta = "சியூலை",
+        latn = "Chiyoolai"
     ),
     K.monthAugShort to TaVar(
-        ta = "ஆக",
-        latn = "Aaga"
+        ta = "ஔக",
+        latn = "Aug"
     ),
     K.monthSepShort to TaVar(
         ta = "செப்",
-        latn = "Sep"
+        latn = "Chep"
     ),
     K.monthOctShort to TaVar(
         ta = "அக்",
-        latn = "Ak"
+        latn = "Akku"
     ),
     K.monthNovShort to TaVar(
-        ta = "நவ",
-        latn = "Nava"
+        ta = "நொவ்",
+        latn = "Nov"
     ),
     K.monthDecShort to TaVar(
         ta = "திச",
-        latn = "Dhisa"
+        latn = "Thisa"
     ),
 
     // ── Settings Hub ──

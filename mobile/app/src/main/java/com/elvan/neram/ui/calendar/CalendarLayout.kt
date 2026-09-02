@@ -142,7 +142,7 @@ fun CalendarMainLayout(
                      val lang = LocalAppLanguage.current
                      val currentYear = java.time.LocalDate.now().year
                      val titleText = if (currentMonth.year == currentYear) {
-                         currentMonth.month.toMozhiName(lang, isShort = false).uppercase()
+                         currentMonth.month.toMozhiName(lang, isShort = false)
                      } else {
                          currentMonth.toMozhiString(lang, isShort = false)
                      }
@@ -191,13 +191,13 @@ fun CalendarMainLayout(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
                                 ) {
-                                    val lang = LocalAppLanguage.current
-                                    val currentYear = java.time.LocalDate.now().year
-                                    val titleText = if (currentMonth.year == currentYear) {
-                                        currentMonth.month.toMozhiName(lang, isShort = false).uppercase()
-                                    } else {
-                                        currentMonth.toMozhiString(lang, isShort = false)
-                                    }
+                                     val lang = LocalAppLanguage.current
+                                     val currentYear = java.time.LocalDate.now().year
+                                     val titleText = if (currentMonth.year == currentYear) {
+                                         currentMonth.month.toMozhiName(lang, isShort = false)
+                                     } else {
+                                         currentMonth.toMozhiString(lang, isShort = false)
+                                     }
                                     
                                     Box(
                                         modifier = Modifier

@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.home.components
+package com.elvan.neram.ui.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -183,10 +183,10 @@ fun ElvanTipsCard(
                     Spacer(modifier = Modifier.width(1.dp))
                 }
 
-                // Simple Close (X) button
+                // Easy-Touch Close (X) button
                 Box(
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(34.dp)
                         .clip(CircleShape)
                         .clickable(onClick = onDismiss),
                     contentAlignment = Alignment.Center
@@ -194,8 +194,8 @@ fun ElvanTipsCard(
                     Icon(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = K.dismiss.tr(lang),
-                        modifier = Modifier.size(15.dp),
-                        tint = colors.textSecondary.copy(alpha = 0.6f)
+                        modifier = Modifier.size(18.dp),
+                        tint = colors.textSecondary.copy(alpha = 0.8f)
                     )
                 }
             }
@@ -216,7 +216,7 @@ fun ElvanTipsCard(
                 overflow = TextOverflow.Ellipsis
             )
 
-            // Description (Max 2 lines locked)
+            // Description (Max 3 lines)
             val desc = card.getLocalizedDescription(lang)
             if (desc.isNotBlank()) {
                 Spacer(modifier = Modifier.height(3.dp))
@@ -229,14 +229,14 @@ fun ElvanTipsCard(
                         lineHeight = 17.sp
                     ),
                     color = colors.textSecondary,
-                    maxLines = 2,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis
                 )
             }
 
             // Bottom Row: Action or Read More
             val hasAction = card.actionRoute.isNotBlank() || card.actionText.isNotBlank()
-            val isLongContent = desc.length > 70 || desc.contains("\n")
+            val isLongContent = desc.length > 120 || desc.lines().size > 3
 
             if (hasAction || isLongContent) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -308,90 +308,104 @@ fun FeatureCardDetailBottomSheet(
     onAction: () -> Unit
 ) {
     val ff = LocalAppFontFamily.current
+    val message = card.getLocalizedMessage(lang)
+    val typeStr = card.getLocalizedBadge(lang)
+    val symbol = "✦"
+    val hasAction = card.actionRoute.isNotBlank() || card.actionText.isNotBlank()
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         containerColor = colors.surface,
         contentColor = colors.textPrimary,
-        scrimColor = Color.Black.copy(alpha = 0.5f)
+        scrimColor = Color.Black.copy(alpha = 0.45f),
+        dragHandle = {
+            BottomSheetDefaults.DragHandle(
+                color = colors.textSecondary.copy(alpha = 0.3f),
+                width = 36.dp,
+                height = 4.dp
+            )
+        }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp)
+                .padding(start = 24.dp, end = 24.dp, top = 4.dp, bottom = 28.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Top Badge
-            val badgeText = card.getLocalizedBadge(lang)
-            if (badgeText.isNotBlank()) {
+            // Monochrome Type Badge with Sparkle Symbol
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(colors.textPrimary.copy(alpha = 0.08f))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            ) {
                 Text(
-                    text = if (lang == "en") badgeText.uppercase() else badgeText,
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        letterSpacing = 0.5.sp
+                    text = symbol,
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontSize = 11.5.sp,
+                        fontWeight = FontWeight.SemiBold
                     ),
-                    color = colors.accent,
-                    modifier = Modifier.padding(bottom = 6.dp)
+                    color = colors.textPrimary,
+                    modifier = Modifier.offset(y = (-0.5).dp)
+                )
+                Text(
+                    text = if (lang == "en") typeStr.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } else typeStr,
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontFamily = ff,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 11.sp,
+                        letterSpacing = 0.2.sp
+                    ),
+                    color = colors.textPrimary
                 )
             }
 
-            // Full Title
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Full Message Content (Rendered only once without repetition)
             Text(
-                text = card.getLocalizedTitle(lang),
-                style = MaterialTheme.typography.titleLarge.copy(
+                text = message,
+                style = androidx.compose.ui.text.TextStyle(
                     fontFamily = ff,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    lineHeight = 26.sp
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Normal,
+                    lineHeight = 22.sp
                 ),
                 color = colors.textPrimary
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Full Description
-            val desc = card.getLocalizedDescription(lang)
-            if (desc.isNotBlank()) {
-                Text(
-                    text = desc,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontFamily = ff,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 15.sp,
-                        lineHeight = 22.sp
-                    ),
-                    color = colors.textSecondary
-                )
-            }
-
-            // Action Button inside bottom sheet
-            val hasAction = card.actionRoute.isNotBlank() || card.actionText.isNotBlank()
+            // Edge-to-Edge Centered Subtle Monochrome Open Button
             if (hasAction) {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
                 Button(
                     onClick = onAction,
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colors.accent,
-                        contentColor = Color.White
+                        containerColor = colors.textPrimary.copy(alpha = 0.08f),
+                        contentColor = colors.textPrimary
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    elevation = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
                 ) {
                     Text(
-                        text = card.getLocalizedActionText(lang),
-                        style = MaterialTheme.typography.labelLarge.copy(
+                        text = K.open.tr(lang),
+                        style = androidx.compose.ui.text.TextStyle(
                             fontFamily = ff,
-                            fontWeight = FontWeight.Bold
+                            fontSize = 14.5.sp,
+                            fontWeight = FontWeight.SemiBold
                         ),
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        color = colors.textPrimary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
                         imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                        contentDescription = null,
+                        contentDescription = K.open.tr(lang),
+                        tint = colors.textPrimary,
                         modifier = Modifier.size(16.dp)
                     )
                 }

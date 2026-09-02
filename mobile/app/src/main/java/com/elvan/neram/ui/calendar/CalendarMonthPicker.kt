@@ -125,7 +125,7 @@ fun MonthYearPickerDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = month.toMozhiName(lang, isShort = true).uppercase(),
+                                    text = month.toMozhiName(lang, isShort = true),
                                     color = if (isSelected) androidx.compose.ui.graphics.Color.White else colors.textPrimary,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                     fontSize = 13.sp

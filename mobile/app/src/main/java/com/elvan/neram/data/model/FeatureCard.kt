@@ -40,7 +40,7 @@ data class FeatureCard(
         val isTa = lang == "ta" || lang == "ta-Latn"
         if (isTa && actionTextTa.isNotBlank()) return actionTextTa
         if (actionText.isNotBlank()) return actionText
-        return K.explore.tr(lang)
+        return K.open.tr(lang)
     }
 
     fun getLocalizedBadge(lang: String): String {

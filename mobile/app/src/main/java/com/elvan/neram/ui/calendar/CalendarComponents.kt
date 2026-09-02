@@ -185,7 +185,7 @@ fun CalendarWidget(
         if (showHeader) {
             val currentYear = java.time.Year.now().value
             val monthTitle = if (currentMonth.year == currentYear) {
-                currentMonth.month.toMozhiName(langPref, isShort = false).uppercase()
+                currentMonth.month.toMozhiName(langPref, isShort = false)
             } else {
                 currentMonth.toMozhiString(langPref, isShort = false)
             }
@@ -323,7 +323,7 @@ fun YearMonthPickerDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = month.toMozhiName(langPref, isShort = true).uppercase(),
+                                    text = month.toMozhiName(langPref, isShort = true),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = if (isSelected) Color.White else colors.textPrimary
@@ -836,7 +836,7 @@ fun SelectedDaySection(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = date.dayOfWeek.toMozhiName(langPref, isShort = true).uppercase(),
+                    text = date.dayOfWeek.toMozhiName(langPref, isShort = true),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = colors.textSecondary
@@ -1001,7 +1001,7 @@ fun AgendaItem(event: CalendarEvent, isSelected: Boolean, colors: HomeColors) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = date.dayOfWeek.toMozhiName(langPref, isShort = true).uppercase(),
+                    text = date.dayOfWeek.toMozhiName(langPref, isShort = true),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = colors.textSecondary

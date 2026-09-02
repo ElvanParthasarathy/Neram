@@ -28,6 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.input.pointer.pointerInput
@@ -420,14 +421,45 @@ internal fun DateSection(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(start = HomeDimens.SpacingXxxl, end = HomeDimens.SpacingSm),
+                        .padding(start = HomeDimens.SpacingXxxl, end = 56.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    Text(
-                        text = formattedDate,
-                        style = HomeTypography.DateText,
-                        color = colors.textPrimary
+                    val ff = LocalAppFontFamily.current
+                    
+                    val targetFontSize = when {
+                        formattedDate.length >= 24 -> 13.8f
+                        formattedDate.length >= 20 -> 14.8f
+                        formattedDate.length >= 17 -> 15.6f
+                        formattedDate.length >= 14 -> 16.3f
+                        else -> 17f
+                    }
+                    
+                    val animatedFontSize by animateFloatAsState(
+                        targetValue = targetFontSize,
+                        animationSpec = tween(durationMillis = 260, easing = FastOutSlowInEasing),
+                        label = "dateFontSize"
                     )
+
+                    AnimatedContent(
+                        targetState = formattedDate,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(200, easing = FastOutSlowInEasing)) togetherWith
+                                fadeOut(animationSpec = tween(120, easing = LinearOutSlowInEasing))
+                        },
+                        label = "dateTextTransition"
+                    ) { targetDate ->
+                        Text(
+                            text = targetDate,
+                            style = HomeTypography.DateText.copy(
+                                fontFamily = ff,
+                                fontSize = animatedFontSize.sp
+                            ),
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis,
+                            color = colors.textPrimary
+                        )
+                    }
                 }
             }
             
