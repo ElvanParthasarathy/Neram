@@ -11,6 +11,22 @@ object K {
     const val TAMIL = "ta"
     const val TAMIL_LATIN = "ta-Latn"
 
+    /**
+     * Get the effective language code based on user preference.
+     */
+    fun getEffectiveLanguage(preference: String, context: android.content.Context? = null): String {
+        return when (preference) {
+            ENGLISH -> ENGLISH
+            TAMIL -> TAMIL
+            TAMIL_LATIN -> TAMIL_LATIN
+            SYSTEM -> {
+                val deviceLocale = android.content.res.Resources.getSystem().configuration.locales[0]
+                if (deviceLocale.language == "ta") TAMIL else ENGLISH
+            }
+            else -> ENGLISH
+        }
+    }
+
     // ── Navigation ──
     const val navHome = "navHome"
     const val navNeram = "navNeram"
@@ -463,6 +479,25 @@ object K {
     const val useCustomTimes = "useCustomTimes"
     const val usingCustomTimes = "usingCustomTimes"
     const val usingDefaultTimes = "usingDefaultTimes"
+    const val dailyBriefing = "dailyBriefing"
+    const val examToday = "examToday"
+    const val examTomorrow = "examTomorrow"
+    const val practicalExamToday = "practicalExamToday"
+    const val practicalExamTomorrow = "practicalExamTomorrow"
+    const val specialClassToday = "specialClassToday"
+    const val bestOfLuckFor = "bestOfLuckFor"
+    const val prepareFor = "prepareFor"
+    const val holidayToday = "holidayToday"
+    const val fullDayNotice = "fullDayNotice"
+    const val halfDayNotice = "halfDayNotice"
+    const val sectionNotice = "sectionNotice"
+    const val academicCalendarUpdate = "academicCalendarUpdate"
+    const val automatedReminders = "automatedReminders"
+    const val todaysSchedule = "todaysSchedule"
+    const val time = "time"
+    const val user = "user"
+    const val noEmailLinked = "noEmailLinked"
+    const val cannotOpenUrl = "cannotOpenUrl"
 
     // ── User Directory Navigation ──
     const val selectBatchTitle = "selectBatchTitle"

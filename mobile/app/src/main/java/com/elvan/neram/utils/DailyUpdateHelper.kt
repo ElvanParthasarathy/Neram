@@ -1,10 +1,13 @@
-﻿package com.elvan.neram.utils
+package com.elvan.neram.utils
 
 import android.content.Context
 import android.util.Log
 import com.elvan.neram.data.local.NeramDatabase
 import com.elvan.neram.data.local.entity.NotificationEntity
 import com.elvan.neram.ui.common.NotificationHelper
+import com.elvan.neram.data.preferences.LanguageManager
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.first
@@ -57,6 +60,10 @@ object DailyUpdateHelper {
             val studyRemindersEnabled = settingsPrefs.getBoolean("study_reminders", true)
             val examAlertsEnabled = settingsPrefs.getBoolean("exam_alerts", true)
             val eventRemindersEnabled = settingsPrefs.getBoolean("event_reminders", true)
+
+            val langPref = try { LanguageManager(context).languageCode.first() } catch (e: Exception) { "system" }
+            val lang = K.getEffectiveLanguage(langPref, context)
+            NotificationHelper.createNotificationChannels(context, lang)
 
             // 1. Get Current User
             val auth = FirebaseAuth.getInstance()
@@ -283,7 +290,7 @@ object DailyUpdateHelper {
                 if (note.isNotBlank()) {
                     NotificationHelper.showNotification(
                         context,
-                        "Daily Update ($todayDateStr)",
+                        "${K.dailyUpdates.tr(lang)} ($todayDateStr)",
                         "$note" + if (author.isNotBlank()) " - $author" else "",
                         NotificationHelper.CHANNEL_ID_DAILY,
                         notificationId = 1001 
@@ -294,7 +301,7 @@ object DailyUpdateHelper {
                 val comboNotice = automatedNotices.joinToString("\n\n")
                 NotificationHelper.showNotification(
                     context,
-                    "Automated Reminders",
+                    K.automatedReminders.tr(lang),
                     comboNotice,
                     NotificationHelper.CHANNEL_ID_DAILY,
                     notificationId = 1001 
@@ -307,7 +314,7 @@ object DailyUpdateHelper {
                 if (generalText.isNotBlank()) {
                      NotificationHelper.showNotification(
                         context,
-                        "General Notice",
+                        K.generalNotice.tr(lang),
                         "$generalText" + if (generalAuthor.isNotBlank()) " - $generalAuthor" else "",
                         NotificationHelper.CHANNEL_ID_DAILY,
                         notificationId = 2002
@@ -329,8 +336,8 @@ object DailyUpdateHelper {
                     val subjectToday = exam.subjects.find { it.date == todayDateStr }
                     if (subjectToday != null) {
                         val courseName = courses.find { it.code == subjectToday.code }?.name ?: subjectToday.code
-                        val title = "Exam Today: $courseName"
-                        val message = "Best of luck for $courseName! Time: ${subjectToday.startTime} - ${subjectToday.endTime}"
+                        val title = "${K.examToday.tr(lang)}: $courseName"
+                        val message = "${K.bestOfLuckFor.tr(lang)} $courseName! ${K.time.tr(lang)}: ${subjectToday.startTime} - ${subjectToday.endTime}"
                         val nId = (todayDateStr + title).hashCode()
                         
                         Log.d(TAG, "Showing Exam Today: $title with ID: $nId")
@@ -346,8 +353,8 @@ object DailyUpdateHelper {
                     val subjectTomorrow = exam.subjects.find { it.date == tomorrowStr }
                     if (subjectTomorrow != null) {
                         val courseName = courses.find { it.code == subjectTomorrow.code }?.name ?: subjectTomorrow.code
-                        val title = "Exam Tomorrow: $courseName"
-                        val message = "Prepare for $courseName. Time: ${subjectTomorrow.startTime} - ${subjectTomorrow.endTime}"
+                        val title = "${K.examTomorrow.tr(lang)}: $courseName"
+                        val message = "${K.prepareFor.tr(lang)} $courseName. ${K.time.tr(lang)}: ${subjectTomorrow.startTime} - ${subjectTomorrow.endTime}"
                         val nId = (todayDateStr + title).hashCode()
 
                         Log.d(TAG, "Showing Exam Tomorrow: $title with ID: $nId")
@@ -377,7 +384,7 @@ object DailyUpdateHelper {
                                         .filter { it.isNotBlank() }
                                         .joinToString(" • ")
                                 }
-                                val title = "Practical Exam Today: $courseName"
+                                val title = "${K.practicalExamToday.tr(lang)}: $courseName"
                                 val message = "${exam.title}\n$batchDetails"
                                 val nId = (todayDateStr + "prac" + sub.code).hashCode()
                                 
@@ -411,7 +418,7 @@ object DailyUpdateHelper {
                                         .filter { it.isNotBlank() }
                                         .joinToString(" • ")
                                 }
-                                val title = "Practical Exam Tomorrow: $courseName"
+                                val title = "${K.practicalExamTomorrow.tr(lang)}: $courseName"
                                 val message = "${exam.title}\n$batchDetails"
                                 val nId = (todayDateStr + "practmrw" + sub.code).hashCode()
                                 
@@ -445,7 +452,7 @@ object DailyUpdateHelper {
                     if (timeStr.isNotBlank()) lines.add(timeStr)
                     lines.joinToString("\n")
                 }
-                val title = todaySpecialClass.typeTitle.ifBlank { "Special Class" } + " Today"
+                val title = todaySpecialClass.typeTitle.ifBlank { K.specialClassToday.tr(lang) }
                 val message = if (todaySpecialClass.title.isNotBlank()) {
                     "${todaySpecialClass.title}\n$batchInfo"
                 } else batchInfo
@@ -481,10 +488,10 @@ object DailyUpdateHelper {
                         it.contains("practical") || it.contains("lab")
                     }
                     val title = when {
-                        isHoliday -> "Holiday Today"
-                        isExamEvent -> "Exam Today"
-                        event.isSection -> if (isFullDay) "Full Day Notice" else if (isHalfDay) "Half Day Notice" else "Section Notice"
-                        else -> "Academic Calendar Update"
+                        isHoliday -> K.holidayToday.tr(lang)
+                        isExamEvent -> K.examToday.tr(lang)
+                        event.isSection -> if (isFullDay) K.fullDayNotice.tr(lang) else if (isHalfDay) K.halfDayNotice.tr(lang) else K.sectionNotice.tr(lang)
+                        else -> K.academicCalendarUpdate.tr(lang)
                     }
                     
                     val message = if (isHalfDay && !event.startTime.isNullOrBlank()) {
@@ -520,7 +527,7 @@ object DailyUpdateHelper {
                     
                     val subjectAndPeriods = subjects.filter { it.isNotBlank() && it != "-" }
                     if (subjectAndPeriods.isNotEmpty()) {
-                        val title = "Today's Schedule ($dayKey)"
+                        val title = "${K.todaysSchedule.tr(lang)} ($dayKey)"
                         val message = subjectAndPeriods.take(5).joinToString(", ") + if (subjectAndPeriods.size > 5) ", ..." else ""
                         
                         NotificationHelper.showNotification(

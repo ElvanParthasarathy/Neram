@@ -27,7 +27,6 @@ import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.utils.AlarmScheduler
 import java.util.Locale
@@ -526,7 +525,7 @@ fun NotificationSettingsScreen(
         item(key = "notification_note") {
             ElvanSectionContainer {
                 Text(
-                    text = AppStrings.Settings.notificationNote(lang),
+                    text = K.notificationNote.tr(lang),
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.textPrimary.copy(alpha = 0.5f),
                     modifier = Modifier.padding(horizontal = 8.dp)

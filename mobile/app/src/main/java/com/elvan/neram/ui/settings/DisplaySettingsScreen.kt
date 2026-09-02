@@ -1,5 +1,8 @@
 package com.elvan.neram.ui.settings
 
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
 
@@ -61,7 +63,7 @@ fun DisplaySettingsScreen(
                         ) {
                             // Light Mode Option
                             ThemeOptionBox(
-                                title = AppStrings.Display.lightTheme(lang),
+                                title = K.lightMode.tr(lang),
                                 isSelected = currentTheme == "light",
                                 isDarkModeDesign = false,
                                 onClick = { onThemeChange("light") },
@@ -70,7 +72,7 @@ fun DisplaySettingsScreen(
 
                             // Dark Mode Option
                             ThemeOptionBox(
-                                title = AppStrings.Display.darkTheme(lang),
+                                title = K.darkMode.tr(lang),
                                 isSelected = currentTheme == "dark",
                                 isDarkModeDesign = true,
                                 onClick = { onThemeChange("dark") },
@@ -105,7 +107,7 @@ fun DisplaySettingsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = AppStrings.Display.systemAuto(lang),
+                                    text = K.systemAuto.tr(lang),
                                     style = TextStyle(
                                         fontFamily = ff,
                                         fontSize = 15.sp,

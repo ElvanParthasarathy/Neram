@@ -52,7 +52,6 @@ import com.elvan.neram.ui.home.components.EditableSection
 import com.elvan.neram.ui.components.ExpressiveLoadingIndicator
 import com.elvan.neram.ui.components.ExpressiveDotsLoader
 import com.elvan.neram.ui.navigation.CustomIcons
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
@@ -125,12 +124,12 @@ internal fun PageHeader(
                             val lang = LocalAppLanguage.current
                             val tamilFont = LocalAppFontFamily.current
                             Text(
-                                text = AppStrings.Home.welcomeToNeram(lang),
+                                text = K.welcomeToNeram.tr(lang),
                                 style = HomeTypography.PillTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold, fontFamily = tamilFont),
                                 color = colors.textPrimary
                             )
                             Text(
-                                text = AppStrings.Home.gladYouAreHere(lang),
+                                text = K.gladYouAreHere.tr(lang),
                                 style = HomeTypography.StatusBadge.copy(fontSize = 14.sp, fontFamily = tamilFont),
                                 color = colors.textSecondary,
                                 maxLines = 1
@@ -264,7 +263,7 @@ internal fun PageHeader(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     val lang = LocalAppLanguage.current
                                     Text(
-                                        text = AppStrings.Home.vanakkam(lang),
+                                        text = K.vanakkam.tr(lang),
                                         style = HomeTypography.PillTitle.copy(fontSize = 20.sp, fontWeight = FontWeight.Bold),
                                         color = colors.textPrimary
                                     )
@@ -366,7 +365,7 @@ internal fun DateSection(
         // Label
         val lang = LocalAppLanguage.current
         Text(
-            text = AppStrings.Home.selectDate(lang),
+            text = K.selectDate.tr(lang),
             style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
             color = colors.textSecondary.copy(alpha = 0.8f),
             modifier = Modifier.padding(start = HomeDimens.SpacingXxxl)
@@ -626,7 +625,7 @@ internal fun ScheduleSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = AppStrings.Home.schedule(lang),
+                text = K.schedule.tr(lang),
                 style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                 color = colors.textSecondary.copy(alpha = 0.8f),
                 modifier = Modifier.padding(start = HomeDimens.SpacingXxxl)
@@ -742,7 +741,7 @@ internal fun ScheduleSection(
             if (config.showSuspensionNotice) {
                 hasContent = true
                 ClassesSuspendedNotice(
-                    title = AppStrings.Home.classesSuspended(lang),
+                    title = K.classesSuspended.tr(lang),
                     subtitle = config.suspensionReason,
                     colors = colors
                 )
@@ -818,7 +817,7 @@ internal fun FullDayEventCard(
                     softWrap = true
                 )
 
-                val desc = event.description ?: AppStrings.Home.noClasses(lang)
+                val desc = event.description ?: K.noClasses.tr(lang)
                 if (desc.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -858,7 +857,7 @@ internal fun FullDayEventCard(
                                 modifier = Modifier.size(10.5.dp)
                             )
                             Text(
-                                text = AppStrings.Home.fullDay(lang),
+                                text = K.fullDay.tr(lang),
                                 style = TextStyle(
                                     fontFamily = ff,
                                     fontSize = 10.5.sp,
@@ -1407,7 +1406,7 @@ internal fun TimetableCard(
                                         shape = HomeShapes.Pill
                                     ) {
                                         Text(
-                                            text = AppStrings.Home.lab(LocalAppLanguage.current),
+                                            text = K.lab.tr(LocalAppLanguage.current),
                                             style = HomeTypography.FacultyName.copy(
                                                 fontSize = 9.sp,
                                                 fontWeight = FontWeight.Bold,
@@ -1505,7 +1504,7 @@ internal fun NoClassesCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = AppStrings.Home.noClassesScheduled(LocalAppLanguage.current),
+                text = K.noClassesScheduled.tr(LocalAppLanguage.current),
                 style = HomeTypography.NoClassesTitle.copy(fontFamily = LocalAppFontFamily.current),
                 color = colors.textPrimary
             )
@@ -1599,11 +1598,11 @@ internal fun UpdatesSection(
 ) {
     val lang = LocalAppLanguage.current
     com.elvan.neram.ui.home.components.EditableSection(
-        title = AppStrings.Home.liveUpdates(sectionName, lang),
+        title = K.liveUpdates.trWithLang(lang, sectionName),
         content = content,
         rawContent = rawContent,
         author = author,
-        emptyText = AppStrings.Home.noUpdatesForDate(lang),
+        emptyText = K.noUpdatesForDate.tr(lang),
         canEdit = canEdit,
         accentColor = colors.accent,
         isSaving = isSaving,
@@ -1630,10 +1629,10 @@ internal fun GeneralNoticeSection(
 ) {
     val lang = LocalAppLanguage.current
     EditableSection(
-        title = AppStrings.Home.generalNotice(lang),
-        content = content.ifEmpty { AppStrings.Home.noGeneralNotices(lang) },
+        title = K.generalNotice.tr(lang),
+        content = content.ifEmpty { K.noGeneralNotices.tr(lang) },
         author = author,
-        emptyText = AppStrings.Home.noGeneralNotices(lang),
+        emptyText = K.noGeneralNotices.tr(lang),
         canEdit = canEdit,
         accentColor = colors.success,
         isSaving = isSaving,

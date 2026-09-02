@@ -43,7 +43,6 @@ import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.mozhiyaakkam.toMozhiFullDate
 import com.elvan.neram.ui.theme.AppColors
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.google.firebase.auth.ktx.auth
@@ -1067,14 +1066,14 @@ fun ProfileScreen(
             icon = { Icon(Icons.AutoMirrored.Outlined.Logout, null, tint = AppColors.Red) },
             title = {
                 Text(
-                    text = AppStrings.Settings.signOutConfirm(lang),
+                    text = K.signOutConfirm.tr(lang),
                     style = TextStyle(fontFamily = ff, fontSize = 20.sp, fontWeight = FontWeight.Bold),
                     color = colors.textPrimary
                 )
             },
             text = {
                 Text(
-                    text = AppStrings.Settings.signOutMessage(lang),
+                    text = K.signOutMessage.tr(lang),
                     style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.Normal),
                     color = colors.textPrimary.copy(alpha = 0.6f)
                 )
@@ -1093,7 +1092,7 @@ fun ProfileScreen(
                     elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
                     Text(
-                        text = AppStrings.Settings.signOut(lang),
+                        text = K.signOut.tr(lang),
                         style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     )
                 }
@@ -1109,7 +1108,7 @@ fun ProfileScreen(
                     elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
                     Text(
-                        text = AppStrings.Home.cancel(lang),
+                        text = K.cancel.tr(lang),
                         style = TextStyle(fontFamily = ff, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     )
                 }

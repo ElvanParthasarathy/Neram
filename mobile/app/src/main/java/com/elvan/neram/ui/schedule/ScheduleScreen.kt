@@ -7,7 +7,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.components.ExpressivePullToRefreshBox
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
@@ -62,8 +61,8 @@ fun ScheduleScreen(
     if (showOfflineDialog) {
         AlertDialog(
             onDismissRequest = { showOfflineDialog = false },
-            title = { Text(AppStrings.Home.offline(lang), style = HomeTypography.PillTitle) },
-            text = { Text(AppStrings.Home.offlineMessage(lang), style = HomeTypography.AuthorBadge) },
+            title = { Text(K.offline.tr(lang), style = HomeTypography.PillTitle) },
+            text = { Text(K.offlineMessage.tr(lang), style = HomeTypography.AuthorBadge) },
             confirmButton = {
                 Button(
                     onClick = { showOfflineDialog = false },
@@ -73,7 +72,7 @@ fun ScheduleScreen(
                         contentColor = androidx.compose.ui.graphics.Color.White
                     )
                 ) {
-                    Text(AppStrings.Home.ok(lang), style = HomeTypography.PillButton)
+                    Text(K.ok.tr(lang), style = HomeTypography.PillButton)
                 }
             },
             containerColor = colors.surface,

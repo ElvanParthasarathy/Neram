@@ -1,5 +1,9 @@
 package com.elvan.neram.ui.schedule
 
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
+import com.elvan.neram.ui.mozhiyaakkam.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,7 +35,6 @@ import com.elvan.neram.data.model.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.navigation.CustomIcons
 import com.elvan.neram.ui.mozhiyaakkam.*
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import java.time.DayOfWeek
@@ -555,7 +558,7 @@ fun InfoCard(title: String, items: List<String>, colors: HomeColors) {
             }
             
             if (items.isEmpty()) {
-                 Text(AppStrings.Schedule.noInfoAvailable(LocalAppLanguage.current), fontSize = 13.sp, color = colors.textSecondary.copy(alpha=0.5f))
+                 Text(K.noInfoAvailable.tr(LocalAppLanguage.current), fontSize = 13.sp, color = colors.textSecondary.copy(alpha=0.5f))
             }
         }
     }
@@ -625,7 +628,7 @@ fun ScheduleTable(periods: List<PeriodDisplayData>, colors: HomeColors, isMini: 
                                         shape = HomeShapes.Pill
                                     ) {
                                         Text(
-                                        text = AppStrings.Home.lab(LocalAppLanguage.current),
+                                        text = K.lab.tr(LocalAppLanguage.current),
                                             style = HomeTypography.FacultyName.copy(
                                                 fontSize = 9.sp,
                                                 fontWeight = FontWeight.Bold,
@@ -840,7 +843,7 @@ private fun StandardExamContent(
     }
     if (exam.subjects.isEmpty()) {
         Text(
-            text = AppStrings.Schedule.noSubjectsScheduled(LocalAppLanguage.current),
+            text = K.noSubjectsScheduled.tr(LocalAppLanguage.current),
             style = HomeTypography.FacultyName,
             color = colors.textSecondary,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -921,7 +924,7 @@ private fun PracticalExamContent(
 
     if (dateGroups.isEmpty()) {
         Text(
-            text = AppStrings.Schedule.noBatchesScheduled(LocalAppLanguage.current),
+            text = K.noBatchesScheduled.tr(LocalAppLanguage.current),
             style = HomeTypography.FacultyName,
             color = colors.textSecondary,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -1059,7 +1062,7 @@ private fun PracDateGroup(
                                 }
                                 if (fb.batch.totalCount.isNotEmpty()) {
                                     Text(
-                                        text = AppStrings.Schedule.students(fb.batch.totalCount.toIntOrNull() ?: 0, LocalAppLanguage.current),
+                                        text = K.students.trWithLang(LocalAppLanguage.current, fb.batch.totalCount.toIntOrNull() ?: 0),
                                         style = HomeTypography.FacultyName,
                                         color = colors.textSecondary,
                                         modifier = Modifier.padding(top = 2.dp)
@@ -1112,7 +1115,7 @@ fun CourseDirectoryTable(courses: List<Course>, colors: HomeColors) {
                                 )
                                 if (course.periods > 0) {
                                     Text(
-                                        text = "• ${course.periods} ${AppStrings.Schedule.periods(LocalAppLanguage.current)}",
+                                        text = "• ${course.periods} ${K.periods.tr(LocalAppLanguage.current)}",
                                         style = HomeTypography.FacultyName,
                                         color = colors.textSecondary
                                     )
@@ -1188,13 +1191,13 @@ fun ViewTypeTabsRow(
     val tabs = remember(lang) {
         listOf(
             TabItem(
-                label = AppStrings.Schedule.classesTab(lang),
+                label = K.classesTab.tr(lang),
                 id = "class",
                 icon = MaterialSymbols.Rounded.Schedule,
                 activeIcon = MaterialSymbols.Rounded.ScheduleFill
             ),
             TabItem(
-                label = AppStrings.Schedule.examsTab(lang),
+                label = K.examsTab.tr(lang),
                 id = "exams",
                 icon = MaterialSymbols.Rounded.Description,
                 activeIcon = MaterialSymbols.Rounded.DescriptionFill

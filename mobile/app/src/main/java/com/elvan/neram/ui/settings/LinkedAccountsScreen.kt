@@ -28,7 +28,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.theme.AppColors
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
@@ -71,14 +70,14 @@ fun LinkedAccountsScreen(
     if (showUnlinkDialog) {
         AlertDialog(
             onDismissRequest = { showUnlinkDialog = false },
-            title = { Text(AppStrings.LinkedAccounts.unlinkConfirm(lang), fontWeight = FontWeight.Bold) },
+            title = { Text(K.unlinkConfirm.tr(lang), fontWeight = FontWeight.Bold) },
             text = {
                 Column {
                     Text(
                         if (hasPassword) 
-                            AppStrings.LinkedAccounts.unlinkMessage(lang)
+                            K.unlinkMessage.tr(lang)
                         else 
-                            AppStrings.LinkedAccounts.createPasswordMsg(lang),
+                            K.createPasswordMsg.tr(lang),
                         color = colors.textPrimary
                     )
                     if (!hasPassword) {
@@ -93,7 +92,7 @@ fun LinkedAccountsScreen(
                         ) {
                             Icon(Icons.Outlined.Warning, null, tint = colors.warning, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(AppStrings.LinkedAccounts.createPasswordFirst(lang), color = colors.warning, style = HomeTypography.FacultyName)
+                            Text(K.createPasswordFirst.tr(lang), color = colors.warning, style = HomeTypography.FacultyName)
                         }
                     }
                 }
@@ -120,7 +119,7 @@ fun LinkedAccountsScreen(
                         if (isUnlinking) {
                             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                         } else {
-                            Text(AppStrings.LinkedAccounts.unlink(lang))
+                            Text(K.unlink.tr(lang))
                         }
                     }
                 } else {
@@ -131,7 +130,7 @@ fun LinkedAccountsScreen(
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = colors.accent)
                     ) {
-                        Text(AppStrings.LinkedAccounts.createPassword(lang))
+                        Text(K.createPassword.tr(lang))
                     }
                 }
             },
@@ -144,7 +143,7 @@ fun LinkedAccountsScreen(
                         contentColor = colors.textSecondary
                     )
                 ) {
-                    Text(AppStrings.Home.cancel(lang))
+                    Text(K.cancel.tr(lang))
                 }
             },
             containerColor = colors.surface,
@@ -165,7 +164,7 @@ fun LinkedAccountsScreen(
             item(key = "google_section") {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = AppStrings.LinkedAccounts.signInMethods(lang),
+                        title = K.signInMethods.tr(lang),
                         colors = colors
                     ) {
                         // Google Account Row
@@ -215,7 +214,7 @@ fun LinkedAccountsScreen(
                                     color = colors.textPrimary
                                 )
                                 Text(
-                                    if (isGoogleLinked) googleEmail else AppStrings.LinkedAccounts.notConnected(lang),
+                                    if (isGoogleLinked) googleEmail else K.notConnected.tr(lang),
                                     style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
                                     color = colors.textPrimary.copy(alpha = 0.5f),
                                     maxLines = 1
@@ -228,7 +227,7 @@ fun LinkedAccountsScreen(
                                 color = if (isGoogleLinked) colors.success.copy(alpha = 0.15f) else (if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f))
                             ) {
                                 Text(
-                                    text = if (isGoogleLinked) AppStrings.LinkedAccounts.connected(lang) else AppStrings.LinkedAccounts.notLinked(lang),
+                                    text = if (isGoogleLinked) K.connected.tr(lang) else K.notConnected.tr(lang),
                                     style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                                     color = if (isGoogleLinked) colors.success else colors.textPrimary.copy(alpha = 0.6f),
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -252,7 +251,7 @@ fun LinkedAccountsScreen(
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     Text(
-                                        AppStrings.LinkedAccounts.unlinkGoogle(lang),
+                                        K.unlinkGoogle.tr(lang),
                                         color = AppColors.Red,
                                         fontWeight = FontWeight.Medium,
                                         fontSize = 14.sp
@@ -277,7 +276,7 @@ fun LinkedAccountsScreen(
                                         CircularProgressIndicator(color = colors.textPrimary, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                                     } else {
                                         Text(
-                                            AppStrings.LinkedAccounts.linkGoogle(lang),
+                                            K.linkGoogle.tr(lang),
                                             color = colors.textPrimary,
                                             fontWeight = FontWeight.SemiBold,
                                             fontSize = 14.sp
@@ -293,13 +292,13 @@ fun LinkedAccountsScreen(
             item(key = "email_section") {
                 ElvanSectionContainer {
                     ElvanSettingsSection(
-                        title = AppStrings.LinkedAccounts.emailPassword(lang),
+                        title = K.emailPassword.tr(lang),
                         colors = colors
                     ) {
                         // Email Row
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Email,
-                            title = AppStrings.LinkedAccounts.email(lang),
+                            title = K.emailAddress.tr(lang),
                             description = primaryEmail,
                             onClick = {},
                             customTrailing = {
@@ -313,8 +312,8 @@ fun LinkedAccountsScreen(
                         // Password Row
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Key,
-                            title = AppStrings.LinkedAccounts.password(lang),
-                            description = if (hasPassword) AppStrings.LinkedAccounts.passwordSet(lang) else AppStrings.LinkedAccounts.noPasswordSet(lang),
+                            title = K.password.tr(lang),
+                            description = if (hasPassword) K.passwordSet.tr(lang) else K.noPasswordSet.tr(lang),
                             onClick = {
                                 if (!hasPassword) onBack()
                             },
@@ -328,7 +327,7 @@ fun LinkedAccountsScreen(
                                         modifier = Modifier.clickable { onBack() }
                                     ) {
                                         Text(
-                                            AppStrings.LinkedAccounts.create(lang),
+                                            K.create.tr(lang),
                                             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
                                             color = colors.textPrimary,
                                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
@@ -345,7 +344,7 @@ fun LinkedAccountsScreen(
             item(key = "info_box") {
                 ElvanSectionContainer {
                     Text(
-                        text = AppStrings.LinkedAccounts.infoMessage(lang),
+                        text = K.linkedAccountsInfoText.tr(lang),
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.textPrimary.copy(alpha = 0.5f),
                         modifier = Modifier.padding(horizontal = 8.dp)

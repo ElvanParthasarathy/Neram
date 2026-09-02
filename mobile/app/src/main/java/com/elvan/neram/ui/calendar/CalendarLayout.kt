@@ -1,5 +1,8 @@
 package com.elvan.neram.ui.calendar
 
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import kotlinx.coroutines.launch
@@ -57,6 +60,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -270,8 +278,38 @@ fun CalendarMainLayout(
                     
                         val agendaOffsetAnim = remember { Animatable(calendarHeightPx) }
                         val bottomScrollState = rememberScrollState()
+                        val smoothAttachSpec = remember {
+                            tween<Float>(
+                                durationMillis = 280,
+                                easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
+                            )
+                        }
 
-                        // Nested Scroll connection: allows swiping up/down anywhere in the bottom card
+                        // Settle function: clean, directional, zero rebound or hit-back
+                        fun settleCard(velocity: Float = 0f) {
+                            scope.launch {
+                                val current = agendaOffsetAnim.value
+                                val target = when {
+                                    velocity < -80f -> 0f // Swiping UP -> Open and stay open
+                                    velocity > 80f -> calendarHeightPx // Swiping DOWN -> Close and stay closed
+                                    current < calendarHeightPx * 0.5f -> 0f
+                                    else -> calendarHeightPx
+                                }
+                                agendaOffsetAnim.animateTo(
+                                    targetValue = target,
+                                    animationSpec = smoothAttachSpec
+                                )
+                            }
+                        }
+
+                        // Shared 1:1 Direct Draggable State
+                        val draggableState = rememberDraggableState { delta ->
+                            val current = agendaOffsetAnim.value
+                            val newOffset = (current + delta).coerceIn(0f, calendarHeightPx)
+                            scope.launch { agendaOffsetAnim.snapTo(newOffset) }
+                        }
+
+                        // Nested Scroll connection for inner scrollable content
                         val nestedScrollConnection = remember(calendarHeightPx) {
                             object : NestedScrollConnection {
                                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -279,15 +317,15 @@ fun CalendarMainLayout(
                                     val currentOffset = agendaOffsetAnim.value
 
                                     // 1. Dragging UP (delta < 0) when bottom card is not fully expanded
-                                    if (delta < 0 && currentOffset > 0f) {
+                                    if (delta < 0f && currentOffset > 0f) {
                                         val newOffset = (currentOffset + delta).coerceIn(0f, calendarHeightPx)
                                         val consumed = newOffset - currentOffset
                                         scope.launch { agendaOffsetAnim.snapTo(newOffset) }
                                         return Offset(0f, consumed)
                                     }
 
-                                    // 2. Dragging DOWN (delta > 0) when inner scroll is at top and card can be pulled down
-                                    if (delta > 0 && bottomScrollState.value == 0 && currentOffset < calendarHeightPx) {
+                                    // 2. Dragging DOWN (delta > 0) when inner scroll is at top and card is open
+                                    if (delta > 0f && bottomScrollState.value == 0 && currentOffset < calendarHeightPx) {
                                         val newOffset = (currentOffset + delta).coerceIn(0f, calendarHeightPx)
                                         val consumed = newOffset - currentOffset
                                         scope.launch { agendaOffsetAnim.snapTo(newOffset) }
@@ -302,7 +340,7 @@ fun CalendarMainLayout(
                                     val currentOffset = agendaOffsetAnim.value
 
                                     // If inner scroll reaches top and there's remaining downward scroll, pull card down
-                                    if (delta > 0 && currentOffset < calendarHeightPx) {
+                                    if (delta > 0f && currentOffset < calendarHeightPx) {
                                         val newOffset = (currentOffset + delta).coerceIn(0f, calendarHeightPx)
                                         val consumedY = newOffset - currentOffset
                                         scope.launch { agendaOffsetAnim.snapTo(newOffset) }
@@ -316,17 +354,16 @@ fun CalendarMainLayout(
                                     val vy = available.y
                                     val current = agendaOffsetAnim.value
 
-                                    if (vy < -400f && current > 0f) {
-                                        // Swiped UP fast -> expand to 0f
-                                        agendaOffsetAnim.animateTo(0f, spring(stiffness = Spring.StiffnessLow))
+                                    if (current > 0f && current < calendarHeightPx) {
+                                        settleCard(vy)
                                         return available
-                                    } else if (vy > 400f && bottomScrollState.value == 0 && current < calendarHeightPx) {
-                                        // Swiped DOWN fast -> collapse to calendarHeightPx
-                                        agendaOffsetAnim.animateTo(calendarHeightPx, spring(stiffness = Spring.StiffnessLow))
+                                    }
+                                    if (vy > 0f && bottomScrollState.value == 0 && current < calendarHeightPx) {
+                                        settleCard(vy)
                                         return available
-                                    } else if (current > 0f && current < calendarHeightPx) {
-                                        val target = if (current < calendarHeightPx / 2f) 0f else calendarHeightPx
-                                        agendaOffsetAnim.animateTo(target, spring(stiffness = Spring.StiffnessLow))
+                                    }
+                                    if (vy < 0f && current > 0f) {
+                                        settleCard(vy)
                                         return available
                                     }
 
@@ -337,11 +374,38 @@ fun CalendarMainLayout(
 
                         Box(modifier = Modifier.fillMaxSize()) {
                         
-                            // LAYER 1: Calendar Widget (Static Background)
+                            // LAYER 1: Calendar Widget (Immediate zero-slop finger tracking)
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(calendarHeightDp) 
+                                    .height(calendarHeightDp)
+                                    .pointerInput(calendarHeightPx) {
+                                        awaitEachGesture {
+                                            val down = awaitFirstDown(requireUnconsumed = false)
+                                            var lastY = down.position.y
+                                            val velocityTracker = VelocityTracker()
+                                            velocityTracker.addPosition(down.uptimeMillis, down.position)
+
+                                            while (true) {
+                                                val event = awaitPointerEvent()
+                                                val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                                if (!change.pressed) break
+
+                                                val currentY = change.position.y
+                                                val delta = currentY - lastY
+                                                lastY = currentY
+                                                velocityTracker.addPosition(change.uptimeMillis, change.position)
+
+                                                if (kotlin.math.abs(delta) > 0.5f) {
+                                                    val current = agendaOffsetAnim.value
+                                                    val newOffset = (current + delta).coerceIn(0f, calendarHeightPx)
+                                                    scope.launch { agendaOffsetAnim.snapTo(newOffset) }
+                                                }
+                                            }
+                                            val vy = velocityTracker.calculateVelocity().y
+                                            settleCard(vy)
+                                        }
+                                    }
                             ) {
                                 CalendarWidget(
                                     currentMonth = currentMonth,
@@ -372,12 +436,9 @@ fun CalendarMainLayout(
                                             .fillMaxSize()
                                             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)) 
                                             .background(colors.calendarBottomBackground)
-                                            .verticalScroll(bottomScrollState)
                                             .padding(top = 0.dp) 
                                     ) {
-                                        // --- THE HANDLE (SHUTTER) ---
-                                        var accDrag by remember { mutableFloatStateOf(0f) }
-                                    
+                                        // --- THE HANDLE (SHUTTER) with instant zero-slop finger tracking ---
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -386,36 +447,35 @@ fun CalendarMainLayout(
                                                 .clickable {
                                                     scope.launch {
                                                         val target = if (agendaOffsetAnim.value < calendarHeightPx / 2f) calendarHeightPx else 0f
-                                                        agendaOffsetAnim.animateTo(target, spring(stiffness = Spring.StiffnessLow))
+                                                        agendaOffsetAnim.animateTo(target, smoothAttachSpec)
                                                     }
                                                 }
-                                                .pointerInput(Unit) {
-                                                    detectVerticalDragGestures(
-                                                        onDragStart = { accDrag = 0f },
-                                                        onDragEnd = {
-                                                            scope.launch {
+                                                .pointerInput(calendarHeightPx) {
+                                                    awaitEachGesture {
+                                                        val down = awaitFirstDown(requireUnconsumed = false)
+                                                        var lastY = down.position.y
+                                                        val velocityTracker = VelocityTracker()
+                                                        velocityTracker.addPosition(down.uptimeMillis, down.position)
+
+                                                        while (true) {
+                                                            val event = awaitPointerEvent()
+                                                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                                                            if (!change.pressed) break
+
+                                                            val currentY = change.position.y
+                                                            val delta = currentY - lastY
+                                                            lastY = currentY
+                                                            velocityTracker.addPosition(change.uptimeMillis, change.position)
+
+                                                            if (kotlin.math.abs(delta) > 0.5f) {
                                                                 val current = agendaOffsetAnim.value
-                                                                val threshold = 100f
-                                                            
-                                                                val target = when {
-                                                                    accDrag < -threshold -> 0f 
-                                                                    accDrag > threshold -> calendarHeightPx
-                                                                    else -> if (current < calendarHeightPx / 2f) 0f else calendarHeightPx
-                                                                }
-                                                            
-                                                                agendaOffsetAnim.animateTo(
-                                                                    targetValue = target,
-                                                                    animationSpec = spring(stiffness = Spring.StiffnessLow)
-                                                                )
+                                                                val newOffset = (current + delta).coerceIn(0f, calendarHeightPx)
+                                                                scope.launch { agendaOffsetAnim.snapTo(newOffset) }
+                                                                change.consume()
                                                             }
                                                         }
-                                                    ) { change, dragAmount ->
-                                                        change.consume()
-                                                        accDrag += dragAmount
-                                                        scope.launch {
-                                                            val newOffset = (agendaOffsetAnim.value + dragAmount).coerceIn(0f, calendarHeightPx)
-                                                            agendaOffsetAnim.snapTo(newOffset)
-                                                        }
+                                                        val vy = velocityTracker.calculateVelocity().y
+                                                        settleCard(vy)
                                                     }
                                                 },
                                             contentAlignment = Alignment.Center
@@ -430,43 +490,49 @@ fun CalendarMainLayout(
                                             )
                                         }
                                     
-                                        // Wrapper for Grid/List
-                                        Box(modifier = Modifier.heightIn(min = 200.dp)) {
-                                            Column {
-                                                // Selected Day Section with HorizontalPager
-                                                androidx.compose.foundation.pager.HorizontalPager(
-                                                    state = dayPagerState,
-                                                    modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                                                    verticalAlignment = Alignment.Top,
-                                                    pageSpacing = 16.dp
-                                                ) { page ->
-                                                    val anchorDate = java.time.LocalDate.now()
-                                                    val daysOffset = page - (Int.MAX_VALUE / 2)
-                                                    val pageDate = anchorDate.plusDays(daysOffset.toLong())
+                                        // Scrollable inner content
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .verticalScroll(bottomScrollState)
+                                        ) {
+                                            // Wrapper for Grid/List
+                                            Box(modifier = Modifier.heightIn(min = 200.dp)) {
+                                                Column {
+                                                    // Selected Day Section with HorizontalPager
+                                                    androidx.compose.foundation.pager.HorizontalPager(
+                                                        state = dayPagerState,
+                                                        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+                                                        verticalAlignment = Alignment.Top,
+                                                        pageSpacing = 16.dp
+                                                    ) { page ->
+                                                        val anchorDate = java.time.LocalDate.now()
+                                                        val daysOffset = page - (Int.MAX_VALUE / 2)
+                                                        val pageDate = anchorDate.plusDays(daysOffset.toLong())
+                                                    
+                                                        val events = eventsProvider(pageDate)
+                                                    
+                                                        SelectedDaySection(
+                                                            date = pageDate,
+                                                            events = events,
+                                                            colors = colors,
+                                                            isRefreshing = isRefreshing,
+                                                            onRefresh = onRefresh
+                                                        )
+                                                    }
                                                 
-                                                    val events = eventsProvider(pageDate)
-                                                
-                                                    SelectedDaySection(
-                                                        date = pageDate,
-                                                        events = events,
-                                                        colors = colors,
-                                                        isRefreshing = isRefreshing,
-                                                        onRefresh = onRefresh
-                                                    )
+                                                    Spacer(modifier = Modifier.height(16.dp))
                                                 }
-                                            
-                                                Spacer(modifier = Modifier.height(16.dp))
-                                            
-                                                // Add extra spacer at bottom
-                                                Spacer(modifier = Modifier.height(24.dp)) 
                                             }
+                                            
+                                            // Add extra spacer at bottom
+                                            Spacer(modifier = Modifier.height(24.dp)) 
                                         }
                                     }
                                 }
                             }
                         }
                     } // End portrait/landscape branch
-
                 } else {
                  // --- SCHEDULE VIEW ---
                  // Independent Pager

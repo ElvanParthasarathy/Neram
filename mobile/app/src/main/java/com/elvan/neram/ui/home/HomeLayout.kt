@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.elvan.neram.data.model.*
 import com.elvan.neram.ui.components.ExpressivePullToRefreshBox
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.mozhiyaakkam.K
@@ -137,7 +136,7 @@ fun HomeMainLayout(
                         ) { (_, events) ->
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 Text(
-                                    text = AppStrings.Home.academicCalendar(lang),
+                                    text = K.academicCalendar.tr(lang),
                                     style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                     color = colors.textSecondary.copy(alpha = 0.8f),
                                     modifier = Modifier.padding(

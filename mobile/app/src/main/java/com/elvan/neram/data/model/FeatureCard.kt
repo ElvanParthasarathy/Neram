@@ -52,7 +52,7 @@ data class FeatureCard(
             "TIP" -> K.cardTip.tr(lang)
             "NOTICE" -> K.cardNotice.tr(lang)
             "FEATURE" -> K.cardFeature.tr(lang)
-            else -> if (lang == "en") raw else raw
+            else -> raw
         }
     }
 }

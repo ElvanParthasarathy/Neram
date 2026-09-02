@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.common
+package com.elvan.neram.ui.common
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -16,6 +16,7 @@ import com.elvan.neram.R
 
 import android.media.AudioAttributes
 import android.media.RingtoneManager
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 /**
  * Helper class for managing notifications
@@ -30,7 +31,7 @@ object NotificationHelper {
     /**
      * Create notification channels on app startup (Safe to call repeatedly)
      */
-    fun createNotificationChannels(context: Context) {
+    fun createNotificationChannels(context: Context, lang: String = com.elvan.neram.ui.mozhiyaakkam.K.ENGLISH) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -44,11 +45,11 @@ object NotificationHelper {
 
             // Daily Updates - HIGH Importance for Popup
             val dailyChannel = NotificationChannel(
-                "daily_updates_v7", // Bumped ID to force new sound ringtone update back to simple notification
-                "Daily Briefing",
+                CHANNEL_ID_DAILY,
+                com.elvan.neram.ui.mozhiyaakkam.K.dailyBriefing.tr(lang),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Daily morning updates and notices"
+                description = com.elvan.neram.ui.mozhiyaakkam.K.dailyUpdatesDesc.tr(lang)
                 enableLights(true)
                 enableVibration(true)
                 setVibrationPattern(customPattern)
@@ -59,10 +60,10 @@ object NotificationHelper {
             // Instant Alerts - HIGH Importance
             val instantChannel = NotificationChannel(
                 CHANNEL_ID_INSTANT,
-                "Instant Alerts",
+                com.elvan.neram.ui.mozhiyaakkam.K.instantAlerts.tr(lang),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Important announcements and alerts"
+                description = com.elvan.neram.ui.mozhiyaakkam.K.instantAlertsDesc.tr(lang)
                 enableLights(true)
                 enableVibration(true)
                 setVibrationPattern(customPattern)
@@ -73,10 +74,10 @@ object NotificationHelper {
             // Exam Alerts - HIGH Importance
             val examChannel = NotificationChannel(
                 CHANNEL_ID_EXAMS,
-                "Exam Alerts",
+                com.elvan.neram.ui.mozhiyaakkam.K.examAlerts.tr(lang),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Reminders for upcoming exams"
+                description = com.elvan.neram.ui.mozhiyaakkam.K.examAlertsDesc.tr(lang)
                 enableLights(true)
                 enableVibration(true)
                 setVibrationPattern(customPattern)
@@ -87,10 +88,10 @@ object NotificationHelper {
             // Event Reminders - HIGH Importance (upgraded from DEFAULT)
             val eventChannel = NotificationChannel(
                 CHANNEL_ID_EVENTS,
-                "Event Reminders",
+                com.elvan.neram.ui.mozhiyaakkam.K.eventReminders.tr(lang),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Reminders for holidays and events"
+                description = com.elvan.neram.ui.mozhiyaakkam.K.eventRemindersDesc.tr(lang)
                 enableLights(true)
                 enableVibration(true)
                 setVibrationPattern(customPattern)

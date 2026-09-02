@@ -13,7 +13,6 @@ import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
 
@@ -43,9 +42,9 @@ fun LanguageSettingsScreen(
                     // 1. System default / Device Language Option
                     ElvanRadioSettingsRow(
                         title = K.deviceLanguage.tr(lang),
-                        value = AppStrings.SYSTEM,
+                        value = K.SYSTEM,
                         groupValue = currentLanguage,
-                        onSelected = { onLanguageChange(AppStrings.SYSTEM) },
+                        onSelected = { onLanguageChange(K.SYSTEM) },
                         colors = colors
                     )
 
@@ -54,9 +53,9 @@ fun LanguageSettingsScreen(
                     // 2. English Option
                     ElvanRadioSettingsRow(
                         title = K.english.tr(lang),
-                        value = AppStrings.ENGLISH,
+                        value = K.ENGLISH,
                         groupValue = currentLanguage,
-                        onSelected = { onLanguageChange(AppStrings.ENGLISH) },
+                        onSelected = { onLanguageChange(K.ENGLISH) },
                         colors = colors
                     )
 
@@ -65,9 +64,9 @@ fun LanguageSettingsScreen(
                     // 3. Tamil Option (தமிழ்)
                     ElvanRadioSettingsRow(
                         title = K.tamil.tr(lang),
-                        value = AppStrings.TAMIL,
+                        value = K.TAMIL,
                         groupValue = currentLanguage,
-                        onSelected = { onLanguageChange(AppStrings.TAMIL) },
+                        onSelected = { onLanguageChange(K.TAMIL) },
                         colors = colors
                     )
 
@@ -76,9 +75,9 @@ fun LanguageSettingsScreen(
                     // 4. Tanglish / Tamil Latin Option
                     ElvanRadioSettingsRow(
                         title = K.tamilLatin.tr(lang),
-                        value = AppStrings.TAMIL_LATIN,
+                        value = K.TAMIL_LATIN,
                         groupValue = currentLanguage,
-                        onSelected = { onLanguageChange(AppStrings.TAMIL_LATIN) },
+                        onSelected = { onLanguageChange(K.TAMIL_LATIN) },
                         colors = colors
                     )
                 }

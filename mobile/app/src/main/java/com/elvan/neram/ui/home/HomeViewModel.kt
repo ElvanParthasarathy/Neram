@@ -25,7 +25,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import com.elvan.neram.data.preferences.LanguageManager
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.mozhiyaakkam.trWithLang
@@ -501,7 +500,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         _selectedDate,
         languageManager.languageCode
     ) { masterData, currentEvents, date, langPref ->
-        val effectiveLang = AppStrings.getEffectiveLanguage(langPref, getApplication())
+        val effectiveLang = K.getEffectiveLanguage(langPref, getApplication())
         val dateStr = date.format(dateFormatter)
         
         // Detect active exam period
@@ -598,7 +597,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         scheduleState,
         languageManager.languageCode
     ) { dailyMap, date, schedule, langPref ->
-        val effectiveLang = AppStrings.getEffectiveLanguage(langPref, getApplication())
+        val effectiveLang = K.getEffectiveLanguage(langPref, getApplication())
         val dateStr = date.format(dateFormatter)
         val visibleServerUpdate = dailyMap[dateStr]
         

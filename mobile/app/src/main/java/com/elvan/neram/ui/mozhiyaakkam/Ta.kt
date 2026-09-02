@@ -1690,6 +1690,82 @@ val ta: Map<String, TaVar> = mapOf(
         ta = "கல்லூரி நேரங்கள் பயன்படுத்தப்படுகின்றன",
         latn = "Kalloori naerangal payanpaduthappaduginrana"
     ),
+    K.dailyBriefing to TaVar(
+        ta = "தினசரி விவரம்",
+        latn = "Dhinachari Vivaram"
+    ),
+    K.examToday to TaVar(
+        ta = "தேர்வு இன்று",
+        latn = "Thearvu Indru"
+    ),
+    K.examTomorrow to TaVar(
+        ta = "தேர்வு நாளை",
+        latn = "Thearvu Naalai"
+    ),
+    K.practicalExamToday to TaVar(
+        ta = "செய்முறைத் தேர்வு இன்று",
+        latn = "Seymuraith Thearvu Indru"
+    ),
+    K.practicalExamTomorrow to TaVar(
+        ta = "செய்முறைத் தேர்வு நாளை",
+        latn = "Seymuraith Thearvu Naalai"
+    ),
+    K.specialClassToday to TaVar(
+        ta = "சிறப்பு வகுப்பு இன்று",
+        latn = "Sirappu Vaguppu Indru"
+    ),
+    K.bestOfLuckFor to TaVar(
+        ta = "வாழ்த்துகள்",
+        latn = "Vaazhthukal"
+    ),
+    K.prepareFor to TaVar(
+        ta = "தயாராகுங்கள்",
+        latn = "Thayaaraagungal"
+    ),
+    K.holidayToday to TaVar(
+        ta = "விடுமுறை இன்று",
+        latn = "Vidumurai Indru"
+    ),
+    K.fullDayNotice to TaVar(
+        ta = "முழு நாள் அறிவிப்பு",
+        latn = "Muzhu Naal Arivippu"
+    ),
+    K.halfDayNotice to TaVar(
+        ta = "அரை நாள் அறிவிப்பு",
+        latn = "Arai Naal Arivippu"
+    ),
+    K.sectionNotice to TaVar(
+        ta = "பிரிவு அறிவிப்பு",
+        latn = "Pirivu Arivippu"
+    ),
+    K.academicCalendarUpdate to TaVar(
+        ta = "கல்வி நாட்காட்டி புதுப்பிப்பு",
+        latn = "Kalvi Naatkaatti Puthuppippu"
+    ),
+    K.automatedReminders to TaVar(
+        ta = "தானியங்கி நினைவூட்டல்கள்",
+        latn = "Thaaniyanki Ninaivoottalgal"
+    ),
+    K.todaysSchedule to TaVar(
+        ta = "இன்றைய கால அட்டவணை",
+        latn = "Indraya Kaala Attavanai"
+    ),
+    K.time to TaVar(
+        ta = "நேரம்",
+        latn = "Naeram"
+    ),
+    K.user to TaVar(
+        ta = "பயனர்",
+        latn = "Payanar"
+    ),
+    K.noEmailLinked to TaVar(
+        ta = "மின்னஞ்சல் இணைக்கப்படவில்லை",
+        latn = "Minnanjal inaikkappadavillai"
+    ),
+    K.cannotOpenUrl to TaVar(
+        ta = "திறக்க முடியவில்லை: %s",
+        latn = "Thirakka mudiyavillai: %s"
+    ),
 
     // ── User Directory Navigation ──
     K.selectBatchTitle to TaVar(

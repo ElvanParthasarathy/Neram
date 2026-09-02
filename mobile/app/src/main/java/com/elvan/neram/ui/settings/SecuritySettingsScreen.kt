@@ -43,7 +43,6 @@ import com.elvan.neram.ui.components.ExpressiveLoadingIndicator
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.theme.AppColors
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
@@ -104,7 +103,7 @@ fun SecuritySettingsScreen(
     ) { view ->
         when (view) {
             "hub" -> ElvanSubShell(
-                title = AppStrings.Settings.security(lang),
+                title = K.security.tr(lang),
                 onBack = onBack,
                 colors = colors,
                 scrollState = scrollState
@@ -116,7 +115,7 @@ fun SecuritySettingsScreen(
                 )
             }
             "password" -> ElvanSubShell(
-                title = AppStrings.Settings.changePassword(lang),
+                title = K.changePassword.tr(lang),
                 onBack = { currentView = "hub" },
                 colors = colors
             ) {
@@ -136,7 +135,7 @@ fun SecuritySettingsScreen(
                 )
             }
             "delete" -> ElvanSubShell(
-                title = AppStrings.Settings.deleteAccount(lang),
+                title = K.deleteAccount.tr(lang),
                 onBack = { currentView = "hub" },
                 colors = colors
             ) {
@@ -1097,7 +1096,7 @@ private fun LinkedAccountsView(
                                 color = colors.textPrimary
                             )
                             Text(
-                                text = if (isGoogleLinked) googleEmail else com.elvan.neram.ui.theme.AppStrings.LinkedAccounts.notLinked(lang),
+                                text = if (isGoogleLinked) googleEmail else K.notConnected.tr(lang),
                                 style = TextStyle(fontFamily = ff, fontSize = 13.sp, fontWeight = FontWeight.Normal),
                                 color = colors.textPrimary.copy(alpha = 0.5f),
                                 maxLines = 1

@@ -1,5 +1,8 @@
 package com.elvan.neram.ui.notes
 
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -12,7 +15,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elvan.neram.ui.home.HomeTypography
 import com.elvan.neram.ui.home.rememberHomeColors
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 
 /**
@@ -55,11 +57,11 @@ fun NotesScreen(
     if (showNotUploadedDialog) {
         AlertDialog(
             onDismissRequest = { showNotUploadedDialog = false },
-            title = { Text(AppStrings.Notes.notUploadedTitle(lang), style = HomeTypography.PillTitle) },
-            text = { Text(AppStrings.Notes.notUploadedMessage(lang), style = HomeTypography.AuthorBadge) },
+            title = { Text(K.notUploadedTitle.tr(lang), style = HomeTypography.PillTitle) },
+            text = { Text(K.notUploadedMessage.tr(lang), style = HomeTypography.AuthorBadge) },
             confirmButton = {
                 Button(onClick = { showNotUploadedDialog = false }) {
-                    Text(AppStrings.Home.ok(lang), style = HomeTypography.StatusBadge)
+                    Text(K.ok.tr(lang), style = HomeTypography.StatusBadge)
                 }
             },
             containerColor = colors.surface,

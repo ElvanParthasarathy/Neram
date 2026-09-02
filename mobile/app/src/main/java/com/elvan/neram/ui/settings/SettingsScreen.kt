@@ -18,7 +18,6 @@ import com.elvan.neram.data.model.UserProfile
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.theme.AppColors
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
@@ -62,8 +61,8 @@ fun SettingsScreen(
             item(key = "profile_card") {
                 ElvanSectionContainer {
                     ElvanProfilePillCard(
-                        title = AppStrings.Settings.neramAccount(lang),
-                        subtitle = userProfile?.displayName ?: "User",
+                        title = K.neramAccount.tr(lang),
+                        subtitle = userProfile?.displayName ?: K.user.tr(lang),
                         photoUrl = userProfile?.photoURL,
                         onClick = onNavigateToProfile,
                         colors = colors
@@ -77,24 +76,24 @@ fun SettingsScreen(
                     ElvanSettingsSection(colors = colors) {
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Brightness6,
-                            title = AppStrings.Settings.display(lang),
-                            description = AppStrings.Settings.displayDesc(lang),
+                            title = K.display.tr(lang),
+                            description = K.displayDesc.tr(lang),
                             onClick = onNavigateToDisplay,
                             colors = colors
                         )
                         ElvanSettingsDivider(colors = colors)
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Language,
-                            title = AppStrings.Settings.language(lang),
-                            description = AppStrings.Settings.languageDesc(lang),
+                            title = K.language.tr(lang),
+                            description = K.languageDesc.tr(lang),
                             onClick = onNavigateToLanguage,
                             colors = colors
                         )
                         ElvanSettingsDivider(colors = colors)
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Notifications,
-                            title = AppStrings.Settings.pushNotifications(lang),
-                            description = AppStrings.Settings.notificationTimings(lang),
+                            title = K.pushNotifications.tr(lang),
+                            description = K.notificationTimings.tr(lang),
                             onClick = onNavigateToNotifications,
                             colors = colors
                         )
@@ -147,16 +146,16 @@ fun SettingsScreen(
                         ElvanSettingsDivider(colors = colors)
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Info,
-                            title = AppStrings.Settings.aboutApp(lang),
-                            description = AppStrings.Settings.aboutAppDesc(lang),
+                            title = K.aboutApp.tr(lang),
+                            description = K.aboutAppDesc.tr(lang),
                             onClick = onNavigateToAboutApp,
                             colors = colors
                         )
                         ElvanSettingsDivider(colors = colors)
                         ElvanSettingsRow(
                             icon = Icons.Outlined.AutoAwesome,
-                            title = AppStrings.Settings.elvanNavil(lang),
-                            description = AppStrings.Settings.elvanNavilDesc(lang),
+                            title = K.elvanNavil.tr(lang),
+                            description = K.elvanNavilDesc.tr(lang),
                             onClick = onNavigateToElvanNavil,
                             colors = colors
                         )

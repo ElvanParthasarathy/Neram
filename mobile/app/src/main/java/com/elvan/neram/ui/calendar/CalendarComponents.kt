@@ -1,5 +1,8 @@
 package com.elvan.neram.ui.calendar
 
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,7 +58,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.platform.LocalContext
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.*
 import java.util.Locale
@@ -175,7 +177,7 @@ fun CalendarWidget(
     val context = LocalContext.current
     val langPref = LocalAppLanguage.current
     val appLocale = remember(langPref) {
-        if (AppStrings.getEffectiveLanguage(langPref, context) == AppStrings.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
+        if (K.getEffectiveLanguage(langPref, context) == K.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
     }
 
     Column(
@@ -298,7 +300,7 @@ fun YearMonthPickerDialog(
                 val context = LocalContext.current
                 val langPref = LocalAppLanguage.current
                 val appLocale = remember(langPref) {
-                    if (AppStrings.getEffectiveLanguage(langPref, context) == AppStrings.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
+                    if (K.getEffectiveLanguage(langPref, context) == K.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
                 }
 
                 val months = java.time.Month.values().toList()
@@ -815,11 +817,11 @@ fun SelectedDaySection(
     val context = LocalContext.current
     val langPref = LocalAppLanguage.current
     val appLocale = remember(langPref) {
-        if (AppStrings.getEffectiveLanguage(langPref, context) == AppStrings.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
+        if (K.getEffectiveLanguage(langPref, context) == K.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
     }
 
     Column(
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+        modifier = Modifier.padding(horizontal = 16.dp).padding(top = 10.dp, bottom = 4.dp)
     ) {
         // Redesigned Header: "17 SAT       :-)"
         Row(
@@ -957,7 +959,7 @@ fun AgendaItem(event: CalendarEvent, isSelected: Boolean, colors: HomeColors) {
     val context = LocalContext.current
     val langPref = LocalAppLanguage.current
     val appLocale = remember(langPref) {
-        if (AppStrings.getEffectiveLanguage(langPref, context) == AppStrings.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
+        if (K.getEffectiveLanguage(langPref, context) == K.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
     }
     
     val titleLower = event.title.lowercase()
@@ -1286,7 +1288,7 @@ fun MonthScheduleList(
     val context = LocalContext.current
     val langPref = LocalAppLanguage.current
     val appLocale = remember(langPref) {
-        if (AppStrings.getEffectiveLanguage(langPref, context) == AppStrings.TAMIL) Locale("ta", "IN") else Locale.US
+        if (K.getEffectiveLanguage(langPref, context) == K.TAMIL) Locale("ta", "IN") else Locale.US
     }
 
     val groupedEvents = remember(events) {

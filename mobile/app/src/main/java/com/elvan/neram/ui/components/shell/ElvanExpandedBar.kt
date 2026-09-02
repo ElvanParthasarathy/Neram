@@ -348,7 +348,7 @@ private fun MonochromeBannerCard(
                         modifier = Modifier.offset(y = (-0.5).dp)
                     )
                     Text(
-                        text = if (lang == "en") typeStr.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } else typeStr,
+                        text = typeStr,
                         style = TextStyle(
                             fontFamily = ff,
                             fontWeight = FontWeight.SemiBold,

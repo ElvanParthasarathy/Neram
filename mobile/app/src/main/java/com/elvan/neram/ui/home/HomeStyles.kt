@@ -16,14 +16,29 @@ import androidx.compose.ui.unit.sp
 import com.elvan.neram.ui.theme.ElvanSansFontFamily
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.ui.unit.Dp
+
 /**
  * Home Screen Dimensions - Matching mobileapp.css
  */
 object HomeDimens {
     // Layout - matches --screen-edge-spacing: 24px
     val ContentPadding = 12.dp
-    val ContentPaddingBottom = 120.dp
-    val SubpageContentPaddingBottom = 32.dp
+    val ContentPaddingBottom: Dp
+        @Composable
+        get() {
+            val navBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+            return 120.dp + navBarsPadding
+        }
+    val SubpageContentPaddingBottom: Dp
+        @Composable
+        get() {
+            val navBarsPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+            return 32.dp + navBarsPadding
+        }
     val ContentPaddingTop = 85.dp
     val ExtraHeaderExpansion = 80.dp // Top padding below status bar
     

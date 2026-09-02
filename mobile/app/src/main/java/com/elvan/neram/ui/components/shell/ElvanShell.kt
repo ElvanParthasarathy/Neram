@@ -491,6 +491,22 @@ private fun ElvanShellContent(
             ) {
                 navbar()
             }
+        } else {
+            // Subpages: Bottom Shadow Fade Mask above System Navigation Bar (3-button / gesture)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(48.dp + navBarsPadding)
+                    .background(
+                        Brush.verticalGradient(
+                            0.0f to Color.Transparent,
+                            0.3f to colors.background.copy(alpha = 0.16f),
+                            0.65f to colors.background.copy(alpha = 0.55f),
+                            1.0f to colors.background
+                        )
+                    )
+            )
         }
     }
 }

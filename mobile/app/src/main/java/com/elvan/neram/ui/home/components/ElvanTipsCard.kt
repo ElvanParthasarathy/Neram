@@ -171,7 +171,7 @@ fun ElvanTipsCard(
                 val badgeText = card.getLocalizedBadge(lang)
                 if (badgeText.isNotBlank()) {
                     Text(
-                        text = if (lang == "en") badgeText.uppercase() else badgeText,
+                        text = badgeText,
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp,
@@ -352,7 +352,7 @@ fun FeatureCardDetailBottomSheet(
                     modifier = Modifier.offset(y = (-0.5).dp)
                 )
                 Text(
-                    text = if (lang == "en") typeStr.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } else typeStr,
+                    text = typeStr,
                     style = androidx.compose.ui.text.TextStyle(
                         fontFamily = ff,
                         fontWeight = FontWeight.SemiBold,

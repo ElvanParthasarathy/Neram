@@ -1,9 +1,11 @@
-﻿package com.elvan.neram.utils
+package com.elvan.neram.utils
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 object IntentUtils {
     fun openUrl(context: Context, url: String) {
@@ -23,12 +25,13 @@ object IntentUtils {
             
             // Explicitly use createChooser to force the "Open with" popup
             // even if a default app is already set by the user.
-            val chooser = Intent.createChooser(intent, "Complete action using")
+            val chooser = Intent.createChooser(intent, null)
             chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(chooser)
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(context, "Cannot open: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            val msg = e.localizedMessage ?: ""
+            Toast.makeText(context, String.format(K.cannotOpenUrl.tr(K.ENGLISH), msg), Toast.LENGTH_SHORT).show()
         }
     }
 

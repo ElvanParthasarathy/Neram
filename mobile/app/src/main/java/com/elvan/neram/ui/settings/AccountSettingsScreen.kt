@@ -23,7 +23,6 @@ import com.elvan.neram.ui.home.*
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.theme.AppColors
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.google.firebase.auth.ktx.auth
@@ -64,8 +63,8 @@ fun AccountSettingsScreen(
                 item(key = "profile_summary") {
                     ElvanSectionContainer {
                         ElvanProfilePillCard(
-                            title = user?.displayName ?: "Neram User",
-                            subtitle = user?.email ?: "No email linked",
+                            title = user?.displayName ?: K.user.tr(lang),
+                            subtitle = user?.email ?: K.noEmailLinked.tr(lang),
                             photoUrl = user?.photoUrl?.toString(),
                             onClick = {},
                             colors = colors

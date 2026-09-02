@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.ui.home.rememberHomeColors
 import com.elvan.neram.ui.theme.LocalAppLanguage
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 
 /**

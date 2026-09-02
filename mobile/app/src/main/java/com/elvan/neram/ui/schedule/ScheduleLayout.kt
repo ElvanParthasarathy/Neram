@@ -1,5 +1,9 @@
 package com.elvan.neram.ui.schedule
 
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
+import com.elvan.neram.ui.mozhiyaakkam.tr
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.background
@@ -40,7 +44,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.ui.graphics.TransformOrigin
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.theme.LocalAppFontFamily
 
@@ -209,13 +212,13 @@ fun ScheduleMainLayout(
                                     ) {
                                         val lang = LocalAppLanguage.current
                                         Text(
-                                            text = AppStrings.Schedule.weeklySchedule(lang),
+                                            text = K.weeklySchedule.tr(lang),
                                             style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                             color = colors.textSecondary.copy(alpha = 0.8f)
                                         )
                                         Icon(
                                             imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                            contentDescription = if (isExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
+                                            contentDescription = if (isExpanded) K.collapse.tr(lang) else K.expand.tr(lang),
                                             tint = colors.textSecondary
                                         )
                                     }
@@ -263,7 +266,7 @@ fun ScheduleMainLayout(
                                     } else {
                                         val lang = LocalAppLanguage.current
                                         EmptyScheduleCard(
-                                            message = AppStrings.Schedule.noClassesOn(selectedDay, lang),
+                                            message = K.noClassesOn.trWithLang(lang, selectedDay),
                                             colors = colors
                                         )
                                     }
@@ -341,7 +344,7 @@ fun ScheduleMainLayout(
                                     // 1. Ongoing Exams Section
                                     if (ongoingExams.isNotEmpty()) {
                                         Text(
-                                            text = AppStrings.Schedule.ongoingExams(lang),
+                                            text = K.ongoingExams.tr(lang),
                                             style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                             color = colors.textSecondary.copy(alpha = 0.8f),
                                             modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
@@ -356,7 +359,7 @@ fun ScheduleMainLayout(
                                         if (upcomingExams.isNotEmpty() || finishedExams.isNotEmpty()) {
                                             Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
                                                 EmptyScheduleCard(
-                                                    message = AppStrings.Schedule.noOngoingExams(lang),
+                                                    message = K.noOngoingExams.tr(lang),
                                                     colors = colors
                                                 )
                                                 Spacer(modifier = Modifier.height(32.dp))
@@ -365,7 +368,7 @@ fun ScheduleMainLayout(
                                             // No exams at all (Empty DB or fetch)
                                             Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
                                                 EmptyScheduleCard(
-                                                    message = AppStrings.Schedule.noExamTimetables(lang),
+                                                    message = K.noExamTimetables.tr(lang),
                                                     colors = colors
                                                 )
                                                 Spacer(modifier = Modifier.height(32.dp))
@@ -377,7 +380,7 @@ fun ScheduleMainLayout(
                                     if (upcomingExams.isNotEmpty()) {
                                         Spacer(modifier = Modifier.height(16.dp))
                                         Text(
-                                            text = AppStrings.Schedule.upcomingExams(lang),
+                                            text = K.upcomingExams.tr(lang),
                                             style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                             color = colors.textSecondary.copy(alpha = 0.8f),
                                             modifier = Modifier.padding(start = HomeDimens.ContentPadding + HomeDimens.SpacingXxxl, bottom = HomeDimens.SectionTitleBottomPadding)
@@ -419,13 +422,13 @@ fun ScheduleMainLayout(
                                                     verticalAlignment = Alignment.CenterVertically
                                                 ) {
                                                     Text(
-                                                        text = AppStrings.Schedule.finishedExams(lang),
+                                                        text = K.finishedExams.tr(lang),
                                                         style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                                         color = colors.textSecondary.copy(alpha = 0.8f)
                                                     )
                                                     Icon(
                                                         imageVector = if (isFinishedExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                                        contentDescription = if (isFinishedExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
+                                                        contentDescription = if (isFinishedExpanded) K.collapse.tr(lang) else K.expand.tr(lang),
                                                         tint = colors.textSecondary
                                                     )
                                                 }
@@ -485,13 +488,13 @@ fun ScheduleMainLayout(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = AppStrings.Schedule.academicCourses(lang),
+                                        text = K.academicCourses.tr(lang),
                                         style = HomeTypography.DateLabel.copy(fontFamily = LocalAppFontFamily.current),
                                         color = colors.textSecondary.copy(alpha = 0.8f)
                                     )
                                     Icon(
                                         imageVector = if (isCoursesExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                                        contentDescription = if (isCoursesExpanded) AppStrings.Schedule.collapse(lang) else AppStrings.Schedule.expand(lang),
+                                        contentDescription = if (isCoursesExpanded) K.collapse.tr(lang) else K.expand.tr(lang),
                                         tint = colors.textSecondary
                                     )
                                 }
@@ -516,13 +519,13 @@ fun ScheduleMainLayout(
                          val lang = LocalAppLanguage.current
                          Column(modifier = Modifier.padding(horizontal = HomeDimens.ContentPadding)) {
                              InfoCard(
-                                 title = AppStrings.Schedule.classCounselors(lang),
+                                 title = K.classCounselors.tr(lang),
                                  items = uiState.masterData.counseling.counselors,
                                  colors = colors
                              )
                              Spacer(modifier = Modifier.height(16.dp))
                              InfoCard(
-                                 title = AppStrings.Schedule.keyCoordinators(lang),
+                                 title = K.keyCoordinators.tr(lang),
                                  items = uiState.masterData.counseling.coordinators.map { "${it.key}: ${it.value}" },
                                  colors = colors
                              )

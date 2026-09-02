@@ -1,5 +1,8 @@
 package com.elvan.neram
 
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
@@ -21,7 +24,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elvan.neram.ui.home.HomeViewModel
 import com.elvan.neram.ui.MainViewModel
 import com.elvan.neram.ui.theme.NeramTheme
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import androidx.compose.runtime.CompositionLocalProvider
 import com.elvan.neram.ui.home.rememberHomeColors
@@ -130,7 +132,7 @@ class MainActivity : AppCompatActivity() {
             // Get effective language
             val context = androidx.compose.ui.platform.LocalContext.current
             val effectiveLanguage = remember(uiState.languageCode) {
-                AppStrings.getEffectiveLanguage(uiState.languageCode, context)
+                K.getEffectiveLanguage(uiState.languageCode, context)
             }
             
             // GLOBAL LOCALE FIX:
@@ -143,7 +145,7 @@ class MainActivity : AppCompatActivity() {
             // Standard Android DatePicker and Java Time APIs often use Locale.getDefault()
             // We must force this to the App Language to ensure DatePickers show correctly.
             val appLocale = remember(effectiveLanguage) {
-                val locale = if (effectiveLanguage == AppStrings.TAMIL) java.util.Locale("ta", "IN") else java.util.Locale.US
+                val locale = if (effectiveLanguage == K.TAMIL) java.util.Locale("ta", "IN") else java.util.Locale.US
                 java.util.Locale.setDefault(locale) // Force process-wide default immediately
                 locale
             }
@@ -181,7 +183,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 
-                val appFontFamily = if (effectiveLanguage == AppStrings.TAMIL) 
+                val appFontFamily = if (effectiveLanguage == K.TAMIL) 
                     com.elvan.neram.ui.theme.ElvanSansFontFamily 
                     else com.elvan.neram.ui.theme.ElvanSansFontFamily
                 
@@ -354,7 +356,7 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun SplashScreen(
     isDarkTheme: Boolean = false,
-    language: String = com.elvan.neram.ui.theme.AppStrings.ENGLISH
+    language: String = K.ENGLISH
 ) {
     // Use explicit colors based on app theme preference
     val backgroundColor = if (isDarkTheme) Color(0xFF0A0A0A) else Color(0xFFFAFAFA)
@@ -397,15 +399,15 @@ fun SplashScreen(
             // 1. Logo
             Image(
                 painter = painterResource(id = R.drawable.ic_splash_logo),
-                contentDescription = "Neram Logo",
+                contentDescription = null,
                 modifier = Modifier.size(180.dp),
                 colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(textPrimary)
             )
         }
         
         // Footer: Language-aware Branding ("Elvan Navil" / "எல்வன் நவில்")
-        val isTamil = language == com.elvan.neram.ui.theme.AppStrings.TAMIL
-        val brandingText = if (isTamil) "எல்வன் நவில்" else "Elvan Navil"
+        val isTamil = language == K.TAMIL
+        val brandingText = K.elvanNavil.tr(language)
         val tightSpacing = if (isTamil) 0.sp else (-0.2).sp
 
         Box(

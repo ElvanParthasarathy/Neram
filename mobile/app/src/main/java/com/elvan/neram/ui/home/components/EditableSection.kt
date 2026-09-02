@@ -23,7 +23,6 @@ import com.elvan.neram.ui.home.HomeColors
 import com.elvan.neram.ui.home.HomeDimens
 import com.elvan.neram.ui.home.HomeShapes
 import com.elvan.neram.ui.home.HomeTypography
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
@@ -174,8 +173,8 @@ private fun EditableSectionContent(
     if (showOfflineDialog) {
         AlertDialog(
             onDismissRequest = { onOfflineDialogChange(false) },
-            title = { val lang = LocalAppLanguage.current; Text(AppStrings.Home.offline(lang), style = HomeTypography.PillTitle) },
-            text = { val lang = LocalAppLanguage.current; Text(AppStrings.Home.offlineMessage(lang), style = HomeTypography.AuthorBadge) },
+            title = { val lang = LocalAppLanguage.current; Text(K.offline.tr(lang), style = HomeTypography.PillTitle) },
+            text = { val lang = LocalAppLanguage.current; Text(K.offlineMessage.tr(lang), style = HomeTypography.AuthorBadge) },
             confirmButton = {
                 Button(
                     onClick = { onOfflineDialogChange(false) },
@@ -185,7 +184,7 @@ private fun EditableSectionContent(
                         contentColor = Color.White
                     )
                 ) {
-                    Text(AppStrings.Home.ok(LocalAppLanguage.current), style = HomeTypography.StatusBadge)
+                    Text(K.ok.tr(LocalAppLanguage.current), style = HomeTypography.StatusBadge)
                 }
             },
             containerColor = colors.surface,
@@ -238,7 +237,7 @@ private fun EditableSectionContent(
                             modifier = Modifier.size(14.dp)
                         )
                         Text(
-                            text = AppStrings.Home.edit(LocalAppLanguage.current),
+                            text = K.edit.tr(LocalAppLanguage.current),
                             color = Color.White,
                             style = HomeTypography.EditTrigger.copy(fontFamily = ff)
                         )
@@ -319,7 +318,7 @@ private fun EditableSectionContent(
                                         strokeWidth = 2.dp
                                     )
                                 } else {
-                                    Text(AppStrings.Common.save(LocalAppLanguage.current))
+                                    Text(K.save.tr(LocalAppLanguage.current))
                                 }
                             }
                             
@@ -335,7 +334,7 @@ private fun EditableSectionContent(
                                 ),
                                 elevation = ButtonDefaults.buttonElevation(0.dp)
                             ) {
-                                Text(AppStrings.Home.cancel(LocalAppLanguage.current))
+                                Text(K.cancel.tr(LocalAppLanguage.current))
                             }
                         }
                     }
@@ -393,7 +392,7 @@ private fun EditableSectionContent(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = AppStrings.Home.postedBy(LocalAppLanguage.current),
+                                            text = K.postedBy.tr(LocalAppLanguage.current),
                                             style = HomeTypography.AuthorBadge,
                                             color = colors.textSecondary
                                         )

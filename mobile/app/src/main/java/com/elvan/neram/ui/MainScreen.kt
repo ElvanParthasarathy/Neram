@@ -38,7 +38,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elvan.neram.ui.home.HomeScreen
 import com.elvan.neram.ui.home.rememberHomeColors
 import com.elvan.neram.ui.theme.LocalAppLanguage
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import androidx.compose.runtime.CompositionLocalProvider
@@ -243,7 +242,7 @@ fun MainScreen(
     // Get effective language code
     // val context = androidx.compose.ui.platform.LocalContext.current // Already defined above
     val effectiveLanguage = remember(uiState.languageCode) {
-        AppStrings.getEffectiveLanguage(uiState.languageCode, context)
+        K.getEffectiveLanguage(uiState.languageCode, context)
     }
     
     // Global Back Handler
@@ -301,26 +300,26 @@ fun MainScreen(
     fun getScreenTitle(screen: String): String {
         val lang = LocalAppLanguage.current
         return when (screen) {
-            "settings" -> AppStrings.Settings.title(lang)
-            "account" -> AppStrings.Settings.account(lang)
-            "profile" -> AppStrings.Settings.editProfile(lang)
-            "sites" -> AppStrings.Settings.importantSites(lang)
-            "contact" -> AppStrings.Settings.contact(lang)
-            "security" -> AppStrings.Settings.security(lang)
-            "display" -> AppStrings.Settings.display(lang)
-            "complaint" -> AppStrings.Settings.feedback(lang)
-            "developer" -> AppStrings.Settings.aboutDeveloper(lang)
-            "elvan_navil" -> AppStrings.Settings.elvanNavil(lang)
-            "language" -> AppStrings.Settings.language(lang)
-            "calendar_settings" -> AppStrings.Settings.calendarSettings(lang)
-            "user_directory" -> if (userDirectoryPath.isEmpty()) AppStrings.Settings.userDirectory(lang) else userDirectoryPath.last()
-            "linked_accounts" -> AppStrings.Settings.linkedAccounts(lang)
-            "notifications" -> AppStrings.Settings.notifications(lang)
-            "notification_settings" -> AppStrings.Settings.notificationSettings(lang)
-            "pdf_viewer" -> AppStrings.Settings.documents(lang)
-            "about_rmk" -> AppStrings.Settings.aboutRmk(lang)
-            "management_team" -> AppStrings.Settings.managementTeam(lang)
-            "about_app" -> AppStrings.Settings.aboutApp(lang)
+            "settings" -> K.settings.tr(lang)
+            "account" -> K.accounts.tr(lang)
+            "profile" -> K.editProfile.tr(lang)
+            "sites" -> K.importantSites.tr(lang)
+            "contact" -> K.contact.tr(lang)
+            "security" -> K.security.tr(lang)
+            "display" -> K.display.tr(lang)
+            "complaint" -> K.feedback.tr(lang)
+            "developer" -> K.aboutDeveloper.tr(lang)
+            "elvan_navil" -> K.elvanNavil.tr(lang)
+            "language" -> K.language.tr(lang)
+            "calendar_settings" -> K.academicCalendar.tr(lang)
+            "user_directory" -> if (userDirectoryPath.isEmpty()) K.userDirectory.tr(lang) else userDirectoryPath.last()
+            "linked_accounts" -> K.linkedAccounts.tr(lang)
+            "notifications" -> K.pushNotifications.tr(lang)
+            "notification_settings" -> K.pushNotifications.tr(lang)
+            "pdf_viewer" -> K.documents.tr(lang)
+            "about_rmk" -> K.aboutRmk.tr(lang)
+            "management_team" -> K.managementTeam.tr(lang)
+            "about_app" -> K.aboutApp.tr(lang)
             else -> ""
         }
     }
@@ -428,10 +427,10 @@ fun MainScreen(
            "tabs" -> {
                 val lang = LocalAppLanguage.current
                 val title = when(selectedTab) {
-                    NavTab.Home -> AppStrings.Nav.neram(lang)
-                    NavTab.Schedule -> AppStrings.Nav.schedule(lang)
-                    NavTab.Calendar -> AppStrings.Nav.calendar(lang)
-                    NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else AppStrings.Nav.notes(lang)
+                    NavTab.Home -> K.navNeram.tr(lang)
+                    NavTab.Schedule -> K.navSchedule.tr(lang)
+                    NavTab.Calendar -> K.navCalendar.tr(lang)
+                    NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else K.navNotes.tr(lang)
                 }
                 
                 val useNewDesign = selectedTab != NavTab.Calendar
@@ -529,7 +528,7 @@ fun MainScreen(
                                     colors = colors,
                                     items = listOf(
                                         com.elvan.neram.ui.components.shell.ElvanPopupMenuItem(
-                                            title = AppStrings.Settings.title(lang),
+                                            title = K.settings.tr(lang),
                                             icon = androidx.compose.material.icons.Icons.Rounded.Settings,
                                             onClick = {
                                                 scope.launch { settingsScrollState.scrollToItem(0, 0) }
@@ -538,7 +537,7 @@ fun MainScreen(
                                             }
                                         ),
                                         com.elvan.neram.ui.components.shell.ElvanPopupMenuItem(
-                                            title = AppStrings.Settings.importantSites(lang),
+                                            title = K.importantSites.tr(lang),
                                             icon = androidx.compose.material.icons.Icons.Rounded.Language,
                                             onClick = {
                                                 currentScreen = "sites"

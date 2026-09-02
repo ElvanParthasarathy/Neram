@@ -17,7 +17,6 @@ import com.elvan.neram.data.model.*
 
 import com.elvan.neram.ui.common.ScheduleLogic
 import com.elvan.neram.ui.theme.NeramTheme
-import com.elvan.neram.ui.theme.AppStrings
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
@@ -93,8 +92,8 @@ fun HomeScreen(
         val lang = LocalAppLanguage.current
         AlertDialog(
             onDismissRequest = { showOfflineDialog = false },
-            title = { Text(AppStrings.Home.offline(lang), style = HomeTypography.PillTitle) },
-            text = { Text(AppStrings.Home.offlineMessage(lang), style = HomeTypography.AuthorBadge) },
+            title = { Text(K.offline.tr(lang), style = HomeTypography.PillTitle) },
+            text = { Text(K.offlineMessage.tr(lang), style = HomeTypography.AuthorBadge) },
             confirmButton = {
                 Button(
                     onClick = { showOfflineDialog = false },
@@ -104,7 +103,7 @@ fun HomeScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Text(AppStrings.Home.ok(lang), style = HomeTypography.StatusBadge)
+                    Text(K.ok.tr(lang), style = HomeTypography.StatusBadge)
                 }
             },
             containerColor = colors.surface,
@@ -120,8 +119,8 @@ fun HomeScreen(
     // =========================================================================
     // MAIN LAYOUT (Delegated)
     // =========================================================================
-    val effectiveLang = com.elvan.neram.ui.theme.AppStrings.getEffectiveLanguage(com.elvan.neram.ui.theme.LocalAppLanguage.current, androidx.compose.ui.platform.LocalContext.current)
-    val appLocale = if (effectiveLang == com.elvan.neram.ui.theme.AppStrings.TAMIL) java.util.Locale("ta", "IN") else java.util.Locale.US
+    val effectiveLang = com.elvan.neram.ui.mozhiyaakkam.K.getEffectiveLanguage(com.elvan.neram.ui.theme.LocalAppLanguage.current, androidx.compose.ui.platform.LocalContext.current)
+    val appLocale = if (effectiveLang == com.elvan.neram.ui.mozhiyaakkam.K.TAMIL) java.util.Locale("ta", "IN") else java.util.Locale.US
     val profileLoaderCompleted by viewModel.profileLoaderCompleted.collectAsState()
     
     HomeMainLayout(
