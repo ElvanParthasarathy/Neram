@@ -60,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -470,34 +471,13 @@ fun CalendarMainLayout(
                                                         agendaOffsetAnim.animateTo(target, smoothAttachSpec)
                                                     }
                                                 }
-                                                .pointerInput(calendarHeightPx) {
-                                                    awaitEachGesture {
-                                                        val down = awaitFirstDown(requireUnconsumed = false)
-                                                        var lastY = down.position.y
-                                                        val velocityTracker = VelocityTracker()
-                                                        velocityTracker.addPosition(down.uptimeMillis, down.position)
-
-                                                        while (true) {
-                                                            val event = awaitPointerEvent()
-                                                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                                                            if (!change.pressed) break
-
-                                                            val currentY = change.position.y
-                                                            val delta = currentY - lastY
-                                                            lastY = currentY
-                                                            velocityTracker.addPosition(change.uptimeMillis, change.position)
-
-                                                            if (kotlin.math.abs(delta) > 0.5f) {
-                                                                val current = agendaOffsetAnim.value
-                                                                val newOffset = (current + delta).coerceIn(0f, calendarHeightPx)
-                                                                scope.launch { agendaOffsetAnim.snapTo(newOffset) }
-                                                                change.consume()
-                                                            }
-                                                        }
-                                                        val vy = velocityTracker.calculateVelocity().y
-                                                        settleCard(vy)
+                                                .draggable(
+                                                    orientation = Orientation.Vertical,
+                                                    state = draggableState,
+                                                    onDragStopped = { velocity ->
+                                                        settleCard(velocity)
                                                     }
-                                                },
+                                                ),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             // Visual Pill
