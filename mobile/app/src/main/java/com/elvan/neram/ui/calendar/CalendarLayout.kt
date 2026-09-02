@@ -64,6 +64,7 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -381,29 +382,48 @@ fun CalendarMainLayout(
                                     .height(calendarHeightDp)
                                     .pointerInput(calendarHeightPx) {
                                         awaitEachGesture {
-                                            val down = awaitFirstDown(requireUnconsumed = false)
+                                            val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                                             var lastY = down.position.y
+                                            var totalX = 0f
+                                            var totalY = 0f
+                                            var isVerticalDrag: Boolean? = null
                                             val velocityTracker = VelocityTracker()
                                             velocityTracker.addPosition(down.uptimeMillis, down.position)
 
                                             while (true) {
-                                                val event = awaitPointerEvent()
+                                                val event = awaitPointerEvent(PointerEventPass.Initial)
                                                 val change = event.changes.firstOrNull { it.id == down.id } ?: break
                                                 if (!change.pressed) break
 
                                                 val currentY = change.position.y
-                                                val delta = currentY - lastY
+                                                val currentX = change.position.x
+                                                val deltaY = currentY - lastY
+                                                val deltaX = currentX - (down.position.x + totalX)
+
+                                                totalX += deltaX
+                                                totalY += deltaY
                                                 lastY = currentY
                                                 velocityTracker.addPosition(change.uptimeMillis, change.position)
 
-                                                if (kotlin.math.abs(delta) > 0.5f) {
+                                                if (isVerticalDrag == null) {
+                                                    if (kotlin.math.abs(totalY) > 6f && kotlin.math.abs(totalY) > kotlin.math.abs(totalX)) {
+                                                        isVerticalDrag = true
+                                                    } else if (kotlin.math.abs(totalX) > 8f && kotlin.math.abs(totalX) > kotlin.math.abs(totalY)) {
+                                                        isVerticalDrag = false
+                                                    }
+                                                }
+
+                                                if (isVerticalDrag == true) {
                                                     val current = agendaOffsetAnim.value
-                                                    val newOffset = (current + delta).coerceIn(0f, calendarHeightPx)
+                                                    val newOffset = (current + deltaY).coerceIn(0f, calendarHeightPx)
                                                     scope.launch { agendaOffsetAnim.snapTo(newOffset) }
+                                                    change.consume()
                                                 }
                                             }
-                                            val vy = velocityTracker.calculateVelocity().y
-                                            settleCard(vy)
+                                            if (isVerticalDrag == true) {
+                                                val vy = velocityTracker.calculateVelocity().y
+                                                settleCard(vy)
+                                            }
                                         }
                                     }
                             ) {
