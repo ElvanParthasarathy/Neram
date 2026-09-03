@@ -56,8 +56,12 @@ const Notes = () => {
     const currentMode = activeTab || serverNotesMode || 'fetch';
 
     const handleTabSelected = (mode) => {
-        setUserOverridden(true);
-        setActiveTab(mode);
+        if (currentMode !== mode) {
+            setUserOverridden(true);
+            setActiveTab(mode);
+            setDrivePath([{ id: 'root', name: 'Notes Drive' }]);
+            setPath([]);
+        }
     };
 
     const isDriveFirst = (serverNotesMode || 'fetch') === "folder";
@@ -142,9 +146,10 @@ const Notes = () => {
         const unsubMode = onValue(modeRef, snap => {
             const val = snap.val() || 'fetch';
             setServerNotesMode(val);
-            if (!userOverridden) {
-                setActiveTab(val);
-            }
+            setUserOverridden(false);
+            setActiveTab(val);
+            setDrivePath([{ id: 'root', name: 'Notes Drive' }]);
+            setPath([]);
         });
 
         const unsubFolders = onValue(ref(db, 'notes_drive/folders'), (snapshot) => setDriveFolders(snapshot.val() || {}));

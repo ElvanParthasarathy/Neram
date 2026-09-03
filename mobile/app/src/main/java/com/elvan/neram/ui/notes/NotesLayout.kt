@@ -43,11 +43,7 @@ fun NotesMainLayout(
     scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     drivePath: List<com.elvan.neram.data.model.DriveFolder> = emptyList()
 ) {
-    val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
-
     val isRoot = if (notesMode == "folder") drivePath.size <= 1 else path.isEmpty()
-    val navDepth = if (notesMode == "folder") drivePath.size - 1 else path.size
-    val navKey = if (notesMode == "folder") "drive_${drivePath.map { it.id }.joinToString("/")}" else "site_${path.joinToString("/")}"
 
     val headerContent: (@Composable () -> Unit)? = if (isRoot) {
         {
@@ -65,62 +61,22 @@ fun NotesMainLayout(
         }
     } else null
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Unified animated content slide on folder enter/exit (both Fetch and Folder modes)
-        AnimatedContent(
-            targetState = Triple(navKey, navDepth, uiState),
-            transitionSpec = {
-                val isDeeper = targetState.second > initialState.second
-                val isShallower = targetState.second < initialState.second
-                if (isDeeper) {
-                    // Entering folder: slide in from right (+width), exit to left (-width)
-                    (slideInHorizontally(
-                        initialOffsetX = { width -> (width * 0.85f).toInt() },
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy)
-                    ) + fadeIn(animationSpec = tween(220))) togetherWith
-                    (slideOutHorizontally(
-                        targetOffsetX = { width -> -(width * 0.35f).toInt() },
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy)
-                    ) + fadeOut(animationSpec = tween(180)))
-                } else if (isShallower) {
-                    // Going back: slide in from left (-width), exit to right (+width)
-                    (slideInHorizontally(
-                        initialOffsetX = { width -> -(width * 0.35f).toInt() },
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy)
-                    ) + fadeIn(animationSpec = tween(220))) togetherWith
-                    (slideOutHorizontally(
-                        targetOffsetX = { width -> (width * 0.85f).toInt() },
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow, dampingRatio = Spring.DampingRatioNoBouncy)
-                    ) + fadeOut(animationSpec = tween(180)))
-                } else {
-                    fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(200))
-                }
-            },
-            contentKey = { it.first },
-            label = "NotesContentSlide"
-        ) { (key, _, animState) ->
-            saveableStateHolder.SaveableStateProvider(key) {
-                NotesContentView(
-                    uiState = animState,
-                    path = path,
-                    rootFolders = rootFolders,
-                    colors = colors,
-                    headerContent = headerContent,
-                    isRoot = isRoot,
-                    onBackClick = onBackClick,
-                    onFolderClick = onFolderClick,
-                    onFileClick = onFileClick,
-                    onNotUploaded = onNotUploaded,
-                    onRetry = onRetry,
-                    onDriveFolderClick = onDriveFolderClick,
-                    onDriveFileClick = onDriveFileClick,
-                    scrollState = scrollState
-                )
-            }
-        }
-    }
+    NotesContentView(
+        uiState = uiState,
+        path = path,
+        rootFolders = rootFolders,
+        colors = colors,
+        headerContent = headerContent,
+        isRoot = isRoot,
+        onBackClick = onBackClick,
+        onFolderClick = onFolderClick,
+        onFileClick = onFileClick,
+        onNotUploaded = onNotUploaded,
+        onRetry = onRetry,
+        onDriveFolderClick = onDriveFolderClick,
+        onDriveFileClick = onDriveFileClick,
+        scrollState = scrollState
+    )
 }
 
 /** Shared content renderer used by both folder and fetch modes */

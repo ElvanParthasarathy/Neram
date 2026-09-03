@@ -122,7 +122,18 @@ fun MainScreen(
     val notesDrivePath by notesViewModel.drivePath.collectAsState()
     val notesPath by notesViewModel.path.collectAsState()
     val notesFolderDisplay = if (notesMode == "folder") notesDrivePath.map { it.name }.drop(1) else notesPath
-    val isInsideNotesFolder = notesFolderDisplay.isNotEmpty()
+    val notesDepth = notesFolderDisplay.size
+    val isInsideNotesFolder = notesDepth > 0
+
+    LaunchedEffect(notesDepth, selectedTab) {
+        if (selectedTab == NavTab.Notes) {
+            if (notesDepth > 0) {
+                currentScreen = "notes_subpage_$notesDepth"
+            } else if (currentScreen.startsWith("notes_subpage_")) {
+                currentScreen = "tabs"
+            }
+        }
+    }
 
     var isNavInteracting by remember { mutableStateOf(false) }
     var isDragTransition by remember { mutableStateOf(false) }
@@ -248,7 +259,9 @@ fun MainScreen(
     // Global Back Handler
     BackHandler(enabled = currentScreen != "tabs" || selectedTab != NavTab.Home) {
         if (currentScreen != "tabs") {
-            when (currentScreen) {
+            if (currentScreen.startsWith("notes_subpage_")) {
+                notesViewModel.navigateUp()
+            } else when (currentScreen) {
                 "account" -> currentScreen = subpageReferrer
                 "security" -> currentScreen = subpageReferrer
                 "display" -> currentScreen = subpageReferrer
@@ -285,6 +298,9 @@ fun MainScreen(
     
     // Navigation Hierarchy Helper
     fun getScreenLevel(screen: String): Int {
+        if (screen.startsWith("notes_subpage_")) {
+            return screen.removePrefix("notes_subpage_").toIntOrNull() ?: 1
+        }
         return when (screen) {
             "tabs" -> 0
             "sites", "contact", "settings" -> 1
@@ -423,14 +439,30 @@ fun MainScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) { screen ->
-            when (screen) {
+            when {
+                screen.startsWith("notes_subpage_") -> {
+                    val subpageScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
+                    ElvanSubShell(
+                        title = notesFolderDisplay.lastOrNull() ?: "",
+                        onBack = { notesViewModel.navigateUp() },
+                        scrollState = subpageScrollState,
+                        colors = colors
+                    ) {
+                        com.elvan.neram.ui.notes.NotesScreen(
+                            onBack = { notesViewModel.navigateUp() },
+                            viewModel = notesViewModel,
+                            scrollState = subpageScrollState
+                        )
+                    }
+                }
+                else -> when (screen) {
            "tabs" -> {
                 val lang = LocalAppLanguage.current
                 val title = when(selectedTab) {
                     NavTab.Home -> K.navNeram.tr(lang)
                     NavTab.Schedule -> K.navSchedule.tr(lang)
                     NavTab.Calendar -> K.navCalendar.tr(lang)
-                    NavTab.Notes -> if (isInsideNotesFolder) notesFolderDisplay.last() else K.navNotes.tr(lang)
+                    NavTab.Notes -> K.navNotes.tr(lang)
                 }
                 
                 val useNewDesign = selectedTab != NavTab.Calendar
@@ -438,7 +470,7 @@ fun MainScreen(
                 com.elvan.neram.ui.components.shell.ElvanShell(
                     scrollState = activeScrollState,
                     colors = colors,
-                    showNavbar = !isLandscape && !(selectedTab == NavTab.Notes && isInsideNotesFolder),
+                    showNavbar = !isLandscape,
                     useNewDesign = useNewDesign,
                     title = title,
                     banners = if (selectedTab == NavTab.Home) activeFeatureCards else emptyList(),
@@ -458,10 +490,8 @@ fun MainScreen(
                     onDismissBanner = { cardId ->
                         homeViewModel.dismissFeatureCard(cardId)
                     },
-                    onBack = if (selectedTab == NavTab.Notes && isInsideNotesFolder) {
-                        { notesViewModel.navigateUp() }
-                    } else null,
-                    hasActions = selectedTab == NavTab.Calendar || !isInsideNotesFolder,
+                    onBack = null,
+                    hasActions = true,
                     actions = {
                         val lang = LocalAppLanguage.current
                         if (selectedTab == NavTab.Calendar) {
@@ -803,6 +833,7 @@ fun MainScreen(
                     onBack = { currentScreen = "tabs" },
                     colors = colors
                 )
+            }
             }
         }
         } // End Main Content Box
