@@ -139,6 +139,7 @@ fun FolderItem(
     colors: HomeColors,
     onClick: () -> Unit
 ) {
+    val rippleColor = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f)
     Surface(
         shape = HomeShapes.Card,
         color = colors.surface,
@@ -147,7 +148,10 @@ fun FolderItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onClick() }
+                .clickable(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication = androidx.compose.material3.ripple(color = rippleColor, bounded = true)
+                ) { onClick() }
                 .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -213,10 +217,14 @@ fun SubjectItem(
             modifier = Modifier.fillMaxWidth(),
             shadowElevation = 0.dp
         ) {
+            val rippleColor = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded }
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = androidx.compose.material3.ripple(color = rippleColor, bounded = true)
+                    ) { expanded = !expanded }
                     .padding(horizontal = 20.dp, vertical = 20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -290,7 +298,7 @@ fun SubjectItem(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "${K.unit.tr(lang)} $unitNumber",
+                                text = "Unit $unitNumber",
                                 style = HomeTypography.StatusBadge.copy(fontSize = 14.sp),
                                 color = if (isAvailable) colors.textPrimary else colors.textSecondary
                             )
@@ -431,10 +439,14 @@ fun DriveSubjectItem(
             modifier = Modifier.fillMaxWidth(),
             shadowElevation = 0.dp
         ) {
+            val rippleColor = if (colors.isDark) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded }
+                    .clickable(
+                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                        indication = androidx.compose.material3.ripple(color = rippleColor, bounded = true)
+                    ) { expanded = !expanded }
                     .padding(horizontal = 20.dp, vertical = 20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -501,9 +513,7 @@ fun DriveSubjectItem(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = if (unitName.startsWith("Unit ", ignoreCase = true)) {
-                                    unitName.replaceFirst("(?i)Unit".toRegex(), K.unit.tr(lang))
-                                } else unitName,
+                                text = unitName,
                                 style = HomeTypography.StatusBadge.copy(fontSize = 14.sp),
                                 color = if (isAvailable) colors.textPrimary else colors.textSecondary
                             )

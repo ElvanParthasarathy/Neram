@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
-import { db } from "../../../firebase";
+import { db, auth } from "../../../firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { ref, onValue, set, push, remove, update } from "firebase/database";
 import { 
     RiFolderFill, 
@@ -20,7 +21,13 @@ import {
     RiDeleteBin6Line,
     RiCheckDoubleFill,
     RiSettings4Line,
-    RiCheckLine
+    RiCheckLine,
+    RiGoogleLine,
+    RiFileCopyLine,
+    RiInformationLine,
+    RiRefreshLine,
+    RiLoader4Line,
+    RiFilePdfLine
 } from 'react-icons/ri';
 import '../../../styles/admin/notes-manager.css';
 import { ListItemSkeleton } from '../../../components/ui/AdminSkeletons';
@@ -88,6 +95,21 @@ const NotesManager = () => {
     const [settingsModal, setSettingsModal] = useState(false);
     const [tempMode, setTempMode] = useState('fetch');
     
+    // Google Drive OAuth & Direct Drive API Sync
+    const [driveSyncModal, setDriveSyncModal] = useState(false);
+    const [driveAccessToken, setDriveAccessToken] = useState(() => sessionStorage.getItem('neram_drive_token') || null);
+    const [driveConnectedEmail, setDriveConnectedEmail] = useState(() => sessionStorage.getItem('neram_drive_email') || null);
+    const [connectingDrive, setConnectingDrive] = useState(false);
+    const [driveUrl, setDriveUrl] = useState('');
+    const [fetchingDrive, setFetchingDrive] = useState(false);
+    const [drivePreview, setDrivePreview] = useState(null);
+    const [importingDrive, setImportingDrive] = useState(false);
+    const [importTarget, setImportTarget] = useState('current'); // 'current' | 'root'
+    const [importMode, setImportMode] = useState('merge'); // 'merge' | 'replace'
+    const [structureMode, setStructureMode] = useState('smart'); // 'smart' | 'normal'
+    const [createTopFolder, setCreateTopFolder] = useState(true);
+    const [customRootName, setCustomRootName] = useState('');
+    
     // Drag state (desktop)
     const [dragId, setDragId] = useState(null);
     const [dragOverId, setDragOverId] = useState(null);
@@ -127,12 +149,24 @@ const NotesManager = () => {
     // Focus handled by autoFocus in modal
 
     // --- DATA ---
-    const currentFolders = Object.entries(folders)
-        .filter(([, f]) => f.parentId === currentFolderId)
-        .map(([k, f]) => ({ ...f, _key: k }));
     const currentSubjects = Object.entries(subjects)
         .filter(([, s]) => s.parentId === currentFolderId)
         .map(([k, s]) => ({ ...s, _key: k }));
+
+    // Extract subject IDs and names to deduplicate against legacy/ghost folders
+    const subjectIdSet = new Set(currentSubjects.map(s => s.id));
+    const subjectNameSet = new Set(currentSubjects.map(s => (s.name || '').trim().toLowerCase()));
+
+    const currentFolders = Object.entries(folders)
+        .filter(([, f]) => {
+            if (f.parentId !== currentFolderId) return false;
+            // Deduplicate: If an item in this folder already exists as a Subject, hide the duplicate folder
+            if (f.id && subjectIdSet.has(f.id)) return false;
+            if (f.name && subjectNameSet.has((f.name || '').trim().toLowerCase())) return false;
+            return true;
+        })
+        .map(([k, f]) => ({ ...f, _key: k }));
+
     const currentFiles = Object.entries(files)
         .filter(([, f]) => f.parentId === currentFolderId)
         .map(([k, f]) => ({ ...f, _key: k }));
@@ -339,6 +373,337 @@ const NotesManager = () => {
         openSubjectModal();
     };
 
+    // --- GOOGLE DRIVE OAUTH & DIRECT API HANDLERS ---
+    const handleConnectDrive = async () => {
+        setConnectingDrive(true);
+        try {
+            const provider = new GoogleAuthProvider();
+            provider.addScope('https://www.googleapis.com/auth/drive.readonly');
+            provider.setCustomParameters({ prompt: 'select_account' });
+            const result = await signInWithPopup(auth, provider);
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+            const token = credential?.accessToken;
+            if (!token) {
+                throw new Error("Could not retrieve Google Drive access token. Please ensure popup was not blocked.");
+            }
+            const email = result.user?.email || "Google Account";
+            setDriveAccessToken(token);
+            setDriveConnectedEmail(email);
+            sessionStorage.setItem('neram_drive_token', token);
+            sessionStorage.setItem('neram_drive_email', email);
+            showToast(`✅ Connected to Google Drive (${email})`);
+        } catch (err) {
+            console.error("Google Drive OAuth error:", err);
+            showToast(`❌ Connection failed: ${err.message}`);
+        } finally {
+            setConnectingDrive(false);
+        }
+    };
+
+    const handleDisconnectDrive = () => {
+        setDriveAccessToken(null);
+        setDriveConnectedEmail(null);
+        sessionStorage.removeItem('neram_drive_token');
+        sessionStorage.removeItem('neram_drive_email');
+        setDrivePreview(null);
+        showToast("Disconnected Google Drive.");
+    };
+
+    const extractFolderId = (input) => {
+        if (!input) return null;
+        const trimmed = input.trim();
+        // Match /folders/<ID>
+        const mFolder = trimmed.match(/\/folders\/([a-zA-Z0-9-_]+)/);
+        if (mFolder && mFolder[1]) return mFolder[1];
+        // Match id=<ID>
+        const mId = trimmed.match(/[?&]id=([a-zA-Z0-9-_]+)/);
+        if (mId && mId[1]) return mId[1];
+        // Standalone Google Drive folder ID (alphanumeric, hyphens, underscores >= 20 chars)
+        const mStandalone = trimmed.match(/^[a-zA-Z0-9-_]{20,}$/);
+        if (mStandalone) return mStandalone[0];
+        return null;
+    };
+
+    const handleFetchDrive = async () => {
+        if (!driveAccessToken) {
+            showToast("⚠️ Please connect your Google Drive first.");
+            return;
+        }
+        const folderId = extractFolderId(driveUrl);
+        if (!folderId) {
+            showToast("⚠️ Please enter a valid Google Drive folder link or ID.");
+            return;
+        }
+
+        setFetchingDrive(true);
+        setDrivePreview(null);
+
+        try {
+            // 1. Fetch root folder metadata
+            const metaResp = await fetch(
+                `https://www.googleapis.com/drive/v3/files/${folderId}?fields=id,name,mimeType&supportsAllDrives=true`,
+                { headers: { Authorization: `Bearer ${driveAccessToken}` } }
+            );
+
+            if (!metaResp.ok) {
+                const errData = await metaResp.json().catch(() => ({}));
+                const msg = errData?.error?.message || `HTTP ${metaResp.status}`;
+                if (metaResp.status === 401) {
+                    handleDisconnectDrive();
+                    throw new Error("Session expired. Please reconnect Google Drive.");
+                }
+                throw new Error(msg);
+            }
+            const rootMeta = await metaResp.json();
+
+            // 2. Recursive crawler (supports Shared Drives & My Drive)
+            let totalF = 0;
+            let totalFiles = 0;
+
+            const crawlFolder = async (fId, fName, depth = 0) => {
+                if (depth > 6) return { id: fId, name: fName, folders: [], files: [] };
+
+                let items = [];
+                let pageToken = null;
+
+                do {
+                    const url = new URL('https://www.googleapis.com/drive/v3/files');
+                    url.searchParams.set('q', `'${fId}' in parents and trashed = false`);
+                    url.searchParams.set('fields', 'nextPageToken, files(id, name, mimeType, webViewLink, size)');
+                    url.searchParams.set('pageSize', '1000');
+                    url.searchParams.set('supportsAllDrives', 'true');
+                    url.searchParams.set('includeItemsFromAllDrives', 'true');
+                    if (pageToken) url.searchParams.set('pageToken', pageToken);
+
+                    const resp = await fetch(url.toString(), {
+                        headers: { Authorization: `Bearer ${driveAccessToken}` }
+                    });
+                    if (!resp.ok) break;
+                    const data = await resp.json();
+                    items = items.concat(data.files || []);
+                    pageToken = data.nextPageToken;
+                } while (pageToken);
+
+                const subfolders = [];
+                const files = [];
+
+                for (const item of items) {
+                    if (item.mimeType === 'application/vnd.google-apps.folder') {
+                        totalF++;
+                        const subTree = await crawlFolder(item.id, item.name, depth + 1);
+                        subfolders.push(subTree);
+                    } else {
+                        totalFiles++;
+                        files.push({
+                            id: item.id,
+                            name: item.name,
+                            link: `https://drive.google.com/file/d/${item.id}/view?usp=drivesdk`,
+                            mimeType: item.mimeType,
+                            size: item.size
+                        });
+                    }
+                }
+
+                return {
+                    id: fId,
+                    name: fName,
+                    folders: subfolders,
+                    files: files
+                };
+            };
+
+            const tree = await crawlFolder(folderId, rootMeta.name || "Drive Folder", 0);
+
+            // 3. Analyze discovered structure (Folders vs Subjects vs Files)
+            let totalBranchFolders = 0;
+            let totalSubjectNodes = 0;
+            let totalFilesCount = 0;
+
+            const analyzeTree = (node) => {
+                const hasSub = (node.folders || []).length > 0;
+                const hasFl = (node.files || []).length > 0;
+                if (!hasSub && hasFl) {
+                    totalSubjectNodes++;
+                    totalFilesCount += node.files.length;
+                } else {
+                    if (hasSub) totalBranchFolders++;
+                    totalFilesCount += (node.files || []).length;
+                    (node.folders || []).forEach(analyzeTree);
+                }
+            };
+            analyzeTree(tree);
+
+            setCustomRootName(tree.name);
+            setDrivePreview({
+                rootName: tree.name,
+                rootId: tree.id,
+                tree: tree,
+                totalFolders: totalBranchFolders,
+                totalSubjects: totalSubjectNodes,
+                totalFiles: totalFilesCount
+            });
+
+            showToast(`✅ Found ${totalSubjectNodes} subjects, ${totalBranchFolders} folders, & ${totalFilesCount} files!`);
+        } catch (err) {
+            console.error("Google Drive API Fetch Error:", err);
+            showToast(`❌ Fetch Error: ${err.message || "Failed to fetch from Google Drive"}`);
+        } finally {
+            setFetchingDrive(false);
+        }
+    };
+
+    const cleanUnitName = (fileName, fallbackIdx = 0) => {
+        if (!fileName) return `File ${fallbackIdx + 1}`;
+        // Use the actual file name used by the individual (strip only file extension like .pdf, .docx)
+        const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '').trim();
+        return nameWithoutExt || fileName || `File ${fallbackIdx + 1}`;
+    };
+
+    const handleImportDrive = async () => {
+        if (!drivePreview || !drivePreview.tree) return;
+        setImportingDrive(true);
+
+        try {
+            const updates = {};
+            const baseParentId = importTarget === 'root' ? 'root' : currentFolderId;
+            const finalRootName = customRootName.trim() || drivePreview.rootName;
+
+            // If user chose 'replace', wipe existing items
+            if (importMode === 'replace') {
+                if (importTarget === 'root') {
+                    updates['notes_drive/folders'] = null;
+                    updates['notes_drive/subjects'] = null;
+                    updates['notes_drive/files'] = null;
+                } else {
+                    // Wipe current folder's immediate children so old folders don't duplicate with new subjects
+                    currentFolders.forEach(f => { updates[`notes_drive/folders/${f._key}`] = null; });
+                    currentSubjects.forEach(s => { updates[`notes_drive/subjects/${s._key}`] = null; });
+                    currentFiles.forEach(fl => { updates[`notes_drive/files/${fl._key}`] = null; });
+                }
+            }
+
+            let importedSubjects = 0;
+            let importedFolders = 0;
+            let importedFiles = 0;
+
+            const buildSubjectNode = (node, parentId, nodeName = node.name) => {
+                importedSubjects++;
+                const unitsMap = {};
+                // Numerical sort: Unit 1 before Unit 2 before Unit 10
+                const sortedFiles = [...(node.files || [])].sort((a, b) => {
+                    const numA = parseInt((a.name || '').replace(/\D/g, '')) || 0;
+                    const numB = parseInt((b.name || '').replace(/\D/g, '')) || 0;
+                    return numA - numB;
+                });
+
+                sortedFiles.forEach((f, idx) => {
+                    importedFiles++;
+                    let unitKey = cleanUnitName(f.name, idx);
+                    if (unitsMap[unitKey]) {
+                        const clean = f.name.replace(/\.[^/.]+$/, '').trim();
+                        unitKey = clean || `${unitKey} (${idx + 1})`;
+                    }
+                    unitsMap[unitKey] = f.link;
+                });
+
+                updates[`notes_drive/subjects/${node.id}`] = {
+                    id: node.id,
+                    name: nodeName,
+                    parentId: parentId,
+                    units: unitsMap
+                };
+
+                // Explicitly purge any folder with this ID/name to prevent duplicate blue folders
+                updates[`notes_drive/folders/${node.id}`] = null;
+                Object.entries(folders).forEach(([fKey, fVal]) => {
+                    if (fVal.parentId === parentId && (fVal.id === node.id || (fVal.name || '').trim().toLowerCase() === (nodeName || '').trim().toLowerCase())) {
+                        updates[`notes_drive/folders/${fKey}`] = null;
+                    }
+                });
+            };
+
+            const recurseBuild = (node, parentId, isRoot = false) => {
+                const nodeName = isRoot ? finalRootName : node.name;
+                const hasSubfolders = (node.folders || []).length > 0;
+                const hasFiles = (node.files || []).length > 0;
+
+                if (structureMode === 'smart' && !hasSubfolders && hasFiles) {
+                    // Smart Mode: Leaf folder containing files -> SUBJECT
+                    buildSubjectNode(node, parentId, nodeName);
+                } else {
+                    // Normal Mode OR Branch folder -> REGULAR FOLDER
+                    importedFolders++;
+                    updates[`notes_drive/folders/${node.id}`] = {
+                        id: node.id,
+                        name: nodeName,
+                        parentId: parentId
+                    };
+
+                    // Explicitly purge any subject with this ID/name to prevent duplicate books
+                    updates[`notes_drive/subjects/${node.id}`] = null;
+                    Object.entries(subjects).forEach(([sKey, sVal]) => {
+                        if (sVal.parentId === parentId && (sVal.id === node.id || (sVal.name || '').trim().toLowerCase() === (nodeName || '').trim().toLowerCase())) {
+                            updates[`notes_drive/subjects/${sKey}`] = null;
+                        }
+                    });
+
+                    // Recurse subfolders
+                    (node.folders || []).forEach(sub => {
+                        recurseBuild(sub, node.id, false);
+                    });
+
+                    // Files inside this folder
+                    (node.files || []).forEach(f => {
+                        importedFiles++;
+                        updates[`notes_drive/files/${f.id}`] = {
+                            id: f.id,
+                            name: f.name.replace(/\.[^/.]+$/, '').trim() || f.name,
+                            link: f.link,
+                            parentId: node.id
+                        };
+                    });
+                }
+            };
+
+            if (createTopFolder) {
+                recurseBuild(drivePreview.tree, baseParentId, true);
+            } else {
+                const hasSubfolders = (drivePreview.tree.folders || []).length > 0;
+                const hasFiles = (drivePreview.tree.files || []).length > 0;
+
+                if (structureMode === 'smart' && !hasSubfolders && hasFiles) {
+                    buildSubjectNode(drivePreview.tree, baseParentId, finalRootName);
+                } else {
+                    (drivePreview.tree.folders || []).forEach(sub => {
+                        recurseBuild(sub, baseParentId, false);
+                    });
+                    (drivePreview.tree.files || []).forEach(f => {
+                        importedFiles++;
+                        updates[`notes_drive/files/${f.id}`] = {
+                            id: f.id,
+                            name: f.name.replace(/\.[^/.]+$/, '').trim() || f.name,
+                            link: f.link,
+                            parentId: baseParentId
+                        };
+                    });
+                }
+            }
+
+            // Atomic batch update to Firebase
+            await update(ref(db), updates);
+
+            showToast(`🎉 Imported ${importedSubjects} subjects, ${importedFolders} folders, and ${importedFiles} units/files!`);
+            setDriveSyncModal(false);
+            setDrivePreview(null);
+            setDriveUrl('');
+        } catch (err) {
+            console.error("Firebase write error:", err);
+            showToast(`❌ Import Error: ${err.message}`);
+        } finally {
+            setImportingDrive(false);
+        }
+    };
+
     if (loading) return (
         <div style={{ padding: '20px' }}>
             <ListItemSkeleton count={5} />
@@ -398,15 +763,24 @@ const NotesManager = () => {
                 </div>
             </header>
 
-            {/* ─── Actions Toolbar (Row 2) ─── */}
             <div className="nm-header-row" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '16px', gap: '10px' }}>
-                <div className="nm-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="nm-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button 
+                        className="nm-file-more-btn" 
+                        style={{ background: 'var(--mac-sidebar-bg)', color: 'var(--mac-text)', width: '36px', height: '36px', flexShrink: 0 }}
+                        onClick={() => setDriveSyncModal(true)}
+                        title="Google Drive Auto-Sync"
+                    >
+                        <RiGoogleLine style={{ fontSize: '18px' }} />
+                    </button>
+
                     <button 
                         className="nm-file-more-btn" 
                         style={{ background: 'var(--mac-sidebar-bg)', color: 'var(--mac-text)', width: '36px', height: '36px', flexShrink: 0 }}
                         onClick={() => { setTempMode(notesMode); setSettingsModal(true); }}
+                        title="Display Settings"
                     >
-                        <RiSettings4Line />
+                        <RiSettings4Line style={{ fontSize: '18px' }} />
                     </button>
                     
                     {isEditListMode ? (
@@ -426,7 +800,7 @@ const NotesManager = () => {
                         </div>
                     ) : (
                         <button
-                            className="edit-list-btn nm-btn-edit"
+                            className="role-header-pill secondary nm-btn-edit"
                             onClick={() => setIsEditListMode(true)}
                         >
                             <RiEdit2Line /> Edit
@@ -448,6 +822,9 @@ const NotesManager = () => {
                             </button>
                             <button className="nm-desk-btn" onClick={() => openSubjectModal()}>
                                 <RiAddLine /> Subject
+                            </button>
+                            <button className="nm-desk-btn" onClick={() => setDriveSyncModal(true)} style={{ color: 'var(--mac-blue)' }}>
+                                <RiGoogleLine /> Drive Sync
                             </button>
                             <button className="nm-desk-btn" onClick={() => setIsSelectionMode(true)} style={{ background: 'var(--mac-blue)', color: 'white', border: 'none', marginLeft: '6px' }}>
                                 <RiCheckDoubleFill /> Select Items
@@ -652,6 +1029,10 @@ const NotesManager = () => {
                                     <div className="nm-fab-option" onClick={handleFabFolder}>
                                         <button className="nm-fab-option-btn folder-btn"><RiFolderFill /></button>
                                         <span className="nm-fab-option-label">Folder</span>
+                                    </div>
+                                    <div className="nm-fab-option" onClick={() => { setFabOpen(false); setDriveSyncModal(true); }}>
+                                        <button className="nm-fab-option-btn link-btn" style={{ background: 'var(--mac-blue)' }}><RiGoogleLine /></button>
+                                        <span className="nm-fab-option-label">Drive Sync</span>
                                     </div>
                                 </>
                             ) : (
@@ -1013,6 +1394,16 @@ const NotesManager = () => {
                                     </div>
                                 </div>
                             </div>
+                            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid var(--mac-border)' }}>
+                                <button 
+                                    type="button" 
+                                    className="nm-modal-footer-btn cancel" 
+                                    style={{ width: '100%', borderRadius: '14px', fontSize: '13px' }}
+                                    onClick={() => { setSettingsModal(false); setDriveSyncModal(true); }}
+                                >
+                                    <RiGoogleLine style={{ fontSize: '16px' }} /> Open Google Drive Auto-Sync
+                                </button>
+                            </div>
                         </div>
                         <div className="nm-modal-footer">
                             <button className="nm-modal-footer-btn cancel" onClick={() => setSettingsModal(false)}>Cancel</button>
@@ -1025,6 +1416,437 @@ const NotesManager = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* ─── GOOGLE DRIVE SYNC MODAL (OAUTH & DIRECT DRIVE API) ─── */}
+            {driveSyncModal && createPortal(
+                <div className="modal-overlay animate-fade-in" onClick={() => !importingDrive && !fetchingDrive && setDriveSyncModal(false)}>
+                    <div className="settings-card animate-pop-in" onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '580px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+                        <div className="nm-modal-header" style={{ padding: '20px 24px', borderBottom: '1px solid var(--mac-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{
+                                    width: '36px',
+                                    height: '36px',
+                                    borderRadius: '10px',
+                                    background: 'rgba(0, 122, 255, 0.1)',
+                                    color: 'var(--mac-blue)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '20px'
+                                }}>
+                                    <RiGoogleLine />
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: 'var(--mac-text)' }}>Google Drive Sync</h3>
+                                    <p style={{ margin: 0, fontSize: '12px', color: 'var(--mac-text-secondary)' }}>Direct Google Drive API</p>
+                                </div>
+                            </div>
+                            <button 
+                                className="nm-modal-close" 
+                                onClick={() => !importingDrive && !fetchingDrive && setDriveSyncModal(false)}
+                            >
+                                <RiCloseLine />
+                            </button>
+                        </div>
+
+                        <div className="nm-modal-body" style={{ padding: '20px 24px', overflowY: 'auto' }}>
+                            {/* Google Account Connection Status Card */}
+                            {!driveAccessToken ? (
+                                <div style={{
+                                    background: 'var(--mac-bg-secondary)',
+                                    border: '1px solid var(--mac-border)',
+                                    borderRadius: '16px',
+                                    padding: '16px',
+                                    marginBottom: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    flexWrap: 'wrap',
+                                    gap: '12px'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{
+                                            width: '40px',
+                                            height: '40px',
+                                            borderRadius: '12px',
+                                            background: 'rgba(0, 122, 255, 0.12)',
+                                            color: 'var(--mac-blue)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '22px',
+                                            flexShrink: 0
+                                        }}>
+                                            <RiGoogleLine />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--mac-text)' }}>
+                                                Connect Google Drive
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)', marginTop: '2px' }}>
+                                                Authorize 1-click read access to your Drive notes & folders
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="role-header-pill active"
+                                        onClick={handleConnectDrive}
+                                        disabled={connectingDrive}
+                                        style={{ padding: '8px 18px', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                    >
+                                        {connectingDrive ? (
+                                            <>
+                                                <RiLoader4Line className="nm-spin" /> Connecting...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <RiGoogleLine size={16} /> Connect Account
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            ) : (
+                                <div style={{
+                                    background: 'rgba(48, 209, 88, 0.08)',
+                                    border: '1px solid rgba(48, 209, 88, 0.25)',
+                                    borderRadius: '16px',
+                                    padding: '12px 16px',
+                                    marginBottom: '16px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    flexWrap: 'wrap',
+                                    gap: '10px'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{
+                                            width: '32px',
+                                            height: '32px',
+                                            borderRadius: '50%',
+                                            background: 'rgba(48, 209, 88, 0.15)',
+                                            color: '#30D158',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '16px',
+                                            flexShrink: 0
+                                        }}>
+                                            <RiCheckLine />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--mac-text)' }}>
+                                                Connected to Google Drive
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)' }}>
+                                                {driveConnectedEmail || "Account Connected"}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="role-header-pill secondary"
+                                        onClick={handleDisconnectDrive}
+                                        style={{ padding: '6px 14px', fontSize: '12px' }}
+                                    >
+                                        Disconnect
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Google Drive Folder Link */}
+                            <div className="nm-field">
+                                <label>Google Drive Folder Link or ID</label>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <input
+                                        className="nm-field-input"
+                                        placeholder="https://drive.google.com/drive/folders/1ABC... or Folder ID"
+                                        value={driveUrl}
+                                        onChange={e => setDriveUrl(e.target.value)}
+                                        disabled={fetchingDrive || importingDrive}
+                                        style={{ flex: 1 }}
+                                        onKeyDown={e => { if (e.key === 'Enter') handleFetchDrive(); }}
+                                    />
+                                    <button
+                                        type="button"
+                                        className="nm-modal-footer-btn confirm"
+                                        onClick={handleFetchDrive}
+                                        disabled={fetchingDrive || importingDrive || !driveUrl.trim() || !driveAccessToken}
+                                        style={{ 
+                                            flex: 'initial', 
+                                            padding: '0 18px', 
+                                            borderRadius: '12px', 
+                                            fontSize: '13px', 
+                                            whiteSpace: 'nowrap' 
+                                        }}
+                                    >
+                                        {fetchingDrive ? (
+                                            <>
+                                                <RiLoader4Line className="nm-spin" /> Scanning...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <RiRefreshLine /> Scan Folder
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                                <span style={{ fontSize: '11px', color: 'var(--mac-text-secondary)', marginTop: '2px' }}>
+                                    Paste any folder link from My Drive, "Shared with me", or Shared Drives.
+                                </span>
+                            </div>
+
+                            {/* Discovered Items Preview */}
+                            {drivePreview && (
+                                <div style={{
+                                    background: 'var(--mac-bg-secondary)',
+                                    border: '1px solid var(--mac-border)',
+                                    borderRadius: '16px',
+                                    padding: '16px',
+                                    marginTop: '16px'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <div className="nm-file-icon folder" style={{ width: '32px', height: '32px', fontSize: '18px' }}>
+                                                <RiFolderFill />
+                                            </div>
+                                            <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--mac-text)' }}>
+                                                {drivePreview.rootName}
+                                            </span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                            {drivePreview.totalSubjects > 0 && (
+                                                <span className="nm-file-badge subject" style={{ background: 'rgba(255, 159, 10, 0.15)', color: '#FF9F0A' }}>
+                                                    {drivePreview.totalSubjects} Subjects
+                                                </span>
+                                            )}
+                                            <span className="nm-file-badge link-type">
+                                                {drivePreview.totalFolders} Folders
+                                            </span>
+                                            <span className="nm-file-badge units">
+                                                {drivePreview.totalFiles} Units / Files
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Editable Root/Subject Name */}
+                                    <div className="nm-field" style={{ marginBottom: '14px' }}>
+                                        <label>Folder / Subject Name (Editable)</label>
+                                        <input
+                                            className="nm-field-input"
+                                            value={customRootName}
+                                            onChange={e => setCustomRootName(e.target.value)}
+                                            placeholder="Enter name to display in Notes Drive"
+                                        />
+                                    </div>
+
+                                    {/* Import Style Selection (Smart vs Normal) */}
+                                    <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--mac-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '8px' }}>
+                                        Import Style
+                                    </label>
+                                    <div className="nm-move-list" style={{ marginBottom: '14px' }}>
+                                        <div 
+                                            className={`nm-move-option ${structureMode === 'smart' ? 'selected' : ''}`}
+                                            onClick={() => setStructureMode('smart')}
+                                            style={{ background: structureMode === 'smart' ? 'color-mix(in srgb, var(--mac-blue) 12%, transparent)' : 'var(--mac-card-bg)', border: '1px solid var(--mac-border)' }}
+                                        >
+                                            <div style={{ width: '20px', display: 'flex', alignItems: 'center', color: structureMode === 'smart' ? 'var(--mac-blue)' : 'var(--mac-text-secondary)' }}>
+                                                {structureMode === 'smart' ? <RiCheckLine /> : <div style={{ width: 14, height: 14, border: '2px solid var(--mac-border)', borderRadius: '50%' }} />}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--mac-text)' }}>Smart Subject Mode</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)' }}>Converts unit folders into Subjects with expandable Units (Unit 1 to 5)</div>
+                                            </div>
+                                        </div>
+
+                                        <div 
+                                            className={`nm-move-option ${structureMode === 'normal' ? 'selected' : ''}`}
+                                            onClick={() => setStructureMode('normal')}
+                                            style={{ background: structureMode === 'normal' ? 'color-mix(in srgb, var(--mac-blue) 12%, transparent)' : 'var(--mac-card-bg)', border: '1px solid var(--mac-border)' }}
+                                        >
+                                            <div style={{ width: '20px', display: 'flex', alignItems: 'center', color: structureMode === 'normal' ? 'var(--mac-blue)' : 'var(--mac-text-secondary)' }}>
+                                                {structureMode === 'normal' ? <RiCheckLine /> : <div style={{ width: 14, height: 14, border: '2px solid var(--mac-border)', borderRadius: '50%' }} />}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--mac-text)' }}>Normal Folder Mode</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)' }}>Exact 1:1 Google Drive mirror (all folders stay Folders, files stay loose links)</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Import Target Selection */}
+                                    <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--mac-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '8px' }}>
+                                        Import Location
+                                    </label>
+                                    <div className="nm-move-list" style={{ marginBottom: '12px' }}>
+                                        <div 
+                                            className={`nm-move-option ${importTarget === 'current' ? 'selected' : ''}`}
+                                            onClick={() => setImportTarget('current')}
+                                            style={{ background: importTarget === 'current' ? 'color-mix(in srgb, var(--mac-blue) 12%, transparent)' : 'var(--mac-card-bg)', border: '1px solid var(--mac-border)' }}
+                                        >
+                                            <div style={{ width: '20px', display: 'flex', alignItems: 'center', color: importTarget === 'current' ? 'var(--mac-blue)' : 'var(--mac-text-secondary)' }}>
+                                                {importTarget === 'current' ? <RiCheckLine /> : <div style={{ width: 14, height: 14, border: '2px solid var(--mac-border)', borderRadius: '50%' }} />}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--mac-text)' }}>Current Folder ({currentPath[currentPath.length - 1].name})</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)' }}>Import inside this folder</div>
+                                            </div>
+                                        </div>
+
+                                        <div 
+                                            className={`nm-move-option ${importTarget === 'root' ? 'selected' : ''}`}
+                                            onClick={() => setImportTarget('root')}
+                                            style={{ background: importTarget === 'root' ? 'color-mix(in srgb, var(--mac-blue) 12%, transparent)' : 'var(--mac-card-bg)', border: '1px solid var(--mac-border)' }}
+                                        >
+                                            <div style={{ width: '20px', display: 'flex', alignItems: 'center', color: importTarget === 'root' ? 'var(--mac-blue)' : 'var(--mac-text-secondary)' }}>
+                                                {importTarget === 'root' ? <RiCheckLine /> : <div style={{ width: 14, height: 14, border: '2px solid var(--mac-border)', borderRadius: '50%' }} />}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--mac-text)' }}>Root Notes Drive</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)' }}>Import at top level</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Sync Mode */}
+                                    <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--mac-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '8px' }}>
+                                        Sync Mode
+                                    </label>
+                                    <div className="nm-move-list" style={{ marginBottom: '12px' }}>
+                                        <div 
+                                            className={`nm-move-option ${importMode === 'merge' ? 'selected' : ''}`}
+                                            onClick={() => setImportMode('merge')}
+                                            style={{ background: importMode === 'merge' ? 'color-mix(in srgb, var(--mac-blue) 12%, transparent)' : 'var(--mac-card-bg)', border: '1px solid var(--mac-border)' }}
+                                        >
+                                            <div style={{ width: '20px', display: 'flex', alignItems: 'center', color: importMode === 'merge' ? 'var(--mac-blue)' : 'var(--mac-text-secondary)' }}>
+                                                {importMode === 'merge' ? <RiCheckLine /> : <div style={{ width: 14, height: 14, border: '2px solid var(--mac-border)', borderRadius: '50%' }} />}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--mac-text)' }}>Merge with Existing Notes</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)' }}>Keep existing items and add new items</div>
+                                            </div>
+                                        </div>
+
+                                        <div 
+                                            className={`nm-move-option ${importMode === 'replace' ? 'selected' : ''}`}
+                                            onClick={() => setImportMode('replace')}
+                                            style={{ background: importMode === 'replace' ? 'color-mix(in srgb, var(--mac-blue) 12%, transparent)' : 'var(--mac-card-bg)', border: '1px solid var(--mac-border)' }}
+                                        >
+                                            <div style={{ width: '20px', display: 'flex', alignItems: 'center', color: importMode === 'replace' ? 'var(--mac-blue)' : 'var(--mac-text-secondary)' }}>
+                                                {importMode === 'replace' ? <RiCheckLine /> : <div style={{ width: 14, height: 14, border: '2px solid var(--mac-border)', borderRadius: '50%' }} />}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--mac-text)' }}>Full Replace (Clean Old Duplicates)</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--mac-text-secondary)' }}>{importTarget === 'root' ? "Wipe entire Notes Drive and sync fresh" : "Clear this folder's contents and sync fresh"}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Create enclosing folder checkbox */}
+                                    <div 
+                                        style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            gap: '10px', 
+                                            padding: '12px 14px', 
+                                            borderRadius: '12px', 
+                                            background: 'var(--mac-card-bg)', 
+                                            border: '1px solid var(--mac-border)',
+                                            cursor: 'pointer'
+                                        }} 
+                                        onClick={() => setCreateTopFolder(!createTopFolder)}
+                                    >
+                                        <input 
+                                            type="checkbox" 
+                                            className="mac-checkbox"
+                                            checked={createTopFolder}
+                                            onChange={e => { e.stopPropagation(); setCreateTopFolder(e.target.checked); }}
+                                            onClick={e => e.stopPropagation()}
+                                        />
+                                        <span style={{ fontSize: '13px', color: 'var(--mac-text)' }}>
+                                            Create enclosing folder named <strong>"{customRootName.trim() || drivePreview.rootName}"</strong>
+                                        </span>
+                                    </div>
+
+                                    {/* Discovered Items Peek */}
+                                    <div style={{ marginTop: '14px' }}>
+                                        <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--mac-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '8px' }}>
+                                            Top-Level Items
+                                        </label>
+                                        <div style={{ 
+                                            maxHeight: '140px', 
+                                            overflowY: 'auto', 
+                                            display: 'flex', 
+                                            flexDirection: 'column', 
+                                            gap: '4px',
+                                            padding: '8px',
+                                            borderRadius: '12px',
+                                            background: 'var(--mac-card-bg)',
+                                            border: '1px solid var(--mac-border)'
+                                        }}>
+                                            {(drivePreview.tree.folders || []).map(f => {
+                                                const isSubject = (f.folders || []).length === 0 && (f.files || []).length > 0;
+                                                return (
+                                                    <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', borderRadius: '8px' }}>
+                                                        <div className={`nm-file-icon ${isSubject ? 'subject' : 'folder'}`} style={{ width: '24px', height: '24px', fontSize: '14px', background: isSubject ? 'rgba(255, 159, 10, 0.15)' : undefined, color: isSubject ? '#FF9F0A' : undefined }}>
+                                                            {isSubject ? <RiBookOpenFill /> : <RiFolderFill />}
+                                                        </div>
+                                                        <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--mac-text)' }}>{f.name}</span>
+                                                        <span style={{ fontSize: '11px', color: 'var(--mac-text-secondary)', marginLeft: 'auto' }}>
+                                                            {isSubject ? `Subject (${(f.files || []).length} units)` : `${(f.folders || []).length} folders, ${(f.files || []).length} files`}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                            {(drivePreview.tree.files || []).map(fl => (
+                                                <div key={fl.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 8px', borderRadius: '8px' }}>
+                                                    <div className="nm-file-icon file" style={{ width: '24px', height: '24px', fontSize: '14px' }}>
+                                                        <RiLinkM />
+                                                    </div>
+                                                    <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--mac-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                        {fl.name}
+                                                    </span>
+                                                    <span style={{ fontSize: '11px', color: 'var(--mac-text-secondary)', marginLeft: 'auto' }}>
+                                                        Direct Link
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="nm-modal-footer">
+                            <button 
+                                type="button"
+                                className="nm-modal-footer-btn cancel" 
+                                onClick={() => setDriveSyncModal(false)}
+                                disabled={importingDrive || fetchingDrive}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="button"
+                                className="nm-modal-footer-btn confirm"
+                                onClick={handleImportDrive}
+                                disabled={!drivePreview || importingDrive || fetchingDrive}
+                            >
+                                {importingDrive ? (
+                                    <>
+                                        <RiLoader4Line className="nm-spin" /> Importing...
+                                    </>
+                                ) : (
+                                    <>
+                                        Import to Notes Drive
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
             )}
 
             {/* --- PREM CONF MODAL (like ExamManager) --- */}

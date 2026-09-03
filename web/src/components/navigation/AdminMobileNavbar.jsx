@@ -20,7 +20,7 @@ import {
     RiComputerLine,
     RiUser3Fill,
     RiNotificationBadgeLine,
-    RiDatabase2Line
+    RiSparklingLine
 } from "react-icons/ri";
 import { getHardcodedRole } from '../../data/admins';
 import ThemeToggle from '../ui/ThemeToggle';
@@ -111,7 +111,6 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
         notifications: 'Notifications',
         pending: 'Pending Requests',
         special_classes: 'Special Classes',
-        storage: 'Storage & Data',
     }[activeModule] || 'Admin Panel';
 
     // --- MOBILE BACK NAVIGATION ---
@@ -358,8 +357,8 @@ const AdminMobileNavbar = ({ isAdminUser, user, userProfile }) => {
                                         <div className="drawer-icon"><RiNotificationBadgeLine /></div> <span>Notifications</span>
                                     </button>
                                 )}
-                                <button onClick={() => handleNav('storage')} className={`admin-drawer-item ${activeModule === 'storage' ? 'active' : ''}`}>
-                                    <div className="drawer-icon"><RiDatabase2Line /></div> <span>Storage & Data</span>
+                                <button onClick={() => handleNav('banners')} className={`admin-drawer-item ${activeModule === 'banners' ? 'active' : ''}`}>
+                                    <div className="drawer-icon"><RiSparklingLine /></div> <span>Tips & Banners</span>
                                 </button>
                             </>
 

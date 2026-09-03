@@ -127,9 +127,7 @@ fun MainScreen(
 
     LaunchedEffect(notesDepth, selectedTab) {
         if (selectedTab == NavTab.Notes) {
-            if (notesDepth > 0) {
-                currentScreen = "notes_subpage_$notesDepth"
-            } else if (currentScreen.startsWith("notes_subpage_")) {
+            if (notesDepth == 0 && currentScreen.startsWith("notes_subpage_")) {
                 currentScreen = "tabs"
             }
         }
@@ -260,7 +258,9 @@ fun MainScreen(
     BackHandler(enabled = currentScreen != "tabs" || selectedTab != NavTab.Home) {
         if (currentScreen != "tabs") {
             if (currentScreen.startsWith("notes_subpage_")) {
+                val currentDepth = if (notesMode == "folder") notesDrivePath.size - 1 else notesPath.size
                 notesViewModel.navigateUp()
+                currentScreen = if (currentDepth > 1) "notes_subpage_${currentDepth - 1}" else "tabs"
             } else when (currentScreen) {
                 "account" -> currentScreen = subpageReferrer
                 "security" -> currentScreen = subpageReferrer
@@ -441,17 +441,31 @@ fun MainScreen(
         ) { screen ->
             when {
                 screen.startsWith("notes_subpage_") -> {
+                    val depth = screen.removePrefix("notes_subpage_").toIntOrNull() ?: 1
                     val subpageScrollState = androidx.compose.foundation.lazy.rememberLazyListState()
+                    val handleNotesBack: () -> Unit = {
+                        notesViewModel.navigateUp()
+                        currentScreen = if (depth > 1) "notes_subpage_${depth - 1}" else "tabs"
+                    }
+                    val pageTitle = if (notesMode == "folder") {
+                        notesDrivePath.getOrNull(depth)?.name ?: notesFolderDisplay.lastOrNull() ?: ""
+                    } else {
+                        notesPath.getOrNull(depth - 1) ?: notesFolderDisplay.lastOrNull() ?: ""
+                    }
                     ElvanSubShell(
-                        title = notesFolderDisplay.lastOrNull() ?: "",
-                        onBack = { notesViewModel.navigateUp() },
+                        title = pageTitle,
+                        onBack = handleNotesBack,
                         scrollState = subpageScrollState,
                         colors = colors
                     ) {
                         com.elvan.neram.ui.notes.NotesScreen(
-                            onBack = { notesViewModel.navigateUp() },
+                            onBack = handleNotesBack,
                             viewModel = notesViewModel,
-                            scrollState = subpageScrollState
+                            scrollState = subpageScrollState,
+                            screenDepth = depth,
+                            onNavigateToFolder = { nextDepth ->
+                                currentScreen = "notes_subpage_$nextDepth"
+                            }
                         )
                     }
                 }
@@ -649,7 +663,11 @@ fun MainScreen(
                             NavTab.Notes -> com.elvan.neram.ui.notes.NotesScreen(
                                 onBack = { selectedTab = NavTab.Home }, 
                                 viewModel = notesViewModel,
-                                scrollState = notesScrollState
+                                scrollState = notesScrollState,
+                                screenDepth = 0,
+                                onNavigateToFolder = { depth ->
+                                    currentScreen = "notes_subpage_$depth"
+                                }
                             ) 
                         }
                 }

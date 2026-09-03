@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import SettingsHub from "./settings/SettingsHub";
 import DisplaySettings from "./settings/DisplaySettings";
 import SecuritySettings from "./settings/SecuritySettings";
-import StorageSettings from "../admin/settings/StorageSettings";
 import UserDirectoryView from "./settings/UserDirectoryView";
 import ProfileView from "./settings/ProfileView";
 import FeedbackView from "./settings/FeedbackView";
@@ -114,7 +113,6 @@ const Settings2 = ({ userProfile }) => {
                 profile: 'Edit Profile',
                 display: 'Appearance',
                 notifications: 'Notifications',
-                storage: 'Storage & Data',
                 security: 'Security',
                 directory: 'User Directory',
                 complaints: 'Report Issue',
@@ -157,7 +155,6 @@ const Settings2 = ({ userProfile }) => {
         switch (effectiveView) {
             case "profile": return <ProfileView userProfile={userProfile} onBack={goHub} />;
             case "display": return <DisplaySettings onBack={goHub} />;
-            case "storage": return <StorageSettings userProfile={userProfile} onBack={goHub} />;
             case "security": return <SecuritySettings onBack={goHub} />;
             case "directory": return <UserDirectoryView onBack={goHub} subPath={subPath} />;
             case "complaints": return <FeedbackView userProfile={userProfile} onBack={goHub} />;

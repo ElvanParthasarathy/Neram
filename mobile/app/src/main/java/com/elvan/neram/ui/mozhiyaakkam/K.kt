@@ -359,7 +359,6 @@ object K {
     // ── Notes Screen ──
     const val notUploadedTitle = "notUploadedTitle"
     const val notUploadedMessage = "notUploadedMessage"
-    const val unit = "unit"
 
     // ── User Directory ──
     const val noUsersFound = "noUsersFound"

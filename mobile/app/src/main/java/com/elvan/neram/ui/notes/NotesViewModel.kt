@@ -114,6 +114,9 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
     private val _driveSubjects = MutableStateFlow(readCachedSubjects())
     private val _drivePath = MutableStateFlow<List<DriveFolder>>(listOf(DriveFolder("root", "Notes Drive", "root")))
     
+    val driveFolders = _driveFolders.asStateFlow()
+    val driveFiles = _driveFiles.asStateFlow()
+    val driveSubjects = _driveSubjects.asStateFlow()
     val drivePath = _drivePath.asStateFlow()
 
     fun setNotesMode(mode: String) {
@@ -384,6 +387,77 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
         }
         
         _uiState.value = NotesUiState.browse(items)
+    }
+
+    fun getDriveViewForDepth(depth: Int): NotesUiState {
+        val currentFolder = if (_drivePath.value.size > depth) _drivePath.value[depth] else _drivePath.value.lastOrNull()
+        val currentFolderId = currentFolder?.id ?: "root"
+        val folders = _driveFolders.value.filter { it.parentId == currentFolderId }
+        val files = _driveFiles.value.filter { it.parentId == currentFolderId }
+        val subjects = _driveSubjects.value.filter { it.parentId == currentFolderId }
+        return NotesUiState.Browser(NotesViewContent.DriveView(folders, files, subjects))
+    }
+
+    fun getFetchContentForDepth(depth: Int): NotesUiState {
+        if (depth == 0) return NotesUiState.Empty
+        val currentPath = _path.value.take(depth)
+        if (currentPath.isEmpty()) return NotesUiState.Empty
+        
+        val rootDept = currentPath[0]
+        val isSNH = rootDept == "SNH" || rootDept == "I YEAR"
+        
+        val items = if (isSNH) {
+            when (depth) {
+                1 -> {
+                    val groups = _cachedSemesters.map { 
+                        val rawName = it.title.split("|").firstOrNull()?.trim() ?: "General"
+                        mapDeptToAbbreviation(rawName)
+                    }.distinct().sorted()
+                    NotesViewContent.Folders(groups)
+                }
+                2 -> {
+                    val snhDeptAbbr = currentPath.getOrNull(1) ?: ""
+                    val sems = _cachedSemesters.filter { 
+                        val rawDept = it.title.split("|").firstOrNull()?.trim() ?: "General"
+                        mapDeptToAbbreviation(rawDept) == snhDeptAbbr
+                    }.map { 
+                         val rawSem = it.title.split("|").getOrNull(1)?.trim() ?: it.title
+                         toTitleCase(rawSem)
+                    }.distinct().sorted()
+                    NotesViewContent.Folders(sems)
+                }
+                3 -> {
+                    val snhDeptAbbr = currentPath.getOrNull(1) ?: ""
+                    val semName = currentPath.getOrNull(2) ?: ""
+                    val match = _cachedSemesters.find { 
+                        val parts = it.title.split("|")
+                        val rawDept = parts.getOrNull(0)?.trim() ?: "General"
+                        val rawSem = parts.getOrNull(1)?.trim() ?: ""
+                        mapDeptToAbbreviation(rawDept) == snhDeptAbbr && toTitleCase(rawSem) == semName
+                    }
+                    if (match != null) NotesViewContent.Files(match.subjects) else NotesViewContent.Empty
+                }
+                else -> NotesViewContent.Empty
+            }
+        } else {
+            when (depth) {
+                1 -> {
+                    val sems = _cachedSemesters
+                        .map { toTitleCase(it.title) }
+                        .distinct()
+                    NotesViewContent.Folders(sems)
+                }
+                2 -> {
+                    val semName = currentPath.getOrNull(1) ?: ""
+                    val match = _cachedSemesters.find { 
+                        toTitleCase(it.title) == semName 
+                    }
+                    if (match != null) NotesViewContent.Files(match.subjects) else NotesViewContent.Empty
+                }
+                else -> NotesViewContent.Empty
+            }
+        }
+        return NotesUiState.browse(items)
     }
 
 

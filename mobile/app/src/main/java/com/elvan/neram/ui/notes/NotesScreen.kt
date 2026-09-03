@@ -30,13 +30,19 @@ import com.elvan.neram.ui.theme.LocalAppLanguage
 fun NotesScreen(
     onBack: () -> Unit,
     viewModel: NotesViewModel = viewModel(),
-    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    scrollState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
+    screenDepth: Int = 0,
+    onNavigateToFolder: ((depth: Int) -> Unit)? = null
 ) {
+    val isRoot = screenDepth == 0
     val uiState by viewModel.uiState.collectAsState()
     val path by viewModel.path.collectAsState()
     val notesMode by viewModel.notesMode.collectAsState()
     val serverNotesMode by viewModel.serverNotesMode.collectAsState()
     val drivePath by viewModel.drivePath.collectAsState()
+    val driveFolders by viewModel.driveFolders.collectAsState()
+    val driveFiles by viewModel.driveFiles.collectAsState()
+    val driveSubjects by viewModel.driveSubjects.collectAsState()
     val colors = rememberHomeColors()
     val context = LocalContext.current
     val lang = LocalAppLanguage.current
@@ -45,9 +51,9 @@ fun NotesScreen(
 
     val depts = listOf("ECE", "AIML", "CSBS", "CSE", "IT", "SNH")
 
-    // Back navigation behavior
-    BackHandler(enabled = if (notesMode == "folder") drivePath.size > 1 else path.isNotEmpty()) {
-        viewModel.navigateUp()
+    // Back navigation behavior (only active when inside a subpage)
+    BackHandler(enabled = !isRoot) {
+        onBack()
     }
 
     fun openUrl(url: String) {
@@ -71,11 +77,33 @@ fun NotesScreen(
         )
     }
 
-    // Derived path display
-    val currentPathDisplay = if (notesMode == "folder") {
-        drivePath.map { it.name }.drop(1)
+    // Exact state for this screen's depth (locks content so exiting screens NEVER mutate or double-slide)
+    val effectiveUiState = if (notesMode == "folder") {
+        viewModel.getDriveViewForDepth(screenDepth)
     } else {
-        path
+        if (screenDepth == 0) {
+            NotesUiState.Empty
+        } else {
+            when (uiState) {
+                is NotesUiState.Loading -> NotesUiState.Loading
+                is NotesUiState.Error -> uiState
+                else -> viewModel.getFetchContentForDepth(screenDepth)
+            }
+        }
+    }
+
+    val currentPathDisplay = if (screenDepth == 0) {
+        emptyList()
+    } else if (notesMode == "folder") {
+        drivePath.take(screenDepth + 1).map { it.name }.drop(1)
+    } else {
+        path.take(screenDepth)
+    }
+
+    val effectiveDrivePath = if (screenDepth == 0) {
+        listOf(com.elvan.neram.data.model.DriveFolder("root", "Notes Drive", "root"))
+    } else {
+        drivePath.take(screenDepth + 1)
     }
 
     LaunchedEffect(currentPathDisplay) {
@@ -83,27 +111,29 @@ fun NotesScreen(
     }
 
     NotesMainLayout(
-        uiState = uiState,
+        uiState = effectiveUiState,
         path = currentPathDisplay,
         rootFolders = depts,
         colors = colors,
         notesMode = notesMode,
         serverNotesMode = serverNotesMode,
         onNotesModeChange = { viewModel.setNotesMode(it) },
-        onBackClick = {
-            if (notesMode == "folder") {
-                if (drivePath.size == 1) onBack() else viewModel.navigateUp()
-            } else {
-                if (path.isEmpty()) onBack() else viewModel.navigateUp()
-            }
+        onBackClick = onBack,
+        onFolderClick = { folderName ->
+            val nextDepth = screenDepth + 1
+            viewModel.enterFolder(folderName)
+            onNavigateToFolder?.invoke(nextDepth)
         },
-        onFolderClick = { viewModel.enterFolder(it) },
         onFileClick = { openUrl(it) },
         onNotUploaded = { showNotUploadedDialog = true },
         onRetry = { viewModel.navigateUp() },
-        onDriveFolderClick = { viewModel.enterDriveFolder(it) },
+        onDriveFolderClick = { folder ->
+            val nextDepth = screenDepth + 1
+            viewModel.enterDriveFolder(folder)
+            onNavigateToFolder?.invoke(nextDepth)
+        },
         onDriveFileClick = { openUrl(it.link) },
         scrollState = scrollState,
-        drivePath = drivePath
+        drivePath = effectiveDrivePath
     )
 }

@@ -336,7 +336,6 @@ val en: Map<String, String> = mapOf(
     // ── Notes Screen ──
     K.notUploadedTitle to "Not Uploaded",
     K.notUploadedMessage to "The unit notes have not been uploaded in rmd.ac.in yet. They will appear here once available.",
-    K.unit to "Unit",
 
     // ── User Directory ──
     K.noUsersFound to "No contacts found matching search.",

@@ -26,8 +26,7 @@ import {
   RiComputerLine,
   RiFolderLine,
   RiNotificationBadgeLine,
-  RiSparklingLine,
-  RiDatabase2Line
+  RiSparklingLine
 } from "react-icons/ri";
 import { getHardcodedRole } from "../../data/admins";
 
@@ -237,10 +236,6 @@ const AdminNavbar = ({ user, userProfile, isAdmin }) => {
             <Link to="/?mod=banners" className={`admin-nav-link ${location.search.includes('mod=banners') ? "active" : ""}`}>
               <RiSparklingLine className="admin-nav-icon" />
               <span>Tips & Banners</span>
-            </Link>
-            <Link to="/?mod=storage" className={`admin-nav-link ${location.search.includes('mod=storage') ? "active" : ""}`}>
-              <RiDatabase2Line className="admin-nav-icon" />
-              <span>Storage & Data</span>
             </Link>
           </>
         )}

@@ -58,7 +58,15 @@ html.dark .s2-view-tabs .s2-tab-indicator {
 
 .notes-view-tabs {
     max-width: 320px;
-    margin: 0 auto 20px auto;
+    margin: 0 auto;
+}
+
+.notes-shifter-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 .s2-view-tabs button {

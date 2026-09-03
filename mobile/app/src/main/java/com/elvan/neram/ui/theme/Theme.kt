@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.theme
+package com.elvan.neram.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -24,8 +24,11 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Pink80,
     // Pure black for AMOLED displays - true black pixels are turned off
     background = Color.Black,
+    onBackground = Color.White,
     surface = Color.Black,
+    onSurface = Color.White,
     surfaceVariant = Color(0xFF1C1C1C),
+    onSurfaceVariant = Color(0xFFE0E0E0),
     surfaceContainer = Color.Black,
     surfaceContainerLow = Color.Black,
     surfaceContainerLowest = Color.Black,
@@ -38,16 +41,6 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color.White,
     secondary = PurpleGrey40,
     tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
 )
 
 @Composable
@@ -64,8 +57,11 @@ fun NeramTheme(
                 // Use dynamic colors but override with pure black for AMOLED
                 dynamicDarkColorScheme(context).copy(
                     background = Color.Black,
+                    onBackground = Color.White,
                     surface = Color.Black,
+                    onSurface = Color.White,
                     surfaceVariant = Color(0xFF1C1C1C),
+                    onSurfaceVariant = Color(0xFFE0E0E0),
                     surfaceContainer = Color.Black,
                     surfaceContainerLow = Color.Black,
                     surfaceContainerLowest = Color.Black,
@@ -98,13 +94,21 @@ fun NeramTheme(
         currentDensity
     }
 
+    val rippleColor = if (darkTheme) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f)
+
     CompositionLocalProvider(
         LocalDensity provides density
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = Typography,
-            content = content
-        )
+            typography = Typography
+        ) {
+            CompositionLocalProvider(
+                androidx.compose.foundation.LocalIndication provides androidx.compose.material3.ripple(color = rippleColor, bounded = true),
+                androidx.compose.material3.LocalRippleConfiguration provides androidx.compose.material3.RippleConfiguration(color = rippleColor)
+            ) {
+                content()
+            }
+        }
     }
 }

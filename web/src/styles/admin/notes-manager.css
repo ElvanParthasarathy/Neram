@@ -1332,3 +1332,14 @@ html:not(.dark) .nm-fab-option-btn.danger-btn {
         margin-left: 4px;
     }
 }
+
+/* ─── Spin Animation ─── */
+@keyframes nmSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.nm-spin {
+    animation: nmSpin 0.9s linear infinite;
+}
+

@@ -1273,10 +1273,6 @@ val ta: Map<String, TaVar> = mapOf(
         ta = "இந்த பாடகுறிப்புகள் rmd.ac.in-ல் இன்னும் பதிவேற்றப்படவில்லை. அவை பதிவேற்றப்பட்டவுடன் இங்கே கிடைக்கும்.",
         latn = "Indha paadakkurippugal rmd.ac.in-il innum pathivaetravillai. Pathivaetrapattavudan ingae kidaikkum."
     ),
-    K.unit to TaVar(
-        ta = "அலகு",
-        latn = "Alagu"
-    ),
 
     // ── User Directory ──
     K.noUsersFound to TaVar(

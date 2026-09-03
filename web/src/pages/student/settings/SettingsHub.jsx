@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { auth } from "../../../firebase";
 import {
     RiSunLine,
-    RiDatabase2Line,
     RiNotification3Line,
     RiShieldKeyholeLine,
     RiUser3Line,
@@ -52,7 +51,7 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
 
             <div className="s2-spacer-md" />
 
-            {/* Group 1: Display & Admin Storage */}
+            {/* Group 1: Display */}
             <SettingsGroup>
                 <SettingsItem
                     icon={<RiSunLine />}
@@ -61,18 +60,6 @@ const SettingsHub = ({ userProfile, onNavigate }) => {
                     desc="Theme, appearance"
                     onClick={() => onNavigate("display")}
                 />
-                {isAdmin && (
-                    <>
-                        <SettingsDivider />
-                        <SettingsItem
-                            icon={<RiDatabase2Line />}
-                            iconColor="orange"
-                            title="Storage & Data"
-                            desc="Manage & erase live updates"
-                            onClick={() => onNavigate("storage")}
-                        />
-                    </>
-                )}
             </SettingsGroup>
 
             <div className="s2-spacer-sm" />

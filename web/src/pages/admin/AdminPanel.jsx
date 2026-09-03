@@ -33,7 +33,6 @@ const SpecialClassManager = React.lazy(() => import('./modules/SpecialClassManag
 const NotesManager = React.lazy(() => import('./modules/NotesManager'));
 const NotificationManager = React.lazy(() => import('./modules/NotificationManager'));
 const BannerManager = React.lazy(() => import('./modules/BannerManager'));
-const StorageSettings = React.lazy(() => import('./settings/StorageSettings'));
 
 // --- Neutral Fallback to prevent "double skeleton" flash ---
 const AdminSkeletonFallback = () => (
@@ -115,7 +114,6 @@ const AdminPanel = ({ user, userProfile, isMobile }) => {
           {activeModule === 'special_classes' && <SpecialClassManager user={user} userProfile={userProfile} isMobile={isMobile} />}
           {activeModule === 'notifications' && <NotificationManager isMobile={isMobile} />}
           {activeModule === 'banners' && <BannerManager isMobile={isMobile} />}
-          {activeModule === 'storage' && <StorageSettings userProfile={userProfile} onBack={() => handleModuleChange('home')} />}
         </Suspense>
       </main>
     </div>

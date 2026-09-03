@@ -3,7 +3,6 @@ import "../../styles/student/settings.css";
 
 // Admin Components
 import AdminSettingsHub from "./settings/AdminSettingsHub";
-import StorageSettings from "./settings/StorageSettings";
 import AdminProfile from "./modules/AdminProfile";
 
 // Shared Views
@@ -86,7 +85,6 @@ const AdminSettings = ({ userProfile }) => {
                 profile: 'Edit Profile',
                 display: 'Appearance',
                 notifications: 'Notifications',
-                storage: 'Storage & Data',
                 security: 'Security',
                 directory: 'User Directory',
                 complaints: 'Report Issue',
@@ -132,15 +130,6 @@ const AdminSettings = ({ userProfile }) => {
                 return <AdminProfile onBack={goHub} />;
             case "display":
                 return <DisplaySettings onBack={goHub} />;
-            case "storage":
-                const adminContext = JSON.parse(localStorage.getItem('admin_dashboard_context') || '{}');
-                const storageProfile = {
-                    ...userProfile,
-                    batch: userProfile?.batch || adminContext.batch || "",
-                    department: userProfile?.department || adminContext.dept || "",
-                    section: userProfile?.section || adminContext.sec || ""
-                };
-                return <StorageSettings userProfile={storageProfile} onBack={goHub} />;
             case "security":
                 return <SecuritySettings onBack={goHub} />;
             case "directory":

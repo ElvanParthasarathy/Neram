@@ -52,15 +52,19 @@ const Notes = () => {
     const [files, setFiles] = useState({});
     const [subjects, setSubjects] = useState({});
     const [drivePath, setDrivePath] = useState([{ id: 'root', name: 'Notes Drive' }]);
+    const [animDirection, setAnimDirection] = useState('forward');
 
     const currentMode = activeTab || serverNotesMode || 'fetch';
 
     const handleTabSelected = (mode) => {
         if (currentMode !== mode) {
+            setAnimDirection('forward');
             setUserOverridden(true);
             setActiveTab(mode);
             setDrivePath([{ id: 'root', name: 'Notes Drive' }]);
             setPath([]);
+            setUiStatus('empty');
+            setCachedSemesters([]);
         }
     };
 
@@ -131,14 +135,6 @@ const Notes = () => {
         }
     }, [getPathKey, uiStatus]);
 
-    // --- ANIMATION STATE ---
-    const prevFolderDepth = useRef(1);
-    const driveAnimDirection = drivePath.length >= prevFolderDepth.current ? 'forward' : 'backward';
-    prevFolderDepth.current = drivePath.length;
-
-    const prevFetchDepth = useRef(0);
-    const fetchAnimDirection = path.length >= prevFetchDepth.current ? 'forward' : 'backward';
-    prevFetchDepth.current = path.length;
 
     // --- NEW: FIREBASE LISTENERS ---
     useEffect(() => {
@@ -196,7 +192,7 @@ const Notes = () => {
         
         // PARITY: In Fetch Mode, Android uses its own internal header.
         // We only sync with the global navbar for Folder Mode.
-        if (notesMode === 'fetch') {
+        if (currentMode === 'fetch') {
             window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
             return;
         }
@@ -204,7 +200,7 @@ const Notes = () => {
         let overrideTitle = "Notes";
         let hasBack = false;
 
-        if (notesMode === 'folder') {
+        if (currentMode === 'folder') {
             if (drivePath.length > 1) {
                 overrideTitle = drivePath[drivePath.length - 1].name;
                 hasBack = true;
@@ -222,11 +218,11 @@ const Notes = () => {
         }
         
         return () => window.dispatchEvent(new CustomEvent('neram-update-nav', { detail: null }));
-    }, [isMobile, notesMode, drivePath, path]);
+    }, [isMobile, currentMode, drivePath, path]);
 
     useEffect(() => {
         const handleNotesBack = () => {
-            if (notesMode === 'folder') {
+            if (currentMode === 'folder') {
                 setDrivePath(p => p.length > 1 ? p.slice(0, -1) : p);
             } else {
                 setPath(p => {
@@ -245,7 +241,7 @@ const Notes = () => {
         };
         window.addEventListener('neram-notes-back', handleNotesBack);
         return () => window.removeEventListener('neram-notes-back', handleNotesBack);
-    }, [notesMode]);
+    }, [currentMode]);
 
     // --- HELPERS (Android Parity) ---
     const toTitleCase = useCallback((str) => {
@@ -427,6 +423,7 @@ const Notes = () => {
     // --- NAVIGATION LOGIC ---
     const enterFolder = (name) => {
         saveScroll();
+        setAnimDirection('forward');
         const newPath = [...path, name];
         setPath(newPath);
         if (newPath.length === 1) {
@@ -434,8 +431,11 @@ const Notes = () => {
         }
     };
 
+    const handleFolderClick = enterFolder;
+
     const navigateUp = () => {
         saveScroll();
+        setAnimDirection('backward');
         if (path.length > 0) {
             const newPath = path.slice(0, -1);
             setPath(newPath);
@@ -512,104 +512,219 @@ const Notes = () => {
         );
     }
 
-    if (currentMode === 'folder') {
-        return (
-            <div className="h2-view notes-container mode-folder">
-                {(!isMobile || drivePath.length > 1) && (
-                    <div className={`notes-header-stack ${drivePath.length > 1 ? 'has-path' : ''}`}>
-                        {drivePath.length > 1 && (
-                            <button className="back-circle-btn" onClick={() => { saveScroll(); setDrivePath(p => p.slice(0, -1)); }}>
-                                <RiArrowLeftSLine />
-                            </button>
-                        )}
-                        <div>
-                            <h1 className="notes-title" style={{ fontSize: titleFontSize }}>{drivePath[drivePath.length - 1].name}</h1>
-                        </div>
-                    </div>
-                )}
+    const isRoot = currentMode === 'folder' ? drivePath.length === 1 : path.length === 0;
+    const currentTitle = currentMode === 'folder' 
+        ? (drivePath[drivePath.length - 1]?.name || "Notes Drive") 
+        : (path.length === 0 ? "Lecture Notes" : path[path.length - 1]);
 
-                <div 
-                    ref={viewportRef}
-                    key={drivePath.map(p=>p.id).join('-')} 
-                    className={`notes-viewport ${driveAnimDirection === 'forward' ? 'notes-animate-forward' : 'notes-animate-backward'}`}
-                >
-                    {drivePath.length === 1 && <NotesShifter />}
-                    <div className="folder-grid" style={{ marginBottom: '20px' }}>
-                        {currentDriveFolders.map((folder, i) => (
-                            <div key={i} className="folder-item-mac" onClick={() => { saveScroll(); setDrivePath(p => [...p, folder]); }}>
-                                <div className="folder-icon-glow"><RiFolderFill /></div>
-                                <div className="folder-info">
-                                    <span className="folder-name">{folder.name}</span>
-                                    <span className="folder-sub">Folder</span>
-                                </div>
-                                <RiArrowRightSLine className="folder-chevron" />
-                            </div>
-                        ))}
+    const animClass = animDirection === 'backward' ? 'notes-animate-backward' : 'notes-animate-forward';
+
+    const renderFolderContent = () => (
+        <>
+            <div className="folder-grid" style={{ marginBottom: '20px' }}>
+                {currentDriveFolders.map((folder, i) => (
+                    <div key={i} className="folder-item-mac" onClick={() => {
+                        saveScroll();
+                        setAnimDirection('forward');
+                        setDrivePath(p => [...p, folder]);
+                    }}>
+                        <div className="folder-icon-glow"><RiFolderFill /></div>
+                        <div className="folder-info">
+                            <span className="folder-name">{folder.name}</span>
+                            <span className="folder-sub">Folder</span>
+                        </div>
+                        <RiArrowRightSLine className="folder-chevron" />
                     </div>
-                    {currentFiles.length > 0 && (
-                        <div className="files-stack" style={{ gap: '12px', display: 'flex', flexDirection: 'column', marginBottom: '20px' }}>
-                            {currentFiles.map((file, i) => (
-                                <div key={i} className="folder-item-mac" onClick={() => window.open(file.link, '_blank')} style={{ cursor: 'pointer' }}>
-                                    <div className="folder-icon-glow" style={{ background: 'var(--mac-bg-secondary)', color: 'var(--mac-text-secondary)' }}>
-                                        <RiFileTextFill />
+                ))}
+            </div>
+            {currentFiles.length > 0 && (
+                <div className="files-stack" style={{ gap: '12px', display: 'flex', flexDirection: 'column', marginBottom: '20px' }}>
+                    {currentFiles.map((file, i) => (
+                        <div key={i} className="folder-item-mac" onClick={() => window.open(file.link, '_blank')} style={{ cursor: 'pointer' }}>
+                            <div className="folder-icon-glow" style={{ background: 'var(--mac-bg-secondary)', color: 'var(--mac-text-secondary)' }}>
+                                <RiFileTextFill />
+                            </div>
+                            <div className="folder-info">
+                                <span className="folder-name">{file.name}</span>
+                                <span className="folder-sub">Document Link</span>
+                            </div>
+                            <RiExternalLinkLine className="folder-chevron" style={{ opacity: 0.5 }} />
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {currentSubjects.length > 0 && (
+                <div className="files-stack">
+                    {currentSubjects.map((sub, i) => {
+                        const isExpanded = expandedSubjects[sub.id];
+                        const units = sub.units || {};
+                        const sortedUnits = Object.entries(units).sort((a, b) => {
+                            const numA = parseInt(a[0].replace(/\D/g, '')) || 999;
+                            const numB = parseInt(b[0].replace(/\D/g, '')) || 999;
+                            return numA - numB;
+                        });
+
+                        return (
+                            <div key={i} className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}>
+                                <div className="accordion-header-row" onClick={() => setExpandedSubjects(p => ({ ...p, [sub.id]: !p[sub.id] }))}>
+                                    <div className="indicator-bar"></div>
+                                    <span className="subject-title">{sub.name}</span>
+                                    {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
+                                </div>
+
+                                <div className={`accordion-collapse ${isExpanded ? 'open' : ''}`}>
+                                    <div className="accordion-inner">
+                                        <div className="accordion-content-area">
+                                            {sortedUnits.length > 0 ? (
+                                                <div className="units-grid">
+                                                    {sortedUnits.map(([unitName, url], j) => {
+                                                        const isAvailable = !!url;
+                                                        return (
+                                                            <div
+                                                                key={j}
+                                                                className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    if (isAvailable) window.open(url, "_blank");
+                                                                    else setShowNotUploaded(true);
+                                                                }}
+                                                            >
+                                                                {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
+                                                                <span className="unit-label">{unitName}</span>
+                                                                {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ) : (
+                                                <span style={{ fontSize: '13px', color: 'var(--mac-text-secondary)' }}>No units added yet</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+            
+            {currentDriveFolders.length === 0 && currentFiles.length === 0 && currentSubjects.length === 0 && (
+                <div className="centered-state">
+                    <RiInformationLine className="centered-state-icon" />
+                    <p className="centered-state-text">No items found in this directory.</p>
+                </div>
+            )}
+        </>
+    );
+
+    const renderFetchContent = () => (
+        <>
+            {path.length === 0 && (
+                <div className="folder-grid">
+                    {rootDepts.map((dept, i) => (
+                        <div 
+                            key={i} 
+                            className="folder-item-mac"
+                            onClick={() => enterFolder(dept)}
+                        >
+                            <div className="folder-icon-glow">
+                                <RiFolderFill />
+                            </div>
+                            <div className="folder-info">
+                                <span className="folder-name">{dept}</span>
+                                <span className="folder-sub">Department</span>
+                            </div>
+                            <RiArrowRightSLine className="folder-chevron" />
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {path.length > 0 && uiStatus === 'loading' && (
+                <div className="centered-state">
+                    <div className="spinner-mac big"></div>
+                    <p>Syncing with RMD server...</p>
+                </div>
+            )}
+
+            {path.length > 0 && uiStatus === 'error' && (
+                <div className="error-card-glass">
+                    <RiErrorWarningLine className="error-icon" />
+                    <h3>Connection Failed</h3>
+                    <p>{error}</p>
+                    <button className="btn-primary" onClick={() => fetchNotes(path[0])}>Retry Connection</button>
+                </div>
+            )}
+
+            {path.length > 0 && uiStatus === 'browser' && browserContent && (
+                <>
+                    {browserContent.type === 'folders' && (
+                        <div className="folder-grid">
+                            {browserContent.items.map((item, i) => (
+                                <div 
+                                    key={i} 
+                                    className="folder-item-mac"
+                                    onClick={() => enterFolder(item)}
+                                >
+                                    <div className="folder-icon-glow">
+                                        <RiFolderFill />
                                     </div>
                                     <div className="folder-info">
-                                        <span className="folder-name">{file.name}</span>
-                                        <span className="folder-sub">Document Link</span>
+                                        <span className="folder-name">{item}</span>
+                                        <span className="folder-sub">
+                                            {path.length === 1 && path[0] === 'SNH' ? 'Department' : 'Semester'}
+                                        </span>
                                     </div>
-                                    <RiExternalLinkLine className="folder-chevron" style={{ opacity: 0.5 }} />
+                                    <RiArrowRightSLine className="folder-chevron" />
                                 </div>
                             ))}
                         </div>
                     )}
 
-                    {currentSubjects.length > 0 && (
+                    {(browserContent.type === 'files' || browserContent.type === 'subjects') && (
                         <div className="files-stack">
-                            {currentSubjects.map((sub, i) => {
-                                const isExpanded = expandedSubjects[sub.id];
-                                const units = sub.units || {};
-                                // Parse keys to sort nicely: Unit 1, Unit 2
-                                const sortedUnits = Object.entries(units).sort((a, b) => {
-                                    const numA = parseInt(a[0].replace(/\D/g, '')) || 999;
-                                    const numB = parseInt(b[0].replace(/\D/g, '')) || 999;
-                                    return numA - numB;
-                                });
-
+                            {browserContent.items.map((subject, i) => {
+                                const isExpanded = expandedSubjects[subject.name];
                                 return (
-                                    <div key={i} className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}>
-                                        <div className="accordion-header-row" onClick={() => setExpandedSubjects(p => ({ ...p, [sub.id]: !p[sub.id] }))}>
+                                    <div 
+                                        key={i} 
+                                        className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}
+                                    >
+                                        <div 
+                                            className="accordion-header-row"
+                                            onClick={() => setExpandedSubjects(p => ({ ...p, [subject.name]: !p[subject.name] }))}
+                                        >
                                             <div className="indicator-bar"></div>
-                                            <span className="subject-title">{sub.name}</span>
+                                            <span className="subject-title">{subject.name}</span>
                                             {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
                                         </div>
 
                                         <div className={`accordion-collapse ${isExpanded ? 'open' : ''}`}>
                                             <div className="accordion-inner">
                                                 <div className="accordion-content-area">
-                                                    {sortedUnits.length > 0 ? (
-                                                        <div className="units-grid">
-                                                            {sortedUnits.map(([unitName, url], j) => {
-                                                                const isAvailable = !!url;
-                                                                return (
-                                                                    <div
-                                                                        key={j}
-                                                                        className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            if (isAvailable) window.open(url, "_blank");
-                                                                            else setShowNotUploaded(true);
-                                                                        }}
-                                                                    >
-                                                                        {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
-                                                                        <span className="unit-label">{unitName}</span>
-                                                                        {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    ) : (
-                                                        <span style={{ fontSize: '13px', color: 'var(--mac-text-secondary)' }}>No units added yet</span>
-                                                    )}
+                                                    <div className="units-grid">
+                                                        {["Unit 1", "Unit 2", "Unit 3", "Unit 4", "Unit 5"].map((unitName, j) => {
+                                                            const url = subject.units?.[unitName];
+                                                            const isAvailable = !!url;
+
+                                                            return (
+                                                                <div 
+                                                                    key={j} 
+                                                                    className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        if (isAvailable) window.open(url, "_blank");
+                                                                        else setShowNotUploaded(true);
+                                                                    }}
+                                                                >
+                                                                    {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
+                                                                    <span className="unit-label">{unitName}</span>
+                                                                    {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -618,128 +733,58 @@ const Notes = () => {
                             })}
                         </div>
                     )}
-                    
-                    {currentDriveFolders.length === 0 && currentFiles.length === 0 && currentSubjects.length === 0 && (
+
+                    {browserContent.type === 'empty' && (
                         <div className="centered-state">
                             <RiInformationLine className="centered-state-icon" />
-                            <p className="centered-state-text">No items found in this directory.</p>
+                            <p className="centered-state-text">No course material available in this directory.</p>
                         </div>
                     )}
-                </div>
-            </div>
-        );
-    }
+                </>
+            )}
+        </>
+    );
 
     return (
-        <div className="h2-view notes-container mode-fetch">
+        <div className={`h2-view notes-container mode-${currentMode}`}>
             {/* Breadcrumb Header */}
-            {(!isMobile || path.length > 0) && (
-                <div className={`notes-header-stack ${path.length > 0 ? 'has-path' : ''}`}>
-                    {path.length > 0 && (
-                        <button className="back-circle-btn" onClick={navigateUp}>
+            {(!isMobile || !isRoot) && (
+                <div className={`notes-header-stack ${!isRoot ? 'has-path' : ''}`}>
+                    {!isRoot && (
+                        <button className="back-circle-btn" onClick={() => {
+                            saveScroll();
+                            if (currentMode === 'folder') {
+                                setAnimDirection('backward');
+                                setDrivePath(p => p.slice(0, -1));
+                            } else {
+                                navigateUp();
+                            }
+                        }}>
                             <RiArrowLeftSLine />
                         </button>
                     )}
                     <div>
                         <h1 className="notes-title" style={{ fontSize: titleFontSize }}>
-                            {path.length === 0 ? "Lecture Notes" : path[path.length - 1]}
+                            {currentTitle}
                         </h1>
                     </div>
+                </div>
+            )}
+
+            {/* Static Shifter Pill - ALWAYS at the exact same place at root, NEVER moves */}
+            {isRoot && (
+                <div className="notes-shifter-container">
+                    <NotesShifter />
                 </div>
             )}
 
             {/* Main Content Area */}
             <div 
                 ref={viewportRef}
-                key={path.join('-')} 
-                className={`notes-viewport ${fetchAnimDirection === 'forward' ? 'notes-animate-forward-subtle' : 'notes-animate-backward-subtle'}`}
+                key={`${currentMode}-${currentMode === 'folder' ? drivePath.map(p => p.id).join('-') : path.join('-')}-${uiStatus}`} 
+                className={`notes-viewport ${animClass}`}
             >
-                {path.length === 0 && <NotesShifter />}
-                {uiStatus === 'loading' && (
-                    <div className="centered-state">
-                        <div className="spinner-mac big"></div>
-                        <p>Syncing with RMD server...</p>
-                    </div>
-                )}
-
-                {uiStatus === 'error' && (
-                    <div className="error-card-glass">
-                        <RiErrorWarningLine className="error-icon" />
-                        <h3>Connection Failed</h3>
-                        <p>{error}</p>
-                        <button className="btn-primary" onClick={() => fetchNotes(path[0])}>Retry Connection</button>
-                    </div>
-                )}
-
-                {(uiStatus === 'browser' || uiStatus === 'empty') && browserContent && (
-                    <>
-                        {browserContent.type === 'folders' && (
-                            <div className="folder-grid">
-                                {browserContent.items.map((name, i) => (
-                                    <div key={i} className="folder-item-mac" onClick={() => enterFolder(name)}>
-                                        <div className="folder-icon-glow">
-                                            <RiFolderFill />
-                                        </div>
-                                        <div className="folder-info">
-                                            <span className="folder-name">{name}</span>
-                                            <span className="folder-sub">Folder</span>
-                                        </div>
-                                        <RiArrowRightSLine className="folder-chevron" />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {browserContent.type === 'files' && (
-                            <div className="files-stack">
-                                {browserContent.items.map((sub, i) => {
-                                    const isExpanded = expandedSubjects[sub.name];
-                                    return (
-                                        <div key={i} className={`subject-accordion-card ${isExpanded ? 'active' : ''}`}>
-                                            <div className="accordion-header-row" onClick={() => setExpandedSubjects(p => ({ ...p, [sub.name]: !p[sub.name] }))}>
-                                                <div className="indicator-bar"></div>
-                                                <span className="subject-title">{sub.name}</span>
-                                                {isExpanded ? <RiArrowUpSLine /> : <RiArrowDownSLine />}
-                                            </div>
-
-                                            <div className={`accordion-collapse ${isExpanded ? 'open' : ''}`}>
-                                                <div className="accordion-inner">
-                                                    <div className="accordion-content-area">
-                                                        <div className="units-grid">
-                                                            {[1, 2, 3, 4, 5].map(n => {
-                                                                const key = `Unit ${n}`;
-                                                                const url = sub.units[key] || sub.units[`unit ${n}`];
-                                                                const isAvailable = !!url;
-                                                                return (
-                                                                    <div
-                                                                        key={n}
-                                                                        className={`unit-status-chip ${isAvailable ? 'available' : 'locked'}`}
-                                                                        onClick={() => isAvailable ? window.open(url, "_blank") : setShowNotUploaded(true)}
-                                                                    >
-                                                                        {isAvailable ? <RiFilePdfLine /> : <RiCloudOffLine />}
-                                                                        <span className="unit-label">{key}</span>
-                                                                        {isAvailable ? <RiExternalLinkLine className="open-icon" /> : <RiLockLine className="lock-icon" />}
-                                                                    </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
-
-                        {browserContent.type === 'empty' && (
-                            <div className="centered-state">
-                                <RiInformationLine className="centered-state-icon" />
-                                <p className="centered-state-text">No course material available in this directory.</p>
-                            </div>
-                        )}
-                    </>
-                )}
+                {currentMode === 'folder' ? renderFolderContent() : renderFetchContent()}
             </div>
 
             {/* PARITY: NOT UPLOADED MODAL */}
