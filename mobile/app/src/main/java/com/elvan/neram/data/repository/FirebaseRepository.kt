@@ -23,6 +23,10 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
+import com.elvan.neram.data.preferences.LanguageManager
 
 /**
  * Repository for accessing Data - React Native Offline Pattern
@@ -56,6 +60,11 @@ class FirebaseRepository(private val context: Context) {
             is String -> value.toIntOrNull() ?: 0
             else -> 0
         }
+    }
+
+    private suspend fun getLanguage(): String {
+        val langPref = try { LanguageManager(context).languageCode.first() } catch (e: Exception) { "system" }
+        return K.getEffectiveLanguage(langPref, context)
     }
     
     // Helper to check if date is Today or Tomorrow (YYYY-MM-DD or DD-MM-YYYY)
@@ -330,6 +339,7 @@ class FirebaseRepository(private val context: Context) {
                     val data = parseMasterData(snapshot)
                     scope.launch {
                         try {
+                            val lang = getLanguage()
                             // 1. Check for New Exams
                             val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
                             val lastExamHashes = prefs.getStringSet("last_exam_hashes", emptySet()) ?: emptySet()
@@ -344,18 +354,20 @@ class FirebaseRepository(private val context: Context) {
                                     val checkDate = if (exam.endDate.isNotBlank()) exam.endDate else exam.startDate
                                     if (isDateTodayOrTomorrow(checkDate)) {
                                         // New exam schedule found!
+                                        val notifTitle = K.newExamSchedule.trWithLang(lang, exam.title)
+                                        val notifMessage = K.examDatesRange.trWithLang(lang, exam.startDate, exam.endDate)
                                         com.elvan.neram.ui.common.NotificationHelper.showNotification(
                                             context,
-                                            "New Exam Schedule: ${exam.title}",
-                                            "Dates: ${exam.startDate} - ${exam.endDate}",
+                                            notifTitle,
+                                            notifMessage,
                                             com.elvan.neram.ui.common.NotificationHelper.CHANNEL_ID_EXAMS,
                                             notificationId = hash.hashCode()
                                         )
                                         // Store in notification center
                                         localDb.notificationDao().insertNotification(
                                             NotificationEntity(
-                                                title = "New Exam: ${exam.title}",
-                                                message = "Dates: ${exam.startDate} - ${exam.endDate}",
+                                                title = K.newExam.trWithLang(lang, exam.title),
+                                                message = notifMessage,
                                                 timestamp = System.currentTimeMillis(),
                                                 type = "exam"
                                             )
@@ -558,6 +570,7 @@ class FirebaseRepository(private val context: Context) {
                 
                 scope.launch {
                     try {
+                        val lang = getLanguage()
                         // 1. Check for New Events
                         val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
                         val lastEventHashes = prefs.getStringSet("last_event_hashes", emptySet()) ?: emptySet()
@@ -571,8 +584,8 @@ class FirebaseRepository(private val context: Context) {
                                 // Only notify if event is Today/Tomorrow
                                 if (isDateTodayOrTomorrow(event.date)) {
                                     // New event found!
-                                    val title = if (event.type.equals("Holiday", ignoreCase = true)) "New Holiday Added" else "New Event: ${event.title}"
-                                    val message = "${event.title} on ${event.date}"
+                                    val title = if (event.type.equals("Holiday", ignoreCase = true)) K.newHolidayAdded.tr(lang) else K.newEvent.trWithLang(lang, event.title)
+                                    val message = K.eventOnDate.trWithLang(lang, event.title, event.date)
                                     
                                     com.elvan.neram.ui.common.NotificationHelper.showNotification(
                                         context,
@@ -655,6 +668,7 @@ class FirebaseRepository(private val context: Context) {
                 
                 scope.launch {
                     try {
+                        val lang = getLanguage()
                         // Check for new general notice and trigger notification
                         val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
                         val lastGeneralHash = prefs.getString("last_general_hash", "")
@@ -662,18 +676,20 @@ class FirebaseRepository(private val context: Context) {
                         
                         if (generalText.isNotEmpty() && lastGeneralHash != currentGeneralHash) {
                             // New notice detected - trigger notification
+                            val noticeTitle = K.newNotice.tr(lang)
+                            val noticeMessage = "$generalText" + if (generalAuthor.isNotEmpty()) K.authorAttribution.trWithLang(lang, generalAuthor) else ""
                             com.elvan.neram.ui.common.NotificationHelper.showNotification(
                                 context,
-                                "New Notice",
-                                "$generalText" + if (generalAuthor.isNotEmpty()) " - $generalAuthor" else "",
+                                noticeTitle,
+                                noticeMessage,
                                 com.elvan.neram.ui.common.NotificationHelper.CHANNEL_ID_INSTANT,
                                 notificationId = generalText.hashCode()
                             )
                             // Store in notification center
                             localDb.notificationDao().insertNotification(
                                 NotificationEntity(
-                                    title = "New Notice",
-                                    message = "$generalText" + if (generalAuthor.isNotEmpty()) " - $generalAuthor" else "",
+                                    title = noticeTitle,
+                                    message = noticeMessage,
                                     timestamp = System.currentTimeMillis(),
                                     type = "notice"
                                 )
@@ -688,15 +704,45 @@ class FirebaseRepository(private val context: Context) {
                         // Track daily updates for notifications
                         val lastDailyHashes = prefs.getStringSet("last_daily_hashes", emptySet()) ?: emptySet()
                         val newDailyHashes = mutableSetOf<String>()
+                        val now = System.currentTimeMillis()
                         
                         dailyNode.children.forEach { dateSnap ->
-                            val dateKey = dateSnap.key
+                            val dateKey = dateSnap.key ?: return@forEach
+                            val isDateKey = dateKey.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))
+                            if (!isDateKey) {
+                                // Stray non-date node under daily_update (e.g. legacy flat note/author)
+                                dateSnap.ref.removeValue()
+                                return@forEach
+                            }
+
                             val note = dateSnap.child("note").getValue<String>() ?: ""
                             val author = dateSnap.child("author").getValue<String>() ?: ""
-                            
-                            if (dateKey != null && note.isNotEmpty()) {
+                            val createdAt = dateSnap.child("createdAt").getValue<Long>() ?: 0L
+                            var expiresAt = dateSnap.child("expiresAt").getValue<Long>() ?: 0L
+
+                            // If legacy update without explicit expiresAt: compute expiry from dateKey (end of target day)
+                            if (expiresAt == 0L) {
+                                expiresAt = try {
+                                    val dateObj = java.time.LocalDate.parse(dateKey)
+                                    dateObj.plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                } catch (_: Exception) {
+                                    now - 1000L
+                                }
+                            }
+
+                            // Hybrid auto-purge: If current time is past expiry, delete directly from Firebase
+                            if (now > expiresAt) {
+                                Log.d(TAG, "Auto-purging expired daily update from Firebase: $dateKey")
+                                dateSnap.ref.removeValue()
+                            } else if (dateKey != null && note.isNotEmpty()) {
                                 localDb.updatesDao().insertDailyUpdate(
-                                    DailyUpdateEntity(date = dateKey, note = note, author = author)
+                                    DailyUpdateEntity(
+                                        date = dateKey,
+                                        note = note,
+                                        author = author,
+                                        createdAt = createdAt,
+                                        expiresAt = expiresAt
+                                    )
                                 )
                                 
                                 // Check if this is a new update
@@ -707,18 +753,20 @@ class FirebaseRepository(private val context: Context) {
                                     // Only notify if Update is STRICTLY Today
                                     if (isDateToday(dateKey)) {
                                         // New daily update - trigger notification
+                                        val dailyTitle = K.dailyUpdateFormat.trWithLang(lang, dateKey)
+                                        val dailyMessage = "$note" + if (author.isNotEmpty()) K.authorAttribution.trWithLang(lang, author) else ""
                                         com.elvan.neram.ui.common.NotificationHelper.showNotification(
                                             context,
-                                            "Daily Update ($dateKey)",
-                                            "$note" + if (author.isNotEmpty()) " - $author" else "",
+                                            dailyTitle,
+                                            dailyMessage,
                                             com.elvan.neram.ui.common.NotificationHelper.CHANNEL_ID_DAILY,
                                             notificationId = updateHash.hashCode()
                                         )
                                         // Store in notification center
                                         localDb.notificationDao().insertNotification(
                                             NotificationEntity(
-                                                title = "Daily Update ($dateKey)",
-                                                message = "$note" + if (author.isNotEmpty()) " - $author" else "",
+                                                title = dailyTitle,
+                                                message = dailyMessage,
                                                 timestamp = System.currentTimeMillis(),
                                                 type = "update"
                                             )
@@ -755,18 +803,29 @@ class FirebaseRepository(private val context: Context) {
     }
     
     /**
-     * Save daily update for a specific date
+     * Save daily update for a specific date with Academic Day / 24-Hour Hybrid Expiry
      */
     suspend fun saveDailyUpdate(batch: String, dept: String, section: String, date: String, update: DailyUpdate) {
+        val now = System.currentTimeMillis()
+        val dateEndOfDay = try {
+            java.time.LocalDate.parse(date).plusDays(1).atStartOfDay(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
+        } catch (_: Exception) {
+            now + 24 * 3600 * 1000L
+        }
+        val expiresAt = maxOf(now + 24 * 3600 * 1000L, dateEndOfDay)
+        val enrichedUpdate = update.copy(createdAt = now, expiresAt = expiresAt)
+
         // 1. Optimistic update - save to local DB first
-        localDb.updatesDao().insertDailyUpdate(DailyUpdateEntity.fromDailyUpdate(date, update))
+        localDb.updatesDao().insertDailyUpdate(DailyUpdateEntity.fromDailyUpdate(date, enrichedUpdate))
         
-        // 2. Fire and forget to Firebase
+        // 2. Fire and forget to Firebase with expiry timestamp
         val ref = database.getReference("updates/$batch/$dept/$section/daily_update/$date")
         ref.updateChildren(
             mapOf(
-                "note" to update.note,
-                "author" to update.author
+                "note" to enrichedUpdate.note,
+                "author" to enrichedUpdate.author,
+                "createdAt" to enrichedUpdate.createdAt,
+                "expiresAt" to enrichedUpdate.expiresAt
             )
         )
     }
@@ -883,6 +942,7 @@ class FirebaseRepository(private val context: Context) {
                 
                 scope.launch {
                     try {
+                        val lang = getLanguage()
                         // 1. Check for New Section Events
                         val prefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
                         val lastSectionEventHashes = prefs.getStringSet("last_section_event_hashes", emptySet()) ?: emptySet()
@@ -896,18 +956,20 @@ class FirebaseRepository(private val context: Context) {
                                 // Only notify if event is Today/Tomorrow
                                 if (isDateTodayOrTomorrow(event.date)) {
                                     // New section event found!
+                                    val title = K.newClassEvent.trWithLang(lang, event.title)
+                                    val message = K.eventOnDate.trWithLang(lang, event.title, event.date)
                                     com.elvan.neram.ui.common.NotificationHelper.showNotification(
                                         context,
-                                        "New Class Event: ${event.title}",
-                                        "${event.title} on ${event.date}",
+                                        title,
+                                        message,
                                         com.elvan.neram.ui.common.NotificationHelper.CHANNEL_ID_EVENTS,
                                         notificationId = hash.hashCode()
                                     )
                                     // Store in notification center
                                     localDb.notificationDao().insertNotification(
                                         NotificationEntity(
-                                            title = "New Class Event: ${event.title}",
-                                            message = "${event.title} on ${event.date}",
+                                            title = title,
+                                            message = message,
                                             timestamp = System.currentTimeMillis(),
                                             type = "alert"
                                         )

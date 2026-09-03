@@ -51,8 +51,14 @@ html.dark .s2-view-tabs .s2-tab-indicator {
 }
 
 
-.s2-view-tabs .s2-tab-indicator.exams {
+.s2-view-tabs .s2-tab-indicator.exams,
+.s2-view-tabs .s2-tab-indicator.second {
     transform: translateX(100%);
+}
+
+.notes-view-tabs {
+    max-width: 320px;
+    margin: 0 auto 20px auto;
 }
 
 .s2-view-tabs button {

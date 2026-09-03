@@ -259,86 +259,13 @@ fun YearMonthPickerDialog(
     onDismiss: () -> Unit,
     colors: HomeColors
 ) {
-    var selectedYear by remember { mutableStateOf(currentMonth.year) }
-    
-    Dialog(
-        onDismissRequest = onDismiss
-    ) {
-        Surface( // Wrap in Surface for Dialog styling
-            modifier = Modifier
-                .clip(HomeShapes.Card)
-                .background(colors.surface),
-            shape = HomeShapes.Card,
-            color = colors.surface
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Year Selector
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { selectedYear-- }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Prev Year", tint = colors.textPrimary)
-                }
-                Text(
-                    text = selectedYear.toString(),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colors.textPrimary
-                )
-                IconButton(onClick = { selectedYear++ }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, "Next Year", tint = colors.textPrimary)
-                }
-            }
-            
-            // Months Grid
-            Column {
-                val context = LocalContext.current
-                val langPref = LocalAppLanguage.current
-                val appLocale = remember(langPref) {
-                    if (K.getEffectiveLanguage(langPref, context) == K.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
-                }
-
-                val months = java.time.Month.values().toList()
-                val chunkedMonths = months.chunked(3)
-                
-                chunkedMonths.forEach { row ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        row.forEach { month ->
-                            val isSelected = month == currentMonth.month && selectedYear == currentMonth.year
-                            
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(4.dp)
-                                    .clip(HomeShapes.Pill)
-                                    .background(if (isSelected) colors.accent else Color.Transparent)
-                                    .clickable { onMonthSelected(YearMonth.of(selectedYear, month)) }
-                                    .padding(vertical = 12.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = month.toMozhiName(langPref, isShort = true),
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = if (isSelected) Color.White else colors.textPrimary
-                                )
-                            }
-                        }
-                        // Fill empty space if row is incomplete (unlikely for 12 months / 3 = 4 rows)
-                    }
-                }
-            }
-            }
-        }
-    }
+    MonthYearPickerDialog(
+        visible = true,
+        currentMonth = currentMonth,
+        onDismissRequest = onDismiss,
+        onMonthYearSelected = onMonthSelected,
+        colors = colors
+    )
 }
 
 /**
@@ -841,7 +768,7 @@ fun SelectedDaySection(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = date.dayOfWeek.toMozhiName(langPref, isShort = true),
+                    text = date.dayOfWeek.toMozhiName(langPref, isShort = false),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
                     color = colors.textSecondary
@@ -1330,44 +1257,11 @@ fun MonthScheduleList(
             }
         }
     } else {
-        // --- PROPER GESTURE CONFLICT FIX (Direction Lock) ---
-        // Prevents LazyColumn from consuming horizontal swipes meant for Pager
-        var isHorizontalScrolling by remember { mutableStateOf(false) }
         val verticalState = androidx.compose.foundation.lazy.rememberLazyListState()
 
         LazyColumn(
             state = verticalState,
-            userScrollEnabled = !isHorizontalScrolling, // Disable vertical scroll when horizontal is active
-            modifier = Modifier
-                .fillMaxSize()
-                // Intercept touches to determine scroll direction
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragStart = { 
-                            isHorizontalScrolling = false 
-                        },
-                        onDragEnd = { 
-                            isHorizontalScrolling = false 
-                        },
-                        onDragCancel = { 
-                            isHorizontalScrolling = false 
-                        }
-                    ) { change, dragAmount ->
-                        // If horizontal movement is dominant, lock to horizontal (disable vertical)
-                        if (kotlin.math.abs(dragAmount.x) > kotlin.math.abs(dragAmount.y)) {
-                             isHorizontalScrolling = true
-                             // We do NOT consume the change here, letting it propagate to Pager
-                        } else {
-                             // Vertical is dominant, let LazyColumn handle it (if enabled)
-                             // If isHorizontalScrolling is ALREADY true, we keep it true 
-                             // to avoid switching mid-gesture? Usually better to lock once per gesture.
-                             // But for simplicity of this pattern:
-                             if (!isHorizontalScrolling) {
-                                  // Let vertical scroll happen naturally
-                             }
-                        }
-                    }
-                },
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 80.dp, top = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {

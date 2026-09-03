@@ -95,18 +95,6 @@ class CalendarPreferences(context: Context) {
         prefs.edit().putInt("default_reminder_minutes", minutes).apply()
     }
     
-    fun getDefaultReminderDescription(): String = when (_defaultReminderMinutes.value) {
-        0 -> "At time of event"
-        5 -> "5 minutes before"
-        10 -> "10 minutes before"
-        15 -> "15 minutes before"
-        30 -> "30 minutes before"
-        60 -> "1 hour before"
-        120 -> "2 hours before"
-        1440 -> "1 day before"
-        else -> "${_defaultReminderMinutes.value} minutes before"
-    }
-    
     // Default Event Duration (in minutes)
     private val _defaultEventDuration = MutableStateFlow(prefs.getInt("default_event_duration", 60))
     val defaultEventDuration: StateFlow<Int> = _defaultEventDuration.asStateFlow()
@@ -114,17 +102,6 @@ class CalendarPreferences(context: Context) {
     fun setDefaultEventDuration(minutes: Int) {
         _defaultEventDuration.value = minutes
         prefs.edit().putInt("default_event_duration", minutes).apply()
-    }
-    
-    fun getDefaultEventDurationDescription(): String = when (_defaultEventDuration.value) {
-        15 -> "15 minutes"
-        30 -> "30 minutes"
-        45 -> "45 minutes"
-        60 -> "1 hour"
-        90 -> "1.5 hours"
-        120 -> "2 hours"
-        180 -> "3 hours"
-        else -> "${_defaultEventDuration.value} minutes"
     }
     
     // Time Zone (use system default or custom)

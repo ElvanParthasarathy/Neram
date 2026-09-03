@@ -302,7 +302,7 @@ fun MainScreen(
         return when (screen) {
             "settings" -> K.settings.tr(lang)
             "account" -> K.accounts.tr(lang)
-            "profile" -> K.editProfile.tr(lang)
+            "profile" -> K.profile.tr(lang)
             "sites" -> K.importantSites.tr(lang)
             "contact" -> K.contact.tr(lang)
             "security" -> K.security.tr(lang)

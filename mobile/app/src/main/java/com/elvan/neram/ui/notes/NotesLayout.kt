@@ -31,6 +31,8 @@ fun NotesMainLayout(
     rootFolders: List<String>,
     colors: HomeColors,
     notesMode: String,
+    serverNotesMode: String,
+    onNotesModeChange: (String) -> Unit,
     onBackClick: () -> Unit,
     onFolderClick: (String) -> Unit,
     onFileClick: (String) -> Unit,
@@ -43,8 +45,25 @@ fun NotesMainLayout(
 ) {
     val saveableStateHolder = androidx.compose.runtime.saveable.rememberSaveableStateHolder()
 
+    val isRoot = if (notesMode == "folder") drivePath.size <= 1 else path.isEmpty()
     val navDepth = if (notesMode == "folder") drivePath.size - 1 else path.size
-    val navKey = if (notesMode == "folder") drivePath.map { it.id }.joinToString("/") else path.joinToString("/")
+    val navKey = if (notesMode == "folder") "drive_${drivePath.map { it.id }.joinToString("/")}" else "site_${path.joinToString("/")}"
+
+    val headerContent: (@Composable () -> Unit)? = if (isRoot) {
+        {
+            ElvanSectionContainer(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                NotesTypeTabsRow(
+                    activeTab = notesMode,
+                    onTabSelected = onNotesModeChange,
+                    serverNotesMode = serverNotesMode,
+                    colors = colors,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            }
+        }
+    } else null
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -88,6 +107,8 @@ fun NotesMainLayout(
                     path = path,
                     rootFolders = rootFolders,
                     colors = colors,
+                    headerContent = headerContent,
+                    isRoot = isRoot,
                     onBackClick = onBackClick,
                     onFolderClick = onFolderClick,
                     onFileClick = onFileClick,
@@ -109,6 +130,8 @@ private fun NotesContentView(
     path: List<String>,
     rootFolders: List<String>,
     colors: HomeColors,
+    headerContent: (@Composable () -> Unit)? = null,
+    isRoot: Boolean = true,
     onBackClick: () -> Unit,
     onFolderClick: (String) -> Unit,
     onFileClick: (String) -> Unit,
@@ -127,6 +150,7 @@ private fun NotesContentView(
             listState = listState,
             path = path,
             onBackClick = onBackClick,
+            headerContent = headerContent,
             onClick = onFolderClick
         )
     } else {
@@ -142,6 +166,7 @@ private fun NotesContentView(
                             listState = listState,
                             path = path,
                             onBackClick = onBackClick,
+                            headerContent = headerContent,
                             onClick = onFolderClick
                         )
                     }
@@ -162,10 +187,11 @@ private fun NotesContentView(
                             files = content.files,
                             subjects = content.subjects,
                             colors = colors,
-                            isRoot = path.isEmpty(),
+                            isRoot = isRoot,
                             listState = listState,
                             path = path,
                             onBackClick = onBackClick,
+                            headerContent = headerContent,
                             onFolderClick = onDriveFolderClick,
                             onFileClick = onDriveFileClick
                         )

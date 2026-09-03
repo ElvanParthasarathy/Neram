@@ -457,6 +457,14 @@ fun CalendarMainLayout(
                                             .fillMaxSize()
                                             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)) 
                                             .background(colors.calendarBottomBackground)
+                                            .draggable(
+                                                orientation = Orientation.Vertical,
+                                                state = draggableState,
+                                                enabled = agendaOffsetAnim.value > 0f || bottomScrollState.value == 0,
+                                                onDragStopped = { velocity ->
+                                                    settleCard(velocity)
+                                                }
+                                            )
                                             .padding(top = 0.dp) 
                                     ) {
                                         // --- THE HANDLE (SHUTTER) with instant zero-slop finger tracking ---
@@ -470,14 +478,7 @@ fun CalendarMainLayout(
                                                         val target = if (agendaOffsetAnim.value < calendarHeightPx / 2f) calendarHeightPx else 0f
                                                         agendaOffsetAnim.animateTo(target, smoothAttachSpec)
                                                     }
-                                                }
-                                                .draggable(
-                                                    orientation = Orientation.Vertical,
-                                                    state = draggableState,
-                                                    onDragStopped = { velocity ->
-                                                        settleCard(velocity)
-                                                    }
-                                                ),
+                                                },
                                             contentAlignment = Alignment.Center
                                         ) {
                                             // Visual Pill
@@ -535,135 +536,110 @@ fun CalendarMainLayout(
                     } // End portrait/landscape branch
                 } else {
                  // --- SCHEDULE VIEW ---
-                 // Independent Pager
-                val initialPage = Int.MAX_VALUE / 2
-                val schedulePagerState = androidx.compose.foundation.pager.rememberPagerState(initialPage = initialPage) { Int.MAX_VALUE }
-                
-                // State for Month/Year Picker in Schedule View
-                var showScheduleMonthPicker by remember { mutableStateOf(false) }
-                
-                // Jump to Today when trigger changes (from parent Today button)
-                LaunchedEffect(scheduleTodayTrigger) {
-                    if (scheduleTodayTrigger > 0) { // Skip initial composition
-                        schedulePagerState.animateScrollToPage(initialPage)
-                    }
-                }
-                
-                // Sync: Pager -> State REMOVED to decouple
-                // Sync: State -> Pager REMOVED to decouple
+                 var currentScheduleMonth by remember(currentMonth) { mutableStateOf(currentMonth) }
+                 var showScheduleMonthPicker by remember { mutableStateOf(false) }
 
-                // Derived State for Header Title
-                val currentSchedulePage = schedulePagerState.currentPage
-                val currentScheduleMonth = remember(currentSchedulePage) {
-                    val diff = currentSchedulePage - initialPage
-                    YearMonth.now().plusMonths(diff.toLong())
-                }
-                
-                // Month/Year Picker Dialog for Schedule View
-                MonthYearPickerDialog(
-                    visible = showScheduleMonthPicker,
-                    currentMonth = currentScheduleMonth,
-                    onDismissRequest = { showScheduleMonthPicker = false },
-                    onMonthYearSelected = { selectedMonth ->
-                        // Calculate page offset from now and scroll
-                        val now = YearMonth.now()
-                        val monthsDiff = java.time.temporal.ChronoUnit.MONTHS.between(now, selectedMonth).toInt()
-                        val targetPage = initialPage + monthsDiff
-                        scope.launch {
-                            schedulePagerState.animateScrollToPage(targetPage)
-                        }
-                    },
-                    colors = colors
-                )
-                
-                Column(modifier = Modifier.fillMaxSize()) {
-                    // Custom Header for Schedule View
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val lang = LocalAppLanguage.current
-                        Text(
-                            text = currentScheduleMonth.toMozhiString(lang, isShort = false),
-                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                            color = colors.textPrimary,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50)) // Pill shape ripple
-                                .clickable { showScheduleMonthPicker = true }
-                                .padding(horizontal = 8.dp, vertical = 4.dp) // Touch target padding
-                        )
+                 // Jump to Today when trigger changes (from parent Today button)
+                 LaunchedEffect(scheduleTodayTrigger) {
+                     if (scheduleTodayTrigger > 0) {
+                         currentScheduleMonth = YearMonth.now()
+                     }
+                 }
 
-                        // Right: Navigation Buttons
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            // Previous Month
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(colors.surface)
-                                    .clickable {
-                                        scope.launch {
-                                            schedulePagerState.animateScrollToPage(schedulePagerState.currentPage - 1)
-                                        }
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                    contentDescription = K.previousMonth.tr(lang),
-                                    tint = colors.textPrimary
-                                )
-                            }
+                 // Month/Year Picker Dialog for Schedule View
+                 MonthYearPickerDialog(
+                     visible = showScheduleMonthPicker,
+                     currentMonth = currentScheduleMonth,
+                     onDismissRequest = { showScheduleMonthPicker = false },
+                     onMonthYearSelected = { selectedMonth ->
+                         currentScheduleMonth = selectedMonth
+                     },
+                     colors = colors
+                 )
 
+                 Column(modifier = Modifier.fillMaxSize()) {
+                     // Custom Header for Schedule View
+                     Row(
+                         modifier = Modifier
+                             .fillMaxWidth()
+                             .padding(horizontal = 16.dp, vertical = 8.dp),
+                         horizontalArrangement = Arrangement.SpaceBetween,
+                         verticalAlignment = Alignment.CenterVertically
+                     ) {
+                         val lang = LocalAppLanguage.current
+                         val currentYear = java.time.LocalDate.now().year
+                         val scheduleTitleText = if (currentScheduleMonth.year == currentYear) {
+                             currentScheduleMonth.month.toMozhiName(lang, isShort = false)
+                         } else {
+                             currentScheduleMonth.toMozhiString(lang, isShort = false)
+                         }
+                         Text(
+                             text = scheduleTitleText,
+                             fontSize = 22.sp,
+                             fontWeight = FontWeight.SemiBold,
+                             color = colors.textPrimary,
+                             modifier = Modifier
+                                 .clip(HomeShapes.Pill)
+                                 .clickable { showScheduleMonthPicker = true }
+                                 .padding(horizontal = 8.dp, vertical = 4.dp)
+                         )
 
-                            // Next Month
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(colors.surface)
-                                    .clickable {
-                                        scope.launch {
-                                            schedulePagerState.animateScrollToPage(schedulePagerState.currentPage + 1)
-                                        }
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = K.nextMonth.tr(lang),
-                                    tint = colors.textPrimary
-                                )
-                            }
-                        }
-                    }
-                
-                // The Pager
-                androidx.compose.foundation.pager.HorizontalPager(
-                    state = schedulePagerState,
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    verticalAlignment = Alignment.Top
-                ) { page ->
-                    val pageMonth = YearMonth.now().plusMonths((page - initialPage).toLong())
-                    val events = monthlyEventsProvider(pageMonth)
-                    
-                    MonthScheduleList(
-                        month = pageMonth,
-                        events = events,
-                        colors = colors,
-                        headerContent = {
-                            OfficialDocumentsSection(colors, onNavigateToPdf)
-                        }
-                    )
-                }
-            }
-        }
+                         // Right: Navigation Buttons
+                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                             // Previous Month
+                             Box(
+                                 modifier = Modifier
+                                     .size(36.dp)
+                                     .clip(CircleShape)
+                                     .background(colors.surface)
+                                     .clickable {
+                                         currentScheduleMonth = currentScheduleMonth.minusMonths(1)
+                                     },
+                                 contentAlignment = Alignment.Center
+                             ) {
+                                 Icon(
+                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                     contentDescription = K.previousMonth.tr(lang),
+                                     tint = colors.textPrimary
+                                 )
+                             }
 
-    }
-    }
+                             // Next Month
+                             Box(
+                                 modifier = Modifier
+                                     .size(36.dp)
+                                     .clip(CircleShape)
+                                     .background(colors.surface)
+                                     .clickable {
+                                         currentScheduleMonth = currentScheduleMonth.plusMonths(1)
+                                     },
+                                 contentAlignment = Alignment.Center
+                             ) {
+                                 Icon(
+                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                     contentDescription = K.nextMonth.tr(lang),
+                                     tint = colors.textPrimary
+                                 )
+                             }
+                         }
+                     }
+
+                     // Direct Month Event List (No horizontal swipe conflict)
+                     val events = monthlyEventsProvider(currentScheduleMonth)
+                     Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                         MonthScheduleList(
+                             month = currentScheduleMonth,
+                             events = events,
+                             colors = colors,
+                             headerContent = {
+                                 OfficialDocumentsSection(colors, onNavigateToPdf)
+                             }
+                         )
+                     }
+                 }
+             }
+         }
+     }
 }
 
 @Composable
@@ -749,7 +725,7 @@ fun OfficialDocumentsSection(colors: HomeColors, onNavigateToPdf: (String) -> Un
                             onLongClick = {
                                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                 val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-                                val clip = android.content.ClipData.newPlainText("PDF Link", pdfUrl)
+                                val clip = android.content.ClipData.newPlainText(K.clipboardPdfLinkLabel.tr(lang), pdfUrl)
                                 clipboard.setPrimaryClip(clip)
                                 android.widget.Toast.makeText(context, K.linkCopiedToClipboard.tr(lang), android.widget.Toast.LENGTH_SHORT).show()
                             }

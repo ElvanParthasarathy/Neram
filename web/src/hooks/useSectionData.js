@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { db } from "../firebase";
-import { ref, onValue, get, set } from "firebase/database";
+import { ref, onValue, get, set, update } from "firebase/database";
 
 // Helper for Google Calendar Events
 const toLocalISO = (date) => {
@@ -120,10 +120,34 @@ export const useSectionData = (activeProfile) => {
 
         const unsubUpdates = onValue(ref(db, `updates/${batch}/${department}/${section}`), (snap) => {
             const data = snap.val() || {};
+            const rawDaily = data.daily_update || {};
+            const now = Date.now();
+            const validDaily = {};
+            const updatesToClean = {};
+
+            Object.entries(rawDaily).forEach(([dateKey, val]) => {
+                if (!val || typeof val !== 'object') return;
+                let expiresAt = val.expiresAt;
+                if (!expiresAt) {
+                    const dateObj = new Date(`${dateKey}T23:59:59`);
+                    expiresAt = isNaN(dateObj.getTime()) ? now - 1 : dateObj.getTime();
+                }
+                if (now > expiresAt) {
+                    updatesToClean[`daily_update/${dateKey}`] = null;
+                } else {
+                    validDaily[dateKey] = val;
+                }
+            });
+
+            // Auto-purge expired updates in Firebase to keep database clean
+            if (Object.keys(updatesToClean).length > 0) {
+                update(ref(db, `updates/${batch}/${department}/${section}`), updatesToClean).catch(console.error);
+            }
+
             setGlobalData(prev => ({
                 ...prev,
                 sectionUpdates: {
-                    live: data.daily_update || {},
+                    live: validDaily,
                     general: { text: data.general_text || "", author: data.general_author || "" }
                 }
             }));

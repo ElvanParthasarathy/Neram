@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.data.local.entity
+package com.elvan.neram.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -10,15 +10,28 @@ data class DailyUpdateEntity(
     @PrimaryKey
     val date: String, // YYYY-MM-DD
     val note: String,
-    val author: String
+    val author: String,
+    val createdAt: Long = 0L,
+    val expiresAt: Long = 0L
 ) {
     fun toDailyUpdate(): DailyUpdate {
-        return DailyUpdate(note, author)
+        return DailyUpdate(
+            note = note,
+            author = author,
+            createdAt = createdAt,
+            expiresAt = expiresAt
+        )
     }
 
     companion object {
         fun fromDailyUpdate(date: String, update: DailyUpdate): DailyUpdateEntity {
-            return DailyUpdateEntity(date = date, note = update.note, author = update.author)
+            return DailyUpdateEntity(
+                date = date,
+                note = update.note,
+                author = update.author,
+                createdAt = update.createdAt,
+                expiresAt = update.expiresAt
+            )
         }
     }
 }

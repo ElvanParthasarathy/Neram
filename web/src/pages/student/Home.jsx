@@ -300,9 +300,18 @@ const Home = ({
         const { batch, department, section } = activeProfile;
         setIsSaving(true);
         try {
+            const now = Date.now();
+            const dateEndOfDay = new Date(`${todayStr}T23:59:59`).getTime();
+            const expiresAt = Math.max(now + 24 * 60 * 60 * 1000, isNaN(dateEndOfDay) ? now + 24 * 60 * 60 * 1000 : dateEndOfDay);
+
             await update(
                 ref(db, `updates/${batch}/${department}/${section}/daily_update/${todayStr}`),
-                { note: tempNote, author: userProfile?.displayName || "Admin" }
+                {
+                    note: tempNote,
+                    author: userProfile?.displayName || "Admin",
+                    createdAt: now,
+                    expiresAt: expiresAt
+                }
             );
             setIsEditingNote(false);
         } catch (e) {

@@ -15,6 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elvan.neram.R
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 /**
  * Backup of the original RMK Group of Institutions Splash Screen.
@@ -75,7 +77,7 @@ fun RmkSplashScreen(isDarkTheme: Boolean = false) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "RMK",
+                text = K.rmkTitle.tr(),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.SemiBold,
                     color = textSecondary,
@@ -86,7 +88,7 @@ fun RmkSplashScreen(isDarkTheme: Boolean = false) {
             Spacer(modifier = Modifier.height(2.dp))
             
             Text(
-                text = "Group of Institutions",
+                text = K.groupOfInstitutions.tr(),
                 style = MaterialTheme.typography.labelSmall.copy(
                     letterSpacing = 1.5.sp,
                     color = textSecondary.copy(alpha = 0.6f),

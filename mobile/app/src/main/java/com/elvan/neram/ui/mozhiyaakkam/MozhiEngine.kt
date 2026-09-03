@@ -107,9 +107,19 @@ fun getMonthKey(monthValue: Int, isShort: Boolean = false): String {
 fun getDayKey(
     dayOfWeek: DayOfWeek,
     isShort: Boolean = false,
+    isSingleLetter: Boolean = false,
     withKizhamai: Boolean = false
 ): String {
     return when {
+        isSingleLetter -> when (dayOfWeek) {
+            DayOfWeek.MONDAY -> K.dayMondaySingle
+            DayOfWeek.TUESDAY -> K.dayTuesdaySingle
+            DayOfWeek.WEDNESDAY -> K.dayWednesdaySingle
+            DayOfWeek.THURSDAY -> K.dayThursdaySingle
+            DayOfWeek.FRIDAY -> K.dayFridaySingle
+            DayOfWeek.SATURDAY -> K.daySaturdaySingle
+            DayOfWeek.SUNDAY -> K.daySundaySingle
+        }
         withKizhamai -> when (dayOfWeek) {
             DayOfWeek.MONDAY -> K.dayMondayLong
             DayOfWeek.TUESDAY -> K.dayTuesdayLong
@@ -154,38 +164,7 @@ fun DayOfWeek.toMozhiName(
     isSingleLetter: Boolean = false,
     withKizhamai: Boolean = false
 ): String {
-    if (isSingleLetter) {
-        return when (lang) {
-            K.TAMIL -> when (this) {
-                DayOfWeek.SUNDAY -> "ஞா"
-                DayOfWeek.MONDAY -> "தி"
-                DayOfWeek.TUESDAY -> "செ"
-                DayOfWeek.WEDNESDAY -> "அறி"
-                DayOfWeek.THURSDAY -> "வி"
-                DayOfWeek.FRIDAY -> "வெ"
-                DayOfWeek.SATURDAY -> "காரி"
-            }
-            K.TAMIL_LATIN -> when (this) {
-                DayOfWeek.SUNDAY -> "Ny"
-                DayOfWeek.MONDAY -> "Th"
-                DayOfWeek.TUESDAY -> "Ch"
-                DayOfWeek.WEDNESDAY -> "Ar"
-                DayOfWeek.THURSDAY -> "Vi"
-                DayOfWeek.FRIDAY -> "Ve"
-                DayOfWeek.SATURDAY -> "Ka"
-            }
-            else -> when (this) {
-                DayOfWeek.SUNDAY -> "S"
-                DayOfWeek.MONDAY -> "M"
-                DayOfWeek.TUESDAY -> "T"
-                DayOfWeek.WEDNESDAY -> "W"
-                DayOfWeek.THURSDAY -> "T"
-                DayOfWeek.FRIDAY -> "F"
-                DayOfWeek.SATURDAY -> "S"
-            }
-        }
-    }
-    val key = getDayKey(this, isShort = isShort, withKizhamai = withKizhamai)
+    val key = getDayKey(this, isShort = isShort, isSingleLetter = isSingleLetter, withKizhamai = withKizhamai)
     return key.tr(lang)
 }
 

@@ -57,7 +57,7 @@
         "$batch": {
             "$dept": {
                 "$section": {
-                    ".write": "auth != null && (root.child('users/' + auth.uid + '/role').val() === 'super_admin' || root.child('users/' + auth.uid + '/role').val() === 'admin' || root.child('users/' + auth.uid + '/role').val() === 'faculty' || root.child('users/' + auth.uid + '/role').val() === 'rep')"
+                    ".write": "auth != null"
                 }
             }
         }

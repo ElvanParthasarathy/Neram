@@ -251,6 +251,14 @@ object K {
     const val daySaturdayLong = "daySaturdayLong"
     const val daySundayLong = "daySundayLong"
 
+    const val dayMondaySingle = "dayMondaySingle"
+    const val dayTuesdaySingle = "dayTuesdaySingle"
+    const val dayWednesdaySingle = "dayWednesdaySingle"
+    const val dayThursdaySingle = "dayThursdaySingle"
+    const val dayFridaySingle = "dayFridaySingle"
+    const val daySaturdaySingle = "daySaturdaySingle"
+    const val daySundaySingle = "daySundaySingle"
+
     // ── Months of Year ──
     const val monthJan = "monthJan"
     const val monthFeb = "monthFeb"
@@ -507,8 +515,6 @@ object K {
     const val selectSectionDept = "selectSectionDept"
     const val viewStudentsInSection = "viewStudentsInSection"
 
-    // ── Notes & Notifications Actions ──
-
     // ── Calendar Views ──
     const val viewMonth = "viewMonth"
     const val viewSchedule = "viewSchedule"
@@ -592,8 +598,31 @@ object K {
     const val home = "home"
     const val calendar = "calendar"
     const val notes = "notes"
+    const val notesDriveTab = "notesDriveTab"
+    const val collegeSiteTab = "collegeSiteTab"
     const val notAvailable = "notAvailable"
     const val readMore = "readMore"
     const val today = "today"
     const val done = "done"
+
+    // ── Prebuilt Notifications & UI Texts ──
+    const val linkedin = "linkedin"
+    const val github = "github"
+    const val labForBatch = "labForBatch"
+    const val authorAttribution = "authorAttribution"
+    const val batchLabelFormat = "batchLabelFormat"
+    const val registerRangeFormat = "registerRangeFormat"
+    const val studentsCountFormat = "studentsCountFormat"
+    const val newExamSchedule = "newExamSchedule"
+    const val newExam = "newExam"
+    const val examDatesRange = "examDatesRange"
+    const val newHolidayAdded = "newHolidayAdded"
+    const val newEvent = "newEvent"
+    const val eventOnDate = "eventOnDate"
+    const val newNotice = "newNotice"
+    const val dailyUpdateFormat = "dailyUpdateFormat"
+    const val newClassEvent = "newClassEvent"
+    const val clipboardPdfLinkLabel = "clipboardPdfLinkLabel"
+    const val rmkTitle = "rmkTitle"
+    const val groupOfInstitutions = "groupOfInstitutions"
 }

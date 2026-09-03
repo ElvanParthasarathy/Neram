@@ -35,6 +35,7 @@ fun NotesScreen(
     val uiState by viewModel.uiState.collectAsState()
     val path by viewModel.path.collectAsState()
     val notesMode by viewModel.notesMode.collectAsState()
+    val serverNotesMode by viewModel.serverNotesMode.collectAsState()
     val drivePath by viewModel.drivePath.collectAsState()
     val colors = rememberHomeColors()
     val context = LocalContext.current
@@ -87,6 +88,8 @@ fun NotesScreen(
         rootFolders = depts,
         colors = colors,
         notesMode = notesMode,
+        serverNotesMode = serverNotesMode,
+        onNotesModeChange = { viewModel.setNotesMode(it) },
         onBackClick = {
             if (notesMode == "folder") {
                 if (drivePath.size == 1) onBack() else viewModel.navigateUp()

@@ -1,6 +1,5 @@
 {
   "projects": {
-    "default": "neram",
-    "neram": "neram"
+    "default": "rmdneramportal"
   }
 }

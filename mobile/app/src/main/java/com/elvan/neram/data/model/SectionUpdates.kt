@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.data.model
+package com.elvan.neram.data.model
 
 /**
  * Section-specific updates from Firebase at /updates/{batch}/{dept}/{section}
@@ -19,9 +19,12 @@ data class SectionUpdates(
 @Immutable
 data class DailyUpdate(
     val note: String = "",
-    val author: String = ""
+    val author: String = "",
+    val createdAt: Long = 0L,
+    val expiresAt: Long = 0L
 ) {
     fun isEmpty(): Boolean = note.isBlank()
+    fun isExpired(now: Long = System.currentTimeMillis()): Boolean = expiresAt > 0L && now > expiresAt
 }
 
 /**

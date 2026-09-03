@@ -368,6 +368,7 @@ fun <T> ElvanRadioSettingsRow(
     groupValue: T?,
     onSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
+    description: String? = null,
     colors: HomeColors = rememberHomeColors()
 ) {
     val isDark = colors.isDark
@@ -388,20 +389,37 @@ fun <T> ElvanRadioSettingsRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+                .padding(horizontal = 16.dp, vertical = if (description != null) 12.dp else 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = title,
-                style = TextStyle(
-                    fontFamily = ff,
-                    fontSize = 16.sp,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                    lineHeight = 21.sp
-                ),
-                color = colors.textPrimary,
-                modifier = Modifier.weight(1f)
-            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = title,
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 16.sp,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                        lineHeight = 21.sp
+                    ),
+                    color = colors.textPrimary
+                )
+                if (!description.isNullOrEmpty()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = description,
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            lineHeight = 17.sp
+                        ),
+                        color = colors.textSecondary
+                    )
+                }
+            }
 
             if (isSelected) {
                 Icon(

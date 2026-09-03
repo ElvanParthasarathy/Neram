@@ -228,6 +228,14 @@ val en: Map<String, String> = mapOf(
     K.daySaturdayLong to "Saturday",
     K.daySundayLong to "Sunday",
 
+    K.dayMondaySingle to "M",
+    K.dayTuesdaySingle to "T",
+    K.dayWednesdaySingle to "W",
+    K.dayThursdaySingle to "T",
+    K.dayFridaySingle to "F",
+    K.daySaturdaySingle to "S",
+    K.daySundaySingle to "S",
+
     // ── Months of Year ──
     K.monthJan to "January",
     K.monthFeb to "February",
@@ -270,8 +278,8 @@ val en: Map<String, String> = mapOf(
     K.storageDesc to "Clear old updates, Manage cache",
     K.complaints to "Complaints & Feedback",
     K.complaintsDesc to "Report issues, Suggestions",
-    K.aboutDeveloper to "About Developer",
-    K.aboutDeveloperDesc to "Developer profile & contacts",
+    K.aboutDeveloper to "About Designer",
+    K.aboutDeveloperDesc to "Designer profile & contacts",
     K.aboutApp to "About App",
     K.aboutAppDesc to "Your College Time, Sorted",
     K.importantSites to "Important Sites",
@@ -282,13 +290,13 @@ val en: Map<String, String> = mapOf(
     K.contactDesc to "Campus helplines, Location",
     K.managementTeam to "Management Team",
     K.language to "Language",
-    K.languageDesc to "English, Tamil, Tanglish",
-    K.deviceLanguage to "Device Language",
+    K.languageDesc to "English, Tamil, Tamil Latin",
+    K.deviceLanguage to "System Default",
     K.english to "English",
-    K.tamil to "தமிழ் (Tamil)",
-    K.tamilLatin to "Tanglish (Tamil Latin)",
+    K.tamil to "Tamil",
+    K.tamilLatin to "Tamil Latin",
     K.languageInfo to "Language change applies immediately across all pages, navigation, and settings.",
-    K.editProfile to "Edit Profile",
+    K.editProfile to "Profile",
     K.feedback to "Feedback & Queries",
 
     // ── Display Settings ──
@@ -328,7 +336,7 @@ val en: Map<String, String> = mapOf(
     // ── Notes Screen ──
     K.notUploadedTitle to "Not Uploaded",
     K.notUploadedMessage to "The unit notes have not been uploaded in rmd.ac.in yet. They will appear here once available.",
-    K.unit to "Unit %d",
+    K.unit to "Unit",
 
     // ── User Directory ──
     K.noUsersFound to "No contacts found matching search.",
@@ -484,8 +492,6 @@ val en: Map<String, String> = mapOf(
     K.selectSectionDept to "Select Section (%s)",
     K.viewStudentsInSection to "View students in section %s",
 
-    // ── Notes & Notifications Actions ──
-
     // ── Calendar Views ──
     K.viewMonth to "Month",
     K.viewSchedule to "Schedule",
@@ -569,8 +575,31 @@ val en: Map<String, String> = mapOf(
     K.home to "Home",
     K.calendar to "Calendar",
     K.notes to "Notes",
+    K.notesDriveTab to "Notes Drive",
+    K.collegeSiteTab to "College Site",
     K.notAvailable to "Not Available",
     K.readMore to "Read more",
     K.today to "Today",
     K.done to "Done",
+
+    // ── Prebuilt Notifications & UI Texts ──
+    K.linkedin to "LinkedIn",
+    K.github to "GitHub",
+    K.labForBatch to "Lab for Batch %s: %s",
+    K.authorAttribution to " - %s",
+    K.batchLabelFormat to "Batch %s",
+    K.registerRangeFormat to "Reg: %s",
+    K.studentsCountFormat to "%s Students",
+    K.newExamSchedule to "New Exam Schedule: %s",
+    K.newExam to "New Exam: %s",
+    K.examDatesRange to "Dates: %s - %s",
+    K.newHolidayAdded to "New Holiday Added",
+    K.newEvent to "New Event: %s",
+    K.eventOnDate to "%s on %s",
+    K.newNotice to "New Notice",
+    K.dailyUpdateFormat to "Daily Update (%s)",
+    K.newClassEvent to "New Class Event: %s",
+    K.clipboardPdfLinkLabel to "PDF Link",
+    K.rmkTitle to "RMK",
+    K.groupOfInstitutions to "Group of Institutions",
 )

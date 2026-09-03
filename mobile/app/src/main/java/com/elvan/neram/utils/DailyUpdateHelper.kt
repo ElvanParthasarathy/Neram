@@ -8,6 +8,7 @@ import com.elvan.neram.ui.common.NotificationHelper
 import com.elvan.neram.data.preferences.LanguageManager
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.first
@@ -232,7 +233,7 @@ object DailyUpdateHelper {
                 // Lab Logic
                 if (labRemindersEnabled) {
                     if (isPracticalExamToday) {
-                        automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
+                        automatedNotices.add(K.bringLabcoatsEssentials.tr(lang))
                     } else if (!isMajorExamToday) {
                         val periods = timetable[dayKey] ?: emptyList()
                         val labsToday = mutableListOf<Pair<String, String>>()
@@ -258,16 +259,16 @@ object DailyUpdateHelper {
                         if (labsToday.isNotEmpty()) {
                             labsToday.distinctBy { it.first + it.second }.forEach { (batchSuffix, subjectName) ->
                                 val cleanedName = getCleanSubjectName(subjectName)
-                                automatedNotices.add("Lab for Batch $batchSuffix: $cleanedName")
+                                automatedNotices.add(K.labForBatch.trWithLang(lang, batchSuffix, cleanedName))
                             }
-                            automatedNotices.add("📚 Bring Labcoats, Laptops & Lab Essentials")
+                            automatedNotices.add(K.bringLabcoatsEssentials.tr(lang))
                         }
                     }
                 }
                 
                 // Study Well Logic
                 if (studyRemindersEnabled && hasAnyExamToday) {
-                    automatedNotices.add("📖 Study well for the test! Score well and get full marks! All the best! 🎯")
+                    automatedNotices.add(K.studyWellExamWish.tr(lang))
                 }
             }
 
@@ -290,8 +291,8 @@ object DailyUpdateHelper {
                 if (note.isNotBlank()) {
                     NotificationHelper.showNotification(
                         context,
-                        "${K.dailyUpdates.tr(lang)} ($todayDateStr)",
-                        "$note" + if (author.isNotBlank()) " - $author" else "",
+                        K.dailyUpdateFormat.trWithLang(lang, todayDateStr),
+                        "$note" + if (author.isNotBlank()) K.authorAttribution.trWithLang(lang, author) else "",
                         NotificationHelper.CHANNEL_ID_DAILY,
                         notificationId = 1001 
                     )
@@ -315,7 +316,7 @@ object DailyUpdateHelper {
                      NotificationHelper.showNotification(
                         context,
                         K.generalNotice.tr(lang),
-                        "$generalText" + if (generalAuthor.isNotBlank()) " - $generalAuthor" else "",
+                        "$generalText" + if (generalAuthor.isNotBlank()) K.authorAttribution.trWithLang(lang, generalAuthor) else "",
                         NotificationHelper.CHANNEL_ID_DAILY,
                         notificationId = 2002
                     )
@@ -376,10 +377,10 @@ object DailyUpdateHelper {
                             val todayBatches = sub.batches.filter { it.date == todayDateStr }
                             if (todayBatches.isNotEmpty()) {
                                 val batchDetails = todayBatches.joinToString("\n") { b ->
-                                    val batchLabel = if (b.label.isNotBlank()) "Batch ${b.label}" else ""
+                                    val batchLabel = if (b.label.isNotBlank()) K.batchLabelFormat.trWithLang(lang, b.label) else ""
                                     val timeStr = if (b.startTime.isNotBlank()) "${b.startTime} - ${b.endTime}" else ""
-                                    val regStr = if (b.registerRange.isNotBlank()) "Reg: ${b.registerRange}" else ""
-                                    val countStr = if (b.totalCount.isNotBlank()) "${b.totalCount} Students" else ""
+                                    val regStr = if (b.registerRange.isNotBlank()) K.registerRangeFormat.trWithLang(lang, b.registerRange) else ""
+                                    val countStr = if (b.totalCount.isNotBlank()) K.studentsCountFormat.trWithLang(lang, b.totalCount) else ""
                                     listOf(batchLabel, timeStr, regStr, countStr)
                                         .filter { it.isNotBlank() }
                                         .joinToString(" • ")
@@ -410,10 +411,10 @@ object DailyUpdateHelper {
                             val tomorrowBatches = sub.batches.filter { it.date == tomorrowStr }
                             if (tomorrowBatches.isNotEmpty()) {
                                 val batchDetails = tomorrowBatches.joinToString("\n") { b ->
-                                    val batchLabel = if (b.label.isNotBlank()) "Batch ${b.label}" else ""
+                                    val batchLabel = if (b.label.isNotBlank()) K.batchLabelFormat.trWithLang(lang, b.label) else ""
                                     val timeStr = if (b.startTime.isNotBlank()) "${b.startTime} - ${b.endTime}" else ""
-                                    val regStr = if (b.registerRange.isNotBlank()) "Reg: ${b.registerRange}" else ""
-                                    val countStr = if (b.totalCount.isNotBlank()) "${b.totalCount} Students" else ""
+                                    val regStr = if (b.registerRange.isNotBlank()) K.registerRangeFormat.trWithLang(lang, b.registerRange) else ""
+                                    val countStr = if (b.totalCount.isNotBlank()) K.studentsCountFormat.trWithLang(lang, b.totalCount) else ""
                                     listOf(batchLabel, timeStr, regStr, countStr)
                                         .filter { it.isNotBlank() }
                                         .joinToString(" • ")

@@ -1,6 +1,7 @@
-﻿package com.elvan.neram.utils
+package com.elvan.neram.utils
 
 import java.util.Locale
+import com.elvan.neram.ui.mozhiyaakkam.tr
 
 /**
  * Global utilities for Date and Time formatting
@@ -71,9 +72,9 @@ object DateTimeUtils {
      * Format time range string
      * Input: "13:00 - 14:00" -> Output: "01:00 PM - 02:00 PM"
      */
-    fun formatTimeRange(rangeStr: String?): String {
+    fun formatTimeRange(rangeStr: String?, lang: String = com.elvan.neram.ui.mozhiyaakkam.K.ENGLISH): String {
         if (rangeStr.isNullOrEmpty()) return ""
-        if (rangeStr.equals("Full Day", ignoreCase = true)) return "All Day"
+        if (rangeStr.equals("Full Day", ignoreCase = true)) return com.elvan.neram.ui.mozhiyaakkam.K.allDay.tr(lang)
         
         if (rangeStr.contains("-")) {
             val parts = rangeStr.split("-")

@@ -27,6 +27,21 @@ import com.elvan.neram.ui.home.HomeTypography
 import com.elvan.neram.ui.components.shell.*
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Language
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.floor
+import kotlin.math.roundToInt
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import com.elvan.neram.ui.theme.LocalAppLanguage
 
 /**
@@ -88,6 +103,7 @@ fun FolderList(
     listState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     path: List<String> = emptyList(),
     onBackClick: () -> Unit = {},
+    headerContent: @Composable (() -> Unit)? = null,
     onClick: (String) -> Unit
 ) {
     val isSubpage = path.isNotEmpty()
@@ -101,6 +117,12 @@ fun FolderList(
     ) {
         item(key = "spacer_top") {
             Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
+        }
+
+        if (headerContent != null) {
+            item(key = "notes_header_shifter") {
+                headerContent()
+            }
         }
 
         items(items, key = { it }) { item ->
@@ -268,7 +290,7 @@ fun SubjectItem(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = unitKey,
+                                text = "${K.unit.tr(lang)} $unitNumber",
                                 style = HomeTypography.StatusBadge.copy(fontSize = 14.sp),
                                 color = if (isAvailable) colors.textPrimary else colors.textSecondary
                             )
@@ -338,6 +360,7 @@ fun DriveList(
     listState: androidx.compose.foundation.lazy.LazyListState = androidx.compose.foundation.lazy.rememberLazyListState(),
     path: List<String> = emptyList(),
     onBackClick: () -> Unit = {},
+    headerContent: @Composable (() -> Unit)? = null,
     onFolderClick: (com.elvan.neram.data.model.DriveFolder) -> Unit,
     onFileClick: (com.elvan.neram.data.model.DriveFile) -> Unit
 ) {
@@ -352,6 +375,12 @@ fun DriveList(
     ) {
         item(key = "spacer_top") {
             Spacer(Modifier.height(com.elvan.neram.ui.components.shell.LocalElvanTopSpacerHeight.current))
+        }
+
+        if (headerContent != null) {
+            item(key = "notes_header_shifter") {
+                headerContent()
+            }
         }
 
         items(folders, key = { it.id }) { folder ->
@@ -472,7 +501,9 @@ fun DriveSubjectItem(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = unitName,
+                                text = if (unitName.startsWith("Unit ", ignoreCase = true)) {
+                                    unitName.replaceFirst("(?i)Unit".toRegex(), K.unit.tr(lang))
+                                } else unitName,
                                 style = HomeTypography.StatusBadge.copy(fontSize = 14.sp),
                                 color = if (isAvailable) colors.textPrimary else colors.textSecondary
                             )
@@ -536,6 +567,279 @@ fun DriveFileItem(
                 tint = colors.textSecondary.copy(alpha = 0.5f),
                 modifier = Modifier.size(20.dp)
             )
+        }
+    }
+}
+
+/**
+ * NotesTypeTabsRow - Segmented Pill Shifter for Notes Screen.
+ * Uses the exact same design architecture and spring physics as ViewTypeTabsRow in Schedule.
+ */
+@Composable
+fun NotesTypeTabsRow(
+    activeTab: String,
+    onTabSelected: (String) -> Unit,
+    serverNotesMode: String,
+    colors: HomeColors,
+    modifier: Modifier = Modifier,
+    onInteraction: (Boolean) -> Unit = {},
+    onDragProgress: (Float) -> Unit = {}
+) {
+    val lang = LocalAppLanguage.current
+    data class TabItem(
+        val label: String,
+        val id: String,
+        val icon: ImageVector,
+        val activeIcon: ImageVector
+    )
+    val folderTab = remember(lang) {
+        TabItem(
+            label = K.notesDriveTab.tr(lang),
+            id = "folder",
+            icon = Icons.Outlined.Folder,
+            activeIcon = Icons.Filled.Folder
+        )
+    }
+    val siteTab = remember(lang) {
+        TabItem(
+            label = K.collegeSiteTab.tr(lang),
+            id = "fetch",
+            icon = Icons.Outlined.Language,
+            activeIcon = Icons.Filled.Language
+        )
+    }
+    val tabs = remember(serverNotesMode, folderTab, siteTab) {
+        if (serverNotesMode == "folder") {
+            listOf(folderTab, siteTab)
+        } else {
+            listOf(siteTab, folderTab)
+        }
+    }
+    val itemCount = tabs.size
+    val actualIndex = tabs.indexOfFirst { it.id == activeTab }.coerceAtLeast(0)
+
+    val coroutineScope = rememberCoroutineScope()
+    val density = LocalDensity.current
+
+    // Exact BottomNavBar / ViewTypeTabsRow matching layout dimensions
+    val layoutWidth = 140.dp
+    val bgWidth = 148.dp
+    val horizontalPadding = 8.dp
+    val verticalPadding = 4.dp
+    val totalWidth = (layoutWidth * itemCount) + (horizontalPadding * 2)
+
+    var isInteracting by remember { mutableStateOf(false) }
+    var dragOffsetPx by remember { mutableStateOf<Float?>(null) }
+    var touchOffsetFromCenterPx by remember { mutableStateOf(0f) }
+    var hoverIndex by remember { mutableStateOf<Int?>(null) }
+    var localLockedIndex by remember { mutableStateOf<Int?>(null) }
+    var snapNextFrame by remember { mutableStateOf(false) }
+
+    val layoutWidthPx = with(density) { layoutWidth.toPx() }
+    val bgWidthPx = with(density) { bgWidth.toPx() }
+
+    LaunchedEffect(actualIndex) {
+        localLockedIndex = null
+        snapNextFrame = true
+    }
+    LaunchedEffect(snapNextFrame) {
+        if (snapNextFrame) {
+            kotlinx.coroutines.yield()
+            snapNextFrame = false
+        }
+    }
+
+    val activeVisualIndex = if (isInteracting && hoverIndex != null) {
+        hoverIndex!!
+    } else {
+        localLockedIndex ?: actualIndex
+    }
+
+    // Outer AnimatedScale: 1.02x on interaction
+    val containerScale by animateFloatAsState(
+        targetValue = if (isInteracting) 1.02f else 1.0f,
+        animationSpec = tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
+        label = "notesContainerScale"
+    )
+
+    // Pill scale on interaction: Symmetrical expansion
+    val pillScaleX by animateFloatAsState(
+        targetValue = if (isInteracting) 1.055f else 1.0f,
+        animationSpec = tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
+        label = "notesPillScaleX"
+    )
+    val pillScaleY by animateFloatAsState(
+        targetValue = if (isInteracting) 1.20f else 1.0f,
+        animationSpec = tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
+        label = "notesPillScaleY"
+    )
+
+    val overlapPx = (bgWidthPx - layoutWidthPx) / 2f
+    val maxLeftPx = ((itemCount - 1) * layoutWidthPx) - overlapPx
+    val minLeftPx = -overlapPx
+
+    val targetLeftPx = if (isInteracting && dragOffsetPx != null) {
+        (dragOffsetPx!! - (bgWidthPx / 2f)).coerceIn(minLeftPx, maxLeftPx)
+    } else {
+        ((activeVisualIndex * layoutWidthPx) - overlapPx).coerceIn(minLeftPx, maxLeftPx)
+    }
+
+    val animatedLeftPx by animateFloatAsState(
+        targetValue = targetLeftPx,
+        animationSpec = if (snapNextFrame || (isInteracting && dragOffsetPx != null)) {
+            snap()
+        } else {
+            tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
+        },
+        label = "notesPillX"
+    )
+
+    val isDark = colors.isDark
+
+    Box(
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = containerScale
+                scaleY = containerScale
+                clip = false
+            }
+            .height(48.dp)
+            .width(totalWidth),
+        contentAlignment = Alignment.Center
+    ) {
+        // Layer 1: Outer Container
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    color = colors.surface,
+                    shape = CircleShape
+                )
+        )
+
+        // Layer 2: Foreground & Draggable Content
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+                .pointerInput(tabs) {
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        isInteracting = true
+                        onInteraction(true)
+
+                        val initialX = down.position.x
+                        hoverIndex = floor(initialX / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
+                        val slotCenter = (hoverIndex!! * layoutWidthPx) + (layoutWidthPx / 2f)
+                        touchOffsetFromCenterPx = initialX - slotCenter
+                        dragOffsetPx = null
+
+                        val pointerId = down.id
+
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.firstOrNull { it.id == pointerId } ?: break
+                            if (!change.pressed) {
+                                break
+                            }
+                            val currentPos = change.position
+                            if (kotlin.math.abs(currentPos.x - down.position.x) > 4f) {
+                                val targetCenter = currentPos.x - touchOffsetFromCenterPx
+                                dragOffsetPx = targetCenter
+                                hoverIndex = floor(targetCenter / layoutWidthPx).toInt().coerceIn(0, itemCount - 1)
+                                onDragProgress(targetCenter / layoutWidthPx)
+                                change.consume()
+                            }
+                        }
+
+                        val finalIndex = hoverIndex
+                        if (finalIndex != null) {
+                            localLockedIndex = finalIndex
+                        }
+                        isInteracting = false
+                        onInteraction(false)
+                        dragOffsetPx = null
+                        hoverIndex = null
+
+                        if (finalIndex != null) {
+                            coroutineScope.launch {
+                                delay(150)
+                                onTabSelected(tabs[finalIndex].id)
+                            }
+                        }
+                    }
+                },
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(layoutWidth * itemCount)
+                    .fillMaxHeight()
+            ) {
+                // Master Background Pill
+                Box(
+                    modifier = Modifier
+                        .offset { IntOffset(animatedLeftPx.roundToInt(), 0) }
+                        .fillMaxHeight()
+                        .width(bgWidth)
+                        .graphicsLayer {
+                            scaleX = pillScaleX
+                            scaleY = pillScaleY
+                            transformOrigin = androidx.compose.ui.graphics.TransformOrigin.Center
+                            clip = false
+                        }
+                        .background(
+                            color = if (isDark) Color(0xFF333333)
+                            else Color(0xFFE5E5E5),
+                            shape = CircleShape
+                        )
+                )
+
+                // Foreground Tabs Content
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    tabs.forEachIndexed { index, item ->
+                        val isActive = index == activeVisualIndex
+                        val itemColor = if (isActive) {
+                            if (isDark) Color.White else Color(0xFF1A1A1A)
+                        } else {
+                            if (isDark) Color(0xFF9E9E9E) else Color(0xFF7C7C80)
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .width(layoutWidth)
+                                .fillMaxHeight(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Icon(
+                                    imageVector = if (isActive) item.activeIcon else item.icon,
+                                    contentDescription = item.label,
+                                    tint = itemColor,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = item.label,
+                                    style = HomeTypography.PillTitle,
+                                    fontSize = 13.5.sp,
+                                    fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
+                                    color = itemColor,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontFamily = com.elvan.neram.ui.theme.LocalAppFontFamily.current
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

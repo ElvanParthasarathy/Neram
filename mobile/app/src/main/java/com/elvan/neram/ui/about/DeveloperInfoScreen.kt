@@ -147,7 +147,7 @@ fun DeveloperInfoScreen(
 
                     ElvanSettingsRow(
                         icon = ImageVector.vectorResource(id = R.drawable.ic_linkedin),
-                        title = "LinkedIn",
+                        title = K.linkedin.tr(lang),
                         description = "linkedin.com/in/jaiprakashpartha",
                         onClick = { com.elvan.neram.utils.IntentUtils.openUrl(context, "https://www.linkedin.com/in/jaiprakashpartha") },
                         colors = colors
@@ -157,7 +157,7 @@ fun DeveloperInfoScreen(
 
                     ElvanSettingsRow(
                         icon = ImageVector.vectorResource(id = R.drawable.ic_github),
-                        title = "GitHub",
+                        title = K.github.tr(lang),
                         description = "github.com/elvanparthasarathy",
                         onClick = { com.elvan.neram.utils.IntentUtils.openUrl(context, "https://github.com/elvanparthasarathy") },
                         colors = colors

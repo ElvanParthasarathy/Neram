@@ -56,6 +56,6 @@ data class CalendarEvent(
         }
         
         // Fallback to fullTime (formatted)
-        return if (fullTime != null) DateTimeUtils.formatTimeRange(fullTime) else K.allDay.tr(lang)
+        return if (fullTime != null) DateTimeUtils.formatTimeRange(fullTime, lang) else K.allDay.tr(lang)
     }
 }

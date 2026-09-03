@@ -39,7 +39,7 @@ fun LanguageSettingsScreen(
         item(key = "language_section") {
             ElvanSectionContainer {
                 ElvanSettingsSection(colors = colors) {
-                    // 1. System default / Device Language Option
+                    // 1. System default (Iyalbunilai / இயல்புநிலை / System Default)
                     ElvanRadioSettingsRow(
                         title = K.deviceLanguage.tr(lang),
                         value = K.SYSTEM,
@@ -50,20 +50,10 @@ fun LanguageSettingsScreen(
 
                     ElvanSettingsDivider(colors = colors)
 
-                    // 2. English Option
+                    // 2. Tamil (தமிழ்)
                     ElvanRadioSettingsRow(
-                        title = K.english.tr(lang),
-                        value = K.ENGLISH,
-                        groupValue = currentLanguage,
-                        onSelected = { onLanguageChange(K.ENGLISH) },
-                        colors = colors
-                    )
-
-                    ElvanSettingsDivider(colors = colors)
-
-                    // 3. Tamil Option (தமிழ்)
-                    ElvanRadioSettingsRow(
-                        title = K.tamil.tr(lang),
+                        title = "தமிழ்",
+                        description = K.tamil.tr(lang),
                         value = K.TAMIL,
                         groupValue = currentLanguage,
                         onSelected = { onLanguageChange(K.TAMIL) },
@@ -72,12 +62,25 @@ fun LanguageSettingsScreen(
 
                     ElvanSettingsDivider(colors = colors)
 
-                    // 4. Tanglish / Tamil Latin Option
+                    // 3. Tanglish / Tamil Latin (Thamizh)
                     ElvanRadioSettingsRow(
-                        title = K.tamilLatin.tr(lang),
+                        title = "Thamizh",
+                        description = K.tamilLatin.tr(lang),
                         value = K.TAMIL_LATIN,
                         groupValue = currentLanguage,
                         onSelected = { onLanguageChange(K.TAMIL_LATIN) },
+                        colors = colors
+                    )
+
+                    ElvanSettingsDivider(colors = colors)
+
+                    // 4. English (English)
+                    ElvanRadioSettingsRow(
+                        title = "English",
+                        description = K.english.tr(lang),
+                        value = K.ENGLISH,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(K.ENGLISH) },
                         colors = colors
                     )
                 }

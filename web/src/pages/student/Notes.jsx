@@ -14,7 +14,8 @@ import {
     RiArrowUpSLine,
     RiFilePdfLine,
     RiCloudOffLine,
-    RiInformationLine
+    RiInformationLine,
+    RiGlobalLine
 } from 'react-icons/ri';
 import "../../App.css";
 import "../../styles/student/home.css";
@@ -42,21 +43,58 @@ const Notes = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [showNotUploaded, setShowNotUploaded] = useState(false);
 
-    // --- NEW: FOLDER MODE STATE ---
-    const [notesMode, setNotesMode] = useState('loading');
+    // --- NEW: FOLDER / FETCH MODE STATE ---
+    const [serverNotesMode, setServerNotesMode] = useState(null);
+    const [activeTab, setActiveTab] = useState(null);
+    const [userOverridden, setUserOverridden] = useState(false);
+
     const [driveFolders, setDriveFolders] = useState({});
     const [files, setFiles] = useState({});
     const [subjects, setSubjects] = useState({});
     const [drivePath, setDrivePath] = useState([{ id: 'root', name: 'Notes Drive' }]);
+
+    const currentMode = activeTab || serverNotesMode || 'fetch';
+
+    const handleTabSelected = (mode) => {
+        setUserOverridden(true);
+        setActiveTab(mode);
+    };
+
+    const isDriveFirst = (serverNotesMode || 'fetch') === "folder";
+    const tabItems = isDriveFirst ? [
+        { id: "folder", label: "Notes Drive", icon: <RiFolderFill /> },
+        { id: "fetch", label: "College Site", icon: <RiGlobalLine /> }
+    ] : [
+        { id: "fetch", label: "College Site", icon: <RiGlobalLine /> },
+        { id: "folder", label: "Notes Drive", icon: <RiFolderFill /> }
+    ];
+
+    const activeIndex = tabItems.findIndex(t => t.id === currentMode);
+    const isSecondTab = activeIndex === 1;
+
+    const NotesShifter = () => (
+        <div className="s2-view-tabs notes-view-tabs">
+            <div className={`s2-tab-indicator ${isSecondTab ? "second" : ""}`} />
+            {tabItems.map((tab) => (
+                <button
+                    key={tab.id}
+                    className={currentMode === tab.id ? "active" : ""}
+                    onClick={() => handleTabSelected(tab.id)}
+                >
+                    {tab.icon} {tab.label}
+                </button>
+            ))}
+        </div>
+    );
 
     // --- PARITY: SCROLL MEMORY ---
     const scrollCache = useRef({}); // pathKey -> scrollTop
     const viewportRef = useRef(null);
 
     const getPathKey = useCallback(() => {
-        if (notesMode === 'folder') return drivePath.map(p => p.id).join('-');
+        if (currentMode === 'folder') return drivePath.map(p => p.id).join('-');
         return path.join('-');
-    }, [notesMode, drivePath, path]);
+    }, [currentMode, drivePath, path]);
 
     const saveScroll = useCallback(() => {
         if (viewportRef.current) {
@@ -71,7 +109,7 @@ const Notes = () => {
             setTitleFontSize('28px');
             return;
         }
-        const currentTitle = notesMode === 'folder' 
+        const currentTitle = currentMode === 'folder' 
             ? drivePath[drivePath.length - 1]?.name || "" 
             : (path.length === 0 ? "Lecture Notes" : path[path.length - 1]);
         
@@ -79,7 +117,7 @@ const Notes = () => {
         if (len > 25) setTitleFontSize('13px');
         else if (len > 18) setTitleFontSize('14px');
         else setTitleFontSize('16px');
-    }, [path, drivePath, isMobile, notesMode]);
+    }, [path, drivePath, isMobile, currentMode]);
 
     useEffect(() => {
         // Restore scroll after content renders
@@ -101,7 +139,13 @@ const Notes = () => {
     // --- NEW: FIREBASE LISTENERS ---
     useEffect(() => {
         const modeRef = ref(db, 'settings/notesMode');
-        const unsubMode = onValue(modeRef, snap => setNotesMode(snap.val() || 'fetch'));
+        const unsubMode = onValue(modeRef, snap => {
+            const val = snap.val() || 'fetch';
+            setServerNotesMode(val);
+            if (!userOverridden) {
+                setActiveTab(val);
+            }
+        });
 
         const unsubFolders = onValue(ref(db, 'notes_drive/folders'), (snapshot) => setDriveFolders(snapshot.val() || {}));
         const unsubSubjects = onValue(ref(db, 'notes_drive/subjects'), (snapshot) => setSubjects(snapshot.val() || {}));
@@ -453,7 +497,7 @@ const Notes = () => {
     }, [path, uiStatus, cachedSemesters, mapDeptToAbbreviation, toTitleCase]);
 
     // --- UI RENDERERS ---
-    if (notesMode === 'loading') {
+    if (serverNotesMode === null) {
         return (
             <div className="h2-view notes-container">
                  <div className="notes-viewport" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '60vh' }}>
@@ -463,7 +507,7 @@ const Notes = () => {
         );
     }
 
-    if (notesMode === 'folder') {
+    if (currentMode === 'folder') {
         return (
             <div className="h2-view notes-container mode-folder">
                 {(!isMobile || drivePath.length > 1) && (
@@ -484,6 +528,7 @@ const Notes = () => {
                     key={drivePath.map(p=>p.id).join('-')} 
                     className={`notes-viewport ${driveAnimDirection === 'forward' ? 'notes-animate-forward' : 'notes-animate-backward'}`}
                 >
+                    {drivePath.length === 1 && <NotesShifter />}
                     <div className="folder-grid" style={{ marginBottom: '20px' }}>
                         {currentDriveFolders.map((folder, i) => (
                             <div key={i} className="folder-item-mac" onClick={() => { saveScroll(); setDrivePath(p => [...p, folder]); }}>
@@ -604,6 +649,7 @@ const Notes = () => {
                 key={path.join('-')} 
                 className={`notes-viewport ${fetchAnimDirection === 'forward' ? 'notes-animate-forward-subtle' : 'notes-animate-backward-subtle'}`}
             >
+                {path.length === 0 && <NotesShifter />}
                 {uiStatus === 'loading' && (
                     <div className="centered-state">
                         <div className="spinner-mac big"></div>

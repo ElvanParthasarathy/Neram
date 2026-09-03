@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.notes
+package com.elvan.neram.ui.notes
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -102,14 +102,29 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
 
     // --- FOLDER MODE STATE ---
     // Initialize everything from Room DB cache instantly
+    private val _serverNotesMode = MutableStateFlow(readCachedMode())
+    val serverNotesMode: StateFlow<String> = _serverNotesMode.asStateFlow()
+
     private val _notesMode = MutableStateFlow(readCachedMode())
+    val notesMode: StateFlow<String> = _notesMode.asStateFlow()
+    private var _userOverriddenMode: String? = null
+
     private val _driveFolders = MutableStateFlow(readCachedFolders())
     private val _driveFiles = MutableStateFlow(readCachedFiles())
     private val _driveSubjects = MutableStateFlow(readCachedSubjects())
     private val _drivePath = MutableStateFlow<List<DriveFolder>>(listOf(DriveFolder("root", "Notes Drive", "root")))
     
-    val notesMode = _notesMode.asStateFlow()
     val drivePath = _drivePath.asStateFlow()
+
+    fun setNotesMode(mode: String) {
+        if (_notesMode.value != mode) {
+            _userOverriddenMode = mode
+            _notesMode.value = mode
+            _drivePath.value = listOf(DriveFolder("root", "Notes Drive", "root"))
+            _path.value = emptyList()
+            refreshActiveView()
+        }
+    }
 
     init {
         val firebaseDb = Firebase.database.reference
@@ -117,14 +132,18 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
         firebaseDb.child("settings/notesMode").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val newMode = snapshot.getValue(String::class.java) ?: "fetch"
+                _serverNotesMode.value = newMode
+                _userOverriddenMode = null
                 _notesMode.value = newMode
+                _drivePath.value = listOf(DriveFolder("root", "Notes Drive", "root"))
+                _path.value = emptyList()
                 // Save to Room DB for instant offline startup
                 viewModelScope.launch {
                     masterDataDao.insertMasterData(
                         MasterDataEntity(id = "notes_mode", json = newMode)
                     )
                 }
-                refreshDriveView()
+                refreshActiveView()
             }
             override fun onCancelled(error: DatabaseError) {}
         })
@@ -194,6 +213,8 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
         // Immediately set UI state based on cached mode — no flicker
         refreshDriveView()
     }
+
+    fun refreshActiveView() = refreshDriveView()
 
     private fun refreshDriveView() {
         if (_notesMode.value == "folder") {
