@@ -34,7 +34,8 @@ data class MainUiState(
     val isLoading: Boolean = true,
     val isAuthenticated: Boolean = false,
     val isOnboardingComplete: Boolean = false,
-    val isAuthInitialized: Boolean = false
+    val isAuthInitialized: Boolean = false,
+    val hasCompletedLanguageSelection: Boolean = false
 )
 
 /**
@@ -50,6 +51,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         MainUiState(
             themeMode = runBlocking { themeManager.themeMode.first() },
             languageCode = runBlocking { languageManager.languageCode.first() },
+            hasCompletedLanguageSelection = runBlocking { languageManager.hasCompletedLanguageSelection.first() },
             isAuthenticated = false, // Will be updated by flow
             isAuthInitialized = false
         )
@@ -194,6 +196,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
+        // Load Language Selection Status
+        viewModelScope.launch {
+            languageManager.hasCompletedLanguageSelection.collect { completed ->
+                _uiState.update { it.copy(hasCompletedLanguageSelection = completed) }
+            }
+        }
+
         observeConnectivity()
     }
 
@@ -261,6 +270,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setLanguage(code: String) {
         viewModelScope.launch {
             languageManager.setLanguage(code)
+            val uid = auth.currentUser?.uid
+            if (uid != null) {
+                try {
+                    repository.updateUserProfile(uid, mapOf("preferredLanguage" to code))
+                } catch (e: Exception) {
+                    Log.e("MainViewModel", "Failed to update preferredLanguage in profile", e)
+                }
+            }
+        }
+    }
+
+    fun markLanguageSelectionCompleted() {
+        viewModelScope.launch {
+            languageManager.setHasCompletedLanguageSelection(true)
         }
     }
 

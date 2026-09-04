@@ -1,5 +1,10 @@
 package com.elvan.neram.ui.auth
 
+import android.content.ContextWrapper
+import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
@@ -19,6 +24,8 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -101,6 +108,44 @@ fun AuthGradientBackground(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val context = LocalContext.current
+    val isDark = isSystemInDarkTheme()
+    val activity = com.elvan.neram.LocalMainActivity.current
+        ?: (context as? ComponentActivity)
+        ?: ((context as? ContextWrapper)?.baseContext as? ComponentActivity)
+
+    DisposableEffect(isDark, activity) {
+        activity?.enableEdgeToEdge(
+            statusBarStyle = if (isDark) {
+                SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT
+                )
+            },
+            navigationBarStyle = if (isDark) {
+                SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            } else {
+                SystemBarStyle.light(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT
+                )
+            }
+        )
+        val window = activity?.window
+        if (window != null) {
+            window.statusBarColor = android.graphics.Color.TRANSPARENT
+            window.navigationBarColor = android.graphics.Color.TRANSPARENT
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                window.isNavigationBarContrastEnforced = false
+                window.isStatusBarContrastEnforced = false
+            }
+            com.elvan.neram.updateSystemBarsAppearance(window, isDark)
+        }
+        onDispose { }
+    }
+
     val backgroundColor = AuthColors.background()
     val shapeColor = AuthColors.shapeColor()
     
@@ -194,13 +239,15 @@ fun AnimatedAuthButton(
     onClick: () -> Unit,
     isLoading: Boolean = false,
     enabled: Boolean = true,
+    flat: Boolean = false,
+    animateScale: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.98f else 1f,
+        targetValue = if (isPressed && animateScale) 0.98f else 1f,
         animationSpec = spring(stiffness = Spring.StiffnessHigh),
         label = "button_scale"
     )
@@ -220,7 +267,13 @@ fun AnimatedAuthButton(
             .fillMaxWidth()
             .height(56.dp)
             .scale(scale),
-        elevation = ButtonDefaults.buttonElevation(
+        elevation = if (flat) ButtonDefaults.buttonElevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            focusedElevation = 0.dp,
+            hoveredElevation = 0.dp,
+            disabledElevation = 0.dp
+        ) else ButtonDefaults.buttonElevation(
             defaultElevation = 4.dp,
             pressedElevation = 1.dp,
             disabledElevation = 0.dp

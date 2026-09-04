@@ -8,10 +8,11 @@
         <item name="colorSecondary">#0D84FF</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">#0A0A0A</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">#000000</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o">false</item>
         <item name="android:textColorHighlight">#330D84FF</item>
         <item name="android:textColorLink">#0D84FF</item>
         <item name="android:textColorPrimary">#FFFFFF</item>

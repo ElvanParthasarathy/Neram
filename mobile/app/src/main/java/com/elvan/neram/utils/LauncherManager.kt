@@ -25,6 +25,8 @@ object LauncherManager {
             val malayalamAlias = "$pkg.MainActivityMalayalam"
             val malayalamLatinAlias = "$pkg.MainActivityMalayalamLatin"
             val malayalamTamilAlias = "$pkg.MainActivityMalayalamTamil"
+            val teluguAlias = "$pkg.MainActivityTelugu"
+            val teluguLatinAlias = "$pkg.MainActivityTeluguLatin"
 
             val targetComponent = when (effectiveLanguage) {
                 K.TAMIL -> tamilAlias
@@ -33,10 +35,12 @@ object LauncherManager {
                 K.MALAYALAM -> malayalamAlias
                 K.MALAYALAM_LATIN -> malayalamLatinAlias
                 K.MALAYALAM_TAMIL -> malayalamTamilAlias
+                K.TELUGU -> teluguAlias
+                K.TELUGU_LATIN -> teluguLatinAlias
                 else -> defaultActivity
             }
 
-            val allComponents = listOf(defaultActivity, tamilAlias, tamilLatinAlias, tamilMalayalamAlias, malayalamAlias, malayalamLatinAlias, malayalamTamilAlias)
+            val allComponents = listOf(defaultActivity, tamilAlias, tamilLatinAlias, tamilMalayalamAlias, malayalamAlias, malayalamLatinAlias, malayalamTamilAlias, teluguAlias, teluguLatinAlias)
 
             for (componentName in allComponents) {
                 val component = ComponentName(pkg, componentName)

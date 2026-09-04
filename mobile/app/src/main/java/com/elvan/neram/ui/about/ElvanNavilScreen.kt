@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -95,22 +96,43 @@ fun ElvanNavilScreen(
             }
         }
 
-        // Footer: © All rights reserved
+        // Footer: © All rights reserved and App Version
         item(key = "footer") {
+            val versionName = remember(context) {
+                try {
+                    context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "2.5.11"
+                } catch (_: Exception) {
+                    "2.5.11"
+                }
+            }
             ElvanSectionContainer {
-                Text(
-                    text = K.allRightsReserved.tr(lang),
-                    style = TextStyle(
-                        fontFamily = ff,
-                        fontSize = 12.5.sp,
-                        fontWeight = FontWeight.Normal
-                    ),
-                    color = colors.textPrimary.copy(alpha = 0.35f),
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    textAlign = TextAlign.Center
-                )
+                        .padding(top = 16.dp, bottom = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "${K.navNeram.tr(lang)} v$versionName",
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 12.5.sp,
+                            fontWeight = FontWeight.Medium
+                        ),
+                        color = colors.textPrimary.copy(alpha = 0.45f)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = K.allRightsReserved.tr(lang),
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Normal
+                        ),
+                        color = colors.textPrimary.copy(alpha = 0.35f),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

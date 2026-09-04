@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,9 +34,17 @@ import com.elvan.neram.ui.theme.LocalAppLanguage
 fun AboutAppScreen(
     scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: rememberLazyListState()
 ) {
+    val context = LocalContext.current
     val colors = rememberHomeColors()
     val ff = LocalAppFontFamily.current
     val lang = LocalAppLanguage.current
+    val versionName = remember(context) {
+        try {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "2.5.11"
+        } catch (_: Exception) {
+            "2.5.11"
+        }
+    }
 
     LazyColumn(
         state = scrollState,
@@ -99,6 +109,19 @@ fun AboutAppScreen(
                             fontFamily = ff
                         ),
                         color = colors.textSecondary.copy(alpha = 0.85f)
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // App Version Display
+                    Text(
+                        text = "v$versionName",
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = ff
+                        ),
+                        color = colors.textSecondary.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -183,6 +206,24 @@ fun AboutAppScreen(
                         colors = colors
                     )
                 }
+            }
+        }
+
+        item(key = "version_footer") {
+            ElvanSectionContainer {
+                Text(
+                    text = "${K.navNeram.tr(lang)} v$versionName",
+                    style = TextStyle(
+                        fontFamily = ff,
+                        fontSize = 12.5.sp,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    color = colors.textPrimary.copy(alpha = 0.35f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, bottom = 24.dp),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }

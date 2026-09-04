@@ -299,7 +299,13 @@ val en: Map<String, String> = mapOf(
     K.malayalam to "Malayalam",
     K.malayalamLatin to "Malayalam (Latin)",
     K.malayalamTamil to "Malayalam (Tamil Script)",
+    K.telugu to "Telugu",
+    K.teluguLatin to "Telugu (Latin)",
     K.languageInfo to "Language change applies immediately across all pages, navigation, and settings.",
+    K.chooseLanguage to "Choose Language",
+    K.selectPreferredLanguage to "Select your preferred language",
+    K.moreLanguagesBelow to "Swipe for more languages",
+    K.continueAction to "Continue",
     K.editProfile to "Profile",
     K.feedback to "Feedback & Queries",
 

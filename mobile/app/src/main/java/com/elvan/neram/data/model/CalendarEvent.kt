@@ -27,7 +27,7 @@ data class CalendarEvent(
     fun isHoliday(): Boolean {
         if (type.equals("Holiday", ignoreCase = true)) return true
         val titleLower = title.lowercase()
-        val langs = listOf(K.ENGLISH, K.TAMIL, K.TAMIL_LATIN, K.TAMIL_MALAYALAM, K.MALAYALAM, K.MALAYALAM_LATIN, K.MALAYALAM_TAMIL)
+        val langs = listOf(K.ENGLISH, K.TAMIL, K.TAMIL_LATIN, K.TAMIL_MALAYALAM, K.MALAYALAM, K.MALAYALAM_LATIN, K.MALAYALAM_TAMIL, K.TELUGU, K.TELUGU_LATIN)
         return langs.any { titleLower.contains(K.holiday.tr(it).lowercase()) }
     }
     
@@ -42,7 +42,7 @@ data class CalendarEvent(
     fun isOrderOverride(): Boolean {
         if (type.equals("Order", ignoreCase = true)) return true
         val titleLower = title.lowercase()
-        val langs = listOf(K.ENGLISH, K.TAMIL, K.TAMIL_LATIN, K.TAMIL_MALAYALAM, K.MALAYALAM, K.MALAYALAM_LATIN, K.MALAYALAM_TAMIL)
+        val langs = listOf(K.ENGLISH, K.TAMIL, K.TAMIL_LATIN, K.TAMIL_MALAYALAM, K.MALAYALAM, K.MALAYALAM_LATIN, K.MALAYALAM_TAMIL, K.TELUGU, K.TELUGU_LATIN)
         val orderKeywords = langs.map { K.followingOrder.tr(it).lowercase() } + listOf("order", "day order", "வரிசை")
         return orderKeywords.any { titleLower.contains(it) }
     }
@@ -61,7 +61,7 @@ data class CalendarEvent(
             DayOfWeek.FRIDAY,
             DayOfWeek.SATURDAY
         )
-        val langs = listOf(K.ENGLISH, K.TAMIL, K.TAMIL_LATIN, K.TAMIL_MALAYALAM, K.MALAYALAM, K.MALAYALAM_LATIN, K.MALAYALAM_TAMIL)
+        val langs = listOf(K.ENGLISH, K.TAMIL, K.TAMIL_LATIN, K.TAMIL_MALAYALAM, K.MALAYALAM, K.MALAYALAM_LATIN, K.MALAYALAM_TAMIL, K.TELUGU, K.TELUGU_LATIN)
         for (day in days) {
             val variants = langs.flatMap { lang ->
                 listOf(

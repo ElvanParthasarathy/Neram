@@ -23,6 +23,8 @@ fun resolveString(key: String, lang: String): String {
         K.MALAYALAM -> ml[key]?.ml ?: en[key] ?: key
         K.MALAYALAM_LATIN -> ml[key]?.latn ?: en[key] ?: key
         K.MALAYALAM_TAMIL -> ml[key]?.taml ?: (ml[key]?.ml?.let { mlymToTaml(it) } ?: en[key] ?: key)
+        K.TELUGU -> te[key]?.te ?: en[key] ?: key
+        K.TELUGU_LATIN -> te[key]?.latn ?: en[key] ?: key
         K.ENGLISH -> en[key] ?: key
         else -> en[key] ?: key
     }

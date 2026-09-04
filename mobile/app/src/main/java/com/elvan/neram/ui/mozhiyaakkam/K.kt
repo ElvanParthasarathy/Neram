@@ -14,6 +14,8 @@ object K {
     const val MALAYALAM = "ml"
     const val MALAYALAM_LATIN = "ml-Latn"
     const val MALAYALAM_TAMIL = "ml-Taml"
+    const val TELUGU = "te"
+    const val TELUGU_LATIN = "te-Latn"
 
     /**
      * Get the effective language code based on user preference.
@@ -27,11 +29,14 @@ object K {
             MALAYALAM -> MALAYALAM
             MALAYALAM_LATIN -> MALAYALAM_LATIN
             MALAYALAM_TAMIL -> MALAYALAM_TAMIL
+            TELUGU -> TELUGU
+            TELUGU_LATIN -> TELUGU_LATIN
             SYSTEM -> {
                 val deviceLocale = android.content.res.Resources.getSystem().configuration.locales[0]
                 when (deviceLocale.language) {
                     "ta" -> TAMIL
                     "ml" -> MALAYALAM
+                    "te" -> TELUGU
                     else -> ENGLISH
                 }
             }
@@ -334,7 +339,13 @@ object K {
     const val malayalam = "malayalam"
     const val malayalamLatin = "malayalamLatin"
     const val malayalamTamil = "malayalamTamil"
+    const val telugu = "telugu"
+    const val teluguLatin = "teluguLatin"
     const val languageInfo = "languageInfo"
+    const val chooseLanguage = "chooseLanguage"
+    const val selectPreferredLanguage = "selectPreferredLanguage"
+    const val moreLanguagesBelow = "moreLanguagesBelow"
+    const val continueAction = "continueAction"
     const val editProfile = "editProfile"
     const val feedback = "feedback"
 

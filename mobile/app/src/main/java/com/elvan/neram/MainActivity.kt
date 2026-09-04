@@ -6,6 +6,8 @@ import com.elvan.neram.ui.mozhiyaakkam.tr
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.view.View
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,9 +16,11 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.activity.compose.BackHandler
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
@@ -62,6 +66,37 @@ import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 
+val LocalMainActivity = compositionLocalOf<ComponentActivity?> { null }
+
+fun updateSystemBarsAppearance(window: android.view.Window, isDark: Boolean) {
+    val decorView = window.decorView
+    val insetsController = WindowCompat.getInsetsController(window, decorView)
+    insetsController.isAppearanceLightStatusBars = !isDark
+    insetsController.isAppearanceLightNavigationBars = !isDark
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        window.insetsController?.let { controller ->
+            val appearance = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                             WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+            if (!isDark) {
+                controller.setSystemBarsAppearance(appearance, appearance)
+            } else {
+                controller.setSystemBarsAppearance(0, appearance)
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    var flags = decorView.systemUiVisibility
+    flags = if (!isDark) {
+        flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+    } else {
+        flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()
+    }
+    @Suppress("DEPRECATION")
+    decorView.systemUiVisibility = flags
+}
+
 @OptIn(ExperimentalAnimationApi::class)
 class MainActivity : AppCompatActivity() {
     private lateinit var appUpdateManager: com.google.android.play.core.appupdate.AppUpdateManager
@@ -96,15 +131,24 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        val isSystemDark = (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
         enableEdgeToEdge(
-            statusBarStyle = androidx.activity.SystemBarStyle.auto(
-                android.graphics.Color.TRANSPARENT,
-                android.graphics.Color.TRANSPARENT
-            ),
-            navigationBarStyle = androidx.activity.SystemBarStyle.auto(
-                android.graphics.Color.TRANSPARENT,
-                android.graphics.Color.TRANSPARENT
-            )
+            statusBarStyle = if (isSystemDark) {
+                androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            } else {
+                androidx.activity.SystemBarStyle.light(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT
+                )
+            },
+            navigationBarStyle = if (isSystemDark) {
+                androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            } else {
+                androidx.activity.SystemBarStyle.light(
+                    android.graphics.Color.TRANSPARENT,
+                    android.graphics.Color.TRANSPARENT
+                )
+            }
         )
         setContent {
             val mainViewModel: MainViewModel = viewModel()
@@ -160,6 +204,7 @@ class MainActivity : AppCompatActivity() {
                     K.TAMIL, K.TAMIL_LATIN -> java.util.Locale("ta", "IN")
                     K.MALAYALAM, K.MALAYALAM_LATIN, K.TAMIL_MALAYALAM -> java.util.Locale("ml", "IN")
                     K.MALAYALAM_TAMIL -> java.util.Locale("ta", "IN")
+                    K.TELUGU, K.TELUGU_LATIN -> java.util.Locale("te", "IN")
                     else -> java.util.Locale.US
                 }
                 java.util.Locale.setDefault(locale)
@@ -182,8 +227,26 @@ class MainActivity : AppCompatActivity() {
                 val colors = rememberHomeColors()
                 val view = LocalView.current
                 if (!view.isInEditMode) {
-                    SideEffect {
-                        val window = (view.context as Activity).window
+                    DisposableEffect(useDarkTheme) {
+                        enableEdgeToEdge(
+                            statusBarStyle = if (useDarkTheme) {
+                                androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                            } else {
+                                androidx.activity.SystemBarStyle.light(
+                                    android.graphics.Color.TRANSPARENT,
+                                    android.graphics.Color.TRANSPARENT
+                                )
+                            },
+                            navigationBarStyle = if (useDarkTheme) {
+                                androidx.activity.SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                            } else {
+                                androidx.activity.SystemBarStyle.light(
+                                    android.graphics.Color.TRANSPARENT,
+                                    android.graphics.Color.TRANSPARENT
+                                )
+                            }
+                        )
+                        val window = this@MainActivity.window
                         window.statusBarColor = android.graphics.Color.TRANSPARENT
                         window.navigationBarColor = android.graphics.Color.TRANSPARENT
                         window.decorView.setBackgroundColor(colors.background.toArgb())
@@ -192,10 +255,10 @@ class MainActivity : AppCompatActivity() {
                             window.isStatusBarContrastEnforced = false
                         }
                         
-                        // Set system bar icon colors: light icons in dark mode, dark icons in light mode
-                        val insetsController = WindowCompat.getInsetsController(window, view)
-                        insetsController.isAppearanceLightStatusBars = !useDarkTheme
-                        insetsController.isAppearanceLightNavigationBars = !useDarkTheme
+                        // Set system bar icon colors dynamically across all Android versions and Samsung OneUI
+                        updateSystemBarsAppearance(window, useDarkTheme)
+                        
+                        onDispose { }
                     }
                 }
                 
@@ -208,6 +271,7 @@ class MainActivity : AppCompatActivity() {
                     com.elvan.neram.ui.theme.LocalAppFontFamily provides appFontFamily,
                     androidx.compose.ui.platform.LocalContext provides localeContext,
                     LocalActivityResultRegistryOwner provides this@MainActivity,
+                    LocalMainActivity provides this@MainActivity,
                     androidx.compose.ui.platform.LocalConfiguration provides configuration
                 ) {
                     Surface(
@@ -220,24 +284,32 @@ class MainActivity : AppCompatActivity() {
                             ),
                         color = Color.Transparent
                     ) {
-                        // Root Navigation State
-                        var currentAuthScreen by remember { mutableStateOf("welcome") } // welcome, login, signup
+                        // Root Navigation State: Language -> Welcome -> Login / Signup
+                        var currentAuthScreen by rememberSaveable { mutableStateOf("language") }
                         
                         // Effect to auto-navigate based on auth state
                         LaunchedEffect(uiState.isAuthenticated) {
                             if (uiState.isAuthenticated) {
-                                // If authenticated, we don't show auth screens
-                                // The main content decision happens below (Home vs Onboarding)
+                                // Handled below (Home vs Onboarding)
                             } else {
-                                // If logged out, reset to welcome
-                                currentAuthScreen = "welcome"
+                                // If logged out, reset to language selection
+                                currentAuthScreen = "language"
                             }
                         }
 
                         if (!uiState.isAuthInitialized) {
                             SplashScreen(isDarkTheme = useDarkTheme, language = effectiveLanguage)
                         } else if (uiState.isAuthenticated) {
-                            if (uiState.isOnboardingComplete) {
+                            if (!uiState.hasCompletedLanguageSelection) {
+                                // ONE-TIME LANGUAGE SELECTION FOR PLAY STORE UPDATE
+                                com.elvan.neram.ui.onboarding.LanguageSelectionScreen(
+                                    currentLanguage = uiState.languageCode,
+                                    onLanguageConfirmed = { selectedLang ->
+                                        mainViewModel.setLanguage(selectedLang)
+                                        mainViewModel.markLanguageSelectionCompleted()
+                                    }
+                                )
+                            } else if (uiState.isOnboardingComplete) {
                                 // CASE 1: Authenticated & Onboarding Complete -> HOME
                                 val homeViewModel: HomeViewModel = viewModel()
                                 com.elvan.neram.ui.MainScreen(
@@ -246,6 +318,7 @@ class MainActivity : AppCompatActivity() {
                                     mainViewModel = mainViewModel,
                                     onLogout = { 
                                         mainViewModel.signOut()
+                                        currentAuthScreen = "language"
                                     }
                                 )
                             } else {
@@ -264,23 +337,40 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
                         } else {
-                            // CASE 3: Not Authenticated -> AUTH FLOW
+                            // CASE 3: Not Authenticated -> AUTH FLOW (Language -> Welcome -> Login / Signup)
+                            BackHandler(enabled = currentAuthScreen != "language") {
+                                when (currentAuthScreen) {
+                                    "welcome" -> currentAuthScreen = "language"
+                                    "login" -> currentAuthScreen = "welcome"
+                                    "signup" -> currentAuthScreen = "login"
+                                }
+                            }
+
                             AnimatedContent(
                                 targetState = currentAuthScreen,
                                 transitionSpec = {
                                     fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
-                                }
+                                },
+                                label = "auth_flow"
                             ) { screen ->
                                 when (screen) {
+                                    "language" -> com.elvan.neram.ui.onboarding.LanguageSelectionScreen(
+                                        currentLanguage = uiState.languageCode,
+                                        onLanguageConfirmed = { selectedLang ->
+                                            mainViewModel.setLanguage(selectedLang)
+                                            mainViewModel.markLanguageSelectionCompleted()
+                                            currentAuthScreen = "welcome"
+                                        }
+                                    )
                                     "welcome" -> com.elvan.neram.ui.auth.WelcomeScreen(
                                         onContinue = { currentAuthScreen = "login" }
                                     )
                                     "login" -> com.elvan.neram.ui.auth.LoginScreen(
-                                        onLoginSuccess = { /* MainViewModel handles this via AuthStateListener */ },
+                                        onLoginSuccess = { /* Handled by authStateListener */ },
                                         onNavigateToSignup = { currentAuthScreen = "signup" }
                                     )
                                     "signup" -> com.elvan.neram.ui.auth.SignupScreen(
-                                        onSignupSuccess = { /* MainViewModel handles this via AuthStateListener */ },
+                                        onSignupSuccess = { /* Handled by authStateListener */ },
                                         onNavigateToLogin = { currentAuthScreen = "login" }
                                     )
                                 }

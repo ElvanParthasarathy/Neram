@@ -122,7 +122,31 @@ fun LanguageSettingsScreen(
 
                     ElvanSettingsDivider(colors = colors)
 
-                    // 7. English (English)
+                    // 8. Telugu (తెలుగు)
+                    ElvanRadioSettingsRow(
+                        title = "తెలుగు",
+                        description = K.telugu.tr(lang),
+                        value = K.TELUGU,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(K.TELUGU) },
+                        colors = colors
+                    )
+
+                    ElvanSettingsDivider(colors = colors)
+
+                    // 9. Telugu Latin (Telugu)
+                    ElvanRadioSettingsRow(
+                        title = "Telugu",
+                        description = K.teluguLatin.tr(lang),
+                        value = K.TELUGU_LATIN,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(K.TELUGU_LATIN) },
+                        colors = colors
+                    )
+
+                    ElvanSettingsDivider(colors = colors)
+
+                    // 10. English (English)
                     ElvanRadioSettingsRow(
                         title = "English",
                         description = K.english.tr(lang),

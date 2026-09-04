@@ -1,5 +1,29 @@
 package com.elvan.neram.ui.mozhiyaakkam
 
+/**
+ * Identifies whether a Malayalam consonant belongs to Vallinam (வல்லினம்: க, ச, ட, த, ப, ற).
+ *
+ * Dravidian Grammar Rules (தொல்காப்பியம் & கேரள பாணினீயம்):
+ * - குற்றியலுகரம் (Samvrithokaram) applies EXCLUSIVELY to வல்லினம் (Vallinam stops).
+ *   Only word-final virama after Vallinam becomes Tamil 'ு' (e.g., അത് -> அது, പോക്ക് -> போக்கு).
+ * - இடையினம் (Idaiyinam: ய, ர, ல, வ, ழ, ள), மெல்லினம் (Mellinam: ங, ஞ, ண, ந, ம, ன),
+ *   and கிரந்தம் (Grantha: ஜ, ஶ, ஷ, ஸ, ஹ) NEVER take குற்றியலுகரம்.
+ *   Their virama is strictly a pure மெய் (புள்ளி '்'), ensuring:
+ *   - തമിഴ് -> தமிழ் (NOT தமிழு)
+ *   - താഴ് -> தாழ் (NOT தாழு)
+ *   - വാഴ് -> வாழ் (NOT வாழு)
+ *   - കണ്ണ് -> கண்ண் (NOT கண்ணு)
+ *   - ബസ് -> பஸ் (NOT பஸு)
+ */
+private fun isMlymVallinam(c: Char): Boolean {
+    return (c in '\u0D15'..'\u0D18') || // ക, ഖ, ഗ, ഘ (க)
+           (c in '\u0D1A'..'\u0D1D' && c != '\u0D1C') || // ച, ഛ, ഝ (ச, excluding Grantha Ja)
+           (c in '\u0D1F'..'\u0D22') || // ട, ഠ, ഡ, ഢ (ட)
+           (c in '\u0D24'..'\u0D27') || // ത, ഥ, ദ, ധ (த)
+           (c in '\u0D2A'..'\u0D2D' && c != '\u0D2B') || // പ, ബ, ഭ (ப, excluding ഫ for loanword pulli)
+           (c == '\u0D31')              // റ (ற)
+}
+
 fun mlymToTaml(text: String): String {
     val sb = StringBuilder(text.length + 8)
     var i = 0
@@ -8,10 +32,12 @@ fun mlymToTaml(text: String): String {
     while (i < n) {
         val c = text[i]
 
-        // Word-final Virama '്' after consonant -> Tamil 'ു' (Kutriyalukaram)
+        // Word-final Virama '്':
+        // - After Vallinam (க, ச, ட, த, ப, ற) -> Tamil 'ு' (Kutriyalukaram: அது, போக்கு, வீடு)
+        // - After Idaiyinam (ய, ர, ல, வ, ழ, ள), Mellinam, Grantha -> Tamil '்' (Pure pulli: தமிழ், தாழ், பஸ்)
         if (c == '\u0D4D') {
             val isWordEnd = (i == n - 1) || !text[i + 1].isLetter()
-            if (isWordEnd && i > 0 && (text[i - 1] in '\u0D15'..'\u0D39')) {
+            if (isWordEnd && i > 0 && isMlymVallinam(text[i - 1])) {
                 sb.append('\u0BC1')
                 i++
                 continue
@@ -57,7 +83,8 @@ fun mlymToTaml(text: String): String {
             '\u0D24', '\u0D25', '\u0D26', '\u0D27' -> "\u0BA4" // ത, ഥ, ദ, ധ -> த
             '\u0D28' -> "\u0BA8" // ന -> ந
             '\u0D29' -> "\u0BA9" // ഩ -> ன
-            '\u0D2A', '\u0D2B', '\u0D2C', '\u0D2D' -> "\u0BAA" // പ, ഫ, ബ, ഭ -> ப
+            '\u0D2A', '\u0D2C', '\u0D2D' -> "\u0BAA" // പ, ബ, ഭ -> ப
+            '\u0D2B' -> "\u0B83\u0BAA"               // ഫ (fa/pha) -> ஃப
             '\u0D2E' -> "\u0BAE" // മ -> ம
             '\u0D2F' -> "\u0BAF" // യ -> ய
             '\u0D30' -> "\u0BB0" // ര -> ர
@@ -178,11 +205,11 @@ val ml: Map<String, MlVar> = mapOf(
         latn = "Elvan Navil"
     ),
     K.elvanNavilDesc to MlVar(
-        ml = "എൽവൻ പാർത്തച്ചാരതിയുടെ നിർമ്മിതി",
+        ml = "എൽവൻ പാർത്തചാരതിയുടെ നിർമ്മിതി",
         latn = "Elvan Paarthachaarathiyude Nirmmithi"
     ),
     K.elvanParthasarathy to MlVar(
-        ml = "എൽവൻ പാർത്തച്ചാരതി",
+        ml = "എൽവൻ പാർത്തചാരതി",
         latn = "Elvan Paarthachaarathi"
     ),
     K.greeting to MlVar(
@@ -1221,9 +1248,33 @@ val ml: Map<String, MlVar> = mapOf(
         ml = "മലയാളം (തമിഴ് എഴുത്തുരു)",
         latn = "Malayalam (Thamizh Ezhuthuru)"
     ),
+    K.telugu to MlVar(
+        ml = "തെലുങ്ക്",
+        latn = "Thelunku"
+    ),
+    K.teluguLatin to MlVar(
+        ml = "തെലുങ്ക് (ഇലത്തീൻ)",
+        latn = "Thelunku (Ilattheen)"
+    ),
     K.languageInfo to MlVar(
         ml = "മൊഴി മാറ്റിയാൽ ആപ്പിൽ ഉടനീളം ഉടൻ തന്നെ മാറും.",
         latn = "Mozhi maattiyal appil udaneelam udan thanne maarum."
+    ),
+    K.chooseLanguage to MlVar(
+        ml = "മൊഴി തിരഞ്ഞെടുക്കൽ",
+        latn = "Mozhi Thiranjedukkal"
+    ),
+    K.selectPreferredLanguage to MlVar(
+        ml = "ഇഷ്ടപ്പെട്ട മൊഴി തിരഞ്ഞെടുക്കുക",
+        latn = "Ishtappetta mozhi thiranjedukkuka"
+    ),
+    K.moreLanguagesBelow to MlVar(
+        ml = "കൂടുതൽ മൊഴികൾക്ക് തള്ളുക",
+        latn = "Kooduthal mozhikalkku thalluka"
+    ),
+    K.continueAction to MlVar(
+        ml = "തുടരുക",
+        latn = "Thudaruka"
     ),
     K.editProfile to MlVar(
         ml = "തൻവിവരം തിരുത്തുക",

@@ -35,6 +35,14 @@ fun taToMlym(text: String): String {
 
     while (i < n) {
         val c = processed[i]
+
+        // Modern Tamil Fa (ஃ + ப -> Malayalam ഫ)
+        if (c == '\u0B83' && i + 1 < n && processed[i + 1] == '\u0BAA') {
+            sb.append('\u0D2B') // ഫ
+            i += 2
+            continue
+        }
+
         val hasVirama = (i + 1 < n && processed[i + 1] == '\u0BCD')
         val nextAfterVirama = if (hasVirama && i + 2 < n) processed[i + 2] else null
 
@@ -355,7 +363,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.followingOrder to TaVar(
         ta = "%s வரிசை பின்பற்றுகிறது",
-        latn = "%s Varisai Pinpatrugiradhu"
+        latn = "%s Varisai Pinbatrugiradhu"
     ),
     K.classesSuspended to TaVar(
         ta = "வகுப்புகள் இடைநிறுத்தம்",
@@ -371,7 +379,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.todaysEvent to TaVar(
         ta = "இன்றைய நிகழ்வு",
-        latn = "Indraiya Nigaizhvu"
+        latn = "Indraiya Nigazhvu"
     ),
     K.specialEvent to TaVar(
         ta = "சிறப்பு நிகழ்வு",
@@ -402,8 +410,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Vaguppugal Illai"
     ),
     K.liveUpdates to TaVar(
-        ta = "நேரடி புதுப்பிப்புகள் (%s)",
-        latn = "Naeradi Pudhuppippugal (%s)"
+        ta = "நேரடிப் புதுப்பிப்புகள் (%s)",
+        latn = "Naeradip Pudhuppippugal (%s)"
     ),
     K.generalNotice to TaVar(
         ta = "பொது அறிவிப்பு",
@@ -431,11 +439,11 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.postedBy to TaVar(
         ta = "பதிவிட்டவர் ",
-        latn = "Pathivittavar "
+        latn = "Padhivittavar "
     ),
     K.typeHere to TaVar(
         ta = "இங்கு தட்டச்சு செய்யவும்...",
-        latn = "Ingu thattachu seyyavum..."
+        latn = "Ingu thattachu cheyyavum..."
     ),
     K.studentsCount to TaVar(
         ta = "%s மாணவர்கள்",
@@ -459,7 +467,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.studyWellExamWish to TaVar(
         ta = "📖 தேர்வுக்கு நன்றாகப் படியுங்கள்! அதிக மதிப்பெண்கள் பெற்று முழு வெற்றி பெறுங்கள்! வாழ்த்துகள்! 🎯",
-        latn = "📖 Thaervukku nandraaga padiyungal! Adhiga madhippengal pettru muzhu vetri perungal! Vaazhthugal! 🎯"
+        latn = "📖 Thaervukku nandraagap padiyungal! Adhiga madhippengal petru muzhu vetri perungal! Vaazhthugal! 🎯"
     ),
     K.noAcademicCalendarScheduled to TaVar(
         ta = "அட்டவணைத் தரவு இல்லை",
@@ -483,15 +491,15 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.failedToSaveUpdate to TaVar(
         ta = "புதுப்பிப்பைச் சேமிக்க முடியவில்லை",
-        latn = "Pudhuppippai chaemikka mudiyavillai"
+        latn = "Pudhuppippaich chaemikka mudiyavillai"
     ),
     K.failedToSaveNotice to TaVar(
         ta = "அறிவிப்பைச் சேமிக்க முடியவில்லை",
-        latn = "Arivippai chaemikka mudiyavillai"
+        latn = "Arivippaich chaemikka mudiyavillai"
     ),
     K.failedToUpdatePlacement to TaVar(
         ta = "இடவமைப்பைப் புதுப்பிக்க முடியவில்லை",
-        latn = "Idavamaippai pudhuppikka mudiyavillai"
+        latn = "Idavamaippaip pudhuppikka mudiyavillai"
     ),
     K.dept to TaVar(
         ta = "துறை",
@@ -515,7 +523,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.regularClassesSuspendedDuring to TaVar(
         ta = "%s காலத்தில் வழக்கமான வகுப்புகள் இடைநிறுத்தம்.",
-        latn = "%s kaalaththil vazhakkamaana vaguppugal idainiruththam."
+        latn = "%s kaalathil vazhakkamaana vaguppugal idainirutham."
     ),
     K.allDay to TaVar(
         ta = "முழு நாள்",
@@ -575,7 +583,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.noCoursesFound to TaVar(
         ta = "பாடநெறிகள் காணப்படவில்லை",
-        latn = "Paadaneriggal kaanappadavillai"
+        latn = "Paadanerigal kaanappadavillai"
     ),
     K.students to TaVar(
         ta = "%d மாணவர்கள்",
@@ -611,7 +619,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.ongoingExams to TaVar(
         ta = "நடைபெறும் தேர்வுகள்",
-        latn = "Nadaperrum Thaervugal"
+        latn = "Nadaiperum Thaervugal"
     ),
     K.noOngoingExams to TaVar(
         ta = "தற்பொழுது தேர்வுகள் எதுவும் நடைபெறவில்லை",
@@ -682,8 +690,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Varavirukkum nigazhvugal illai"
     ),
     K.rmdCollegeWebsiteDesc to TaVar(
-        ta = "அதிகாரப்பூர்வ ஆர்.எம்.டி கல்லூரி இணையதளம்.",
-        latn = "Adhigaarappoorva RMD kalloori inaiyathalam."
+        ta = "அலுவல்முறை ஆர்.எம்.டி கல்லூரி இணையதளம்.",
+        latn = "Aluvalmurai RMD kalloori inaiyathalam."
     ),
     K.rmkNextgenStudentDesc to TaVar(
         ta = "மாணவர் உள்நுழைவு மற்றும் கல்வி கண்காணிப்புக்கான நெக்ஸ்ட்ஜென் தளம்.",
@@ -698,8 +706,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Katral, madhippidu matrum vaelaivaaippu theervugal."
     ),
     K.skillRackDesc to TaVar(
-        ta = "அன்றாட நிரலாக்க சவால்கள் மற்றும் சிக்கல் தீர்க்கும் பணிகள்.",
-        latn = "Andraada niralaakka savaalgal matrum sikkal theerkkum panigal."
+        ta = "அன்றாட நிரலாக்க அறைகூவல்கள் மற்றும் சிக்கல் தீர்க்கும் பணிகள்.",
+        latn = "Andraada niralaakka araigoovalgal matrum sikkal theerkkum panigal."
     ),
     K.codeTantraDesc to TaVar(
         ta = "வகுப்புகள், ஒப்படைப்புகள் மற்றும் மதிப்பீடுகளுக்கான தளம்.",
@@ -818,12 +826,12 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Thannurai Amaippu"
     ),
     K.selectAcademicDetailsBelow to TaVar(
-        ta = "உங்கள் கல்வித் தகவல்களை கீழே தேர்ந்தெடுக்கவும்",
-        latn = "Ungal kalvith thagavalkalai keezhae therndhedukkavum"
+        ta = "உங்கள் கல்வித் தரவுகளை கீழே தேர்ந்தெடுக்கவும்",
+        latn = "Ungal kalvith tharavugalai keezhae therndhedukkavum"
     ),
     K.academicBatch to TaVar(
-        ta = "கல்வி தொகுதி",
-        latn = "Kalvi Thogudhi"
+        ta = "கல்வித் தொகுதி",
+        latn = "Kalvith Thogudhi"
     ),
     K.selectYear to TaVar(
         ta = "ஆண்டைத் தேர்ந்தெடுக்கவும்",
@@ -902,8 +910,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Adaiyaalam charipaarkkappattadhu! Meendum muyarchikkiradhu..."
     ),
     K.verifyCustomIdentity to TaVar(
-        ta = "அடையாளத்தை சரிபார்க்கவும்",
-        latn = "Adaiyaalathai charipaarkkavum"
+        ta = "அடையாளத்தைச் சரிபார்க்கவும்",
+        latn = "Adaiyaalathaich charipaarkkavum"
     ),
     K.verifyGoogleForPasswordDesc to TaVar(
         ta = "பாதுகாப்பிற்காக, கடவுச்சொல்லை உருவாக்க மீண்டும் கூகிள் மூலம் உள்நுழையவும்.",
@@ -935,23 +943,23 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.secretary to TaVar(
         ta = "செயலாளர்",
-        latn = "Seyalaalar"
+        latn = "Cheyalaalar"
     ),
     K.rsMunirathinamBio to TaVar(
-        ta = "தமிழ்நாடு சட்டமன்றத்தின் முன்னாள் உறுப்பினராகப் பணியாற்றி, ஆர்.எம்.கே கல்விக் குழுமத்தை நிறுவிய தொலைநோக்கு பார்வையாளர்.",
-        latn = "Tamil Nadu sattamandratthin munnaal uruppinaraaga paniyaatri, R.M.K kalvik kuzhumathai niruviya tholainoaku paarvaiyaalar."
+        ta = "தமிழ்நாடு சட்டமன்றத்தின் முன்னாள் உறுப்பினராகப் பணியாற்றி, ஆர்.எம்.கே கல்விக் குழுமத்தை நிறுவிய தொலைநோக்குப் பார்வையாளர்.",
+        latn = "Tamil Nadu chattamandratthin munnaal uruppinaraagap paniyaatri, R.M.K kalvik kuzhumathai niruviya tholainoakkup paarvaiyaalar."
     ),
     K.rmKishoreBio to TaVar(
-        ta = "இங்கிலாந்தில் எம்பிஏ முடித்த இயந்திரப் பொறியாளர், மாணவர்களை சர்வதேசத் தரத்துடன் வெற்றியாளர்களாக மாற்றுவதில் கவனம் செலுத்துகிறார்.",
-        latn = "Englandil MBA mudittha iyandhira poriyaalar, maanavargalai sarvadhaesa tharatthudan vetriyaalargalaaga maatruvadhil gavanam selutthugiraar."
+        ta = "இங்கிலாந்தில் எம்பிஏ முடித்த இயந்திரப் பொறியாளர், மாணவர்களை அனைத்துலகத் தரத்துடன் வெற்றியாளர்களாக மாற்றுவதில் கவனம் செலுத்துகிறார்.",
+        latn = "Englandil MBA muditha iyandhirap poriyaalar, maanavargalai anaithulagath tharatthudan vetriyaalargalaaga maatruvadhil gavanam selutthugiraar."
     ),
     K.manjulaMunirathinamBio to TaVar(
-        ta = "ஒரு தசாப்தத்திற்கும் மேலாக இக்குழுமத்திற்கு அர்ப்பணிப்புடன் சேவை செய்யும் சமூக சேவகர் மற்றும் கல்வியாளர்.",
-        latn = "Oru thasaapdhatthirkkum maelaaga ikkuzhumatthirkku arppanippudan saevai seyyum samooga saevagar matrum kalviyaalar."
+        ta = "பத்தாண்டுகளுக்கும் மேலாக இக்குழுமத்திற்கு அர்ப்பணிப்புடன் சேவை செய்யும் குமுகத் தொண்டர் மற்றும் கல்வியாளர்.",
+        latn = "Pathaandugalukkum maelaaga ikkuzhumatthirkku arppanippudan chaevai cheyyum kumugath thondar matrum kalviyaalar."
     ),
     K.jothiNaiduBio to TaVar(
-        ta = "தொழில்துறை நிர்வாகத்தில் பரந்த அனுபவம் கொண்டவர், கிட்டத்தட்ட 30 ஆண்டுகளாக இக்குழுமத்துடன் தொடர்புடையவர்.",
-        latn = "Thozhildhurai nirvaagatthil parandha anubavam kondavar, kittathatta 30 aandugalaaga ikkuzhumatthudan thodarbudaiyavar."
+        ta = "தொழில்துறை மேலாண்மையில் பரந்த பட்டறிவு கொண்டவர், கிட்டத்தட்ட 30 ஆண்டுகளாக இக்குழுமத்துடன் தொடர்புடையவர்.",
+        latn = "Thozhildhurai maelaanmaiyil parandha pattarivu kondavar, kittathatta 30 aandugalaaga ikkuzhumatthudan thodarbudaiyavar."
     ),
     K.yalamanchiPradeepBio to TaVar(
         ta = "கிண்டி பொறியியல் கல்லூரியின் இசிஇ பொறியாளர், அமெரிக்காவின் கார்னகி மெலன் பல்கலைக்கழகத்தில் முதுகலை பட்டம் பெற்றவர்.",
@@ -982,8 +990,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Kanakku illaiya? "
     ),
     K.alreadyHaveAccount to TaVar(
-        ta = "ஏற்கனவே கணக்கு உள்ளதா? ",
-        latn = "Aerkannavae kanakku ulladha? "
+        ta = "ஏற்கெனவே கணக்கு உள்ளதா? ",
+        latn = "Aerkanaevae kanakku ulladha? "
     ),
     K.signUp to TaVar(
         ta = "பதிவு செய்க",
@@ -1087,7 +1095,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.daySundayLong to TaVar(
         ta = "ஞாயிற்றுக்கிழமை",
-        latn = "Nyaayitrukizhamai"
+        latn = "Nyaayitrukkizhamai"
     ),
 
     K.dayMondaySingle to TaVar(
@@ -1154,11 +1162,11 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.monthSep to TaVar(
         ta = "செப்புதெம்பர்",
-        latn = "Chepputhembar"
+        latn = "Cheppudhembar"
     ),
     K.monthOct to TaVar(
         ta = "அக்குதௌபர்",
-        latn = "Akkuthoubar"
+        latn = "Akkudhoubar"
     ),
     K.monthNov to TaVar(
         ta = "நொவெம்பர்",
@@ -1171,7 +1179,7 @@ val ta: Map<String, TaVar> = mapOf(
 
     K.monthJanShort to TaVar(
         ta = "சேன்",
-        latn = "Chae"
+        latn = "Chaen"
     ),
     K.monthFebShort to TaVar(
         ta = "ஃபெப்",
@@ -1249,7 +1257,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.userDirectoryDesc to TaVar(
         ta = "ஆசிரியர்கள், பணியாளர்கள், மாணவர்கள்",
-        latn = "Aasiriyargal, Paniyalaargal, Maanavargal"
+        latn = "Aasiriyargal, Paniyaalargal, Maanavargal"
     ),
     K.display to TaVar(
         ta = "காட்சி",
@@ -1273,15 +1281,15 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.complaintsDesc to TaVar(
         ta = "சிக்கல்களை புகாரளி, பரிந்துரைகள்",
-        latn = "Sikkalgalai pugaarali, Parindhuraigal"
+        latn = "Chikkalgalai pugaarali, Parindhuraigal"
     ),
     K.aboutDeveloper to TaVar(
         ta = "வடிவாளர் பற்றி",
         latn = "Vadivaalar Patri"
     ),
     K.aboutDeveloperDesc to TaVar(
-        ta = "வடிவாளர் தகவல்கள் & தொடர்புகள்",
-        latn = "Vadivaalar thagavalkal & thodarbugal"
+        ta = "வடிவாளர் தரவுகள் & தொடர்புகள்",
+        latn = "Vadivaalar tharavugal & thodarbugal"
     ),
     K.aboutApp to TaVar(
         ta = "செயலி பற்றி",
@@ -1309,7 +1317,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.contact to TaVar(
         ta = "தொடர்பிற்கு",
-        latn = "Thodarbirkku"
+        latn = "Thodarbirku"
     ),
     K.contactDesc to TaVar(
         ta = "உதவி எண்கள், முகவரி",
@@ -1359,17 +1367,41 @@ val ta: Map<String, TaVar> = mapOf(
         ta = "மலையாளம் (தமிழ் எழுத்துரு)",
         latn = "Malaiyaalam (Thamizh Ezhuthuru)"
     ),
+    K.telugu to TaVar(
+        ta = "தெலுங்கு",
+        latn = "Thelungu"
+    ),
+    K.teluguLatin to TaVar(
+        ta = "தெலுங்கு (இலத்தீன்)",
+        latn = "Thelungu (Ilattheen)"
+    ),
     K.languageInfo to TaVar(
-        ta = "மொழி மாற்றம் செயலியில் உள்ள அனைத்து திரைகளிலும் உடனடியாக செயல்படும்.",
-        latn = "Mozhi maatram Cheyaliyin anaithu thiraigalilum udanadiyaga cheyalpadum."
+        ta = "மொழி மாற்றம் செயலியில் உள்ள அனைத்துத் திரைகளிலும் உடனடியாக செயல்படும்.",
+        latn = "Mozhi maatram Cheyaliyil anaithuth thiraigalilum udanadiyaga cheyalpadum."
+    ),
+    K.chooseLanguage to TaVar(
+        ta = "மொழித் தேர்வு",
+        latn = "Mozhith Thaervu"
+    ),
+    K.selectPreferredLanguage to TaVar(
+        ta = "மொழியைத் தேர்ந்தெடுக்கவும்",
+        latn = "Mozhiyaith Thaerndhedukkavum"
+    ),
+    K.moreLanguagesBelow to TaVar(
+        ta = "மேலும் மொழிகளுக்கு தள்ளவும்",
+        latn = "Maelum mozhigalukku thallavum"
+    ),
+    K.continueAction to TaVar(
+        ta = "தொடரவும்",
+        latn = "Thodaravum"
     ),
     K.editProfile to TaVar(
         ta = "தன்னுரை",
         latn = "Thannurai"
     ),
     K.feedback to TaVar(
-        ta = "கருத்துகள் & வினவல்கள்",
-        latn = "Karuthugal & Vinavalgal"
+        ta = "கருத்துகள் & கேள்விகள்",
+        latn = "Karuthugal & Kaelvigal"
     ),
 
     // ── Display Settings ──
@@ -1483,7 +1515,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.clearConfirmMessage to TaVar(
         ta = "30 நாட்களுக்கு மேலான அனைத்து புதுப்பிப்புகளும் நீக்கப்படும். இதை மீட்க இயலாது.",
-        latn = "30 naatkalukku maelaana anaithu pudhuppippugalum neekkappadum."
+        latn = "30 naatkalukku maelaana anaithu pudhuppippugalum neekkappadum. Idhai meetka iyalaadhu."
     ),
     K.clearedMessage to TaVar(
         ta = "30 நாட்களுக்கு மேலான புதுப்பிப்புகள் நீக்கப்பட்டன",
@@ -1496,8 +1528,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Pathivaetravillai"
     ),
     K.notUploadedMessage to TaVar(
-        ta = "இந்த பாடகுறிப்புகள் rmd.ac.in-ல் இன்னும் பதிவேற்றப்படவில்லை. அவை பதிவேற்றப்பட்டவுடன் இங்கே கிடைக்கும்.",
-        latn = "Indha paadakkurippugal rmd.ac.in-il innum pathivaetravillai. Pathivaetrapattavudan ingae kidaikkum."
+        ta = "இந்தப் பாடக்குறிப்புகள் rmd.ac.in-ல் இன்னும் பதிவேற்றப்படவில்லை. அவை பதிவேற்றப்பட்டவுடன் இங்கே கிடைக்கும்.",
+        latn = "Indhap paadakkurippugal rmd.ac.in-il innum padhivaetrappadavillai. Padhivaetrappattavudan ingae kidaikkum."
     ),
 
     // ── User Directory ──
@@ -1528,8 +1560,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Nunnarivu Attavanai"
     ),
     K.smartTimetableDesc to TaVar(
-        ta = "அன்றாட வகுப்பு நேர்வரிசை, ஆசிரியர் தகவல் மற்றும் அறை எண்களை உடனுக்குடன் காண்க.",
-        latn = "Andraada vaguppu nervarisai, aasiriyar thagaval matrum arai engalai udanukkudan kaanga."
+        ta = "அன்றாட வகுப்பு நேர்வரிசை, ஆசிரியர் தரவு மற்றும் அறை எண்களை உடனுக்குடன் காண்க.",
+        latn = "Andraada vaguppu nervarisai, aasiriyar tharavu matrum arai engalai udanukkudan kaanga."
     ),
     K.examCalendar to TaVar(
         ta = "தேர்வு நாட்காட்டி",
@@ -1545,15 +1577,15 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.campusAnnouncementsDesc to TaVar(
         ta = "கல்லூரியின் முதன்மை செய்திகள் மற்றும் சுற்றறிக்கைகளை உடனடியாக அறிவிப்பாக பெறுங்கள்.",
-        latn = "Kallooriyin mudhanmai cheydhigal matrum chuttrarikkaikalai udanadiyaaga perungal."
+        latn = "Kallooriyin mudhanmai cheydhigal matrum chutrarikkaigalai udanadiyaaga perungal."
     ),
     K.offlineSupport to TaVar(
-        ta = "இணையமில்லா ஆதரவு",
-        latn = "Inaiyamillaa Aadharavu"
+        ta = "இணையமில்லாத் துணை",
+        latn = "Inaiyamillaath Thunai"
     ),
     K.offlineSupportDesc to TaVar(
-        ta = "இணைய இணைப்பு இல்லாத போதும் அட்டவணையை எளிதாக அணுகலாம்.",
-        latn = "Inaiya inaippu illaadha poadhum attavanaiyai elidhaaga anugalaam."
+        ta = "இணைய இணைப்பு இல்லாதபோதும் அட்டவணையை எளிதாக அணுகலாம்.",
+        latn = "Inaiya inaippu illaadhap poadhum attavanaiyai elidhaaga anugalaam."
     ),
     K.cloudSync to TaVar(
         ta = "முகில் ஒத்திசைவு",
@@ -1592,8 +1624,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Nandri! Ungal karuthu vetrigaramaaga anuppappattadhu."
     ),
     K.fillAllFields to TaVar(
-        ta = "தேவையான அனைத்து தரவுகளையும் நிரப்பவும்",
-        latn = "Thaevaiyaana anaithu tharavugalaiyum nirappavum"
+        ta = "தேவையான அனைத்துத் தரவுகளையும் நிரப்பவும்",
+        latn = "Thaevaiyaana anaithuth tharavugalaiyum nirappavum"
     ),
 
     // ── RMK Group & Management ──
@@ -1602,12 +1634,12 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "RMK Kalvi Kuzhumam"
     ),
     K.rmkDescription to TaVar(
-        ta = "கல்வித் தரம், ஒழுக்கம் மற்றும் நவீன பொறியியல் கல்வியில் சிறந்த முன்னோடி கல்வி நிறுவனங்கள்.",
-        latn = "Kalvith tharam, ozhukkam matrum naveena engineering kalviyil chirandha kalvi niruvanangal."
+        ta = "கல்வித் தரம், ஒழுக்கம் மற்றும் தற்காலப் பொறியியல் கல்வியில் சிறந்த முன்னோடி கல்வி நிறுவனங்கள்.",
+        latn = "Kalvith tharam, ozhukkam matrum tharkaalap poriyiyal kalviyil chirandha kalvi niruvanangal."
     ),
     K.visionMission to TaVar(
         ta = "நோக்கம் & தொலைநோக்கு",
-        latn = "Noakkam & Tholainoakkam"
+        latn = "Noakkam & Tholainoakku"
     ),
     K.institutions to TaVar(
         ta = "கல்வி நிறுவனங்கள்",
@@ -1642,8 +1674,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Chairperson"
     ),
     K.director to TaVar(
-        ta = "இயக்குனர்",
-        latn = "Iyakunar"
+        ta = "இயக்குநர்",
+        latn = "Iyakkunar"
     ),
 
     // ── College Sites ──
@@ -1714,8 +1746,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Thannurai"
     ),
     K.academicDetails to TaVar(
-        ta = "கல்வித் தகவல்கள்",
-        latn = "Kalvith Thagavalgal"
+        ta = "கல்வித் தரவுகள்",
+        latn = "Kalvith Tharavugal"
     ),
     K.editName to TaVar(
         ta = "பெயரைத் திருத்து",
@@ -1726,8 +1758,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Mudharpeyarai ullidavum"
     ),
     K.enterLastName to TaVar(
-        ta = "கடைசி பெயரை உள்ளிடவும்",
-        latn = "Kadaisi peyarai ullidavum"
+        ta = "கடைசிப் பெயரை உள்ளிடவும்",
+        latn = "Kadaisip peyarai ullidavum"
     ),
     K.mobileNumber to TaVar(
         ta = "கைப்பேசி எண்",
@@ -1762,8 +1794,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Kalviyaandu, Thurai & Pirivu"
     ),
     K.editAcademicDetails to TaVar(
-        ta = "கல்வித் தகவல்களைத் திருத்து",
-        latn = "Kalvith Thagavalgalaith Thiruthu"
+        ta = "கல்வித் தரவுகளைத் திருத்து",
+        latn = "Kalvith Tharavugalaith Thiruthu"
     ),
     K.batch to TaVar(
         ta = "கல்வியாண்டு",
@@ -1804,8 +1836,8 @@ val ta: Map<String, TaVar> = mapOf(
 
     // ── Security & Account Settings ──
     K.updateLoginPassword to TaVar(
-        ta = "உங்கள் கடவுச்சொல்லை புதுப்பிக்கவும்",
-        latn = "Ungal kadavuchollai pudhuppikkavum"
+        ta = "உங்கள் கடவுச்சொல்லைப் புதுப்பிக்கவும்",
+        latn = "Ungal kadavuchollaip pudhuppikkavum"
     ),
     K.createPasswordTitle to TaVar(
         ta = "கடவுச்சொல் உருவாக்கு",
@@ -1870,8 +1902,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Andraadap Pudhuppippugal"
     ),
     K.dailyUpdatesDesc to TaVar(
-        ta = "அன்றாட வகுப்பு குறிப்புகள் & கல்வி புதுப்பிப்புகள்",
-        latn = "Andraada vaguppu kurippugal & kalvi pudhuppippugal"
+        ta = "அன்றாட வகுப்புக் குறிப்புகள் & கல்வி புதுப்பிப்புகள்",
+        latn = "Andraada vaguppuk kurippugal & kalvi pudhuppippugal"
     ),
     K.generalNoticesTitle to TaVar(
         ta = "பொது அறிவிப்புகள்",
@@ -1995,7 +2027,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.automatedReminders to TaVar(
         ta = "தானியங்கி நினைவூட்டல்கள்",
-        latn = "Thaaniyanki Ninaivoottalgal"
+        latn = "Thaaniyangi Ninaivoottalgal"
     ),
     K.todaysSchedule to TaVar(
         ta = "இன்றைய கால அட்டவணை",
@@ -2020,24 +2052,24 @@ val ta: Map<String, TaVar> = mapOf(
 
     // ── User Directory Navigation ──
     K.selectBatchTitle to TaVar(
-        ta = "பிரிவு தேர்வு",
-        latn = "Pirivu Thaervu"
+        ta = "பிரிவுத் தேர்வு",
+        latn = "Pirivuth Thaervu"
     ),
     K.viewDeptsInBatch to TaVar(
         ta = "பிரிவு %s துறைகள்",
         latn = "Pirivu %s thuraigal"
     ),
     K.selectDeptBatch to TaVar(
-        ta = "துறை தேர்வு (பிரிவு %s)",
-        latn = "Thurai thaervu (Pirivu %s)"
+        ta = "துறைத் தேர்வு (பிரிவு %s)",
+        latn = "Thuraith thaervu (Pirivu %s)"
     ),
     K.viewSectionsInDept to TaVar(
         ta = "%s பிரிவுகளைக் காண்க",
         latn = "%s pirivugalaik kaanga"
     ),
     K.selectSectionDept to TaVar(
-        ta = "பிரிவு தேர்வு (%s)",
-        latn = "Pirivu thaervu (%s)"
+        ta = "பிரிவுத் தேர்வு (%s)",
+        latn = "Pirivuth thaervu (%s)"
     ),
     K.viewStudentsInSection to TaVar(
         ta = "பிரிவு %s மாணவர்களைக் காண்க",
@@ -2072,8 +2104,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Maanavar Urumaatram"
     ),
     K.transformingLearnersDesc to TaVar(
-        ta = "மாணவர்களை சமூக பொறுப்புள்ள உலக சாதனையாளர்களாக உருவாக்குதல்.",
-        latn = "Maanavargalai chamooga poruppulla ulaga chaadhanaiyaalargalaaga uruvaakkudhal."
+        ta = "மாணவர்களை குமுகப் பொறுப்புள்ள உலக வென்றியாளர்களாக உருவாக்குதல்.",
+        latn = "Maanavargalai kumugap poruppulla ulaga vendriyaalargalaaga uruvaakkudhal."
     ),
     K.location to TaVar(
         ta = "இருப்பிடம்",
@@ -2081,15 +2113,15 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.managementTeamDesc to TaVar(
         ta = "RMK கல்வி குழுமத்தை தொலைநோக்குப் பார்வையுடன் வழிநடத்தும் ஆளுமைகள்.",
-        latn = "RMK kalvi kuzhumathai tholainoakkup paarvaiyudan vazhinadathum aalumaiyal."
+        latn = "RMK kalvi kuzhumathai tholainoakkup paarvaiyudan vazhinadathum aalumaigal."
     ),
     K.founders to TaVar(
         ta = "நிறுவனர்கள்",
         latn = "Niruvanargal"
     ),
     K.boardOfDirectors to TaVar(
-        ta = "நிர்வாகக் குழு",
-        latn = "Nirvaagak Kuzhu"
+        ta = "மேலாண்மைக் குழு",
+        latn = "Maelaanmaik Kuzhu"
     ),
 
     // ── Profile Screen Actions ──
@@ -2137,7 +2169,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.resetEmailSent to TaVar(
         ta = "மீட்டமைப்பு மின்னஞ்சல் %s முகவரிக்கு அனுப்பப்பட்டது",
-        latn = "Meettamaippu minnanjal %s mugavarirku anuppappattadhu"
+        latn = "Meettamaippu minnanjal %s mugavarikku anuppappattadhu"
     ),
     K.createNewPassword to TaVar(
         ta = "புதிய கடவுச்சொல்லை உருவாக்கவும்",
@@ -2145,7 +2177,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.updatePassword to TaVar(
         ta = "கடவுச்சொல்லைப் புதுப்பிக்கவும்",
-        latn = "Kadavuchollai pudhuppikkavum"
+        latn = "Kadavuchollaip pudhuppikkavum"
     ),
     K.atLeast6Chars to TaVar(
         ta = "குறைந்தது 6 எழுத்துகள்",
@@ -2185,7 +2217,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.unlinkGoogleDesc to TaVar(
         ta = "துண்டித்த பிறகு உங்கள் மின்னஞ்சல் மற்றும் கடவுச்சொல்லைப் பயன்படுத்தி உள்நுழைய வேண்டும்.",
-        latn = "Thunditha piragu ungal minnanjal matrum kadavuchollai payanpaduthi ullnuzhaiya vaendum."
+        latn = "Thunditha piragu ungal minnanjal matrum kadavuchollaip payanbaduthi ullnuzhaiya vaendum."
     ),
     K.mustCreatePasswordFirst to TaVar(
         ta = "கூகிள் கணக்கை துண்டிக்கும் முன் கடவுச்சொல் ஒன்றை உருவாக்க வேண்டும்.",
@@ -2233,7 +2265,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.unlinkGoogleDescNoPassword to TaVar(
         ta = "கூகிளைத் துண்டிக்கும் முன் உங்கள் மின்னஞ்சலுக்கு கடவுச்சொல்லை உருவாக்க வேண்டும்.",
-        latn = "Google-ai thundikkum mun ungal minnanchalukku kadavuchollai uruvaakka vendum."
+        latn = "Google-aith thundikkum mun ungal minnanjalukku kadavuchollai uruvaakka vendum."
     ),
     K.unlinkGoogleDescHasPassword to TaVar(
         ta = "உங்கள் கூகிள் கணக்கைத் துண்டிக்க விரும்புகிறீர்களா? உங்கள் மின்னஞ்சல் மற்றும் கடவுச்சொல் மூலம் தொடர்ந்து உள்நுழையலாம்.",
@@ -2467,7 +2499,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.accessDeniedRoleMustUseAdmin to TaVar(
         ta = "ஒப்புதல் மறுக்கப்பட்டது: %s கையாளுநர் இணையதளத்தைப் பயன்படுத்த வேண்டும்.",
-        latn = "Oppudhal marukkappattadhu: %s kaiyaalunar inaiyathalathai payanpadutha vendum."
+        latn = "Oppudhal marukkappattadhu: %s kaiyaalunar inaiyathalathaip payanbadutha vendum."
     ),
     K.failedToLoadNotes to TaVar(
         ta = "குறிப்புகளை ஏற்றுவதில் தோல்வி",

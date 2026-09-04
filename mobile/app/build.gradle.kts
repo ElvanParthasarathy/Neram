@@ -17,8 +17,8 @@ android {
         applicationId = "com.elvan.neram"
         minSdk = 26
         targetSdk = 36
-        versionCode = 18
-        versionName = "2.0.0"
+        versionCode = 20
+        versionName = "2.5.11"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

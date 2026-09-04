@@ -89,6 +89,8 @@ fun SettingsScreen(
                             K.MALAYALAM -> K.malayalam.tr(lang)
                             K.MALAYALAM_LATIN -> K.malayalamLatin.tr(lang)
                             K.MALAYALAM_TAMIL -> K.malayalamTamil.tr(lang)
+                            K.TELUGU -> K.telugu.tr(lang)
+                            K.TELUGU_LATIN -> K.teluguLatin.tr(lang)
                             K.ENGLISH -> K.english.tr(lang)
                             K.SYSTEM -> K.deviceLanguage.tr(lang)
                             else -> K.english.tr(lang)

@@ -94,7 +94,7 @@ fun NeramTheme(
         currentDensity
     }
 
-    val rippleColor = if (darkTheme) Color.White.copy(alpha = 0.16f) else Color.Black.copy(alpha = 0.08f)
+    val rippleColor = if (darkTheme) Color.White else Color.Black
 
     CompositionLocalProvider(
         LocalDensity provides density

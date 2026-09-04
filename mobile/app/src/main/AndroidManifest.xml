@@ -133,6 +133,36 @@
             </intent-filter>
         </activity-alias>
 
+        <!-- Launcher Alias for Telugu: నేరం -->
+        <activity-alias
+            android:name=".MainActivityTelugu"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:label="@string/app_name_te"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Launcher Alias for Telugu Latin: Neram -->
+        <activity-alias
+            android:name=".MainActivityTeluguLatin"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:label="@string/app_name_te_latn"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
         <activity
             android:name=".ui.alerts.FullScreenAlertActivity"
             android:exported="false"
