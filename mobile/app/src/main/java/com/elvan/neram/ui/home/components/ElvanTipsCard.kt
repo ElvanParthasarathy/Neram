@@ -65,10 +65,14 @@ fun ElvanTipsCarousel(
             modifier = modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val cardHeight = 126.dp
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxWidth(),
-                pageSpacing = 10.dp
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(cardHeight),
+                pageSpacing = 10.dp,
+                verticalAlignment = Alignment.Top
             ) { page ->
                 val card = cards.getOrNull(page)
                 if (card != null) {
@@ -78,7 +82,10 @@ fun ElvanTipsCarousel(
                         lang = lang,
                         onDismiss = { onDismiss(card.id) },
                         onAction = { onAction(card.actionRoute) },
-                        onExpand = { selectedDetailCard = card }
+                        onExpand = { selectedDetailCard = card },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
                     )
                 }
             }
@@ -158,7 +165,7 @@ fun ElvanTipsCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
             // Top Row: Type Tag & Dismiss (X)
@@ -239,7 +246,7 @@ fun ElvanTipsCard(
             val isLongContent = desc.length > 120 || desc.lines().size > 3
 
             if (hasAction || isLongContent) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.weight(1f))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,

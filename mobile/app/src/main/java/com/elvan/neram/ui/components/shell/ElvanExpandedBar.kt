@@ -174,15 +174,16 @@ fun ElvanExpandedBar(
 
         // 2. Centered Floating Inset Carousel (With peek side strip & comfortable height)
         if (activeBanners.isNotEmpty() && bannerOpacity > 0f) {
+            val bannerCardHeight = 126.dp
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopCenter)
-                    .offset(y = statusBarHeight + 30.dp)
+                    .offset(y = statusBarHeight + 24.dp)
                     .graphicsLayer {
                         this.alpha = bannerOpacity
                     },
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.TopCenter
             ) {
                 if (activeBanners.size == 1) {
                     val singleBanner = activeBanners.first()
@@ -191,6 +192,9 @@ fun ElvanExpandedBar(
                             banner = singleBanner,
                             colors = colors,
                             ff = ff,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(bannerCardHeight),
                             onClick = {
                                 if (singleBanner.actionRoute.isNotBlank()) {
                                     onBannerClick?.invoke(singleBanner.actionRoute)
@@ -212,9 +216,12 @@ fun ElvanExpandedBar(
                     ) {
                         HorizontalPager(
                             state = pagerState,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(bannerCardHeight),
                             contentPadding = PaddingValues(horizontal = 20.dp),
-                            pageSpacing = 10.dp
+                            pageSpacing = 10.dp,
+                            verticalAlignment = Alignment.Top
                         ) { page ->
                             val item = activeBanners.getOrNull(page)
                             if (item != null) {
@@ -222,6 +229,9 @@ fun ElvanExpandedBar(
                                     banner = item,
                                     colors = colors,
                                     ff = ff,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .fillMaxHeight(),
                                     onClick = {
                                         if (item.actionRoute.isNotBlank()) {
                                             onBannerClick?.invoke(item.actionRoute)
@@ -323,8 +333,8 @@ private fun MonochromeBannerCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)
+                .fillMaxSize()
+                .padding(start = 16.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
         ) {
             // Top Row: Type Pill with Sparkle Symbol + Close (×) Button
             Row(
@@ -365,7 +375,7 @@ private fun MonochromeBannerCard(
                 // Easy-Touch Close (×) Button
                 Box(
                     modifier = Modifier
-                        .size(34.dp)
+                        .size(30.dp)
                         .clip(CircleShape)
                         .clickable(onClick = onDismiss),
                     contentAlignment = Alignment.Center
@@ -374,7 +384,7 @@ private fun MonochromeBannerCard(
                         imageVector = Icons.Rounded.Close,
                         contentDescription = K.dismiss.tr(lang),
                         tint = colors.textSecondary.copy(alpha = 0.8f),
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
@@ -393,9 +403,9 @@ private fun MonochromeBannerCard(
                 },
                 style = TextStyle(
                     fontFamily = ff,
-                    fontSize = 13.5.sp,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
-                    lineHeight = 18.sp
+                    lineHeight = 17.5.sp
                 ),
                 color = colors.textPrimary,
                 modifier = Modifier.padding(end = 6.dp)
@@ -403,7 +413,7 @@ private fun MonochromeBannerCard(
 
             // Bottom Row: Tappable Monochrome Pill Button (When clickable)
             if (isClickable) {
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.weight(1f))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -415,13 +425,13 @@ private fun MonochromeBannerCard(
                             .clip(RoundedCornerShape(50))
                             .background(colors.textPrimary.copy(alpha = 0.1f))
                             .clickable(onClick = onClick)
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                            .padding(horizontal = 9.dp, vertical = 3.dp)
                     ) {
                         Text(
                             text = K.open.tr(lang),
                             style = TextStyle(
                                 fontFamily = ff,
-                                fontSize = 11.5.sp,
+                                fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold
                             ),
                             color = colors.textPrimary
@@ -430,7 +440,7 @@ private fun MonochromeBannerCard(
                             imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
                             contentDescription = K.open.tr(lang),
                             tint = colors.textPrimary,
-                            modifier = Modifier.size(12.dp)
+                            modifier = Modifier.size(11.dp)
                         )
                     }
                 }
