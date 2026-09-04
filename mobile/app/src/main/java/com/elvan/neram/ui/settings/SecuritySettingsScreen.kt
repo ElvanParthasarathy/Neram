@@ -48,9 +48,7 @@ import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.mozhiyaakkam.trWithLang
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import com.elvan.neram.ui.auth.GoogleAuthHelper
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.GoogleAuthProvider
@@ -59,8 +57,6 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-private const val WEB_CLIENT_ID = "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com"
 
 @Composable
 fun SecuritySettingsScreen(
@@ -592,39 +588,7 @@ private fun CreatePasswordFlow(
     var showPassword by remember { mutableStateOf(false) }
     var isProcessing by remember { mutableStateOf(false) }
     var showReauthDialog by remember { mutableStateOf(false) }
-    
-    val reauthLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let { idToken ->
-                    val credential = GoogleAuthProvider.getCredential(idToken, null)
-                    user?.reauthenticate(credential)
-                        ?.addOnSuccessListener {
-                            Toast.makeText(context, K.identityVerifiedTryingAgain.tr(lang), Toast.LENGTH_SHORT).show()
-                            isProcessing = true
-                            user.updatePassword(newPassword)
-                                .addOnSuccessListener {
-                                    isProcessing = false
-                                    step = 2
-                                }
-                                .addOnFailureListener { e ->
-                                    isProcessing = false
-                                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-                                }
-                        }
-                        ?.addOnFailureListener { e ->
-                            Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                }
-            } catch (e: ApiException) {
-                Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.statusCode}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+    val scope = rememberCoroutineScope()
 
     if (showReauthDialog) {
         AlertDialog(
@@ -635,12 +599,34 @@ private fun CreatePasswordFlow(
                 Button(
                     onClick = {
                         showReauthDialog = false
-                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                            .requestIdToken(WEB_CLIENT_ID)
-                            .requestEmail()
-                            .build()
-                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-                        reauthLauncher.launch(googleSignInClient.signInIntent)
+                        scope.launch {
+                            when (val result = GoogleAuthHelper.getGoogleIdToken(context)) {
+                                is GoogleAuthHelper.Result.Success -> {
+                                    val credential = GoogleAuthProvider.getCredential(result.idToken, null)
+                                    user?.reauthenticate(credential)
+                                        ?.addOnSuccessListener {
+                                            Toast.makeText(context, K.identityVerifiedTryingAgain.tr(lang), Toast.LENGTH_SHORT).show()
+                                            isProcessing = true
+                                            user.updatePassword(newPassword)
+                                                .addOnSuccessListener {
+                                                    isProcessing = false
+                                                    step = 2
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    isProcessing = false
+                                                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                                                }
+                                        }
+                                        ?.addOnFailureListener { e ->
+                                            Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                }
+                                is GoogleAuthHelper.Result.Cancelled -> {}
+                                is GoogleAuthHelper.Result.Error -> {
+                                    Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${result.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                     },
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = colors.textPrimary, contentColor = if (isDark) Color(0xFF111111) else Color.White)
@@ -903,59 +889,36 @@ private fun LinkedAccountsView(
     var isUnlinking by remember { mutableStateOf(false) }
     var isLinking by remember { mutableStateOf(false) }
 
-    val googleLinkLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let { idToken ->
-                    scope.launch {
-                        try {
-                            val credential = GoogleAuthProvider.getCredential(idToken, null)
-                            user?.linkWithCredential(credential)
-                                ?.addOnSuccessListener {
-                                    Toast.makeText(context, K.googleAccountLinked.tr(lang), Toast.LENGTH_SHORT).show()
-                                    isLinking = false
-                                    onBack()
-                                }
-                                ?.addOnFailureListener { e ->
-                                    Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message ?: ""}", Toast.LENGTH_LONG).show()
-                                    isLinking = false
-                                }
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message}", Toast.LENGTH_LONG).show()
-                            isLinking = false
-                        }
-                    }
-                } ?: run {
-                    isLinking = false
-                    Toast.makeText(context, K.noIdTokenReceived.tr(lang), Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: ApiException) {
-                isLinking = false
-                Toast.makeText(context, "${K.googleSignInFailed.tr(lang)}: ${e.statusCode}", Toast.LENGTH_LONG).show()
-            }
-        } else {
-            isLinking = false
-        }
-    }
-
     val handleGoogleLink: () -> Unit = {
-        try {
-            isLinking = true
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(WEB_CLIENT_ID)
-                .requestEmail()
-                .build()
-            val googleSignInClient = GoogleSignIn.getClient(context, gso)
-            googleSignInClient.signOut()
-            googleLinkLauncher.launch(googleSignInClient.signInIntent)
-        } catch (e: Exception) {
-            isLinking = false
-            e.printStackTrace()
-            Toast.makeText(context, "${K.couldNotLaunchGoogleSignIn.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
+        isLinking = true
+        scope.launch {
+            when (val result = GoogleAuthHelper.getGoogleIdToken(context)) {
+                is GoogleAuthHelper.Result.Success -> {
+                    try {
+                        val credential = GoogleAuthProvider.getCredential(result.idToken, null)
+                        user?.linkWithCredential(credential)
+                            ?.addOnSuccessListener {
+                                Toast.makeText(context, K.googleAccountLinked.tr(lang), Toast.LENGTH_SHORT).show()
+                                isLinking = false
+                                onBack()
+                            }
+                            ?.addOnFailureListener { e ->
+                                Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message ?: ""}", Toast.LENGTH_LONG).show()
+                                isLinking = false
+                            }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message}", Toast.LENGTH_LONG).show()
+                        isLinking = false
+                    }
+                }
+                is GoogleAuthHelper.Result.Cancelled -> {
+                    isLinking = false
+                }
+                is GoogleAuthHelper.Result.Error -> {
+                    isLinking = false
+                    Toast.makeText(context, "${K.couldNotLaunchGoogleSignIn.tr(lang)}: ${result.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -1290,40 +1253,7 @@ private fun DeleteAccountFlow(
     var isProcessing by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var showReauthDialog by remember { mutableStateOf(false) }
-
-    val reauthLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let { idToken ->
-                    val credential = GoogleAuthProvider.getCredential(idToken, null)
-                    user?.reauthenticate(credential)
-                        ?.addOnSuccessListener {
-                            Toast.makeText(context, K.identityVerifiedDeletingAccount.tr(lang), Toast.LENGTH_SHORT).show()
-                            user.let { u ->
-                                Firebase.database.getReference("users/${u.uid}").removeValue()
-                                u.delete()
-                                    .addOnSuccessListener {
-                                        Toast.makeText(context, K.accountDeleted.tr(lang), Toast.LENGTH_SHORT).show()
-                                    }
-                                    .addOnFailureListener { e ->
-                                        isProcessing = false
-                                        errorMessage = e.message ?: "Failed to delete account"
-                                    }
-                            }
-                        }
-                        ?.addOnFailureListener { e ->
-                            Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                }
-            } catch (e: ApiException) {
-                Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.statusCode}", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
+    val scope = rememberCoroutineScope()
 
     if (showReauthDialog) {
         AlertDialog(
@@ -1334,12 +1264,35 @@ private fun DeleteAccountFlow(
                 Button(
                     onClick = {
                         showReauthDialog = false
-                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                            .requestIdToken(WEB_CLIENT_ID)
-                            .requestEmail()
-                            .build()
-                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-                        reauthLauncher.launch(googleSignInClient.signInIntent)
+                        scope.launch {
+                            when (val result = GoogleAuthHelper.getGoogleIdToken(context)) {
+                                is GoogleAuthHelper.Result.Success -> {
+                                    val credential = GoogleAuthProvider.getCredential(result.idToken, null)
+                                    user?.reauthenticate(credential)
+                                        ?.addOnSuccessListener {
+                                            Toast.makeText(context, K.identityVerifiedDeletingAccount.tr(lang), Toast.LENGTH_SHORT).show()
+                                            user.let { u ->
+                                                Firebase.database.getReference("users/${u.uid}").removeValue()
+                                                u.delete()
+                                                    .addOnSuccessListener {
+                                                        Toast.makeText(context, K.accountDeleted.tr(lang), Toast.LENGTH_SHORT).show()
+                                                    }
+                                                    .addOnFailureListener { e ->
+                                                        isProcessing = false
+                                                        errorMessage = e.message ?: "Failed to delete account"
+                                                    }
+                                            }
+                                        }
+                                        ?.addOnFailureListener { e ->
+                                            Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                }
+                                is GoogleAuthHelper.Result.Cancelled -> {}
+                                is GoogleAuthHelper.Result.Error -> {
+                                    Toast.makeText(context, "${K.verificationFailed.tr(lang)}: ${result.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                     },
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = AppColors.Red, contentColor = Color.White)

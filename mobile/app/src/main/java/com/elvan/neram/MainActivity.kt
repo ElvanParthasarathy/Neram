@@ -21,6 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
@@ -36,6 +38,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.elvan.neram.ui.auth.AuthBackground
 import com.elvan.neram.ui.auth.AuthGradientBackground
 import com.elvan.neram.ui.auth.AuthColors
 import androidx.compose.ui.res.painterResource
@@ -47,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.graphics.graphicsLayer
 
 
 import com.elvan.neram.ui.common.NotificationHelper
@@ -99,9 +103,20 @@ fun updateSystemBarsAppearance(window: android.view.Window, isDark: Boolean) {
 
 @OptIn(ExperimentalAnimationApi::class)
 class MainActivity : AppCompatActivity() {
+    companion object {
+        var currentActivity: MainActivity? = null
+    }
+
     private lateinit var appUpdateManager: com.google.android.play.core.appupdate.AppUpdateManager
     private val UPDATE_REQUEST_CODE = 1001
     private var currentLanguageCode: String = "system"
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (currentActivity === this) {
+            currentActivity = null
+        }
+    }
 
     override fun onStop() {
         super.onStop()
@@ -109,6 +124,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        currentActivity = this
         // Dismiss Android 12+ system splash IMMEDIATELY (like Instagram/ChatGPT)
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { false }
@@ -346,33 +362,78 @@ class MainActivity : AppCompatActivity() {
                                 }
                             }
 
-                            AnimatedContent(
-                                targetState = currentAuthScreen,
-                                transitionSpec = {
-                                    fadeIn(animationSpec = tween(300)) togetherWith fadeOut(animationSpec = tween(300))
-                                },
-                                label = "auth_flow"
-                            ) { screen ->
-                                when (screen) {
-                                    "language" -> com.elvan.neram.ui.onboarding.LanguageSelectionScreen(
-                                        currentLanguage = uiState.languageCode,
-                                        onLanguageConfirmed = { selectedLang ->
-                                            mainViewModel.setLanguage(selectedLang)
-                                            mainViewModel.markLanguageSelectionCompleted()
-                                            currentAuthScreen = "welcome"
+                            val isLanguage = currentAuthScreen == "language"
+                            val languageAlpha by animateFloatAsState(
+                                targetValue = if (isLanguage) 1f else 0f,
+                                animationSpec = tween(350, easing = EaseInOutCubic),
+                                label = "language_alpha"
+                            )
+
+                            // 1. SINGLE PERSISTENT BACKGROUND: Ambient floating shapes stay continuous across all screens
+                            com.elvan.neram.ui.auth.AuthBackground {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    // 2. BASE LAYER: LanguageSelectionScreen is permanently composed so scroll position is preserved
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .graphicsLayer { alpha = languageAlpha }
+                                    ) {
+                                        com.elvan.neram.ui.onboarding.LanguageSelectionScreen(
+                                            currentLanguage = uiState.languageCode,
+                                            onLanguageConfirmed = { selectedLang ->
+                                                mainViewModel.setLanguage(selectedLang)
+                                                mainViewModel.markLanguageSelectionCompleted()
+                                                currentAuthScreen = "welcome"
+                                            },
+                                            showBackground = false
+                                        )
+                                    }
+
+                                    // 3. SCREENS ON TOP: Welcome, Login, Signup layered over the language screen
+                                    androidx.compose.animation.AnimatedVisibility(
+                                        visible = !isLanguage,
+                                        enter = fadeIn(animationSpec = tween(350, easing = EaseOutCubic)),
+                                        exit = fadeOut(animationSpec = tween(250, easing = EaseInCubic))
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .clickable(
+                                                    interactionSource = remember { MutableInteractionSource() },
+                                                    indication = null,
+                                                    onClick = {}
+                                                )
+                                        ) {
+                                            AnimatedContent(
+                                                targetState = currentAuthScreen,
+                                                transitionSpec = {
+                                                    fadeIn(animationSpec = tween(300, easing = EaseOutCubic))
+                                                        .togetherWith(
+                                                            fadeOut(animationSpec = tween(200, easing = EaseInCubic))
+                                                        )
+                                                },
+                                                label = "top_auth_screens"
+                                            ) { screen ->
+                                                when (screen) {
+                                                    "welcome" -> com.elvan.neram.ui.auth.WelcomeScreen(
+                                                        onContinue = { currentAuthScreen = "login" },
+                                                        showBackground = false
+                                                    )
+                                                    "login" -> com.elvan.neram.ui.auth.LoginScreen(
+                                                        onLoginSuccess = { /* Handled by authStateListener */ },
+                                                        onNavigateToSignup = { currentAuthScreen = "signup" },
+                                                        showBackground = false
+                                                    )
+                                                    "signup" -> com.elvan.neram.ui.auth.SignupScreen(
+                                                        onSignupSuccess = { /* Handled by authStateListener */ },
+                                                        onNavigateToLogin = { currentAuthScreen = "login" },
+                                                        showBackground = false
+                                                    )
+                                                    else -> Spacer(Modifier.fillMaxSize())
+                                                }
+                                            }
                                         }
-                                    )
-                                    "welcome" -> com.elvan.neram.ui.auth.WelcomeScreen(
-                                        onContinue = { currentAuthScreen = "login" }
-                                    )
-                                    "login" -> com.elvan.neram.ui.auth.LoginScreen(
-                                        onLoginSuccess = { /* Handled by authStateListener */ },
-                                        onNavigateToSignup = { currentAuthScreen = "signup" }
-                                    )
-                                    "signup" -> com.elvan.neram.ui.auth.SignupScreen(
-                                        onSignupSuccess = { /* Handled by authStateListener */ },
-                                        onNavigateToLogin = { currentAuthScreen = "login" }
-                                    )
+                                    }
                                 }
                             }
                         }
@@ -408,6 +469,7 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onResume() {
         super.onResume()
+        currentActivity = this
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == com.google.android.play.core.install.model.UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
                 // If an in-app update is already in progress, resume it.
@@ -464,45 +526,14 @@ fun SplashScreen(
     isDarkTheme: Boolean = false,
     language: String = K.ENGLISH
 ) {
-    // Use explicit colors based on app theme preference
-    val backgroundColor = if (isDarkTheme) Color(0xFF0A0A0A) else Color(0xFFFAFAFA)
-    val shapeColor = if (isDarkTheme) Color.White.copy(alpha = 0.03f) else Color(0xFFE8F0FE)
     val textPrimary = if (isDarkTheme) Color.White else Color(0xFF1A1A1A)
-    val textSecondary = if (isDarkTheme) Color.White.copy(alpha = 0.6f) else Color(0xFF666666)
     
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-    ) {
-        // Floating background shapes (simplified)
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .offset(x = (-50).dp, y = 100.dp)
-                .background(shapeColor, shape = androidx.compose.foundation.shape.CircleShape)
-        )
-        Box(
-            modifier = Modifier
-                .size(150.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 30.dp, y = (-30).dp)
-                .background(shapeColor, shape = androidx.compose.foundation.shape.CircleShape)
-        )
-        Box(
-            modifier = Modifier
-                .size(100.dp)
-                .align(Alignment.BottomEnd)
-                .offset(x = 20.dp, y = 50.dp)
-                .background(shapeColor, shape = androidx.compose.foundation.shape.CircleShape)
-        )
-        
-        // Centered Content: Text & Logo
+    AuthBackground {
+        // Centered Content: Logo
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 1. Logo
             Image(
                 painter = painterResource(id = R.drawable.ic_splash_logo),
                 contentDescription = null,

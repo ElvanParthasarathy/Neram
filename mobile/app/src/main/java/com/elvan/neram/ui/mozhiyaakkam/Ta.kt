@@ -891,7 +891,7 @@ val ta: Map<String, TaVar> = mapOf(
     ),
     K.noUnitsAddedYet to TaVar(
         ta = "அலகுகள் எதுவும் இதுவரை சேர்க்கப்படவில்லை",
-        latn = "Alagugal edhuvum idhuvarai saerkkappadavillai"
+        latn = "Alagugal edhuvum idhuvarai Chaerkkappadavillai"
     ),
     K.noNotifications to TaVar(
         ta = "அறிவிப்புகள் எதுவும் இல்லை",

@@ -18,23 +18,20 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-// Web Client ID from google-services.json (client_type: 3)
-private const val WEB_CLIENT_ID = "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com"
 
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
-    onNavigateToSignup: () -> Unit
+    onNavigateToSignup: () -> Unit,
+    showBackground: Boolean = true
 ) {
     val lang = LocalAppLanguage.current
     var email by remember { mutableStateOf("") }
@@ -45,19 +42,6 @@ fun LoginScreen(
 
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
-
-    // Animations for staggered entrance
-    var showHeader by remember { mutableStateOf(false) }
-    var showForm by remember { mutableStateOf(false) }
-    var showButtons by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        showHeader = true
-        delay(100)
-        showForm = true
-        delay(100)
-        showButtons = true
-    }
 
     fun handleLogin() {
         if (email.isBlank()) {
@@ -104,89 +88,67 @@ fun LoginScreen(
             }
     }
 
-    // Google Sign-In setup
-    val googleSignInLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            account?.idToken?.let { idToken ->
-                val credential = GoogleAuthProvider.getCredential(idToken, null)
-                auth.signInWithCredential(credential)
-                    .addOnSuccessListener {
-                        isLoading = false
-                        onLoginSuccess()
-                    }
-                    .addOnFailureListener { e ->
-                        isLoading = false
-                        android.util.Log.e("GoogleSignIn", "Firebase auth failed", e)
-                        error = e.message ?: K.googleSignInFailed.tr(lang)
-                    }
-            } ?: run {
-                isLoading = false
-                android.util.Log.e("GoogleSignIn", "No idToken in account")
-                error = "${K.googleSignInFailed.tr(lang)}: ${K.noIdTokenReceived.tr(lang)}"
-            }
-        } catch (e: ApiException) {
-            isLoading = false
-            android.util.Log.e("GoogleSignIn", "ApiException status: ${e.statusCode}", e)
-            if (e.statusCode != 12501) {
-                error = "${K.googleSignInFailed.tr(lang)} (${e.statusCode})"
-            }
-        } catch (e: Exception) {
-            isLoading = false
-            android.util.Log.e("GoogleSignIn", "General exception", e)
-            error = "${K.googleSignInFailed.tr(lang)}: ${e.message}"
-        }
-    }
+    val scope = rememberCoroutineScope()
 
     fun handleGoogleLogin() {
         isLoading = true
         error = null
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(WEB_CLIENT_ID)
-            .requestEmail()
-            .build()
-        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-        googleSignInClient.signOut().addOnCompleteListener {
-            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+        scope.launch {
+            when (val result = GoogleAuthHelper.getGoogleIdToken(context)) {
+                is GoogleAuthHelper.Result.Success -> {
+                    val credential = GoogleAuthProvider.getCredential(result.idToken, null)
+                    auth.signInWithCredential(credential)
+                        .addOnSuccessListener {
+                            isLoading = false
+                            onLoginSuccess()
+                        }
+                        .addOnFailureListener { e ->
+                            isLoading = false
+                            android.util.Log.e("GoogleSignIn", "Firebase auth failed", e)
+                            error = e.message ?: K.googleSignInFailed.tr(lang)
+                        }
+                }
+                is GoogleAuthHelper.Result.Cancelled -> {
+                    isLoading = false
+                }
+                is GoogleAuthHelper.Result.Error -> {
+                    isLoading = false
+                    android.util.Log.e("GoogleSignIn", "Credential Manager error: ${result.message}", result.cause)
+                    error = "${K.googleSignInFailed.tr(lang)}: ${result.message}"
+                }
+            }
         }
     }
 
-    AuthBackground {
-        Box(
+    val content = @Composable {
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
                 .imePadding()
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .heightIn(min = maxHeight)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.height(48.dp))
-
                 // ===== HEADER =====
-                AnimatedVisibility(
-                    visible = showHeader,
-                    enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { -30 })
-                ) {
+                AuthAnimatedElement(delayIndex = 0) {
                     StepHeader(
                         title = K.welcomeBack.tr(lang),
                         subtitle = K.signInToContinue.tr(lang)
                     )
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // ===== FORM FIELDS =====
-                AnimatedVisibility(
-                    visible = showForm,
-                    enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { 30 })
-                ) {
+                AuthAnimatedElement(delayIndex = 1, modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         // Email field
                         AuthTextField(
@@ -230,13 +192,10 @@ fun LoginScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // ===== BUTTONS SECTION =====
-                AnimatedVisibility(
-                    visible = showButtons,
-                    enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { 30 })
-                ) {
+                AuthAnimatedElement(delayIndex = 2, modifier = Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -247,11 +206,11 @@ fun LoginScreen(
                             isLoading = isLoading
                         )
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         OrDivider()
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         GoogleAuthButton(
                             text = K.continueWithGoogle.tr(lang),
@@ -259,18 +218,26 @@ fun LoginScreen(
                             isLoading = isLoading
                         )
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
                         AuthLinkText(
                             prefix = K.dontHaveAccount.tr(lang),
                             linkText = K.signUp.tr(lang),
                             onClick = onNavigateToSignup
                         )
-
-                        Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
             }
+        }
+    }
+
+    if (showBackground) {
+        AuthBackground {
+            content()
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize()) {
+            content()
         }
     }
 }

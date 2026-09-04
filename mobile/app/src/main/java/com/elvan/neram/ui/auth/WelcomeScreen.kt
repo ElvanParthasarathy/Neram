@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,77 +21,54 @@ import androidx.compose.ui.unit.sp
 import com.elvan.neram.R
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.theme.LocalAppFontFamily
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.delay
 
 @Composable
 fun WelcomeScreen(
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    showBackground: Boolean = true
 ) {
     val lang = LocalAppLanguage.current
-    // Staggered reveal states
-    var showLogo by remember { mutableStateOf(false) }
-    var showTitle by remember { mutableStateOf(false) }
-    var showSubtitle by remember { mutableStateOf(false) }
-    var showButton by remember { mutableStateOf(false) }
+    val ff = LocalAppFontFamily.current
 
-    // Staggered entrance animation
-    LaunchedEffect(Unit) {
-        delay(300)
-        showLogo = true
-        delay(500)
-        showTitle = true
-        delay(300)
-        showSubtitle = true
-        delay(400)
-        showButton = true
-    }
-
-    // Continuous floating/pulse animation for logo
+    // Continuous gentle floating/breathing animation for logo
     val infiniteTransition = rememberInfiniteTransition(label = "logo_float")
     
     val floatOffset by infiniteTransition.animateFloat(
-        initialValue = -8f,
-        targetValue = 8f,
+        initialValue = -3f,
+        targetValue = 3f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = FastOutSlowInEasing),
+            animation = tween(4500, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "float_offset"
     )
 
     val logoPulse by infiniteTransition.animateFloat(
-        initialValue = 0.95f,
-        targetValue = 1.05f,
+        initialValue = 0.985f,
+        targetValue = 1.015f,
         animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = FastOutSlowInEasing),
+            animation = tween(5000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "logo_pulse"
     )
 
-    AuthBackground {
+    val content = @Composable {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 16.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.weight(1f))
 
-            // ===== LOGO ANIMATION =====
-            AnimatedVisibility(
-                visible = showLogo,
-                enter = scaleIn(
-                    initialScale = 0.5f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                ) + fadeIn(animationSpec = tween(500))
-            ) {
+            // ===== LOGO (Flutter-style static layout + GPU animation) =====
+            AuthAnimatedElement(delayIndex = 0) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
@@ -102,9 +80,9 @@ fun WelcomeScreen(
                         modifier = Modifier
                             .size(200.dp)
                             .graphicsLayer {
-                                alpha = 0.3f
-                                scaleX = 1.3f
-                                scaleY = 1.3f
+                                alpha = 0.25f
+                                scaleX = 1.2f
+                                scaleY = 1.2f
                             }
                     )
                     
@@ -117,57 +95,30 @@ fun WelcomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            AnimatedVisibility(
-                visible = showTitle,
-                enter = fadeIn(animationSpec = tween(600)) + 
-                        slideInVertically(initialOffsetY = { 30 }, animationSpec = tween(600))
-            ) {
-                Text(
-                    text = K.welcomeToNeram.tr(lang),
-                    style = MaterialTheme.typography.displaySmall.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        color = AuthColors.textPrimary()
-                    ),
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            AnimatedVisibility(
-                visible = showSubtitle,
-                enter = fadeIn(animationSpec = tween(600)) + 
-                        slideInVertically(initialOffsetY = { 20 }, animationSpec = tween(600))
-            ) {
-                Text(
-                    text = K.collegeTimeSorted.tr(lang),
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        color = AuthColors.textSecondary(),
-                        fontWeight = FontWeight.Medium
-                    ),
-                    textAlign = TextAlign.Center
+            // ===== TITLE & SUBTITLE =====
+            AuthAnimatedElement(delayIndex = 1) {
+                StepHeader(
+                    title = K.welcomeToNeram.tr(lang),
+                    subtitle = K.collegeTimeSorted.tr(lang)
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
             // ===== BOTTOM SECTION =====
-            AnimatedVisibility(
-                visible = showButton,
-                enter = fadeIn(animationSpec = tween(600)) + 
-                        slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(600))
-            ) {
+            AuthAnimatedElement(delayIndex = 2, modifier = Modifier.fillMaxWidth()) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = K.tapAgreeAndContinue.tr(lang),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = AuthColors.textMuted(),
+                        style = TextStyle(
+                            fontFamily = ff,
                             fontSize = 11.sp,
+                            color = AuthColors.textMuted(),
                             lineHeight = 16.sp
                         ),
                         textAlign = TextAlign.Center,
@@ -182,6 +133,16 @@ fun WelcomeScreen(
                     Spacer(modifier = Modifier.height(40.dp))
                 }
             }
+        }
+    }
+
+    if (showBackground) {
+        AuthBackground {
+            content()
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize()) {
+            content()
         }
     }
 }

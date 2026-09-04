@@ -38,7 +38,8 @@ private const val TAG = "SignupScreen"
 @Composable
 fun SignupScreen(
     onSignupSuccess: () -> Unit,
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    showBackground: Boolean = true
 ) {
     val lang = LocalAppLanguage.current
     var firstName by remember { mutableStateOf("") }
@@ -243,7 +244,7 @@ fun SignupScreen(
         }
     }
 
-    AuthGradientBackground {
+    val content = @Composable {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -394,6 +395,16 @@ fun SignupScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
+        }
+    }
+
+    if (showBackground) {
+        AuthGradientBackground {
+            content()
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize()) {
+            content()
         }
     }
 }

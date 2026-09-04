@@ -75,17 +75,12 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.ViewAgenda
 import android.app.Activity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import com.elvan.neram.ui.auth.GoogleAuthHelper
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import android.widget.Toast
 
-private const val WEB_CLIENT_ID = "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com"
 
 
 /**
@@ -184,58 +179,35 @@ fun MainScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     val lang = LocalAppLanguage.current
     
-    val googleLinkLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                account?.idToken?.let { idToken ->
-                    scope.launch {
-                        try {
-                            val credential = GoogleAuthProvider.getCredential(idToken, null)
-                            Firebase.auth.currentUser?.linkWithCredential(credential)
-                                ?.addOnSuccessListener {
-                                    Toast.makeText(context, K.googleAccountLinked.tr(lang), Toast.LENGTH_SHORT).show()
-                                    isGoogleLinking = false
-                                }
-                                ?.addOnFailureListener { e ->
-                                    Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message ?: ""}", Toast.LENGTH_LONG).show()
-                                    isGoogleLinking = false
-                                }
-                        } catch (e: Exception) {
-                            Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message}", Toast.LENGTH_LONG).show()
-                            isGoogleLinking = false
-                        }
-                    }
-                } ?: run {
-                    isGoogleLinking = false
-                    Toast.makeText(context, K.noIdTokenReceived.tr(lang), Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: ApiException) {
-                isGoogleLinking = false
-                Toast.makeText(context, "${K.googleSignInFailed.tr(lang)}: ${e.statusCode}", Toast.LENGTH_LONG).show()
-            }
-        } else {
-            isGoogleLinking = false
-        }
-    }
-    
     val handleGoogleLink: () -> Unit = {
-        try {
-            isGoogleLinking = true
-            val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(WEB_CLIENT_ID)
-                .requestEmail()
-                .build()
-            val googleSignInClient = GoogleSignIn.getClient(activity, gso)
-            googleSignInClient.signOut()
-            googleLinkLauncher.launch(googleSignInClient.signInIntent)
-        } catch (e: Exception) {
-            isGoogleLinking = false
-            e.printStackTrace()
-            Toast.makeText(context, "${K.couldNotLaunchGoogleSignIn.tr(lang)}: ${e.message}", Toast.LENGTH_SHORT).show()
+        isGoogleLinking = true
+        scope.launch {
+            when (val result = GoogleAuthHelper.getGoogleIdToken(context)) {
+                is GoogleAuthHelper.Result.Success -> {
+                    try {
+                        val credential = GoogleAuthProvider.getCredential(result.idToken, null)
+                        Firebase.auth.currentUser?.linkWithCredential(credential)
+                            ?.addOnSuccessListener {
+                                Toast.makeText(context, K.googleAccountLinked.tr(lang), Toast.LENGTH_SHORT).show()
+                                isGoogleLinking = false
+                            }
+                            ?.addOnFailureListener { e ->
+                                Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message ?: ""}", Toast.LENGTH_LONG).show()
+                                isGoogleLinking = false
+                            }
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "${K.linkFailed.tr(lang)}: ${e.message}", Toast.LENGTH_LONG).show()
+                        isGoogleLinking = false
+                    }
+                }
+                is GoogleAuthHelper.Result.Cancelled -> {
+                    isGoogleLinking = false
+                }
+                is GoogleAuthHelper.Result.Error -> {
+                    isGoogleLinking = false
+                    Toast.makeText(context, "${K.couldNotLaunchGoogleSignIn.tr(lang)}: ${result.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
