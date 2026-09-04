@@ -81,41 +81,27 @@ fun ElvanExpandedBar(
     
     val safeTitle = remember(title) { title.preventBrokenLigatures() }
     
-    // 1. Butter-Smooth GPU Layout & Dynamic Scaled Max Width Calculation
-    val baseStyle = HomeTypography.PageTitle.copy(fontSize = 34.sp)
-    val finalScale = 22f / 34f
-    val scale = 1.0f - (1.0f - finalScale) * t
-
+    // 1. Measure text width
     val textMeasurer = rememberTextMeasurer()
-    val screenWidthPx = with(density) { screenWidth.toPx() }
-    
-    val expandedAvailableWidthPx = screenWidthPx - with(density) { 32.dp.toPx() }
-    val targetLeftPx = with(density) { if (hasLeadingWidget || onBack != null) 74.dp.toPx() else 24.dp.toPx() }
-    val collapsedRightMarginPx = with(density) { if (hasActions) 100.dp.toPx() else 16.dp.toPx() }
-    val collapsedAvailableWidthPx = (screenWidthPx - targetLeftPx - collapsedRightMarginPx).coerceAtLeast(100f)
-    
-    // Convert collapsed width to 34sp equivalent space so text can fit more characters when scaled down
-    val collapsedAvailableWidthIn34spPx = collapsedAvailableWidthPx / finalScale
-    val currentAvailableWidthIn34spPx = expandedAvailableWidthPx + (collapsedAvailableWidthIn34spPx - expandedAvailableWidthPx) * t
-    val currentAvailableWidthIn34spDp = with(density) { currentAvailableWidthIn34spPx.toDp() }
-
-    val textLayoutResult = remember(safeTitle, currentAvailableWidthIn34spPx) {
+    val textLayoutResult = remember(safeTitle) {
         textMeasurer.measure(
             text = safeTitle,
-            style = baseStyle,
-            constraints = androidx.compose.ui.unit.Constraints(maxWidth = currentAvailableWidthIn34spPx.toInt())
+            style = HomeTypography.PageTitle.copy(fontSize = 34.sp)
         )
     }
+    val screenWidthPx = with(density) { screenWidth.toPx() }
+    val maxAvailableWidthPx = screenWidthPx - with(density) { 32.dp.toPx() }
     val rawTextWidthPx = textLayoutResult.size.width.toFloat()
-    val textWidthPx = minOf(rawTextWidthPx, expandedAvailableWidthPx)
+    val textWidthPx = minOf(rawTextWidthPx, maxAvailableWidthPx)
     val textHeightPx = textLayoutResult.size.height.toFloat()
     
     // 2. Compute X endpoints
-    val centeredLeftPx = if (rawTextWidthPx > expandedAvailableWidthPx) {
+    val centeredLeftPx = if (rawTextWidthPx > maxAvailableWidthPx) {
         with(density) { 16.dp.toPx() }
     } else {
         (screenWidthPx - textWidthPx) / 2f
     }
+    val targetLeftPx = with(density) { if (hasLeadingWidget || onBack != null) 74.dp.toPx() else 24.dp.toPx() }
     val currentLeftPx = centeredLeftPx + (targetLeftPx - centeredLeftPx) * t
     val currentLeftDp = with(density) { currentLeftPx.toDp() }
     
@@ -126,6 +112,9 @@ fun ElvanExpandedBar(
     val currentTextBottomPx = startTextBottomPx + (targetTextBottomPx - startTextBottomPx) * t
     val currentTopPx = currentTextBottomPx - textHeightPx
     val currentTopDp = with(density) { currentTopPx.toDp() }
+    
+    val finalScale = 22f / 34f
+    val scale = 1.0f - (1.0f - finalScale) * t
 
     // Lift progress: text fades OUT ONLY when the first card reaches the pill (collision)
     val liftStartOffsetPx = collisionOffsetPx - with(density) { 4.dp.toPx() }
@@ -140,6 +129,7 @@ fun ElvanExpandedBar(
     val bannerFadeOffsetPx = with(density) { 50.dp.toPx() }
     val bannerOpacity = (1.0f - (scrollOffsetPx / bannerFadeOffsetPx)).coerceIn(0f, 1f)
 
+    val maxAllowedWidthDp = (screenWidth - 32.dp)
     val activeBanners = remember(banners) { banners.filter { it.enabled && it.message.isNotBlank() } }
     var selectedDetailBanner by remember { mutableStateOf<FeatureCard?>(null) }
 
@@ -167,12 +157,12 @@ fun ElvanExpandedBar(
                 maxLines = 1,
                 softWrap = false,
                 overflow = TextOverflow.Ellipsis,
-                style = baseStyle,
+                style = HomeTypography.PageTitle.copy(fontSize = 34.sp),
                 color = colors.textPrimary,
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .offset(x = currentLeftDp, y = currentTopDp)
-                    .widthIn(max = currentAvailableWidthIn34spDp)
+                    .widthIn(max = maxAllowedWidthDp)
                     .graphicsLayer {
                         scaleX = scale
                         scaleY = scale
