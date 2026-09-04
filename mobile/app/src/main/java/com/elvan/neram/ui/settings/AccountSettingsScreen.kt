@@ -103,64 +103,16 @@ fun AccountSettingsScreen(
                 }
             }
 
-            // Logout Confirmation Dialog
+            // Flutter-matching Sign Out Action Sheet Popup
             if (showLogoutDialog) {
-                val isDark = colors.isDark
-                val dialogCardColor = if (isDark) Color(0xFF111111) else Color.White
-                val cancelBtnBg = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
-
-                AlertDialog(
+                ElvanActionSheet(
+                    title = K.signOutConfirm.tr(lang),
+                    cancelText = K.cancel.tr(lang),
+                    confirmText = K.signOut.tr(lang),
                     onDismissRequest = { showLogoutDialog = false },
-                    containerColor = dialogCardColor,
-                    shape = RoundedCornerShape(24.dp),
-                    icon = { Icon(Icons.AutoMirrored.Outlined.Logout, null, tint = AppColors.Red) },
-                    title = {
-                        Text(
-                            text = K.signOutConfirm.tr(lang),
-                            style = TextStyle(fontFamily = ff, fontSize = 20.sp, fontWeight = FontWeight.Bold),
-                            color = colors.textPrimary
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = K.signOutMessage.tr(lang),
-                            style = TextStyle(fontFamily = ff, fontSize = 14.sp, lineHeight = 20.sp),
-                            color = colors.textSecondary
-                        )
-                    },
-                    confirmButton = {
-                        Button(
-                            onClick = {
-                                showLogoutDialog = false
-                                onLogout()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = AppColors.Red,
-                                contentColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(50)
-                        ) {
-                            Text(
-                                text = K.signOut.tr(lang),
-                                style = TextStyle(fontFamily = ff, fontWeight = FontWeight.SemiBold)
-                            )
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = { showLogoutDialog = false },
-                            colors = ButtonDefaults.textButtonColors(
-                                containerColor = cancelBtnBg,
-                                contentColor = colors.textPrimary
-                            ),
-                            shape = RoundedCornerShape(50)
-                        ) {
-                            Text(
-                                text = K.cancel.tr(lang),
-                                style = TextStyle(fontFamily = ff, fontWeight = FontWeight.Medium)
-                            )
-                        }
-                    }
+                    onConfirm = { onLogout() },
+                    colors = colors,
+                    confirmColor = AppColors.Red
                 )
             }
         }

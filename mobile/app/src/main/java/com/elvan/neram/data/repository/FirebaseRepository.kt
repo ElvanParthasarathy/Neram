@@ -172,11 +172,18 @@ class FirebaseRepository(private val context: Context) {
                             val type = child.child("type").getValue(String::class.java) 
                                 ?: child.child("badge").getValue(String::class.java) ?: "UPDATE"
                             val message = child.child("message").getValue(String::class.java)
+                                ?: child.child("messageEn").getValue(String::class.java)
                                 ?: child.child("description").getValue(String::class.java)
                                 ?: child.child("title").getValue(String::class.java) ?: ""
+                            val messageEn = child.child("messageEn").getValue(String::class.java) ?: message
                             val messageTa = child.child("messageTa").getValue(String::class.java)
                                 ?: child.child("descriptionTa").getValue(String::class.java)
                                 ?: child.child("titleTa").getValue(String::class.java) ?: ""
+                            val messageTaLatn = child.child("messageTaLatn").getValue(String::class.java) ?: ""
+                            val messageMl = child.child("messageMl").getValue(String::class.java) ?: ""
+                            val messageMlLatn = child.child("messageMlLatn").getValue(String::class.java) ?: ""
+                            val messageTe = child.child("messageTe").getValue(String::class.java) ?: ""
+                            val messageTeLatn = child.child("messageTeLatn").getValue(String::class.java) ?: ""
                             val actionRoute = child.child("actionRoute").getValue(String::class.java) ?: ""
                             val cardEnabled = child.child("enabled").getValue(Boolean::class.java) ?: true
 
@@ -186,7 +193,13 @@ class FirebaseRepository(private val context: Context) {
                                         id = id,
                                         type = type,
                                         message = message,
+                                        messageEn = messageEn,
                                         messageTa = messageTa,
+                                        messageTaLatn = messageTaLatn,
+                                        messageMl = messageMl,
+                                        messageMlLatn = messageMlLatn,
+                                        messageTe = messageTe,
+                                        messageTeLatn = messageTeLatn,
                                         title = message,
                                         titleTa = messageTa,
                                         description = message,

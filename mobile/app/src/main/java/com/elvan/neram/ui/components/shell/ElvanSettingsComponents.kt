@@ -2,6 +2,7 @@ package com.elvan.neram.ui.components.shell
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,6 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -597,7 +599,7 @@ fun ElvanSettingsDisplayRow(
  */
 @Composable
 fun ElvanSettingsEditContainer(
-    title: String,
+    title: String? = null,
     onCancel: () -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
@@ -616,16 +618,18 @@ fun ElvanSettingsEditContainer(
             .padding(16.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        Text(
-            text = title,
-            style = TextStyle(
-                fontFamily = ff,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold
-            ),
-            color = colors.textPrimary
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        if (!title.isNullOrBlank()) {
+            Text(
+                text = title,
+                style = TextStyle(
+                    fontFamily = ff,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = colors.textPrimary
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
         content()
         Spacer(modifier = Modifier.height(16.dp))
         Row(
@@ -788,6 +792,163 @@ fun ElvanSettingsTextField(
                 if (trailingIcon != null) {
                     Spacer(modifier = Modifier.width(8.dp))
                     trailingIcon()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * ElvanActionSheet — Flutter-matching floating action sheet popup.
+ * Replicates Flutter's `showElvanActionSheet` from `elvan_cheyal_maeladukku.dart`.
+ * Features:
+ * - Floating transparent modal sheet with rounded pill surface (32.dp).
+ * - Semi-transparent background (alpha 0.75 / 0.85).
+ * - 14sp w500 centered title with 0.5 alpha onSurface.
+ * - Side-by-side action buttons with 16sp typography.
+ * - Respects safe area, navigationBarsPadding, and imePadding.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ElvanActionSheet(
+    title: String,
+    cancelText: String,
+    confirmText: String,
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
+    colors: HomeColors = rememberHomeColors(),
+    confirmColor: Color? = null,
+    isConfirmFilled: Boolean = false,
+    customContent: (@Composable () -> Unit)? = null
+) {
+    val ff = LocalAppFontFamily.current
+    val isDark = colors.isDark
+    // Flutter: Color(0xFF151515).withValues(alpha: 0.75) in dark, Colors.white.withValues(alpha: 0.75) in light
+    val cardBg = if (isDark) Color(0xFF161616) else Color(0xFFFAFAFA)
+    val cardBorder = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+    val mainColor = confirmColor ?: colors.textPrimary
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        shape = RoundedCornerShape(32.dp),
+        containerColor = Color.Transparent,
+        scrimColor = Color.Black.copy(alpha = 0.45f),
+        dragHandle = null
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(start = 16.dp, end = 16.dp, bottom = 24.dp)
+        ) {
+            Surface(
+                shape = RoundedCornerShape(32.dp),
+                color = cardBg,
+                border = BorderStroke(1.dp, cardBorder),
+                shadowElevation = 12.dp,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Title
+                    Text(
+                        text = title,
+                        style = TextStyle(
+                            fontFamily = ff,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        ),
+                        color = colors.textPrimary.copy(alpha = 0.5f),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (customContent != null) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        customContent()
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Buttons Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Cancel button
+                        TextButton(
+                            onClick = onDismissRequest,
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            shape = RoundedCornerShape(50)
+                        ) {
+                            Text(
+                                text = cancelText,
+                                style = TextStyle(
+                                    fontFamily = ff,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                color = colors.textPrimary.copy(alpha = 0.6f)
+                            )
+                        }
+
+                        // Confirm button
+                        if (isConfirmFilled) {
+                            Button(
+                                onClick = {
+                                    onDismissRequest()
+                                    onConfirm()
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(44.dp),
+                                shape = RoundedCornerShape(50),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = mainColor,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text(
+                                    text = confirmText,
+                                    style = TextStyle(
+                                        fontFamily = ff,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
+                        } else {
+                            TextButton(
+                                onClick = {
+                                    onDismissRequest()
+                                    onConfirm()
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(44.dp),
+                                shape = RoundedCornerShape(50)
+                            ) {
+                                Text(
+                                    text = confirmText,
+                                    style = TextStyle(
+                                        fontFamily = ff,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = mainColor
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -589,7 +589,6 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = K.editName.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("name") },
                                     cancelText = K.cancel.tr(lang),
@@ -633,7 +632,6 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = K.editMobileNumber.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = {
                                         formData = formData + ("mobile" to mobileNumber)
@@ -676,7 +674,6 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = K.editDateOfBirth.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("birthday") },
                                     cancelText = K.cancel.tr(lang),
@@ -731,7 +728,6 @@ fun ProfileScreen(
                                     else -> formData["gender"] ?: ""
                                 }
                                 ElvanSettingsEditContainer(
-                                    title = K.selectGender.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("gender") },
                                     cancelText = K.cancel.tr(lang),
@@ -800,7 +796,6 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = K.editAcademicDetails.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("academic") },
                                     cancelText = K.cancel.tr(lang),
@@ -907,7 +902,6 @@ fun ProfileScreen(
                             },
                             editContent = {
                                 ElvanSettingsEditContainer(
-                                    title = K.editRegisterNumber.tr(lang),
                                     onCancel = { editingField = null },
                                     onSave = { handleSave("registerNo") },
                                     cancelText = K.cancel.tr(lang),

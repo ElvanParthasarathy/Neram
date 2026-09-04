@@ -5,6 +5,7 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,7 @@ import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.theme.LocalAppLanguage
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // Web Client ID from google-services.json (client_type: 3)
 private const val WEB_CLIENT_ID = "85578742222-47qt87m4utrbatq1b8d3vju4mn2brbh2.apps.googleusercontent.com"
@@ -51,24 +53,11 @@ fun SignupScreen(
     var error by remember { mutableStateOf<String?>(null) }
     var errorField by remember { mutableStateOf<AuthField?>(null) }
 
-    // Staggered reveal states
-    var showHeader by remember { mutableStateOf(false) }
-    var showForm by remember { mutableStateOf(false) }
-    var showButtons by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        delay(200)
-        showHeader = true
-        delay(300)
-        showForm = true
-        delay(300)
-        showButtons = true
-    }
+    val scope = rememberCoroutineScope()
 
     val auth = FirebaseAuth.getInstance()
     val database = FirebaseDatabase.getInstance()
     val context = LocalContext.current
-    val scrollState = rememberScrollState()
 
     // Helper to split name into first/last (matching web)
     // Helper to write user profile to database (MATCHING WEB IMPLEMENTATION)
@@ -112,74 +101,55 @@ fun SignupScreen(
             }
     }
 
-    // Google Sign In Launcher
-    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            if (account?.idToken != null) {
-                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-                auth.signInWithCredential(credential)
-                    .addOnCompleteListener { authTask ->
-                        if (authTask.isSuccessful) {
-                            val user = auth.currentUser
-                            if (user != null) {
-                                val displayName = user.displayName ?: ""
-                                val lastSpaceIndex = displayName.lastIndexOf(" ")
-                                val firstName = if (lastSpaceIndex == -1) displayName else displayName.substring(0, lastSpaceIndex)
-                                val lastName = if (lastSpaceIndex == -1) "" else displayName.substring(lastSpaceIndex + 1)
-                                
-                                writeUserToDatabase(
-                                    uid = user.uid,
-                                    email = user.email ?: "",
-                                    firstName = firstName,
-                                    lastName = lastName,
-                                    regNo = "",
-                                    photoURL = user.photoUrl?.toString() ?: "",
-                                    onComplete = {
-                                        isLoading = false
-                                        onSignupSuccess()
-                                    }
-                                )
-                            } else {
-                                isLoading = false
-                                onSignupSuccess()
-                            }
-                        } else {
-                            isLoading = false
-                            android.util.Log.e("GoogleSignIn", "Firebase auth error in signup", authTask.exception)
-                            error = authTask.exception?.message ?: K.googleSignInFailed.tr(lang)
-                        }
-                    }
-            } else {
-                isLoading = false
-                error = "${K.googleSignInFailed.tr(lang)}: ${K.noIdTokenReceived.tr(lang)}"
-            }
-        } catch (e: ApiException) {
-            isLoading = false
-            android.util.Log.e("GoogleSignIn", "ApiException in signup: ${e.statusCode}", e)
-            if (e.statusCode != 12501) {
-                error = "${K.googleSignInFailed.tr(lang)} (${e.statusCode})"
-            }
-        } catch (e: Exception) {
-            isLoading = false
-            android.util.Log.e("GoogleSignIn", "General exception in signup", e)
-            error = "${K.googleSignInFailed.tr(lang)}: ${e.message}"
-        }
-    }
-
-    val handleGoogleSignup = {
+    fun handleGoogleSignup() {
         isLoading = true
         error = null
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(WEB_CLIENT_ID)
-            .requestEmail()
-            .build()
-        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-        googleSignInClient.signOut().addOnCompleteListener {
-            launcher.launch(googleSignInClient.signInIntent)
+        scope.launch {
+            when (val result = GoogleAuthHelper.getGoogleIdToken(context)) {
+                is GoogleAuthHelper.Result.Success -> {
+                    val credential = GoogleAuthProvider.getCredential(result.idToken, null)
+                    auth.signInWithCredential(credential)
+                        .addOnCompleteListener { authTask ->
+                            if (authTask.isSuccessful) {
+                                val user = auth.currentUser
+                                if (user != null) {
+                                    val displayName = user.displayName ?: ""
+                                    val lastSpaceIndex = displayName.lastIndexOf(" ")
+                                    val fName = if (lastSpaceIndex == -1) displayName else displayName.substring(0, lastSpaceIndex)
+                                    val lName = if (lastSpaceIndex == -1) "" else displayName.substring(lastSpaceIndex + 1)
+                                    
+                                    writeUserToDatabase(
+                                        uid = user.uid,
+                                        email = user.email ?: "",
+                                        firstName = fName,
+                                        lastName = lName,
+                                        regNo = "",
+                                        photoURL = user.photoUrl?.toString() ?: "",
+                                        onComplete = {
+                                            isLoading = false
+                                            onSignupSuccess()
+                                        }
+                                    )
+                                } else {
+                                    isLoading = false
+                                    onSignupSuccess()
+                                }
+                            } else {
+                                isLoading = false
+                                android.util.Log.e("GoogleSignIn", "Firebase auth error in signup", authTask.exception)
+                                error = authTask.exception?.message ?: K.googleSignInFailed.tr(lang)
+                            }
+                        }
+                }
+                is GoogleAuthHelper.Result.Cancelled -> {
+                    isLoading = false
+                }
+                is GoogleAuthHelper.Result.Error -> {
+                    isLoading = false
+                    android.util.Log.e("GoogleSignIn", "Credential Manager error in signup: ${result.message}", result.cause)
+                    error = "${K.googleSignInFailed.tr(lang)}: ${result.message}"
+                }
+            }
         }
     }
 
@@ -245,161 +215,166 @@ fun SignupScreen(
     }
 
     val content = @Composable {
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .verticalScroll(scrollState),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .imePadding()
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
-
-            // ===== HEADER =====
-            AnimatedVisibility(
-                visible = showHeader,
-                enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { -30 })
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = maxHeight)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                StepHeader(
-                    title = K.createAccount.tr(lang),
-                    subtitle = K.fillDetailsToGetStarted.tr(lang)
-                )
-            }
+                // ===== HEADER =====
+                AuthAnimatedElement(delayIndex = 0) {
+                    StepHeader(
+                        title = K.createAccount.tr(lang),
+                        subtitle = K.fillDetailsToGetStarted.tr(lang)
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // ===== FORM FIELDS =====
-            AnimatedVisibility(
-                visible = showForm,
-                enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { 30 })
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        AuthTextField(
-                            value = firstName,
-                            onValueChange = { firstName = it; error = null; errorField = null },
-                            label = K.firstName.tr(lang),
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            isError = errorField == AuthField.FIRST_NAME || errorField == AuthField.NAME,
-                            errorMessage = null
-                        )
+                // ===== FORM FIELDS =====
+                AuthAnimatedElement(delayIndex = 1, modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            AuthTextField(
+                                value = firstName,
+                                onValueChange = { firstName = it; error = null; errorField = null },
+                                label = K.firstName.tr(lang),
+                                modifier = Modifier.weight(1f),
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                isError = errorField == AuthField.FIRST_NAME || errorField == AuthField.NAME,
+                                errorMessage = null
+                            )
+                            
+                            AuthTextField(
+                                value = lastName,
+                                onValueChange = { lastName = it; error = null; errorField = null },
+                                label = K.lastName.tr(lang),
+                                modifier = Modifier.weight(1f),
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                isError = errorField == AuthField.LAST_NAME || errorField == AuthField.NAME,
+                                errorMessage = null
+                            )
+                        }
                         
+                        if (error != null && (errorField == AuthField.FIRST_NAME || errorField == AuthField.LAST_NAME || errorField == AuthField.NAME)) {
+                            Text(
+                                text = error!!,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
                         AuthTextField(
-                            value = lastName,
-                            onValueChange = { lastName = it; error = null; errorField = null },
-                            label = K.lastName.tr(lang),
-                            modifier = Modifier.weight(1f),
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            isError = errorField == AuthField.LAST_NAME || errorField == AuthField.NAME,
-                            errorMessage = null
+                            value = regNo,
+                            onValueChange = { regNo = it; error = null; errorField = null },
+                            label = K.registerNumber.tr(lang),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Next
+                            ),
+                            isError = errorField == AuthField.REGISTER_NUMBER,
+                            errorMessage = if (errorField == AuthField.REGISTER_NUMBER) error else null
                         )
-                    }
-                    
-                    if (error != null && (errorField == AuthField.FIRST_NAME || errorField == AuthField.LAST_NAME || errorField == AuthField.NAME)) {
-                        Text(
-                            text = error!!,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        AuthTextField(
+                            value = email,
+                            onValueChange = { email = it; error = null; errorField = null },
+                            label = K.emailAddress.tr(lang),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Email,
+                                imeAction = ImeAction.Next
+                            ),
+                            isError = errorField == AuthField.EMAIL,
+                            errorMessage = if (errorField == AuthField.EMAIL) error else null
                         )
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
 
-                    AuthTextField(
-                        value = regNo,
-                        onValueChange = { regNo = it; error = null; errorField = null },
-                        label = K.registerNumber.tr(lang),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                        isError = errorField == AuthField.REGISTER_NUMBER,
-                        errorMessage = if (errorField == AuthField.REGISTER_NUMBER) error else null
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    AuthTextField(
-                        value = email,
-                        onValueChange = { email = it; error = null; errorField = null },
-                        label = K.emailAddress.tr(lang),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                        isError = errorField == AuthField.EMAIL,
-                        errorMessage = if (errorField == AuthField.EMAIL) error else null
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    AuthTextField(
-                        value = password,
-                        onValueChange = { password = it; error = null; errorField = null },
-                        label = K.password.tr(lang),
-                        isPassword = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                        isError = errorField == AuthField.PASSWORD,
-                        errorMessage = if (errorField == AuthField.PASSWORD) error else null
-                    )
-
-                    // General error
-                    if (error != null && errorField == AuthField.GENERAL) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            error!!,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
+                        AuthTextField(
+                            value = password,
+                            onValueChange = { password = it; error = null; errorField = null },
+                            label = K.password.tr(lang),
+                            isPassword = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(onDone = { handleSignup() }),
+                            isError = errorField == AuthField.PASSWORD,
+                            errorMessage = if (errorField == AuthField.PASSWORD) error else null
                         )
+
+                        // General error
+                        if (error != null && errorField == AuthField.GENERAL) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                error!!,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            // ===== BUTTONS SECTION =====
-            AnimatedVisibility(
-                visible = showButtons,
-                enter = fadeIn(tween(500)) + slideInVertically(initialOffsetY = { 30 })
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    AnimatedAuthButton(
-                        text = K.createAccount.tr(lang),
-                        onClick = { handleSignup() },
-                        isLoading = isLoading
-                    )
+                // ===== BUTTONS SECTION =====
+                AuthAnimatedElement(delayIndex = 2, modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AnimatedAuthButton(
+                            text = K.createAccount.tr(lang),
+                            onClick = { handleSignup() },
+                            isLoading = isLoading
+                        )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    OrDivider()
+                        OrDivider()
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    GoogleAuthButton(
-                        text = K.signUpWithGoogle.tr(lang),
-                        onClick = { handleGoogleSignup() },
-                        isLoading = isLoading
-                    )
+                        GoogleAuthButton(
+                            text = K.signUpWithGoogle.tr(lang),
+                            onClick = { handleGoogleSignup() },
+                            isLoading = isLoading
+                        )
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
 
-                    AuthLinkText(
-                        prefix = K.alreadyHaveAccount.tr(lang),
-                        linkText = K.logIn.tr(lang),
-                        onClick = onNavigateToLogin
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
+                        AuthLinkText(
+                            prefix = K.alreadyHaveAccount.tr(lang),
+                            linkText = K.logIn.tr(lang),
+                            onClick = onNavigateToLogin
+                        )
+                    }
                 }
             }
         }
     }
 
     if (showBackground) {
-        AuthGradientBackground {
+        AuthBackground {
             content()
         }
     } else {
