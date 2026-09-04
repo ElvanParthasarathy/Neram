@@ -130,6 +130,7 @@ fun ProfileScreen(
     
     // Modals
     var showSelectorModal by remember { mutableStateOf(false) }
+    var selectorFieldKey by remember { mutableStateOf("") }
     var selectorTitle by remember { mutableStateOf("") }
     var selectorOptions by remember { mutableStateOf(listOf<String>()) }
     var onSelectorSelect by remember { mutableStateOf<(String) -> Unit>({}) }
@@ -284,7 +285,8 @@ fun ProfileScreen(
     fun getDepartments(batch: String) = hierarchy[batch]?.keys?.toList()?.sorted() ?: emptyList()
     fun getSections(batch: String, dept: String) = hierarchy[batch]?.get(dept)?.sorted() ?: emptyList()
     
-    fun openSelector(title: String, options: List<String>, onSelect: (String) -> Unit) {
+    fun openSelector(fieldKey: String, title: String, options: List<String>, onSelect: (String) -> Unit) {
+        selectorFieldKey = fieldKey
         selectorTitle = title
         selectorOptions = options
         onSelectorSelect = onSelect
@@ -744,6 +746,7 @@ fun ProfileScreen(
                                         readOnly = true,
                                         onClick = {
                                             openSelector(
+                                                "gender",
                                                 K.selectGender.tr(lang),
                                                 listOf(K.male.tr(lang), K.female.tr(lang), K.genderOther.tr(lang))
                                             ) { selected ->
@@ -812,6 +815,7 @@ fun ProfileScreen(
                                         readOnly = true,
                                         onClick = {
                                             openSelector(
+                                                "batch",
                                                 K.selectBatch.tr(lang),
                                                 getBatches()
                                             ) {
@@ -838,6 +842,7 @@ fun ProfileScreen(
                                         onClick = {
                                             formData["batch"]?.let { batch ->
                                                 openSelector(
+                                                    "department",
                                                     K.selectDepartment.tr(lang),
                                                     getDepartments(batch)
                                                 ) {
@@ -866,6 +871,7 @@ fun ProfileScreen(
                                             val batch = formData["batch"] ?: return@ElvanSettingsTextField
                                             val dept = formData["department"] ?: return@ElvanSettingsTextField
                                             openSelector(
+                                                "section",
                                                 K.selectSection.tr(lang),
                                                 getSections(batch, dept)
                                             ) {
@@ -967,8 +973,8 @@ fun ProfileScreen(
                 ElvanSettingsDivider(colors = colors, indent = 0.dp, endIndent = 0.dp)
                 
                 selectorOptions.forEach { option ->
-                    val isOptionSelected = when (selectorTitle) {
-                        K.selectGender.tr(lang), "Select Gender", "பாலினத்தைத் தேர்ந்தெடுக்கவும்", "Paalinathai thernthedu" -> {
+                    val isOptionSelected = when (selectorFieldKey) {
+                        "gender" -> {
                             val genderDisplay = when (formData["gender"]?.trim()?.lowercase()) {
                                 "male", "ஆண்", "aan" -> K.male.tr(lang)
                                 "female", "பெண்", "pen" -> K.female.tr(lang)
@@ -977,9 +983,9 @@ fun ProfileScreen(
                             }
                             genderDisplay == option
                         }
-                        K.selectBatch.tr(lang), "Select Batch", "தொகுதியைத் தேர்ந்தெடுக்கவும்" -> formData["batch"] == option
-                        K.selectDepartment.tr(lang), "Select Department", "துறையைத் தேர்ந்தெடுக்கவும்" -> formData["department"] == option
-                        K.selectSection.tr(lang), "Select Section", "பிரிவைத் தேர்ந்தெடுக்கவும்" -> formData["section"] == option
+                        "batch" -> formData["batch"] == option
+                        "department" -> formData["department"] == option
+                        "section" -> formData["section"] == option
                         else -> false
                     }
                     

@@ -1,3 +1,8 @@
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
+    androidx.compose.material3.ExperimentalMaterial3Api::class
+)
+
 package com.elvan.neram.ui.directory
 
 import androidx.compose.animation.*
@@ -35,6 +40,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun UserDirectoryScreen(
     directoryPath: List<String>,
@@ -320,7 +326,11 @@ private fun UserDirectoryContent(
                                     .height(140.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                com.elvan.neram.ui.components.ExpressiveLoadingIndicator(color = colors.accent)
+                                ContainedLoadingIndicator(
+                                    modifier = Modifier.size(HomeDimens.RefreshIndicatorSize),
+                                    containerColor = colors.surface,
+                                    indicatorColor = colors.textSecondary
+                                )
                             }
                         } else if (users.isEmpty()) {
                             Box(
@@ -355,6 +365,7 @@ private fun UserDirectoryRow(
     user: Map<String, String>,
     colors: HomeColors
 ) {
+    val lang = LocalAppLanguage.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -398,7 +409,7 @@ private fun UserDirectoryRow(
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = user["displayName"] ?: "User",
+                text = user["displayName"] ?: K.user.tr(lang),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Medium

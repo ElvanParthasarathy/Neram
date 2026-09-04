@@ -545,10 +545,11 @@ internal fun GroupedEventsCard(
                 // Priority: Exam → Order → Holiday → Occasion → Special → Default
                 val titleLower = event.title.lowercase()
                 val isExam = titleLower.contains("exam") || titleLower.contains("test") || 
-                             titleLower.contains("sia") || titleLower.contains("fia")
-                val isOrder = titleLower.contains("order")
-                val isHoliday = event.isHoliday() // checks type == "Holiday" OR title contains "holiday"
-                val isOccasion = event.isOccasion() // checks type == "Academic"
+                             titleLower.contains("sia") || titleLower.contains("fia") ||
+                             titleLower.contains("தேர்வு") || titleLower.contains("thervu")
+                val isOrder = event.isOrderOverride() || titleLower.contains("order")
+                val isHoliday = event.isHoliday()
+                val isOccasion = event.isOccasion() || titleLower.contains("occasion") || titleLower.contains("நிகழ்வு")
                 val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || event.isSection
                 
                 val barColor = when {
@@ -632,7 +633,10 @@ internal fun ScheduleSection(
             )
             
             // Status Badge - matches .status-badge-small
-            val isHoliday = scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true) ||
+            val isHoliday = scheduleState.fullDayEvents.any { it.isHoliday() } ||
+                            scheduleState.halfDayEvents.any { it.isHoliday() } ||
+                            scheduleState.scheduleStatus.contains(K.holiday.tr(lang), ignoreCase = true) ||
+                            scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true) ||
                             scheduleState.scheduleStatus.contains("விடுமுறை", ignoreCase = true) ||
                             scheduleState.scheduleStatus.contains("Vidumurai", ignoreCase = true)
             val badgeText = if (isHoliday) K.holiday.tr(lang) else scheduleState.scheduleStatus
@@ -749,7 +753,10 @@ internal fun ScheduleSection(
             
             // F. Empty State (If nothing shown above)
             if (!hasContent) {
-                val isHoliday = scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true) ||
+                val isHoliday = scheduleState.fullDayEvents.any { it.isHoliday() } ||
+                                scheduleState.halfDayEvents.any { it.isHoliday() } ||
+                                scheduleState.scheduleStatus.contains(K.holiday.tr(lang), ignoreCase = true) ||
+                                scheduleState.scheduleStatus.contains("Holiday", ignoreCase = true) ||
                                 scheduleState.scheduleStatus.contains("விடுமுறை", ignoreCase = true) ||
                                 scheduleState.scheduleStatus.contains("Vidumurai", ignoreCase = true)
                 val displayStatus = if (isHoliday) {

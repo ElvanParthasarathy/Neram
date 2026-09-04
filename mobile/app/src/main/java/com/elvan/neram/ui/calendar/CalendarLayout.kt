@@ -473,7 +473,10 @@ fun CalendarMainLayout(
                                                 .fillMaxWidth()
                                                 .height(36.dp)
                                                 .background(colors.calendarBottomBackground)
-                                                .clickable {
+                                                .clickable(
+                                                    interactionSource = remember { MutableInteractionSource() },
+                                                    indication = null
+                                                ) {
                                                     scope.launch {
                                                         val target = if (agendaOffsetAnim.value < calendarHeightPx / 2f) calendarHeightPx else 0f
                                                         agendaOffsetAnim.animateTo(target, smoothAttachSpec)

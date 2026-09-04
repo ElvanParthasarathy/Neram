@@ -12,12 +12,17 @@ import java.time.YearMonth
  * Resolves a translation key according to the active language code:
  * - K.TAMIL -> ta[key].ta
  * - K.TAMIL_LATIN -> ta[key].latn
+ * - K.TAMIL_MALAYALAM -> ta[key].mlym
  * - Otherwise -> en[key]
  */
 fun resolveString(key: String, lang: String): String {
     return when (lang) {
         K.TAMIL -> ta[key]?.ta ?: en[key] ?: key
         K.TAMIL_LATIN -> ta[key]?.latn ?: en[key] ?: key
+        K.TAMIL_MALAYALAM -> ta[key]?.mlym ?: (ta[key]?.ta?.let { taToMlym(it) } ?: en[key] ?: key)
+        K.MALAYALAM -> ml[key]?.ml ?: en[key] ?: key
+        K.MALAYALAM_LATIN -> ml[key]?.latn ?: en[key] ?: key
+        K.MALAYALAM_TAMIL -> ml[key]?.taml ?: (ml[key]?.ml?.let { mlymToTaml(it) } ?: en[key] ?: key)
         K.ENGLISH -> en[key] ?: key
         else -> en[key] ?: key
     }

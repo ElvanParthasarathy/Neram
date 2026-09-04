@@ -66,6 +66,12 @@ import androidx.appcompat.app.AppCompatActivity
 class MainActivity : AppCompatActivity() {
     private lateinit var appUpdateManager: com.google.android.play.core.appupdate.AppUpdateManager
     private val UPDATE_REQUEST_CODE = 1001
+    private var currentLanguageCode: String = "system"
+
+    override fun onStop() {
+        super.onStop()
+        com.elvan.neram.utils.LauncherManager.updateLauncherName(this, currentLanguageCode)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Dismiss Android 12+ system splash IMMEDIATELY (like Instagram/ChatGPT)
@@ -84,6 +90,9 @@ class MainActivity : AppCompatActivity() {
         
         // Schedule Daily Alarm (5:30 AM)
         scheduleDailyAlarm()
+
+        // Strictly lock orientation to portrait
+        requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
@@ -134,6 +143,8 @@ class MainActivity : AppCompatActivity() {
             val effectiveLanguage = remember(uiState.languageCode) {
                 K.getEffectiveLanguage(uiState.languageCode, context)
             }
+
+            currentLanguageCode = uiState.languageCode
             
             // GLOBAL LOCALE FIX:
             // Standard Android DatePicker and Java Time APIs often use Locale.getDefault()
@@ -145,8 +156,13 @@ class MainActivity : AppCompatActivity() {
             // Standard Android DatePicker and Java Time APIs often use Locale.getDefault()
             // We must force this to the App Language to ensure DatePickers show correctly.
             val appLocale = remember(effectiveLanguage) {
-                val locale = if (effectiveLanguage == K.TAMIL) java.util.Locale("ta", "IN") else java.util.Locale.US
-                java.util.Locale.setDefault(locale) // Force process-wide default immediately
+                val locale = when (effectiveLanguage) {
+                    K.TAMIL, K.TAMIL_LATIN -> java.util.Locale("ta", "IN")
+                    K.MALAYALAM, K.MALAYALAM_LATIN, K.TAMIL_MALAYALAM -> java.util.Locale("ml", "IN")
+                    K.MALAYALAM_TAMIL -> java.util.Locale("ta", "IN")
+                    else -> java.util.Locale.US
+                }
+                java.util.Locale.setDefault(locale)
                 locale
             }
             

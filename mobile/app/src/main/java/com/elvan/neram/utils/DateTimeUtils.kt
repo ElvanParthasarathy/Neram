@@ -74,7 +74,12 @@ object DateTimeUtils {
      */
     fun formatTimeRange(rangeStr: String?, lang: String = com.elvan.neram.ui.mozhiyaakkam.K.ENGLISH): String {
         if (rangeStr.isNullOrEmpty()) return ""
-        if (rangeStr.equals("Full Day", ignoreCase = true)) return com.elvan.neram.ui.mozhiyaakkam.K.allDay.tr(lang)
+        if (rangeStr.equals("Full Day", ignoreCase = true) || 
+            rangeStr.equals("All Day", ignoreCase = true) ||
+            rangeStr.equals("முழு நாள்", ignoreCase = true) ||
+            rangeStr.equals("Muzhu Naal", ignoreCase = true)) {
+            return com.elvan.neram.ui.mozhiyaakkam.K.allDay.tr(lang)
+        }
         
         if (rangeStr.contains("-")) {
             val parts = rangeStr.split("-")

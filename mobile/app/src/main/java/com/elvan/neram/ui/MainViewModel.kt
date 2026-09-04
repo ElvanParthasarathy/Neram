@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui
+package com.elvan.neram.ui
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -18,6 +18,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.awaitClose
 import android.util.Log
 import kotlinx.coroutines.runBlocking
+import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.tr
+import com.elvan.neram.ui.mozhiyaakkam.trWithLang
 
 /**
  * UI State for MainScreen
@@ -83,9 +86,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                             // Fallback to Auth User if DB profile is missing (e.g. new signup)
                             if (effectiveProfile == null) {
                                 effectiveProfile = currentUser?.let { user ->
+                                    val langPref = runBlocking { languageManager.languageCode.first() }
+                                    val effectiveLang = com.elvan.neram.ui.mozhiyaakkam.K.getEffectiveLanguage(langPref, getApplication())
                                     val fallbackName = user.displayName?.takeUnless { it.isBlank() } 
                                         ?: user.email?.substringBefore("@") 
-                                        ?: "Student"
+                                        ?: com.elvan.neram.ui.mozhiyaakkam.K.roleStudent.tr(effectiveLang)
                                         
                                     UserProfile(
                                         uid = user.uid,
@@ -138,7 +143,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                                 // Block Access
                                 _uiState.update { it.copy(isLoading = false) }
                                 viewModelScope.launch {
-                                    _loginErrorChannel.send("Access Denied: ${effectiveProfile.role} role must use the Admin Portal.")
+                                    val langPref = languageManager.languageCode.first()
+                                    val effectiveLang = com.elvan.neram.ui.mozhiyaakkam.K.getEffectiveLanguage(langPref, getApplication())
+                                    val errorMsg = K.accessDeniedRoleMustUseAdmin.trWithLang(effectiveLang, effectiveProfile.role)
+                                    _loginErrorChannel.send(errorMsg)
                                 }
                                 signOut() // Log them out immediately
                                 return@collect // Stop processing this profile

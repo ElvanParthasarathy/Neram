@@ -598,23 +598,34 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         languageManager.languageCode
     ) { dailyMap, date, schedule, langPref ->
         val effectiveLang = K.getEffectiveLanguage(langPref, getApplication())
-        val dateStr = date.format(dateFormatter)
-        val visibleServerUpdate = dailyMap[dateStr]
+        val now = System.currentTimeMillis()
         
-        // Automated lab reminder logic
-        val isHoliday = schedule.scheduleStatus.contains("Holiday", ignoreCase = true) ||
-                        schedule.scheduleStatus.contains("விடுமுறை", ignoreCase = true) ||
-                        schedule.scheduleStatus.contains("Vidumurai", ignoreCase = true)
-        val hasFullDayEvent = schedule.fullDayEvents.isNotEmpty()
-        val isMajorExam = schedule.activeExamPeriod != null && !schedule.activeExamPeriod.type.contains("CT")
-        val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam || schedule.todaySpecialClasses.isNotEmpty() || schedule.occasionEvent != null
-        
-        val hasLabToday = (!classesSuspended && schedule.periods.any { it.isLab }) || (schedule.activeExamPeriod != null && schedule.activeExamPeriod.type.equals("Practical", ignoreCase = true) && schedule.todayBatches.isNotEmpty())
-        val hasExamToday = schedule.todayExams.isNotEmpty() || schedule.todayBatches.isNotEmpty()
+        // Find the most recent non-expired update (36-hour expiry, not date-based)
+        val visibleServerUpdate = dailyMap.values
+            .filter { !it.isEmpty() && !it.isExpired(now) }
+            .maxByOrNull { it.createdAt }
         
         val rawNote = visibleServerUpdate?.note ?: ""
         var finalNote = rawNote
         var finalAuthor = visibleServerUpdate?.author ?: K.systemReminder.tr(effectiveLang)
+
+        // Automated lab/exam reminder logic
+        val isHoliday = schedule.fullDayEvents.any { it.isHoliday() } || 
+                        schedule.halfDayEvents.any { it.isHoliday() } ||
+                        date.dayOfWeek == DayOfWeek.SUNDAY ||
+                        schedule.scheduleStatus.contains(K.holiday.tr(effectiveLang), ignoreCase = true) ||
+                        schedule.scheduleStatus.contains("Holiday", ignoreCase = true) ||
+                        schedule.scheduleStatus.contains("விடுமுறை", ignoreCase = true) ||
+                        schedule.scheduleStatus.contains("Vidumurai", ignoreCase = true)
+        val hasFullDayEvent = schedule.fullDayEvents.isNotEmpty()
+        val isMajorExam = schedule.activeExamPeriod != null && !schedule.activeExamPeriod.type.contains("CT", ignoreCase = true)
+        val classesSuspended = isHoliday || hasFullDayEvent || isMajorExam || schedule.todaySpecialClasses.isNotEmpty() || schedule.occasionEvent != null
+        
+        val isPractical = schedule.activeExamPeriod?.type?.equals("Practical", ignoreCase = true) == true ||
+                          schedule.activeExamPeriod?.type?.contains("Practical", ignoreCase = true) == true ||
+                          schedule.activeExamPeriod?.type?.contains("செயல்முறை", ignoreCase = true) == true
+        val hasLabToday = (!classesSuspended && schedule.periods.any { it.isLab }) || (isPractical && schedule.todayBatches.isNotEmpty())
+        val hasExamToday = schedule.todayExams.isNotEmpty() || schedule.todayBatches.isNotEmpty()
 
         val automatedNotices = mutableListOf<String>()
         
@@ -672,6 +683,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         val fullDayEvt = events.find { it.type == "FullDay" }
         val workingDayEvent = events.find { e -> 
             e.type == "Event" || 
+            e.isOrderOverride() ||
             e.title.contains("working day", ignoreCase = true) || 
             e.title.contains("order", ignoreCase = true)
         }
@@ -689,7 +701,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     "Friday" to DayOfWeek.FRIDAY,
                     "Saturday" to DayOfWeek.SATURDAY
                 )
-                val foundDay = dayMap.find { workingDayEvent.title.contains(it.first, ignoreCase = true) }
+                val extractedDay = workingDayEvent.extractOrderDay()
+                val foundDay = if (extractedDay != null) {
+                    dayMap.find { it.first.equals(extractedDay, ignoreCase = true) }
+                } else {
+                    dayMap.find { workingDayEvent.title.contains(it.first, ignoreCase = true) }
+                }
                 val ro = foundDay?.first ?: (if (date.dayOfWeek == DayOfWeek.SUNDAY) "" else weekdayNameEn)
                 val localizedDay = foundDay?.second?.toMozhiName(lang) ?: (if (date.dayOfWeek == DayOfWeek.SUNDAY) "" else weekdayNameLocalized)
                 
@@ -811,8 +828,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
     
     fun getTodayUpdate(): DailyUpdate? {
-        val dateStr = getDateKey()
-        return uiState.value.sectionUpdates.daily[dateStr]
+        val now = System.currentTimeMillis()
+        return uiState.value.sectionUpdates.daily.values
+            .filter { !it.isEmpty() && !it.isExpired(now) }
+            .maxByOrNull { it.createdAt }
     }
     
     /**
@@ -872,6 +891,9 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 _uiFlags.update { it.copy(isSyncing = true) }
                 val dateStr = getDateKey()
+                val langPref = languageManager.languageCode.first()
+                val effectiveLang = K.getEffectiveLanguage(langPref, getApplication())
+                val defaultAuthor = K.admin.tr(effectiveLang)
                 // Ensure loader is visible for at least 1 second
                 val saveJob = launch {
                     repository.saveDailyUpdate(
@@ -879,7 +901,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                         profile.department,
                         profile.section,
                         dateStr,
-                        DailyUpdate(note, profile.displayName.ifEmpty { "Admin" })
+                        DailyUpdate(note, profile.displayName.ifBlank { defaultAuthor })
                     )
                 }
                 kotlinx.coroutines.delay(1000)
@@ -901,13 +923,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 _uiFlags.update { it.copy(isSyncing = true) }
+                val langPref = languageManager.languageCode.first()
+                val effectiveLang = K.getEffectiveLanguage(langPref, getApplication())
+                val defaultAuthor = K.admin.tr(effectiveLang)
                 // Ensure loader is visible for at least 1 second
                 val saveJob = launch {
                     repository.saveGeneralNotice(
                         profile.batch,
                         profile.department,
                         profile.section,
-                        GeneralNotice(text, profile.displayName.ifEmpty { "Admin" })
+                        GeneralNotice(text, profile.displayName.ifBlank { defaultAuthor })
                     )
                 }
                 kotlinx.coroutines.delay(1000)

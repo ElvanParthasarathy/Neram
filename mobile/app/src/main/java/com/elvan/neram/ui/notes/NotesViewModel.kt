@@ -286,7 +286,7 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             repository.fetchNotes(dept)
                 .onStart { _uiState.value = NotesUiState.Loading }
-                .catch { e -> _uiState.value = NotesUiState.Error(e.message ?: "Unknown error") }
+                .catch { e -> _uiState.value = NotesUiState.Error(e.message ?: com.elvan.neram.ui.mozhiyaakkam.K.unknownError) }
                 .collect { result ->
                     result.fold(
                         onSuccess = { notes ->
@@ -294,7 +294,7 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
                             updateViewFromCache()
                         },
                         onFailure = { e ->
-                            _uiState.value = NotesUiState.Error(e.message ?: "Failed to load notes")
+                            _uiState.value = NotesUiState.Error(e.message ?: com.elvan.neram.ui.mozhiyaakkam.K.failedToLoadNotes)
                         }
                     )
                 }

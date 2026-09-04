@@ -48,6 +48,7 @@ fun SignupScreen(
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var errorField by remember { mutableStateOf<AuthField?>(null) }
 
     // Staggered reveal states
     var showHeader by remember { mutableStateOf(false) }
@@ -184,20 +185,26 @@ fun SignupScreen(
     val handleSignup = {
         isLoading = true
         error = null
+        errorField = null
         if (firstName.length < 2) {
             isLoading = false
+            errorField = AuthField.FIRST_NAME
             error = K.firstNameTooShort.tr(lang)
         } else if (lastName.isEmpty()) {
             isLoading = false
+            errorField = AuthField.LAST_NAME
             error = "${K.lastName.tr(lang)} ${K.isRequired.tr(lang)}"
         } else if (regNo.length < 5) {
             isLoading = false
+            errorField = AuthField.REGISTER_NUMBER
             error = K.invalidRegisterNumber.tr(lang)
         } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             isLoading = false
+            errorField = AuthField.EMAIL
             error = K.invalidEmailFormat.tr(lang)
         } else if (password.length < 6) {
             isLoading = false
+            errorField = AuthField.PASSWORD
             error = K.passwordTooShort.tr(lang)
         } else {
             auth.createUserWithEmailAndPassword(email, password)
@@ -224,10 +231,12 @@ fun SignupScreen(
                             }
                         } else {
                             isLoading = false
+                            errorField = AuthField.GENERAL
                             error = K.signupFailedNoUser.tr(lang)
                         }
                     } else {
                         isLoading = false
+                        errorField = AuthField.GENERAL
                         error = task.exception?.message ?: K.signupFailed.tr(lang)
                     }
                 }
@@ -271,26 +280,26 @@ fun SignupScreen(
                     ) {
                         AuthTextField(
                             value = firstName,
-                            onValueChange = { firstName = it; error = null },
+                            onValueChange = { firstName = it; error = null; errorField = null },
                             label = K.firstName.tr(lang),
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            isError = error?.contains("First Name") == true,
+                            isError = errorField == AuthField.FIRST_NAME || errorField == AuthField.NAME,
                             errorMessage = null
                         )
                         
                         AuthTextField(
                             value = lastName,
-                            onValueChange = { lastName = it; error = null },
+                            onValueChange = { lastName = it; error = null; errorField = null },
                             label = K.lastName.tr(lang),
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            isError = error?.contains("Last Name") == true,
+                            isError = errorField == AuthField.LAST_NAME || errorField == AuthField.NAME,
                             errorMessage = null
                         )
                     }
                     
-                    if (error?.contains("Name") == true) {
+                    if (error != null && (errorField == AuthField.FIRST_NAME || errorField == AuthField.LAST_NAME || errorField == AuthField.NAME)) {
                         Text(
                             text = error!!,
                             color = MaterialTheme.colorScheme.error,
@@ -303,38 +312,38 @@ fun SignupScreen(
 
                     AuthTextField(
                         value = regNo,
-                        onValueChange = { regNo = it; error = null },
+                        onValueChange = { regNo = it; error = null; errorField = null },
                         label = K.registerNumber.tr(lang),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                        isError = error?.contains("Register") == true,
-                        errorMessage = if (error?.contains("Register") == true) error else null
+                        isError = errorField == AuthField.REGISTER_NUMBER,
+                        errorMessage = if (errorField == AuthField.REGISTER_NUMBER) error else null
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     AuthTextField(
                         value = email,
-                        onValueChange = { email = it; error = null },
+                        onValueChange = { email = it; error = null; errorField = null },
                         label = K.emailAddress.tr(lang),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                        isError = error?.contains("email") == true,
-                        errorMessage = if (error?.contains("email") == true) error else null
+                        isError = errorField == AuthField.EMAIL,
+                        errorMessage = if (errorField == AuthField.EMAIL) error else null
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     AuthTextField(
                         value = password,
-                        onValueChange = { password = it; error = null },
+                        onValueChange = { password = it; error = null; errorField = null },
                         label = K.password.tr(lang),
                         isPassword = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                        isError = error?.contains("Password") == true || error?.contains("password") == true,
-                        errorMessage = if (error?.contains("Password") == true || error?.contains("password") == true) error else null
+                        isError = errorField == AuthField.PASSWORD,
+                        errorMessage = if (errorField == AuthField.PASSWORD) error else null
                     )
 
                     // General error
-                    if (error != null && !error!!.contains("Name") && !error!!.contains("Register") && !error!!.contains("email") && !error!!.contains("Password") && !error!!.contains("password")) {
+                    if (error != null && errorField == AuthField.GENERAL) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             error!!,

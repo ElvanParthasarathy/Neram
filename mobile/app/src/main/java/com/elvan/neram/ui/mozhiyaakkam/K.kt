@@ -10,6 +10,10 @@ object K {
     const val ENGLISH = "en"
     const val TAMIL = "ta"
     const val TAMIL_LATIN = "ta-Latn"
+    const val TAMIL_MALAYALAM = "ta-Mlym"
+    const val MALAYALAM = "ml"
+    const val MALAYALAM_LATIN = "ml-Latn"
+    const val MALAYALAM_TAMIL = "ml-Taml"
 
     /**
      * Get the effective language code based on user preference.
@@ -19,9 +23,17 @@ object K {
             ENGLISH -> ENGLISH
             TAMIL -> TAMIL
             TAMIL_LATIN -> TAMIL_LATIN
+            TAMIL_MALAYALAM -> TAMIL_MALAYALAM
+            MALAYALAM -> MALAYALAM
+            MALAYALAM_LATIN -> MALAYALAM_LATIN
+            MALAYALAM_TAMIL -> MALAYALAM_TAMIL
             SYSTEM -> {
                 val deviceLocale = android.content.res.Resources.getSystem().configuration.locales[0]
-                if (deviceLocale.language == "ta") TAMIL else ENGLISH
+                when (deviceLocale.language) {
+                    "ta" -> TAMIL
+                    "ml" -> MALAYALAM
+                    else -> ENGLISH
+                }
             }
             else -> ENGLISH
         }
@@ -318,6 +330,10 @@ object K {
     const val english = "english"
     const val tamil = "tamil"
     const val tamilLatin = "tamilLatin"
+    const val tamilMalayalam = "tamilMalayalam"
+    const val malayalam = "malayalam"
+    const val malayalamLatin = "malayalamLatin"
+    const val malayalamTamil = "malayalamTamil"
     const val languageInfo = "languageInfo"
     const val editProfile = "editProfile"
     const val feedback = "feedback"
@@ -624,4 +640,10 @@ object K {
     const val clipboardPdfLinkLabel = "clipboardPdfLinkLabel"
     const val rmkTitle = "rmkTitle"
     const val groupOfInstitutions = "groupOfInstitutions"
+    const val roleAdmin = "roleAdmin"
+    const val admin = "admin"
+    const val accessDeniedRoleMustUseAdmin = "accessDeniedRoleMustUseAdmin"
+    const val failedToLoadNotes = "failedToLoadNotes"
+    const val unknownError = "unknownError"
+    const val notesDrive = "notesDrive"
 }

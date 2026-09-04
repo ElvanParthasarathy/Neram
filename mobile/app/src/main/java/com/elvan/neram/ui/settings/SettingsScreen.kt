@@ -82,10 +82,21 @@ fun SettingsScreen(
                             colors = colors
                         )
                         ElvanSettingsDivider(colors = colors)
+                        val currentLanguageDesc = when (lang) {
+                            K.TAMIL -> K.tamil.tr(lang)
+                            K.TAMIL_LATIN -> K.tamilLatin.tr(lang)
+                            K.TAMIL_MALAYALAM -> K.tamilMalayalam.tr(lang)
+                            K.MALAYALAM -> K.malayalam.tr(lang)
+                            K.MALAYALAM_LATIN -> K.malayalamLatin.tr(lang)
+                            K.MALAYALAM_TAMIL -> K.malayalamTamil.tr(lang)
+                            K.ENGLISH -> K.english.tr(lang)
+                            K.SYSTEM -> K.deviceLanguage.tr(lang)
+                            else -> K.english.tr(lang)
+                        }
                         ElvanSettingsRow(
                             icon = Icons.Outlined.Language,
                             title = K.language.tr(lang),
-                            description = K.languageDesc.tr(lang),
+                            description = currentLanguageDesc,
                             onClick = onNavigateToLanguage,
                             colors = colors
                         )

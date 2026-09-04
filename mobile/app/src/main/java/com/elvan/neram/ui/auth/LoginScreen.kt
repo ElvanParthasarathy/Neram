@@ -41,6 +41,7 @@ fun LoginScreen(
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
+    var errorField by remember { mutableStateOf<AuthField?>(null) }
 
     val context = LocalContext.current
     val auth = FirebaseAuth.getInstance()
@@ -60,16 +61,19 @@ fun LoginScreen(
 
     fun handleLogin() {
         if (email.isBlank()) {
+            errorField = AuthField.EMAIL
             error = "${K.emailAddress.tr(lang)} ${K.isRequired.tr(lang)}"
             return
         }
         if (password.isBlank()) {
+            errorField = AuthField.PASSWORD
             error = "${K.password.tr(lang)} ${K.isRequired.tr(lang)}"
             return
         }
 
         isLoading = true
         error = null
+        errorField = null
 
         auth.signInWithEmailAndPassword(email.trim(), password)
             .addOnSuccessListener {
@@ -78,11 +82,24 @@ fun LoginScreen(
             }
             .addOnFailureListener { e ->
                 isLoading = false
-                error = when {
-                    e.message?.contains("user-not-found") == true -> K.noAccountFound.tr(lang)
-                    e.message?.contains("wrong-password") == true -> K.incorrectPassword.tr(lang)
-                    e.message?.contains("invalid-email") == true -> K.invalidEmailFormat.tr(lang)
-                    else -> e.message ?: K.authFailed.tr(lang)
+                val msg = e.message.orEmpty()
+                when {
+                    msg.contains("user-not-found") -> {
+                        errorField = AuthField.EMAIL
+                        error = K.noAccountFound.tr(lang)
+                    }
+                    msg.contains("wrong-password") -> {
+                        errorField = AuthField.PASSWORD
+                        error = K.incorrectPassword.tr(lang)
+                    }
+                    msg.contains("invalid-email") -> {
+                        errorField = AuthField.EMAIL
+                        error = K.invalidEmailFormat.tr(lang)
+                    }
+                    else -> {
+                        errorField = AuthField.GENERAL
+                        error = if (msg.isNotEmpty()) msg else K.authFailed.tr(lang)
+                    }
                 }
             }
     }
@@ -174,14 +191,14 @@ fun LoginScreen(
                         // Email field
                         AuthTextField(
                             value = email,
-                            onValueChange = { email = it; error = null },
+                            onValueChange = { email = it; error = null; errorField = null },
                             label = K.emailAddress.tr(lang),
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Email,
                                 imeAction = ImeAction.Next
                             ),
-                            isError = error?.contains("email") == true,
-                            errorMessage = if (error?.contains("email") == true) error else null
+                            isError = errorField == AuthField.EMAIL,
+                            errorMessage = if (errorField == AuthField.EMAIL) error else null
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -189,7 +206,7 @@ fun LoginScreen(
                         // Password field
                         AuthTextField(
                             value = password,
-                            onValueChange = { password = it; error = null },
+                            onValueChange = { password = it; error = null; errorField = null },
                             label = K.password.tr(lang),
                             isPassword = true,
                             keyboardOptions = KeyboardOptions(
@@ -197,12 +214,12 @@ fun LoginScreen(
                                 imeAction = ImeAction.Done
                             ),
                             keyboardActions = KeyboardActions(onDone = { handleLogin() }),
-                            isError = error?.contains("password") == true || error?.contains("Password") == true,
-                            errorMessage = if (error?.contains("password") == true || error?.contains("Password") == true) error else null
+                            isError = errorField == AuthField.PASSWORD,
+                            errorMessage = if (errorField == AuthField.PASSWORD) error else null
                         )
 
                         // General error
-                        if (error != null && !error!!.contains("email") && !error!!.contains("password") && !error!!.contains("Password")) {
+                        if (error != null && errorField == AuthField.GENERAL) {
                             Spacer(modifier = Modifier.height(12.dp))
                             Text(
                                 error!!,

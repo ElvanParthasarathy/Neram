@@ -1,13 +1,223 @@
 package com.elvan.neram.ui.mozhiyaakkam
 
+private fun preprocessSandhi(text: String): String {
+    val sb = StringBuilder(text.length)
+    var i = 0
+    val n = text.length
+    val sandhiConsonants = charArrayOf('\u0B95', '\u0B9A', '\u0BA4', '\u0BAA') // க, ச, த, ப
+
+    while (i < n) {
+        val c = text[i]
+        if (c in sandhiConsonants && i + 2 < n && text[i + 1] == '\u0BCD' && text[i + 2] == ' ' && i + 3 < n && text[i + 3] == c) {
+            // "C + ் + ' ' + C" -> shift space before C + ் so it joins as a geminated ligature in Malayalam (e.g. "சங்கத் தமிழ்" -> "സങ്ക ത്തമിഴ്")
+            sb.append(' ')
+            sb.append(c)
+            sb.append('\u0BCD')
+            i += 3
+        } else {
+            sb.append(c)
+            i++
+        }
+    }
+    return sb.toString()
+}
+
+/**
+ * Transliterates pure Tamil script into exact 1-to-1 letter-by-letter Malayalam script.
+ * Preserves exact Tamil spelling without Sanskritization or Malayalam lexical adaptation.
+ * Consonant clustering/doubling is rendered naturally by the Malayalam script engine.
+ */
+fun taToMlym(text: String): String {
+    val processed = preprocessSandhi(text)
+    val sb = StringBuilder(processed.length + 8)
+    var i = 0
+    val n = processed.length
+
+    while (i < n) {
+        val c = processed[i]
+        val hasVirama = (i + 1 < n && processed[i + 1] == '\u0BCD')
+        val nextAfterVirama = if (hasVirama && i + 2 < n) processed[i + 2] else null
+
+        if (hasVirama) {
+            when (c) {
+                // ம் (ம + ்) -> ം at word end / space / punct, else regular മ് for labial conjuncts
+                '\u0BAE' -> {
+                    if (nextAfterVirama != null && (nextAfterVirama == '\u0BAA' || nextAfterVirama == '\u0BAE')) {
+                        sb.append("\u0D2E\u0D4D")
+                    } else if (nextAfterVirama == null || nextAfterVirama == ' ' || nextAfterVirama in "\n\t.,;:!?()[]{}\"'-_/") {
+                        sb.append('\u0D02') // Anusvara ം
+                    } else {
+                        sb.append('\u0D02') // ം
+                    }
+                    i += 2
+                    continue
+                }
+
+                // ன் (ன + ்) -> ന്റ with ற, ன்ன with ன, else chillu ൻ
+                '\u0BA9' -> {
+                    if (nextAfterVirama == '\u0BB1') {
+                        sb.append("\u0D28\u0D4D\u0D31") // ന്റ
+                        i += 3
+                        continue
+                    } else if (nextAfterVirama == '\u0BA9') {
+                        sb.append("\u0D28\u0D4D\u0D28") // ന്ന
+                        i += 3
+                        continue
+                    } else {
+                        sb.append('\u0D7B') // Chillu N ൻ
+                        i += 2
+                        continue
+                    }
+                }
+
+                // ஞ் (ஞ + ்) -> ഞ്ച with ச, ഞ്ഞ with ஞ, else <ctrl42>
+                '\u0B9E' -> {
+                    if (nextAfterVirama == '\u0B9A') {
+                        sb.append("\u0D1E\u0D4D\u0D1A") // ഞ്ച
+                        i += 3
+                        continue
+                    } else if (nextAfterVirama == '\u0B9E') {
+                        sb.append("\u0D1E\u0D4D\u0D1E") // ഞ്ഞ
+                        i += 3
+                        continue
+                    } else {
+                        sb.append("\u0D1E\u0D4D") // <ctrl42>
+                        i += 2
+                        continue
+                    }
+                }
+
+                // ண் (ண + ்) -> ண்ட with ட, ண்ண with ண, else chillu ൺ
+                '\u0BA3' -> {
+                    if (nextAfterVirama == '\u0B9F') {
+                        sb.append("\u0D23\u0D4D\u0D1F") // ണ്ട
+                        i += 3
+                        continue
+                    } else if (nextAfterVirama == '\u0BA3') {
+                        sb.append("\u0D23\u0D4D\u0D23") // ണ്ണ
+                        i += 3
+                        continue
+                    } else {
+                        sb.append('\u0D7A') // Chillu NN ൺ
+                        i += 2
+                        continue
+                    }
+                }
+
+                // ர் (ர + ்) -> chillu ർ
+                '\u0BB0' -> {
+                    sb.append('\u0D7C') // Chillu R ർ
+                    i += 2
+                    continue
+                }
+
+                // ல் (ல + ்) -> ല്ല with ல, else chillu ൽ
+                '\u0BB2' -> {
+                    if (nextAfterVirama == '\u0BB2') {
+                        sb.append("\u0D32\u0D4D\u0D32") // ല്ല
+                        i += 3
+                        continue
+                    } else {
+                        sb.append('\u0D7D') // Chillu L ൽ
+                        i += 2
+                        continue
+                    }
+                }
+
+                // ள் (ள + ்) -> ള്ള with ள, else chillu ൾ
+                '\u0BB3' -> {
+                    if (nextAfterVirama == '\u0BB3') {
+                        sb.append("\u0D33\u0D4D\u0D33") // ള്ള
+                        i += 3
+                        continue
+                    } else {
+                        sb.append('\u0D7E') // Chillu LL ൾ
+                        i += 2
+                        continue
+                    }
+                }
+            }
+        }
+
+        // Direct 1-to-1 letter mapping
+        when (c) {
+            // Independent vowels
+            '\u0B85' -> sb.append('\u0D05') // அ -> അ
+            '\u0B86' -> sb.append('\u0D06') // ஆ -> ആ
+            '\u0B87' -> sb.append('\u0D07') // இ -> ഇ
+            '\u0B88' -> sb.append('\u0D08') // ஈ -> ഈ
+            '\u0B89' -> sb.append('\u0D09') // உ -> ഉ
+            '\u0B8A' -> sb.append('\u0D0A') // ஊ -> ഊ
+            '\u0B8E' -> sb.append('\u0D0E') // எ -> എ
+            '\u0B8F' -> sb.append('\u0D0F') // ஏ -> ഏ
+            '\u0B90' -> sb.append('\u0D10') // ஐ -> ഐ
+            '\u0B92' -> sb.append('\u0D12') // ஒ -> ഒ
+            '\u0B93' -> sb.append('\u0D13') // ஓ -> ഓ
+            '\u0B94' -> sb.append('\u0D14') // ஔ -> ഔ
+
+            // Aytham preserved as Tamil Aytham (not corrupted to Sanskrit visarga)
+            '\u0B83' -> sb.append('\u0B83') // ஃ -> ஃ
+
+            // Consonants
+            '\u0B95' -> sb.append('\u0D15') // க -> ക
+            '\u0B99' -> sb.append('\u0D19') // ங -> ങ
+            '\u0B9A' -> sb.append('\u0D1A') // ச -> ച (sa uses cha as per letter-to-letter mapping)
+            '\u0B9C' -> sb.append('\u0D1C') // ஜ -> ജ
+            '\u0B9E' -> sb.append('\u0D1E') // ஞ -> ഞ
+            '\u0B9F' -> sb.append('\u0D1F') // ட -> ട
+            '\u0BA3' -> sb.append('\u0D23') // ண -> ണ
+            '\u0BA4' -> sb.append('\u0D24') // த -> ത
+            '\u0BA8' -> sb.append('\u0D28') // ந -> ന
+            '\u0BA9' -> sb.append('\u0D28') // ன -> ന
+            '\u0BAA' -> sb.append('\u0D2A') // ப -> പ
+            '\u0BAE' -> sb.append('\u0D2E') // ம -> മ
+            '\u0BAF' -> sb.append('\u0D2F') // ய -> യ
+            '\u0BB0' -> sb.append('\u0D30') // ர -> ര
+            '\u0BB1' -> sb.append('\u0D31') // ற -> റ
+            '\u0BB2' -> sb.append('\u0D32') // ல -> ല
+            '\u0BB3' -> sb.append('\u0D33') // ள -> ള
+            '\u0BB4' -> sb.append('\u0D34') // ழ -> ഴ
+            '\u0BB5' -> sb.append('\u0D35') // வ -> വ
+            '\u0BB6' -> sb.append('\u0D36') // ஶ -> ശ
+            '\u0BB7' -> sb.append('\u0D37') // ஷ -> ഷ
+            '\u0BB8' -> sb.append('\u0D38') // ஸ -> സ
+            '\u0BB9' -> sb.append('\u0D39') // ஹ -> ഹ
+
+            // Vowel signs (உயிர்மெய் குறிகள்)
+            '\u0BBE' -> sb.append('\u0D3E') // ா -> ാ
+            '\u0BBF' -> sb.append('\u0D3F') // ி -> ി
+            '\u0BC0' -> sb.append('\u0D40') // ீ -> ീ
+            '\u0BC1' -> sb.append('\u0D41') // ு -> ു
+            '\u0BC2' -> sb.append('\u0D42') // ூ -> ൂ
+            '\u0BC6' -> sb.append('\u0D46') // ெ -> െ
+            '\u0BC7' -> sb.append('\u0D47') // ே -> േ
+            '\u0BC8' -> sb.append('\u0D48') // ை -> ൈ
+            '\u0BCA' -> sb.append('\u0D4A') // ொ -> ൊ
+            '\u0BCB' -> sb.append('\u0D4B') // ோ -> ോ
+            '\u0BCC' -> sb.append('\u0D4C') // ௌ -> ൌ
+            '\u0BCD' -> sb.append('\u0D4D') // ் -> ്
+            '\u0BD7' -> sb.append('\u0D57') // ௗ -> ൗ
+
+            // Symbols
+            '\u0BD0' -> sb.append("\u0D13\u0D02") // ௐ -> ഓം
+
+            else -> sb.append(c)
+        }
+        i++
+    }
+    return sb.toString()
+}
+
 /**
  * Data class representing Tamil variations:
  * - ta: தமிழ் (Pure Tamil script)
  * - latn: Tanglish / Tamil in Latin script
+ * - mlym: தமிழ் in Malayalam script (Exact letter-to-letter transliteration)
  */
 data class TaVar(
     val ta: String,
-    val latn: String
+    val latn: String,
+    val mlym: String = taToMlym(ta)
 )
 
 /**
@@ -1114,8 +1324,8 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Mozhi"
     ),
     K.languageDesc to TaVar(
-        ta = "தமிழ், ஆங்கிலம், தமிழ் இலத்தீன்",
-        latn = "Thamizh, Aangilam, Thamizh Ilatheen"
+        ta = "தமிழ், ஆங்கிலம், தமிழ் (இலத்தீன்), தமிழ் (மலையாள எழுத்துரு)",
+        latn = "Thamizh, Aangilam, Thamizh (Ilatheen), Thamizh (Malaiyala Ezhuthuru)"
     ),
     K.deviceLanguage to TaVar(
         ta = "இயல்புநிலை",
@@ -1130,8 +1340,24 @@ val ta: Map<String, TaVar> = mapOf(
         latn = "Thamizh"
     ),
     K.tamilLatin to TaVar(
-        ta = "தமிழ் இலத்தீன்",
-        latn = "Thamizh Ilatheen"
+        ta = "தமிழ் (இலத்தீன்)",
+        latn = "Thamizh (Ilatheen)"
+    ),
+    K.tamilMalayalam to TaVar(
+        ta = "தமிழ் (மலையாள எழுத்துரு)",
+        latn = "Thamizh (Malaiyala Ezhuthuru)"
+    ),
+    K.malayalam to TaVar(
+        ta = "மலையாளம்",
+        latn = "Malaiyaalam"
+    ),
+    K.malayalamLatin to TaVar(
+        ta = "மலையாளம் (இலத்தீன்)",
+        latn = "Malaiyaalam (Ilatheen)"
+    ),
+    K.malayalamTamil to TaVar(
+        ta = "மலையாளம் (தமிழ் எழுத்துரு)",
+        latn = "Malaiyaalam (Thamizh Ezhuthuru)"
     ),
     K.languageInfo to TaVar(
         ta = "மொழி மாற்றம் செயலியில் உள்ள அனைத்து திரைகளிலும் உடனடியாக செயல்படும்.",
@@ -2230,5 +2456,29 @@ val ta: Map<String, TaVar> = mapOf(
     K.groupOfInstitutions to TaVar(
         ta = "கல்வி நிறுவனங்கள்",
         latn = "Kalvi Niruvanangal"
+    ),
+    K.roleAdmin to TaVar(
+        ta = "கையாளுநர்",
+        latn = "Kaiyaalunar"
+    ),
+    K.admin to TaVar(
+        ta = "கையாளுநர்",
+        latn = "Kaiyaalunar"
+    ),
+    K.accessDeniedRoleMustUseAdmin to TaVar(
+        ta = "ஒப்புதல் மறுக்கப்பட்டது: %s கையாளுநர் இணையதளத்தைப் பயன்படுத்த வேண்டும்.",
+        latn = "Oppudhal marukkappattadhu: %s kaiyaalunar inaiyathalathai payanpadutha vendum."
+    ),
+    K.failedToLoadNotes to TaVar(
+        ta = "குறிப்புகளை ஏற்றுவதில் தோல்வி",
+        latn = "Kurippugalai yetruvadhil tholvi"
+    ),
+    K.unknownError to TaVar(
+        ta = "தெரியாத பிழை",
+        latn = "Theriyadha pizhai"
+    ),
+    K.notesDrive to TaVar(
+        ta = "குறிப்பகம்",
+        latn = "Kurippagam"
     ),
 )

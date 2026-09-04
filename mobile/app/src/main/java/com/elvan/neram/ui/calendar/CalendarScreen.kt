@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.ui.calendar
+package com.elvan.neram.ui.calendar
 
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -126,9 +126,10 @@ fun CalendarScreen(
             }
         }.filter { dailyEvent ->
             // FILTER EARLY
-            val title = dailyEvent.event.title.lowercase()
-            val isWorkingDayOrder = title.contains("working day") && title.contains("order")
-            !title.contains("order") || isWorkingDayOrder
+            val event = dailyEvent.event
+            val title = event.title.lowercase()
+            val isWorkingDayOrder = event.isOrderOverride() || (title.contains("working day") && title.contains("order"))
+            !event.isOrderOverride() || isWorkingDayOrder
         }
 
         // 2. Group by GroupID or Title for consecutive days
@@ -261,9 +262,9 @@ fun CalendarScreen(
                         val spanCount = kotlin.math.min(remainingDays.toInt(), daysInRow)
 
                         val isHoliday = event.isHoliday()
-                        val isOccasion = event.isOccasion() || title.contains("occasion")
-                        val isWorkingDayOrder = title.contains("working day") && title.contains("order")
-                        val isExam = title.contains("exam") || title.contains("test") || title.contains("sia") || title.contains("fia")
+                        val isOccasion = event.isOccasion() || title.contains("occasion") || title.contains("நிகழ்வு")
+                        val isWorkingDayOrder = event.isOrderOverride() || (title.contains("working day") && title.contains("order"))
+                        val isExam = title.contains("exam") || title.contains("test") || title.contains("sia") || title.contains("fia") || title.contains("தேர்வு") || title.contains("thervu")
                         val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || (event.type == "Event" && event.isSection) || event.isSection
 
                         val style = when {

@@ -339,7 +339,12 @@ fun NotesErrorView(message: String, colors: HomeColors, onRetry: () -> Unit) {
         Icon(Icons.Default.Warning, null, tint = colors.danger, modifier = Modifier.size(48.dp))
         Spacer(modifier = Modifier.height(8.dp))
         val lang = LocalAppLanguage.current
-        Text(message, color = colors.textSecondary)
+        val displayMessage = when (message) {
+            K.failedToLoadNotes, "Failed to load notes" -> K.failedToLoadNotes.tr(lang)
+            K.unknownError, "Unknown error" -> K.unknownError.tr(lang)
+            else -> message
+        }
+        Text(displayMessage, color = colors.textSecondary)
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = onRetry,

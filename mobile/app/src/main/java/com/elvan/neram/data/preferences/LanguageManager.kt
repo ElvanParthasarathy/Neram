@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.data.preferences
+package com.elvan.neram.data.preferences
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit

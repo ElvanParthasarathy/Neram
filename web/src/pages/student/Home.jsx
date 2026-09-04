@@ -105,7 +105,12 @@ const Home = ({
     const todayStr = formatDate(currentDate);
 
     // ---------- LIVE UPDATE DATA ----------
-    const liveUpdateData = sectionUpdates?.live?.[todayStr] || {};
+    // Find the most recent non-expired update (36-hour expiry, not date-based)
+    const allLiveUpdates = sectionUpdates?.live || {};
+    const now = Date.now();
+    const liveUpdateData = Object.values(allLiveUpdates)
+        .filter(v => v && typeof v === 'object' && v.note && (!v.expiresAt || now <= v.expiresAt))
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))[0] || {};
     const rawNote = liveUpdateData.note || "";
     let liveUpdateNote = rawNote;
     const liveUpdateAuthor = liveUpdateData.author || "";

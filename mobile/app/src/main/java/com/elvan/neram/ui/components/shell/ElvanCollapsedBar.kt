@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import com.elvan.neram.ui.theme.preventBrokenLigatures
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.zIndex
 import com.elvan.neram.ui.home.HomeColors
@@ -119,7 +120,7 @@ fun ElvanCollapsedBar(
                 }
                 if (title != null) {
                     Text(
-                        text = title,
+                        text = title.preventBrokenLigatures(),
                         maxLines = 1,
                         overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                         style = HomeTypography.SectionTitle.copy(
@@ -246,7 +247,7 @@ fun ElvanStaticCollapsedBar(
                 }
             }
             Text(
-                text = title,
+                text = title.preventBrokenLigatures(),
                 maxLines = 1,
                 overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 style = HomeTypography.SectionTitle.copy(

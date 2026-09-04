@@ -782,9 +782,9 @@ fun SelectedDaySection(
             ) {
                 if (isRefreshing) {
                     androidx.compose.material3.ContainedLoadingIndicator(
-                        modifier = Modifier.size(44.dp),
+                        modifier = Modifier.size(com.elvan.neram.ui.home.HomeDimens.RefreshIndicatorSize),
                         containerColor = colors.surface,
-                        indicatorColor = colors.accent
+                        indicatorColor = colors.textSecondary
                     )
                 } else {
                     androidx.compose.material3.IconButton(
@@ -819,12 +819,15 @@ fun SelectedDaySection(
 
 @Composable
 fun EventCard(event: CalendarEvent, colors: HomeColors) {
+    val lang = LocalAppLanguage.current
+    val effectiveLang = K.getEffectiveLanguage(lang)
     val titleLower = event.title.lowercase()
     val isExam = titleLower.contains("exam") || titleLower.contains("test") || 
-                 titleLower.contains("sia") || titleLower.contains("fia")
+                 titleLower.contains("sia") || titleLower.contains("fia") ||
+                 titleLower.contains("தேர்வு") || titleLower.contains("thervu")
     val isHoliday = event.isHoliday()
-    val isOccasion = event.isOccasion() || titleLower.contains("occasion")
-    val isOrder = titleLower.contains("order")
+    val isOccasion = event.isOccasion() || titleLower.contains("occasion") || titleLower.contains("நிகழ்வு")
+    val isOrder = event.isOrderOverride()
     val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || (event.type == "Event" && event.isSection) || event.isSection
     
     val baseColor = when {
@@ -852,12 +855,11 @@ fun EventCard(event: CalendarEvent, colors: HomeColors) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = HomeDimens.CardPaddingHorizontal, vertical = HomeDimens.CardPaddingVertical), // Matches Home Screen
+                .padding(horizontal = HomeDimens.CardPaddingHorizontal, vertical = HomeDimens.CardPaddingVertical),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon
             Icon(
-                imageVector = Icons.Outlined.CalendarMonth, // Updated to use Month View Icon
+                imageVector = Icons.Outlined.CalendarMonth,
                 contentDescription = null,
                 tint = iconColor,
                 modifier = Modifier.size(24.dp)
@@ -873,7 +875,7 @@ fun EventCard(event: CalendarEvent, colors: HomeColors) {
                     color = contentColor
                 )
                 Text(
-                    text = event.getTimeRangeDisplay(),
+                    text = event.getTimeRangeDisplay(effectiveLang),
                     fontSize = 12.sp,
                     color = subTextColor
                 )
@@ -889,16 +891,18 @@ fun AgendaItem(event: CalendarEvent, isSelected: Boolean, colors: HomeColors) {
     
     val context = LocalContext.current
     val langPref = LocalAppLanguage.current
+    val effectiveLang = K.getEffectiveLanguage(langPref, context)
     val appLocale = remember(langPref) {
-        if (K.getEffectiveLanguage(langPref, context) == K.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
+        if (effectiveLang == K.TAMIL) Locale("ta", "IN") else Locale.ENGLISH
     }
     
     val titleLower = event.title.lowercase()
     val isExam = titleLower.contains("exam") || titleLower.contains("test") || 
-                 titleLower.contains("sia") || titleLower.contains("fia")
+                 titleLower.contains("sia") || titleLower.contains("fia") ||
+                 titleLower.contains("தேர்வு") || titleLower.contains("thervu")
     val isHoliday = event.isHoliday()
-    val isOccasion = event.isOccasion() || titleLower.contains("occasion")
-    val isOrder = titleLower.contains("order")
+    val isOccasion = event.isOccasion() || titleLower.contains("occasion") || titleLower.contains("நிகழ்வு")
+    val isOrder = event.isOrderOverride()
     val isSpecial = event.type == "FullDay" || event.type == "HalfDay" || (event.type == "Event" && event.isSection) || event.isSection
     
     val barColor = when {
@@ -987,7 +991,7 @@ fun AgendaItem(event: CalendarEvent, isSelected: Boolean, colors: HomeColors) {
                     )
                 } else {
                     Text(
-                        text = event.getTimeRangeDisplay(),
+                        text = event.getTimeRangeDisplay(effectiveLang),
                         fontSize = 13.sp,
                         color = colors.textSecondary
                     )

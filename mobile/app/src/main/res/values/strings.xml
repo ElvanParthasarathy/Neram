@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">Neram</string>
+    <string name="app_name_en">Neram</string>
+    <string name="app_name_ta">நேரம்</string>
+    <string name="app_name_ta_latn">Naeram</string>
+    <string name="app_name_ta_mlym">നേരം</string>
+    <string name="app_name_ml">നേരം</string>
+    <string name="app_name_ml_latn">Neram</string>
+    <string name="app_name_ml_taml">நேரம்</string>
     <string name="app_launcher_name">Calendar</string>
     <string name="change_view">Change view</string>
     <string name="daily_view">Daily view</string>

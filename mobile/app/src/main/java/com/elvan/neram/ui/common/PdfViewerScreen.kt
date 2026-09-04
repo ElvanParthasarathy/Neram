@@ -1,3 +1,8 @@
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
+    androidx.compose.material3.ExperimentalMaterial3Api::class
+)
+
 package com.elvan.neram.ui.common
 
 import android.content.Context
@@ -36,6 +41,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PdfViewerScreen(
     url: String,
@@ -107,7 +113,11 @@ fun PdfViewerScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    ExpressiveLoadingIndicator(color = colors.accent)
+                    androidx.compose.material3.ContainedLoadingIndicator(
+                        modifier = Modifier.size(com.elvan.neram.ui.home.HomeDimens.RefreshIndicatorSize),
+                        containerColor = colors.surface,
+                        indicatorColor = colors.textSecondary
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = K.downloadingPdf.tr(lang),

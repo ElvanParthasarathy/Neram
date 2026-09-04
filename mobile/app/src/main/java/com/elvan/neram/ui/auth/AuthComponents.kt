@@ -46,6 +46,17 @@ import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.components.ExpressiveLoadingIndicator
 import kotlin.math.sin
 
+enum class AuthField {
+    NONE,
+    FIRST_NAME,
+    LAST_NAME,
+    NAME,
+    REGISTER_NUMBER,
+    EMAIL,
+    PASSWORD,
+    GENERAL
+}
+
 // ============== THEME-AWARE COLORS ==============
 object AuthColors {
     // Accent colors (same for both themes)

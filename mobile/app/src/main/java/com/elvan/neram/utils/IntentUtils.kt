@@ -31,7 +31,10 @@ object IntentUtils {
         } catch (e: Exception) {
             e.printStackTrace()
             val msg = e.localizedMessage ?: ""
-            Toast.makeText(context, String.format(K.cannotOpenUrl.tr(K.ENGLISH), msg), Toast.LENGTH_SHORT).show()
+            val effectiveLang = K.getEffectiveLanguage(K.SYSTEM, context)
+            val formatStr = K.cannotOpenUrl.tr(effectiveLang)
+            val formatted = try { String.format(formatStr, msg) } catch (_: Exception) { formatStr }
+            Toast.makeText(context, formatted, Toast.LENGTH_SHORT).show()
         }
     }
 

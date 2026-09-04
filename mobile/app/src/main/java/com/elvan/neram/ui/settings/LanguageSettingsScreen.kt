@@ -74,7 +74,55 @@ fun LanguageSettingsScreen(
 
                     ElvanSettingsDivider(colors = colors)
 
-                    // 4. English (English)
+                    // 4. Tamil in Malayalam script (തമിഴ്)
+                    ElvanRadioSettingsRow(
+                        title = "തമിഴ്",
+                        description = K.tamilMalayalam.tr(lang),
+                        value = K.TAMIL_MALAYALAM,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(K.TAMIL_MALAYALAM) },
+                        colors = colors
+                    )
+
+                    ElvanSettingsDivider(colors = colors)
+
+                    // 5. Malayalam (മലയാളം)
+                    ElvanRadioSettingsRow(
+                        title = "മലയാളം",
+                        description = K.malayalam.tr(lang),
+                        value = K.MALAYALAM,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(K.MALAYALAM) },
+                        colors = colors
+                    )
+
+                    ElvanSettingsDivider(colors = colors)
+
+                    // 6. Malayalam Latin (Manglish)
+                    ElvanRadioSettingsRow(
+                        title = "Malayalam",
+                        description = K.malayalamLatin.tr(lang),
+                        value = K.MALAYALAM_LATIN,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(K.MALAYALAM_LATIN) },
+                        colors = colors
+                    )
+
+                    ElvanSettingsDivider(colors = colors)
+
+                    // 7. Malayalam in Tamil Script (மலயாளம்)
+                    ElvanRadioSettingsRow(
+                        title = "மலயாளம்",
+                        description = K.malayalamTamil.tr(lang),
+                        value = K.MALAYALAM_TAMIL,
+                        groupValue = currentLanguage,
+                        onSelected = { onLanguageChange(K.MALAYALAM_TAMIL) },
+                        colors = colors
+                    )
+
+                    ElvanSettingsDivider(colors = colors)
+
+                    // 7. English (English)
                     ElvanRadioSettingsRow(
                         title = "English",
                         description = K.english.tr(lang),

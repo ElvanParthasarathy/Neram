@@ -7,6 +7,7 @@ import com.elvan.neram.data.local.entity.NotificationEntity
 import com.elvan.neram.ui.common.NotificationHelper
 import com.elvan.neram.data.preferences.LanguageManager
 import com.elvan.neram.ui.mozhiyaakkam.K
+import com.elvan.neram.ui.mozhiyaakkam.toMozhiName
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.mozhiyaakkam.trWithLang
 import com.google.firebase.auth.FirebaseAuth
@@ -174,25 +175,23 @@ object DailyUpdateHelper {
             // Calculate Day Order / Schedule Status
             val isSunday = today.dayOfWeek == java.time.DayOfWeek.SUNDAY
             val isHoliday = isSunday || todaysEvents.any {
-                it.type == "Holiday" || it.type == "FullDay" || 
-                (it.type == "Event" && it.isSection && it.fullTime == "All Day") ||
-                it.title.lowercase().contains("holiday")
+                it.isHoliday() || it.type == "FullDay" || 
+                (it.type == "Event" && it.isSection && (it.fullTime.equals("All Day", ignoreCase = true) || it.fullTime.equals("Full Day", ignoreCase = true)))
             }
             var dayKey = today.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH)
             
             if (!isHoliday) {
-                val orderEvent = calendarEvents.find { it.date == todayDateStr && (it.type == "Order" || it.title.contains("Order", ignoreCase = true)) }
+                val orderEvent = calendarEvents.find { it.date == todayDateStr && (it.isOrderOverride() || it.type == "Order") }
                 if (orderEvent != null) {
-                   for (i in 1..6) {
-                        if (orderEvent.title.contains("Day $i", ignoreCase = true)) {
-                            dayKey = "Day $i"
-                            break
-                        }
-                    }
-                    java.time.DayOfWeek.values().forEach { day ->
-                        val name = day.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH)
-                        if (orderEvent.title.contains(name, ignoreCase = true)) {
-                            dayKey = name
+                    val extracted = orderEvent.extractOrderDay()
+                    if (extracted != null) {
+                        dayKey = extracted
+                    } else {
+                        for (i in 1..6) {
+                            if (orderEvent.title.contains("Day $i", ignoreCase = true)) {
+                                dayKey = "Day $i"
+                                break
+                            }
                         }
                     }
                 }
@@ -480,13 +479,13 @@ object DailyUpdateHelper {
             if (eventRemindersEnabled && todaysEvents.isNotEmpty()) {
                 todaysEvents.forEach { event ->
                     val type = event.type
-                    val isFullDay = type == "FullDay" || (type == "Event" && event.isSection && event.fullTime == "All Day")
-                    val isHalfDay = type == "HalfDay" || (type == "Event" && event.isSection && !event.fullTime.isNullOrBlank() && event.fullTime != "All Day")
+                    val isFullDay = type == "FullDay" || (type == "Event" && event.isSection && (event.fullTime.equals("All Day", ignoreCase = true) || event.fullTime.equals("Full Day", ignoreCase = true)))
+                    val isHalfDay = type == "HalfDay" || (type == "Event" && event.isSection && !event.fullTime.isNullOrBlank() && !event.fullTime.equals("All Day", ignoreCase = true) && !event.fullTime.equals("Full Day", ignoreCase = true))
                     
                     val isExamEvent = event.title.lowercase().let { 
                         it.contains("sia") || it.contains("internal") || it.contains("model") || 
                         it.contains("cycle") || it.contains("semester") || it.contains("fia") ||
-                        it.contains("practical") || it.contains("lab")
+                        it.contains("practical") || it.contains("lab") || it.contains("தேர்வு") || it.contains("thervu")
                     }
                     val title = when {
                         isHoliday -> K.holidayToday.tr(lang)
@@ -528,7 +527,8 @@ object DailyUpdateHelper {
                     
                     val subjectAndPeriods = subjects.filter { it.isNotBlank() && it != "-" }
                     if (subjectAndPeriods.isNotEmpty()) {
-                        val title = "${K.todaysSchedule.tr(lang)} ($dayKey)"
+                        val localizedDayKey = today.dayOfWeek.toMozhiName(lang)
+                        val title = "${K.todaysSchedule.tr(lang)} ($localizedDayKey)"
                         val message = subjectAndPeriods.take(5).joinToString(", ") + if (subjectAndPeriods.size > 5) ", ..." else ""
                         
                         NotificationHelper.showNotification(
