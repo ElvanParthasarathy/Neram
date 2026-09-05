@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Main app theme (Light) - extends OneUITheme for SESL ToolbarLayout compatibility -->
-    <style name="Theme.Neram" parent="OneUITheme">
+    <!-- Main app theme (Light) -->
+    <style name="Theme.Neram" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">#0D84FF</item>
         <item name="colorPrimaryDark">#0066CC</item>
         <item name="colorAccent">#0D84FF</item>

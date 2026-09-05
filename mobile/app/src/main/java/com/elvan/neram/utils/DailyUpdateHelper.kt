@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter
 object DailyUpdateHelper {
     private const val TAG = "DailyUpdateHelper"
 
-    suspend fun processDailyUpdates(context: Context, dateOverride: String? = null) {
+    suspend fun processDailyUpdates(context: Context, dateOverride: String? = null, isAlarm: Boolean = true) {
         val today = if (dateOverride != null) {
             try {
                 LocalDate.parse(dateOverride.trim())
@@ -271,9 +271,12 @@ object DailyUpdateHelper {
                 }
             }
 
-            // 4. Fetch Data from Firebase (Deduplication REMOVED - so it rings all 3 times)
+            // 4. Fetch Data from Firebase
+            // For scheduled morning alarms (isAlarm == true), all 3 time slots ring with full daily briefings.
+            // For background live update checks (isAlarm == false), only genuinely NEW updates (unseen hashes) are notified.
             val updatesRef = database.getReference("updates/$batch/$dept/$section")
             val sectionSnapshot = updatesRef.get().await()
+            val notifPrefs = context.getSharedPreferences("notification_prefs", Context.MODE_PRIVATE)
             
             // A. Daily Update & General Notice
             if (dailyUpdateEnabled) {
@@ -288,16 +291,24 @@ object DailyUpdateHelper {
                 }
 
                 if (note.isNotBlank()) {
-                    NotificationHelper.showNotification(
-                        context,
-                        K.dailyUpdateFormat.trWithLang(lang, todayDateStr),
-                        "$note" + if (author.isNotBlank()) K.authorAttribution.trWithLang(lang, author) else "",
-                        NotificationHelper.CHANNEL_ID_DAILY,
-                        notificationId = 1001 
-                    )
+                    val updateHash = "$todayDateStr:$note".hashCode().toString()
+                    val lastDailyHashes = notifPrefs.getStringSet("last_daily_hashes", emptySet()) ?: emptySet()
+                    val isNewDaily = !lastDailyHashes.contains(updateHash)
+
+                    if (isAlarm || isNewDaily) {
+                        NotificationHelper.showNotification(
+                            context,
+                            K.dailyUpdateFormat.trWithLang(lang, todayDateStr),
+                            "$note" + if (author.isNotBlank()) K.authorAttribution.trWithLang(lang, author) else "",
+                            NotificationHelper.CHANNEL_ID_DAILY,
+                            notificationId = 1001 
+                        )
+                        val updatedDailyHashes = lastDailyHashes.toMutableSet().apply { add(updateHash) }
+                        notifPrefs.edit().putStringSet("last_daily_hashes", updatedDailyHashes).apply()
+                    }
                 }
-            } else if (automatedNotices.isNotEmpty()) {
-                // If daily update is off from firebase, but we still have automated notices (labs/study), show them as an automated update
+            } else if (automatedNotices.isNotEmpty() && isAlarm) {
+                // If daily update is off from firebase, but we still have automated notices (labs/study), show them as an automated update for morning alarm
                 val comboNotice = automatedNotices.joinToString("\n\n")
                 NotificationHelper.showNotification(
                     context,
@@ -312,14 +323,28 @@ object DailyUpdateHelper {
                 val generalText = sectionSnapshot.child("general_text").value?.toString() ?: ""
                 val generalAuthor = sectionSnapshot.child("general_author").value?.toString() ?: ""
                 if (generalText.isNotBlank()) {
-                     NotificationHelper.showNotification(
-                        context,
-                        K.generalNotice.tr(lang),
-                        "$generalText" + if (generalAuthor.isNotBlank()) K.authorAttribution.trWithLang(lang, generalAuthor) else "",
-                        NotificationHelper.CHANNEL_ID_DAILY,
-                        notificationId = 2002
-                    )
+                    val currentGeneralHash = generalText.hashCode().toString()
+                    val lastGeneralHash = notifPrefs.getString("last_general_hash", "")
+                    val isNewGeneral = lastGeneralHash != currentGeneralHash
+
+                    if (isAlarm || isNewGeneral) {
+                         NotificationHelper.showNotification(
+                            context,
+                            K.generalNotice.tr(lang),
+                            "$generalText" + if (generalAuthor.isNotBlank()) K.authorAttribution.trWithLang(lang, generalAuthor) else "",
+                            NotificationHelper.CHANNEL_ID_DAILY,
+                            notificationId = 2002
+                        )
+                        notifPrefs.edit().putString("last_general_hash", currentGeneralHash).apply()
+                    }
                 }
+            }
+
+            if (!isAlarm) {
+                // LiveUpdateChecker only checks for newly posted daily updates and general notices.
+                // Full daily briefings (exam alerts, today's events, timetable schedule)
+                // are strictly handled by the 3 scheduled morning alarms.
+                return
             }
 
 

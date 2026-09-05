@@ -18,7 +18,7 @@ class DailyUpdateWorker(
     override suspend fun doWork(): Result {
         Log.d(TAG, "Starting DailyUpdateWorker execution")
         return try {
-            DailyUpdateHelper.processDailyUpdates(applicationContext)
+            DailyUpdateHelper.processDailyUpdates(applicationContext, isAlarm = false)
             Result.success()
         } catch (e: Exception) {
             Log.e(TAG, "Error executing DailyUpdateWorker", e)

@@ -21,7 +21,6 @@ import com.elvan.neram.ui.theme.LocalAppLanguage
 import com.elvan.neram.ui.mozhiyaakkam.K
 import com.elvan.neram.ui.mozhiyaakkam.tr
 import com.elvan.neram.ui.mozhiyaakkam.toMozhiFullDate
-import com.elvan.neram.extensions.showSeslDatePickerDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.Instant

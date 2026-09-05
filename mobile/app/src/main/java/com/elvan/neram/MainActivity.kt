@@ -456,7 +456,7 @@ class MainActivity : AppCompatActivity() {
                 
             WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 "LiveUpdateChecker",
-                ExistingPeriodicWorkPolicy.UPDATE,
+                ExistingPeriodicWorkPolicy.KEEP,
                 updateWorkRequest
             )
         } catch (e: Exception) {

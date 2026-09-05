@@ -17,7 +17,7 @@ android {
         applicationId = "com.elvan.neram"
         minSdk = 26
         targetSdk = 36
-        versionCode = 20
+        versionCode = 21
         versionName = "2.5.11"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -174,35 +174,7 @@ dependencies {
     implementation("com.google.android.play:app-update:2.1.0")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
 
-    // Samsung One UI / SESL dependencies (Local repository)
-    implementation("io.github.tribalfs:oneui-design:0.9.4+oneui8")
-    implementation("sesl.androidx.appcompat:appcompat:1.8.0+1.0.21-sesl8+rev1")
-    implementation("sesl.androidx.coordinatorlayout:coordinatorlayout:1.3.0+1.0.0-sesl8+rev0")
-    implementation("sesl.com.google.android.material:material:1.12.0+1.0.32-sesl8+rev3")
-    implementation("sesl.androidx.picker:picker-basic:1.0.7+1.0.7-sesl8+rev2")
-    implementation("sesl.androidx.picker:picker-app:1.0.6+1.0.6-sesl8+rev0")
-}
-
-configurations.all {
-    exclude(group = "androidx.core", module = "core")
-    exclude(group = "androidx.core", module = "core-ktx")
-    exclude(group = "sesl.androidx.core", module = "core-ktx")
-    exclude(group = "androidx.appcompat", module = "appcompat")
-    exclude(group = "androidx.coordinatorlayout", module = "coordinatorlayout")
-    exclude(group = "com.google.android.material", module = "material")
-    exclude(group = "androidx.recyclerview", module = "recyclerview")
-    exclude(group = "androidx.viewpager", module = "viewpager")
-    exclude(group = "androidx.viewpager2", module = "viewpager2")
-    exclude(group = "androidx.drawerlayout", module = "drawerlayout")
-    exclude(group = "androidx.customview", module = "customview")
-    exclude(group = "androidx.slidingpanelayout", module = "slidingpanelayout")
-    exclude(group = "androidx.swiperefreshlayout", module = "swiperefreshlayout")
-    exclude(group = "androidx.fragment", module = "fragment")
-    exclude(group = "androidx.fragment", module = "fragment-ktx")
-    exclude(group = "androidx.preference", module = "preference")
-    exclude(group = "androidx.preference", module = "preference-ktx")
-}
-
-tasks.withType<com.android.build.gradle.internal.tasks.CheckAarMetadataTask>().configureEach {
-    enabled = false
+    // Standard AndroidX & Material
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
 }

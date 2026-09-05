@@ -1,4 +1,4 @@
-﻿package com.elvan.neram.receivers
+package com.elvan.neram.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -23,7 +23,7 @@ class DailyAlarmReceiver : BroadcastReceiver() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     // Fetch directly, bypassing WorkManager
-                    DailyUpdateHelper.processDailyUpdates(context, dateOverride)
+                    DailyUpdateHelper.processDailyUpdates(context, dateOverride, isAlarm = true)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error processing daily updates in receiver", e)
                 } finally {

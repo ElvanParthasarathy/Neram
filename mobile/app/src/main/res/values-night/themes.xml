@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Dark theme - extends OneUITheme (night) for SESL ToolbarLayout compatibility -->
-    <style name="Theme.Neram" parent="OneUITheme">
+    <!-- Dark theme -->
+    <style name="Theme.Neram" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">#0D84FF</item>
         <item name="colorPrimaryDark">#0066CC</item>
         <item name="colorAccent">#0D84FF</item>
