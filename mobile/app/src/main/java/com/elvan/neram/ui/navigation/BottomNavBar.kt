@@ -56,10 +56,9 @@ fun BottomNavBar(
 
     var isInteracting by remember { mutableStateOf(false) }
     var dragOffsetPx by remember { mutableStateOf<Float?>(null) }
-    var touchOffsetFromCenterPx by remember { mutableStateOf(0f) }
     var hoverIndex by remember { mutableStateOf<Int?>(null) }
-    var localLockedIndex by remember { mutableStateOf<Int?>(null) }
-    var snapNextFrame by remember { mutableStateOf(false) }
+
+    var touchOffsetFromCenterPx by remember { mutableStateOf(0f) }
 
     val density = LocalDensity.current
     val layoutWidthPx = with(density) { layoutWidth.toPx() }
@@ -70,23 +69,11 @@ fun BottomNavBar(
     val currentOnDragProgress by rememberUpdatedState(onDragProgress)
 
     val actualIndex = tabs.indexOf(selectedTab).coerceAtLeast(0)
-    LaunchedEffect(actualIndex) {
-        localLockedIndex = null
-        snapNextFrame = true
-    }
-    // Clear snapNextFrame after one composition (mirrors Flutter's addPostFrameCallback)
-    LaunchedEffect(snapNextFrame) {
-        if (snapNextFrame) {
-            kotlinx.coroutines.yield()
-            snapNextFrame = false
-        }
-    }
 
-    // Flutter: (_isInteracting && _hoverIndex != null) ? _hoverIndex! : (_localLockedIndex ?? widget.currentIndex)
     val activeVisualIndex = if (isInteracting && hoverIndex != null) {
         hoverIndex!!
     } else {
-        localLockedIndex ?: actualIndex
+        actualIndex
     }
 
     // Flutter: AnimatedScale(scale: _isInteracting ? 1.02 : 1.0, duration: 150ms, curve: easeOutCubic)
@@ -124,7 +111,7 @@ fun BottomNavBar(
     // Flutter: AnimatedPositioned duration logic
     val animatedLeftPx by animateFloatAsState(
         targetValue = targetLeftPx,
-        animationSpec = if (snapNextFrame || (isInteracting && dragOffsetPx != null)) {
+        animationSpec = if (isInteracting && dragOffsetPx != null) {
             snap()
         } else {
             tween(150, easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f))
@@ -207,19 +194,13 @@ fun BottomNavBar(
                         }
 
                         val finalIndex = hoverIndex
-                        if (finalIndex != null) {
-                            localLockedIndex = finalIndex
-                        }
                         isInteracting = false
                         currentOnInteraction(false)
                         dragOffsetPx = null
                         hoverIndex = null
 
                         if (finalIndex != null) {
-                            coroutineScope.launch {
-                                delay(150)
-                                currentOnTabSelected(tabs[finalIndex], isDrag)
-                            }
+                            currentOnTabSelected(tabs[finalIndex], isDrag)
                         }
                     }
                 },

@@ -146,13 +146,6 @@ fun MainScreen(
             }
             scope.launch { targetScrollState.animateScrollToItem(0, 0) }
         } else {
-            val toState = when (tab) {
-                NavTab.Home -> homeScrollState
-                NavTab.Schedule -> scheduleScrollState
-                NavTab.Calendar -> calendarScrollState
-                NavTab.Notes -> notesScrollState
-            }
-            scope.launch { toState.scrollToItem(0, 0) }
             isDragTransition = isDrag
             selectedTab = tab
         }
