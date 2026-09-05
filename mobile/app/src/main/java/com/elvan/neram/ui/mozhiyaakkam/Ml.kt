@@ -2,18 +2,6 @@ package com.elvan.neram.ui.mozhiyaakkam
 
 /**
  * Identifies whether a Malayalam consonant belongs to Vallinam (வல்லினம்: க, ச, ட, த, ப, ற).
- *
- * Dravidian Grammar Rules (தொல்காப்பியம் & கேரள பாணினீயம்):
- * - குற்றியலுகரம் (Samvrithokaram) applies EXCLUSIVELY to வல்லினம் (Vallinam stops).
- *   Only word-final virama after Vallinam becomes Tamil 'ு' (e.g., അത് -> அது, പോക്ക് -> போக்கு).
- * - இடையினம் (Idaiyinam: ய, ர, ல, வ, ழ, ள), மெல்லினம் (Mellinam: ங, ஞ, ண, ந, ம, ன),
- *   and கிரந்தம் (Grantha: ஜ, ஶ, ஷ, ஸ, ஹ) NEVER take குற்றியலுகரம்.
- *   Their virama is strictly a pure மெய் (புள்ளி '்'), ensuring:
- *   - തമിഴ് -> தமிழ் (NOT தமிழு)
- *   - താഴ് -> தாழ் (NOT தாழு)
- *   - വാഴ് -> வாழ் (NOT வாழு)
- *   - കണ്ണ് -> கண்ண் (NOT கண்ணு)
- *   - ബസ് -> பஸ் (NOT பஸு)
  */
 private fun isMlymVallinam(c: Char): Boolean {
     return (c in '\u0D15'..'\u0D18') || // ക, ഖ, ഗ, ഘ (க)
@@ -22,6 +10,25 @@ private fun isMlymVallinam(c: Char): Boolean {
            (c in '\u0D24'..'\u0D27') || // ത, ഥ, ദ, ധ (த)
            (c in '\u0D2A'..'\u0D2D' && c != '\u0D2B') || // പ, ബ, ഭ (ப, excluding ഫ for loanword pulli)
            (c == '\u0D31')              // റ (ற)
+}
+
+/**
+ * Consonants that take word-final Kutriyalukaram / Ugaram ('ு'):
+ * 1. Vallinam (வல்லினம்: க, ச, ட, த, ப, ற) -> അത് -> அது, വീട് -> வீடு
+ * 2. Consonants that have a distinct Chillu form when written with full consonant + virama
+ *    (ண, ந, ர, ല, ள):
+ *    - With chillu (ൺ, ൻ, ർ, ൽ, ൾ): pure pulli '்' (കൺ -> கண், അവൻ -> அவன், അവർ -> அவர், കാൽ -> கால்)
+ *    - With virama (ണ്, ന്, ര്, ല്, ള്): kutriyalukaram ugaram 'ு' (എന്താണ് -> எந்தாணு, അവന് -> அவனு, അവര് -> அவரு, കാല് -> காலு, കണ്ണ് -> கண்ணு)
+ * 3. Consonants without chillu (ழ, ய, வ, Grantha) stay pure pulli '்' (തമിഴ് -> தமிழ், താഴ് -> தாழ், ബസ് -> பஸ்).
+ */
+private fun takesKutriyalukaram(c: Char): Boolean {
+    return isMlymVallinam(c) ||
+           c == '\u0D23' || // ണ (moonu suli ண)
+           c == '\u0D28' || // ന (dental na)
+           c == '\u0D29' || // ഩ (alveolar na)
+           c == '\u0D30' || // ര (ra)
+           c == '\u0D32' || // ല (la)
+           c == '\u0D33'    // ള (lla)
 }
 
 fun mlymToTaml(text: String): String {
@@ -33,11 +40,15 @@ fun mlymToTaml(text: String): String {
         val c = text[i]
 
         // Word-final Virama '്':
-        // - After Vallinam (க, ச, ட, த, ப, ற) -> Tamil 'ு' (Kutriyalukaram: அது, போக்கு, வீடு)
-        // - After Idaiyinam (ய, ர, ல, வ, ழ, ள), Mellinam, Grantha -> Tamil '்' (Pure pulli: தமிழ், தாழ், பஸ்)
+        // - After Vallinam and Chillu-capable consonants -> Tamil 'ு' (Kutriyalukaram: அது, வீடு, எந்தாணு, அவனு, கண்ணு)
+        // - After consonants without chillu (ழ, ய, வ) and Grantha -> Tamil '்' (Pure pulli: தமிழ், தாழ், பஸ்)
         if (c == '\u0D4D') {
             val isWordEnd = (i == n - 1) || !text[i + 1].isLetter()
-            if (isWordEnd && i > 0 && isMlymVallinam(text[i - 1])) {
+            if (isWordEnd && i > 0 && takesKutriyalukaram(text[i - 1])) {
+                // If previous letter was dental na (ந) taking word-final ugaram, adjust to ன for natural Tamil orthography (e.g. அவனு)
+                if (text[i - 1] == '\u0D28' && sb.isNotEmpty() && sb.last() == '\u0BA8') {
+                    sb.setCharAt(sb.length - 1, '\u0BA9')
+                }
                 sb.append('\u0BC1')
                 i++
                 continue
