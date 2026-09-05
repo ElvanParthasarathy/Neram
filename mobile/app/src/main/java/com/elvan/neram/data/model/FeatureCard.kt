@@ -122,15 +122,42 @@ data class FeatureCard(
     }
 
     fun getLocalizedBadge(lang: String): String {
-        val raw = (if (badge.isNotBlank()) badge else type).trim().uppercase()
-        return when (raw) {
+        val trimmed = (if (badge.isNotBlank()) badge else type).trim()
+        val rawUpper = trimmed.uppercase().replace("_", " ")
+        return when (rawUpper) {
             "UPDATE" -> K.cardUpdate.tr(lang)
+            "NEW" -> when (lang) {
+                K.TAMIL -> "புதியது"
+                K.TAMIL_LATIN -> "Pudhiyathu"
+                K.MALAYALAM -> "പുതിയത്"
+                K.MALAYALAM_LATIN -> "Puthiyathu"
+                K.TELUGU -> "కొత్తది"
+                K.TELUGU_LATIN -> "Kothadhi"
+                else -> "New"
+            }
+            "NEW UPDATE" -> when (lang) {
+                K.TAMIL -> "புதிய புதுப்பிப்பு"
+                K.TAMIL_LATIN -> "Pudhiya Pudhupippu"
+                K.MALAYALAM -> "പുതിയ പുതുക്കൽ"
+                K.MALAYALAM_LATIN -> "Puthiya Puthukkal"
+                K.TELUGU -> "కొత్త నవీకరణ"
+                K.TELUGU_LATIN -> "Kotha Naveekarana"
+                else -> "New Update"
+            }
             "ALERT" -> K.cardAlert.tr(lang)
             "NEWS" -> K.cardNews.tr(lang)
-            "TIP" -> K.cardTip.tr(lang)
+            "TIP", "TIPS" -> K.cardTip.tr(lang)
             "NOTICE" -> K.cardNotice.tr(lang)
             "FEATURE" -> K.cardFeature.tr(lang)
-            else -> raw
+            else -> {
+                if (trimmed.all { it.isUpperCase() || !it.isLetter() }) {
+                    trimmed.lowercase().split(" ").joinToString(" ") { word ->
+                        word.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+                    }
+                } else {
+                    trimmed
+                }
+            }
         }
     }
 }

@@ -17,11 +17,17 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.material3.ripple
+import android.os.Build
+import android.view.ViewParent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.view.WindowCompat
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -826,7 +832,6 @@ fun ElvanActionSheet(
     val isDark = colors.isDark
     // Flutter: Color(0xFF151515).withValues(alpha: 0.75) in dark, Colors.white.withValues(alpha: 0.75) in light
     val cardBg = if (isDark) Color(0xFF161616) else Color(0xFFFAFAFA)
-    val cardBorder = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
     val mainColor = confirmColor ?: colors.textPrimary
 
     ModalBottomSheet(
@@ -836,6 +841,24 @@ fun ElvanActionSheet(
         scrimColor = Color.Black.copy(alpha = 0.45f),
         dragHandle = null
     ) {
+        val view = LocalView.current
+        SideEffect {
+            var current: ViewParent? = view.parent
+            while (current != null) {
+                if (current is DialogWindowProvider) {
+                    val window = current.window
+                    WindowCompat.setDecorFitsSystemWindows(window, false)
+                    window.navigationBarColor = android.graphics.Color.TRANSPARENT
+                    window.statusBarColor = android.graphics.Color.TRANSPARENT
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        window.isNavigationBarContrastEnforced = false
+                    }
+                    break
+                }
+                current = current.parent
+            }
+        }
+
         Box(
             modifier = modifier
                 .fillMaxWidth()
@@ -846,7 +869,6 @@ fun ElvanActionSheet(
             Surface(
                 shape = RoundedCornerShape(32.dp),
                 color = cardBg,
-                border = BorderStroke(1.dp, cardBorder),
                 shadowElevation = 12.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {

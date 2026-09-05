@@ -176,7 +176,7 @@ fun ElvanExpandedBar(
         if (activeBanners.isNotEmpty() && bannerOpacity > 0f) {
             val bannerCardHeight = 142.dp
             val actionsTopDp = expandedHeight - 64.dp
-            val availableCarouselHeight = (actionsTopDp - statusBarHeight).coerceAtLeast(bannerCardHeight + 16.dp)
+            val availableCarouselHeight = (actionsTopDp - statusBarHeight).coerceAtLeast(bannerCardHeight + 24.dp)
 
             Box(
                 modifier = Modifier
@@ -252,7 +252,7 @@ fun ElvanExpandedBar(
                         }
 
                         // Subtle, monochrome minimal dot indicators
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(14.dp))
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
