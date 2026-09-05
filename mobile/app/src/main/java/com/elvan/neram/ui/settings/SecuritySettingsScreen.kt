@@ -61,15 +61,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun SecuritySettingsScreen(
     onBack: () -> Unit,
+    initialView: String = "hub",
     onNavigateToLinkedAccounts: () -> Unit = {},
     onLogout: () -> Unit = {},
     scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
 ) {
     val colors = rememberHomeColors()
-    var currentView by remember { mutableStateOf("hub") } // hub, password, create_password, delete
+    var currentView by remember(initialView) { mutableStateOf(initialView) } // hub, password, create_password, delete
+    val isDirectSubflow = initialView != "hub"
     
     BackHandler {
-        if (currentView != "hub") {
+        if (isDirectSubflow) {
+            onBack()
+        } else if (currentView != "hub") {
             currentView = "hub"
         } else {
             onBack()
@@ -112,22 +116,22 @@ fun SecuritySettingsScreen(
             }
             "password" -> ElvanSubShell(
                 title = K.changePassword.tr(lang),
-                onBack = { currentView = "hub" },
+                onBack = { if (isDirectSubflow) onBack() else currentView = "hub" },
                 colors = colors
             ) {
                 ChangePasswordFlow(
                     colors = colors,
-                    onBack = { currentView = "hub" }
+                    onBack = { if (isDirectSubflow) onBack() else currentView = "hub" }
                 )
             }
             "create_password" -> ElvanSubShell(
                 title = com.elvan.neram.ui.mozhiyaakkam.K.createPassword.tr(lang),
-                onBack = { currentView = "hub" },
+                onBack = { if (isDirectSubflow) onBack() else currentView = "hub" },
                 colors = colors
             ) {
                 CreatePasswordFlow(
                     colors = colors,
-                    onBack = { currentView = "hub" }
+                    onBack = { if (isDirectSubflow) onBack() else currentView = "hub" }
                 )
             }
             "delete" -> ElvanSubShell(

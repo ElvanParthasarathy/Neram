@@ -44,6 +44,7 @@ import com.google.firebase.ktx.Firebase
 @Composable
 fun LinkedAccountsScreen(
     onBack: () -> Unit,
+    onNavigateToPassword: () -> Unit = {},
     onGoogleLink: () -> Unit = {},
     isLinking: Boolean = false,
     scrollState: androidx.compose.foundation.lazy.LazyListState = LocalElvanScrollState.current ?: androidx.compose.foundation.lazy.rememberLazyListState()
@@ -126,7 +127,7 @@ fun LinkedAccountsScreen(
                     Button(
                         onClick = { 
                             showUnlinkDialog = false
-                            onBack() // Go back to create password
+                            onNavigateToPassword()
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = colors.accent)
                     ) {
@@ -315,7 +316,7 @@ fun LinkedAccountsScreen(
                             title = K.password.tr(lang),
                             description = if (hasPassword) K.passwordSet.tr(lang) else K.noPasswordSet.tr(lang),
                             onClick = {
-                                if (!hasPassword) onBack()
+                                onNavigateToPassword()
                             },
                             customTrailing = {
                                 if (hasPassword) {
@@ -324,7 +325,7 @@ fun LinkedAccountsScreen(
                                     Surface(
                                         shape = RoundedCornerShape(20.dp),
                                         color = if (colors.isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f),
-                                        modifier = Modifier.clickable { onBack() }
+                                        modifier = Modifier.clickable { onNavigateToPassword() }
                                     ) {
                                         Text(
                                             K.create.tr(lang),

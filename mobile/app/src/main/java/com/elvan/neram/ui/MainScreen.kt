@@ -170,6 +170,9 @@ fun MainScreen(
     var settingsReferrer by remember { mutableStateOf("tabs") }
     // Track where we came from for Sub-settings screens (Settings or Home Banner)
     var subpageReferrer by remember { mutableStateOf("settings") }
+    // Track where we came from for Security screen ("settings", "linked_accounts", or "tabs")
+    var securityReferrer by remember { mutableStateOf("settings") }
+    var securityInitialView by remember { mutableStateOf("hub") }
 
     // Reset settings scroll when entering from tabs (not from sub-settings)
     // Removed LaunchedEffect here - handled imperatively in TopMenuBar callback
@@ -235,7 +238,7 @@ fun MainScreen(
                 currentScreen = if (currentDepth > 1) "notes_subpage_${currentDepth - 1}" else "tabs"
             } else when (currentScreen) {
                 "account" -> currentScreen = subpageReferrer
-                "security" -> currentScreen = subpageReferrer
+                "security" -> currentScreen = securityReferrer
                 "display" -> currentScreen = subpageReferrer
 
                 "settings" -> {
@@ -278,8 +281,9 @@ fun MainScreen(
             "sites", "contact", "settings" -> 1
             "profile" -> 2 // Deep nested from Settings
             "linked_accounts" -> 3 // Deep nested from Account
+            "security" -> if (securityReferrer == "linked_accounts") 4 else 2
             "notification_settings" -> 2 // Deep nested from Settings
-            else -> 2 // account, security, display, complaint, developer, elvan_navil, user_directory
+            else -> 2 // account, display, complaint, developer, elvan_navil, user_directory
         }
     }
     
@@ -465,7 +469,11 @@ fun MainScreen(
                         when (route) {
                             "language" -> currentScreen = "language"
                             "display" -> currentScreen = "display"
-                            "security" -> currentScreen = "security"
+                            "security" -> {
+                                securityReferrer = "tabs"
+                                securityInitialView = "hub"
+                                currentScreen = "security"
+                            }
                             "profile" -> { profileReferrer = "tabs"; currentScreen = "profile" }
                             "about_app" -> currentScreen = "about_app"
                             "notes" -> { selectedTab = NavTab.Notes; currentScreen = "tabs" }
@@ -687,7 +695,12 @@ fun MainScreen(
                             currentScreen = "profile" 
                         },
                         onNavigateToAccount = { subpageReferrer = "settings"; currentScreen = "account" },
-                        onNavigateToSecurity = { subpageReferrer = "settings"; currentScreen = "security" },
+                        onNavigateToSecurity = {
+                            subpageReferrer = "settings"
+                            securityReferrer = "settings"
+                            securityInitialView = "hub"
+                            currentScreen = "security"
+                        },
                         onNavigateToDisplay = { subpageReferrer = "settings"; currentScreen = "display" },
                         onNavigateToComplaint = { currentScreen = "complaint" },
                         onNavigateToDeveloper = { subpageReferrer = "settings"; currentScreen = "developer" },
@@ -708,7 +721,8 @@ fun MainScreen(
                     onLogout = onLogout
                 )
                 "security" -> SecuritySettingsScreen(
-                    onBack = { currentScreen = subpageReferrer }
+                    onBack = { currentScreen = securityReferrer },
+                    initialView = securityInitialView
                 )
                 "display" -> ElvanSubShell(
                     title = getScreenTitle("display"),
@@ -801,11 +815,17 @@ fun MainScreen(
                 }
                 "linked_accounts" -> ElvanSubShell(
                     title = getScreenTitle("linked_accounts"),
-                    onBack = { currentScreen = "security" },
+                    onBack = { currentScreen = "account" },
                     colors = colors
                 ) {
                     LinkedAccountsScreen(
-                        onBack = { currentScreen = "security" },
+                        onBack = { currentScreen = "account" },
+                        onNavigateToPassword = {
+                            val hasPassword = Firebase.auth.currentUser?.providerData?.any { it.providerId == "password" } == true
+                            securityReferrer = "linked_accounts"
+                            securityInitialView = if (hasPassword) "password" else "create_password"
+                            currentScreen = "security"
+                        },
                         onGoogleLink = handleGoogleLink,
                         isLinking = isGoogleLinking
                     )
