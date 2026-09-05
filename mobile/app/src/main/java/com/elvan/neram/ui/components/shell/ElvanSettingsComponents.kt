@@ -869,7 +869,7 @@ fun ElvanActionSheet(
             Surface(
                 shape = RoundedCornerShape(32.dp),
                 color = cardBg,
-                shadowElevation = 12.dp,
+                shadowElevation = 2.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
