@@ -65,7 +65,7 @@ fun ElvanTipsCarousel(
             modifier = modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val cardHeight = 126.dp
+            val cardHeight = 142.dp
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier

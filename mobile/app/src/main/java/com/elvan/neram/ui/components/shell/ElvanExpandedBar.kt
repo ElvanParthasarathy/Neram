@@ -174,16 +174,20 @@ fun ElvanExpandedBar(
 
         // 2. Centered Floating Inset Carousel (With peek side strip & comfortable height)
         if (activeBanners.isNotEmpty() && bannerOpacity > 0f) {
-            val bannerCardHeight = 126.dp
+            val bannerCardHeight = 142.dp
+            val actionsTopDp = expandedHeight - 64.dp
+            val availableCarouselHeight = (actionsTopDp - statusBarHeight).coerceAtLeast(bannerCardHeight + 16.dp)
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(top = statusBarHeight)
+                    .height(availableCarouselHeight)
                     .align(Alignment.TopCenter)
-                    .offset(y = statusBarHeight + 24.dp)
                     .graphicsLayer {
                         this.alpha = bannerOpacity
                     },
-                contentAlignment = Alignment.TopCenter
+                contentAlignment = Alignment.Center
             ) {
                 if (activeBanners.size == 1) {
                     val singleBanner = activeBanners.first()
