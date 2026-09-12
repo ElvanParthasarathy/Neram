@@ -28,7 +28,7 @@ const PORTION_DEFAULTS = {
 
 const newBlankPracticalSubject = () => ({
     code: '', scope: 'Common',
-    batches: [{ label: '', date: '', startTime: '08:30', endTime: '10:30', registerRange: '', totalCount: '' }]
+    batches: [{ section: '', label: '', date: '', startTime: '08:30', endTime: '10:30', registerRange: '', totalCount: '' }]
 });
 
 const ExamManager = ({ user, userProfile, isMobile }) => {
@@ -173,14 +173,53 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
 
                         // Merge Subjects
                         (ex.subjects || []).forEach(sub => {
-                            const existingSub = examsMap[ex.id].subjects.find(s => s.code === sub.code && s.date === sub.date);
-                            if (existingSub) {
-                                if (!existingSub.scopes.includes(secId)) {
-                                    existingSub.scopes.push(secId);
-                                    existingSub.scopes.sort();
+                            if (ex.type === 'Practical') {
+                                const existingSub = examsMap[ex.id].subjects.find(s => s.code === sub.code);
+                                if (existingSub) {
+                                    if (!existingSub.scopes.includes(secId)) {
+                                        existingSub.scopes.push(secId);
+                                        existingSub.scopes.sort();
+                                    }
+                                    const existingBatches = existingSub.batches || [];
+                                    (sub.batches || []).forEach(b => {
+                                        const batchSec = b.section || secId;
+                                        const alreadyExists = existingBatches.some(eb =>
+                                            (eb.date || '') === (b.date || '') &&
+                                            (eb.startTime || '') === (b.startTime || '') &&
+                                            (eb.endTime || '') === (b.endTime || '') &&
+                                            (eb.section || '') === (batchSec || '') &&
+                                            (eb.label || '') === (b.label || '') &&
+                                            (eb.registerRange || '') === (b.registerRange || '')
+                                        );
+                                        if (!alreadyExists) {
+                                            existingBatches.push({
+                                                ...b,
+                                                section: batchSec
+                                            });
+                                        }
+                                    });
+                                    existingSub.batches = existingBatches;
+                                } else {
+                                    const taggedBatches = (sub.batches || []).map(b => ({
+                                        ...b,
+                                        section: b.section || secId
+                                    }));
+                                    examsMap[ex.id].subjects.push({
+                                        ...sub,
+                                        batches: taggedBatches,
+                                        scopes: [secId]
+                                    });
                                 }
                             } else {
-                                examsMap[ex.id].subjects.push({ ...sub, scopes: [secId] });
+                                const existingSub = examsMap[ex.id].subjects.find(s => s.code === sub.code && s.date === sub.date);
+                                if (existingSub) {
+                                    if (!existingSub.scopes.includes(secId)) {
+                                        existingSub.scopes.push(secId);
+                                        existingSub.scopes.sort();
+                                    }
+                                } else {
+                                    examsMap[ex.id].subjects.push({ ...sub, scopes: [secId] });
+                                }
                             }
                         });
                     });
@@ -191,21 +230,32 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                 // Format scopes for display
                 const mergedExams = Object.values(examsMap).map(ex => {
                     ex.subjects.forEach(sub => {
-                        if (sub.scopes.length === sectionIds.length || sectionIds.length === 0) {
-                            sub.scope = 'Common';
-                            // Strip auto-generated section-letter labels so admin edit sees blank
+                        if (ex.type === 'Practical') {
+                            if (sub.scopes.length === sectionIds.length || sectionIds.length === 0) {
+                                sub.scope = 'Common';
+                            } else {
+                                sub.scope = sub.scopes.length === 1 ? sub.scopes[0] : sub.scopes.join(', ');
+                            }
                             if (sub.batches) {
-                                sub.batches = sub.batches.map(b => ({
-                                    ...b,
-                                    label: sectionIds.includes(b.label) ? '' : b.label
-                                }));
+                                sub.batches.sort((a, b) => {
+                                    const dCmp = (a.date || '').localeCompare(b.date || '');
+                                    if (dCmp !== 0) return dCmp;
+                                    const tCmp = (a.startTime || '').localeCompare(b.startTime || '');
+                                    if (tCmp !== 0) return tCmp;
+                                    return (a.section || '').localeCompare(b.section || '');
+                                });
                             }
                         } else {
-                            // If it's single section, just store the ID (e.g., 'A'), else join
-                            sub.scope = sub.scopes.length === 1 ? sub.scopes[0] : sub.scopes.join(', ');
+                            if (sub.scopes.length === sectionIds.length || sectionIds.length === 0) {
+                                sub.scope = 'Common';
+                            } else {
+                                sub.scope = sub.scopes.length === 1 ? sub.scopes[0] : sub.scopes.join(', ');
+                            }
                         }
                     });
-                    ex.subjects.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+                    if (ex.type !== 'Practical') {
+                        ex.subjects.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+                    }
                     return ex;
                 });
 
@@ -272,35 +322,34 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
 
                     if (examObj.type === 'Practical') {
                         secSubjects = examObj.subjects
-                            .filter(sub => {
-                                const scopeStr = sub.scope || 'Common';
-                                return scopeStr === 'Common' || scopeStr.split(',').map(s => s.trim()).includes(secId);
-                            })
                             .map(sub => {
-                                if (sub.scope === 'Common') {
-                                    const filteredBatches = sub.batches.map((b) => ({
-                                        ...b,
-                                        label: b.label || secId
-                                    }));
-                                    return {
-                                        code: sub.code,
-                                        scope: sub.scope,
-                                        batches: filteredBatches
-                                    };
-                                } else {
-                                    const scopeSection = sub.scope;
-                                    const filteredBatches = sub.batches.map((b, bIdx) => ({
-                                        ...b,
-                                        section: scopeSection,
-                                        label: b.label || scopeSection || String.fromCharCode(65 + bIdx)
-                                    }));
-                                    return {
-                                        code: sub.code,
-                                        scope: sub.scope,
-                                        batches: filteredBatches
-                                    };
-                                }
-                            });
+                                const subScope = sub.scope || 'Common';
+                                // Filter batches belonging to this section or Common
+                                const filteredBatches = (sub.batches || []).filter(b => {
+                                    const bSec = b.section || (subScope !== 'Common' ? subScope : '');
+                                    return !bSec || bSec === 'Common' || bSec === secId || bSec === `Section ${secId}`;
+                                }).map((b, bIdx) => ({
+                                    ...b,
+                                    section: b.section || (subScope !== 'Common' ? subScope : secId),
+                                    label: b.label || String.fromCharCode(65 + bIdx)
+                                }));
+
+                                if (filteredBatches.length === 0) return null;
+
+                                // Sort batches by date, then startTime
+                                filteredBatches.sort((a, b) => {
+                                    const dCmp = (a.date || '').localeCompare(b.date || '');
+                                    if (dCmp !== 0) return dCmp;
+                                    return (a.startTime || '').localeCompare(b.startTime || '');
+                                });
+
+                                return {
+                                    code: sub.code,
+                                    scope: subScope,
+                                    batches: filteredBatches
+                                };
+                            })
+                            .filter(Boolean);
                     } else {
                         secSubjects = examObj.subjects
                             .filter(sub => {
@@ -371,7 +420,17 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
         if (ex.type === 'Practical') {
             const migratedSubjects = (ex.subjects || []).map(s => {
                 // Already new shape
-                if (s.batches) return { ...s };
+                if (s.batches) {
+                    return {
+                        ...s,
+                        batches: s.batches.map(b => ({
+                            ...b,
+                            section: b.section || (s.scope && s.scope !== 'Common' ? s.scope : ''),
+                            startTime: to24hHelper(b.startTime || '08:30'),
+                            endTime: to24hHelper(b.endTime || '10:30')
+                        }))
+                    };
+                }
                 // Old flat shape — migrate into single batch row
                 return {
                     code: s.code,
@@ -464,6 +523,7 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
             const subs = [...examState.subjects];
             const last = subs[subIdx].batches.at(-1);
             subs[subIdx].batches = [...subs[subIdx].batches, {
+                section: last?.section || (sub.scope && sub.scope !== 'Common' ? sub.scope : (isRep ? repSec : '')),
                 label: '',
                 date: last?.date || '',
                 startTime: last?.startTime || '08:30',
@@ -517,6 +577,7 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                     <table className="practical-batch-table">
                         <thead>
                             <tr>
+                                <th>Section</th>
                                 <th>Batch</th>
                                 <th>Date</th>
                                 <th>Start</th>
@@ -529,8 +590,31 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                         <tbody>
                             {sub.batches.map((b, bIdx) => (
                                 <tr key={bIdx}>
+                                    <td data-label="Section">
+                                        <select
+                                            value={b.section || ''}
+                                            onChange={e => updateBatch(bIdx, 'section', e.target.value)}
+                                            disabled={isRep}
+                                            style={{ minWidth: '95px' }}
+                                        >
+                                            {isRep ? (
+                                                <option value={repSec}>Section {repSec}</option>
+                                            ) : (
+                                                <>
+                                                    <option value="">Common (All Secs)</option>
+                                                    {masterData.sections.map(sec => (
+                                                        <option key={sec} value={sec}>Section {sec}</option>
+                                                    ))}
+                                                </>
+                                            )}
+                                        </select>
+                                    </td>
                                     <td data-label="Batch">
-                                        <input value={b.label} onChange={e => updateBatch(bIdx, 'label', e.target.value)} placeholder={!isCommon ? sub.scope : ''} />
+                                        <input
+                                            value={b.label}
+                                            onChange={e => updateBatch(bIdx, 'label', e.target.value)}
+                                            placeholder={b.section ? `Sec ${b.section} B${bIdx + 1}` : `Batch ${bIdx + 1}`}
+                                        />
                                     </td>
                                     <td data-label="Date">
                                         <div className="field">
@@ -546,7 +630,7 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                                     <td data-label="Total"><input value={b.totalCount} onChange={e => updateBatch(bIdx, 'totalCount', e.target.value)} placeholder="32" /></td>
                                     <td data-label="" className="batch-action-cell">
                                         <button className="btn-del-mini" onClick={() => {
-                                            showConfirm("Remove Batch?", `Remove batch ${b.label || sub.scope}?`, () => removeBatch(bIdx));
+                                            showConfirm("Remove Batch?", `Remove batch ${b.label || (b.section ? `Section ${b.section}` : 'row')}?`, () => removeBatch(bIdx));
                                         }}><RiDeleteBin6Line /> Remove</button>
                                     </td>
                                 </tr>
@@ -567,12 +651,13 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                 <div className="practical-view-header">
                     <strong>{sub.code}</strong>
                     <span className="practical-view-name">— {getSubjectName(sub.code)}</span>
-                    <span className={`portion-badge ${isCommon ? 'scope-common' : 'scope-specific'}`}>{sub.scope}</span>
+                    <span className={`portion-badge ${isCommon ? 'scope-common' : 'scope-specific'}`}>{sub.scope || 'Common'}</span>
                 </div>
                 <div className="practical-batch-wrap">
                     <table className="practical-batch-table view-mode">
                         <thead>
                             <tr>
+                                <th>Section</th>
                                 <th>Batch</th>
                                 <th>Date</th>
                                 <th>Time</th>
@@ -583,7 +668,15 @@ const ExamManager = ({ user, userProfile, isMobile }) => {
                         <tbody>
                             {(sub.batches || []).map((b, i) => (
                                 <tr key={i}>
-                                    <td data-label="Batch"><strong>{b.label || (!isCommon ? sub.scope : 'All Sections')}</strong></td>
+                                    <td data-label="Section">
+                                        <span className="portion-badge" style={{
+                                            background: !b.section || b.section === 'Common' ? 'rgba(40,200,64,0.1)' : 'rgba(10,132,255,0.1)',
+                                            color: !b.section || b.section === 'Common' ? 'var(--mac-success-text)' : 'var(--mac-blue)'
+                                        }}>
+                                            {!b.section || b.section === 'Common' ? 'Common' : `Sec ${b.section}`}
+                                        </span>
+                                    </td>
+                                    <td data-label="Batch"><strong>{b.label || `Batch ${i + 1}`}</strong></td>
                                     <td data-label="Date">{parseDate(b.date)?.toLocaleDateString('en-GB') || b.date}</td>
                                     <td data-label="Time">{to12h(b.startTime)} – {to12h(b.endTime)}</td>
                                     {(sub.batches || []).some(b => b.registerRange) && <td data-label="Reg. Range">{b.registerRange || '—'}</td>}

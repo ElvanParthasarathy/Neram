@@ -1121,6 +1121,7 @@ html.dark .practical-subject-card {
 }
 
 .practical-batch-table input,
+.practical-batch-table select,
 .practical-batch-table .custom-datepicker-input {
   background: rgba(0, 99, 229, 0.08) !important;
   border: none !important;
@@ -1128,6 +1129,11 @@ html.dark .practical-subject-card {
   border-radius: 100px !important; /* Pill style */
   color: var(--mac-text) !important;
   height: 44px;
+}
+
+.practical-batch-table select {
+  padding: 0 16px !important;
+  cursor: pointer;
 }
 
 .practical-batch-table input::-webkit-calendar-picker-indicator,
