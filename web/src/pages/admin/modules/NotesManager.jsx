@@ -32,10 +32,34 @@ import {
 import '../../../styles/admin/notes-manager.css';
 import { ListItemSkeleton } from '../../../components/ui/AdminSkeletons';
 import { useToast } from '../../../contexts/ToastContext';
+const EXTENSION_TAGS = {
+    pdf: 'PDF',
+    ppt: 'PPT',
+    pptx: 'PPT',
+    pps: 'PPT',
+    ppsx: 'PPT',
+    doc: 'Doc',
+    docx: 'Doc',
+    xls: 'Excel',
+    xlsx: 'Excel',
+    csv: 'CSV',
+    txt: 'Text',
+    zip: 'Zip',
+    rar: 'Zip',
+    '7z': 'Zip',
+    jpg: 'Image',
+    jpeg: 'Image',
+    png: 'Image',
+    webp: 'Image',
+    mp4: 'Video',
+    mkv: 'Video'
+};
+
 /**
  * Future-proof sanitizer for Firebase Realtime Database node keys and unit names.
- * Strips all file extensions and converts characters forbidden by Firebase (., $, #, /, [, ], and control chars)
- * into safe, clean strings.
+ * Converts file extensions into safe tags like (PPT), (PDF), (Doc) so different file types
+ * don't collide or lose their distinction.
+ * Replaces characters forbidden by Firebase (., $, #, /, [, ], and control chars) into clean, safe strings.
  */
 export const sanitizeFirebaseKey = (name, fallback = 'File') => {
     if (!name || typeof name !== 'string') return fallback;
@@ -45,9 +69,17 @@ export const sanitizeFirebaseKey = (name, fallback = 'File') => {
     // 1. Strip trailing dots and spaces
     s = s.replace(/\.+$/g, '').trim();
 
-    // 2. Strip common/alphanumeric file extensions (.pptx, .pdf, .docx, .zip, etc.)
-    // Repeat to handle multi-part extensions like .tar.gz
-    s = s.replace(/\.[a-zA-Z0-9]{2,6}$/i, '').trim();
+    // 2. Detect common file extension before stripping
+    let tag = '';
+    const extMatch = s.match(/\.([a-zA-Z0-9]{2,6})$/i);
+    if (extMatch) {
+        const ext = extMatch[1].toLowerCase();
+        tag = EXTENSION_TAGS[ext] || (ext.length <= 4 ? ext.toUpperCase() : '');
+        // Strip the detected extension
+        s = s.slice(0, extMatch.index).trim();
+    }
+
+    // Strip any secondary extension like .tar in .tar.gz
     s = s.replace(/\.[a-zA-Z0-9]{2,6}$/i, '').trim();
 
     // 3. Strip any remaining trailing dots left over
@@ -71,6 +103,14 @@ export const sanitizeFirebaseKey = (name, fallback = 'File') => {
 
     // 6. Strip leading or trailing dashes
     s = s.replace(/^-+|-+$/g, '').trim();
+
+    // 7. Append tag if detected and not already explicitly present at the end
+    if (tag) {
+        const alreadyHasTag = new RegExp(`\\(${tag}\\)$|\\b${tag}$`, 'i').test(s);
+        if (!alreadyHasTag) {
+            s = s ? `${s} (${tag})` : tag;
+        }
+    }
 
     return s || fallback;
 };
@@ -333,10 +373,10 @@ const NotesManager = () => {
                 let cleanKey = sanitizeFirebaseKey(u.name, `Unit ${uIdx + 1}`);
                 if (unitsMap[cleanKey]) {
                     let counter = 2;
-                    while (unitsMap[`${cleanKey} (${counter})`]) {
+                    while (unitsMap[`${cleanKey} (Part ${counter})`]) {
                         counter++;
                     }
-                    cleanKey = `${cleanKey} (${counter})`;
+                    cleanKey = `${cleanKey} (Part ${counter})`;
                 }
                 unitsMap[cleanKey] = (u.link || '').trim();
             }
@@ -641,11 +681,12 @@ const NotesManager = () => {
             const buildSubjectNode = (node, parentId, nodeName = node.name) => {
                 importedSubjects++;
                 const unitsMap = {};
-                // Numerical sort: Unit 1 before Unit 2 before Unit 10
+                // Numerical sort: Unit 1 before Unit 2 before Unit 10, with secondary alphabetical sort
                 const sortedFiles = [...(node.files || [])].sort((a, b) => {
                     const numA = parseInt((a.name || '').replace(/\D/g, '')) || 0;
                     const numB = parseInt((b.name || '').replace(/\D/g, '')) || 0;
-                    return numA - numB;
+                    if (numA !== numB) return numA - numB;
+                    return (a.name || '').localeCompare(b.name || '');
                 });
 
                 sortedFiles.forEach((f, idx) => {
@@ -653,10 +694,10 @@ const NotesManager = () => {
                     let unitKey = sanitizeFirebaseKey(f.name, `Unit ${idx + 1}`);
                     if (unitsMap[unitKey]) {
                         let counter = 2;
-                        while (unitsMap[`${unitKey} (${counter})`]) {
+                        while (unitsMap[`${unitKey} (Part ${counter})`]) {
                             counter++;
                         }
-                        unitKey = `${unitKey} (${counter})`;
+                        unitKey = `${unitKey} (Part ${counter})`;
                     }
                     unitsMap[unitKey] = f.link;
                 });
