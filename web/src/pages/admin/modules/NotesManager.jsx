@@ -32,6 +32,48 @@ import {
 import '../../../styles/admin/notes-manager.css';
 import { ListItemSkeleton } from '../../../components/ui/AdminSkeletons';
 import { useToast } from '../../../contexts/ToastContext';
+/**
+ * Future-proof sanitizer for Firebase Realtime Database node keys and unit names.
+ * Strips all file extensions and converts characters forbidden by Firebase (., $, #, /, [, ], and control chars)
+ * into safe, clean strings.
+ */
+export const sanitizeFirebaseKey = (name, fallback = 'File') => {
+    if (!name || typeof name !== 'string') return fallback;
+
+    let s = name.trim();
+
+    // 1. Strip trailing dots and spaces
+    s = s.replace(/\.+$/g, '').trim();
+
+    // 2. Strip common/alphanumeric file extensions (.pptx, .pdf, .docx, .zip, etc.)
+    // Repeat to handle multi-part extensions like .tar.gz
+    s = s.replace(/\.[a-zA-Z0-9]{2,6}$/i, '').trim();
+    s = s.replace(/\.[a-zA-Z0-9]{2,6}$/i, '').trim();
+
+    // 3. Strip any remaining trailing dots left over
+    s = s.replace(/\.+$/g, '').trim();
+
+    // 4. Replace Firebase forbidden characters
+    s = s
+        .replace(/\//g, '-')
+        .replace(/#/g, 'No.')
+        .replace(/\$/g, 'S')
+        .replace(/\[/g, '(')
+        .replace(/\]/g, ')')
+        .replace(/\./g, '-')
+        .replace(/[\u0000-\u001f\u007f]/g, '');
+
+    // 5. Clean up duplicate dashes or spaces
+    s = s
+        .replace(/\s+/g, ' ')
+        .replace(/-{2,}/g, '-')
+        .trim();
+
+    // 6. Strip leading or trailing dashes
+    s = s.replace(/^-+|-+$/g, '').trim();
+
+    return s || fallback;
+};
 
 const NotesManager = () => {
     const { showToast } = useToast();
@@ -284,16 +326,29 @@ const NotesManager = () => {
 
     const saveSubject = async () => {
         if (!subjectName.trim()) return;
+        const cleanSubName = subjectName.trim();
         const unitsMap = {};
-        units.forEach(u => { if (u.name.trim()) unitsMap[u.name.trim()] = u.link.trim(); });
+        units.forEach((u, uIdx) => {
+            if (u.name && u.name.trim()) {
+                let cleanKey = sanitizeFirebaseKey(u.name, `Unit ${uIdx + 1}`);
+                if (unitsMap[cleanKey]) {
+                    let counter = 2;
+                    while (unitsMap[`${cleanKey} (${counter})`]) {
+                        counter++;
+                    }
+                    cleanKey = `${cleanKey} (${counter})`;
+                }
+                unitsMap[cleanKey] = (u.link || '').trim();
+            }
+        });
 
         if (subjectModal.mode === 'edit') {
             const sKey = Object.entries(subjects).find(([, s]) => s.id === subjectModal.subject.id)?.[0];
-            if (sKey) await update(ref(db, `notes_drive/subjects/${sKey}`), { name: subjectName.trim(), units: unitsMap });
+            if (sKey) await update(ref(db, `notes_drive/subjects/${sKey}`), { name: cleanSubName, units: unitsMap });
             showToast("✅ Subject updated successfully.");
         } else {
             const newRef = push(ref(db, 'notes_drive/subjects'));
-            await set(newRef, { id: newRef.key, name: subjectName.trim(), parentId: currentFolderId, units: unitsMap });
+            await set(newRef, { id: newRef.key, name: cleanSubName, parentId: currentFolderId, units: unitsMap });
             showToast("✅ Subject created successfully.");
         }
         setSubjectModal(null);
@@ -553,10 +608,7 @@ const NotesManager = () => {
     };
 
     const cleanUnitName = (fileName, fallbackIdx = 0) => {
-        if (!fileName) return `File ${fallbackIdx + 1}`;
-        // Use the actual file name used by the individual (strip only file extension like .pdf, .docx)
-        const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '').trim();
-        return nameWithoutExt || fileName || `File ${fallbackIdx + 1}`;
+        return sanitizeFirebaseKey(fileName, `Unit ${fallbackIdx + 1}`);
     };
 
     const handleImportDrive = async () => {
@@ -598,10 +650,13 @@ const NotesManager = () => {
 
                 sortedFiles.forEach((f, idx) => {
                     importedFiles++;
-                    let unitKey = cleanUnitName(f.name, idx);
+                    let unitKey = sanitizeFirebaseKey(f.name, `Unit ${idx + 1}`);
                     if (unitsMap[unitKey]) {
-                        const clean = f.name.replace(/\.[^/.]+$/, '').trim();
-                        unitKey = clean || `${unitKey} (${idx + 1})`;
+                        let counter = 2;
+                        while (unitsMap[`${unitKey} (${counter})`]) {
+                            counter++;
+                        }
+                        unitKey = `${unitKey} (${counter})`;
                     }
                     unitsMap[unitKey] = f.link;
                 });
@@ -657,7 +712,7 @@ const NotesManager = () => {
                         importedFiles++;
                         updates[`notes_drive/files/${f.id}`] = {
                             id: f.id,
-                            name: f.name.replace(/\.[^/.]+$/, '').trim() || f.name,
+                            name: sanitizeFirebaseKey(f.name, `File ${importedFiles}`),
                             link: f.link,
                             parentId: node.id
                         };
@@ -681,7 +736,7 @@ const NotesManager = () => {
                         importedFiles++;
                         updates[`notes_drive/files/${f.id}`] = {
                             id: f.id,
-                            name: f.name.replace(/\.[^/.]+$/, '').trim() || f.name,
+                            name: sanitizeFirebaseKey(f.name, `File ${importedFiles}`),
                             link: f.link,
                             parentId: baseParentId
                         };
@@ -1805,7 +1860,7 @@ const NotesManager = () => {
                                                         <RiLinkM />
                                                     </div>
                                                     <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--mac-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                        {fl.name}
+                                                        {sanitizeFirebaseKey(fl.name)}
                                                     </span>
                                                     <span style={{ fontSize: '11px', color: 'var(--mac-text-secondary)', marginLeft: 'auto' }}>
                                                         Direct Link
